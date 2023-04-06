@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+from scipy.stats import probplot
 from statsmodels.tsa.stattools import acf, pacf
-from statsmodels.graphics.gofplots import qqplot
 
 def acf_traces(data: np.ndarray, plot_pacf=False) -> list:
   corr_array = pacf(data, alpha=0.05) if plot_pacf else acf(data, alpha=0.05)
@@ -40,20 +40,22 @@ def acf_traces(data: np.ndarray, plot_pacf=False) -> list:
   ]
   return traces
 
-def qqplot_traces(data: np.ndarray) -> list:
-  qqplot_data = qqplot(data, line='s').gca().lines
+def qqplot_traces(data: np.ndarray, dist='norm') -> list:
+  qq = probplot(data, dist=dist)
+  x = np.array([qq[0][0][0], qq[0][0][-1]])
+  y = qq[1][1] + qq[1][0] * x
 
   traces = [
     go.Scatter(
-      x=qqplot_data[0].get_xdata(),
-      y=qqplot_data[0].get_ydata(),
+      x=qq[0][0],
+      y=qq[0][1],
       #name='Sample quantiles',
       mode='markers',
       marker_color='#19d3f3'
     ),
     go.Scatter(
-      x=qqplot_data[1].get_xdata(),
-      y=qqplot_data[1].get_ydata(),
+      x=x,
+      y=y,
       #name='Theoretical quantiles',
       mode='lines',
       line_color='#636efa'
