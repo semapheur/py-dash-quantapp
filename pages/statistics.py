@@ -13,8 +13,8 @@ register_page(__name__, path='/statistics')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
 form_style = 'grid grid-cols-[2fr_1fr] gap-2 p-2 shadow rounded-md'
-tabs_style = 'h-min w-max'
-tab_style = 'p-2 rounded-t-md'
+tabs_style = 'absolute top-0 left-2 h-min w-max z-[1]'
+tab_style = 'text-xs rounded-t-md'
 tab_selected_style = ''
 overview_style = 'h-full grid grid-cols-[1fr_1fr] shadow rounded-md'
 dropdown_style = 'w-1/3'
@@ -26,23 +26,22 @@ layout = html.Main(className=main_style, children=[
       min=0, max=10, value=0)
   ]),
   dcc.Tabs(id='stats:tabs', value='tab-returns',
-    className=tabs_style,
-    parent_className='h-full',
+    className='inset-row',
     content_className=overview_style, 
     children=[
       dcc.Tab(label='Returns', value='tab-returns', 
-        className=tab_style,
+        className='inset-row',
         children=[
           dcc.Graph(id='stats:price-return-plot', responsive=True),
       ]),
       dcc.Tab(label='Normality', value='tab-normality', 
-        className=tab_style,
+        className='inset-row',
         children=[
           dcc.Graph(id='stats:distribution-plot', responsive=True),
           dcc.Graph(id='stats:qq-plot', responsive=True)
       ]),
       dcc.Tab(label='Stationarity', value='tab-stationarity', 
-        className=tab_style,
+        className='inset-row',
         children=[
           dcc.Graph(id='stats:acf-plot', responsive=True),
           dcc.Graph(id='stats:pacf-plot', responsive=True)

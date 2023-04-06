@@ -105,10 +105,32 @@ input.DateInput_input {
 }
 
 /*Tab*/
-div.tab {
-  padding: 0.5rem;
+div.tab-parent[class^=jsx-] {
+  position: relative;
 }
-div.tab--selected {
+div.tab-container[class^=jsx-].inset-row {
+  position: absolute;
+  top: 0;
+  left: 0.5rem;
+  height: min-content;
+  width: max-content;
+  z-index: 1;
+}
+div.tab[class^=jsx-] {
+  min-width: min-content;
+  padding: 0.25rem;
+}
+div.tab[class^=jsx-].inset-row {
+  border: none;
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  font-size: 0.75rem;
+}
+div.tab--selected[class^=jsx-] {
+  border-top: 2px solid rgb(var(--color-secondary));
+}
+div.tab--selected[class^=jsx-].inset-row, div.tab--selected[class^=jsx-].inset-row:last-of-type {
   border-top: 2px solid rgb(var(--color-secondary));
 }
 

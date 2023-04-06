@@ -647,6 +647,10 @@ pre[data-language]::before {
   left: 0.125rem;
 }
 
+.left-2 {
+  left: 0.5rem;
+}
+
 .top-0 {
   top: 0px;
 }
@@ -657,6 +661,10 @@ pre[data-language]::before {
 
 .top-full {
   top: 100%;
+}
+
+.z-\[1\] {
+  z-index: 1;
 }
 
 .block {
@@ -741,10 +749,6 @@ pre[data-language]::before {
   grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
-.grid-rows-\[1fr-1fr\] {
-  grid-template-rows: 1fr-1fr;
-}
-
 .flex-col {
   flex-direction: column;
 }
@@ -779,10 +783,6 @@ pre[data-language]::before {
 
 .gap-4 {
   gap: 1rem;
-}
-
-.overflow-y-scroll {
-  overflow-y: scroll;
 }
 
 .rounded {
@@ -934,11 +934,40 @@ input.DateInput_input {
 
 /*Tab*/
 
-div.tab {
-  padding: 0.5rem;
+div.tab-parent[class^=jsx-] {
+  position: relative;
 }
 
-div.tab--selected {
+div.tab-container[class^=jsx-].inset-row {
+  position: absolute;
+  top: 0;
+  left: 0.5rem;
+  height: -moz-min-content;
+  height: min-content;
+  width: -moz-max-content;
+  width: max-content;
+  z-index: 1;
+}
+
+div.tab[class^=jsx-] {
+  min-width: -moz-min-content;
+  min-width: min-content;
+  padding: 0.25rem;
+}
+
+div.tab[class^=jsx-].inset-row {
+  border: none;
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  font-size: 0.75rem;
+}
+
+div.tab--selected[class^=jsx-] {
+  border-top: 2px solid rgb(var(--color-secondary));
+}
+
+div.tab--selected[class^=jsx-].inset-row, div.tab--selected[class^=jsx-].inset-row:last-of-type {
   border-top: 2px solid rgb(var(--color-secondary));
 }
 
