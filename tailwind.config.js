@@ -3,7 +3,7 @@ module.exports = {
   content: [
     './app.py',
     './pages/**/*.py',
-    './components/**/*.py'
+    './components/**/*.py',
   ],
   theme: {
     extend: {

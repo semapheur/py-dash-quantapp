@@ -104,6 +104,14 @@ input.DateInput_input {
   font-size: 1rem;
 }
 
+/*Tab*/
+div.tab {
+  padding: 0.5rem;
+}
+div.tab--selected {
+  border-top: 2px solid rgb(var(--color-secondary));
+}
+
 .katex-display { overflow: auto hidden }
 .katex-display > .katex { white-space: normal }
 /* Add space between broken lines: */

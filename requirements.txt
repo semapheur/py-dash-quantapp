@@ -5,7 +5,8 @@
 
 bs4
 dash
-fracdiff #windows (msys2): pacman -Ss mingw-w64-x86_64-openblas 
+#fracdiff #windows (msys2): pacman -Ss mingw-w64-x86_64-openblas
+matplotlib
 numba
 numpy
 pandas
