@@ -1,0 +1,9 @@
+{
+	"scripts": {
+    "tw-watch": "pnpm tailwindcss -i ./tailwind.css -o ./assets/styles.css --watch",
+		"tw-build": "pnpm tailwindcss -i ./tailwind.css -o ./assets/styles.css --minify"
+  	},
+	"devDependencies": {
+		"tailwindcss": "^3.3.1"
+	}
+}

@@ -1,0 +1,20 @@
+# local env files
+.env*.local
+
+# data
+/data
+
+# pycache
+**/__pycache__/
+
+# jupyter notebooks
+*.ipynb
+
+# node modules
+/node_modules
+/.pnp
+.pnp.js
+pnpm-lock.yaml
+
+# python virtual environment
+/venv
