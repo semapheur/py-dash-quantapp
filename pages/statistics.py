@@ -12,59 +12,80 @@ from components.statistical_plots import acf_traces, qqplot_traces
 register_page(__name__, path='/statistics')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
-form_style = 'grid grid-cols-[2fr_1fr] gap-2 p-2 shadow rounded-md'
-tabs_style = 'absolute top-0 left-2 h-min w-max z-[1]'
-tab_style = 'text-xs rounded-t-md'
-tab_selected_style = ''
+form_style = 'grid grid-cols-[2fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
 overview_style = 'h-full grid grid-cols-[1fr_1fr] shadow rounded-md'
 dropdown_style = 'w-1/3'
+
 layout = html.Main(className=main_style, children=[
   html.Form(className=form_style, children=[
     TickerSelectAIO(aio_id='stats'),
-    dcc.Input(id='stats:input-diff-order', type='number', 
+    dcc.Input(id='stats-input:diff-order', type='number', 
       className='border rounded pl-2',
-      min=0, max=10, value=0)
+      min=0, max=10, value=0),
+    dcc.Dropdown(id='stats-dropdown:transform',
+      options=[
+        {'label': 'Log', 'value': 'log'}
+      ],
+      value=''
+    )
   ]),
-  dcc.Tabs(id='stats:tabs', value='tab-returns',
+  dcc.Tabs(value='tab-transform',
     className='inset-row',
     content_className=overview_style, 
     children=[
-      dcc.Tab(label='Returns', value='tab-returns', 
+      dcc.Tab(label='Transform', value='tab-transform', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats:price-return-plot', responsive=True),
+          dcc.Graph(id='stats-graph:price', responsive=True),
+          dcc.Graph(id='stats-graph:transform', responsive=True)
       ]),
       dcc.Tab(label='Normality', value='tab-normality', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats:distribution-plot', responsive=True),
-          dcc.Graph(id='stats:qq-plot', responsive=True)
+          dcc.Graph(id='stats-graph:distribution', responsive=True),
+          dcc.Graph(id='stats-graph:qq', responsive=True)
       ]),
       dcc.Tab(label='Stationarity', value='tab-stationarity', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats:acf-plot', responsive=True),
-          dcc.Graph(id='stats:pacf-plot', responsive=True)
+          dcc.Graph(id='stats-graph:acf', responsive=True),
+          dcc.Graph(id='stats-graph:pacf', responsive=True)
       ]), 
   ]),
-  dcc.Store(id='stats:return-store')
+  dcc.Store(id='stats-store:price'),
+  dcc.Store(id='stats-store:transform')
 ])
 
 @callback(
-  Output('stats:return-store', 'data'),
+  Output('stats-store:price', 'data'),
   Input(TickerSelectAIO._id('stats'), 'value'),
-  Input('stats:input-diff-order', 'value')
 )
-def update_store(query, diff_order):
+def update_store(query):
   if not query:
     return no_update
     
   id, currency = query.split('|')
   price = get_ohlcv(id, 'stock', currency, cols=['close'])
 
-  if diff_order:
+  price.reset_index(inplace=True)
+  return price.to_dict('list')
+
+@callback(
+  Output('stats-store:transform', 'data'),
+  Input('stats-store:price', 'data'),
+  Input('stats-input:diff-order', 'value'),
+  Input('stats-dropdown:transform', 'value')
+)
+def update_store(data, diff_order, transform):
+  if not data:
+    return no_update
+
+  price = pd.DataFrame.from_dict(data, orient='columns')    
+
+  if transform == 'log':
     price['close'] = np.log(price['close'])
 
+  if diff_order:
     if isinstance(diff_order, int):
       price['close'] = np.diff(price['close'], n=diff_order, prepend=[np.nan] * diff_order)
     elif isinstance(diff_order, float):
@@ -72,63 +93,70 @@ def update_store(query, diff_order):
 
     price.dropna(inplace=True)
 
-  price['log_return'] = np.log(price['close'] / price['close'].shift(1))
   price.dropna(inplace=True)
+  price.rename(columns={'close': 'transform'}, inplace=True)
   price.reset_index(inplace=True)
   return price.to_dict('list')
 
 @callback(
-  Output('stats:price-return-plot', 'figure'),
-  Input('stats:return-store', 'data')
+  Output('stats-graph:price', 'figure'),
+  Input('stats-store:price', 'data')
 )
 def update_graph(data):
   
-  fig = make_subplots(
-    rows=1, cols=2,
-    shared_xaxes=True,
-    horizontal_spacing=0.01,
-    subplot_titles=['Close price', 'Log return']
-  )
+  fig = go.Figure()
   fig.add_scatter(
     x=data['date'],
     y=data['close'],
     mode='lines',
     showlegend=False,
-    row=1, col=1
   )
-  fig.add_scatter(
-    x=data['date'],
-    y=data['log_return'],
-    mode='lines',
-    showlegend=False,
-    row=1, col=2
+  fig.update_layout(
+    title='Price'
   )
   return fig
 
 @callback(
-  Output('stats:distribution-plot', 'figure'),
-  Input('stats:return-store', 'data')
+  Output('stats-graph:transform', 'figure'),
+  Input('stats-store:transform', 'data')
 )
 def update_graph(data):
-  log_return = np.array(data['log_return'])
+  
+  fig = go.Figure()
+  fig.add_scatter(
+    x=data['date'],
+    y=data['transform'],
+    mode='lines',
+    showlegend=False,
+  )
+  fig.update_layout(
+    title='Transformation'
+  )
+  return fig
+
+@callback(
+  Output('stats-graph:distribution', 'figure'),
+  Input('stats-store:transform', 'data')
+)
+def update_graph(data):
   
   fig = go.Figure()
   fig.add_histogram(
-    x=log_return,
+    x=data['transform'],
     #histnorm='probability'
   )
   fig.update_layout(
-    title='Log return distribution'
+    title='Distribution'
   )
   return fig
 
 @callback(
-  Output('stats:qq-plot', 'figure'),
-  Input('stats:return-store', 'data')
+  Output('stats-graph:qq', 'figure'),
+  Input('stats-store:transform', 'data')
 )
 def update_graph(data):
-  log_return = np.array(data['log_return'])
-  qq_trace = qqplot_traces(log_return)
+  transform = np.array(data['transform'])
+  qq_trace = qqplot_traces(transform)
 
   fig = go.Figure()
   fig.add_traces(qq_trace)
@@ -141,12 +169,12 @@ def update_graph(data):
   return fig
 
 @callback(
-  Output('stats:acf-plot', 'figure'),
-  Input('stats:return-store', 'data')
+  Output('stats-graph:acf', 'figure'),
+  Input('stats-store:transform', 'data')
 ) 
 def update_acf(data):
-  log_return = np.array(data['log_return'])
-  acf_trace = acf_traces(log_return, False)
+  transform = np.array(data['transform'])
+  acf_trace = acf_traces(transform, False)
 
   fig = go.Figure()
   fig.add_traces(acf_trace)
@@ -160,12 +188,12 @@ def update_acf(data):
   return fig
 
 @callback(
-  Output('stats:pacf-plot', 'figure'),
-  Input('stats:return-store', 'data')
+  Output('stats-graph:pacf', 'figure'),
+  Input('stats-store:transform', 'data')
 ) 
 def update_graph(data):
-  log_return = np.array(data['log_return'])
-  pacf_trace = acf_traces(log_return, True)
+  transform = np.array(data['transform'])
+  pacf_trace = acf_traces(transform, True)
 
   fig = go.Figure()
   fig.add_traces(pacf_trace)
