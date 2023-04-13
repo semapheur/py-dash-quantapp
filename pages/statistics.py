@@ -4,6 +4,7 @@ from dash import callback, ctx, dcc, html, no_update, register_page, Input, Outp
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from scipy.stats import laplace, norm
+from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 from lib.time_series import fast_frac_diff as frac_diff
 from lib.morningstar import get_ohlcv
@@ -13,7 +14,7 @@ from components.statistical_plots import acf_trace, qqplot_trace, msdr_trace
 register_page(__name__, path='/statistics')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
-form_style = 'grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
+form_style = 'grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
 overview_style = 'h-full grid grid-cols-[1fr_1fr] shadow rounded-md'
 dropdown_style = 'w-1/3'
 
@@ -23,6 +24,9 @@ layout = html.Main(className=main_style, children=[
     dcc.Input(id='stats-input:diff-order', type='number', 
       className='border rounded pl-2',
       min=0, max=10, value=0),
+    dcc.Input(id='stats-input:regimes', type='number', 
+      className='border rounded pl-2', placeholder='Regimes',
+      min=1, max=5, step=1, value=2),
     dcc.Dropdown(id='stats-dropdown:transform',
       options=[
         {'label': 'Log', 'value': 'log'}
@@ -37,7 +41,9 @@ layout = html.Main(className=main_style, children=[
       value='norm'
     )
   ]),
-  dcc.Tabs(value='tab-transform',
+  dcc.Tabs(
+    id='stats-tabs',
+    value='tab-transform',
     className='inset-row',
     content_className=overview_style, 
     children=[
@@ -113,9 +119,12 @@ def update_store(data, diff_order, transform):
 
 @callback(
   Output('stats-graph:price', 'figure'),
+  Input('stats-tabs', 'value'),
   Input('stats-store:price', 'data')
 )
-def update_graph(data):
+def update_graph(tab, data):
+  if not data or tab != 'tab-transform':
+    return no_update
   
   fig = go.Figure()
   fig.add_scatter(
@@ -131,10 +140,13 @@ def update_graph(data):
 
 @callback(
   Output('stats-graph:transform', 'figure'),
+  Input('stats-tabs', 'value'),
   Input('stats-store:transform', 'data')
 )
-def update_graph(data):
-  
+def update_graph(tab, data):
+  if not data or tab != 'tab-transform':
+    return no_update
+
   fig = go.Figure()
   fig.add_scatter(
     x=data['date'],
@@ -149,10 +161,11 @@ def update_graph(data):
 
 @callback(
   Output('stats-graph:distribution', 'figure'),
+  Input('stats-tabs', 'value'),
   Input('stats-store:transform', 'data')
 )
-def update_graph(data):
-  if not data:
+def update_graph(tab, data):
+  if not data or tab != 'tab-distribution':
     return no_update
 
   x = np.linspace(np.min(data['transform']), np.max(data['transform']), 100)
@@ -162,7 +175,8 @@ def update_graph(data):
   fig = go.Figure()
   fig.add_histogram(
     x=data['transform'],
-    histnorm='probability density'
+    histnorm='probability density',
+    name='Transform'
   )
   fig.add_scatter(
     x=x,
@@ -189,11 +203,12 @@ def update_graph(data):
 
 @callback(
   Output('stats-graph:qq', 'figure'),
+  Input('stats-tabs', 'value'),
   Input('stats-store:transform', 'data'),
   Input('stats-dropdown:distribution', 'value')
 )
-def update_graph(data, dist):
-  if not data:
+def update_graph(tab, data, dist):
+  if not data or tab != 'tab-distribution':
     return no_update
 
   transform = np.array(data['transform'])
@@ -211,9 +226,13 @@ def update_graph(data, dist):
 
 @callback(
   Output('stats-graph:acf', 'figure'),
+  Input('stats-tabs', 'value'),
   Input('stats-store:transform', 'data')
 ) 
-def update_acf(data):
+def update_acf(tab, data):
+  if not data or tab != 'tab-autocorrelation':
+    return no_update
+
   transform = np.array(data['transform'])
   trace = acf_trace(transform, False)
 
@@ -230,9 +249,13 @@ def update_acf(data):
 
 @callback(
   Output('stats-graph:pacf', 'figure'),
+  Input('stats-tabs', 'value'),
   Input('stats-store:transform', 'data')
 ) 
-def update_graph(data):
+def update_graph(tab, data):
+  if not data or tab != 'tab-autocorrelation':
+    return no_update
+
   transform = np.array(data['transform'])
   trace = acf_trace(transform, True)
 
@@ -249,21 +272,52 @@ def update_graph(data):
 
 @callback(
   Output('stats-graph:regimes', 'figure'),
-  Input('stats-store:transform', 'data')
+  Input('stats-tabs', 'value'),
+  Input('stats-store:transform', 'data'),
+  State('stats-store:price', 'data'),
 ) 
-def update_graph(data):
-  transform = pd.Series(data['transform'], index=data['date'])
-  trace = msdr_trace(transform, 2)
+def update_graph(tab, transform, price):
+  if not transform or tab != 'tab-regimes':
+    return no_update
+
+  regimes = 2
+  msdr = MarkovRegression(
+    transform['transform'], 
+    k_regimes=regimes, 
+    trend='c', 
+    switching_variance=True
+  ).fit()
+
+  state = pd.Series(
+    np.argmax(msdr.smoothed_marginal_probabilities, axis=1),
+    index=transform['date']
+  )
+
+  price = pd.Series(price['close'], index=price['date'])
+  price = price.loc[state.index]
 
   fig = make_subplots(
-    rows=2, cols=1
+    rows=2, cols=1,
+    shared_xaxes=True
   )
-  for i, t in enumerate(trace):
-    fig.add_trace(t, row=i+1, col=1)
 
-  fig.add_traces(trace)
-  fig.update_layout(
-    showlegend=False,
-  )
+  for r in range(regimes):
+    fig.add_scatter(
+      x=transform['date'],
+      y=msdr.smoothed_marginal_probabilities[:,r],
+      mode='lines',
+      name=f'Regime {r}',
+      row=1, col=1
+    )
+
+    temp = price.loc[state == r]
+
+    fig.add_scatter(
+      x=temp.index,
+      y=temp.values,
+      mode='markers',
+      name=f'Regime {r}',
+      row=2, col=1
+    )
 
   return fig

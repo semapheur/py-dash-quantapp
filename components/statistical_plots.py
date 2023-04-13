@@ -70,12 +70,22 @@ def msdr_trace(data: pd.Series, regimes: int) -> list:
   msdr = MarkovRegression(data.values, k_regimes=regimes, trend='c')
   result = msdr.fit()
 
-  trace = []
+  state = np.argmax(result.smoothed_marginal_probabilities, axis=1)
+
+  trace = [
+    go.Scatter(
+      x=data.index,
+      y=result.smoothed_marginal_probabilities,
+      mode='lines'
+    )
+  ]
   for r in range(regimes):
+    temp = data.loc[state == r]
+
     trace.append(
       go.Scatter(
-        x=data.index,
-        y=result.smoothed_marginal_probabilities[:,r],
+        x=temp.index,
+        y=temp,
         mode='lines'
       )
     )
