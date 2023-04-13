@@ -2,15 +2,17 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from scipy.stats import probplot
+from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 from statsmodels.tsa.stattools import acf, pacf
+from datetime import datetime as dt
 
-def acf_traces(data: np.ndarray, plot_pacf=False) -> list:
+def acf_trace(data: np.ndarray, plot_pacf=False) -> list:
   corr_array = pacf(data, alpha=0.05) if plot_pacf else acf(data, alpha=0.05)
 
   lower_y = corr_array[1][:,0] - corr_array[0]
   upper_y = corr_array[1][:,1] - corr_array[0]
 
-  traces = [
+  trace = [
     go.Scatter(
       x=(x,x), 
       y=(0,corr_array[0][x]), 
@@ -38,14 +40,14 @@ def acf_traces(data: np.ndarray, plot_pacf=False) -> list:
       line_color='rgba(255,255,255,0)',
     )
   ]
-  return traces
+  return trace
 
-def qqplot_traces(data: np.ndarray, dist='norm') -> list:
+def qqplot_trace(data: np.ndarray, dist='norm') -> list:
   qq = probplot(data, dist=dist)
   x = np.array([qq[0][0][0], qq[0][0][-1]])
   y = qq[1][1] + qq[1][0] * x
 
-  traces = [
+  trace = [
     go.Scatter(
       x=qq[0][0],
       y=qq[0][1],
@@ -61,4 +63,21 @@ def qqplot_traces(data: np.ndarray, dist='norm') -> list:
       line_color='#636efa'
     )
   ]
-  return traces
+  return trace
+
+def msdr_trace(data: pd.Series, regimes: int) -> list:
+  # Markov switching dynamic regression
+  msdr = MarkovRegression(data.values, k_regimes=regimes, trend='c')
+  result = msdr.fit()
+
+  trace = []
+  for r in range(regimes):
+    trace.append(
+      go.Scatter(
+        x=data.index,
+        y=result.smoothed_marginal_probabilities[:,r],
+        mode='lines'
+      )
+    )
+  
+  return trace

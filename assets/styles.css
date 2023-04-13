@@ -719,8 +719,8 @@ pre[data-language]::before {
   grid-template-columns: 1fr 1fr;
 }
 
-.grid-cols-\[2fr_1fr_1fr\] {
-  grid-template-columns: 2fr 1fr 1fr;
+.grid-cols-\[2fr_1fr_1fr_1fr\] {
+  grid-template-columns: 2fr 1fr 1fr 1fr;
 }
 
 .grid-cols-\[2fr_1fr_auto\] {

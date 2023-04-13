@@ -3,16 +3,17 @@ import pandas as pd
 from dash import callback, ctx, dcc, html, no_update, register_page, Input, Output, State
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from scipy.stats import laplace, norm
 
 from lib.time_series import fast_frac_diff as frac_diff
 from lib.morningstar import get_ohlcv
 from components.ticker_select import TickerSelectAIO
-from components.statistical_plots import acf_traces, qqplot_traces
+from components.statistical_plots import acf_trace, qqplot_trace, msdr_trace
 
 register_page(__name__, path='/statistics')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
-form_style = 'grid grid-cols-[2fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
+form_style = 'grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
 overview_style = 'h-full grid grid-cols-[1fr_1fr] shadow rounded-md'
 dropdown_style = 'w-1/3'
 
@@ -27,6 +28,13 @@ layout = html.Main(className=main_style, children=[
         {'label': 'Log', 'value': 'log'}
       ],
       value=''
+    ),
+    dcc.Dropdown(id='stats-dropdown:distribution',
+      options=[
+        {'label': 'Normal', 'value': 'norm'},
+        {'label': 'Laplace', 'value': 'laplace'}
+      ],
+      value='norm'
     )
   ]),
   dcc.Tabs(value='tab-transform',
@@ -39,18 +47,23 @@ layout = html.Main(className=main_style, children=[
           dcc.Graph(id='stats-graph:price', responsive=True),
           dcc.Graph(id='stats-graph:transform', responsive=True)
       ]),
-      dcc.Tab(label='Normality', value='tab-normality', 
+      dcc.Tab(label='Distribution', value='tab-distribution', 
         className='inset-row',
         children=[
           dcc.Graph(id='stats-graph:distribution', responsive=True),
           dcc.Graph(id='stats-graph:qq', responsive=True)
       ]),
-      dcc.Tab(label='Stationarity', value='tab-stationarity', 
+      dcc.Tab(label='Autocorrelation', value='tab-autocorrelation', 
         className='inset-row',
         children=[
           dcc.Graph(id='stats-graph:acf', responsive=True),
           dcc.Graph(id='stats-graph:pacf', responsive=True)
-      ]), 
+      ]),
+      dcc.Tab(label='Regimes', value='tab-regimes', 
+        className='inset-row',
+        children=[
+          dcc.Graph(id='stats-graph:regimes', responsive=True),
+      ]),  
   ]),
   dcc.Store(id='stats-store:price'),
   dcc.Store(id='stats-store:transform')
@@ -139,27 +152,55 @@ def update_graph(data):
   Input('stats-store:transform', 'data')
 )
 def update_graph(data):
+  if not data:
+    return no_update
+
+  x = np.linspace(np.min(data['transform']), np.max(data['transform']), 100)
+  mean = np.mean(data['transform'])
+  std = np.std(data['transform'])
   
   fig = go.Figure()
   fig.add_histogram(
     x=data['transform'],
-    #histnorm='probability'
+    histnorm='probability density'
+  )
+  fig.add_scatter(
+    x=x,
+    y=norm.pdf(x, loc=mean, scale=std),
+    mode='lines',
+    name='Normal'
+  )
+  fig.add_scatter(
+    x=x,
+    y=laplace.pdf(x, loc=mean, scale=std),
+    mode='lines',
+    name='Laplace'
   )
   fig.update_layout(
-    title='Distribution'
+    title='Distribution',
+    legend=dict(
+      yanchor='top',
+      y=0.99,
+      xanchor='left',
+      x=0.01
+    )
   )
   return fig
 
 @callback(
   Output('stats-graph:qq', 'figure'),
-  Input('stats-store:transform', 'data')
+  Input('stats-store:transform', 'data'),
+  Input('stats-dropdown:distribution', 'value')
 )
-def update_graph(data):
+def update_graph(data, dist):
+  if not data:
+    return no_update
+
   transform = np.array(data['transform'])
-  qq_trace = qqplot_traces(transform)
+  trace = qqplot_trace(transform, dist)
 
   fig = go.Figure()
-  fig.add_traces(qq_trace)
+  fig.add_traces(trace)
   fig.update_layout(
     showlegend=False,
     title='Quantile-quantile plot',
@@ -174,10 +215,10 @@ def update_graph(data):
 ) 
 def update_acf(data):
   transform = np.array(data['transform'])
-  acf_trace = acf_traces(transform, False)
+  trace = acf_trace(transform, False)
 
   fig = go.Figure()
-  fig.add_traces(acf_trace)
+  fig.add_traces(trace)
   fig.update_layout(
     showlegend=False,
     title='Autocorrelation'
@@ -193,15 +234,36 @@ def update_acf(data):
 ) 
 def update_graph(data):
   transform = np.array(data['transform'])
-  pacf_trace = acf_traces(transform, True)
+  trace = acf_trace(transform, True)
 
   fig = go.Figure()
-  fig.add_traces(pacf_trace)
+  fig.add_traces(trace)
   fig.update_layout(
     showlegend=False,
     title='Partial autocorrelation',
   )
   #fig.update_xaxes(range=[-1,42])
   fig.update_yaxes(zerolinecolor='#000000')
+
+  return fig
+
+@callback(
+  Output('stats-graph:regimes', 'figure'),
+  Input('stats-store:transform', 'data')
+) 
+def update_graph(data):
+  transform = pd.Series(data['transform'], index=data['date'])
+  trace = msdr_trace(transform, 2)
+
+  fig = make_subplots(
+    rows=2, cols=1
+  )
+  for i, t in enumerate(trace):
+    fig.add_trace(t, row=i+1, col=1)
+
+  fig.add_traces(trace)
+  fig.update_layout(
+    showlegend=False,
+  )
 
   return fig
