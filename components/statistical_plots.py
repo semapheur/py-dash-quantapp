@@ -51,14 +51,12 @@ def qqplot_trace(data: np.ndarray, dist: str, params: tuple = ()) -> list:
     go.Scatter(
       x=qq[0][0],
       y=qq[0][1],
-      #name='Sample quantiles',
       mode='markers',
       marker_color='#19d3f3'
     ),
     go.Scatter(
       x=x,
       y=y,
-      #name='Theoretical quantiles',
       mode='lines',
       line_color='#636efa'
     )

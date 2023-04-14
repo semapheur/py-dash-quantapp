@@ -719,8 +719,8 @@ pre[data-language]::before {
   grid-template-columns: 1fr 1fr;
 }
 
-.grid-cols-\[2fr_1fr_1fr_1fr\] {
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+.grid-cols-\[2fr_1fr_1fr\] {
+  grid-template-columns: 2fr 1fr 1fr;
 }
 
 .grid-cols-\[2fr_1fr_auto\] {
@@ -904,7 +904,11 @@ pre[data-language]::before {
   transition-duration: 150ms;
 }
 
-#react-entry-point, #_dash-app-content, #_pages-content {
+#react-entry-point, #_dash-app-content, #_pages_content {
+  height: 100%;
+}
+
+#app > div:not([class]) {
   height: 100%;
 }
 

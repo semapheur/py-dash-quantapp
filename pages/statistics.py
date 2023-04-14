@@ -14,7 +14,7 @@ from components.statistical_plots import acf_trace, qqplot_trace, msdr_trace
 register_page(__name__, path='/statistics')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
-form_style = 'grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
+form_style = 'grid grid-cols-[2fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
 overview_style = 'h-full grid grid-cols-[1fr_1fr] shadow rounded-md'
 dropdown_style = 'w-1/3'
 
@@ -24,9 +24,6 @@ layout = html.Main(className=main_style, children=[
     dcc.Input(id='stats-input:diff-order', type='number', 
       className='border rounded pl-2',
       min=0, max=10, value=0),
-    dcc.Input(id='stats-input:regimes', type='number', 
-      className='border rounded pl-2', placeholder='Regimes',
-      min=1, max=5, step=1, value=2),
     dcc.Dropdown(id='stats-dropdown:transform',
       options=[
         {'label': 'Log', 'value': 'log'}
@@ -75,11 +72,22 @@ layout = html.Main(className=main_style, children=[
       dcc.Tab(label='Regimes', value='tab-regimes', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats-graph:regimes', responsive=True),
+          html.Div(className='flex flex-col', children=[
+            dcc.Graph(id='stats-graph:regimes', className='h-full'),
+            html.Form(className='pb-2 pl-2', children=[
+              dcc.Input(id='stats-input:regimes', 
+                className='border rounded pl-2', 
+                type='number', placeholder='Regimes',
+                min=1, max=5, step=1, value=2
+              ),
+            ])
+          ]),
+          dcc.Graph(id='stats-graph:regime-distribution')
       ]),  
   ]),
   dcc.Store(id='stats-store:price'),
-  dcc.Store(id='stats-store:transform')
+  dcc.Store(id='stats-store:transform'),
+  dcc.Store(id='stats-store:model')
 ])
 
 @callback(
@@ -123,6 +131,24 @@ def update_store(data, diff_order, transform):
   price.rename(columns={'close': 'transform'}, inplace=True)
   price.reset_index(inplace=True)
   return price.to_dict('list')
+
+@callback(
+  Output('stats-store:model', 'data'),
+  Input('stats-store:transform', 'data'),
+  Input('stats-input:regimes', 'value')
+)
+def update_store(data, regimes):
+  if not (data and regimes):
+    return no_update
+
+  msdr = MarkovRegression(
+    data['transform'], 
+    k_regimes=regimes, 
+    trend='c', 
+    switching_variance=True
+  ).fit()
+  
+  return {'model': msdr.smoothed_marginal_probabilities}
 
 @callback(
   Output('stats-graph:price', 'figure'),
@@ -289,23 +315,19 @@ def update_graph(tab, data):
 @callback(
   Output('stats-graph:regimes', 'figure'),
   Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data'),
+  Input('stats-store:model', 'data'),
+  State('stats-store:transform', 'data'),
   State('stats-store:price', 'data'),
 ) 
-def update_graph(tab, transform, price):
-  if not transform or tab != 'tab-regimes':
+def update_graph(tab, model, transform, price):
+  if not model or tab != 'tab-regimes':
     return no_update
 
-  regimes = 2
-  msdr = MarkovRegression(
-    transform['transform'], 
-    k_regimes=regimes, 
-    trend='c', 
-    switching_variance=True
-  ).fit()
+  model = np.array(model['model'])
+  regimes = model.shape[-1]
 
   state = pd.Series(
-    np.argmax(msdr.smoothed_marginal_probabilities, axis=1),
+    np.argmax(model, axis=1),
     index=transform['date']
   )
 
@@ -317,10 +339,18 @@ def update_graph(tab, transform, price):
     shared_xaxes=True
   )
 
+  fig.add_scatter(
+    x=price.index,
+    y=price.values,
+    mode='lines',
+    name=f'Close',
+    row=2, col=1
+  )
+
   for r in range(regimes):
     fig.add_scatter(
       x=transform['date'],
-      y=msdr.smoothed_marginal_probabilities[:,r],
+      y=model[:,r],
       mode='lines',
       name=f'Regime {r}',
       row=1, col=1
@@ -328,12 +358,69 @@ def update_graph(tab, transform, price):
 
     temp = price.loc[state == r]
 
-    fig.add_scatter(
+    fig.add_scattergl(
       x=temp.index,
       y=temp.values,
       mode='markers',
+      marker_size=3,
       name=f'Regime {r}',
       row=2, col=1
     )
+  
+  fig.update_layout(
+    title='Regime probabilities',
+    legend=dict(
+      orientation='h',
+      yanchor='bottom',
+      y=1.02,
+      xanchor='right',
+      x=1,
+    )
+  )
+
+  return fig
+
+@callback(
+  Output('stats-graph:regime-distribution', 'figure'),
+  Input('stats-tabs', 'value'),
+  Input('stats-store:model', 'data'),
+  State('stats-store:transform', 'data'),
+) 
+def update_graph(tab, model, transform):
+  if not model or tab != 'tab-regimes':
+    return no_update
+
+  model = np.array(model['model'])
+  regimes = model.shape[-1]
+
+  state = pd.Series(
+    np.argmax(model, axis=1),
+    index=transform['date']
+  )
+  transform = pd.Series(
+    transform['transform'], 
+    index=transform['date']
+  )
+
+  fig = go.Figure()
+
+  for r in range(regimes):
+    temp = transform.loc[state == r]
+
+    fig.add_histogram(
+      x=temp.values,
+      histnorm='probability density',
+      name=f'Regime {r}',
+    )
+  
+  fig.update_layout(
+    title='Regime distributions',
+    legend=dict(
+      yanchor='top',
+      y=0.99,
+      xanchor='left',
+      x=0.01
+    )
+  )
 
   return fig

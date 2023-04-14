@@ -92,7 +92,11 @@
   }
 }
 
-#react-entry-point, #_dash-app-content, #_pages-content {
+#react-entry-point, #_dash-app-content, #_pages_content {
+  height: 100%;
+}
+
+#app > div:not([class]) {
   height: 100%;
 }
 
