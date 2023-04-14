@@ -42,8 +42,8 @@ def acf_trace(data: np.ndarray, plot_pacf=False) -> list:
   ]
   return trace
 
-def qqplot_trace(data: np.ndarray, dist='norm') -> list:
-  qq = probplot(data, dist=dist)
+def qqplot_trace(data: np.ndarray, dist: str, params: tuple = ()) -> list:
+  qq = probplot(data, dist=dist, sparams=params)
   x = np.array([qq[0][0][0], qq[0][0][-1]])
   y = qq[1][1] + qq[1][0] * x
 

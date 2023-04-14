@@ -3,10 +3,10 @@ import pandas as pd
 from dash import callback, ctx, dcc, html, no_update, register_page, Input, Output, State
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from scipy.stats import laplace, norm
+from scipy.stats import laplace, norm, gennorm, t
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
-from lib.time_series import fast_frac_diff as frac_diff
+from lib.fracdiff import fast_frac_diff as frac_diff
 from lib.morningstar import get_ohlcv
 from components.ticker_select import TickerSelectAIO
 from components.statistical_plots import acf_trace, qqplot_trace, msdr_trace
@@ -14,7 +14,7 @@ from components.statistical_plots import acf_trace, qqplot_trace, msdr_trace
 register_page(__name__, path='/statistics')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
-form_style = 'grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
+form_style = 'grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 p-2 shadow rounded-md'
 overview_style = 'h-full grid grid-cols-[1fr_1fr] shadow rounded-md'
 dropdown_style = 'w-1/3'
 
@@ -33,19 +33,13 @@ layout = html.Main(className=main_style, children=[
       ],
       value=''
     ),
-    dcc.Dropdown(id='stats-dropdown:distribution',
-      options=[
-        {'label': 'Normal', 'value': 'norm'},
-        {'label': 'Laplace', 'value': 'laplace'}
-      ],
-      value='norm'
-    )
   ]),
   dcc.Tabs(
     id='stats-tabs',
     value='tab-transform',
     className='inset-row',
-    content_className=overview_style, 
+    content_className=overview_style,
+    parent_className='h-full',
     children=[
       dcc.Tab(label='Transform', value='tab-transform', 
         className='inset-row',
@@ -56,8 +50,21 @@ layout = html.Main(className=main_style, children=[
       dcc.Tab(label='Distribution', value='tab-distribution', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats-graph:distribution', responsive=True),
-          dcc.Graph(id='stats-graph:qq', responsive=True)
+          dcc.Graph(id='stats-graph:distribution'),
+          html.Div(className='h-full flex flex-col', children=[
+            dcc.Graph(id='stats-graph:qq'),
+            dcc.Dropdown(id='stats-dropdown:qq-distribution',
+              className='pb-2 px-2 drop-up',
+              options=[
+                {'label': 'Normal', 'value': 'norm'},
+                {'label': 'Laplace', 'value': 'laplace'},
+                {'label': 'Generalized Normal', 'value': 'gennorm'},
+                {'label': 'Student-t', 'value': 't'}
+              ],
+              placeholder='Distribution',
+              value='norm'
+            ),
+          ]),
       ]),
       dcc.Tab(label='Autocorrelation', value='tab-autocorrelation', 
         className='inset-row',
@@ -171,6 +178,8 @@ def update_graph(tab, data):
   x = np.linspace(np.min(data['transform']), np.max(data['transform']), 100)
   mean = np.mean(data['transform'])
   std = np.std(data['transform'])
+  ggd_params = gennorm.fit(data['transform'], floc=mean, fscale=std)
+  t_params = t.fit(data['transform'], floc=mean, fscale=std)
   
   fig = go.Figure()
   fig.add_histogram(
@@ -180,15 +189,15 @@ def update_graph(tab, data):
   )
   fig.add_scatter(
     x=x,
-    y=norm.pdf(x, loc=mean, scale=std),
+    y=gennorm.pdf(x, beta=ggd_params[0], loc=ggd_params[1], scale=ggd_params[2]),
     mode='lines',
-    name='Normal'
+    name=f'GGD ({ggd_params[0]:.2f})'
   )
   fig.add_scatter(
     x=x,
-    y=laplace.pdf(x, loc=mean, scale=std),
+    y=t.pdf(x, df=t_params[0], loc=t_params[1], scale=t_params[2]),
     mode='lines',
-    name='Laplace'
+    name=f'S-t ({t_params[0]:.2f})'
   )
   fig.update_layout(
     title='Distribution',
@@ -205,14 +214,21 @@ def update_graph(tab, data):
   Output('stats-graph:qq', 'figure'),
   Input('stats-tabs', 'value'),
   Input('stats-store:transform', 'data'),
-  Input('stats-dropdown:distribution', 'value')
+  Input('stats-dropdown:qq-distribution', 'value')
 )
 def update_graph(tab, data, dist):
-  if not data or tab != 'tab-distribution':
+  if not data or not dist or tab != 'tab-distribution':
     return no_update
 
   transform = np.array(data['transform'])
-  trace = qqplot_trace(transform, dist)
+
+  params = [np.mean(transform), np.std(transform)]
+  if dist == 'gennorm':
+    params = gennorm.fit(transform, floc=params[0], fscale=params[1])
+  elif dist == 't':
+    params = t.fit(transform, floc=params[0], fscale=params[1])
+
+  trace = qqplot_trace(transform, dist, tuple(params))
 
   fig = go.Figure()
   fig.add_traces(trace)
