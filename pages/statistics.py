@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from scipy.stats import laplace, norm, gennorm, t
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+from statsmodels.tsa.seasonal import STL
 
 from lib.fracdiff import fast_frac_diff as frac_diff
 from lib.morningstar import get_ohlcv
@@ -69,6 +70,21 @@ layout = html.Main(className=main_style, children=[
           dcc.Graph(id='stats-graph:acf', responsive=True),
           dcc.Graph(id='stats-graph:pacf', responsive=True)
       ]),
+      dcc.Tab(label='Trend', value='tab-trend',
+        className='inset-row',
+        children=[
+          html.Div(className='flex flex-col', children=[
+            dcc.Graph(id='stats-graph:trend'),
+            html.Form(className='pb-2 pl-2', children=[
+              dcc.Input(id='stats-input:period', 
+                className='border rounded pl-2', 
+                type='number', placeholder='Period',
+                min=2, max=365, step=1, value=252
+              ),
+            ])
+          ])
+        ]  
+      ),
       dcc.Tab(label='Regimes', value='tab-regimes', 
         className='inset-row',
         children=[
@@ -310,6 +326,47 @@ def update_graph(tab, data):
   #fig.update_xaxes(range=[-1,42])
   fig.update_yaxes(zerolinecolor='#000000')
 
+  return fig
+
+@callback(
+  Output('stats-graph:trend', 'figure'),
+  Input('stats-tabs', 'value'),
+  Input('stats-store:transform', 'data'),
+  Input('stats-input:period', 'value')
+) 
+def update_graph(tab, data, period):
+  if not data or tab != 'tab-trend' or period < 2:
+    return no_update
+  
+  s = pd.Series(data['transform'], index=data['date'])
+  stl = STL(s, period=period).fit()
+
+  fig = make_subplots(
+    rows=3, cols=1,
+    shared_xaxes=True
+  )
+
+  fig.add_scatter(
+    x=stl.seasonal.index,
+    y=stl.seasonal.values,
+    mode='lines',
+    name='Season',
+    row=1, col=1
+  )
+  fig.add_scatter(
+    x=stl.trend.index,
+    y=stl.trend.values,
+    mode='lines',
+    name='Trend',
+    row=2, col=1
+  )
+  fig.add_scatter(
+    x=stl.resid.index,
+    y=stl.resid.values,
+    mode='lines',
+    name='Residual',
+    row=3, col=1
+  )
   return fig
 
 @callback(
