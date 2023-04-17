@@ -6,6 +6,8 @@ from plotly.subplots import make_subplots
 from scipy.stats import laplace, norm, gennorm, t
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 from statsmodels.tsa.seasonal import STL
+import fathon
+from fathon import fathonUtils as fu
 
 from lib.fracdiff import fast_frac_diff as frac_diff
 from lib.morningstar import get_ohlcv
@@ -99,7 +101,22 @@ layout = html.Main(className=main_style, children=[
             ])
           ]),
           dcc.Graph(id='stats-graph:regime-distribution')
-      ]),  
+      ]),
+      dcc.Tab(label='Memory', value='tab-memory',
+        className='inset-row',
+        children=[
+          html.Div(className='flex flex-col', children=[
+            dcc.Graph(id='stats-graph:memory'),
+            html.Form(className='pb-2 pl-2', children=[
+              dcc.Input(id='stats-input:window', 
+                className='border rounded pl-2', 
+                type='number', placeholder='Regimes',
+                min=3, value=60
+              ),
+            ])
+          ])
+        ]
+      )
   ]),
   dcc.Store(id='stats-store:price'),
   dcc.Store(id='stats-store:transform'),
@@ -478,6 +495,28 @@ def update_graph(tab, model, transform):
       xanchor='left',
       x=0.01
     )
+  )
+
+  return fig
+
+@callback(
+  Output('stats-graph:memory', 'figure'),
+  Input('stats-tabs', 'value'),
+  Input('stats-store:transform', 'data'),
+  Input('stats-input:window', 'value')
+) 
+def update_graph(tab, data, window):
+  if not (data and window) or tab != 'tab-memory' or window < 3:
+    return no_update
+
+  ht = fathon.HT(fu.toAggregated(data['transform']))
+  hurst = ht.computeHt(window, mfdfaPolOrd=1, polOrd=1)[0]
+
+  fig = go.Figure()
+  fig.add_scatter(
+    x=data['date'][-len(hurst):],
+    y=hurst,
+    mode='lines'
   )
 
   return fig

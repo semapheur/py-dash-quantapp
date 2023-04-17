@@ -10,7 +10,7 @@ def title(id=None):
   db_path = DB_DIR / 'ticker.db'
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
-  query = f'SELECT name || " (" || ticker || ")" AS label FROM stock WHERE id = "{id}"'
+  query = f'SELECT name || " (" || ticker || ":" exchange || ")" AS label FROM stock WHERE id = "{id}"'
   with engine.begin() as con:
     fetch = con.execute(text(query))
     label = fetch.first()[0]
