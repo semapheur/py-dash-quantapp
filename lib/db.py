@@ -12,7 +12,6 @@ load_dotenv(Path().cwd() / '.env')
 DB_DIR = Path(__file__).resolve().parent.parent / os.getenv('DB_DIR')
 
 def check_db_name(db_name: str) -> str:
-  
   if not db_name.endswith('.db'):
     return db_name + '.db'
 
@@ -51,31 +50,35 @@ def read_sqlite(
 
   return df
 
-def insert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
+def insert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str, action: str='merge'):
+  # action: overwrite/merge (default: merge)
 
   db_path = DB_DIR / check_db_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
-  ix = list(df.index.names)
-
   if not insp.has_table(tbl_name):
     with engine.connect().execution_options(autocommit=True) as con:
       df.to_sql(tbl_name, con=con, index=True)
+    return
 
-  else:
-    query = f'SELECT * FROM "{tbl_name}"'
+  if action == 'overwrite':
+    df.to_sql(tbl_name, con=engine, if_exists='replace', index=True)
+    return
 
-    with engine.connect().execution_options(autocommit=True) as con:
-      df_old = pd.read_sql(text(query), con=engine, parse_dates={'date': {'format': '%Y-%m-%d'}}, index_col=ix)
+  query = f'SELECT * FROM "{tbl_name}"'
+  ix = list(df.index.names)
 
-    df_old = df_old.combine_first(df)
-    diff_cols = df.columns.difference(df_old.columns).tolist()
+  with engine.connect().execution_options(autocommit=True) as con:
+    df_old = pd.read_sql(text(query), con=engine, parse_dates={'date': {'format': '%Y-%m-%d'}}, index_col=ix)
 
-    if diff_cols:
-      df_old = df_old.join(df[diff_cols], how='outer')
+  df_old = df_old.combine_first(df)
+  diff_cols = df.columns.difference(df_old.columns).tolist()
 
-    df_old.to_sql(tbl_name, con=engine, if_exists='replace', index=True)
+  if diff_cols:
+    df_old = df_old.join(df[diff_cols], how='outer')
+
+  df_old.to_sql(tbl_name, con=engine, if_exists='replace', index=True)
 
 def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
 

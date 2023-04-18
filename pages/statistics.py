@@ -12,7 +12,7 @@ from fathon import fathonUtils as fu
 from lib.fracdiff import fast_frac_diff as frac_diff
 from lib.morningstar import get_ohlcv
 from components.ticker_select import TickerSelectAIO
-from components.statistical_plots import acf_trace, qqplot_trace, msdr_trace
+from components.statistical_plots import acf_trace, qqplot_trace
 
 register_page(__name__, path='/statistics')
 

@@ -364,7 +364,7 @@ def get_ohlcv(
 
   return ohlcv
 
-def get_tickers(security):        
+def get_tickers(security: str):        
   # scope: ose/stock/fund/fundCategory
 
   def fallback() -> list[dict[str, str]]:
@@ -407,7 +407,6 @@ def get_tickers(security):
     
     scrap = []
     if security == 'fund':
-        
       for f in content['rows']:
         scrap.append({
           'name': f.get('LegalName'),
@@ -415,17 +414,13 @@ def get_tickers(security):
           'currency': f.get('PriceCurrency'),
           'id': f.get('SecId'),
         })
-            
     elif security == 'fundCategory':
-        
       for fc in content['filters'][0][0]['CategoryId']:
         scrap.append({
           'name': fc.get('name'), # Category name
           'id': fc.get('id'),
         })
-    
     elif security == 'etf':
-        
       for e in content['rows']:
         scrap.append({
           'ticker': e.get('Ticker', ''),
@@ -434,20 +429,16 @@ def get_tickers(security):
           'category': e.get('CategoryName'),
           'id': e.get('SecId')
         })
-    
     elif security == 'index':
-        
       for i in content['rows']:
         scrap.append({
           'name': i.get('Name'),
           'currency': i.get('PriceCurrency'),
           'id': i.get('SecId')
         })
-    
     else: # Stock
       for s in content['rows']:
         price = s.get('ClosePrice', 0)
-
         if price > 0:
           scrap.append({
             'id': s.get('SecId'), # Morningstar ID
