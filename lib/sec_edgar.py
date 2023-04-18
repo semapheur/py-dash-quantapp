@@ -11,15 +11,14 @@ import json
 import xml.etree.cElementTree as et
 
 # Databasing
-import sqlalchemy as sqla
 #from pymongo import MongoClient, DESCENDING
+from tinydb import where
 
 # Utils
 import re
-from pathlib import Path
 
 # Local
-#from lib.foos import updateDict
+from lib.db import read_tinydb
 #rom lib.finlib import finItemRenameDict
 
 class Ticker():
@@ -86,32 +85,16 @@ class Ticker():
 			df.sort_values('date', ascending=True, inplace=True)
 				
 		return df
-
+	
 	def get_financials(self):
-			
-		# MongoDB
-		client = MongoClient('mongodb://localhost:27017/')
-		db = client['finly']
-		coll = db['secFinancials']
+		return read_tinydb('edgar.json', where('meta').cik == self._cik)
 
-		# Get list of stored financial filings
-		fltr = {'meta.cik': self._cik}
-		query = coll.find(fltr, {'_id': False, 'meta.id': 1})
+	def upsert_financials(self):
 
-		old_docs = set()
-		for q in query:
-			old_docs.add(q['meta']['id'])
-
-		# Filings
-		df_filings = self.filings()
-		mask = df_filings['form'].isin(['10-K', '10-Q'])
-
-		doc_ids = set(df_filings[mask].index).difference(old_docs)
-		
-		for id in doc_ids:
-			url = f'https://www.sec.gov/Archives/edgar/data/{id}/{id}-index.htm'
+		def get_filing(doc_id: str) -> dict:
+			url = f'https://www.sec.gov/Archives/edgar/data/{doc_id}/{doc_id}-index.htm'
 			with requests.Session() as s:
-				rs = s.get(url, headers=self._headers)
+				rs = s.get(url, headers=Ticker._headers)
 				parse = bs.BeautifulSoup(rs.text, 'lxml')
 
 			pattern = r'(?<!_(cal|def|lab|pre)).xml$'
@@ -120,17 +103,34 @@ class Ticker():
 				href = href.get('href')
 				xml_url = f'https://www.sec.gov/{href}'
 
-				data = financials_to_json(xml_url, self._cik)
-				
-				# Store with MongoDB
-				fltr = {
-					'$and': [
-						{'meta.cik': data['meta']['cik']},
-						{'meta.docId': data['meta']['docId']}
-					]
-				}
-				updt = {'$setOnInsert': data}
-				coll.update_one(fltr, updt, upsert=True)
+				return xml_to_dict(xml_url, self._cik)
+			
+		# MongoDB
+		#client = MongoClient('mongodb://localhost:27017/')
+		#db = client['finly']
+		#coll = db['secFinancials']
+
+		## Get list of stored financial filings
+		#fltr = {'meta.cik': self._cik}
+		#query = coll.find(fltr, {'_id': False, 'meta.id': 1})
+
+		#old_docs = set()
+		#for q in query:
+		#	old_docs.add(q['meta']['id'])
+
+		# Filings
+		df_filings = self.filings()
+		mask = df_filings['form'].isin(['10-K', '10-Q'])
+
+		doc_ids = df_filings.loc[mask].index #set(df_filings[mask].index).difference(old_docs)
+		
+		financials = []
+		for id in doc_ids:
+			filing = get_filing(id)
+			if filing: 
+				financials.append(filing)
+
+		return financials
 
 	def financials(self):
 			
@@ -254,10 +254,10 @@ class Ticker():
 
 		return df
 
-def financials_to_json(xml_url, cik):
+def xml_to_dict(url: str, cik: str) -> dict:
 
 	with requests.Session() as s:
-		rs = s.get(xml_url, headers=Ticker._headers)
+		rs = s.get(url, headers=Ticker._headers)
 		root = et.fromstring(rs.content)
 
 	form = {
@@ -268,7 +268,7 @@ def financials_to_json(xml_url, cik):
 	meta = {
 		'cik': cik,
 		'ticker': root.find('.{*}TradingSymbol').text,
-		'id': xml_url.split('/')[-2],
+		'id': url.split('/')[-2],
 		'type': form[root.find('.{*}DocumentType').text],
 		'date': root.find('.{*}DocumentPeriodEndDate').text,
 		'fiscal_end': root.find('.{*}CurrentFiscalYearEndDate').text[1:]
@@ -300,8 +300,8 @@ def financials_to_json(xml_url, cik):
 					
 			else:
 				temp['period'] = {
-					'startDate': period.find('./{*}startDate').text,
-					'endDate': period.find('./{*}endDate').text,
+					'start_date': period.find('./{*}startDate').text,
+					'end_date': period.find('./{*}endDate').text,
 				}
 			
 			# Segment

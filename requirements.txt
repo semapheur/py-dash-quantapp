@@ -18,4 +18,5 @@ scikit-learn
 scipy
 sqlalchemy
 statsmodels
+tinydb
 wbgapi

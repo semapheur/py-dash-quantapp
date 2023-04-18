@@ -6,12 +6,13 @@ import re
 import pandas as pd
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine, inspect, event, text
+from tinydb import TinyDB, Query, QueryLike
 
 load_dotenv(Path().cwd() / '.env')
 
 DB_DIR = Path(__file__).resolve().parent.parent / os.getenv('DB_DIR')
 
-def check_db_name(db_name: str) -> str:
+def sqlite_name(db_name: str) -> str:
   if not db_name.endswith('.db'):
     return db_name + '.db'
 
@@ -34,7 +35,7 @@ def read_sqlite(
   parse_dates=False,
 ) -> pd.DataFrame | None:
   
-  db_path = DB_DIR / check_db_name(db_name)
+  db_path = DB_DIR / sqlite_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
@@ -53,7 +54,7 @@ def read_sqlite(
 def insert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str, action: str='merge'):
   # action: overwrite/merge (default: merge)
 
-  db_path = DB_DIR / check_db_name(db_name)
+  db_path = DB_DIR / sqlite_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
@@ -82,7 +83,7 @@ def insert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str, action: str='me
 
 def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
 
-  db_path = DB_DIR / check_db_name(db_name)
+  db_path = DB_DIR / sqlite_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
@@ -150,3 +151,23 @@ def search_tickers(security: str, search: str, href=True, limit: int=10) -> pd.D
     df = pd.read_sql(text(query), con=con)
     
   return df
+
+def tinydb_name(db_name):
+  if not db_name.endswith('.json'):
+    return db_name + '.json'
+
+  return db_name
+
+
+def read_tinydb(db_name: str, query: QueryLike, tbl: str='') -> list|dict :
+  db_path = DB_DIR / tinydb_name(db_name)
+  db = TinyDB(db_path)
+
+  if tbl:
+    if not tbl in db.tables():
+      raise Exception(f'Table "{tbl}" does not exist in database "{db_name}"')
+  
+    db = db.table()
+
+  return db.search(query)
+
