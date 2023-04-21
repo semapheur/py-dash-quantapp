@@ -6,7 +6,7 @@ import re
 import pandas as pd
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine, inspect, event, text
-from tinydb import TinyDB, Query, QueryLike
+from tinydb import TinyDB, Query
 
 load_dotenv(Path().cwd() / '.env')
 
@@ -159,7 +159,7 @@ def tinydb_name(db_name):
   return db_name
 
 
-def read_tinydb(db_name: str, query: QueryLike, tbl: str='') -> list|dict :
+def read_tinydb(db_name: str, query, tbl: str='') -> list|dict :
   db_path = DB_DIR / tinydb_name(db_name)
   db = TinyDB(db_path)
 

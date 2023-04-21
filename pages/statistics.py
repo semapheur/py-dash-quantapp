@@ -14,7 +14,7 @@ from lib.morningstar import get_ohlcv
 from components.ticker_select import TickerSelectAIO
 from components.statistical_plots import acf_trace, qqplot_trace
 
-register_page(__name__, path='/statistics')
+register_page(__name__, path='/statistics', location='header')
 
 main_style = 'h-full flex flex-col gap-2 p-2'
 form_style = 'grid grid-cols-[2fr_1fr_1fr] gap-2 p-2 shadow rounded-md'

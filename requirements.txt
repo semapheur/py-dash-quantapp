@@ -5,6 +5,7 @@
 
 bs4
 dash
+dotenv
 fathon
 #fracdiff #windows (msys2): pacman -Ss mingw-w64-x86_64-openblas
 matplotlib

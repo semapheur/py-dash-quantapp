@@ -11,7 +11,8 @@ def Header():
   return html.Header(className=header_style, children=[
     dcc.Link('Γ', className=logo_style, href='/'),
     html.Nav(className='flex gap-4', children=[
-			dcc.Link(page['name'], href=page['relative_path'], className=link_style) for page in page_registry.values()
+			dcc.Link(page['name'], href=page['relative_path'], className=link_style) 
+      for page in page_registry.values() if page['location'] == 'header'
     ]),
     ThemeToggle(),
     TickerSearch()

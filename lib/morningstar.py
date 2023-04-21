@@ -364,7 +364,7 @@ def get_ohlcv(
 
   return ohlcv
 
-def get_tickers(security: str):        
+def get_tickers(security: str) -> pd.DataFrame:        
   # scope: ose/stock/fund/fundCategory
 
   def fallback() -> list[dict[str, str]]:
