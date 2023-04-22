@@ -7,7 +7,9 @@ bs4
 dash
 dotenv
 fathon
+folium
 #fracdiff #windows (msys2): pacman -Ss mingw-w64-x86_64-openblas
+geopandas
 matplotlib
 numba
 numpy
