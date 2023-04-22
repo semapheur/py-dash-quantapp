@@ -1,4 +1,8 @@
+from pathlib import Path
+
 import folium # MapQuest Open|Stamen Toner|Carto DB positron/dark_matter
+
+from lib.virdi import price_choropleth
 
 MAP_PATH = Path(__file__).resolve().parent.parent / 'assets'
 
@@ -18,7 +22,7 @@ def choropleth_map():
     }
   }
 
-  for unit in fields.key(): 
+  for unit in fields.keys(): 
     gdf = price_choropleth(unit)
 
     choropleth = folium.Choropleth(

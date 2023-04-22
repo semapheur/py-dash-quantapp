@@ -42,11 +42,10 @@ def get_municipalities():
     'kommunenummer': 'municipality_id'
   }
   df = pd.DataFrame.from_records(parse)
-  df.rename(column=rnm, inplace=True)
+  df.rename(columns=rnm, inplace=True)
   return df
 
 def search_municipality(query):
-
   params = {
     'knavn': query,
   }
@@ -93,14 +92,13 @@ def municipality_poly(id: str) -> Polygon:
   return Polygon(parse['omrade']['coordinates'][0][0])
 
 def municipality_polys():
-
   df = get_municipalities()
 
   polys = [None] * len(df)
   for i, id in enumerate(df['municipality_id']):
     polys[i] = municipality_poly(id)
 
-  return gdf.GeoDataFrame(df, crs=4258, geometry=polys)
+  return gpd.GeoDataFrame(df, crs=4258, geometry=polys)
 
 '''
 def municipality_polys(municipalities: list):

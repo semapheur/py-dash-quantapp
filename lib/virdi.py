@@ -68,7 +68,10 @@ def real_estate_price_data(
         headers=HEADERS, params=params
       )
       parse = json.loads(rs.text)
-  
+
+    if 'response' not in parse:
+      continue
+
     for street in parse['response']:
       pnt = Point(street['coordinatesLng'], street['coordinatesLat'])  
       for unit in street['units']:
@@ -100,10 +103,11 @@ def real_estate_price_data(
 def price_choropleth(unit='municipality'):
   # unit: municipality / postalarea
 
-  gdf_price = (
-    gpd.read_file(VIRDI_PATH) if VIRDI_PATH 
-    else real_estate_price_data()
-  )
+  if not VIRDI_PATH.exists():
+    price = real_estate_price_data()
+    price.to_file(VIRDI_PATH)
+  else:
+    price = real_estate_price_data()
 
   path = DB_DIR / f'nor_{unit}.json'
   if not path.exists():
@@ -113,10 +117,10 @@ def price_choropleth(unit='municipality'):
   else:
     choro = gpd.read_file(path, driver='GeoJSON', encoding='utf-8')
 
-    units = gdf_price[unit].unique()
+    units = price[unit].unique()
     choro = choro.loc[choro[unit].isin(units)]
 
-    price = (gdf_price[[unit, 'price_per_area']]
+    price = (price[[unit, 'price_per_area']]
       .groupby([unit])
       .agg(
         price_municipality=('price_per_area', 'mean'), 

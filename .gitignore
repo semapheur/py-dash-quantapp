@@ -9,6 +9,7 @@
 
 # jupyter notebooks
 *.ipynb
+/.ipynb_checkpoints
 
 # node modules
 /node_modules
@@ -17,4 +18,5 @@
 pnpm-lock.yaml
 
 # python virtual environment
+/.venv
 /venv
