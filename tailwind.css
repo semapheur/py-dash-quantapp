@@ -92,11 +92,14 @@
   }
 }
 
-#react-entry-point, #_dash-app-content, #_pages_content {
-  height: 100%;
-}
-
-#app > div:not([class]) {
+#react-entry-point, 
+#_dash-app-content, 
+#_pages_content, 
+#app > div:not([class]),
+#_dash-global-error-container,
+#_dash-global-error-container > div:not([class]),
+.dash-debug-menu + div,
+.dash-debug-menu + div > div:not([class]) {
   height: 100%;
 }
 

@@ -38,7 +38,7 @@ def get_municipalities():
   
   rnm = {
     'kommunenavn': 'name',
-    'kommunenavnNorsk': 'name_norwegian',
+    'kommunenavnNorsk': 'municipality',
     'kommunenummer': 'id'
   }
   df = pd.DataFrame.from_records(parse)
@@ -83,16 +83,13 @@ def find_municipality(point: Point):
     
   return parse
 
-def municipality_poly(id: str, tolerance: float=0.) -> Polygon:
+def municipality_poly(id: str) -> Polygon:
   url = f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{id}/omrade'
   with requests.Session() as s:
     rs = s.get(url, headers=HEADERS)
     parse = json.loads(rs.text)
 
   poly = Polygon(parse['omrade']['coordinates'][0][0])
-  if tolerance > 0:
-    poly = poly.simplify(tolerance=tolerance)
-
   return poly
 
 def municipality_polys(tolerance: float=0.) -> gpd.GeoDataFrame:
@@ -100,9 +97,13 @@ def municipality_polys(tolerance: float=0.) -> gpd.GeoDataFrame:
 
   polys = [None] * len(df)
   for i, id in enumerate(df['id']):
-    polys[i] = municipality_poly(id, tolerance)
+    polys[i] = municipality_poly(id)
 
-  return gpd.GeoDataFrame(df, crs=4258, geometry=polys)
+  gdf = gpd.GeoDataFrame(df, crs=4258, geometry=polys)
+  if tolerance > 0:
+    gdf['geometry'] = gdf['geometry'].simplify(tolerance=tolerance)
+
+  return gdf
 
 '''
 def municipality_polys(municipalities: list):

@@ -9,11 +9,20 @@ choro_path = MAP_PATH / 'choropleth.html'
 if not choro_path.exists():
   choropleth_map()
 
-map_frame = html.Iframe(id='real-estate-iframe:choropleth', 
-  srcDoc=open(choro_path, 'r').read(),
-  width='100%', height='100%'
-)
-
-layout = html.Main(className='h-full', children=[
-  map_frame
+layout = html.Main(id='real-estate', className='h-full', children=[
+  html.Iframe(id='real-estate-iframe:choropleth', 
+    src='assets/choropleth.html',
+    width='100%', height='100%'
+  )
 ])
+
+#@callback(
+#  Output('real-estate-iframe:choropleth', 'srcDoc'),
+#  Input('url', 'pathname')
+#)
+#def update(url):
+#  page = url.split('/')[-1]
+#  if not page == 'real_estate':
+#    return no_update
+#
+#  return   

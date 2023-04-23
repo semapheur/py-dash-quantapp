@@ -2,9 +2,10 @@ from pathlib import Path
 
 import geopandas as gpd
 import folium # MapQuest Open|Stamen Toner|Carto DB positron/dark_matter
+import branca.colormap as cm
 
 from lib.db import DB_DIR
-from lib.virdi import spatial_price_stats, postal_code_polys
+from lib.virdi import load_price_data, spatial_price_stats, postal_code_polys
 from lib.geonorge import municipality_polys
 
 MAP_PATH = Path(__file__).resolve().parent.parent / 'assets'
@@ -13,7 +14,7 @@ def load_geo_data(unit: str):
   path = DB_DIR / f'nor_{unit}.json'
   if not path.exists():
     if unit == 'municipality':
-      gdf = municipality_polys()
+      gdf = municipality_polys(0.001)
     elif unit == 'postal_code':
       gdf = postal_code_polys()
 
@@ -35,26 +36,58 @@ def choropleth_map():
     {'key': 'postal_code', 'label': 'Poststed'}
   ]
 
+  price = load_price_data()
+
   for field in fields: 
-    df = spatial_price_stats(field['key'])
+    df = spatial_price_stats(price, field['key'])
     gdf = load_geo_data(field['key'])
 
-    choropleth = folium.Choropleth(
-      name=f'choro_{field["key"]}',
-      geo_data=gdf,
-      data=df,
-      columns=[field['key'], 'price_per_area', 'price_per_area_std'],
-      key_on=f'feature.properties.{field["key"]}',
-      fill_color='YlOrRd',
-      fill_opacity=0.7,
-      legend_name='Price/Area',
-      highlight=True,
-      line_color='',
-      overlay=True
-      #nan_fill_color='#0000'
-    ).add_to(mp)
-    print(field['key'])
+    gdf = gdf.join(df, on=field['key'])
 
+    vmin = df['price_per_area'].min()
+    vmax = df['price_per_area'].max()
+    colormap = cm.LinearColormap(
+      ['gray', 'green', 'yellow', 'red'],
+      vmin=0, vmax=vmax,
+      index=[0, vmin, (vmax - vmin)/2, vmax]
+    ).to_step(6)
+    colormap.add_to(mp)
+
+    tooltip = folium.features.GeoJsonTooltip(
+      fields=[field['key'], 'price_per_area', 'price_per_area_std'],
+      aliases=[field['label'], 'Kvm.pris', 'Std.avvik'],
+      style=(
+        'background-color: white; color: #333333;'
+        'fontfamily: arial; font-size: 12px; padding: 10px'
+      )
+    )
+    folium.GeoJson(gdf.fillna(0), 
+      name=field['key'],
+      style_function=lambda feature: {
+        'fillColor': colormap(feature['properties']['price_per_area']),
+        'fillOpacity': 0.7,
+        'color': 'black',
+        'weight': 0.5
+      },
+      tooltip=tooltip,
+      zoom_on_click=True
+    ).add_to(mp)
+
+    #choropleth = folium.Choropleth(
+    #  name=f'choro_{field["key"]}',
+    #  geo_data=gdf,
+    #  data=df,
+    #  columns=[field['key'], 'price_per_area', 'price_per_area_std'],
+    #  key_on=f'feature.properties.{field["key"]}',
+    #  fill_color='YlOrRd',
+    #  fill_opacity=0.7,
+    #  legend_name='Price/Area',
+    #  highlight=True,
+    #  line_color='',
+    #  overlay=True
+    #  #nan_fill_color='#0000'
+    #).add_to(mp)
+#
     ## Tooltip
     #choropleth.geojson.add_child(
     #  folium.features.GeoJsonTooltip(

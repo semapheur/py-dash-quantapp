@@ -1,6 +1,7 @@
 import requests
 import json
 
+import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
@@ -79,7 +80,7 @@ def real_estate_price_data(
           'id': unit['id'],
           'geometry': pnt,
           'municipality': street['municipalityName'],
-          'postal_code': street['postalCode'],
+          'postal_code': int(street.get('postalCode', np.nan)),
           'street_id': street['streetId'],
           'address': street['slug'],
           'flat': unit.get('floorCode', ''),
@@ -100,20 +101,23 @@ def real_estate_price_data(
   
   return df
 
-def spatial_price_stats(unit='municipality'):
+def load_price_data():
+  if not VIRDI_PATH.exists():
+    price = real_estate_price_data()
+    df.to_file(VIRDI_PATH)
+  else:
+    price = gpd.read_file(VIRDI_PATH, driver='GeoJson', encoding='utf-8')
+
+  return price
+
+def spatial_price_stats(price: gpd.GeoDataFrame(), unit='municipality'):
   # unit: municipality / postal_code
 
   if unit not in {'municipality', 'postal_code'}:
     raise Exception('Unit only accepts values "municipality"/"postal_code"')
 
-  if not VIRDI_PATH.exists():
-    price = real_estate_price_data()
-    price.to_file(VIRDI_PATH)
-  else:
-    price = real_estate_price_data()
-
   price = price[[unit, 'price_per_area']]
-  stats = price.groupby([unit], as_index=False).agg(
+  stats = price.groupby([unit]).agg(
     price_per_area=('price_per_area', 'mean'), 
     price_per_area_std=('price_per_area', 'std')
   )
