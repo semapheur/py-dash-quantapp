@@ -1,4 +1,4 @@
-from dash import callback, html, no_update, register_page, Input, Output
+from dash import callback, ctx, html, no_update, register_page, Input, Output
 
 from components.map import choropleth_map
 from lib.db import insert_sqlite, DB_DIR
@@ -23,26 +23,22 @@ layout = html.Main(className=main_style, children=[
 
 @callback(
   Output('board-div:ticker', 'className'),
-  Input('board-button:stock', 'n_clicks')
-)
-def update_tickers(n_clicks):
-  if not n_clicks:
-    return no_update
-  
-  df = get_tickers()
-  insert_sqlite(df, 'ticker.db', 'stock', 'overwrite')
-  return no_update
-
-@callback(
-  Output('board-div:ticker', 'className'),
+  Input('board-button:stock', 'n_clicks'),
   Input('board-button:cik', 'n_clicks')
 )
-def update_ciks(n_clicks):
-  if not n_clicks:
+def update_tickers(btn1, btn2):
+  button_id = ctx.triggered_id if not None else ''
+
+  if not button_id:
     return no_update
+
+  if button_id == 'board-button:stock':
+    df = get_tickers()
+    insert_sqlite(df, 'ticker.db', 'stock', 'overwrite')
+  elif button_id == 'board-button:cik':
+    df = get_ciks()
+    insert_sqlite(df, 'ticker.db', 'edgar', 'overwrite')
   
-  df = get_ciks()
-  insert_sqlite(df, 'ticker.db', 'edgar', 'overwrite')
   return no_update
 
 @callback(

@@ -22,7 +22,7 @@ HEADERS = {
 
 VIRDI_PATH = DB_DIR / 'hjemla.json'
 
-def postal_area_polys():
+def postal_code_polys():
   with requests.Session() as s:
     rs = s.get(
       'https://raw.githubusercontent.com/ivanhjel/postnummer/master/postnummeromrader.geojson', 
@@ -33,7 +33,7 @@ def postal_area_polys():
   rnm = {
     'kommune': 'municipality',
     'postnummer': 'postal_code',
-    'poststedsnavn': 'postalarea'
+    'poststedsnavn': 'postal_area'
   }
   gdf = gpd.read_file(raw, driver='GeoJSON', encoding='utf-8')
   gdf.rename(columns=rnm, inplace=True)
@@ -100,8 +100,11 @@ def real_estate_price_data(
   
   return df
 
-def price_choropleth(unit='municipality'):
-  # unit: municipality / postalarea
+def spatial_price_stats(unit='municipality'):
+  # unit: municipality / postal_code
+
+  if unit not in {'municipality', 'postal_code'}:
+    raise Exception('Unit only accepts values "municipality"/"postal_code"')
 
   if not VIRDI_PATH.exists():
     price = real_estate_price_data()
@@ -109,24 +112,9 @@ def price_choropleth(unit='municipality'):
   else:
     price = real_estate_price_data()
 
-  path = DB_DIR / f'nor_{unit}.json'
-  if not path.exists():
-    choro = municipality_polys()
-    choro.to_file(path, driver='GeoJSON', encoding='utf-8')
-
-  else:
-    choro = gpd.read_file(path, driver='GeoJSON', encoding='utf-8')
-
-    units = price[unit].unique()
-    choro = choro.loc[choro[unit].isin(units)]
-
-    price = (price[[unit, 'price_per_area']]
-      .groupby([unit])
-      .agg(
-        price_municipality=('price_per_area', 'mean'), 
-        price_municipality_std=('price_per_area', 'std')
-      )
-    )
-    choro = choro.join(price, on=unit)
-
-  return choro
+  price = price[[unit, 'price_per_area']]
+  stats = price.groupby([unit], as_index=False).agg(
+    price_per_area=('price_per_area', 'mean'), 
+    price_per_area_std=('price_per_area', 'std')
+  )
+  return stats
