@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from dash import callback, ctx, dcc, html, no_update, register_page, Input, Output, State
+from dash import callback, ctx, dcc, html, no_update, register_page, Input, Output, Patch, State
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from scipy.stats import laplace, norm, gennorm, t
@@ -186,22 +186,38 @@ def update_store(data, regimes):
 @callback(
   Output('stats-graph:price', 'figure'),
   Input('stats-tabs', 'value'),
-  Input('stats-store:price', 'data')
+  Input('stats-store:price', 'data'),
+  Input('stats-store:transform', 'data')
 )
-def update_graph(tab, data):
-  if not data or tab != 'tab-transform':
+def update_graph(tab, price, transform):
+  if not price or tab != 'tab-transform':
     return no_update
   
-  fig = go.Figure()
-  fig.add_scatter(
-    x=data['date'],
-    y=data['close'],
-    mode='lines',
-    showlegend=False,
-  )
-  fig.update_layout(
-    title='Price'
-  )
+  store_id = ctx.triggered_id
+
+  if store_id == 'stats-store:price':
+    fig = go.Figure()
+    fig = make_subplots(
+      shared_xaxes=True,
+      rows=2, cols=1
+    )
+    fig.add_scatter(
+      x=price['date'],
+      y=price['close'],
+      mode='lines',
+      showlegend=False,
+    )
+    fig.add_scatter(
+      x=transform['date'],
+      y=transform['transform'],
+      mode='lines',
+      showlegend=False,
+    )
+  elif store_id == 'stats-store:transform':
+    fig = Patched()
+    fig['data'][1]['x'] = transform['date']
+    fig['data'][1]['y'] = transform['transform']
+
   return fig
 
 @callback(
@@ -362,7 +378,6 @@ def update_graph(tab, data, period):
     rows=3, cols=1,
     shared_xaxes=True
   )
-
   fig.add_scatter(
     x=stl.seasonal.index,
     y=stl.seasonal.values,
@@ -412,7 +427,6 @@ def update_graph(tab, model, transform, price):
     rows=2, cols=1,
     shared_xaxes=True
   )
-
   fig.add_scatter(
     x=price.index,
     y=price.values,
