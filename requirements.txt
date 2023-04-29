@@ -3,6 +3,7 @@
 # pip freeze > <this file>
 # pip install -r <this file>
 
+asyncio
 bs4
 dash
 fathon
@@ -10,6 +11,7 @@ folium
 #fracdiff #windows (msys2): pacman -Ss mingw-w64-x86_64-openblas
 geopandas
 glom
+httpx
 matplotlib
 numba
 numpy

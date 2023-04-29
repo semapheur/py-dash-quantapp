@@ -4,11 +4,14 @@ import pandas as pd
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 
+import asyncio
+
 # Web scrapping
 import requests
+import httpx
 import bs4 as bs
 import json
-import xml.etree.cElementTree as et
+import xml.etree.ElementTree as et
 from glom import glom
 
 # Databasing
@@ -19,7 +22,7 @@ from tinydb import where
 import re
 
 # Local
-from lib.db import insert_tinydb, read_tinydb
+from lib.db import DB_DIR, upsert_sqlite, insert_tinydb, read_tinydb
 #rom lib.finlib import finItemRenameDict
 
 class Ticker():
@@ -41,7 +44,7 @@ class Ticker():
   def __init__(self, cik: int):
     self._cik = str(cik).zfill(10)
 
-  def filings(self):
+  def filings(self, forms:list=[]):
       
     def json_to_df(dct):
       data = {
@@ -82,36 +85,22 @@ class Ticker():
       df = pd.concat(dfs)
       df.drop_duplicates(inplace=True)
       df.sort_values('date', ascending=True, inplace=True)
+
+    if forms:
+      mask = df['form'].isin(forms)
+      df = df.loc[mask]
         
     return df
 
-  def get_filing(self, doc_id: str) -> dict:
-    url = f'https://www.sec.gov/Archives/edgar/data/{doc_id}/{doc_id}-index.htm'
-    with requests.Session() as s:
-      rs = s.get(url, headers=Ticker._headers)
-      parse = bs.BeautifulSoup(rs.text, 'lxml')
-
-    pattern = r'(?<!_(cal|def|lab|pre)).xml$'
-    href = parse.find('a', href=re.compile(pattern))
-    if href is None:
-      return None
-    
-    href = href.get('href')
-    xml_url = f'https://www.sec.gov/{href}'
-
-    return xml_to_dict(xml_url, self._cik)
-
-  def get_financials(self, delta=90):
+  def get_financials(self, delta=120):
 
     def new_financials(start_date:dt|str='') -> pd.DataFrame:
-      df = self.filings()
-      mask = df['form'].isin(['10-K', '10-Q'])
-      df = df.loc[mask]
+      docs = self.filings(['10-K', '10-Q'])
 
       if start_date:
-        df = df.loc[df['date'] > start_date]
+        docs = docs.loc[docs['date'] > start_date]
 
-      return df
+      return docs
 
     # Load financials
     financials = read_tinydb('edgar.json', None, int(self._cik))
@@ -137,10 +126,10 @@ class Ticker():
 
     new_financials = []
     for d in new_docs:
-      filing = self.get_filing(d)
-      if not filing:
+      url = xbrl_url(self._cik, d)
+      if not url:
         continue
-      new_financials.append(filing)
+      new_financials.append(xbrl_to_dict(url, self.cik))
 
     if new_financials:
       insert_tinydb(new_financials, 'edgar.json', int(self._cik))
@@ -253,7 +242,6 @@ class Ticker():
         df['chgWrkCap'] -
         df['capEx']
       )
-      
       df['freeCf'] = (
         df['freeCfFirm'] + 
         df['totDbt'].diff() - 
@@ -261,7 +249,94 @@ class Ticker():
 
     return df
 
-def xml_to_dict(url: str, cik: str) -> dict:
+  def get_calc_template(self, doc_id):
+    ns = 'http://www.w3.org/1999/xlink'
+
+    url = xbrl_url(self._cik, doc_id)
+    with requests.Session() as s:
+      rs = s.get(url, headers=HEADERS)
+      root = et.fromstring(rs.content)
+
+    url_pattern = r'https?://www\..+/'
+    el_pattern = r'(?<=_)[A-Z][A-Za-z]+(?=_)'
+
+    calc = dict()
+    for sheet in root.findall('.//{*}calculationLink'):
+      temp = dict()
+      for el in sheet.findall('.//{*}calculationArc'):
+        parent = re.search(el_pattern, el.attrib[f'{{{ns}}}from']).group()
+        child = re.search(el_pattern, el.attrib[f'{{{ns}}}to']).group()
+        
+        if parent not in temp:
+          temp[parent] = {}
+        
+        temp[parent].update({child: float(el.attrib['weight'])})
+    
+      label = re.sub(url_pattern, '', sheet.attrib[f'{{{ns}}}role'])
+      calc[label] = temp
+
+    return calc
+
+  async def taxonomy(self):
+
+    async def fetch():
+      docs = self.filings(['10-K', '10-Q']).index
+      tasks = []
+      for doc in docs:
+        url = await xbrl_url(self._cik, doc, 'cal')
+        if not url:
+          continue
+
+        tasks.append(taxonomy_to_df(url))
+      
+      dfs = await asyncio.gather(*tasks)
+      df = pd.concat(dfs)
+      df.drop_duplicates(inplace=True)
+      return df
+
+    return asyncio.run(fetch())
+
+  def get_taxonomy(self):
+    docs = self.filings(['10-K', '10-Q']).index
+
+    dfs = []
+    for doc in docs:
+      url = xbrl_url(self._cik, doc, 'cal')
+      if not url:
+        continue
+
+      dfs.append(taxonomy_to_df(url))
+    
+    df = pd.concat(dfs)
+    df.drop_duplicates(inplace=True)
+    return df
+
+async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
+  tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
+  result = await asyncio.gather(*tasks)
+  return list(filter(None, result))
+
+async def xbrl_url(cik, doc_id: str, doc_type='htm') -> str:
+  url = f'https://www.sec.gov/Archives/edgar/data/{doc_id}/{doc_id}-index.htm'
+  async with httpx.AsyncClient() as client:
+    rs = await client.get(url, headers=Ticker._headers)
+    parse = bs.BeautifulSoup(rs.text, 'lxml')
+
+  if doc_type == 'htm':
+    pattern = r'(?<!_(cal|def|lab|pre)).xml$'
+  elif doc_type in ['cal', 'def', 'lab', 'pre']:
+    pattern = rf'_{doc_type}.xml$'
+  else:
+    raise Exception('Invalid document type!')
+
+  href = parse.find('a', href=re.compile(pattern))
+  if href is None:
+    return None
+  
+  href = href.get('href')
+  return f'https://www.sec.gov/{href}'
+
+def xbrl_to_dict(url: str, cik: str) -> dict:
 
   with requests.Session() as s:
     rs = s.get(url, headers=Ticker._headers)
@@ -272,8 +347,8 @@ def xml_to_dict(url: str, cik: str) -> dict:
     '10-Q': 'quarterly'
   }
   meta = {
-    'cik': int(cik),
-    'ticker': root.find('.{*}TradingSymbol').text,
+    #'cik': int(cik),
+    #'ticker': root.find('.{*}TradingSymbol').text,
     'id': url.split('/')[-2],
     'type': form[root.find('.{*}DocumentType').text],
     'date': root.find('.{*}DocumentPeriodEndDate').text,
@@ -363,10 +438,7 @@ def financials_to_df(dct_raw):
         continue
       
       if 'instant' in i['period']:
-        if isinstance(i['period']['instant'], str):
-          end_date = dt.strptime(i['period']['instant'], '%Y-%m-%d')
-        else:
-          end_date = i['period']['instant']
+        end_date = parse_date(i['period']['instant'])
 
         if end_date.month == fiscal_month:
           for p in ['a', 'q']:
@@ -417,6 +489,41 @@ def financials_to_df(dct_raw):
 
   return df
 
+async def taxonomy_to_df(xml_url):
+  ns = 'http://www.w3.org/1999/xlink'
+
+  def rename_sheet(txt: str) -> str:
+    pattern = r'income|balance|cashflow'
+    m = re.search(pattern, txt, flags=re.I)
+    if m:
+      txt = m.group().lower()
+    
+    return txt
+
+  async with httpx.AsyncClient() as client:
+    rs = await client.get(xml_url, headers=Ticker._headers)
+    root = et.fromstring(rs.content)
+
+  url_pattern = r'^https?://www\..+/'
+  el_pattern = r'(?<=_)[A-Z][A-Za-z]+(?=_)?'
+
+  taxonomy = []
+  for sheet in root.findall('.//{*}calculationLink'):
+    sheet_label = re.sub(url_pattern, '', sheet.attrib[f'{{{ns}}}role'])
+    sheet_label = rename_sheet(sheet_label)
+
+    for el in sheet.findall('.//{*}calculationArc'):
+      taxonomy.append({
+        'sheet': sheet_label,
+        'parent': re.search(el_pattern, el.attrib[f'{{{ns}}}from']).group(),
+        'item': re.search(el_pattern, el.attrib[f'{{{ns}}}to']).group()
+      })
+  
+  df = pd.DataFrame.from_records(taxonomy)
+  df.set_index('item', inplace=True)
+  df.drop_duplicates(inplace=True)
+  return df
+
 def get_ciks():
   rnm = {'cik_str': 'cik', 'title': 'name'}
 
@@ -430,11 +537,23 @@ def get_ciks():
   url = 'https://www.sec.gov/files/company_tickers.json'
 
   with requests.Session() as s:
-    rc = s.get(url, headers=headers)
-    parse = json.loads(rc.text)
+    rs = s.get(url, headers=headers)
+    parse = rs.json()
 
   df = pd.DataFrame.from_dict(parse, orient='index')
   df.rename(columns=rnm, inplace=True)
   df.set_index('cik', inplace=True)
 
   return df
+
+def gaap_items():
+  db_path = DB_DIR / 'edgar.json'
+  db = TinyDB(db_path)
+  
+  items = set()
+  for t in db.tables():
+    data = db.table(t).all()
+    for i in data:
+      items.update(i['data'].keys())
+          
+  return items
