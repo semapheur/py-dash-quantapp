@@ -539,8 +539,8 @@ def process_taxonomy():
     df.reset_index(inplace=True)
     df.rename(columns={'item': 'gaap'}, inplace=True)
     
-    item = set(df['gaap'].unique())
-    parent = set(df['parent'].unique())
+    item = set(df['gaap'].values)
+    parent = set(df['parent'].values)
     append = parent.difference(item)
     
     temp = df.loc[df['parent'].isin(append)]
