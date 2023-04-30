@@ -19,12 +19,20 @@ def sqlite_name(db_name: str) -> str:
 
   return db_name
 
-@event.listens_for(Engine, 'connect')
+def sqlite_vacuum(db_name: str):
+  db_path = DB_DIR / sqlite_name(db_name)
+  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+
+  with engine.connect().execution_options(autocommit=True) as con:
+    con.execute(text('VACUUM'))
+
+#@event.listens_for(Engine, 'connect')
 def set_sqlite_pragma(dbapi_connection, connection_record):
   cursor = dbapi_connection.cursor()
   cursor.execute('PRAGMA optimize')
   cursor.execute('PRAGMA journal_mode=WAL')
   cursor.execute('PRAGMA synchronous=normal')
+  cursor.execute('PRAGMA auto_vacuum=INCREMENTAL')
   #cursor.execute('PRAGMA mmap_size=30000000000')
   #cursor.execute('PRAGMA page_size=32768')
   cursor.close()
@@ -52,7 +60,12 @@ def read_sqlite(
 
   return df
 
-def insert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str, action: str='merge'):
+def insert_sqlite(
+  df: pd.DataFrame, 
+  db_name: str, 
+  tbl_name: str, 
+  action: str='merge'
+):
   # action: overwrite/merge (default: merge)
 
   db_path = DB_DIR / sqlite_name(db_name)

@@ -277,7 +277,7 @@ class Ticker():
 
     return calc
 
-  async def taxonomy(self):
+  async def get_taxonomy(self):
 
     async def fetch():
       docs = self.filings(['10-K', '10-Q']).index
@@ -287,29 +287,36 @@ class Ticker():
         if not url:
           continue
 
-        tasks.append(taxonomy_to_df(url))
+        tasks.append(asyncio.create_task(taxonomy_to_df(url)))
       
       dfs = await asyncio.gather(*tasks)
       df = pd.concat(dfs)
-      df.drop_duplicates(inplace=True)
+      df = df.loc[~df.index.duplicated()]
       return df
 
     return asyncio.run(fetch())
 
-  def get_taxonomy(self):
-    docs = self.filings(['10-K', '10-Q']).index
+def get_ciks():
+  rnm = {'cik_str': 'cik', 'title': 'name'}
 
-    dfs = []
-    for doc in docs:
-      url = xbrl_url(self._cik, doc, 'cal')
-      if not url:
-        continue
+  headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Connection': 'keep-alive',
+  }
+      
+  url = 'https://www.sec.gov/files/company_tickers.json'
 
-      dfs.append(taxonomy_to_df(url))
-    
-    df = pd.concat(dfs)
-    df.drop_duplicates(inplace=True)
-    return df
+  with requests.Session() as s:
+    rs = s.get(url, headers=headers)
+    parse = rs.json()
+
+  df = pd.DataFrame.from_dict(parse, orient='index')
+  df.rename(columns=rnm, inplace=True)
+  df.set_index('cik', inplace=True)
+
+  return df
 
 async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
   tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
@@ -515,8 +522,8 @@ async def taxonomy_to_df(xml_url):
     for el in sheet.findall('.//{*}calculationArc'):
       taxonomy.append({
         'sheet': sheet_label,
+        'gaap': re.search(el_pattern, el.attrib[f'{{{ns}}}to']).group(),
         'parent': re.search(el_pattern, el.attrib[f'{{{ns}}}from']).group(),
-        'item': re.search(el_pattern, el.attrib[f'{{{ns}}}to']).group()
       })
   
   df = pd.DataFrame.from_records(taxonomy)
@@ -524,27 +531,30 @@ async def taxonomy_to_df(xml_url):
   df.drop_duplicates(inplace=True)
   return df
 
-def get_ciks():
-  rnm = {'cik_str': 'cik', 'title': 'name'}
+def process_taxonomy():
+    df = read_sqlite('SELECT * FROM financials', 'taxonomy.db', 'item')
+    if df is None:
+        raise Exception('Taxonomy does not exist!')
+    
+    df.reset_index(inplace=True)
+    df.rename(columns={'item': 'gaap'}, inplace=True)
+    
+    item = set(df['gaap'].unique())
+    parent = set(df['parent'].unique())
+    append = parent.difference(item)
+    
+    temp = df.loc[df['parent'].isin(append)]
+    temp.loc[:,'gaap'] = temp['parent'].values
+    temp.loc[:,'parent'] = ''
+    
+    df = pd.concat([df, temp])
+    
+    df['item'] = df['gaap'].astype(str).apply(lambda x: snake_abbreviate(x))
+    df['label'] = df['gaap'].astype(str).apply(lambda x: ' '.join(camel_split(x)))
+    df['parent_'] = df['parent'].astype(str).apply(lambda x: snake_abbreviate(x) if x else '')
 
-  headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Connection': 'keep-alive',
-  }
-      
-  url = 'https://www.sec.gov/files/company_tickers.json'
-
-  with requests.Session() as s:
-    rs = s.get(url, headers=headers)
-    parse = rs.json()
-
-  df = pd.DataFrame.from_dict(parse, orient='index')
-  df.rename(columns=rnm, inplace=True)
-  df.set_index('cik', inplace=True)
-
-  return df
+    df = df[['sheet', 'item', 'parent_', 'parent', 'label', 'gaap']]
+    df.to_csv('fin_taxonomy.csv', index=False)
 
 def gaap_items():
   db_path = DB_DIR / 'edgar.json'

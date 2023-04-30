@@ -41,29 +41,33 @@ def proxylist_geonode(limit:int=500) -> list:
 
   return proxies
 
-async def check_proxies(proxies:list):
+def check_proxy(proxy:str) -> bool:
+  url = 'https://httpbin.org/ip'
+  proxies = {'http': proxy, 'https': proxy}
+
+  try:
+    rs = requests.get(url, headers=HEADERS)
+    return rs.status_code == 200
+  except:
+    return False
+
+async def check_proxies(proxies:list[str]) -> list[str]:
   url = 'https://httpbin.org/ip' # 'https://ipinfo.io/json'
 
-  async def fetch(proxy):
+  async def fetch(proxy: str):
     proxies = {'http://': f'http://{proxy}', 'https://': f'https://{proxy}'}
-    client = httpx.AsyncClient(proxies=proxies, headers=HEADERS)
+    client = httpx.AsyncClient()
 
     try:
-      rs = await client.get(url, timeout=2)
+      rs = await client.get(url, headers=HEADERS, proxies=proxies)
       return rs.status_code == 200
     except:
-      print(proxy)
       return False
     finally:
       await client.aclose()
 
-  tasks = [fetch(p) for p in proxies]
+  tasks = [asyncio.create_task(fetch(p)) for p in proxies]
   result = await asyncio.gather(*tasks)
 
   result = np.array(proxies)[np.array(result)]
   return result
-
-if __name__ == '__main__':
-  proxies = proxylist_geonode()
-  tst = asyncio.run(check_proxies(proxies))
-  print(len(tst))
