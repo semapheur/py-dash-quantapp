@@ -1,0 +1,181 @@
+{
+  "income": {
+    "rv": {
+      "label": "Revenue",
+      "sign": 1,
+      "members": {
+        "pd_rv": {
+          "label": "Product Revenue"
+        },
+        "sv_rv": {
+          "label": "Service Revenue"
+        },
+        "fn_rv": {
+          "label": "Finance Revenue"
+        },
+        "ot_rv": {
+          "label": "Other Revenue"
+        }
+      }
+    },
+    "rv_cs": {
+      "label": "Revenue Cost",
+      "sign": -1,
+      "members": {
+        "pd_rv_cs": {
+          "label": "Product Revenue Cost"
+        },
+        "sv_rv_cs": {
+          "label": "Service Revenue Cost"
+        },
+        "fn_rv_cs": {
+          "label": "Finance Revenue Cost"
+        },
+        "ot_rv_cs": {
+          "label": "Other Revenue Cost"
+        }
+      }
+    },
+    "gs_pf": {
+      "label": "Gross profit",
+      "calc": [
+        "rv",
+        "rv_cs"
+      ]
+    },
+    "op_ep": {
+      "label": "Operating Expense",
+      "sign": -1,
+      "members": {
+        "SGA_ep": {
+          "label": "SGA Expense"
+        },
+        "RD_ep": {
+          "label": "R&D Expense"
+        },
+        "DDAA": {
+          "label": "DDAA"
+        },
+        "ot_op_ep": {
+          "label": "Other Operating Expense"
+        }
+      }
+    },
+    "op_ic/ls": {
+      "label": "Operating Income/Loss",
+      "sum": [
+        "gs_pf", "op_ep"
+      ]
+    },
+    "n-op_in/ls": {
+      "label": "Non-Operating Income/Loss",
+      "member": {
+        "iv_ic/ls": {
+          "label": "Investment Income/Loss"
+        }
+      }
+    },
+    "n-op_ep": {
+      "label": "Non-Operating Expense",
+      "sign": -1,
+      "members": {
+        "it_ep": {
+          "label": "Interest Expense"
+        },
+        "ot_n-op_ep": {
+          "label": "Other Non-Operating Expense"
+        }
+      }
+    },
+    "p-tx_ic/ls": {
+      "label": "Pretax Income/Loss",
+      "sum": [
+        "op_ic/ls", 
+        "n-op_ic/ls",
+        "n-op_ep"
+      ]
+    },
+    "ic_tx_ep/bf": {
+      "label": "Income Tax Expense/Benefit",
+      "sign": -1
+    },
+    "nt_ic/ls_cn_op": {
+      "label": "Net Income/Loss from Continuing Operations",
+      "sum": [
+        "p-tx_ic/ls",
+        "ic_tx_ep/bf"
+      ]
+    },
+    "n-rc_ic/ls": {
+      "label": "Non-Recurring Income/Loss",
+      "member": {
+        "dc_op_ic/ls": {
+          "label": "Discontinued Operations"
+        },
+        "eo_im": {
+          "label": "Extraordinary Items"
+        },
+        "us_im": {
+          "label": "Unusual Items"
+        }
+      }
+    },
+    "nt_ic/ls_mn_it": {
+      "label": "Net Income/Loss Incl. Minority Interest",
+      "sum": [
+        "nt-ic/ls_cn_op",
+        "n-rc_ic/ls"
+      ]
+    },
+    "mn_it_ic/ls": {
+      "label": "Minority Interest Income/Loss"
+    },
+    "nt_ic/ls": {
+      "label": "Net Income/Loss",
+      "sum": [
+        "nt_ic/ls_mn_it",
+        "-mn_it_ic/ls"
+      ]
+    },
+    "pf_st_dv": {
+      "label": "Preferred Stock Dividends"
+    },
+    "nt_ic/ls_av_to_cm_shh": {
+      "label": "Net Income/Loss Available to Common Shareholders",
+      "sum": [
+        "nt_ic/ls",
+        "-pf_st_dv"
+      ]
+    },
+    "EPSB": {
+      "label": "Earnings/Share Basic",
+      "prod": [
+        "nt_ic/ls",
+        "-wansob"
+      ],
+      "member": {
+        "wansob": {
+          "label": "Average Basic Shares"
+        }
+      }
+    },
+    "EPSD": {
+      "label": "Earnings/Share Basic",
+      "prod": [
+        "nt_ic/ls",
+        "-wansod"
+      ],
+      "member": {
+        "wansod": {
+          "label": "Average Diluted Shares"
+        }
+      }
+    }
+  },
+  "balance": {
+
+  },
+  "cashflow": {
+
+  }
+}

@@ -17,6 +17,7 @@ numba
 numpy
 pandas
 pycountry
+pydantic
 python-dotenv
 requests
 scikit-learn

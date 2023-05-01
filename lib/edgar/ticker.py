@@ -8,8 +8,7 @@ import asyncio
 
 # Web scrapping
 import requests
-import httpx
-import bs4 as bs
+
 import json
 import xml.etree.ElementTree as et
 from glom import glom
@@ -20,9 +19,11 @@ from tinydb import where
 
 # Utils
 import re
+from dataclasses import dataclass
 
 # Local
 from lib.db import DB_DIR, upsert_sqlite, insert_tinydb, read_tinydb
+from lib.edgar.xbrl import fetch_urls, xbrl_url, parse_xbrl, parse_taxonomy
 #rom lib.finlib import finItemRenameDict
 
 class Ticker():
@@ -92,7 +93,7 @@ class Ticker():
         
     return df
 
-  def get_financials(self, delta=120):
+  async def get_financials(self, delta=120):
 
     def new_financials(start_date:dt|str='') -> pd.DataFrame:
       docs = self.filings(['10-K', '10-Q'])
@@ -101,6 +102,17 @@ class Ticker():
         docs = docs.loc[docs['date'] > start_date]
 
       return docs
+
+    async def fetch(docs):
+      tasks = []
+      for d in docs:
+        url = await xbrl_url(self._cik, d)
+        if not url:
+          continue
+        tasks.append(asyncio.create_task(parse_xbrl(url, self._cik)))
+      
+      financials = await asyncio.gather(*tasks)
+      return financials
 
     # Load financials
     financials = read_tinydb('edgar.json', None, int(self._cik))
@@ -124,13 +136,7 @@ class Ticker():
     else:
       new_docs = new_financials().index
 
-    new_financials = []
-    for d in new_docs:
-      url = xbrl_url(self._cik, d)
-      if not url:
-        continue
-      new_financials.append(xbrl_to_dict(url, self.cik))
-
+    new_financials = asyncio.run(fetch(new_docs))
     if new_financials:
       insert_tinydb(new_financials, 'edgar.json', int(self._cik))
     
@@ -286,8 +292,7 @@ class Ticker():
         url = await xbrl_url(self._cik, doc, 'cal')
         if not url:
           continue
-
-        tasks.append(asyncio.create_task(taxonomy_to_df(url)))
+        tasks.append(asyncio.create_task(parse_taxonomy(url)))
       
       dfs = await asyncio.gather(*tasks)
       df = pd.concat(dfs)
@@ -317,102 +322,6 @@ def get_ciks():
   df.set_index('cik', inplace=True)
 
   return df
-
-async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
-  tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
-  result = await asyncio.gather(*tasks)
-  return list(filter(None, result))
-
-async def xbrl_url(cik, doc_id: str, doc_type='htm') -> str:
-  url = f'https://www.sec.gov/Archives/edgar/data/{doc_id}/{doc_id}-index.htm'
-  async with httpx.AsyncClient() as client:
-    rs = await client.get(url, headers=Ticker._headers)
-    parse = bs.BeautifulSoup(rs.text, 'lxml')
-
-  if doc_type == 'htm':
-    pattern = r'(?<!_(cal|def|lab|pre)).xml$'
-  elif doc_type in ['cal', 'def', 'lab', 'pre']:
-    pattern = rf'_{doc_type}.xml$'
-  else:
-    raise Exception('Invalid document type!')
-
-  href = parse.find('a', href=re.compile(pattern))
-  if href is None:
-    return None
-  
-  href = href.get('href')
-  return f'https://www.sec.gov/{href}'
-
-def xbrl_to_dict(url: str, cik: str) -> dict:
-
-  with requests.Session() as s:
-    rs = s.get(url, headers=Ticker._headers)
-    root = et.fromstring(rs.content)
-
-  form = {
-    '10-K': 'annual',
-    '10-Q': 'quarterly'
-  }
-  meta = {
-    #'cik': int(cik),
-    #'ticker': root.find('.{*}TradingSymbol').text,
-    'id': url.split('/')[-2],
-    'type': form[root.find('.{*}DocumentType').text],
-    'date': root.find('.{*}DocumentPeriodEndDate').text,
-    'fiscal_end': root.find('.{*}CurrentFiscalYearEndDate').text[1:]
-  }
-  data = {
-    'meta': meta,
-    'data': {}
-  }
-
-  for item in root.findall('.//*[@unitRef]'):
-    if item.text is None:
-      continue
-
-    item_name = item.tag.split('}')[-1]
-    if not item_name in data['data']:
-      data['data'][item_name] = []
-    
-    temp = {}
-    
-    # Dates
-    ctx = item.attrib['contextRef'] #item.get('contextRef')
-    period = root.find(f'./{{*}}context[@id="{ctx}"]').find('./{*}period')
-    
-    if period.find('./{*}instant') is not None:
-      temp['period'] = {
-        'instant': period.find('./{*}instant').text
-      }
-    else:
-      temp['period'] = {
-        'start_date': period.find('./{*}startDate').text,
-        'end_date': period.find('./{*}endDate').text,
-      }
-    # Segment
-    seg = root.find(f'./{{*}}context[@id="{ctx}"]').find('.//{*}segment/{*}explicitMember')
-    if seg is not None:
-      temp['segment'] = seg.text
-    
-    # Numerical value
-    temp['value'] = float(item.text)
-    
-    # Unit
-    unit = item.attrib['unitRef']
-    if '_' in unit:
-      unit = unit.split('_')[-1].lower()
-    temp['unit'] = unit
-    
-    # Append scrapping
-    if temp not in data['data'][item_name]:
-      data['data'][item_name].append(temp)
-
-  # Sort items
-  data['data'] = {
-    k: data['data'][k] 
-    for k in sorted(data['data'].keys())
-  }
-  return data
 
 def financials_to_df(dct_raw):
 	
@@ -494,41 +403,6 @@ def financials_to_df(dct_raw):
     for c in temp:
       df[c].fillna(temp[c], inplace=True)
 
-  return df
-
-async def taxonomy_to_df(xml_url):
-  ns = 'http://www.w3.org/1999/xlink'
-
-  def rename_sheet(txt: str) -> str:
-    pattern = r'income|balance|cashflow'
-    m = re.search(pattern, txt, flags=re.I)
-    if m:
-      txt = m.group().lower()
-    
-    return txt
-
-  async with httpx.AsyncClient() as client:
-    rs = await client.get(xml_url, headers=Ticker._headers)
-    root = et.fromstring(rs.content)
-
-  url_pattern = r'^https?://www\..+/'
-  el_pattern = r'(?<=_)[A-Z][A-Za-z]+(?=_)?'
-
-  taxonomy = []
-  for sheet in root.findall('.//{*}calculationLink'):
-    sheet_label = re.sub(url_pattern, '', sheet.attrib[f'{{{ns}}}role'])
-    sheet_label = rename_sheet(sheet_label)
-
-    for el in sheet.findall('.//{*}calculationArc'):
-      taxonomy.append({
-        'sheet': sheet_label,
-        'gaap': re.search(el_pattern, el.attrib[f'{{{ns}}}to']).group(),
-        'parent': re.search(el_pattern, el.attrib[f'{{{ns}}}from']).group(),
-      })
-  
-  df = pd.DataFrame.from_records(taxonomy)
-  df.set_index('item', inplace=True)
-  df.drop_duplicates(inplace=True)
   return df
 
 def process_taxonomy():
