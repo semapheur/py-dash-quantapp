@@ -15,7 +15,7 @@ import re
 import pycountry
 
 # Local
-from lib.db import read_sqlite, upsert_sqlite
+from lib.db.lite import read_sqlite, upsert_sqlite
 from lib.utils import replace_all
 
 SCREENER_API = 'https://tools.morningstar.co.uk/api/rest.svc/dr6pz9spfi/security/screener'
@@ -77,7 +77,7 @@ class Ticker():
 
     # Check if date is given in string
     if isinstance(start_date, dt):
-        start_date = start_date.strftime('%Y-%m-%d')
+      start_date = start_date.strftime('%Y-%m-%d')
     
     #endDate = dt.now().strftime('%Y-%m-%d')
 
@@ -113,14 +113,14 @@ class Ticker():
   def financials(self):
       # WIP
 
-    params = (
-      ('tab', '10'),
-      ('vw', 'bs'),
-      ('SecurityToken', f'{self._id}]3]0]E0WWE$$ALL'),
-      ('Id', f'{self._id}'),
-      ('ClientFund', '0'),
-      ('CurrencyId', self._currency),
-    )
+    params = {
+      'tab': '10',
+      'vw': 'bs',
+      'SecurityToken': f'{self._id}]3]0]E0WWE$$ALL',
+      'Id': f'{self._id}',
+      'ClientFund': '0',
+      'CurrencyId': self._currency,
+    }
 
     url = 'https://tools.morningstar.no/no/stockreport/default.aspx'
     

@@ -1,17 +1,11 @@
-from dotenv import load_dotenv
-import os
 from pathlib import Path
 import re
-from glom import glom
 
 import pandas as pd
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine, inspect, event, text
-from tinydb import TinyDB, Query
 
-load_dotenv(Path().cwd() / '.env')
-
-DB_DIR = Path(__file__).resolve().parent.parent / os.getenv('DB_DIR')
+from lib.const import DB_DIR
 
 def sqlite_name(db_name: str) -> str:
   if not db_name.endswith('.db'):
@@ -165,52 +159,3 @@ def search_tickers(security: str, search: str, href=True, limit: int=10) -> pd.D
     df = pd.read_sql(text(query), con=con)
     
   return df
-
-def tinydb_name(db_name):
-  if not db_name.endswith('.json'):
-    return db_name + '.json'
-
-  return db_name
-
-def insert_tinydb(
-  data: list|dict,
-  db_name: str,
-  tbl: str=''
-):
-  db_path = DB_DIR / tinydb_name(db_name)
-  db = TinyDB(db_path)
-
-  if tbl:
-    db = db.table(tbl)
-
-  if isinstance(data, list):
-    db.insert_multiple(data)
-  elif isinstance(data, dict):
-    db.insert(data)
-
-def read_tinydb(
-  db_name: str, 
-  query=None, 
-  tbl: str=''
-) -> list|dict :
-  db_path = DB_DIR / tinydb_name(db_name)
-  db = TinyDB(db_path)
-
-  if tbl:
-    if not tbl in db.tables():
-      return []
-    db = db.table(tbl)
-
-  if not query:
-    return db.all()
-  
-  return db.search(query)
-
-def tinydb_field(
-  db_name:str, 
-  query, 
-  field:str, 
-  tbl:str='_default'
-) -> list:
-  result = read_tinydb(db_name, query, tbl)  
-  return [glom(r, field) for r in result]

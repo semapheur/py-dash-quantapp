@@ -5,11 +5,12 @@ import httpx
 import bs4 as bs
 
 import pandas as pd
+from tinydb import TinyDB
 
 # Local
-from lib.db import DB_DIR, upsert_sqlite, insert_tinydb, read_tinydb
-from lib.scrap import HEADERS
-#rom lib.finlib import finItemRenameDict
+from lib.const import DB_DIR, HEADERS
+from lib.db.lite import upsert_sqlite
+from lib.db.tiny import insert_tinydb, read_tinydb
 
 async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
   tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
@@ -29,19 +30,19 @@ async def xbrl_url(cik, doc_id: str, doc_type='htm') -> str:
   else:
     raise Exception('Invalid document type!')
 
-  href = parse.find('a', href=re.compile(pattern))
-  if href is None:
+  a_node = parse.find('a', href=re.compile(pattern))
+  if a_node is None:
     return None
   
-  href = href.get('href')
+  href = a_node.get('href')
   return f'https://www.sec.gov/{href}'
 
 async def parse_xbrl(url: str, cik: str):
 
   def parse_period(period: et.Element) -> dict[str, str]:
-    if period.find('./{*}instant') is not None:
+    if (el := period.find('./{*}instant')) is not None:
       return {
-        'instant': period.find('./{*}instant').text
+        'instant': el.text
       }
     else: 
       return {
@@ -127,7 +128,6 @@ async def parse_xbrl(url: str, cik: str):
           entry['member'] = temp['member']
       else:
         entry.update(temp)
-
     except:
       data['data'][item_name].append(temp)    
 
@@ -172,3 +172,88 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   df.set_index('item', inplace=True)
   df.drop_duplicates(inplace=True)
   return df
+
+def to_frame(data: dict) -> pd.DataFrame:
+    
+  def parse_period(period: dict[str, str]) -> dt:
+    if 'instant' in period:
+      return dt.strptime(period['instant'], '%Y-%m-%d')
+    
+    return dt.strptime(period['end_date'], '%Y-%m-%d')
+    
+  def insert_value(df_data:dict, col:str, val:float, date:dt, scope:str):
+    if (date, scope) not in df_data:
+      df_data[(date, scope)] = {}
+        
+    df_data[(date, scope)][col] = val
+  
+  fin_items = load_fin_items('gaap')
+  mask = fin_items['member'].isna()
+  fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
+  scope = glom(data, 'meta.scope')
+  fiscal_month = int(glom(data, 'meta.fiscal_end').split('-')[1])
+  
+  df_data = {
+    (fin_date, scope[0]): {}
+  }
+  
+  _fin_items = set(fin_items.index).intersection(set(data['data'].keys()))
+  for i in _fin_items:
+    entries: list = glom(data, f'data.{i}')
+    
+    for e in entries:
+      date = parse_period(e['period']) 
+      if date != fin_date:
+        continue
+      
+      col = fin_items.loc[mask, 'item'].loc[i]
+      df_data[(date, scope[0])][col] = e['value']
+      
+      if 'member' in e:
+        mem = fin_items.loc[i,'member']
+        if isinstance(mem, float): 
+          continue
+          
+        _mem = set(mem).intersection(set(e['member'].keys()))
+        if not _mem:
+          continue
+              
+          for m in _mem:
+            col = fin_items.loc[
+              (fin_items.index == i) & 
+              (fin_items['member'] == m), 
+              'item'
+            ].loc[i]
+            df_data[(date, scope[0])][col] = e['value']
+      
+  df = pd.DataFrame.from_dict(df_data, orient='index')
+  df.index = pd.MultiIndex.from_tuples(df.index)
+  df.index.names = ['date', 'period']
+  return df
+
+def get_ciks():
+  rnm = {'cik_str': 'cik', 'title': 'name'}
+      
+  url = 'https://www.sec.gov/files/company_tickers.json'
+
+  with requests.Session() as s:
+    rs = s.get(url, headers=HEADERS)
+    parse = rs.json()
+
+  df = pd.DataFrame.from_dict(parse, orient='index')
+  df.rename(columns=rnm, inplace=True)
+  df.set_index('cik', inplace=True)
+
+  return df
+
+def gaap_items() -> set[str]:
+  db_path = DB_DIR / 'edgar.json'
+  db = TinyDB(db_path)
+  
+  items: set[str] = set()
+  for t in db.tables():
+    data = db.table(t).all()
+    for i in data:
+      items.update(i['data'].keys())
+          
+  return items

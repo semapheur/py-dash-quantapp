@@ -20,3 +20,6 @@ pnpm-lock.yaml
 # python virtual environment
 /.venv
 /venv
+
+# libre office lock
+.~lock.*

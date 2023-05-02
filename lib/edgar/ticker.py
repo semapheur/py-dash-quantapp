@@ -22,28 +22,18 @@ import re
 from dataclasses import dataclass
 
 # Local
-from lib.db import DB_DIR, upsert_sqlite, insert_tinydb, read_tinydb
-from lib.edgar.xbrl import fetch_urls, xbrl_url, parse_xbrl, parse_taxonomy
-#rom lib.finlib import finItemRenameDict
+from lib.db.lite import upsert_sqlite
+from lib.db.tiny import insert_tinydb, read_tinydb
+from lib.edgar.parse import fetch_urls, xbrl_url, parse_xbrl, parse_taxonomy
+from lib.const import HEADERS
 
 class Ticker():
 
-  _headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0',
-    'Accept': '*/*',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'DNT': '1',
-    'Connection': 'keep-alive',
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'same-site',
-    'Sec-GPC': '1',
-    'Cache-Control': 'max-age=0',
-  }
+  def __init__(self, cik:int):
+    self._cik = cik
 
-  def __init__(self, cik: int):
-    self._cik = str(cik).zfill(10)
+  def padded_cik(self):
+    return str(self._cik).zfill(10)
 
   def filings(self, forms:list=[]):
       
@@ -62,18 +52,18 @@ class Ticker():
     dfs = []
     
     try:
-      url = f'https://data.sec.gov/submissions/CIK{self._cik}-submissions-001.json'
+      url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}-submissions-001.json'
       with requests.Session() as s:
-        rs = s.get(url, headers=self._headers)
+        rs = s.get(url, headers=HEADERS)
         parse = json.loads(rs.text)
           
       dfs.append(json_to_df(parse)) 
     except:
       pass
     
-    url = f'https://data.sec.gov/submissions/CIK{self._cik}.json'
+    url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
     with requests.Session() as s:
-      rs = s.get(url, headers=self._headers)
+      rs = s.get(url, headers=HEADERS)
       parse = json.loads(rs.text)
     
     parse = parse['filings']['recent']
@@ -106,16 +96,16 @@ class Ticker():
     async def fetch(docs):
       tasks = []
       for d in docs:
-        url = await xbrl_url(self._cik, d)
+        url = await xbrl_url(self.padded_cik(), d)
         if not url:
           continue
-        tasks.append(asyncio.create_task(parse_xbrl(url, self._cik)))
+        tasks.append(asyncio.create_task(parse_xbrl(url, self.padded_cik())))
       
       financials = await asyncio.gather(*tasks)
       return financials
 
     # Load financials
-    financials = read_tinydb('edgar.json', None, int(self._cik))
+    financials = read_tinydb('edgar.json', None, str(self._cik))
 
     if financials:
       dates = [glom(f, 'meta.date') for f in financials]
@@ -138,7 +128,7 @@ class Ticker():
 
     new_financials = asyncio.run(fetch(new_docs))
     if new_financials:
-      insert_tinydb(new_financials, 'edgar.json', int(self._cik))
+      insert_tinydb(new_financials, 'edgar.json', str(self._cik))
     
     return [*financials, *new_financials]
 
@@ -301,110 +291,6 @@ class Ticker():
 
     return asyncio.run(fetch())
 
-def get_ciks():
-  rnm = {'cik_str': 'cik', 'title': 'name'}
-
-  headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Connection': 'keep-alive',
-  }
-      
-  url = 'https://www.sec.gov/files/company_tickers.json'
-
-  with requests.Session() as s:
-    rs = s.get(url, headers=headers)
-    parse = rs.json()
-
-  df = pd.DataFrame.from_dict(parse, orient='index')
-  df.rename(columns=rnm, inplace=True)
-  df.set_index('cik', inplace=True)
-
-  return df
-
-def financials_to_df(dct_raw):
-	
-  def parse_date(date):
-    if isinstance(date, str):
-      date = dt.strptime(i['period']['startDate'], '%Y-%m-%d')
-    
-    return date
-
-  def insert_value(dct, col, val, end_date, period):
-    if (end_date, period) not in df_data:
-      dct[(end_date, period)] = {}
-    
-    if col not in df_data[(end_date, period)]:
-      df_data[(end_date, period)][col] = val
-
-    else:
-      if not pd.isnull(df_data[(end_date, period)][col]):
-        df_data[(end_date, period)][col] = val
-
-    return dct
-
-  fiscal_month = int(dct_raw['meta']['fiscal_end'].split('-')[1])
-
-  df_data = {}
-
-  for k, v in dct_raw['data'].items():
-    for i in v:
-      if ('segment' in i) and (not 'value' in i):
-        continue
-      
-      if 'instant' in i['period']:
-        end_date = parse_date(i['period']['instant'])
-
-        if end_date.month == fiscal_month:
-          for p in ['a', 'q']:
-            df_data = insert_value(df_data, k, float(i['value']), end_date, p)
-
-        else:
-          df_data = insert_value(df_data, k, float(i['value']), end_date, 'q')
-              
-      else:
-        start_date = parse_date(i['period']['startDate'])
-        end_date = parse_Date(i['period']['endDate'])
-        
-        delta = relativedelta(end_date, start_date)
-        cond_annual = (
-          ((delta.months == 0 and delta.years == 1) or (delta.months > 10)) and 
-          (end_date.month == fiscal_month)
-        )
-        if cond_annual:
-          for p in ['a', '4q']:
-            df_data = insert_value(df_data, k, float(i['value']), end_date, p)
-
-        elif (delta.months < 4):
-          df_data = insert_value(df_data, k, float(i['value']), end_date, 'q')
-
-        elif (delta.months < 7):
-          df_data = insert_value(df_data, k, float(i['value']), end_date, '2q')
-
-        elif (delta.months < 10):
-          df_data = insert_value(df_data, k, float(i['value']), end_date, '3q')
-
-  # Construct dataframe
-  df = pd.DataFrame.from_dict(df_data, orient='index')
-  df.index = pd.MultiIndex.from_tuples(df.index)
-  df.index.names = ['date', 'period']
-  rnm = finItemRenameDict('GAAP')
-  cols = set(rnm.keys()).intersection(set(df.columns))
-  df = df[list(cols)]
-  df.rename(columns=rnm, inplace=True)
-  df.dropna(how='all', inplace=True)
-
-  # Combine and remove duplicate columns
-  temp = df.loc[:, df.columns.duplicated()]
-  if not temp.empty:
-    df = df.loc[:, ~df.columns.duplicated()]
-
-    for c in temp:
-      df[c].fillna(temp[c], inplace=True)
-
-  return df
-
 def process_taxonomy():
     df = read_sqlite('SELECT * FROM financials', 'taxonomy.db', 'item')
     if df is None:
@@ -429,15 +315,3 @@ def process_taxonomy():
 
     df = df[['sheet', 'item', 'parent_', 'parent', 'label', 'gaap']]
     df.to_csv('fin_taxonomy.csv', index=False)
-
-def gaap_items():
-  db_path = DB_DIR / 'edgar.json'
-  db = TinyDB(db_path)
-  
-  items = set()
-  for t in db.tables():
-    data = db.table(t).all()
-    for i in data:
-      items.update(i['data'].keys())
-          
-  return items

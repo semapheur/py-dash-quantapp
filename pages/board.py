@@ -1,9 +1,10 @@
 from dash import callback, ctx, html, no_update, register_page, Input, Output
 
 from components.map import choropleth_map
-from lib.db import insert_sqlite, DB_DIR
+from lib.const import DB_DIR
+from lib.db.lite import insert_sqlite
 from lib.morningstar import get_tickers
-from lib.sec_edgar import get_ciks
+from lib.edgar.parse import get_ciks
 from lib.virdi import real_estate_price_data
 
 register_page(__name__, path='/board')

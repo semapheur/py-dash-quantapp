@@ -1,0 +1,55 @@
+gaap,member,item,label,sheet
+Revenues,,rv,Revenue,income
+RevenueFromContractWithCustomerExcludingAssessedTax,,rv,Revenue,income
+SalesRevenueNet,,rv,Revenue,income
+RevenueFromContractWithCustomerExcludingAssessedTax,Product,pd_rv,Product Revenue,income
+Revenues,Service,sv_rv,Service Revenue,income
+RevenueFromContractWithCustomerExcludingAssessedTax,Service,sv_rv,Service Revenue,income
+SalesRevenueNet,Services,sv_rv,Service Revenue,income
+,,fn_rv,Finance Revenue,income
+,,ot_rv,Other Revenue,income
+CostOfGoodsAndServicesSold,,rv_cs,Revenue Cost,income
+CostOfGoodsAndServicesSold,Product,pd_rv_cs,Product Revenue Cost,income
+CostOfGoodsAndServicesSold,Service,sv_rv_cs,Service Revenue Cost,income
+,,fn_rv_cs,Finance Revenue Cost,income
+,,ot_rv_cs,Other Revenue Cost,income
+GrossProfit,,gs_pf,Gross Profit,income
+OperatingExpenses,,op_ep,Operating Expense,income
+SellingGeneralAndAdministrativeExpense,,SGA_ep,SGA Expense,income
+AdvertisingExpense,,av_ep,Advertising Expense,income
+MarketingExpense,,mk_ep,Marketing Expense,income
+LeaseAndRentalExpense,,la_rn_ep,LeaseAndRentalExpense,income
+ResearchAndDevelopmentExpense,,RD_ep,R&D Expense,income
+DepreciationAmortizationAndAccretionNet,,DDAA,DDAA,income
+DepreciationDepletionAndAmortization,,DDAA,DDAA,income
+DepreciationAndAmortization,,DDAA,DDAA,income
+Depreciation,,dpr,Depreciation,income
+AmortizationOfIntangibleAssets,,am,Amortization,income
+,,ot_op_ep,Other Operating Expense,income
+OperatingIncomeLoss,,op_ic/ls,Operating Income/Loss,income
+NonoperatingIncomeExpense,,n-op_in/ls,Non-Operating Income/Loss,income
+InvestmentIncomeInterestAndDividend,,iv_ic/ls,Investment Income/Loss,income
+OtherNonoperatingIncomeExpense,,ot_n-op_ic/ls,Other Non-Operating Income/Loss,income
+InterestExpense,,it_ep,Interest Expense,income
+IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest,,p-tx_ic/ls,Pretax Income/Loss,income
+IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments,,p-tx_ic/ls,Pretax Income/Loss,income
+IncomeTaxExpenseBenefit,,ic_tx_ep/bf,Income Tax Expense/Benefit,income
+DeferredIncomeTaxExpenseBenefit,,df_ic_tx_ep/bf,Deferred Income Tax Expense/Benefit,income
+DeferredFederalIncomeTaxExpenseBenefit,,df_dm_ic_tx_ep/bf,Deferred Domestic Income Tax Expense/Benefit,income
+DeferredStateAndLocalIncomeTaxExpenseBenefit,,df_lc_ic_tx_ep/bf,Deferred Local Income Tax Expense/Benefit,income
+DeferredForeignIncomeTaxExpenseBenefit,,df_fo_ic_tx_ep/bf,Deferred Foreign Income Tax Expense/Benefit,income
+,,nt_ic/ls_cn_op,Net Income/Loss from Continuing Operations,income
+,,n-rc_ic/ls,Non-Recurring Income/Loss,income
+,,dc_op_ic/ls,Discontinued Operations,income
+,,eo_im,Extraordinary Items,income
+,,us_im,Unusual Items,income
+,,nt_ic/ls_mn_it,Net Income/Loss Incl. Minority Interest,income
+NetIncomeLossAttributableToNoncontrollingInterest,,mn_it_ic/ls,Minority Interest Income/Loss,income
+NetIncomeLoss,,nt_ic/ls,Net Income/Loss,income
+,,pf_st_dv,Preferred Stock Dividends,income
+,,nt_ic/ls_av_to_cm_shh,Net Income/Loss Available to Common Shareholders,income
+EarningsPerShareBasic,,EPSB,Earnings/Share Basic,income
+WeightedAverageNumberOfSharesOutstandingBasic,,wansob,Average Basic Shares,income
+EarningsPerShareDiluted,,EPSD,Earnings/Share Basic,income
+WeightedAverageNumberOfDilutedSharesOutstanding,,wansod,Average Diluted Shares,income
+WeightedAverageNumberDilutedSharesOutstandingAdjustment,,wansod,Average Diluted Shares,income

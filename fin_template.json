@@ -37,8 +37,8 @@
       }
     },
     "gs_pf": {
-      "label": "Gross profit",
-      "calc": [
+      "label": "Gross Profit",
+      "sum": [
         "rv",
         "rv_cs"
       ]
@@ -48,13 +48,38 @@
       "sign": -1,
       "members": {
         "SGA_ep": {
-          "label": "SGA Expense"
+          "label": "SGA Expense",
+          "members": {
+            "av_ep": {
+              "label": "Advertising Expense"
+            },
+            "mk_ep": {
+              "label": "Marketing Expense"
+            },
+            "la_rn_ep": {
+              "label": "Lease and Rental Expense"
+            }
+          }
         },
         "RD_ep": {
           "label": "R&D Expense"
         },
         "DDAA": {
-          "label": "DDAA"
+          "label": "DDAA",
+          "members": {
+            "dpr": {
+              "label": "Depreciation"
+            },
+            "dpl": {
+              "label": "Depletion"
+            },
+            "am": {
+              "label": "Amortization"
+            },
+            "at": {
+              "label": "Accretion"
+            }
+          }
         },
         "ot_op_ep": {
           "label": "Other Operating Expense"
@@ -69,21 +94,21 @@
     },
     "n-op_in/ls": {
       "label": "Non-Operating Income/Loss",
-      "member": {
+      "members": {
         "iv_ic/ls": {
           "label": "Investment Income/Loss"
+        },
+        "ot_n-op_ic/ls": {
+          "label": "Other Non-Operating Income/Loss"
         }
       }
     },
-    "n-op_ep": {
-      "label": "Non-Operating Expense",
+    "it_ep": {
+      "label": "Interest Expense",
       "sign": -1,
       "members": {
-        "it_ep": {
-          "label": "Interest Expense"
-        },
-        "ot_n-op_ep": {
-          "label": "Other Non-Operating Expense"
+        "db_it_ep": {
+          "label": "Debt Interest Expense"
         }
       }
     },
@@ -92,12 +117,28 @@
       "sum": [
         "op_ic/ls", 
         "n-op_ic/ls",
-        "n-op_ep"
+        "it_ep"
       ]
     },
     "ic_tx_ep/bf": {
       "label": "Income Tax Expense/Benefit",
-      "sign": -1
+      "sign": -1,
+      "members": {
+        "df_ic_tx_ep/bf": {
+          "label": "Deferred IncomeTax Expense/Benefit",
+          "members": {
+            "df_dm_ic_tx_ep/bf": {
+              "label": "Deferred Domestic Income Tax Expense/Benefit"
+            },
+            "df_lc_ic_tx_ep/bf": {
+              "label": "Deferred Local Income Tax Expense/Benefit"
+            },
+            "df_fo_ic_tx_ep/bf": {
+              "label": "Deferred Foreign Income Tax Expense/Benefit"
+            }
+          }
+        }
+      }
     },
     "nt_ic/ls_cn_op": {
       "label": "Net Income/Loss from Continuing Operations",
@@ -108,7 +149,7 @@
     },
     "n-rc_ic/ls": {
       "label": "Non-Recurring Income/Loss",
-      "member": {
+      "members": {
         "dc_op_ic/ls": {
           "label": "Discontinued Operations"
         },
@@ -153,7 +194,7 @@
         "nt_ic/ls",
         "-wansob"
       ],
-      "member": {
+      "members": {
         "wansob": {
           "label": "Average Basic Shares"
         }
@@ -165,7 +206,7 @@
         "nt_ic/ls",
         "-wansod"
       ],
-      "member": {
+      "members": {
         "wansod": {
           "label": "Average Diluted Shares"
         }

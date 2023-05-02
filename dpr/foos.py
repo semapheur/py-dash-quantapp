@@ -159,19 +159,6 @@ def splitFilterPart(filterPart):
 
     return [None] * 3
 
-# Rename duplicate DataFrame columns
-class renamer():
-    def __init__(self):
-        self.d = dict()
-
-    def __call__(self, x):
-        if x not in self.d:
-            self.d[x] = 0
-            return x
-        else:
-            self.d[x] += 1
-            return '%s_%d' % (x, self.d[x])
-
 def fuzzMatch(left, right):
     
     matches = [] #np.full(len(left), '')

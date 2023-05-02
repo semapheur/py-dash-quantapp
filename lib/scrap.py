@@ -5,12 +5,7 @@ import httpx
 import requests
 import bs4 as bs
 
-HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/112.0',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'en-US,en;q=0.5',
-  #'Accept-Encoding': 'gzip, deflate, br',
-}
+from lib.const import HEADERS
 
 def free_proxy_list():
   url = 'https://free-proxy-list.net/#'
