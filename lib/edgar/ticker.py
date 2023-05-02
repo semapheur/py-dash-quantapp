@@ -24,7 +24,12 @@ from dataclasses import dataclass
 # Local
 from lib.db.lite import upsert_sqlite
 from lib.db.tiny import insert_tinydb, read_tinydb
-from lib.edgar.parse import fetch_urls, xbrl_url, parse_xbrl, parse_taxonomy
+from lib.edgar.parse import ( 
+  xbrl_url, 
+  parse_statement, 
+  parse_taxonomy,
+  statement_to_df
+)
 from lib.const import HEADERS
 
 class Ticker():
@@ -132,116 +137,20 @@ class Ticker():
     
     return [*financials, *new_financials]
 
-  def financials(self):
+  async def financials(self):
     #period = {'10-Q': 'q', '10-K': 'a'}
     
-    # MongoDB
-    #client = MongoClient('mongodb://localhost:27017/')
-    #db = client['finly']
-    #coll = db['secFinancials']
-    #query = {'meta.cik': self._cik}
-    #record = next(docs)
-    #lastDate = dt.strptime(record['meta']['date'], '%Y-%m-%d')
-    #if relativedelta(dt.now(), lastDate).months > 3:
-    #  self.scrapFinancials()
-    #docs = coll.find(query, {'_id': False}).sort(
-    #  'meta.date', DESCENDING)
-
-    query = where('meta')['cik'] == self._cik
-    df = read_tinydb('financials.json', query, 'edgar')
+    docs = read_tinydb('edgar.json', None, str(self._cik))
+    if not docs:
+      docs = await self.get_financials()
 
     dfs = []
 
-    for x in docs:
-      temp = financials_to_df(x)
-      dfs.append(temp)
+    for doc in docs:
+      dfs.append(statement_to_df(doc))
     
-    df = dfs.pop(0)
-    for i in dfs:
-      df = df.combine_first(i)
-      diffCols = i.columns.difference(df.columns).tolist()
-
-      if diffCols:
-        df = df.join(i[diffCols], how='outer')
-
+    df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
-
-    # Convert multi-quarterly figures to quarterly ones
-    excl = ['sh', 'shDil', 'taxRate']
-    for p in range(2,5):
-        
-      # Extract multi-quarterly figures
-      dfMq = df.loc[(slice(None), f'{p}q'), :].dropna(axis=1, how='all')
-      dfMq = dfMq[dfMq.columns.difference(excl)]
-      dfMq.reset_index('period', inplace=True)
-      dfMq['period'] = 'q'
-      dfMq.set_index('period', append=True, inplace=True)
-
-      # Extract quarterly figures
-      dates = dfMq.index.get_level_values('date')
-
-      if p == 2:
-          dfQ = df.loc[(slice(None), 'q'), dfMq.columns].shift(1)
-      
-      else:
-        dfQ = df.loc[(slice(None), 'q'), dfMq.columns]\
-          .rolling(p-1, min_periods=p-1).sum().shift(1)
-      
-      dfQ = dfQ.loc[(dates, slice(None)), :]
-
-      # Calculate quarterly figures
-      dfMq = dfMq - dfQ
-
-      df.update(dfMq, overwrite=False) # Upsert
-    
-    if {'2q', '3q', '4q'}.intersection(set(df.index.get_level_values('period'))):
-      df = df.loc[(slice(None), ['a', 'q']), :]
-        
-    # Additional items
-    df['rvnEx'].fillna(df['rvn'] - df['grsPrft'], inplace=True)
-
-    df['ebit'] = df['netInc'] + df['intEx'] + df['taxEx'] #df['ebit'] = df['rvn'] - df['rvnEx'] - df['opEx']
-    df['ebitda'] = df['ebit'] + df['da']
-    df['intCvg'] = (df['ebit'] / df['intEx']) # Interest coverage
-    df['taxRate'] = df['taxEx'] / df['ebt'] # Tax rate
-
-    df['cceStInv'].fillna(df['cce'] + df['stInv'], inplace=True)
-    df['totNoCrtLbt'].fillna(df['totAst'] - df['totCrtAst'], inplace=True)
-    df['totNoCrtLbt'].fillna(df['totLbt'] - df['totCrtLbt'], inplace=True)
-
-    # Working capital
-    for p in df.index.get_level_values('period').unique():
-      msk = (slice(None), p)
-      df.loc[msk, 'wrkCap'] = (
-        df.loc[msk, 'totCrtAst'].rolling(2, min_periods=0).mean() -
-        df.loc[msk, 'totCrtLbt'].rolling(2, min_periods=0).mean()
-      )
-
-      df.loc[msk, 'chgWrkCap'] = df.loc[msk, 'wrkCap'].diff()
-
-    # Total debt
-    df['totDbt'] = df['stDbt'] + df['ltDbt']
-
-    #df['tgbEqt'] = (df['totEqt'] - df['prfEqt'] - df['itgbAst'] - df['gw'])
-
-    # Capital expenditure
-    for p in df.index.get_level_values('period').unique():
-      msk = (slice(None), p)
-      df.loc[msk, 'capEx'] = df.loc[msk, 'ppe'].diff() + df.loc[msk, 'da']
-
-    # Free cash flow
-    if 'freeCf' not in set(df.columns):
-      df['freeCfFirm'] = (
-        df['netInc'] + 
-        df['da'] +
-        df['intEx'] * (1 - df['taxRate']) - 
-        df['chgWrkCap'] -
-        df['capEx']
-      )
-      df['freeCf'] = (
-        df['freeCfFirm'] + 
-        df['totDbt'].diff() - 
-        df['intEx'] * (1 - df['taxRate']))
 
     return df
 
@@ -315,3 +224,83 @@ def process_taxonomy():
 
     df = df[['sheet', 'item', 'parent_', 'parent', 'label', 'gaap']]
     df.to_csv('fin_taxonomy.csv', index=False)
+
+'''
+# Convert multi-quarterly figures to quarterly ones
+excl = ['sh', 'shDil', 'taxRate']
+for p in range(2,5):
+    
+  # Extract multi-quarterly figures
+  dfMq = df.loc[(slice(None), f'{p}q'), :].dropna(axis=1, how='all')
+  dfMq = dfMq[dfMq.columns.difference(excl)]
+  dfMq.reset_index('period', inplace=True)
+  dfMq['period'] = 'q'
+  dfMq.set_index('period', append=True, inplace=True)
+
+  # Extract quarterly figures
+  dates = dfMq.index.get_level_values('date')
+
+  if p == 2:
+      dfQ = df.loc[(slice(None), 'q'), dfMq.columns].shift(1)
+  
+  else:
+    dfQ = df.loc[(slice(None), 'q'), dfMq.columns]\
+      .rolling(p-1, min_periods=p-1).sum().shift(1)
+  
+  dfQ = dfQ.loc[(dates, slice(None)), :]
+
+  # Calculate quarterly figures
+  dfMq = dfMq - dfQ
+
+  df.update(dfMq, overwrite=False) # Upsert
+
+if {'2q', '3q', '4q'}.intersection(set(df.index.get_level_values('period'))):
+  df = df.loc[(slice(None), ['a', 'q']), :]
+    
+# Additional items
+df['rvnEx'].fillna(df['rvn'] - df['grsPrft'], inplace=True)
+
+df['ebit'] = df['netInc'] + df['intEx'] + df['taxEx'] #df['ebit'] = df['rvn'] - df['rvnEx'] - df['opEx']
+df['ebitda'] = df['ebit'] + df['da']
+df['intCvg'] = (df['ebit'] / df['intEx']) # Interest coverage
+df['taxRate'] = df['taxEx'] / df['ebt'] # Tax rate
+
+df['cceStInv'].fillna(df['cce'] + df['stInv'], inplace=True)
+df['totNoCrtLbt'].fillna(df['totAst'] - df['totCrtAst'], inplace=True)
+df['totNoCrtLbt'].fillna(df['totLbt'] - df['totCrtLbt'], inplace=True)
+
+# Working capital
+for p in df.index.get_level_values('period').unique():
+  msk = (slice(None), p)
+  df.loc[msk, 'wrkCap'] = (
+    df.loc[msk, 'totCrtAst'].rolling(2, min_periods=0).mean() -
+    df.loc[msk, 'totCrtLbt'].rolling(2, min_periods=0).mean()
+  )
+
+  df.loc[msk, 'chgWrkCap'] = df.loc[msk, 'wrkCap'].diff()
+
+# Total debt
+df['totDbt'] = df['stDbt'] + df['ltDbt']
+
+#df['tgbEqt'] = (df['totEqt'] - df['prfEqt'] - df['itgbAst'] - df['gw'])
+
+# Capital expenditure
+for p in df.index.get_level_values('period').unique():
+  msk = (slice(None), p)
+  df.loc[msk, 'capEx'] = df.loc[msk, 'ppe'].diff() + df.loc[msk, 'da']
+
+# Free cash flow
+if 'freeCf' not in set(df.columns):
+  df['freeCfFirm'] = (
+    df['netInc'] + 
+    df['da'] +
+    df['intEx'] * (1 - df['taxRate']) - 
+    df['chgWrkCap'] -
+    df['capEx']
+  )
+  df['freeCf'] = (
+    df['freeCfFirm'] + 
+    df['totDbt'].diff() - 
+    df['intEx'] * (1 - df['taxRate']))
+
+'''

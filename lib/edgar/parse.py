@@ -1,8 +1,10 @@
+from datetime import datetime as dt
 import re
 import xml.etree.ElementTree as et
 
 import httpx
 import bs4 as bs
+from glom import glom
 
 import pandas as pd
 from tinydb import TinyDB
@@ -37,7 +39,7 @@ async def xbrl_url(cik, doc_id: str, doc_type='htm') -> str:
   href = a_node.get('href')
   return f'https://www.sec.gov/{href}'
 
-async def parse_xbrl(url: str, cik: str):
+async def parse_statement(url: str, cik: str):
 
   def parse_period(period: et.Element) -> dict[str, str]:
     if (el := period.find('./{*}instant')) is not None:
@@ -173,7 +175,13 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   df.drop_duplicates(inplace=True)
   return df
 
-def to_frame(data: dict) -> pd.DataFrame:
+def load_fin_items(source: str) -> pd.DataFrame:
+  df = pd.read_csv('fin_items.csv', usecols=[source, 'member', 'item'])
+  df.dropna(subset=source, inplace=True)
+  df.set_index(source, inplace=True)
+  return df
+
+def statement_to_df(data: dict) -> pd.DataFrame:
     
   def parse_period(period: dict[str, str]) -> dt:
     if 'instant' in period:
@@ -191,7 +199,6 @@ def to_frame(data: dict) -> pd.DataFrame:
   mask = fin_items['member'].isna()
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
-  fiscal_month = int(glom(data, 'meta.fiscal_end').split('-')[1])
   
   df_data = {
     (fin_date, scope[0]): {}
@@ -202,6 +209,9 @@ def to_frame(data: dict) -> pd.DataFrame:
     entries: list = glom(data, f'data.{i}')
     
     for e in entries:
+      if 'value' not in e:
+        continue
+
       date = parse_period(e['period']) 
       if date != fin_date:
         continue
@@ -209,22 +219,24 @@ def to_frame(data: dict) -> pd.DataFrame:
       col = fin_items.loc[mask, 'item'].loc[i]
       df_data[(date, scope[0])][col] = e['value']
       
-      if 'member' in e:
-        mem = fin_items.loc[i,'member']
-        if isinstance(mem, float): 
-          continue
-          
-        _mem = set(mem).intersection(set(e['member'].keys()))
-        if not _mem:
-          continue
-              
-          for m in _mem:
-            col = fin_items.loc[
-              (fin_items.index == i) & 
-              (fin_items['member'] == m), 
-              'item'
-            ].loc[i]
-            df_data[(date, scope[0])][col] = e['value']
+      if 'member' not in e:
+        continue
+
+      mem = fin_items.loc[i,'member']
+      if isinstance(mem, float): 
+        continue
+        
+      _mem = set(mem).intersection(set(e['member'].keys()))
+      if not _mem:
+        continue
+            
+      for m in _mem:
+        col = fin_items.loc[
+          (fin_items.index == i) & 
+          (fin_items['member'] == m), 
+          'item'
+        ].loc[i]
+        df_data[(date, scope[0])][col] = e['value']
       
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
