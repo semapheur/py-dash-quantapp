@@ -175,81 +175,60 @@ async def get_tickers(
 
 async def fund_data():
     
-  eStyle = {
-    0: 'NA',
-    1: 'Value-Big Cap',
-    2: 'Mix-Big Cap',
-    3: 'Growth-Big Cap',
-    4: 'Value-Mid Cap',
-    5: 'Mix-Mid Cap',
-    6: 'Growth-Mid Cap',
-    7: 'Value-Small Cap',
-    8: 'Mix-Small Cap',
-    9: 'Growth-Small Cap'
-  }
-  bStyle = {
-    0: 'NA',
-    1: 'Hi CQ-Lo IS',
-    2: 'Hi CQ-Mi IS',
-    3: 'Hi CQ-Hi IS',
-    4: 'Mi CQ-Lo IS',
-    5: 'Mi CQ-Mi IS',
-    6: 'Mi CQ-Hi IS',
-    7: 'Lo CQ-Lo IS',
-    8: 'Lo CQ-Mi IS',
-    9: 'Lo CQ-Hi IS'
-  }
-  fields = (
-    'SecId', 'PriceCurrency', 'LegalName', 'CategoryName',
-    'StarRatingM255', 'SustainabilityRank', 'GBRReturnM0',
-    'GBRReturnM12', 'GBRReturnM36', 'GBRReturnM60', 'GBRReturnM120',
-    'InitialPurchase', 'EquityStyleBox', 'BondStyleBox',
-    'AverageCreditQualityCode', 'AlphaM36', 'BetaM36', 'R2M36',
-    'StandardDeviationM36', 'SharpeM36', 'SortinoM36', 'PERatio', 'PBRatio'
+  equity_style = ('NA', 
+    'Value-Big Cap', 'Mix-Big Cap', 'Growth-Big Cap',
+    'Value-Mid Cap', 'Mix-Mid Cap', 'Growth-Mid Cap',
+    'Value-Small Cap', 'Mix-Small Cap', 'Growth-Small Cap'
   )
+  bond_style = ('NA',
+    'Hi CQ-Lo IS', 'Hi CQ-Mi IS', 'Hi CQ-Hi IS',
+    'Mi CQ-Lo IS', 'Mi CQ-Mi IS', 'Mi CQ-Hi IS',
+    'Lo CQ-Lo IS', 'Lo CQ-Mi IS', 'Lo CQ-Hi IS'
+  )
+  fields = {
+    'SecId': 'id', 
+    'LegalName': 'name', 
+    'CategoryName': 'category',
+    'PriceCurrency': 'currency',
+    'EquityStyleBox': 'equity_style', 
+    'BondStyleBox': 'bond_style',
+    'AverageCreditQualityCode': 'avg_credit_quality',
+    'StarRatingM255': 'rating', 
+    'SustainabilityRank': 'sustainaility',
+    'GBRReturnM0': 'return:ty',
+    'GBRReturnM12': 'return:1y', 
+    'GBRReturnM36': 'return:3y', 
+    'GBRReturnM60': 'return:5y', 
+    'GBRReturnM120': 'return:10',
+    'InitialPurchase': 'init_purch',
+    'AlphaM36': 'alpha:3y',
+    'BetaM36': 'beta:3y', 
+    'R2M36': 'r2:3y',
+    'StandardDeviationM36': 'std:36', 
+    'SharpeM36': 'sharpe:3y', 
+    'SortinoM36': 'sortino:3y', 
+    'PERatio': 'pe_ratio', 
+    'PBRatio': 'pb_ratio'
+  }
   params: dict[str, str] = PARAMS.copy()
   params.update({
     'pageSize': '50000',
     'sortOrder': 'LegalName asc',
     'universeIds': 'FONOR$$ALL',
-    'securityDataPoints': '|'.join(fields),
+    'securityDataPoints': '|'.join(fields.keys()),
   })
-  
   parse = await fetch_api(params)
-  
-  scrap =  []
-  for f in parse['rows']:
-    scrap.append({
-      'name': f.get('LegalName'),
-      'id': f.get('SecId'),
-      'currency': f.get('PriceCurrency'),
-      'category': f.get('CategoryName'),
-      'eqtStyle': eStyle[f.get('EquityStyleBox', 0)],
-      'bndStyle': bStyle[f.get('BondStyleBox', 0)],
-      'rating': f.get('StarRatingM255', 0),
-      'sustainability': f.get('SustainabilityRank', np.nan),
-      'return_ty': f.get('GBRReturnM0', np.nan),
-      'return_1y': f.get('GBRReturnM12', np.nan),
-      'return_3y': f.get('GBRReturnM36', np.nan),
-      'return_5y': f.get('GBRReturnM60', np.nan),
-      'avgCrdtQy': f.get('AverageCreditQualityCode', 'NA'),
-      'std': f.get('StandardDeviationM36', np.nan),
-      'sharpe': f.get('SharpeM36', np.nan),
-      'sortino': f.get('SortinoM36', np.nan),
-      'r2': f.get('R2M36', np.nan),
-      'alpha': f.get('AlphaM36', np.nan),
-      'beta': f.get('BetaM36', np.nan),
-      'peRatio': f.get('PERatio', np.nan),
-      'pbRatio': f.get('PBRatio', np.nan),
-      'initPrchLimit': f.get('InitialPurchase', np.nan),
-    })
-
-  df = pd.DataFrame.from_records(scrap)
+  data = parse['rows']
+  df = pd.DataFrame.from_records(data)
+  df.rename(columns=fields, inplace=True)
+  df['equity_style'] = df['equity_style'].apply(lambda x: equity_style[x])
+  df['bond_style'] = df['bond_style'].apply(lambda x: bond_style[x])
   return df
 
-def index_data(scope):
+def index_data(
+  scope: Literal['country', 'region', 'sector-us', 'sector-global']):
     
-  scopeList = {
+  scope_list = {
     'country': 'countryReturnData',
     'region': 'regionReturnData',
     'sector-us': 'sectorReturnDataUS',
@@ -263,7 +242,7 @@ def index_data(scope):
   }
   url = (
     'https://api.morningstar.com/sal-service/v1/'
-    f'index/valuation/{scopeList[scope]}'
+    f'index/valuation/{scope_list[scope]}'
   )
   
   with httpx.Client() as client:
@@ -273,14 +252,14 @@ def index_data(scope):
   scrap = []
   for i in parse['gmbValuationDataList']:
     scrap.append({
-      'mornId': i.get('performanceId'),
+      'id': i.get('performanceId'),
       'ticker': i.get('ticker'),
       'name': i.get('indexName'),
-      'pfvRatio_mr': i.get('pfvMostRecent'),
-      'pfvRatio_3m': i.get('pfvMost3M'),
-      'pfvRatio_1y': i.get('pfvMost1Y'),
-      'pfvRatio_5y': i.get('pfvMost5Y'),
-      'pfvRatio_10y': i.get('pfvMost10Y'),
+      'pfv_ratio:mr': i.get('pfvMostRecent'),
+      'pfv_ratio:3m': i.get('pfvMost3M'),
+      'pfv_ratio:1y': i.get('pfvMost1Y'),
+      'pfv_ratio:5y': i.get('pfvMost5Y'),
+      'pfv_ratio:10y': i.get('pfvMost10Y'),
     })
       
   df = pd.DataFrame.from_records(scrap)
