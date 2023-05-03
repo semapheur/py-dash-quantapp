@@ -16,10 +16,12 @@ matplotlib
 numba
 numpy
 pandas
+#polars
 pycountry
 pydantic
 python-dotenv
 requests
+ruff
 scikit-learn
 scipy
 sqlalchemy

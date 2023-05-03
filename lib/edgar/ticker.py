@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from datetime import datetime as dt
@@ -15,24 +14,25 @@ from glom import glom
 
 # Databasing
 #from pymongo import MongoClient, DESCENDING
-from tinydb import where
 
 # Utils
 import re
-from dataclasses import dataclass
 
 # Local
-from lib.db.lite import upsert_sqlite
+from lib.const import HEADERS
+from lib.db.lite import read_sqlite
 from lib.db.tiny import insert_tinydb, read_tinydb
+from lib.edgar.models import Financials
 from lib.edgar.parse import ( 
   xbrl_url, 
   parse_statement, 
   parse_taxonomy,
   statement_to_df
 )
-from lib.const import HEADERS
+from lib.utils import camel_split, snake_abbreviate
 
 class Ticker():
+  __slots__ = ('_cik')
 
   def __init__(self, cik:int):
     self._cik = cik
@@ -57,13 +57,16 @@ class Ticker():
     dfs = []
     
     try:
-      url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}-submissions-001.json'
+      url = (
+        f'https://data.sec.gov/submissions/CIK{self.padded_cik()}'
+        '-submissions-001.json'
+      )
       with requests.Session() as s:
         rs = s.get(url, headers=HEADERS)
         parse = json.loads(rs.text)
           
       dfs.append(json_to_df(parse)) 
-    except:
+    except Exception:
       pass
     
     url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
@@ -88,7 +91,7 @@ class Ticker():
         
     return df
 
-  async def get_financials(self, delta=120):
+  async def get_financials(self, delta=120) -> list[Financials]:
 
     def new_financials(start_date:dt|str='') -> pd.DataFrame:
       docs = self.filings(['10-K', '10-Q'])
@@ -98,13 +101,15 @@ class Ticker():
 
       return docs
 
-    async def fetch(docs):
+    async def fetch(docs: pd.Index) -> list[Financials]:
       tasks = []
       for d in docs:
         url = await xbrl_url(self.padded_cik(), d)
         if not url:
           continue
-        tasks.append(asyncio.create_task(parse_xbrl(url, self.padded_cik())))
+        tasks.append(asyncio.create_task(
+          parse_statement(url, self.padded_cik())
+        ))
       
       financials = await asyncio.gather(*tasks)
       return financials
@@ -123,7 +128,7 @@ class Ticker():
         if not new_forms:
           return financials
 
-        old_docs = {glom(f, 'meta.id') for r in financials}
+        old_docs = {glom(f, 'meta.id') for f in financials}
         new_docs = set(new_forms.index).difference(old_docs)
 
         if not new_docs:
@@ -218,9 +223,15 @@ def process_taxonomy():
     
     df = pd.concat([df, temp])
     
-    df['item'] = df['gaap'].astype(str).apply(lambda x: snake_abbreviate(x))
-    df['label'] = df['gaap'].astype(str).apply(lambda x: ' '.join(camel_split(x)))
-    df['parent_'] = df['parent'].astype(str).apply(lambda x: snake_abbreviate(x) if x else '')
+    df['item'] = df['gaap'].astype(str).apply(
+      lambda x: snake_abbreviate(x)
+    )
+    df['label'] = df['gaap'].astype(str).apply(
+      lambda x: ' '.join(camel_split(x))
+    )
+    df['parent_'] = df['parent'].astype(str).apply(
+      lambda x: snake_abbreviate(x) if x else ''
+    )
 
     df = df[['sheet', 'item', 'parent_', 'parent', 'label', 'gaap']]
     df.to_csv('fin_taxonomy.csv', index=False)

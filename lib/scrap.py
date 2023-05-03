@@ -7,7 +7,7 @@ import bs4 as bs
 
 from lib.const import HEADERS
 
-def free_proxy_list():
+def free_proxy_list() -> list[str]:
   url = 'https://free-proxy-list.net/#'
 
   with httpx.Client() as client:
@@ -18,10 +18,10 @@ def free_proxy_list():
   proxies = proxies.split('\n')[3:]
   return list(filter(None, proxies))
 
-def proxylist_geonode(limit:int=500) -> list:
+def proxylist_geonode(limit:int=500) -> list[str]:
   url = 'https://proxylist.geonode.com/api/proxy-list'
   params = {
-    'limit': limit,
+    'limit': str(limit),
     'page': '1',
     'sort_by': 'lastChecked',
     'sort_type': 'desc',
@@ -36,27 +36,17 @@ def proxylist_geonode(limit:int=500) -> list:
 
   return proxies
 
-def check_proxy(proxy:str) -> bool:
-  url = 'https://httpbin.org/ip'
-  proxies = {'http': proxy, 'https': proxy}
-
-  try:
-    rs = requests.get(url, headers=HEADERS)
-    return rs.status_code == 200
-  except:
-    return False
-
 async def check_proxies(proxies:list[str]) -> list[str]:
   url = 'https://httpbin.org/ip' # 'https://ipinfo.io/json'
 
-  async def fetch(proxy: str):
+  async def fetch(proxy: str) -> bool:
     proxies = {'http://': f'http://{proxy}', 'https://': f'https://{proxy}'}
     client = httpx.AsyncClient()
 
     try:
       rs = await client.get(url, headers=HEADERS, proxies=proxies)
       return rs.status_code == 200
-    except:
+    except Exception:
       return False
     finally:
       await client.aclose()

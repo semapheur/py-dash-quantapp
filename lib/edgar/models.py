@@ -1,23 +1,21 @@
 #from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal, Optional, TypedDict
 
-from pydantic import BaseModel
-
-class Meta(BaseModel):
+class Meta(TypedDict):
   id: str
   scope: Literal['annual', 'quarterly']
   date: str
   fiscal_end: str
 
-class Value(BaseModel):
+class Value(TypedDict):
   value: float|int
   unit: str
 
-class Interval(BaseModel):
+class Interval(TypedDict):
   start_date: str
   end_date: str
 
-class Instant(BaseModel):
+class Instant(TypedDict):
   instant: str
 
 class Member(Value):

@@ -1,34 +1,39 @@
 import requests
 import json
 
+from typing import TypedDict
+
 import numpy as np
 import geopandas as gpd
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
 
-from lib.db import DB_DIR
-from lib.geonorge import municipality_polys
-
-HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/112.0',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'en-US,en;q=0.5',
-  'DNT': '1',
-  'Connection': 'keep-alive',
-  'Sec-Fetch-Dest': 'empty',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Site': 'same-origin',
-  'Sec-GPC': '1',
-  'TE': 'trailers',
-}
+from lib.const import DB_DIR, HEADERS
 
 VIRDI_PATH = DB_DIR / 'hjemla.json'
 
+class Virdi(TypedDict):
+  id: int
+  geometry: Point
+  municipality: str
+  postal_code: int
+  street_id: int
+  address: str
+  flat: str
+  area: float
+  estimated_price: float
+  estimated_common_debt: float
+  fixed_price: float
+  common_debt: float
+  asking_price: float 
+
 def postal_code_polys():
+  url = (
+    'https://raw.githubusercontent.com/'
+    'ivanhjel/postnummer/master/postnummeromrader.geojson'
+  )
+
   with requests.Session() as s:
-    rs = s.get(
-      'https://raw.githubusercontent.com/ivanhjel/postnummer/master/postnummeromrader.geojson', 
-      headers=HEADERS
-    )
+    rs = s.get(url, headers=HEADERS)
     raw = rs.text
   
   rnm = {
@@ -58,7 +63,7 @@ def real_estate_price_data(
     'neLng': ne_coord[1],
   }
     
-  scrap = []
+  scrap: list[Virdi] = []
   for size in range(size_range[0], size_range[1]):
     params['sizemin'] = str(size)
     params['sizemax'] = str(size)
@@ -77,11 +82,11 @@ def real_estate_price_data(
       pnt = Point(street['coordinatesLng'], street['coordinatesLat'])  
       for unit in street['units']:
         scrap.append({
-          'id': unit['id'],
+          'id': int(unit['id']),
           'geometry': pnt,
           'municipality': street['municipalityName'],
           'postal_code': int(street.get('postalCode', np.nan)),
-          'street_id': street['streetId'],
+          'street_id': int(street['streetId']),
           'address': street['slug'],
           'flat': unit.get('floorCode', ''),
           'area': size,
@@ -104,7 +109,7 @@ def real_estate_price_data(
 def load_price_data():
   if not VIRDI_PATH.exists():
     price = real_estate_price_data()
-    df.to_file(VIRDI_PATH)
+    price.to_file(VIRDI_PATH)
   else:
     price = gpd.read_file(VIRDI_PATH, driver='GeoJson', encoding='utf-8')
 

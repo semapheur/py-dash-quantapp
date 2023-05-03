@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
-from dash import callback, ctx, dcc, html, no_update, register_page, Input, Output, Patch, State
+from dash import (
+  callback, ctx, dcc, html, no_update, register_page, 
+  Input, Output, Patch, State
+)
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from scipy.stats import laplace, norm, gennorm, t
+from scipy.stats import gennorm, t
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 from statsmodels.tsa.seasonal import STL
 import fathon
@@ -154,7 +157,11 @@ def update_store(data, diff_order, transform):
 
   if diff_order:
     if isinstance(diff_order, int):
-      price['close'] = np.diff(price['close'], n=diff_order, prepend=[np.nan] * diff_order)
+      price['close'] = np.diff(
+        price['close'], 
+        n=diff_order, 
+        prepend=[np.nan] * diff_order
+      )
     elif isinstance(diff_order, float):
       price['close'] = frac_diff(price['close'].to_numpy(), diff_order)
 
@@ -214,7 +221,7 @@ def update_graph(tab, price, transform):
       showlegend=False,
     )
   elif store_id == 'stats-store:transform':
-    fig = Patched()
+    fig = Patch()
     fig['data'][1]['x'] = transform['date']
     fig['data'][1]['y'] = transform['transform']
 
@@ -431,7 +438,7 @@ def update_graph(tab, model, transform, price):
     x=price.index,
     y=price.values,
     mode='lines',
-    name=f'Close',
+    name='Close',
     row=2, col=1
   )
 

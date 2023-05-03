@@ -2,6 +2,7 @@ from datetime import datetime as dt
 import re
 import xml.etree.ElementTree as et
 
+import asyncio
 import httpx
 import bs4 as bs
 from glom import glom
@@ -11,8 +12,14 @@ from tinydb import TinyDB
 
 # Local
 from lib.const import DB_DIR, HEADERS
-from lib.db.lite import upsert_sqlite
-from lib.db.tiny import insert_tinydb, read_tinydb
+from lib.edgar.models import (
+  Financials, 
+  Instant, 
+  Interval, 
+  Item, 
+  Member, 
+  Meta
+)
 
 async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
   tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
@@ -41,7 +48,7 @@ async def xbrl_url(cik, doc_id: str, doc_type='htm') -> str:
 
 async def parse_statement(url: str, cik: str):
 
-  def parse_period(period: et.Element) -> dict[str, str]:
+  def parse_period(period: et.Element) -> Instant|Interval:
     if (el := period.find('./{*}instant')) is not None:
       return {
         'instant': el.text
@@ -57,7 +64,7 @@ async def parse_statement(url: str, cik: str):
       text = text.split('_')[-1].lower()
     return text
 
-  def parse_member(item, segment) -> dict:
+  def parse_member(item: et.Element, segment: et.Element) -> Member:
     def name(text:str) -> str|None:
       text = re.sub(r'(Segment)?Member', '', text)
       return text.split(':')[-1]
@@ -78,7 +85,7 @@ async def parse_statement(url: str, cik: str):
     '10-K': 'annual',
     '10-Q': 'quarterly'
   }
-  meta = {
+  meta: Meta = {
     #'cik': int(cik),
     #'ticker': root.find('.{*}TradingSymbol').text,
     'id': url.split('/')[-2],
@@ -86,7 +93,7 @@ async def parse_statement(url: str, cik: str):
     'date': root.find('.{*}DocumentPeriodEndDate').text,
     'fiscal_end': root.find('.{*}CurrentFiscalYearEndDate').text[1:]
   }
-  data = {
+  data: Financials = {
     'meta': meta,
     'data': {}
   }
@@ -95,7 +102,7 @@ async def parse_statement(url: str, cik: str):
     if item.text is None:
       continue
     
-    temp = {}
+    temp: Item = {}
     
     # Period
     ctx = item.attrib['contextRef']
@@ -103,7 +110,10 @@ async def parse_statement(url: str, cik: str):
     temp['period'] = parse_period(period_el)
 
     # Segment
-    seg = root.find(f'./{{*}}context[@id="{ctx}"]').find('.//{*}segment/{*}explicitMember')
+    seg = root \
+      .find(f'./{{*}}context[@id="{ctx}"]') \
+      .find('.//{*}segment/{*}explicitMember')
+    
     if seg is not None:
       temp['member'] = parse_member(item, seg)
     else:    
@@ -115,7 +125,7 @@ async def parse_statement(url: str, cik: str):
     
     # Append scrapping
     item_name = item.tag.split('}')[-1]
-    if not item_name in data['data']:
+    if item_name not in data['data']:
       data['data'][item_name] = [temp]
       continue
 
@@ -130,7 +140,7 @@ async def parse_statement(url: str, cik: str):
           entry['member'] = temp['member']
       else:
         entry.update(temp)
-    except:
+    except Exception:
       data['data'][item_name].append(temp)    
 
   # Sort items
@@ -181,7 +191,7 @@ def load_fin_items(source: str) -> pd.DataFrame:
   df.set_index(source, inplace=True)
   return df
 
-def statement_to_df(data: dict) -> pd.DataFrame:
+def statement_to_df(data: Financials) -> pd.DataFrame:
     
   def parse_period(period: dict[str, str]) -> dt:
     if 'instant' in period:
@@ -200,7 +210,7 @@ def statement_to_df(data: dict) -> pd.DataFrame:
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
   
-  df_data = {
+  df_data: dict[tuple[dt, str], dict[str, float]] = {
     (fin_date, scope[0]): {}
   }
   
@@ -248,7 +258,7 @@ def get_ciks():
       
   url = 'https://www.sec.gov/files/company_tickers.json'
 
-  with requests.Session() as s:
+  with httpx.Client() as s:
     rs = s.get(url, headers=HEADERS)
     parse = rs.json()
 

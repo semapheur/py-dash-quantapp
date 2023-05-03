@@ -46,11 +46,11 @@ def update_tickers(btn1, btn2):
   Output('board-div:real-estate', 'className'),
   Input('board-button:hjemla', 'n_clicks')
 )
-def update_ciks(n_clicks):
+def update_real_estate(n_clicks):
   if not n_clicks:
     return no_update
   
-  gdf = get_real_estate_data()
+  gdf = real_estate_price_data()
   path = DB_DIR / 'hjemla.json'
   gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
 

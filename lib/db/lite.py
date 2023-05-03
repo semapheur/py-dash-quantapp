@@ -1,9 +1,7 @@
-from pathlib import Path
-import re
+from typing import Literal
 
 import pandas as pd
-from sqlalchemy.engine import Engine
-from sqlalchemy import create_engine, inspect, event, text
+from sqlalchemy import create_engine, inspect, text #event
 
 from lib.const import DB_DIR
 
@@ -58,9 +56,8 @@ def insert_sqlite(
   df: pd.DataFrame, 
   db_name: str, 
   tbl_name: str, 
-  action: str='merge'
-):
-  # action: overwrite/merge (default: merge)
+  action: Literal['merge', 'replace'] = 'merge'
+) -> None:
 
   db_path = DB_DIR / sqlite_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -71,7 +68,7 @@ def insert_sqlite(
       df.to_sql(tbl_name, con=con, index=True)
     return
 
-  if action == 'overwrite':
+  if action == 'replace':
     df.to_sql(tbl_name, con=engine, if_exists='replace', index=True)
     return
 
@@ -106,56 +103,41 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     with engine.begin() as con:
       con.execute(text(f'CREATE UNIQUE INDEX ix ON {tbl_name} ({ix_cols_text})'))
 
-  else:
-    with engine.begin() as con:
-        
-      # SQL header query text
-      cols = list(df.columns.tolist())
-      headers = ix_cols + cols
-      headers_text = ', '.join(f'"{i}"' for i in headers)
-      update_text = ', '.join([f'"{c}" = EXCLUDED."{c}"' for c in cols])
+    return
 
-      # Store data in temporary table
-      #con.execute(text(f'CREATE TEMP TABLE temp({headers_text})'))
-
-      df.to_sql('temp', con=con, if_exists='replace', index=True)
+  with engine.begin() as con:
       
-      # Check if new columns must be inserted
-      result = con.execute(f'SELECT * FROM "{tbl_name}"')
-      old_cols = set([c for c in result.keys()]).difference(set(ix_cols))
-      new_cols = list(set(cols).difference(old_cols))
-      if new_cols:
-        for c in new_cols:
-          con.execute(text(f'ALTER TABLE "{tbl_name}" ADD COLUMN {c}'))
+    # SQL header query text
+    cols = list(df.columns.tolist())
+    headers = ix_cols + cols
+    headers_text = ', '.join(f'"{i}"' for i in headers)
+    update_text = ', '.join([f'"{c}" = EXCLUDED."{c}"' for c in cols])
 
-      # Upsert data to main table
-      query = f'''
-        INSERT INTO "{tbl_name}" ({headers_text})
-        SELECT {headers_text} FROM temp WHERE true
-        ON CONFLICT ({ix_cols_text}) DO UPDATE 
-        SET {update_text}
-      '''
+    # Store data in temporary table
+    #con.execute(text(f'CREATE TEMP TABLE temp({headers_text})'))
 
-      con.execute(text(f'CREATE UNIQUE INDEX IF NOT EXISTS ix ON {tbl_name} ({ix_cols_text})'))
-      con.execute(text(query))
-      #con.execute(text('DROP TABLE temp')) # Delete temporary table
+    df.to_sql('temp', con=con, if_exists='replace', index=True)
+    
+    # Check if new columns must be inserted
+    result = con.execute(f'SELECT * FROM "{tbl_name}"')
+    old_cols = set([c for c in result.keys()]).difference(set(ix_cols))
+    new_cols = list(set(cols).difference(old_cols))
+    if new_cols:
+      for c in new_cols:
+        con.execute(text(f'ALTER TABLE "{tbl_name}" ADD COLUMN {c}'))
 
-def search_tickers(security: str, search: str, href=True, limit: int=10) -> pd.DataFrame:
-  db_path = DB_DIR / 'ticker.db'
-  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
-
-  if security == 'stock':
-    value = f'"/{security}/" || id AS href' if href else 'id || "|" || currency AS value'
-
+    # Upsert data to main table
     query = f'''
-      SELECT 
-        name || " (" || ticker || ") - "  || mic AS label,
-        {value}
-      FROM {security} WHERE label LIKE "%{search}%"
-      LIMIT {limit}
+      INSERT INTO "{tbl_name}" ({headers_text})
+      SELECT {headers_text} FROM temp WHERE true
+      ON CONFLICT ({ix_cols_text}) DO UPDATE 
+      SET {update_text}
     '''
 
-  with engine.connect().execution_options(autocommit=True) as con:
-    df = pd.read_sql(text(query), con=con)
-    
-  return df
+    con.execute(
+      text(
+        f'CREATE UNIQUE INDEX IF NOT EXISTS ix ON {tbl_name} ({ix_cols_text})'
+      )
+    )
+    con.execute(text(query))
+    #con.execute(text('DROP TABLE temp')) # Delete temporary table

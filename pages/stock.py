@@ -1,9 +1,9 @@
 from dash import html, register_page
 from sqlalchemy import create_engine, text
 
-from lib.db import DB_DIR
+from lib.const import DB_DIR
 
-def title(id=None):
+def title(id=None) -> str:
   if not id:
     return '404'
 
