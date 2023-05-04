@@ -1,7 +1,7 @@
 from dash import callback, dcc, no_update, Input, Output, MATCH
 import uuid
 
-from lib.morningstar import get_ohlcv
+from lib.morningstar.ticker import get_ohlcv
 from components.ticker_select import TickerSelectAIO
 
 class QuoteStoreAIO(dcc.Store):

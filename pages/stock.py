@@ -1,25 +1,48 @@
-from dash import html, register_page
-from sqlalchemy import create_engine, text
+import asyncio
+from dash import (
+  callback, dcc, html, no_update, register_page, dash_table, Output, Input
+)
+import pandas as pd
 
-from lib.const import DB_DIR
+from lib.edgar.ticker import Ticker
+from lib.ticker.fetch import stock_label, find_cik
 
-def title(id=None) -> str:
-  if not id:
-    return '404'
+register_page(__name__, path_template='/stock/<id>', title=stock_label)
 
-  db_path = DB_DIR / 'ticker.db'
-  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+def layout(id: str = None):
 
-  query = f'SELECT name || " (" || ticker || ":" exchange || ")" AS label FROM stock WHERE id = "{id}"'
-  with engine.begin() as con:
-    fetch = con.execute(text(query))
-    label = fetch.first()[0]
+  # Check CIK
+  cik = find_cik(id)
 
-  return label
+  data = {}
+  if cik:
+    df = asyncio.run(Ticker(cik).financials())
+    data = df.reset_index().to_dict('records')
 
-register_page(__name__, path_template='/stock/<id>', title=title)
+  return html.Main(className='h-full', children=[
+    html.Div(id='stock-div:table-wrap', className='h-full p-2'),
+    dcc.Store(id='stock-store:financials', data=data)
+  ])
 
-def layout(id=None):
-  return html.Div(
-    html.H1(id)
+@callback(
+  Output('stock-div:table-wrap', 'children'),
+  Input('stock-store:financials', 'data'),
+  #Input('stock-scope:annual/quarterly')
+)
+def update_table(data: list[dict]):
+  if not data:
+    return no_update
+  
+  df = pd.DataFrame.from_records(data) \
+    .set_index(['date', 'period']).xs('a', level=1).T
+
+  return dash_table.DataTable(
+    df.reset_index().to_dict('records'),
+    columns=[{
+      'name': c,
+      'id': c
+    } for c in df.columns.values],
+    fixed_rows={'headers': True},
+    #fixed_columns={'headers': True, 'data': 1},
+    style_table={'height': '100%', 'width': '100%', 'overflow': 'auto'}
   )

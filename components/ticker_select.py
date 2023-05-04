@@ -1,7 +1,7 @@
 from dash import callback, dcc, no_update, Input, Output, MATCH
 import uuid
 
-from lib.db import search_tickers
+from lib.ticker.fetch import search_tickers
 
 class TickerSelectAIO(dcc.Dropdown):
   @staticmethod

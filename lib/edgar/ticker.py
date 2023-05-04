@@ -8,7 +8,6 @@ import asyncio
 # Web scrapping
 import requests
 
-import json
 import xml.etree.ElementTree as et
 from glom import glom
 
@@ -63,7 +62,7 @@ class Ticker():
       )
       with requests.Session() as s:
         rs = s.get(url, headers=HEADERS)
-        parse = json.loads(rs.text)
+        parse = rs.json()
           
       dfs.append(json_to_df(parse)) 
     except Exception:
@@ -72,7 +71,7 @@ class Ticker():
     url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
     with requests.Session() as s:
       rs = s.get(url, headers=HEADERS)
-      parse = json.loads(rs.text)
+      parse = rs.json()
     
     parse = parse['filings']['recent']
     dfs.append(json_to_df(parse))

@@ -3,7 +3,7 @@ from datetime import datetime as dt
 import pandas as pd
 import wbgapi as wb
 
-from lib.db import read_sqlite, upsert_sqlite
+from lib.db.lite import read_sqlite, upsert_sqlite
 
 SERIES = {
   'NY.GDP.MKTP.CD': 'gdp_cd', # GDP (current &)

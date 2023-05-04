@@ -4,7 +4,7 @@ import geopandas as gpd
 import folium # MapQuest Open|Stamen Toner|Carto DB positron/dark_matter
 import branca.colormap as cm
 
-from lib.db import DB_DIR
+from lib.const import DB_DIR
 from lib.virdi import load_price_data, spatial_price_stats, postal_code_polys
 from lib.geonorge import municipality_polys
 

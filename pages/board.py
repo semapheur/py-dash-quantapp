@@ -3,7 +3,7 @@ from dash import callback, ctx, html, no_update, register_page, Input, Output
 from components.map import choropleth_map
 from lib.const import DB_DIR
 from lib.db.lite import insert_sqlite
-from lib.morningstar import get_tickers
+from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
 from lib.virdi import real_estate_price_data
 
@@ -27,14 +27,16 @@ layout = html.Main(className=main_style, children=[
   Input('board-button:stock', 'n_clicks'),
   Input('board-button:cik', 'n_clicks')
 )
-def update_tickers(btn1, btn2):
+def update_tickers(btn1: int, btn2: int):
   button_id = ctx.triggered_id if not None else ''
 
   if not button_id:
     return no_update
 
   if button_id == 'board-button:stock':
-    df = get_tickers()
+    df = get_tickers('stock')
+    df.set_index('id', inplace=True)
+    df.sort_values('name', inplace=True)
     insert_sqlite(df, 'ticker.db', 'stock', 'overwrite')
   elif button_id == 'board-button:cik':
     df = get_ciks()
@@ -46,7 +48,7 @@ def update_tickers(btn1, btn2):
   Output('board-div:real-estate', 'className'),
   Input('board-button:hjemla', 'n_clicks')
 )
-def update_real_estate(n_clicks):
+def update_real_estate(n_clicks: int):
   if not n_clicks:
     return no_update
   
