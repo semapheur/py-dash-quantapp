@@ -1,0 +1,34 @@
+item,label
+rv,Revenue
+pd_rv,Product Revenue
+sv_rv,Service Revenue
+rv_cs,Revenue Cost
+pd_rv_cs,Product Revenue Cost
+sv_rv_cs,Service Revenue Cost
+gs_pf,Gross Profit
+op_ep,Operating Expense
+SGA_ep,SGA Expense
+av_ep,Advertising Expense
+mk_ep,Marketing Expense
+la_rn_ep,LeaseAndRentalExpense
+RD_ep,R&D Expense
+DDAA,DDAA
+dpr,Depreciation
+am,Amortization
+op_ic/ls,Operating Income/Loss
+n-op_in/ls,Non-Operating Income/Loss
+iv_ic/ls,Investment Income/Loss
+ot_n-op_ic/ls,Other Non-Operating Income/Loss
+it_ep,Interest Expense
+p-tx_ic/ls,Pretax Income/Loss
+ic_tx_ep/bf,Income Tax Expense/Benefit
+df_ic_tx_ep/bf,Deferred Income Tax Expense/Benefit
+df_dm_ic_tx_ep/bf,Deferred Domestic Income Tax Expense/Benefit
+df_lc_ic_tx_ep/bf,Deferred Local Income Tax Expense/Benefit
+df_fo_ic_tx_ep/bf,Deferred Foreign Income Tax Expense/Benefit
+mn_it_ic/ls,Minority Interest Income/Loss
+nt_ic/ls,Net Income/Loss
+EPSB,Earnings/Share Basic
+wansob,Average Basic Shares
+EPSD,Earnings/Share Basic
+wansod,Average Diluted Shares

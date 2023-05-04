@@ -13,7 +13,6 @@ geopandas
 glom
 httpx
 matplotlib
-mypy
 numba
 numpy
 pandas
@@ -22,7 +21,6 @@ pycountry
 pydantic
 python-dotenv
 requests
-ruff
 scikit-learn
 scipy
 sqlalchemy

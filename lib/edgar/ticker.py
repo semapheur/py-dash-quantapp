@@ -2,6 +2,7 @@ import pandas as pd
 
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
+from typing import Optional
 
 import asyncio
 
@@ -141,7 +142,7 @@ class Ticker():
     
     return [*financials, *new_financials]
 
-  async def financials(self):
+  async def financials(self, date_format: Optional[str] = None) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
     docs = read_tinydb('edgar.json', None, str(self._cik))
@@ -155,6 +156,11 @@ class Ticker():
     
     df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
+    if date_format:
+      df.index = df.index.set_levels([
+        df.index.levels[0].strftime(date_format),
+        df.index.levels[1]
+      ])
 
     return df
 

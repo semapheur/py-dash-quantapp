@@ -1,188 +1,55 @@
-sheet,item,parent,label,gaap
-income,Rv,GsPf,Revenue,Revenues
-income,Rv,GsPf,Revenue,SalesRevenueNet
-income,Rv,GsPf,Revenue,RevenueFromContractWithCustomerExcludingAssessedTax
-income,RvCs,GsPf,Revenue Cost,CostOfGoodsAndServicesSold
-income,GsPf,OpIc/Ls,Gross Profit,GrossProfit
-income,OpIc/Ls,Ic/Ls:CnOp_Bf:IcTx_MyIt_Ic/Ls:EqMdIv,Operating Income/Loss,OperatingIncomeLoss
-income,IcLs_Cop_b_InTx_MyIt_IcLsFmEqMdIv,nt_ic/ls,Income Loss From Continuing Operations Before Income Taxes Minority Interest And Income Loss From Equity Method Investments,IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments
-income,IcLs_Cop_b_InTx_EoIm_N-CtIt,NtIcLs,Income Loss From Continuing Operations Before Income Taxes Extraordinary Items Noncontrolling Interest,IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest
-income,,,,IncomeLossFromEquityMethodInvestments
-income,mn_it_ic/ls,,Net Income Loss Attributable To Noncontrolling Interest,NetIncomeLossAttributableToNoncontrollingInterest
-income,NOp_InEp,,Nonoperating Income Expense,NonoperatingGainsLosses
-income,NOp_InEp,IcLs_Cop_b_InTx_EoIm_N-CtIt,Nonoperating Income Expense,NonoperatingIncomeExpense
-income,iv_in_it_an_dv,NOp_InEp,Investment Income Interest And Dividend,InvestmentIncomeInterestAndDividend
-income,op_ep,,Operating Expenses,OperatingExpenses
-income,RD_ep,op_ep,Research And Development Expense,ResearchAndDevelopmentExpense
-income,SGA_ep,op_ep,Selling General and Administrative Expense,SellingGeneralAndAdministrativeExpense
-income,DAA_nt,,Depreciation Amortization And Accretion Net,DepreciationAmortizationAndAccretionNet
-income,sg_rp_if_DAA,DAA_nt,Segment Reporting Information Depreciation Amortization And Accretion,SegmentReportingInformationDepreciationAmortizationAndAccretion
-income,IT_EB,,Income Tax Expense Benefit,IncomeTaxExpenseBenefit
-income,DIT_EB_CO,,Domestic Income Tax Expense Benefit Continuing Operations,StateAndLocalIncomeTaxExpenseBenefitContinuingOperations
-income,DIT_EB_CO,IT_EB,Federal Income Tax Expense Benefit Continuing Operations,FederalIncomeTaxExpenseBenefitContinuingOperations
-income,ITR_IT_EB_ADSITR,IT_EB,Income Tax Reconciliation Income Tax Expense Benefit At Federal Statutory Income Tax Rate,IncomeTaxReconciliationIncomeTaxExpenseBenefitAtFederalStatutoryIncomeTaxRate
-income,cu_DT_EB,DIT_EB_CO,Current Domestic Tax Expense Benefit,CurrentFederalTaxExpenseBenefit
-income,cu_DT_EB,DIT_EB_CO,Current State And Local Tax Expense Benefit,CurrentStateAndLocalTaxExpenseBenefit
-income,FIT_EB_CO,,Foreign Income Tax Expense Benefit Continuing Operations,ForeignIncomeTaxExpenseBenefitContinuingOperations
-income,cu_FT_EB,FIT_EB_CO,Current Foreign Tax Expense Benefit,CurrentForeignTaxExpenseBenefit
-income,EPSB,,Earnings/Share Basic,EarningsPerShareBasic
-income,EPSD,,Earnings/Share Diluted,EarningsPerShareDiluted
-income,WANSOD,,Weighted Average Number Of Diluted Shares Outstanding,WeightedAverageNumberOfDilutedSharesOutstanding
-income,WANSOB,WANSOD,Weighted Average Number Of Shares Outstanding Basic,WeightedAverageNumberOfSharesOutstandingBasic
-comprehensive_income,OCIL_NOT,,Other Comprehensive Income Loss Net Of Tax,OtherComprehensiveIncomeLossNetOfTax
-comprehensive_income,OCIL_FCTT_ad_NOT,OCIL_NOT,Other Comprehensive Income Loss Foreign Currency Transaction And Translation Adjustment Net Of Tax,OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentNetOfTax
-comprehensive_income,OCI_DQAH_NOT_chg,,Other Comprehensive Income Derivatives Qualifying As Hedges Net Of Tax Period Increase Decrease,OtherComprehensiveIncomeDerivativesQualifyingAsHedgesNetOfTaxPeriodIncreaseDecrease
-comprehensive_income,OCI_UGL_on_dr_ADP_NOT,OCI_DQAH_NOT_ch,Other Comprehensive Income Unrealized Gain Loss On Derivatives Arising During Period Net Of Tax,OtherComprehensiveIncomeUnrealizedGainLossOnDerivativesArisingDuringPeriodNetOfTax
-comprehensive_income,OCIL_AFSS_ad_NOT,,Other Comprehensive Income Loss Available For Sale Securities Adjustment Net Of Tax,OtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax
-comprehensive_income,OCI_UHGL_on_sc_ADP_NOT,OCIL_AFSS_ad_NOT,Other Comprehensive Income Unrealized Holding Gain Loss On Securities Arising During Period Net Of Tax,OtherComprehensiveIncomeUnrealizedHoldingGainLossOnSecuritiesArisingDuringPeriodNetOfTax
-comprehensive_income,OCIL_NOT_PATP,,Other Comprehensive Income Loss Net Of Tax Portion Attributable To Parent,OtherComprehensiveIncomeLossNetOfTaxPortionAttributableToParent
-comprehensive_income,OCI_BRBTATP,OCIL_NOT_PATP,Oci Before Reclassifications Before Tax Attributable To Parent,OciBeforeReclassificationsBeforeTaxAttributableToParent
-comprehensive_income,OCIL_DIGL_ART,,Other Comprehensive Income Loss Derivative Instrument Gain Loss After Reclassification and Tax,OtherComprehensiveIncomeLossDerivativeInstrumentGainLossafterReclassificationandTax
-comprehensive_income,OCIL_DIGL_BRAT,OCIL_DIGL_ART,Other Comprehensive Income Loss Derivative Instrument Gain Lossbefore Reclassificationafter Tax,OtherComprehensiveIncomeLossDerivativeInstrumentGainLossbeforeReclassificationafterTax
-comprehensive_income,OCIL_DIGL_RAT,OCIL_DIGL_ART,Other Comprehensive Income Loss Derivative Instrument Gain Loss Reclassification After Tax,OtherComprehensiveIncomeLossDerivativeInstrumentGainLossReclassificationAfterTax
-comprehensive_income,AOCIL_NOT,,Accumulated Other Comprehensive Income Loss Net Of Tax,AccumulatedOtherComprehensiveIncomeLossNetOfTax
-comprehensive_income,AOCIL_FCT_ad_NOT,AOCIL_NOT,Accumulated Other Comprehensive Income Loss Foreign Currency Translation Adjustment Net Of Tax,AccumulatedOtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentNetOfTax
-comprehensive_income,AOCCIL_AFSS_ad_NOT,AOCIL_NOT,Accumulated Other Comprehensive Income Loss Available For Sale Securities Adjustment Net Of Tax,AccumulatedOtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax
-comprehensive_income,rc_fr_AOCI_CU_BT,,Reclassification From Accumulated Other Comprehensive Income Current Period Before Tax,ReclassificationFromAccumulatedOtherComprehensiveIncomeCurrentPeriodBeforeTax
-comprehensive_income,OCIL_rc_ad_fr_AOCI_on_dr_BT,rc_fr_AOCI_CP_BT,Other Comprehensive Income Loss Reclassification Adjustment From AOCI On Derivatives Before Tax,OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIOnDerivativesBeforeTax
-balance,as,,Assets,Assets
-balance,AC,as,Assets Current,AssetsCurrent
-balance,ANc,as,Assets Noncurrent,AssetsNoncurrent
-balance,sg_rp_sg_as,as,Segment Reporting Segment Assets,SegmentReportingSegmentAssets
-balance,CCE_ACV,AC,Cash And Cash Equivalents At Carrying Value,CashAndCashEquivalentsAtCarryingValue
-balance,LC,li,Liabilities Current,LiabilitiesCurrent
-balance,LNc,li,Liabilities Noncurrent,LiabilitiesNoncurrent
-balance,LSE,,Liabilities And Stockholders Equity,LiabilitiesAndStockholdersEquity
-balance,li,,Liabilities,Liabilities
-balance,li,LSE,Liabilities,Liabilities
-balance,ac_py,LC,Accounts Payable,AccountsPayable
-balance,ac_py_cu,LC,Accounts Payable Current,AccountsPayableCurrent
-balance,ca,CCEMS,Cash,Cash
-balance,CCEMS_cs,,Cash Cash Equivalents And Marketable Securities Cost,CashCashEquivalentsAndMarketableSecuritiesCost
-balance,CCEMS,CCEMS_cs,Cash Cash Equivalents And Marketable Securities,CashCashEquivalentsAndMarketableSecurities
-balance,iy_nt,,Inventory Net,InventoryNet
-balance,iy_PAC_NOR,iy_nt,Inventory Parts And Components Net Of Reserves,InventoryPartsAndComponentsNetOfReserves
-balance,iy_WIPRM_NOR,iy_nt,Inventory Work In Process And Raw Materials Net Of Reserves,InventoryWorkInProcessAndRawMaterialsNetOfReserves
-balance,DTAL_nt,,Deferred Tax Assets Liabilities Net,DeferredTaxAssetsLiabilitiesNet
-balance,DTA_nt,DTAL_nt,Deferred Tax Assets Net,DeferredTaxAssetsNet
-balance,DTA_TDERA,DTA_gr,Deferred Tax Assets Tax Deferred Expense Reserves And Accruals,DeferredTaxAssetsTaxDeferredExpenseReservesAndAccruals
-balance,DTA_gr,DTA_nt,Deferred Tax Assets Gross,DeferredTaxAssetsGross
-balance,DTA_gw_IA,DTA_nt,Deferred Tax Assets Goodwill And Intangible Assets,DeferredTaxAssetsGoodwillAndIntangibleAssets
-balance,DTL,,Deferred Tax Liabilities,DeferredTaxLiabilities
-balance,DTL_UFE,DTL,Deferred Tax Liabilities Undistributed Foreign Earnings,DeferredTaxLiabilitiesUndistributedForeignEarnings
-balance,DITL,,Deferred Income Tax Liabilities,DeferredIncomeTaxLiabilities
-balance,DTL_MTOFE,DITL,Deferred Tax Liabilities Minimum Tax on Foreign Earnings,DeferredTaxLiabilitiesMinimumTaxonForeignEarnings
-balance,acr_li_ci,,Accrued Liabilities Current,AccruedLiabilitiesCurrent
-balance,TP_cu,acr_li_cu,Taxes Payable Current,TaxesPayableCurrent
-balance,ot_df_cr_cu,acr_li_cu,Other Deferred Credits Current,OtherDeferredCreditsCurrent
-balance,st_pr_wa_ac,acr_li_cu,Standard Product Warranty Accrual,StandardProductWarrantyAccrual
-balance,pr_wa_ac_cl_cu,acr_li_cu,Product Warranty Accrual Classified Current,ProductWarrantyAccrualClassifiedCurrent
-balance,PPE_nt,,Property Plant And Equipment Net,PropertyPlantAndEquipmentNet
-balance,PPE_gr,PPE_nt,Property Plant And Equipment Gross,PropertyPlantAndEquipmentGross
-balance,LAB_gr,PPECS_gr,Land And Buildings Gross,LandAndBuildingsGross
-balance,PPECS_gr,PPECS_nt,Property Plant And Equipment And Capitalized Software Gross,PropertyPlantAndEquipmentAndCapitalizedSoftwareGross
-balance,PPECA_nt,,Property Plant And Equipment And Capitalized Software Net,PropertyPlantAndEquipmentAndCapitalizedSoftwareNet
-balance,AFSS_nc,as_nc,Available For Sale Securities Noncurrent,AvailableForSaleSecuritiesNoncurrent
-balance,mk_sc_nc,as_nc,Marketable Securities Noncurrent,MarketableSecuritiesNoncurrent
-balance,df_rv_nc,li_nc,Deferred Revenue Noncurrent,DeferredRevenueNoncurrent
-balance,LTD_nc,li_nc,Long Term Debt Noncurrent,LongTermDebtNoncurrent
-balance,ot_li_nc,,Other Liabilities Noncurrent,OtherLiabilitiesNoncurrent
-balance,AIT_nc,ot_li_nc,Accrued Income Taxes Noncurrent,AccruedIncomeTaxesNoncurrent
-balance,DTL_nc,ot_li_nc,Deferred Tax Liabilities Noncurrent,DeferredTaxLiabilitiesNoncurrent
-balance,IA_nt_ex_gw,,Intangible Assets Net Excluding Goodwill,IntangibleAssetsNetExcludingGoodwill
-balance,FLIA_gr,IA_nt_ex_gw,Finite Lived Intangible Assets Gross,FiniteLivedIntangibleAssetsGross
-balance,FLIA_nt,IA_nt_ex_gw,Finite Lived Intangible Assets Net,FiniteLivedIntangibleAssetsNet
-balance,FLIA_am_ep_nx12mo,FLIA_nt,Finite Lived Intangible Assets Amortization Expense Next Twelve Months,FiniteLivedIntangibleAssetsAmortizationExpenseNextTwelveMonths
-balance,ILIA_ex_gw,,Indefinite Lived Intangible Assets Excluding Goodwill,IndefiniteLivedIntangibleAssetsExcludingGoodwill
-balance,ILIA_gr,ILIA_ex_gw,Indefinite Lived Intangible Assets Gross,IndefiniteLivedIntangibleAssetsGross
-balance,FCDA_AFV,,Foreign Currency Derivative Assets At Fair Value,ForeignCurrencyDerivativeAssetsAtFairValue
-balance,FCFVHA_AFV,FCDA_AFV,Foreign Currency Fair Value Hedge Asset At Fair Value,ForeignCurrencyFairValueHedgeAssetAtFairValue
-balance,FCDIDAHIA_AFV,FCDA_AFV,Foreign Currency Derivative Instruments Designated As Hedging Instruments Asset At Fair Value,ForeignCurrencyDerivativeInstrumentsDesignatedAsHedgingInstrumentsAssetAtFairValue
-balance,FCDL_AFV,,Foreign Currency Derivative Liabilities At Fair Value,ForeignCurrencyDerivativeLiabilitiesAtFairValue
-balance,FCDIDAHIL_AFV,FCDL_AFV,Foreign Currency Derivative Instruments Designated As Hedging Instruments Liability At Fair Value,ForeignCurrencyDerivativeInstrumentsDesignatedAsHedgingInstrumentsLiabilityAtFairValue
-balance,FCFVDL_AFV,,Foreign Currency Fair Value Derivative Liabilities At Fair Value,ForeignCurrencyFairValueDerivativeLiabilitiesAtFairValue
-balance,FCFVHL_AFV,FCFVDL_AFV,Foreign Currency Fair Value Hedge Liability At Fair Value,ForeignCurrencyFairValueHedgeLiabilityAtFairValue
-balance,IRDA_AFV,,Interest Rate Derivative Assets At Fair Value,InterestRateDerivativeAssetsAtFairValue
-balance,IRFVHA_AFV,IRDA_AFV,Interest Rate Fair Value Hedge Asset At Fair Value,InterestRateFairValueHedgeAssetAtFairValue
-balance,SE,,Stockholders Equity,StockholdersEquity
-balance,CS_vl,SE,Common Stock Value,CommonStockValue
-balance,CSIAPIC,SE,Common Stocks Including Additional Paid In Capital,CommonStocksIncludingAdditionalPaidInCapital
-balance,FV_AMORB,,Fair Value Assets Measured On Recurring Basis,FairValueAssetsMeasuredOnRecurringBasis
-balance,FV_AMORB_CCE,FV_AMORB,Fair Value Assets Measured On Recurring Basis Cash And Cash Equivalents,FairValueAssetsMeasuredOnRecurringBasisCashAndCashEquivalents
-balance,FV_LMORB,,Fair Value Liabilities Measured On Recurring Basis,FairValueLiabilitiesMeasuredOnRecurringBasis
-balance,FV_LMORB_DFIL,FV_LMORB,Fair Value Liabilities Measured On Recurring Basis Derivative Financial Instruments Liabilities,FairValueLiabilitiesMeasuredOnRecurringBasisDerivativeFinancialInstrumentsLiabilities
-debt,LTD,,Long Term Debt,LongTermDebt
-debt,DI_CA,LTD,Debt Instrument Carrying Amount,DebtInstrumentCarryingAmount
-debt,LTD_MROP_rofy,DI_CA,Long Term Debt Maturities Repayments Of Principal Remainder Of Fiscal Year,LongTermDebtMaturitiesRepaymentsOfPrincipalRemainderOfFiscalYear
-debt,LTD_MROP_nx12m,DI_CA,Long Term Debt Maturities Repayments Of Principal In Next Twelve Months,LongTermDebtMaturitiesRepaymentsOfPrincipalInNextTwelveMonths
-cashflow,CCE_ch,,Cash And Cash Equivalents Period Increase Decrease,CashAndCashEquivalentsPeriodIncreaseDecrease
-cashflow,COCF,CCE_ch,Net Cash Provided By Used In Operating Activities Continuing Operations,NetCashProvidedByUsedInOperatingActivitiesContinuingOperations
-cashflow,OCF,CCE_ch,Net Cash Provided By Used In Operating Activities,NetCashProvidedByUsedInOperatingActivities
-cashflow,NIL,OCF,Net Income Loss,NetIncomeLoss
-cashflow,FinCF,,Net Cash Provided By Used In Financing Activities,NetCashProvidedByUsedInFinancingActivities
-cashflow,PF_IO_CS,FinCF,Proceeds From Issuance Of Common Stock,ProceedsFromIssuanceOfCommonStock
-cashflow,pa_re_to_ta_wi_fo_SBC,FinCF,Payments Related To Tax Withholding For Share Based Compensation,PaymentsRelatedToTaxWithholdingForShareBasedCompensation
-cashflow,ICF,,Net Cash Provided By Used In Investing Activities,NetCashProvidedByUsedInInvestingActivities
-cashflow,PTA_AFSS,ICF,Payments To Acquire Available For Sale Securities,PaymentsToAcquireAvailableForSaleSecurities
-cashflow,PTA_AFSSD,ICF,Payments To Acquire Available For Sale Securities Debt,PaymentsToAcquireAvailableForSaleSecuritiesDebt
-cashflow,PFRO_STD,,Proceeds From Repayments Of Short Term Debt,ProceedsFromRepaymentsOfShortTermDebt
-cashflow,PFRO_STD_ma_lt3m,PFRO_STD,Proceeds From Repayments Of Short Term Debt Maturing In Three Months Or Less,ProceedsFromRepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess
-cashflow,PFRO_STD_ma_mt3m,,Proceeds From Repayments Of Short Term Debt Maturing In More Than Three Months,ProceedsFromRepaymentsOfShortTermDebtMaturingInMoreThanThreeMonths
-cashflow,PF_STD_ma_mt3m,PFRO_STD_ma_mt3m,Proceeds From Short Term Debt Maturing In More Than Three Months,ProceedsFromShortTermDebtMaturingInMoreThanThreeMonths
-cash,CCEMS_AGUG_BT,CCEMS_cs,Cash Equivalents And Marketable Securities Accumulated Gross Unrealized Gain Before Tax,CashEquivalentsAndMarketableSecuritiesAccumulatedGrossUnrealizedGainBeforeTax
-cash,ES_FV_AGUG_BT,CCEMS_AGUG_BT,Equity Securities FVNI Accumulated Gross Unrealized Gain Before Tax,EquitySecuritiesFVNIAccumulatedGrossUnrealizedGainBeforeTax
-cash,CCEMS_AGUL_BT,,Cash Equivalents And Marketable Securities Accumulated Gross Unrealized Loss Before Tax,CashEquivalentsAndMarketableSecuritiesAccumulatedGrossUnrealizedLossBeforeTax
-cash,ES_FV_AGUL_BT,CCEMS_AGUL_BT,Equity Securities FVNI Accumulated Gross Unrealized Loss Before Tax,EquitySecuritiesFVNIAccumulatedGrossUnrealizedLossBeforeTax
-stock_compensation,SBC,,Share Based Compensation,ShareBasedCompensation
-stock_compensation,SBC_ep_ATCOS,SBC,Stock Based Compensation Expense Associated To Cost Of Sales,StockBasedCompensationExpenseAssociatedToCostOfSales
-stock_compensation,SBC_ABSPAOOIV,,Share Based Compensation Arrangement By Share Based Payment Award Options Outstanding Intrinsic Value,ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsOutstandingIntrinsicValue
-stock_compensation,SBC_ABSPAOEIV,SBC_ABSPAOOIV,Sharebased Compensation Arrangement By Sharebased Payment Award Options Exercisable Intrinsic Value,SharebasedCompensationArrangementBySharebasedPaymentAwardOptionsExercisableIntrinsicValue
-securities,AFSS_FVD,,Available For Sale Securities Fair Value Disclosure,AvailableForSaleSecuritiesFairValueDisclosure
-securities,AFSS_am_cs,AFSS_FVD,Available For Sale Securities Amortized Cost,AvailableForSaleSecuritiesAmortizedCost
-securities,AFSS_CULP_FV,,Available For Sale Securities Continuous Unrealized Loss Position Fair Value,AvailableForSaleSecuritiesContinuousUnrealizedLossPositionFairValue
-securities,AFSS_CULP_lt12m,AFSS_CULP_FV,Available For Sale Securities Continuous Unrealized Loss Position Less Than Twelve Months Fair Value,AvailableForSaleSecuritiesContinuousUnrealizedLossPositionLessThanTwelveMonthsFairValue
-securities,AFSS_CUL_lt12m,AFSS_UL,Available For Sale Securities Continuous Unrealized Loss Less Than Twelve Months,AvailableForSaleSecuritiesContinuousUnrealizedLossLessThanTwelveMonths
-securities,AFSS_UL,,Available For Sale Securities Unrealized Losses,AvailableForSaleSecuritiesUnrealizedLosses
-securities,AFSDS_CULP_AL,,Available For Sale Securities Continuous Unrealized Loss Position Accumulated Loss,AvailableForSaleSecuritiesContinuousUnrealizedLossPositionAccumulatedLoss
-securities,AFSS_CULP,AFSS_CULP_AL,Available For Sale Securities Continuous Unrealized Loss Position Less Than,AvailableForSaleSecuritiesContinuousUnrealizedLossPositionLessThan
-securities,AFSDS_ULP_AL,,Debt Securities Available For Sale Unrealized Loss Position Accumulated Loss,DebtSecuritiesAvailableForSaleUnrealizedLossPositionAccumulatedLoss
-securities,AFSDS_CULP_lt,AFSDS_ULP_AL,Debt Securities Available For Sale Continuous Unrealized Loss Position Less Than,DebtSecuritiesAvailableForSaleContinuousUnrealizedLossPositionLessThan
-securities,AFSDS_am_cs_bs,,Available For Sale Debt Securities Amortized Cost Basis,AvailableForSaleDebtSecuritiesAmortizedCostBasis
-securities,AFSDS_AGUG_BT,AFSDS_am_cs_bs,Available For Sale Debt Securities Accumulated Gross Unrealized Gain Before Tax,AvailableForSaleDebtSecuritiesAccumulatedGrossUnrealizedGainBeforeTax
-securities,AFSSDM_smd,,Available For Sale Securities Debt Maturities Single Maturity Date,AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDate
-securities,AFSDBM_ry2-5_FV,AVSSDM_smd,Available For Sale Securities Debt Maturities Rolling Year Two Through Five Fair Value,AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue
-securities,AFSS_AGUG_BT,AFSS_am_cs,Available For Sale Securities Accumulated Gross Unrealized Gain Before Tax,AvailableForSaleSecuritiesAccumulatedGrossUnrealizedGainBeforeTax
-leases,OFLL,,Operating and Finance Lease Liability,OperatingandFinanceLeaseLiability
-leases,OLL,OFLL,Operating Lease Liability,OperatingLeaseLiability
-leases,OLL_cu,OFLL,Operating Lease Liability Current,OperatingLeaseLiabilityCurrent
-leases,FLLPD,,Finance Lease Liability Payments Due,FinanceLeaseLiabilityPaymentsDue
-leases,FLLP_rofy,FLLPD,Finance Lease Liability Payments Remainder Of Fiscal Year,FinanceLeaseLiabilityPaymentsRemainderOfFiscalYear
-leases,FLLPD_nx12m,FLLPD,Finance Lease Liability Payments Due Next Twelve Months,FinanceLeaseLiabilityPaymentsDueNextTwelveMonths
-leases,FLLUEA,FLLPD,Finance Lease Liability Undiscounted Excess Amount,FinanceLeaseLiabilityUndiscountedExcessAmount
-leases,LOLLP_rofy,LOFLLP_rofy,Lessee Operating Lease Liability Payments Remainder Of Fiscal Year,LesseeOperatingLeaseLiabilityPaymentsRemainderOfFiscalYear
-leases,LOFLLPD,,Lessee Operating and Finance Lease Liability Payments Due,LesseeOperatingandFinanceLeaseLiabilityPaymentsDue
-leases,LOLLPD,LOFLLPD,Lessee Operating Lease Liability Payments Due,LesseeOperatingLeaseLiabilityPaymentsDue
-leases,LOFLLP_rofy,LOFLLPD,Lessee Operating and Finance Lease Liability Payments Remainderof Fiscal Year,LesseeOperatingandFinanceLeaseLiabilityPaymentsRemainderofFiscalYear
-leases,LOFLLPD_y1,LOFLLPD,Lessee Operating And Finance Lease Liability To Be Paid Year One,LesseeOperatingAndFinanceLeaseLiabilityToBePaidYearOne
-leases,LOFLLUEA,LOFLLPD,Lessee Operating and Finance Lease Liability Undiscounted Excess Amount,LesseeOperatingandFinanceLeaseLiabilityUndiscountedExcessAmount
-leases,LOLLPD_n12m,LOFLLPD_y1,Lessee Operating Lease Liability Payments Due Next Twelve Months,LesseeOperatingLeaseLiabilityPaymentsDueNextTwelveMonths
-leases,LOFLLPD_y2,,Lessee Operating and Finance Lease Liability Payments Due Year Two,LesseeOperatingandFinanceLeaseLiabilityPaymentsDueYearTwo
-leases,LOLLPD_y2,LOFLLPD_y2,Lessee Operating Lease Liability Payments Due Year Two,LesseeOperatingLeaseLiabilityPaymentsDueYearTwo
-leases,LOFLLPD_y3,,Lessee Operating and Finance Lease Liability Payments Due Year Three,LesseeOperatingandFinanceLeaseLiabilityPaymentsDueYearThree
-leases,LOLLPD_y3,LOFLLPD_y3,Lessee Operating Lease Liability Payments Due Year Three,LesseeOperatingLeaseLiabilityPaymentsDueYearThree
-leases,LOFLLPD_y4,,Lessee Operating and Finance Lease Liability Payments Due Year Four,LesseeOperatingandFinanceLeaseLiabilityPaymentsDueYearFour
-leases,LOLLPD_y4,LOFLLPD_y4,Lessee Operating Lease Liability Payments Due Year Four,LesseeOperatingLeaseLiabilityPaymentsDueYearFour
-leases,LOFLLPD_y5,,Lessee Operating and Finance Lease Liability Payments Due Year Five,LesseeOperatingandFinanceLeaseLiabilityPaymentsDueYearFive
-leases,LOLLPD_y5,LOPFLLPD_y5,Lessee Operating Lease Liability Payments Due Year Five,LesseeOperatingLeaseLiabilityPaymentsDueYearFive
-leases,LOFLLPD_ay5,,Lessee Operating and Finance Lease Liability Payments Dueafter Year Five,LesseeOperatingandFinanceLeaseLiabilityPaymentsDueafterYearFive
-leases,LOLLPD_ay5,LOFLLPD_ay5,Lessee Operating Lease Liability Payments Due After Year Five,LesseeOperatingLeaseLiabilityPaymentsDueAfterYearFive
-leases,LOLLUEA,LOFLLUEA,Lessee Operating Lease Liability Undiscounted Excess Amount,LesseeOperatingLeaseLiabilityUndiscountedExcessAmount
-leases,OFLROUA,,Operating and Finance Lease Right of Use Asset,OperatingandFinanceLeaseRightofUseAsset
-leases,OLROUA,OFLROUA,Operating Lease Right Of Use Asset,OperatingLeaseRightOfUseAsset
-leases,OL_FMPD,,Operating Leases Future Minimum Payments Due,OperatingLeasesFutureMinimumPaymentsDue
-leases,OL_FMPD,OL_FMPD_cu,Operating Leases Future Minimum Payments Due Current,OperatingLeasesFutureMinimumPaymentsDueCurrent
-amortization,fu_am_ep_to,,Future Amortization Expense Total,FutureAmortizationExpenseTotal
-amortization,fu_am_ep_y1,fu_am_ep_to,Future Amortization Expense Year One,FutureAmortizationExpenseYearOne
-CommitmentsAndContingenciesFuturePaymentsUnderUnconditionalPurchaseObligationsDetails,UUPOBSA,,Unrecorded Unconditional Purchase Obligation Balance Sheet Amount,UnrecordedUnconditionalPurchaseObligationBalanceSheetAmount
-CommitmentsandContingenciesFuturePaymentsUnderUnconditionalPurchaseObligationsDetails,UUPOD_rofy,UUPOBSA,Unrecorded Unconditional Purchase Obligation Due In Remainder Of Fiscal Year,UnrecordedUnconditionalPurchaseObligationDueInRemainderOfFiscalYear
-CommitmentsAndContingenciesFuturePaymentsUnderUnconditionalPurchaseObligationsDetails,UUPOB_1a,UUPOBSA,Unrecorded Unconditional Purchase Obligation Balance On First Anniversary,UnrecordedUnconditionalPurchaseObligationBalanceOnFirstAnniversary
+gaap,member,item,label,sheet
+Revenues,,rv,Revenue,income
+RevenueFromContractWithCustomerExcludingAssessedTax,,rv,Revenue,income
+SalesRevenueNet,,rv,Revenue,income
+RevenueFromContractWithCustomerExcludingAssessedTax,Product,pd_rv,Product Revenue,income
+Revenues,Service,sv_rv,Service Revenue,income
+RevenueFromContractWithCustomerExcludingAssessedTax,Service,sv_rv,Service Revenue,income
+SalesRevenueNet,Services,sv_rv,Service Revenue,income
+,,fn_rv,Finance Revenue,income
+,,ot_rv,Other Revenue,income
+CostOfGoodsAndServicesSold,,rv_cs,Revenue Cost,income
+CostOfGoodsAndServicesSold,Product,pd_rv_cs,Product Revenue Cost,income
+CostOfGoodsAndServicesSold,Service,sv_rv_cs,Service Revenue Cost,income
+,,fn_rv_cs,Finance Revenue Cost,income
+,,ot_rv_cs,Other Revenue Cost,income
+GrossProfit,,gs_pf,Gross Profit,income
+OperatingExpenses,,op_ep,Operating Expense,income
+SellingGeneralAndAdministrativeExpense,,SGA_ep,SGA Expense,income
+AdvertisingExpense,,av_ep,Advertising Expense,income
+MarketingExpense,,mk_ep,Marketing Expense,income
+LeaseAndRentalExpense,,la_rn_ep,LeaseAndRentalExpense,income
+ResearchAndDevelopmentExpense,,RD_ep,R&D Expense,income
+DepreciationAmortizationAndAccretionNet,,DDAA,DDAA,income
+DepreciationDepletionAndAmortization,,DDAA,DDAA,income
+DepreciationAndAmortization,,DDAA,DDAA,income
+Depreciation,,dpr,Depreciation,income
+AmortizationOfIntangibleAssets,,am,Amortization,income
+,,ot_op_ep,Other Operating Expense,income
+OperatingIncomeLoss,,op_ic/ls,Operating Income/Loss,income
+NonoperatingIncomeExpense,,n-op_in/ls,Non-Operating Income/Loss,income
+InvestmentIncomeInterestAndDividend,,iv_ic/ls,Investment Income/Loss,income
+OtherNonoperatingIncomeExpense,,ot_n-op_ic/ls,Other Non-Operating Income/Loss,income
+InterestExpense,,it_ep,Interest Expense,income
+IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest,,p-tx_ic/ls,Pretax Income/Loss,income
+IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments,,p-tx_ic/ls,Pretax Income/Loss,income
+IncomeTaxExpenseBenefit,,ic_tx_ep/bf,Income Tax Expense/Benefit,income
+DeferredIncomeTaxExpenseBenefit,,df_ic_tx_ep/bf,Deferred Income Tax Expense/Benefit,income
+DeferredFederalIncomeTaxExpenseBenefit,,df_dm_ic_tx_ep/bf,Deferred Domestic Income Tax Expense/Benefit,income
+DeferredStateAndLocalIncomeTaxExpenseBenefit,,df_lc_ic_tx_ep/bf,Deferred Local Income Tax Expense/Benefit,income
+DeferredForeignIncomeTaxExpenseBenefit,,df_fo_ic_tx_ep/bf,Deferred Foreign Income Tax Expense/Benefit,income
+,,nt_ic/ls_cn_op,Net Income/Loss from Continuing Operations,income
+,,n-rc_ic/ls,Non-Recurring Income/Loss,income
+,,dc_op_ic/ls,Discontinued Operations,income
+,,eo_im,Extraordinary Items,income
+,,us_im,Unusual Items,income
+,,nt_ic/ls_mn_it,Net Income/Loss Incl. Minority Interest,income
+NetIncomeLossAttributableToNoncontrollingInterest,,mn_it_ic/ls,Minority Interest Income/Loss,income
+NetIncomeLoss,,nt_ic/ls,Net Income/Loss,income
+,,pf_st_dv,Preferred Stock Dividends,income
+,,nt_ic/ls_av_to_cm_shh,Net Income/Loss Available to Common Shareholders,income
+EarningsPerShareBasic,,EPSB,Earnings/Share Basic,income
+WeightedAverageNumberOfSharesOutstandingBasic,,wansob,Average Basic Shares,income
+EarningsPerShareDiluted,,EPSD,Earnings/Share Diluted,income
+WeightedAverageNumberOfDilutedSharesOutstanding,,wansod,Average Diluted Shares,income
+WeightedAverageNumberDilutedSharesOutstandingAdjustment,,wansod,Average Diluted Shares,income

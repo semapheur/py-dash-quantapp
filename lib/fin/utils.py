@@ -1,17 +1,23 @@
-import json
-from pathlib import Path
-
 import pandas as pd
 
-from lib.db import DB_DIR
+from lib.const import DB_DIR
+from lib.utils import load_json
 
-def template_items():
-  json_path = DB_DIR / 'fin_template.json'
-  if not json_path.exists():
-    raise Exception(f'Template file ("fin_template.json") does not exist in folder {DB_DIR}')
+def load_taxonomy(source: str) -> pd.DataFrame:
+  df = pd.read_csv('fin_taxonomy.csv', usecols=[source, 'member', 'item', 'label'])
+  df.dropna(subset=source, inplace=True)
+  df.set_index(source, inplace=True)
+  return df
 
-  with open(json_path, 'r') as f:
-    template = json.load(f)
+def load_labels() -> dict:
+  df = pd.read_csv('fin_labels.csv')
+  return {item: label
+    for item, label in zip(df['item'], df['label'])
+  }
+
+def items_to_csv():
+  path = DB_DIR / 'fin_template.json'
+  template = load_json(path)
 
   items: list[dict[str, str]] = []
   for sheet in template:

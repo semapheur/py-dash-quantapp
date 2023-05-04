@@ -19,5 +19,7 @@ COPY ./ ./
 # Build tailwind
 RUN npm tw-build
 
+EXPOSE 8080
+
 # Run app
 CMD ["python", "./app.py"]

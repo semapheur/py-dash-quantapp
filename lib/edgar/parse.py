@@ -20,6 +20,7 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
+from lib.fin.utils import load_taxonomy
 
 async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
   tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
@@ -185,12 +186,6 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   df.drop_duplicates(inplace=True)
   return df
 
-def load_fin_items(source: str) -> pd.DataFrame:
-  df = pd.read_csv('fin_items.csv', usecols=[source, 'member', 'item'])
-  df.dropna(subset=source, inplace=True)
-  df.set_index(source, inplace=True)
-  return df
-
 def statement_to_df(data: Financials) -> pd.DataFrame:
     
   def parse_period(period: dict[str, str]) -> dt:
@@ -205,17 +200,16 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
         
     df_data[(date, scope)][col] = val
   
-  fin_items = load_fin_items('gaap')
-  mask = fin_items['member'].isna()
+  taxonomy = load_taxonomy('gaap')
+  mask = taxonomy['member'].isna()
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
   
   df_data: dict[tuple[dt, str], dict[str, float]] = {
     (fin_date, scope[0]): {}
   }
-  
-  _fin_items = set(fin_items.index).intersection(set(data['data'].keys()))
-  for i in _fin_items:
+  items = set(taxonomy.index).intersection(set(data['data'].keys()))
+  for i in items:
     entries: list = glom(data, f'data.{i}')
     
     for e in entries:
@@ -226,24 +220,24 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
       if date != fin_date:
         continue
       
-      col = fin_items.loc[mask, 'item'].loc[i]
+      col = taxonomy.loc[mask, 'item'].loc[i]
       df_data[(date, scope[0])][col] = e['value']
       
       if 'member' not in e:
         continue
 
-      mem = fin_items.loc[i,'member']
+      mem = taxonomy.loc[i,'member']
       if isinstance(mem, float): 
         continue
         
-      _mem = set(mem).intersection(set(e['member'].keys()))
-      if not _mem:
+      mem = set(mem).intersection(set(e['member'].keys()))
+      if not mem:
         continue
             
-      for m in _mem:
-        col = fin_items.loc[
-          (fin_items.index == i) & 
-          (fin_items['member'] == m), 
+      for m in mem:
+        col = taxonomy.loc[
+          (taxonomy.index == i) & 
+          (taxonomy['member'] == m), 
           'item'
         ].loc[i]
         df_data[(date, scope[0])][col] = e['value']

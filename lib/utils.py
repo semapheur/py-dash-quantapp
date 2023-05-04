@@ -1,4 +1,10 @@
+import json
 import re
+from pathlib import Path
+
+def load_json(file_path: str|Path) -> dict:
+  with open(file_path, 'r') as f:
+    return json.load(f)
 
 def replace_all(text, dic):
   for i, j in dic.items():
