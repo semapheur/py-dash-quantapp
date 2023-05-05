@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dash import Dash, html, page_container, page_registry
+from dash import Dash, html, page_container
 from dash.dependencies import Input, Output
 
 from components.header import Header
@@ -8,7 +8,7 @@ app = Dash(__name__, use_pages=True, title='Gelter') # run with 'python app.py'
 
 #print(page_registry)
 
-app.layout = html.Div(id='app', className='h-full flex flex-col', children=[
+app.layout = html.Div(id='app', children=[
   Header(),
   page_container,
 ])

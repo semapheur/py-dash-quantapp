@@ -1,34 +1,34 @@
-item,label
-rv,Revenue
-pd_rv,Product Revenue
-sv_rv,Service Revenue
-rv_cs,Revenue Cost
-pd_rv_cs,Product Revenue Cost
-sv_rv_cs,Service Revenue Cost
-gs_pf,Gross Profit
-op_ep,Operating Expense
-SGA_ep,SGA Expense
-av_ep,Advertising Expense
-mk_ep,Marketing Expense
-la_rn_ep,LeaseAndRentalExpense
-RD_ep,R&D Expense
-DDAA,DDAA
-dpr,Depreciation
-am,Amortization
-op_ic/ls,Operating Income/Loss
-n-op_in/ls,Non-Operating Income/Loss
-iv_ic/ls,Investment Income/Loss
-ot_n-op_ic/ls,Other Non-Operating Income/Loss
-it_ep,Interest Expense
-p-tx_ic/ls,Pretax Income/Loss
-ic_tx_ep/bf,Income Tax Expense/Benefit
-df_ic_tx_ep/bf,Deferred Income Tax Expense/Benefit
-df_dm_ic_tx_ep/bf,Deferred Domestic Income Tax Expense/Benefit
-df_lc_ic_tx_ep/bf,Deferred Local Income Tax Expense/Benefit
-df_fo_ic_tx_ep/bf,Deferred Foreign Income Tax Expense/Benefit
-mn_it_ic/ls,Minority Interest Income/Loss
-nt_ic/ls,Net Income/Loss
-EPSB,Earnings/Share Basic
-wansob,Average Basic Shares
-EPSD,Earnings/Share Basic
-wansod,Average Diluted Shares
+sheet,item,long,short,level
+income,rv,Revenue,,1
+income,pd_rv,Product Revenue,Product Revenue,2
+income,sv_rv,Service Revenue,Service Revenue,2
+income,rv_cs,Revenue Cost,,1
+income,pd_rv_cs,Product Revenue Cost,Product Cost,2
+income,sv_rv_cs,Service Revenue Cost,Service Cost,2
+income,gs_pf,Gross Profit,Gross Profit,0
+income,op_ep,Operating Expense,,1
+income,SGA_ep,"Selling, General and Administrative Expense",SGA Expense,2
+income,av_ep,Advertising Expense,,3
+income,mk_ep,Marketing Expense,,3
+income,la_rn_ep,Lease and Rental Expense,,3
+income,RD_ep,Research and Development Expense,R&D Expense,2
+income,DDAA,"Depreciation, Depletion, Amortization and Accretion",DDAA,1
+income,dpr,Depreciation,,2
+income,am,Amortization,,2
+income,op_ic/ls,Operating Income (Loss),,0
+income,n-op_in/ls,Non-Operating Income (Loss),,1
+income,it_ep,Interest Expense,,2
+income,iv_ic/ls,Investment Income (Loss),,2
+income,ot_n-op_ic/ls,Other Non-Operating Income (Loss),,2
+income,p-tx_ic/ls,Pretax Income (Loss),,0
+income,ic_tx_ep/bf,Income Tax Expense (Benefit),,1
+income,df_ic_tx_ep/bf,Deferred Income Tax Expense (Benefit),Deferred Tax,2
+income,df_dm_ic_tx_ep/bf,Deferred Domestic Income Tax Expense (Benefit),Domestic,3
+income,df_lc_ic_tx_ep/bf,Deferred Local Income Tax Expense (Benefit),Local,3
+income,df_fo_ic_tx_ep/bf,Deferred Foreign Income Tax Expense (Benefit),Foreign,3
+income,mn_it_ic/ls,Net Income (Loss) Attributable to Minority Interest,Minority Interest,1
+income,nt_ic/ls,Net Income (Loss),,0
+income,EPSB,Earnings/Share Basic,EPS Basic,0
+income,wansob,Average Basic Shares,,1
+income,EPSD,Earnings/Share Diluted,EPS Diluted,0
+income,wansod,Average Diluted Shares,,1

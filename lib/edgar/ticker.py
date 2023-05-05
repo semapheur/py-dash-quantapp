@@ -1,22 +1,13 @@
-import pandas as pd
-
+import asyncio
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
-from typing import Optional
-
-import asyncio
-
-# Web scrapping
-import requests
-
-import xml.etree.ElementTree as et
-from glom import glom
-
-# Databasing
-#from pymongo import MongoClient, DESCENDING
-
-# Utils
 import re
+from typing import Optional
+import xml.etree.ElementTree as et
+
+from glom import glom
+import pandas as pd
+import requests
 
 # Local
 from lib.const import HEADERS
@@ -29,6 +20,7 @@ from lib.edgar.parse import (
   parse_taxonomy,
   statement_to_df
 )
+from lib.fin.utils import load_items
 from lib.utils import camel_split, snake_abbreviate
 
 class Ticker():
@@ -91,7 +83,7 @@ class Ticker():
         
     return df
 
-  async def get_financials(self, delta=120) -> list[Financials]:
+  async def raw_financials(self, delta=120) -> list[Financials]:
 
     def new_financials(start_date:dt|str='') -> pd.DataFrame:
       docs = self.filings(['10-K', '10-Q'])
@@ -142,12 +134,15 @@ class Ticker():
     
     return [*financials, *new_financials]
 
-  async def financials(self, date_format: Optional[str] = None) -> pd.DataFrame:
+  async def financials(self, 
+    date_format: Optional[str] = None,
+    order_items: Optional[bool] = False
+  ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
     docs = read_tinydb('edgar.json', None, str(self._cik))
     if not docs:
-      docs = await self.get_financials()
+      docs = await self.raw_financials()
 
     dfs = []
 
@@ -156,11 +151,16 @@ class Ticker():
     
     df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
+
     if date_format:
       df.index = df.index.set_levels([
         df.index.levels[0].strftime(date_format),
         df.index.levels[1]
       ])
+
+    if order_items:
+      items = load_items('item', df.columns)
+      df = df[items.values]
 
     return df
 

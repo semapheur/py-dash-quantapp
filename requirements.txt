@@ -15,6 +15,7 @@ httpx
 matplotlib
 numba
 numpy
+ordered-set
 pandas
 #polars
 pycountry
