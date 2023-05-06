@@ -1,6 +1,7 @@
 import json
 import re
 from pathlib import Path
+from typing import Optional
 
 def load_json(path: str|Path) -> dict:
   with open(path, 'r') as f:
@@ -11,7 +12,7 @@ def update_json(path: str|Path, data: dict):
     path = Path(str)
 
   if path.suffix != '.json':
-    path = Path(f'{path.stem}.json')
+    path = path.with_suffix('.json')
   
   try:
     with open(path, 'r') as f:
@@ -24,6 +25,21 @@ def update_json(path: str|Path, data: dict):
   
   with open(path, 'w') as f:
     json.dump(file_data, f)
+
+def minify_json(path: str|Path, new_name: Optional[str] = None):
+  if isinstance(path, str):
+    path = Path(path)
+
+  with open(path, 'r') as f:
+    data = json.load(f)
+
+  if not new_name:
+    new_path = path.with_name(f'{path.stem}_mini.json')
+  else:
+    new_path = path.with_name(new_name).with_suffix('.json')
+  
+  with open(new_path, 'w') as f:
+    json.dump(data, f, separators=(',', ':'))
 
 def replace_all(text, dic):
   for i, j in dic.items():

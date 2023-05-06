@@ -10,7 +10,7 @@ dash-extensions
 dash-leaflet
 fathon
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas
-geobuf==3.20
+#geobuf
 geopandas
 glom
 httpx
@@ -20,6 +20,7 @@ numpy
 ordered-set
 pandas
 #polars
+protobuf==3.20
 pycountry
 pydantic
 python-dotenv
