@@ -2,9 +2,28 @@ import json
 import re
 from pathlib import Path
 
-def load_json(file_path: str|Path) -> dict:
-  with open(file_path, 'r') as f:
+def load_json(path: str|Path) -> dict:
+  with open(path, 'r') as f:
     return json.load(f)
+
+def update_json(path: str|Path, data: dict):
+  if isinstance(path, str):
+    path = Path(str)
+
+  if path.suffix != '.json':
+    path = Path(f'{path.stem}.json')
+  
+  try:
+    with open(path, 'r') as f:
+      file_data = json.load(f)
+
+  except (FileNotFoundError, json.JSONDecodeError):
+    file_data = {}
+
+  file_data.update(data)
+  
+  with open(path, 'w') as f:
+    json.dump(file_data, f)
 
 def replace_all(text, dic):
   for i, j in dic.items():

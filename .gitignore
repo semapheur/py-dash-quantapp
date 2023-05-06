@@ -4,6 +4,9 @@
 # data
 /data
 
+# json assets
+/assets/**/*.json
+
 # pycache
 **/__pycache__/
 

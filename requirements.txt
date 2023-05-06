@@ -6,9 +6,11 @@
 asyncio
 bs4
 dash
+dash-extensions
+dash-leaflet
 fathon
-folium
-#fracdiff #windows (msys2): pacman -Ss mingw-w64-x86_64-openblas
+#fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas
+geobuf==3.20
 geopandas
 glom
 httpx
@@ -21,6 +23,7 @@ pandas
 pycountry
 pydantic
 python-dotenv
+pyyaml
 requests
 scikit-learn
 scipy

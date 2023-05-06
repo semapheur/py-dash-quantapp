@@ -1,13 +1,15 @@
 import requests
-import json
 
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 import numpy as np
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import Point
 
-from lib.const import DB_DIR, HEADERS
+from lib.const import DB_DIR, STATIC_DIR, HEADERS
+from lib.geonorge import municipality_polys
+from lib.utils import update_json
 
 VIRDI_PATH = DB_DIR / 'hjemla.json'
 
@@ -24,9 +26,24 @@ class Virdi(TypedDict):
   estimated_common_debt: float
   fixed_price: float
   common_debt: float
-  asking_price: float 
+  asking_price: float
 
-def postal_code_polys():
+def load_geo_data(unit: str) -> gpd.GeoDataFrame:
+  path = DB_DIR / f'nor_{unit}.json'
+  if not path.exists():
+    if unit == 'municipality':
+      gdf = municipality_polys(0.001)
+    elif unit == 'postal_code':
+      gdf = postal_code_polys()
+
+    gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
+  
+  else:
+    gdf = gpd.read_file(path, driver='GeoJSON', encoding='utf-8')
+  
+  return gdf
+
+def postal_code_polys() -> gpd.GeoDataFrame:
   url = (
     'https://raw.githubusercontent.com/'
     'ivanhjel/postnummer/master/postnummeromrader.geojson'
@@ -46,10 +63,10 @@ def postal_code_polys():
   return gdf
 
 def real_estate_price_data(
-  size_range=(30,150),
-  sw_coord=(57.8, 4.3), 
-  ne_coord=(71.2, 31.3),
-):
+  size_range: tuple = (30,150),
+  sw_coord: tuple = (57.8, 4.3), 
+  ne_coord: tuple = (71.2, 31.3),
+) -> gpd.GeoDataFrame:
 
   params = {
     'period': '12',
@@ -73,7 +90,7 @@ def real_estate_price_data(
         'https://consumer-service.hjemla.no/public/maps/units', 
         headers=HEADERS, params=params
       )
-      parse = json.loads(rs.text)
+      parse = rs.json()
 
     if 'response' not in parse:
       continue
@@ -97,26 +114,28 @@ def real_estate_price_data(
           'asking_price': unit['askingPrice']
         })
     
-  df = gpd.GeoDataFrame(scrap, crs=4258)
+  gdf = gpd.GeoDataFrame(scrap, crs=4258)
   
   cols = ['estimated_price', 'fixed_price', 'asking_price']
-  df.dropna(how='all', subset=cols, inplace=True)
+  gdf.dropna(how='all', subset=cols, inplace=True)
   
-  df['price_per_area'] = df[cols].max(axis=1) / df['area']
+  gdf['price_per_area'] = gdf[cols].max(axis=1) / gdf['area']
   
-  return df
+  return gdf
 
 def load_price_data():
   if not VIRDI_PATH.exists():
     price = real_estate_price_data()
-    price.to_file(VIRDI_PATH)
+    price.to_file(VIRDI_PATH, driver='GeoJSON')
   else:
-    price = gpd.read_file(VIRDI_PATH, driver='GeoJson', encoding='utf-8')
+    price = gpd.read_file(VIRDI_PATH, encoding='utf-8')
 
   return price
 
-def spatial_price_stats(price: gpd.GeoDataFrame(), unit='municipality'):
-  # unit: municipality / postal_code
+def spatial_price_stats(
+  price: gpd.GeoDataFrame, 
+  unit: Literal['municipality', 'postal_code']
+) -> pd.DataFrame:
 
   if unit not in {'municipality', 'postal_code'}:
     raise Exception('Unit only accepts values "municipality"/"postal_code"')
@@ -127,3 +146,23 @@ def spatial_price_stats(price: gpd.GeoDataFrame(), unit='municipality'):
     price_per_area_std=('price_per_area', 'std')
   )
   return stats
+
+def choropleth_polys(unit: Literal['municipality', 'postal_code']):
+  price = load_price_data()
+
+  df = spatial_price_stats(price, unit)
+  gdf = load_geo_data(unit)
+  gdf = gdf.join(df, on=unit)
+  #gdf = gdf[['geometry', 'postal_code', 'price_per_area', 'price_per_area_std']]
+
+  extrema = {
+    unit: [
+      df['price_per_area'].min(),
+      df['price_per_area'].max()
+    ]
+  }
+  path = DB_DIR / 'colorbar_values.json'
+  update_json(path, extrema)
+
+  path = STATIC_DIR / f'realestate_choro_{unit}.json'
+  gdf.to_file(path, driver='GeoJSON', encoding='utf-8')

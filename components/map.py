@@ -1,34 +1,20 @@
 from pathlib import Path
 
-import geopandas as gpd
 import folium # MapQuest Open|Stamen Toner|Carto DB positron/dark_matter
 import branca.colormap as cm
 
-from lib.const import DB_DIR
-from lib.virdi import load_price_data, spatial_price_stats, postal_code_polys
-from lib.geonorge import municipality_polys
+from lib.virdi import load_price_data, spatial_price_stats, load_geo_data
 
 MAP_PATH = Path(__file__).resolve().parent.parent / 'assets'
-
-def load_geo_data(unit: str):
-  path = DB_DIR / f'nor_{unit}.json'
-  if not path.exists():
-    if unit == 'municipality':
-      gdf = municipality_polys(0.001)
-    elif unit == 'postal_code':
-      gdf = postal_code_polys()
-
-    gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
-  
-  else:
-    gdf = gpd.read_file(path, driver='GeoJSON', encoding='utf-8')
-  
-  return gdf
 
 def choropleth_map():
 
   # Folium map
-  mp = folium.Map(location=[59.90, 10.75], zoom_start=10, tiles='Stamen Toner')
+  mp = folium.Map(
+    location=(59.90, 10.75), 
+    zoom_start=10, 
+    tiles='Stamen Toner'
+  )
 
   # Choropleth
   fields = [

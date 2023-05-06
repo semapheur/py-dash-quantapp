@@ -4,7 +4,9 @@ import os
 
 load_dotenv(Path().cwd() / '.env')
 
-DB_DIR = Path(__file__).resolve().parent.parent / os.getenv('DB_DIR')
+WORK_DIR = Path(__file__).resolve().parent.parent
+DB_DIR = WORK_DIR / os.getenv('DB_DIR')
+STATIC_DIR = WORK_DIR / os.getenv('STATIC_DIR')
 
 HEADERS = {
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/112.0',

@@ -5,8 +5,7 @@ from shapely.geometry import Point, Polygon
 import requests
 import json
 
-import re
-from pathlib import Path
+from lib.const import HEADERS
 
 '''
 EPSG:4326 - WGS84 (geographic)
@@ -16,25 +15,13 @@ EPSG:25832 - ETRS89 / UTM zone 32N
 EPSG:4258 - ETRS89 (geographic)
 '''
 
-HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
-  'Accept': 'application/json',
-  'Accept-Language': 'en-US,en;q=0.5',
-  'DNT': '1',
-  'Connection': 'keep-alive',
-  'Sec-Fetch-Dest': 'empty',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Site': 'same-origin',
-  'Sec-GPC': '1',
-}
-
-def get_municipalities(): 
+def get_municipalities() -> pd.DataFrame: 
   with requests.Session() as s:
     rs = s.get(
       'https://ws.geonorge.no/kommuneinfo/v1/kommuner', 
       headers=HEADERS
     )
-    parse = json.loads(rs.text)
+    parse = rs.json()
   
   rnm = {
     'kommunenavn': 'name',
@@ -45,7 +32,7 @@ def get_municipalities():
   df.rename(columns=rnm, inplace=True)
   return df
 
-def search_municipality(query):
+def search_municipality(query: str) -> dict:
   params = {
     'knavn': query,
   }
@@ -54,7 +41,7 @@ def search_municipality(query):
       'https://ws.geonorge.no/kommuneinfo/v1/sok', 
       headers=HEADERS, params=params
     )
-    parse = json.loads(rs.text)
+    parse = rs.json()
 
   return parse
 
@@ -64,7 +51,7 @@ def municipality_info(id: str) -> dict:
       f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{id}', 
       headers=HEADERS
     )
-    parse = json.loads(rs.text)
+    parse = rs.json()
 
   return parse
 
@@ -87,7 +74,7 @@ def municipality_poly(id: str) -> Polygon:
   url = f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{id}/omrade'
   with requests.Session() as s:
     rs = s.get(url, headers=HEADERS)
-    parse = json.loads(rs.text)
+    parse = rs.json()
 
   poly = Polygon(parse['omrade']['coordinates'][0][0])
   return poly
