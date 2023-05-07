@@ -72,9 +72,9 @@ def country_poly(
   )
   with httpx.Client() as client:
     rs = client.get(url)
-    data = json.loads(rs.text)
+    raw = rs.text
   
-  gdf = gpd.GeoDataFrame.from_features(data['features'], crs=3857)
+  gdf = gpd.read_file(raw, crs=3857)
   gdf = gdf[gdf.geometry.is_valid]
 
   if crs:

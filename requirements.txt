@@ -31,4 +31,5 @@ scipy
 sqlalchemy
 statsmodels
 tinydb
+topojson
 wbgapi

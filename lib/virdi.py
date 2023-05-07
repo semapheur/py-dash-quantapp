@@ -49,20 +49,20 @@ def postal_code_polys() -> gpd.GeoDataFrame:
     'https://raw.githubusercontent.com/'
     'ivanhjel/postnummer/master/postnummeromrader.geojson'
   )
-
   with requests.Session() as s:
     rs = s.get(url, headers=HEADERS)
     raw = rs.text
   
   rnm = {
     'kommune': 'municipality',
-    'postnummer': 'postal_code',
-    'poststedsnavn': 'postal_area'
+    'postnummer': 'postalcode',
+    'poststedsnavn': 'postalarea'
   }
   gdf = gpd.read_file(raw, driver='GeoJSON', encoding='utf-8')
   gdf.rename(columns=rnm, inplace=True)
   return gdf
 
+# Todo: async
 def real_estate_price_data(
   size_range: tuple = (30,150),
   sw_coord: tuple = (57.8, 4.3), 
@@ -163,7 +163,7 @@ def hex_choropleth(hex_sizes: list[float]):
   price_gdf = load_price_data()
 
   for hs in hex_sizes:
-    path = DB_DIR / f'realestate_hex{int(hs)}.json'
+    path = DB_DIR / f'realestate_choro_hex{int(hs)}.json'
     if not path.exists():
       no_poly = norway_poly()
       hex_gdf = gpd.GeoDataFrame(hextiles(no_poly, 1e6), crs=4326)

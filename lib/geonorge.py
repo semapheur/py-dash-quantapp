@@ -1,9 +1,11 @@
-import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Point, Polygon
-
-import requests
+import asyncio
 import json
+
+import geopandas as gpd
+import pandas as pd
+import httpx
+from shapely.geometry import Point, Polygon
+import topojson as tj
 
 from lib.const import HEADERS
 
@@ -16,8 +18,8 @@ EPSG:4258 - ETRS89 (geographic)
 '''
 
 def get_municipalities() -> pd.DataFrame: 
-  with requests.Session() as s:
-    rs = s.get(
+  with httpx.Client() as client:
+    rs = client.get(
       'https://ws.geonorge.no/kommuneinfo/v1/kommuner', 
       headers=HEADERS
     )
@@ -36,8 +38,8 @@ def search_municipality(query: str) -> dict:
   params = {
     'knavn': query,
   }
-  with requests.Session() as s:
-    rs = s.get(
+  with httpx.Client() as client:
+    rs = client.get(
       'https://ws.geonorge.no/kommuneinfo/v1/sok', 
       headers=HEADERS, params=params
     )
@@ -46,8 +48,8 @@ def search_municipality(query: str) -> dict:
   return parse
 
 def municipality_info(id: str) -> dict:
-  with requests.Session() as s:
-    rs = s.get(
+  with httpx.Client() as client:
+    rs = client.get(
       f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{id}', 
       headers=HEADERS
     )
@@ -61,8 +63,8 @@ def find_municipality(point: Point):
     'koordsys': '4258',
     'nord': point.y,
   }
-  with requests.Session() as s:
-    rs = s.get(
+  with httpx.Client() as client:
+    rs = client.get(
       'https://ws.geonorge.no/kommuneinfo/v1/punkt', 
       headers=HEADERS, params=params
     )
@@ -70,90 +72,25 @@ def find_municipality(point: Point):
     
   return parse
 
-def municipality_poly(id: str) -> Polygon:
+async def municipality_poly(id: str) -> Polygon:
   url = f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{id}/omrade'
-  with requests.Session() as s:
-    rs = s.get(url, headers=HEADERS)
+  async with httpx.AsyncClient() as client:
+    rs = await client.get(url, headers=HEADERS)
     parse = rs.json()
 
   poly = Polygon(parse['omrade']['coordinates'][0][0])
   return poly
 
-def municipality_polys(tolerance: float=0.) -> gpd.GeoDataFrame:
+async def municipality_polys(tolerance: float=0.) -> gpd.GeoDataFrame:
   df = get_municipalities()
 
-  polys = [None] * len(df)
-  for i, id in enumerate(df['id']):
-    polys[i] = municipality_poly(id)
+  tasks = [asyncio.create_task(municipality_poly(id)) for id in df['id']]
+  polys = await asyncio.gather(*tasks)
 
   gdf = gpd.GeoDataFrame(df, crs=4258, geometry=polys)
   if tolerance > 0:
-    gdf['geometry'] = gdf['geometry'].simplify(tolerance=tolerance)
+    topo = tj.Topology(gdf, prequantize=False)
+    gdf = topo.toposimplify(tolerance).to_gdf()
+    #gdf['geometry'] = gdf['geometry'].simplify(tolerance=tolerance)
 
   return gdf
-
-'''
-def municipality_polys(municipalities: list):
-    
-  df_mun = get_municipalities()
-  pattern = r'(?<=\()[\w\s]+(?=\)$)'
-
-  def get_feature(munipality):   
-    temp = mun.split(' (')[0]
-    
-    mask = df_mun['kommunenavnNorsk'] == temp
-    mun_id = df_mun.loc[mask]
-    
-    if len(mun_id) > 1:
-      cnty = re.search(pattern, mun).group()
-      
-      hit = None
-      for i in range(len(munId)):
-        mun_info = municipality_info(mun_id.iloc[i]['kommunenummer'])
-        if mun_info['fylkesnavn'] == cnty:
-          hit = i
-          break
-              
-      mun_id = mun_id.iloc[i]['kommunenummer']
-    
-    else:
-      mun_id = mun_id['kommunenummer'].squeeze()
-    
-    url = f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{mun_id}/omrade'
-    with requests.Session() as s:
-      rs = s.get(url, headers=HEADERS)
-      parse = json.loads(rs.text)
-
-    feature = {'properties': {'id': munId, 'municipality': mun}, 'geometry': parse['omrade']}
-    return feature
-
-  path = Path.cwd() / 'data' / 'dgi' / 'nor_municipalities.json'
-
-  if not path.exists():
-    features = []
-    for mun in municipalities:
-      features.append(get_feature(mun))
-    
-    gdf = gpd.GeoDataFrame.from_features(features)
-    gdf.set_crs(epsg=4258, inplace=True)
-    gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
-
-  else:
-    gdf = gpd.read_file(path)
-
-    new_mun = set(municipalities).difference(set(gdf['municipality'].unique()))
-    
-    if new_mun:
-      features = []
-      for mun in new_mun:
-        features.append(getFeature(mun))
-
-      new_gdf = gpd.GeoDataFrame.from_features(features)
-      new_gdf.set_crs(epsg=4258, inplace=True)
-      new_gdf['municipality'] = new_mun
-
-      gdf = gdf.append(new_gdf, ignore_index=True)
-      gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
-
-  return gdf
-'''
