@@ -130,9 +130,10 @@ layout = [
   Output('test', 'children'),
   Input('realestate-map', 'zoom'),
   Input('realestate-map', 'center'),
+  Input('realestate-map', 'bounds'),
 )
-def test(zoom: int, center: tuple):
-  print(zoom)
+def test(zoom: int, center: tuple, bounds):
+  print(bounds)
 
   return no_update
 

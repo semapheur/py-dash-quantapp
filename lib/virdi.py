@@ -8,6 +8,7 @@ import pandas as pd
 from shapely.geometry import Point
 
 from lib.const import DB_DIR, STATIC_DIR, HEADERS
+from lib.geo import country_poly, hextiles, rect_poly
 from lib.geonorge import municipality_polys
 from lib.utils import update_json
 
@@ -132,13 +133,7 @@ def load_price_data():
 
   return price
 
-def spatial_price_stats(
-  price: gpd.GeoDataFrame, 
-  unit: Literal['municipality', 'postal_code']
-) -> pd.DataFrame:
-
-  if unit not in {'municipality', 'postal_code'}:
-    raise Exception('Unit only accepts values "municipality"/"postal_code"')
+def spatial_price_stats(price: gpd.GeoDataFrame, unit: str) -> pd.DataFrame:
 
   price = price[[unit, 'price_per_area']]
   stats = price.groupby([unit]).agg(
@@ -146,6 +141,45 @@ def spatial_price_stats(
     price_per_area_std=('price_per_area', 'std')
   )
   return stats
+
+def hex_choropleth(hex_sizes: list[float]):
+
+  def norway_poly():
+    path = DB_DIR / 'dgi/no_mainland_3857.json'
+    if not path.exists():
+      p1 = Point(4.49, 57.95)
+      p2 = Point(31.18, 71.21)
+      
+      mask = rect_poly(p1, p2)
+      no_poly = country_poly('norway', save_path=path, mask=mask)
+    else:
+      no_poly = gpd.read_file(path)
+
+    if no_poly.crs == 3857:
+      no_poly.set_crs(4326, inplace=True)
+
+    return no_poly.geometry[0]
+
+  price_gdf = load_price_data()
+
+  for hs in hex_sizes:
+    path = DB_DIR / f'realestate_hex{int(hs)}.json'
+    if not path.exists():
+      no_poly = norway_poly()
+      hex_gdf = gpd.GeoDataFrame(hextiles(no_poly, 1e6), crs=4326)
+      hex_gdf.set_crs(3857, inplace=True)
+      hex_gdf.to_file(path, driver='GeoJSON')
+    else: 
+      hex_gdf = gpd.read_file(path)
+
+    rm_cols = {'price_per_area', 'price_per_area_std'}
+    hex_gdf = hex_gdf[hex_gdf.columns.difference(rm_cols)]
+
+    hex_gdf.reset_index(name=f'hex{int(hs)}', index=True)
+    price_gdf = price_gdf.sjoin(hex_gdf, how='left')
+    stats_df = spatial_price_stats(price_gdf, f'hex{int(hs)}')
+    hex_gdf = hex_gdf.join(stats_df, on=f'hex{int(hs)}')
+    hex_gdf.to_file(path)
 
 def choropleth_polys(unit: Literal['municipality', 'postal_code']):
   price = load_price_data()
