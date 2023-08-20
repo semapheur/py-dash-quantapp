@@ -198,8 +198,6 @@ div.dash-spreadsheet.dash-freeze-left {
   font-family: Sparks-Dotline-Extrathick;
 }
 
-
-
 .katex-display { overflow: auto hidden }
 .katex-display > .katex { white-space: normal }
 /* Add space between broken lines: */

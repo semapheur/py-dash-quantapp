@@ -23,8 +23,11 @@ ResearchAndDevelopmentExpense,,RD_ep,R&D Expense,income
 DepreciationAmortizationAndAccretionNet,,DDAA,DDAA,income
 DepreciationDepletionAndAmortization,,DDAA,DDAA,income
 DepreciationAndAmortization,,DDAA,DDAA,income
-Depreciation,,dpr,Depreciation,income
+Depreciation,,dp,Depreciation,income
 AmortizationOfIntangibleAssets,,am,Amortization,income
+FiniteLivedIntangibleAssetsAmortizationExpense,,am,,income
+ImpairmentOfIntangibleAssetsExcludingGoodwill,,itg_as_imp,,income
+GoodwillImpairmentLoss,,gw_imp,Impairment,income
 ,,ot_op_ep,Other Operating Expense,income
 OperatingIncomeLoss,,op_ic/ls,Operating Income/Loss,income
 NonoperatingIncomeExpense,,n-op_in/ls,Non-Operating Income/Loss,income
@@ -49,7 +52,77 @@ NetIncomeLoss,,nt_ic/ls,Net Income/Loss,income
 ,,pf_st_dv,Preferred Stock Dividends,income
 ,,nt_ic/ls_av_to_cm_shh,Net Income/Loss Available to Common Shareholders,income
 EarningsPerShareBasic,,EPSB,Earnings/Share Basic,income
-WeightedAverageNumberOfSharesOutstandingBasic,,wansob,Average Basic Shares,income
+WeightedAverageNumberOfSharesOutstandingBasic,,WANSOB,Average Basic Shares,income
 EarningsPerShareDiluted,,EPSD,Earnings/Share Diluted,income
-WeightedAverageNumberOfDilutedSharesOutstanding,,wansod,Average Diluted Shares,income
-WeightedAverageNumberDilutedSharesOutstandingAdjustment,,wansod,Average Diluted Shares,income
+WeightedAverageNumberOfDilutedSharesOutstanding,,WANSOD,Average Diluted Shares,income
+WeightedAverageNumberDilutedSharesOutstandingAdjustment,,WANSOD,Average Diluted Shares,income
+CashCashEquivalentsAndMarketableSecurities,,lq_as,,balance
+CashAndCashEquivalentsAtCarryingValue,,CCE,,balance
+CashEquivalentsAtCarryingValue,,CE,,balance
+RestrictedCashAndCashEquivalentsAtCarryingValue,,RCCE,,balance
+MarketableSecuritiesCurrent,,mk_sc,,balance
+,,ac_rc,,balance
+NontradeReceivablesCurrent,,n-tr_rc,,balance
+AllowanceForDoubtfulAccountsReceivableCurrent,,al_df_ac,,balance
+InventoryNet,,ivt,,balance
+InventoryWorkInProcessAndRawMaterialsNetOfReserves,,ivt_WIPRM,,balance
+,,ivt_RM,,balance
+,,ivt_WIP,,balance
+InventoryFinishedGoodsNetOfReserves,,ivt_FG,,balance
+InventoryPartsAndComponentsNetOfReserves,,ivt_PC,,balance
+OtherPrepaidExpenseCurrent,,pp_ep_cr,,balance
+DeferredTaxAssetsNetCurrent,,df_tx_as_cr,,balance
+OtherAssetsCurrent,,ot_cr_as,,balance
+AssetsCurrent,,cu_as,,balance
+PropertyPlantAndEquipmentAndCapitalizedSoftwareNet,,PPE,,balance
+PropertyPlantAndEquipmentNet,,PPE,,balance
+PropertyPlantAndEquipmentAndCapitalizedSoftwareGross,,PPE_gs,,balance
+PropertyPlantAndEquipmentGross,,PPE_gs,,balance
+LandAndBuildingsGross,,PPE_LB,,balance
+,,PPE_bl,,balance
+MachineryEquipmentAndInternalUseSoftwareGross,,PPE_ME,,balance
+FurnitureAndFixturesGross,,PPE_FF,,balance
+AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentAndCapitalizedSoftware,,acm_DDA,,balance
+AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment,,acm_DDA,,balance
+IntangibleAssetsGross,,itg_as_gs,,balance
+IntangibleAssetsNetExcludingGoodwill,,itg_as_ex_gw,,balance
+IntangibleAssetsGrossExcludingGoodwill,,itg_as_ex_gw_gs,,balance
+FiniteLivedIntangibleAssetsNet,,fl_itg_as_ex_gw,,balance
+FiniteLivedIntangibleAssetsGross,,fl_itg_as_ex_gw_gs,,balance
+IndefiniteLivedIntangibleAssetsExcludingGoodwill,,il_itg_as_ex_gw,,balance
+IndefiniteLivedIntangibleAssetsGross,,il_itg_as_ex_gw_gs,,balance
+IndefiniteLivedIntangibleAssetsAccumulatedAmortization,,il_itg_as_acm_am,,balance
+FiniteLivedIntangibleAssetsAccumulatedAmortization,,fl_itg_as_acm_am,,balance
+Goodwill,,gw,,balance
+,,gw_imp,,balance
+OtherAssetsNoncurrent,,ot_n-cu_as,,balance
+NoncurrentAssets,,n-cu_as,,balance
+AssetsNoncurrent,,n-cu_as,,balance
+Assets,,as,,balance
+AccountsPayable,,ac_pb,,balance
+AccountsPayableCurrent,,ac_pb,,balance
+,,cr_db,,balance
+CommercialPaper,,CP,,balance
+OtherShortTermBorrowings,,ot_ST_db,,balance
+LongTermDebtCurrent,,cu_LT_db,,balance
+AccruedLiabilities,,acr_lb,,balance
+AccruedLiabilitiesCurrent,,acr_lb,,balance
+DeferredRevenueCurrent,,df_rv_cu,,balance
+ContractWithCustomerLiability,,df_rv_cu,,balance
+ContractWithCustomerLiabilityCurrent,,df_rv_cu,,balance
+,,ot_cu_lb,,balance
+LiabilitiesCurrent,,cu_lb,,balance
+LongTermDebtNoncurrent,,n-cu_db,,balance
+DeferredTaxLiabilitiesNoncurrent,,df_tx_lb_n-cu,,balance
+DeferredRevenueNoncurrent,,df_rv_n-cu,,balance
+,,ot_n-cu_lb,,balance
+LiabilitiesNoncurrent,,n-cu_lb,,balance
+Liabilities,,lb,,balance
+CommonStocksIncludingAdditionalPaidInCapital,,cm_st_APIC,,balance
+CommonStockValue,,cm_st,,balance
+CommonStockNoParValue,,cm_st,,balance
+RetainedEarningsAccumulatedDeficit,,rtn_ea/acm_dfc,,balance
+AccumulatedOtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax,,acm_OCI,,balance
+NoncontrollingInterest,,mn_it,,balance
+StockholdersEquity,,eq,,balance
+LiabilitiesAndStockholdersEquity,,lb_eq,,balance

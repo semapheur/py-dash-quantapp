@@ -16,6 +16,10 @@ from lib.ticker.fetch import stock_label, find_cik
 
 register_page(__name__, path_template='/stock/<id>', title=stock_label)
 
+radio_wrap_style = 'flex divide-x rounded-sm shadow'
+radio_input_style = 'appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50'
+radio_label_style = 'relative px-1'
+
 def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
 
   emph = tmpl.loc[tmpl['level'] == 0, 'short']
@@ -85,7 +89,6 @@ def format_columns(columns: list[str], index: str) -> dict:
 
 def layout(id: Optional[str] = None):
 
-  # Check CIK
   cik = find_cik(id)
 
   fin = tmpl = {}
@@ -97,7 +100,16 @@ def layout(id: Optional[str] = None):
     tmpl = tmpl.to_dict('records')
     fin = fin.reset_index().to_dict('records')
 
-  return html.Main(className='h-full', children=[
+  return html.Main(className='flex flex-col h-full', children=[
+    dcc.RadioItems(id='stock-radio:sheet', className=radio_wrap_style,
+      inputClassName=radio_input_style,
+      labelClassName=radio_label_style,
+      value='income',
+      options=[
+        {'label': 'Income', 'value': 'income'},
+        {'label': 'Balance', 'value': 'balance'},
+        {'label': 'Cash Flow', 'value': 'cash'}
+      ]),
     html.Div(id='stock-div:table-wrap', className='h-full p-2'),
     dcc.Store(id='stock-store:financials', data=fin),
     dcc.Store(id='stock-store:template', data=tmpl)
@@ -107,9 +119,10 @@ def layout(id: Optional[str] = None):
   Output('stock-div:table-wrap', 'children'),
   Input('stock-store:financials', 'data'),
   Input('stock-store:template', 'data'),
+  Input('stock-radio:sheet', 'value')
   #Input('stock-scope:annual/quarterly')
 )
-def update_table(fin: list[dict], tmpl: list[dict]):
+def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
   if not fin or not tmpl:
     return no_update
   
@@ -134,3 +147,69 @@ def update_table(fin: list[dict], tmpl: list[dict]):
     fixed_columns={'headers': True, 'data': 1},
     fixed_rows={'headers': True},
   )
+
+'''
+ASSETS
+--------------------------
+Current Assets:
+  Cash and Cash Equivalents
+  Short-Term Investments
+  Accounts Receivable
+  Inventory
+  Prepaid Expenses
+  Other Current Assets
+  Total Current Assets
+
+Property, Plant, and Equipment:
+  Land
+  Buildings
+  Machinery and Equipment
+  Accumulated Depreciation
+  Total Property, Plant, and Equipment
+
+Intangible Assets:
+  Goodwill
+  Patents
+  Trademarks
+  Other Intangible Assets
+  Accumulated Amortization/Impairment
+  Total Intangible Assets
+
+Other Non-Current Assets:
+  Long-Term Investments
+  Deferred Tax Assets
+  Other Non-Current Assets
+  Total Other Non-Current Assets
+
+Total Assets
+--------------------------
+
+LIABILITIES AND EQUITY
+--------------------------
+Current Liabilities:
+  Accounts Payable
+  Short-Term Loans
+  Accrued Liabilities
+  Current Portion of Long-Term Debt
+  Other Current Liabilities
+  Total Current Liabilities
+
+Long-Term Liabilities:
+  Long-Term Debt
+  Deferred Tax Liabilities
+  Other Long-Term Liabilities
+  Total Long-Term Liabilities
+
+Equity:
+  Common Stock
+  Retained Earnings
+  Additional Paid-In Capital
+  Other Equity Items
+  Total Equity
+
+Total Liabilities and Equity
+--------------------------
+
+Total Liabilities and Equity
+--------------------------
+'''

@@ -13,7 +13,7 @@ income,mk_ep,Marketing Expense,,3
 income,la_rn_ep,Lease and Rental Expense,,3
 income,RD_ep,Research and Development Expense,R&D Expense,2
 income,DDAA,"Depreciation, Depletion, Amortization and Accretion",DDAA,1
-income,dpr,Depreciation,,2
+income,dp,Depreciation,,2
 income,am,Amortization,,2
 income,op_ic/ls,Operating Income (Loss),,0
 income,n-op_in/ls,Non-Operating Income (Loss),,1
@@ -29,6 +29,67 @@ income,df_fo_ic_tx_ep/bf,Deferred Foreign Income Tax Expense (Benefit),Foreign,3
 income,mn_it_ic/ls,Net Income (Loss) Attributable to Minority Interest,Minority Interest,1
 income,nt_ic/ls,Net Income (Loss),,0
 income,EPSB,Earnings/Share Basic,EPS Basic,0
-income,wansob,Average Basic Shares,,1
+income,WANSOB,Weighted Average Number of Basic Shares Outstanding,Average Basic Shares,1
 income,EPSD,Earnings/Share Diluted,EPS Diluted,0
-income,wansod,Average Diluted Shares,,1
+income,WANSOD,Weighted Average Number of Diluted Shares Outstanding,Average Diluted Shares,1
+balance,lq_as,Liquid Assets,,1
+balance,CCE,Cash and Cash Equivalents,CCE,2
+balance,CE,Cash Equivalents,CE,3
+balance,mk_sc,Marketable Securities,,2
+balance,ac_rc,Accounts Receivable,,1
+balance,n-tr_rc,Non-Trade Receivables,,2
+balance,al_df_ac,Allowance for Doubtful Accounts,Allowance for Bad Debt,2
+balance,ivt,Inventory,,1
+balance,ivt_WIPRM,Work-in-Progress & Raw Materials,WIP & RM,2
+balance,ivt_WIP,Work-in-Progress,WIP,3
+balance,ivt_RM,Raw Materials,,3
+balance,ivt_FG,Finished Goods,,2
+balance,ivt_PC,Parts and Components,,2
+balance,pp_ep_cr,Current Prepaid Expenses,Prepaid Expenses,1
+balance,df_tx_as_cr,Current Deferred Tax Assets,,1
+balance,ot_cr_as,Other Current Assets,,1
+balance,cr_as,Current Assets,,0
+balance,PPE,"Property, Plant and Equipment",PPE,1
+balance,PPE_gs,"Gross Property, Plant and Equipment",Gross PPE,2
+balance,PPE_LB,Land and Buildings,,2
+balance,PPE_ld,Land,,3
+balance,PPE_bl,Buildings,,3
+balance,PPE_ME,Machinery and Equipment,,2
+balance,PPE_FF,Furniture and Fixtures,,2
+balance,acm_DDA,"Accumulated Depreciation, Depletion and Amortization",Accumulated DDA,2
+balance,itg_as_ex_gw,Intangible Assets Excluding Goodwill,Intangible Assets,1
+balance,il_itg_as_ex_gw,Indefinite Lived Intangible Assets,Indefinite Lived,2
+balance,il_itg_as_ex_gw_gs,Indefinite Lived Gross Intangible Assets,Gross,3
+balance,il_itg_as_acm_am,Indefinite Lived Intangible Assets Accumulated Amortization,Accumulated Amortization,3
+balance,fl_itg_as_ex_gw,Finite Lived Gross Intangible Assets,Finite Lived,2
+balance,fl_itg_as_ex_gw_gs,Finite Lived Gross Intangible Assets,Gross,3
+balance,fl_itg_as_acm_am,Finite Lived Intangible Assets Accumulated Amortization,Accumulated Amortization,3
+balance,gw,Goodwill,,1
+balance,gw_imp,Goodwill Impairment,Impairment,2
+balance,ot_n-cr_as,Other Non-Current Assets,,1
+balance,n-cr_as,Non-Current Assets,,0
+balance,as,Total Assets,,0
+balance,ac_pb,Accounts Payable,,1
+balance,cr_db,Current Debt,,1
+balance,ST_db,Short-Term Debt,,2
+balance,CP,Commercial Paper,,3
+balance,ot_ST_db,Other Short-Term Debt,,3
+balance,cr_LT_db,Current Portion of Long-Term Debt,,2
+balance,acr_lb,Accrued Liabilities,,1
+balance,df_tx_lb_cr,Current Deferred Tax Liabilities,Deferred Tax,1
+balance,df_rv_cu,Current Deferred Revenue,Deferred Revenue,1
+balance,ot_cr_lb,Other Current Liabilities,,1
+balance,cr_lb,Current Liabilities,,0
+balance,n-cr_db,Non-Current Debt,,1
+balance,df_tx_lb_n-cr,Non-Current Deferred Tax Liabilities,Deferred Tax,1
+balance,df_rv_n-cu,Non-Current Deferred Revenue,Deferred Revenue,1
+balance,ot_n-cr_lb,Other Non-Current Liabilities,,1
+balance,n-cr_lb,Non-Current Liabilities,,0
+balance,lb,Total Liabilities,,0
+balance,cm_st_APIC,Common Stock and Additional Paid-in Capital,,1
+balance,cm_st,Common Stock,,2
+balance,rtn_ea/acm_dfc,Retained Earnings (Accumulated Deficit),,1
+balance,acm_OCI,Accumulated Other Comprehensive Income,Accumulated OCI,1
+balance,mn_it,Minority Interest,,1
+balance,eq,Total Equity,,0
+balance,lb_eq,Total Liabilities & Equity,,0
