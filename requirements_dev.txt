@@ -1,5 +1,7 @@
 -r requirements.txt
 
+ipykernel
 mypy
 pipreqs
 ruff
+tqdm

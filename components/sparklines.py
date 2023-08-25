@@ -19,15 +19,16 @@ def make_sparkline(
 
   # Endpoint numbers
   df_spark['start'] = (df_wide.bfill(axis=1)
+    .fillna(0)
     .loc[:,df_wide.columns[0]]
     .round(0)
-    .astype(int)
   )
   df_spark['end'] = (df_wide.ffill(axis=1)
+    .fillna(0)
     .loc[:,df_wide.columns[-1]]
     .round(0)
-    .astype(int)
   )
+
   return (
     df_spark['start'].apply(lambda x: f'{x:.{num_format}}') + 
     '{' + df_spark['spark'] + '}' + 

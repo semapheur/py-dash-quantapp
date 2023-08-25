@@ -1,6 +1,6 @@
 from dash import callback, ctx, html, no_update, register_page, Input, Output
 
-from components.map import choropleth_map
+#from components.map import choropleth_map
 from lib.const import DB_DIR
 from lib.db.lite import insert_sqlite
 from lib.morningstar.fetch import get_tickers
@@ -56,6 +56,6 @@ def update_real_estate(n_clicks: int):
   path = DB_DIR / 'hjemla.json'
   gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
 
-  choropleth_map()
+  #choropleth_map()
     
   return no_update

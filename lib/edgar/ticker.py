@@ -213,7 +213,7 @@ class Ticker():
 def process_taxonomy():
     df = read_sqlite('SELECT * FROM financials', 'taxonomy.db', 'item')
     if df is None:
-        raise Exception('Taxonomy does not exist!')
+      raise Exception('Taxonomy does not exist!')
     
     df.reset_index(inplace=True)
     df.rename(columns={'item': 'gaap'}, inplace=True)

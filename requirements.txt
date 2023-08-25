@@ -4,12 +4,14 @@
 # pip install -r <this file>
 
 asyncio
+branca
 bs4
 dash
 dash-bootstrap-components
 dash-extensions
 dash-leaflet
 fathon
+#folium
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas
 #geobuf
 geopandas

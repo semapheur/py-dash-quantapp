@@ -1,5 +1,6 @@
 import asyncio
 from typing import Optional
+from ordered_set import OrderedSet
 
 from dash import (
   callback, dcc, html, no_update, register_page, Output, Input
@@ -22,13 +23,13 @@ radio_label_style = 'relative px-1'
 
 def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
 
-  emph = tmpl.loc[tmpl['level'] == 0, 'short']
+  emph = tmpl.loc[tmpl['level'] == 0, 'long']
   emph_ix = [index[index == e].index[0] for e in emph]
 
-  tab = tmpl.loc[tmpl['level'] == 2, 'short']
+  tab = tmpl.loc[tmpl['level'] == 2, 'long']
   tab_ix = [index[index == t].index[0] for t in tab]
 
-  ttab = tmpl.loc[tmpl['level'] == 3, 'short']
+  ttab = tmpl.loc[tmpl['level'] == 3, 'long']
   ttab_ix = [index[index == t].index[0] for t in ttab]
 
   styling: list[dict] = [
@@ -95,10 +96,9 @@ def layout(id: Optional[str] = None):
   if cik:
     fin = asyncio.run(Ticker(cik).financials('%Y-%m-%d', True))
     tmpl = load_items(_filter=fin.columns, fill_empty=True)
-    labels = pd.Series(tmpl['short'].values, index=tmpl['item']).to_dict()
-    fin.rename(columns=labels, inplace=True)
-    tmpl = tmpl.to_dict('records')
+
     fin = fin.reset_index().to_dict('records')
+    tmpl = tmpl.to_dict('records')
 
   return html.Main(className='flex flex-col h-full', children=[
     dcc.RadioItems(id='stock-radio:sheet', className=radio_wrap_style,
@@ -127,14 +127,19 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
     return no_update
   
   tmpl = pd.DataFrame.from_records(tmpl)
-  fin = (pd.DataFrame.from_records(fin) 
+  tmpl = tmpl[tmpl['sheet'] == sheet]
+  labels = pd.Series(tmpl['long'].values, index=tmpl['item']).to_dict()
+
+  fin = (pd.DataFrame.from_records(fin)
     .set_index(['date', 'period'])
     .xs('a', level=1) 
     .sort_index(ascending=False) 
-    .T 
-    .reset_index()
   )
+  cols = list(OrderedSet(fin.columns).intersection(OrderedSet(tmpl['item'])))
+  fin = fin[cols]
+  fin.rename(columns=labels, inplace=True)
 
+  fin = fin.T.reset_index()
   fin.insert(1, 'Trend', make_sparkline(fin[fin.columns[1:]]))
 
   return DataTable(
@@ -149,67 +154,45 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
   )
 
 '''
-ASSETS
---------------------------
-Current Assets:
-  Cash and Cash Equivalents
-  Short-Term Investments
-  Accounts Receivable
-  Inventory
-  Prepaid Expenses
-  Other Current Assets
-  Total Current Assets
+[Company Name]
+Statement of Cash Flows
+For the Year Ended [Reporting Period]
 
-Property, Plant, and Equipment:
-  Land
-  Buildings
-  Machinery and Equipment
-  Accumulated Depreciation
-  Total Property, Plant, and Equipment
+Operating Activities:
+------------------------------
+Net Income: [Value]
+Adjustments to Reconcile Net Income to Net Cash Provided by Operating Activities:
+  Depreciation and Amortization: [Value]
+  Changes in Working Capital:
+    Increase (Decrease) in Accounts Receivable: [Value]
+    Increase (Decrease) in Inventory: [Value]
+    Increase (Decrease) in Accounts Payable: [Value]
+    Other Changes in Operating Assets and Liabilities: [Value]
+Net Cash Provided by Operating Activities: [Value]
 
-Intangible Assets:
-  Goodwill
-  Patents
-  Trademarks
-  Other Intangible Assets
-  Accumulated Amortization/Impairment
-  Total Intangible Assets
+Investing Activities:
+------------------------------
+Capital Expenditures: [Value]
+Proceeds from Sale of Investments: [Value]
+Purchases of Investments: [Value]
+Acquisitions: [Value]
+Other Investing Activities: [Value]
+Net Cash Used in Investing Activities: [Value]
 
-Other Non-Current Assets:
-  Long-Term Investments
-  Deferred Tax Assets
-  Other Non-Current Assets
-  Total Other Non-Current Assets
+Financing Activities:
+------------------------------
+Issuance of Common Stock: [Value]
+Issuance of Debt: [Value]
+Repayment of Debt: [Value]
+Dividends Paid: [Value]
+Other Financing Activities: [Value]
+Net Cash Provided by (Used in) Financing Activities: [Value]
 
-Total Assets
---------------------------
+Net Increase (Decrease) in Cash and Cash Equivalents: [Value]
 
-LIABILITIES AND EQUITY
---------------------------
-Current Liabilities:
-  Accounts Payable
-  Short-Term Loans
-  Accrued Liabilities
-  Current Portion of Long-Term Debt
-  Other Current Liabilities
-  Total Current Liabilities
+Cash and Cash Equivalents, Beginning of Period: [Value]
 
-Long-Term Liabilities:
-  Long-Term Debt
-  Deferred Tax Liabilities
-  Other Long-Term Liabilities
-  Total Long-Term Liabilities
+Cash and Cash Equivalents, End of Period: [Value]
+------------------------------
 
-Equity:
-  Common Stock
-  Retained Earnings
-  Additional Paid-In Capital
-  Other Equity Items
-  Total Equity
-
-Total Liabilities and Equity
---------------------------
-
-Total Liabilities and Equity
---------------------------
 '''
