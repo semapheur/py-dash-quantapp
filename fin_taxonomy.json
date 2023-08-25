@@ -1,0 +1,1419 @@
+{
+  "a-n:PPE": {
+    "gaap": [
+      "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet",
+      "PropertyPlantAndEquipmentNet"
+    ],
+    "label": {
+      "abbreviation": "PPE",
+      "long": "Property, Plant and Equipment",
+      "short": "Fixed Assets"
+    }
+  },
+  "a-n:PPE-FF": {
+    "gaap": [
+      "FurnitureAndFixturesGross"
+    ],
+    "label": {
+      "long": "Furniture and Fixtures"
+    }
+  },
+  "a-n:PPE-LB": {
+    "gaap": [
+      "LandAndBuildingsGross"
+    ],
+    "label": {
+      "long": "Land and Buildings",
+      "short": ""
+    }
+  },
+  "a-n:PPE-ME": {
+    "gaap": [
+      "MachineryEquipmentAndInternalUseSoftwareGross"
+    ],
+    "label": {
+      "long": "Machinery and Equipment",
+      "short": ""
+    }
+  },
+  "a-n:PPE-gs": {
+    "gaap": [
+      "PropertyPlantAndEquipmentAndCapitalizedSoftwareGross",
+      "PropertyPlantAndEquipmentGross"
+    ],
+    "label": {
+      "long": "Gross Property, Plant and Equipment",
+      "short": "Gross PPE"
+    },
+    "calculation": {
+      "a-n:PPE-BL": 1,
+      "a-n:PPE-ME": 1,
+      "a-n:PPE-FF": 1
+    }
+  },
+  "a-c:RC": {
+    "gaap": [
+      "RestrictedCash"
+    ],
+    "label": {
+      "long": "Restricted Cash"
+    }
+  },
+  "a-c:RCCE": {
+    "gaap": [
+      "RestrictedCashAndCashEquivalentsAtCarryingValue"
+    ],
+    "label": {
+      "long": "Restricted Cash and Cash Equivalents"
+    }
+  },
+  "ep:RD": {
+    "gaap": [
+      "ResearchAndDevelopmentExpense"
+    ],
+    "label": {
+      "long": "Research and Development Expense",
+      "short": "R&D Expensee"
+    }
+  },
+  "ep:SGA": {
+    "gaap": [
+      "SellingGeneralAndAdministrativeExpense"
+    ],
+    "label": {
+      "long": "Selling, General and Administrative Expense",
+      "short": "SGA Expense"
+    },
+    "calculation": {
+      "ep:SM": 1
+    }
+  },
+  "ep:SM": {
+    "gaap": [
+      "SellingAndMarketingExpense",
+      "MarketingExpense"
+    ],
+    "label": {
+      "long": "Selling and Marketing Expense"
+    }
+  },
+  "l-c:pb": {
+    "gaap": [
+      "AccountsPayable",
+      "AccountsPayableCurrent"
+    ],
+    "label": {
+      "long": "Accounts Payable"
+    }
+  },
+  "a-c:rc": {
+    "calculation": {
+      "a-c:rc-al_dbf": -1,
+      "a-c:rc-ntd": 1,
+      "a-c:rc-ns": 1,
+      "a-c:rc-ot": 1
+    },
+    "gaap": [
+      "AccountsReceivableNetCurrent"
+    ],
+    "label": {
+      "long": "Accounts Receivable Net"
+    }
+  },
+  "a-n:PPE-acm_DDA": {
+    "gaap": [
+      "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentAndCapitalizedSoftware",
+      "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment"
+    ],
+    "label": {
+      "long": "Accumulated Depreciation, Depletion and Amortization",
+      "short": "Accumulated DDA"
+    }
+  },
+  "acm_OCI": {
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossNetOfTax"
+    ],
+    "label": {
+      "long": "Accumulated Other Comprehensive Income"
+    }
+  },
+  "l-c:acr_ep": {
+    "gaap": [
+      "AccruedLiabilities",
+      "AccruedLiabilitiesCurrent"
+    ],
+    "label": {
+      "long": "Accrued Liabilities",
+      "short": ""
+    }
+  },
+  "a-c:rc-al_dbf": {
+    "gaap": [
+      "AllowanceForDoubtfulAccountsReceivableCurrent"
+    ],
+    "label": {
+      "long": "Allowance for Doubtfull Accounts",
+      "short": ""
+    }
+  },
+  "ep:am": {
+    "gaap": [
+      "AmortizationOfIntangibleAssets",
+      "FiniteLivedIntangibleAssetsAmortizationExpense"
+    ],
+    "label": {
+      "long": "Amortization Of Intangible Assets",
+      "short": ""
+    }
+  },
+  "as": {
+    "gaap": [
+      "Assets"
+    ],
+    "label": {
+      "long": "Total Assets",
+      "short": "Assets"
+    }
+  },
+  "ep:av": {
+    "gaap": [
+      "AdvertisingExpense"
+    ],
+    "label": {
+      "long": "Advertising Expense"
+    }
+  },
+  "cf:CAPEX": {
+    "gaap": [],
+    "label": {
+      "abbreviation": "CAPEX",
+      "long": "Capital Expenditure"
+    }
+  },
+  "a-c:CCE": {
+    "gaap": [
+      "CashAndCashEquivalentsAtCarryingValue"
+    ],
+    "label": {
+      "abbreviation": "CCE",
+      "long": "Cash and Cash Equivalents",
+      "short": ""
+    }
+  },
+  "a-c:CCE_RCCE": {
+    "gaap": [
+      "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
+    ],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "a-c:CE": {
+    "gaap": [
+      "CashEquivalentsAtCarryingValue"
+    ],
+    "label": {
+      "long": "Cash Equivalents",
+      "short": ""
+    }
+  },
+  "cg|db-LT": {
+    "gaap": [],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "cg|m:NWC": {
+    "gaap": [],
+    "label": {
+      "long": "Change in Net Working Capital",
+      "short": ""
+    },
+    "calculation": {
+      "cg|a-c:rc": 1,
+      "cg|a-c:ivt": 1,
+      "cg|a-c:pp_ep": 1,
+      "cg|l-c:apb": -1,
+      "cg|l-c:acr_ep": -1
+    }
+  },
+  "cg|l-c:pb": {
+    "gaap": [
+      "IncreaseDecreaseInAccountsPayable"
+    ],
+    "label": {
+      "long": "Increase (Decrease) in Accounts Payable",
+      "short": "Change in Accounts Payable"
+    }
+  },
+  "cg|a-c:ac_rc": {
+    "gaap": [
+      "IncreaseDecreaseInAccountsReceivable"
+    ],
+    "label": {
+      "long": "Increase (Decrease) in Accounts Receivable",
+      "short": "Change in Accounts Receivable"
+    }
+  },
+  "cg|eq:cm_st": {
+    "gaap": [],
+    "label": {
+      "long": "Change in Common Stock"
+    }
+  },
+  "cg|a-c:df_tx": {
+    "gaap": [],
+    "label": {
+      "long": "Increase (Decrease) in Deferred Tax Assets",
+      "short": "Change in Current Deferred Tax Assets"
+    }
+  },
+  "cg|l-c:df_rv": {
+    "gaap": [
+      "IncreaseDecreaseInDeferredRevenue",
+      "IncreaseDecreaseInContractWithCustomerLiability"
+    ],
+    "label": {
+      "long": "Increase (Decrease) in Deferred Revenue",
+      "short": "Change in Deferred Revenue"
+    }
+  },
+  "cg|l-c:df_tx": {
+    "gaap": [],
+    "label": {
+      "long": "Change in Current Deferred Tax Liabilities"
+    }
+  },
+  "cg_iv": {
+    "gaap": [],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "cg|a-c:ivt": {
+    "gaap": [
+      "IncreaseDecreaseInInventories"
+    ],
+    "label": {
+      "long": "Increase (Decrease) in Inventories",
+      "short": "Change in Inventories"
+    }
+  },
+  "cg|a-c:ot": {
+    "gaap": [
+      "IncreaseDecreaseInOtherOperatingAssets"
+    ],
+    "label": {
+      "long": "Increase (Decrease) in Other Operating Assets",
+      "short": "Change in Other Operating Assets"
+    }
+  },
+  "cg|l-c:ot": {
+    "gaap": [
+      "IncreaseDecreaseInOtherOperatingLiabilities"
+    ],
+    "label": {
+      "long": "Increase (Decrease) in Other Operating Liabilities",
+      "short": "Change in Other Operating Liabilities"
+    }
+  },
+  "cg|a-c:pp_ep": {
+    "gaap": [],
+    "label": {
+      "long": "Increase (Decrease) in Prepaid Expenses",
+      "short": "Change in Prepaid Expenses"
+    }
+  },
+  "ch_aq_ds": {
+    "gaap": [],
+    "label": {
+      "long": "Net Cash from Acquisitions and Divestitures"
+    }
+  },
+  "eq:cm_st": {
+    "gaap": [
+      "CommonStockValue",
+      "CommonStockNoParValue"
+    ],
+    "label": {
+      "long": "Common Stock Value",
+      "short": ""
+    }
+  },
+  "eq:cm_st_APIC": {
+    "gaap": [
+      "CommonStocksIncludingAdditionalPaidInCapital"
+    ],
+    "label": {
+      "long": "Common Stocks and Additional Paid In Capital",
+      "short": ""
+    }
+  },
+  "a-c:CP": {
+    "gaap": [
+      "CommercialPaper"
+    ],
+    "label": {
+      "long": "Commercial Paper"
+    }
+  },
+  "l-c:db": {
+    "gaap": [],
+    "label": {
+      "long": "Current Debt"
+    }
+  },
+  "l-c:db-LT": {
+    "gaap": [
+      "LongTermDebtCurrent"
+    ],
+    "label": {
+      "long": "Current Portion of Long-term Debt"
+    }
+  },
+  "a-c": {
+    "gaap": [
+      "AssetsCurrent"
+    ],
+    "label": {
+      "long": "Total Current Assets",
+      "short": "Current Assets"
+    }
+  },
+  "l-c": {
+    "gaap": [
+      "LiabilitiesCurrent"
+    ],
+    "label": {
+      "long": "Total Current Liabilities",
+      "short": "Current Liabilities"
+    }
+  },
+  "i/l:dc_op": {
+    "gaap": [],
+    "label": {
+      "long": "Income (Loss) from Discontinued Operations",
+      "short": ""
+    }
+  },
+  "ep:DDAA": {
+    "gaap": [
+      "DepreciationAmortizationAndAccretionNet",
+      "DepreciationDepletionAndAmortization",
+      "DepreciationAndAmortization"
+    ],
+    "label": {
+      "long": "Depreciation, Depletion, Amortization and Accretion",
+      "abbreviation": "DDAA"
+    }
+  },
+  "e/b:df_ic_tx-na": {
+    "gaap": [
+      "DeferredFederalIncomeTaxExpenseBenefit"
+    ],
+    "label": {
+      "long": "Deferred National Income Tax Expense (Benefit)",
+      "short": ""
+    }
+  },
+  "e/b:df_ic_tx-fo": {
+    "gaap": [
+      "DeferredForeignIncomeTaxExpenseBenefit"
+    ],
+    "label": {
+      "long": "Deferred Foreign Income Tax Expense (Benefit)",
+      "short": ""
+    }
+  },
+  "e/b:df_ic_tx": {
+    "gaap": [
+      "DeferredIncomeTaxExpenseBenefit"
+    ],
+    "label": {
+      "long": "Deferred Income Tax Expense (Benefit)"
+    },
+    "calculation": {
+      "e/b:df_ic_tx-fo": 1,
+      "e/b:df_ic_tx-na": 1,
+      "e/b:df_ic_tx-lc": 1
+    }
+  },
+  "e/b:df_ic_tx-lc": {
+    "gaap": [
+      "DeferredStateAndLocalIncomeTaxExpenseBenefit"
+    ],
+    "label": {
+      "long": "Deferred State and Local Income Tax Expense (Benefit)"
+    }
+  },
+  "l-c:df_rv": {
+    "gaap": [
+      "DeferredRevenueCurrent",
+      "ContractWithCustomerLiability",
+      "ContractWithCustomerLiabilityCurrent"
+    ],
+    "label": {
+      "long": "Current Deferred Revenue"
+    }
+  },
+  "l-n:df_rv": {
+    "gaap": [
+      "DeferredRevenueNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Deferred Revenue"
+    }
+  },
+  "a-c:df_tx": {
+    "gaap": [
+      "DeferredTaxAssetsNetCurrent"
+    ],
+    "label": {
+      "long": "Current Deferred Tax Assets"
+    }
+  },
+  "l-n:df_tx": {
+    "gaap": [
+      "DeferredTaxLiabilitiesNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Deferred Tax Liabilities"
+    }
+  },
+  "ep:dp": {
+    "gaap": [
+      "Depreciation"
+    ],
+    "label": {
+      "long": "Depreciation"
+    }
+  },
+  "cf:ef_ex_rt_CCE": {
+    "gaap": [
+      "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations",
+      "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations"
+    ],
+    "label": {
+      "long": "Effect of Exchange Rate on Net Cash Flow"
+    }
+  },
+  "rv:eg": {
+    "gaap": [
+      "UtilityAndEnergyOperatingRevenues"
+    ],
+    "label": {
+      "long": "Energy Revenue"
+    }
+  },
+  "l-c:em_ep": {
+    "gaap": [
+      "EmployeeRelatedLiabilitiesCurrent"
+    ],
+    "label": {
+      "long": "Employee Related Current Liabilities"
+    }
+  },
+  "EPSB": {
+    "gaap": [
+      "EarningsPerShareBasic"
+    ],
+    "label": {
+      "long": "Earnings Per Share Basic",
+      "short": "Basic EPS"
+    }
+  },
+  "EPSD": {
+    "gaap": [
+      "EarningsPerShareDiluted"
+    ],
+    "label": {
+      "long": "Earnings Per Share Diluted",
+      "short": "Diluted EPS"
+    }
+  },
+  "eq": {
+    "gaap": [
+      "StockholdersEquity"
+    ],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "m:FCF": {
+    "calculation": {
+      "CAPEX": -1,
+      "op_CF": 1
+    },
+    "gaap": [],
+    "label": {
+      "abbreviation": "FCF",
+      "long": "Free Cash Flow"
+    }
+  },
+  "a-n:itg-fl_acm_am": {
+    "gaap": [
+      "FiniteLivedIntangibleAssetsAccumulatedAmortization"
+    ],
+    "label": {
+      "long": "Finite Lived Intangible Assets Accumulated Amortization",
+      "short": ""
+    }
+  },
+  "a-n:itg-fl": {
+    "gaap": [
+      "FiniteLivedIntangibleAssetsNet"
+    ],
+    "label": {
+      "long": "Finite Lived Intangible Assets Net",
+      "short": ""
+    }
+  },
+  "a-n:itg-fl_gs": {
+    "gaap": [
+      "FiniteLivedIntangibleAssetsGross"
+    ],
+    "label": {
+      "long": "Finite Lived Intangible Assets Gross",
+      "short": ""
+    }
+  },
+  "cf:nt_ch_fn_av": {
+    "gaap": [
+      "NetCashProvidedByUsedInFinancingActivities"
+    ],
+    "label": {
+      "long": "Net Cash Provided by (Used in) Financing Activities",
+      "short": "Financing Cash Flow"
+    }
+  },
+  "rv:fn": {
+    "gaap": [],
+    "label": {
+      "long": "Finance Revenue"
+    },
+    "calculation": {
+      "rv:rv": 1,
+      "rv:pm": 1
+    }
+  },
+  "rv_cs:fn": {
+    "gaap": [],
+    "label": {
+      "long": "Finance Revenue Cost"
+    }
+  },
+  "ep:GA": {
+    "gaap": [
+      "GeneralAndAdministrativeExpense"
+    ],
+    "label": {
+      "long": "General and Administrative Expense",
+      "short": "GA Expense"
+    }
+  },
+  "gs_pf": {
+    "gaap": [
+      "GrossProfit"
+    ],
+    "label": {
+      "long": "Gross Profit"
+    },
+    "calculation": {
+      "rv": 1,
+      "rv_cs": -1
+    }
+  },
+  "a-n:gw": {
+    "gaap": [
+      "Goodwill"
+    ],
+    "label": {
+      "long": "Goodwill"
+    }
+  },
+  "gw_imp": {
+    "gaap": [
+      "GoodwillImpairmentLoss"
+    ],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "e/b:ic_tx": {
+    "gaap": [
+      "IncomeTaxExpenseBenefit"
+    ],
+    "label": {
+      "long": "Income Tax Expense (Benefit)"
+    }
+  },
+  "a-n:itg-il_acm_am": {
+    "gaap": [
+      "IndefiniteLivedIntangibleAssetsAccumulatedAmortization"
+    ],
+    "label": {
+      "long": "Indefinite Lived Intangible Assets Accumulated Amortization",
+      "short": ""
+    }
+  },
+  "a-n:itg-il_ex_gw": {
+    "gaap": [
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwill"
+    ],
+    "label": {
+      "long": "Indefinite Lived Intangible Assets Excluding Goodwill",
+      "short": ""
+    }
+  },
+  "a-n:itg-il_ex_gw_gs": {
+    "gaap": [
+      "IndefiniteLivedIntangibleAssetsGross"
+    ],
+    "label": {
+      "long": "Indefinite Lived Intangible Assets Gross",
+      "short": ""
+    }
+  },
+  "ep:it": {
+    "gaap": [
+      "InterestExpense"
+    ],
+    "label": {
+      "long": "Interest Expense"
+    }
+  },
+  "a-n:itg_ex_gw": {
+    "gaap": [
+      "IntangibleAssetsNetExcludingGoodwill"
+    ],
+    "label": {
+      "long": "Net Intangible Assets Net Excluding Goodwill"
+    }
+  },
+  "a-n:itg_ex_gw_gs": {
+    "gaap": [
+      "IntangibleAssetsGrossExcludingGoodwill"
+    ],
+    "label": {
+      "long": "Gross Intangible Assets Net Excluding Goodwill"
+    }
+  },
+  "a-n:itg_gs": {
+    "gaap": [
+      "IntangibleAssetsGross"
+    ],
+    "label": {
+      "long": "Gross Intangible Assets",
+      "short": ""
+    }
+  },
+  "a-n:itg_imp": {
+    "gaap": [
+      "ImpairmentOfIntangibleAssetsExcludingGoodwill"
+    ],
+    "label": {
+      "long": "Impairment of Intangible Assets Excluding Goodwill"
+    }
+  },
+  "cf:nt_ch_iv_av": {
+    "gaap": [
+      "NetCashProvidedByUsedInInvestingActivities"
+    ],
+    "label": {
+      "long": "Net Cash Provided by (Used in) Investing Activities",
+      "short": "Investing Cash Flow"
+    }
+  },
+  "rv:iv": {
+    "gaap": [
+      "InvestmentIncomeInterestAndDividend"
+    ],
+    "label": {
+      "long": "Investment Revenue"
+    }
+  },
+  "a-c:ivt": {
+    "gaap": [
+      "InventoryNet"
+    ],
+    "label": {
+      "long": "Net Inventory"
+    },
+    "calculation": {
+      "a-c:ivt-WIPRM": 1,
+      "a-c:ivt-PC": 1,
+      "a-c:ivt-FG": 1
+    }
+  },
+  "a-c:ivt-FG": {
+    "gaap": [
+      "InventoryFinishedGoodsNetOfReserves"
+    ],
+    "label": {
+      "long": "Finished Goods Net of Reserves",
+      "short": "Finished Goods"
+    }
+  },
+  "a-c:ivt-PC": {
+    "gaap": [
+      "InventoryPartsAndComponentsNetOfReserves"
+    ],
+    "label": {
+      "long": "Parts And Components Net of Reserves",
+      "short": "Parts And Components"
+    }
+  },
+  "a-c:ivt-RM": {
+    "gaap": [],
+    "label": {
+      "long": "Raw Materials",
+      "short": ""
+    }
+  },
+  "a-c:ivt-WIP": {
+    "gaap": [],
+    "label": {
+      "long": "",
+      "short": "Work-in-process"
+    }
+  },
+  "a-c:ivt-WIPRM": {
+    "gaap": [
+      "InventoryWorkInProcessAndRawMaterialsNetOfReserves"
+    ],
+    "label": {
+      "long": "Work-in-process and Raw Materials Net Of Reserves",
+      "short": "Work-in-process and Raw Materials"
+    },
+    "calculation": {
+      "a-c:ivt_WIP": 1,
+      "a-c:ivt_RM": 1
+    }
+  },
+  "ep:la_rn": {
+    "gaap": [
+      "LeaseAndRentalExpense"
+    ],
+    "label": {
+      "long": "Lease and Rental Expense"
+    }
+  },
+  "lb": {
+    "gaap": [
+      "Liabilities"
+    ],
+    "label": {
+      "long": "Liabilities",
+      "short": ""
+    }
+  },
+  "lb_eq": {
+    "gaap": [
+      "LiabilitiesAndStockholdersEquity"
+    ],
+    "label": {
+      "long": "Liabilities and Stockholder's Equity",
+      "short": ""
+    }
+  },
+  "rv:la": {
+    "gaap": [
+      "OperatingLeaseLeaseIncome"
+    ],
+    "label": {
+      "long": "Leasing Revenue"
+    }
+  },
+  "a-c:lq": {
+    "gaap": [
+      "CashCashEquivalentsAndMarketableSecurities"
+    ],
+    "label": {
+      "long": "Cash, Cash Equivalents and Marketable Securities",
+      "short": "Liquid Assets"
+    }
+  },
+  "a-c:sc-db": {
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtSecurities"
+    ],
+    "label": {
+      "long": "Marketable Debt Securities",
+      "short": "Debt Securities"
+    }
+  },
+  "a-c:sc-eq": {
+    "gaap": [
+      "EquitySecuritiesFvNi"
+    ],
+    "label": {
+      "long": "Marketable Equity Securities",
+      "short": "Equity Securities"
+    }
+  },
+  "a-c:mk_sc": {
+    "gaap": [
+      "MarketableSecuritiesCurrent",
+      "AvailableForSaleSecurities",
+      "AvailableForSaleSecuritiesCurrent"
+    ],
+    "label": {
+      "long": "Marketable Securities"
+    }
+  },
+  "eq:mn_it": {
+    "gaap": [
+      "NoncontrollingInterest"
+    ],
+    "label": {
+      "long": "Non-controlling Interest",
+      "short": "Minority Interest"
+    }
+  },
+  "i/l:mn_it": {
+    "gaap": [
+      "NetIncomeLossAttributableToNoncontrollingInterest"
+    ],
+    "label": {
+      "long": "Net Income (Loss) Attributable To Minority Interest"
+    }
+  },
+  "a-n": {
+    "gaap": [
+      "NoncurrentAssets",
+      "AssetsNoncurrent"
+    ],
+    "label": {
+      "long": "Total Non-current Assets",
+      "short": "Non-current Assets"
+    }
+  },
+  "a-n:db-LT": {
+    "gaap": [
+      "LongTermDebtNoncurrent"
+    ],
+    "label": {
+      "long": "Long-term Debt",
+      "short": ""
+    }
+  },
+  "l-n": {
+    "gaap": [
+      "LiabilitiesNoncurrent"
+    ],
+    "label": {
+      "long": "Total Non-current Liabilities",
+      "short": "Non-current Liabilities"
+    }
+  },
+  "i/e:nop": {
+    "gaap": [
+      "NonoperatingIncomeExpense"
+    ],
+    "label": {
+      "long": "Non-operating Income (Expense)"
+    }
+  },
+  "i/l:nrc": {
+    "gaap": [],
+    "label": {
+      "long": "Non-recurring Income (Loss)"
+    }
+  },
+  "a-c:rc-ntd": {
+    "gaap": [
+      "NontradeReceivablesCurrent"
+    ],
+    "label": {
+      "long": "Non-trade Receivables"
+    }
+  },
+  "a-c:rc-ns": {
+    "gaap": [
+      "NotesReceivableNet"
+    ],
+    "label": {
+      "long": "Notes Receivable"
+    }
+  },
+  "cf:nt": {
+    "gaap": [
+      "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsPeriodIncreaseDecreaseIncludingExchangeRateEffect",
+      "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsPeriodIncreaseDecreaseIncludingExchangeRateEffect"
+    ],
+    "label": {
+      "long": "Net Cash Flow Including Exchange Rate Effects",
+      "short": "Net Cash Flow"
+    }
+  },
+  "i/l:nt": {
+    "gaap": [
+      "NetIncomeLoss"
+    ],
+    "label": {
+      "long": "Net Income (Loss) Available to Common Stock Holders",
+      "short": "Net Income (Loss)"
+    }
+  },
+  "i/l:nt_mn_it": {
+    "gaap": [
+      "ProfitLoss"
+    ],
+    "label": {
+      "long": "Net Income (Loss) Including Portion Attributable to Minority Interest",
+      "short": ""
+    }
+  },
+  "i/l:cn_op": {
+    "gaap": [],
+    "label": {
+      "long": "Net Income (Loss) from Continuing Operations",
+      "short": ""
+    }
+  },
+  "m:NWC": {
+    "label": {
+      "long": "Net Working Capital"
+    },
+    "calculation": {
+      "a-c:rc": 1,
+      "a-c:ivt": 1,
+      "l-c:pb": -1,
+      "l-c:acr_ep": -1
+    }
+  },
+  "cf:nt_ch_op_av": {
+    "gaap": [
+      "NetCashProvidedByUsedInOperatingActivities"
+    ],
+    "label": {
+      "long": "Net Cash Provided by (Used in) Operating Activities",
+      "short": "Operating Cash Flow"
+    }
+  },
+  "ep:op": {
+    "gaap": [
+      "OperatingExpenses"
+    ],
+    "label": {
+      "long": "Operating Expenses",
+      "short": ""
+    }
+  },
+  "i/l:op": {
+    "gaap": [
+      "OperatingIncomeLoss"
+    ],
+    "label": {
+      "long": "Operating Income (Loss)",
+      "short": ""
+    }
+  },
+  "ot_ST_db": {
+    "gaap": [
+      "OtherShortTermBorrowings"
+    ],
+    "label": {
+      "long": "Other Short-term Debt",
+      "short": ""
+    }
+  },
+  "a-c:ot": {
+    "gaap": [
+      "OtherAssetsCurrent"
+    ],
+    "label": {
+      "long": "Other Current Assets"
+    }
+  },
+  "l-c:ot": {
+    "gaap": [
+      "OtherLiabilitiesCurrent"
+    ],
+    "label": {
+      "long": "Other Current Liabilities"
+    }
+  },
+  "i/e:ot_n-ch": {
+    "gaap": [
+      "OtherNoncashIncomeExpense"
+    ],
+    "label": {
+      "long": "Other Non-cash Income (Expense)"
+    }
+  },
+  "a-n:ot": {
+    "gaap": [
+      "OtherAssetsNoncurrent"
+    ],
+    "label": {
+      "long": "Other Non-current Assets"
+    }
+  },
+  "l-n:ot": {
+    "gaap": [
+      "OtherLiabilitiesNoncurrent"
+    ],
+    "label": {
+      "long": "Other Non-current Liabilities"
+    }
+  },
+  "i/l:ot_n-op": {
+    "gaap": [
+      "OtherNonoperatingIncomeExpense"
+    ],
+    "label": {
+      "long": "Other Non-operating Income (Expense)"
+    }
+  },
+  "ep:ot_op": {
+    "gaap": [
+      "OtherOperatingExpense"
+    ],
+    "label": {
+      "long": "Other Operating Expense"
+    }
+  },
+  "a-c:rc-ot": {
+    "gaap": [
+      "PremiumsAndOtherReceivablesNet"
+    ],
+    "label": {
+      "long": "Other Receivables"
+    }
+  },
+  "rv:ot": {
+    "gaap": [],
+    "label": {
+      "long": "Other Revenue"
+    }
+  },
+  "rv_cs:ot": {
+    "gaap": [],
+    "label": {
+      "long": "Other Revenue Cost"
+    }
+  },
+  "i/l:p-tx": {
+    "gaap": [
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
+    ],
+    "label": {
+      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Extraordinary Items and Minority Interest",
+      "short": "Pretax Income (Loss)"
+    }
+  },
+  "pc:db-LT": {
+    "gaap": [
+      "ProceedsFromIssuanceOfLongTermDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Long-term Debt"
+    }
+  },
+  "pc:cm_st": {
+    "gaap": [
+      "ProceedsFromIssuanceOfCommonStock"
+    ],
+    "label": {
+      "long": "Proceeds From Issuance of Common Stock"
+    }
+  },
+  "pc:sc-mt": {
+    "gaap": [
+      "ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailableForSaleSecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Maturities of Marketable Securities",
+      "short": ""
+    }
+  },
+  "pc/py:ot_fn_av": {
+    "gaap": [
+      "ProceedsFromPaymentsForOtherFinancingActivities"
+    ],
+    "label": {
+      "long": "Proceeds from (Payments for) Other Financing Activities",
+      "short": ""
+    }
+  },
+  "pc/ry:CP": {
+    "gaap": [
+      "ProceedsFromRepaymentsOfCommercialPaper"
+    ],
+    "label": {
+      "long": "Proceeds from (Repayments of) Commercial Paper",
+      "short": ""
+    }
+  },
+  "pc/ry:db-ST": {
+    "gaap": [
+      "ProceedsFromRepaymentsOfShortTermDebt"
+    ],
+    "label": {
+      "long": "Proceeds from (Repayments of) Short-term Debt",
+      "short": ""
+    }
+  },
+  "pc:sc-db": {
+    "gaap": [
+      "ProceedsFromSaleOfAvailableForSaleSecuritiesDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Marketable Debt Securities"
+    }
+  },
+  "pc:sc-eq": {
+    "gaap": [],
+    "label": {
+      "long": "Proceeds from Sale of Marketable Equity Securities"
+    }
+  },
+  "pc:sc": {
+    "gaap": [],
+    "label": {
+      "long": "Proceeds from Sale of Marketable Securities"
+    },
+    "calculation": {
+      "pc:sc-db": 1,
+      "pc:sc-eq": 1
+    }
+  },
+  "rv:pd": {
+    "gaap": [
+      "RevenueFromContractWithCustomerExcludingAssessedTax"
+    ],
+    "label": {
+      "long": "Product Revenue",
+      "short": ""
+    }
+  },
+  "rv_cs:pd": {
+    "gaap": [
+      "CostOfGoodsAndServicesSold"
+    ],
+    "label": {
+      "abbreviation": "COGS",
+      "long": "Cost of Goods and Services Sold",
+      "short": "Cost of Revenue"
+    }
+  },
+  "rv:pm": {
+    "gaap": [
+      "PremiumsEarnedNet"
+    ],
+    "label": {
+      "long": "Premium Revenue"
+    }
+  },
+  "a-c:pp_ep": {
+    "gaap": [
+      "OtherPrepaidExpenseCurrent"
+    ],
+    "label": {
+      "long": "Prepaid Expense Current",
+      "short": ""
+    }
+  },
+  "py/pc:ot_iv_av": {
+    "gaap": [
+      "PaymentsForProceedsFromOtherInvestingActivities"
+    ],
+    "label": {
+      "long": "Payments for proceedsFromOtherInvestingActivities",
+      "short": ""
+    }
+  },
+  "py:PPE": {
+    "gaap": [
+      "PaymentsToAcquirePropertyPlantAndEquipment",
+      "PaymentsToAcquireProductiveAssets"
+    ],
+    "label": {
+      "long": "Payments to Acquire Property Plant and Equipment",
+      "short": "Payments to Acquire Fixed Assets"
+    }
+  },
+  "py:bs": {
+    "gaap": [
+      "PaymentsToAcquireBusinessesNetOfCashAcquired"
+    ],
+    "label": {
+      "long": "Payments to Acquire Businesses",
+      "short": ""
+    }
+  },
+  "py:sc-db": {
+    "gaap": [
+      "PaymentsToAcquireAvailableForSaleSecuritiesDebt"
+    ],
+    "label": {
+      "long": "Payments To Acquire Marketable Debt Securities",
+      "short": ""
+    }
+  },
+  "py:sc-eq": {
+    "gaap": [],
+    "label": {
+      "long": "Payments to Acquire Marketable Equity Securities",
+      "short": ""
+    }
+  },
+  "py:itg": {
+    "gaap": [
+      "PaymentsToAcquireIntangibleAssets"
+    ],
+    "label": {
+      "long": "Payments to Acquire Intangible Assets"
+    }
+  },
+  "py:sc": {
+    "gaap": [
+      "PaymentsToAcquireAvailableForSaleSecurities"
+    ],
+    "label": {
+      "long": "Payments to Acquire Marketable Securities"
+    },
+    "calculation": {
+      "py:sc-db": 1,
+      "py:sc-eq": 1
+    }
+  },
+  "py:dv": {
+    "gaap": [
+      "PaymentsOfDividends"
+    ],
+    "label": {
+      "long": "Payments of Dividends",
+      "short": ""
+    }
+  },
+  "py:dv-cm_st": {
+    "gaap": [
+      "PaymentsOfDividendsCommonStock",
+      "PaymentsOfDividendsAndDividendEquivalentsOnCommonStockAndRestrictedStockUnits"
+    ],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "eq:rtn_ea/acm_dfc": {
+    "gaap": [
+      "RetainedEarningsAccumulatedDeficit"
+    ],
+    "label": {
+      "long": "Retained Earnings (Accumulated Deficit)"
+    }
+  },
+  "rv": {
+    "gaap": [
+      "Revenues",
+      "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "SalesRevenueNet"
+    ],
+    "label": {
+      "long": "Revenue"
+    }
+  },
+  "rv_cs": {
+    "gaap": [
+      "CostOfGoodsAndServicesSold"
+    ],
+    "label": {
+      "abbreviation": "COGS",
+      "long": "Cost of Goods and Services Sold",
+      "short": "Cost of Revenue"
+    }
+  },
+  "cf:ry_db-LT": {
+    "gaap": [
+      "RepaymentsOfLongTermDebt"
+    ],
+    "label": {
+      "long": "Repayments of Long-term Debt"
+    }
+  },
+  "cf:sh_cp": {
+    "gaap": [
+      "ShareBasedCompensation"
+    ],
+    "label": {
+      "long": "Share-based Compensation"
+    }
+  },
+  "rv:sv": {
+    "gaap": [
+      "Revenues",
+      "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "SalesRevenueNet",
+      "SalesAndServiceRevenue"
+    ],
+    "label": {
+      "long": "Service Revenue"
+    },
+    "calculation": {
+      "rv:rv": 1,
+      "rv:la": 1,
+      "rv:tr": 1
+    }
+  },
+  "rv_cs:sv": {
+    "gaap": [
+      "CostOfGoodsAndServicesSold"
+    ],
+    "label": {
+      "long": "Service Revenue Cost"
+    }
+  },
+  "tr_rv": {
+    "gaap": [
+      "FreightRailTransportationRevenues"
+    ],
+    "label": {
+      "long": "Transportation Revenues"
+    }
+  },
+  "us_im": {
+    "gaap": [],
+    "label": {
+      "long": "",
+      "short": ""
+    }
+  },
+  "USTB": {
+    "gaap": [
+      "USTreasuryBills"
+    ],
+    "label": {
+      "long": "US Treasury Bills",
+      "short": "T-bills"
+    }
+  },
+  "WAN:sh-b": {
+    "gaap": [
+      "WeightedAverageNumberOfSharesOutstandingBasic"
+    ],
+    "label": {
+      "long": "Weighted Average Number Of Basic Shares Outstanding",
+      "short": "Basic Shares Outstanding"
+    }
+  },
+  "WAN:sh-d": {
+    "gaap": [
+      "WeightedAverageNumberOfDilutedSharesOutstanding",
+      "WeightedAverageNumberDilutedSharesOutstandingAdjustment"
+    ],
+    "label": {
+      "long": "Weighted Average Number Of Diluted Shares Outstanding",
+      "short": "Diluted Shares Outstanding"
+    }
+  }
+}
