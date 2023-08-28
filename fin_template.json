@@ -1,222 +1,162 @@
 {
   "income": {
-    "rv": {
-      "label": "Revenue",
-      "sign": 1,
-      "members": {
-        "pd_rv": {
-          "label": "Product Revenue"
-        },
-        "sv_rv": {
-          "label": "Service Revenue"
-        },
-        "fn_rv": {
-          "label": "Finance Revenue"
-        },
-        "ot_rv": {
-          "label": "Other Revenue"
-        }
-      }
-    },
-    "rv_cs": {
-      "label": "Revenue Cost",
-      "sign": -1,
-      "members": {
-        "pd_rv_cs": {
-          "label": "Product Revenue Cost"
-        },
-        "sv_rv_cs": {
-          "label": "Service Revenue Cost"
-        },
-        "fn_rv_cs": {
-          "label": "Finance Revenue Cost"
-        },
-        "ot_rv_cs": {
-          "label": "Other Revenue Cost"
-        }
-      }
-    },
-    "gs_pf": {
-      "label": "Gross Profit",
-      "sum": [
-        "rv",
-        "rv_cs"
-      ]
-    },
-    "op_ep": {
-      "label": "Operating Expense",
-      "sign": -1,
-      "members": {
-        "SGA_ep": {
-          "label": "SGA Expense",
-          "members": {
-            "av_ep": {
-              "label": "Advertising Expense"
-            },
-            "mk_ep": {
-              "label": "Marketing Expense"
-            },
-            "la_rn_ep": {
-              "label": "Lease and Rental Expense"
-            }
-          }
-        },
-        "RD_ep": {
-          "label": "R&D Expense"
-        },
-        "DDAA": {
-          "label": "DDAA",
-          "members": {
-            "dpr": {
-              "label": "Depreciation"
-            },
-            "dpl": {
-              "label": "Depletion"
-            },
-            "am": {
-              "label": "Amortization"
-            },
-            "at": {
-              "label": "Accretion"
-            }
-          }
-        },
-        "ot_op_ep": {
-          "label": "Other Operating Expense"
-        }
-      }
-    },
-    "op_ic/ls": {
-      "label": "Operating Income/Loss",
-      "sum": [
-        "gs_pf", "op_ep"
-      ]
-    },
-    "n-op_in/ls": {
-      "label": "Non-Operating Income/Loss",
-      "members": {
-        "iv_ic/ls": {
-          "label": "Investment Income/Loss"
-        },
-        "ot_n-op_ic/ls": {
-          "label": "Other Non-Operating Income/Loss"
-        }
-      }
-    },
-    "it_ep": {
-      "label": "Interest Expense",
-      "sign": -1,
-      "members": {
-        "db_it_ep": {
-          "label": "Debt Interest Expense"
-        }
-      }
-    },
-    "p-tx_ic/ls": {
-      "label": "Pretax Income/Loss",
-      "sum": [
-        "op_ic/ls", 
-        "n-op_ic/ls",
-        "it_ep"
-      ]
-    },
-    "ic_tx_ep/bf": {
-      "label": "Income Tax Expense/Benefit",
-      "sign": -1,
-      "members": {
-        "df_ic_tx_ep/bf": {
-          "label": "Deferred IncomeTax Expense/Benefit",
-          "members": {
-            "df_dm_ic_tx_ep/bf": {
-              "label": "Deferred Domestic Income Tax Expense/Benefit"
-            },
-            "df_lc_ic_tx_ep/bf": {
-              "label": "Deferred Local Income Tax Expense/Benefit"
-            },
-            "df_fo_ic_tx_ep/bf": {
-              "label": "Deferred Foreign Income Tax Expense/Benefit"
-            }
-          }
-        }
-      }
-    },
-    "nt_ic/ls_cn_op": {
-      "label": "Net Income/Loss from Continuing Operations",
-      "sum": [
-        "p-tx_ic/ls",
-        "ic_tx_ep/bf"
-      ]
-    },
-    "n-rc_ic/ls": {
-      "label": "Non-Recurring Income/Loss",
-      "members": {
-        "dc_op_ic/ls": {
-          "label": "Discontinued Operations"
-        },
-        "eo_im": {
-          "label": "Extraordinary Items"
-        },
-        "us_im": {
-          "label": "Unusual Items"
-        }
-      }
-    },
-    "nt_ic/ls_mn_it": {
-      "label": "Net Income/Loss Incl. Minority Interest",
-      "sum": [
-        "nt-ic/ls_cn_op",
-        "n-rc_ic/ls"
-      ]
-    },
-    "mn_it_ic/ls": {
-      "label": "Minority Interest Income/Loss"
-    },
-    "nt_ic/ls": {
-      "label": "Net Income/Loss",
-      "sum": [
-        "nt_ic/ls_mn_it",
-        "-mn_it_ic/ls"
-      ]
-    },
-    "pf_st_dv": {
-      "label": "Preferred Stock Dividends"
-    },
-    "nt_ic/ls_av_to_cm_shh": {
-      "label": "Net Income/Loss Available to Common Shareholders",
-      "sum": [
-        "nt_ic/ls",
-        "-pf_st_dv"
-      ]
-    },
-    "EPSB": {
-      "label": "Earnings/Share Basic",
-      "prod": [
-        "nt_ic/ls",
-        "-wansob"
-      ],
-      "members": {
-        "wansob": {
-          "label": "Average Basic Shares"
-        }
-      }
-    },
-    "EPSD": {
-      "label": "Earnings/Share Basic",
-      "prod": [
-        "nt_ic/ls",
-        "-wansod"
-      ],
-      "members": {
-        "wansod": {
-          "label": "Average Diluted Shares"
-        }
-      }
-    }
+    "rv": 1,
+    "rv.pd": 2,
+    "rv.sv": 2,
+    "rv_cs": 1,
+    "rv_cs.pd": 2,
+    "rv_cs.sv": 2,
+    "gs_pf": 0,
+    "op_ep": 1,
+    "op_ep.SGA": 2,
+    "op_ep.SGA.SM": 3,
+    "op_ep.SGA.SM.av": 4,
+    "op_ep.SGA.GA": 3,
+    "ep_ep.la_rn": 3,
+    "op_ep.RD": 2,
+    "op_ep.DDAA": 2,
+    "op_ep.DDAA.dp": 3,
+    "op_ep.DDAA.am": 3,
+    "op_ep.ot": 2,
+    "op_i/l": 0,
+    "n-op_i/e": 1,
+    "n_op_in.iv": 2,
+    "n_op_ep.it": 2,
+    "n_op_ep.imp": 2,
+    "n_op_ep.imp.gw": 3,
+    "n_op_ep.imp.itg": 3,
+    "n_op_i/e.ot": 2,
+    "i/l.b-tx": 0,
+    "tx": 1,
+    "d-tx": 2,
+    "d-tx.na": 3,
+    "d-tx.lc": 3,
+    "d-tx.fo": 3,
+    "i/l.nt_mn_it": 0,
+    "i/l.mn_it": 1,
+    "i/l": 0,
+    "EPSB": 0,
+    "sh.os-b": 1,
+    "EPSD": 0,
+    "sh.os-d": 1
   },
   "balance": {
-
+    "a-c.lq_as": 1,
+    "a-c.CCE": 2,
+    "a-c.CCE.ch": 3,
+    "a-c.CCE.CE": 3,
+    "a-c.sc": 2,
+    "a-c.sc.eq": 3,
+    "a-c.sc.db": 3,
+    "a-c.sc.db.CP": 4,
+    "a-c.sc.db.t-bl": 3,
+    "a.c.RCRCE": 2,
+    "a.c.RCRCE.RC": 1,
+    "a-c.rc": 1,
+    "a-c.rc.n-td": 2,
+    "a-c.rc.ns": 2,
+    "a-c.rc.al_dbf": 2,
+    "a-c.ivt": 1,
+    "a-c.ivt.WIPRM": 2,
+    "a-c.ivt.WIP": 3,
+    "a-c.ivt.RM": 3,
+    "a-c.ivt.FG": 2,
+    "a-c.ivt.PC": 2,
+    "a-c.pp_ep": 1,
+    "a-c.d-tx": 1,
+    "a-c.ot": 1,
+    "a-c": 0,
+    "a-n.PPE": 1,
+    "a-n.PPE.gs": 2,
+    "a-n.PPE.gs.LB": 3,
+    "a-n.PPE.gs.ME": 3,
+    "a-n.PPE.gs.FF": 3,
+    "a-n.PPE.acm_DDA": 2,
+    "a-n.itg": 1,
+    "a-n.itg.fl": 2,
+    "a-n.itg.fl.gs": 3,
+    "a-n.itg.fl.acm_am": 3,
+    "a-n.itg.il": 2,
+    "a-n.itg.il.gs": 3,
+    "a-n.itg.il.acm_am": 3,
+    "a-n.gw": 1,
+    "a-n.sc": 1,
+    "a-n.sc.bd": 2,
+    "a-n.ot": 1,
+    "a-n": 0,
+    "as": 0,
+    "l-c.pb": 1,
+    "l-c.acr_ep": 1,
+    "l-c.acr_ep.mk": 2,
+    "l-c.acr_ep.tx": 2,
+    "l-c.acr_ep.em_bf": 2,
+    "l-c.acr_ep.ot": 2,
+    "l-c.db": 1,
+    "l-c.db.LT": 3,
+    "l-c.db.ot": 3,
+    "l-c.d-tx": 1,
+    "l-c.d-rv": 1,
+    "l-c.ot": 1,
+    "l-c": 0,
+    "l-n.db-LT": 1,
+    "l-n.acr_ep": 1,
+    "l-n.acr_ep.tx": 2,
+    "l-n.acr_ep.ot": 2,
+    "l-n.d-tx": 1,
+    "l-n.d-rv": 1,
+    "l-n.ot": 1,
+    "l-n": 0,
+    "lb": 0,
+    "eq.cm_st_APIC": 1,
+    "eq.cm_st": 2,
+    "eq.rtn_ea/acm_dfc": 1,
+    "eq.acm_OCI": 1,
+    "eq.mn_it": 1,
+    "eq": 0,
+    "lb_eq": 0
   },
   "cashflow": {
-
+    "i/l": 0,
+    "cf.op.sh_cp": 1,
+    "d-tx": 1,
+    "op_ep.DDAA": 1,
+    "cf.op.ot_n-ch": 1,
+    "cf.op.WC": 1,
+    "cg_ac_rc": 2,
+    "cg|a-c.rc": 2,
+    "cg|a-c.ivt": 2,
+    "cg|a-c.pp_ep": 2,
+    "cg|a-c.d-tx": 2,
+    "cg|a-c.ot": 2,
+    "cg|l-c.pb": 2,
+    "cg|l-c.acr_ep": 2,
+    "cg|l-c.d-tx": 2,
+    "cg|l-c.d-rv": 2,
+    "cg|l-c.ot": 2,
+    "cf.op": 0,
+    "cf.iv.py_PPE": 1,
+    "cf.iv.py_itg": 1,
+    "cf.iv.py_sc": 1,
+    "cf.iv.py_sc.db": 1,
+    "cf.iv.py_sc.eq": 1,
+    "cf.iv.aq_ds.py": 1,
+    "cf.iv.pc_sc.db": 1,
+    "cf.iv.pc_sc.mt": 1,
+    "cf.iv.py/pc_ot": 1,
+    "cf.iv": 0,
+    "cf.fn.py_dv": 1,
+    "cf.fn.py_dv.cm_st": 2,
+    "cf.iv.cm_st": 1,
+    "cf.fn.cm_st.pc": 2,
+    "cf.fn.cm_st.py": 2,
+    "cf.iv.db": 1,
+    "cf.iv.db.pc": 2,
+    "cf.iv.db.ry": 2,
+    "cf.fn.pc/ry_db-ST": 1,
+    "cf.fn.pc/ry_CP": 2,
+    "cf.fn.py/pc_ot": 1,
+    "cf.fn": 0,
+    "cf.ex_rt_ef": 1,
+    "cf": 1
   }
 }

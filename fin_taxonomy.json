@@ -17,7 +17,7 @@
       "short": "Diluted EPS"
     }
   },
-  "a-c.sc.tb": {
+  "a-c.sc.db.t-bl": {
     "gaap": [
       "USTreasuryBills"
     ],
@@ -61,6 +61,12 @@
     "label": {
       "long": "Cash and Cash Equivalents",
       "short": "CCE"
+    },
+    "calculation": {
+      "all": {
+        "a-c.CCE.ch": 1,
+        "a-c.CCE.CE": 1
+      }
     }
   },
   "a-c.CCE&RCRCE": {
@@ -76,6 +82,14 @@
         "a-c.CCE": 1,
         "a-c.RCRCE": 1
       }
+    }
+  },
+  "a-c.CCE.ch": {
+    "gaap": [
+      "Cash"
+    ],
+    "label": {
+      "long": "Cash"
     }
   },
   "a-c.CCE.CE": {
@@ -167,8 +181,10 @@
   },
   "a-c.ivt.WIPRM": {
     "calculation": {
-      "a-c.ivt.RM": 1,
-      "a-c.ivt.WIP": 1
+      "any": {
+        "a-c.ivt.RM": 1,
+        "a-c.ivt.WIP": 1
+      }
     },
     "gaap": [
       "InventoryWorkInProcessAndRawMaterialsNetOfReserves"
@@ -212,10 +228,12 @@
   },
   "a-c.rc": {
     "calculation": {
-      "a-c.rc.al_dbf": -1,
-      "a-c.rc.ns": 1,
-      "a-c.rc.n-td": 1,
-      "a-c.rc.ot": 1
+      "any": {
+        "a-c.rc.al_dbf": -1,
+        "a-c.rc.ns": 1,
+        "a-c.rc.n-td": 1,
+        "a-c.rc.ot": 1
+      }
     },
     "gaap": [
       "AccountsReceivableNetCurrent"
@@ -260,7 +278,6 @@
   "a-c.sc": {
     "gaap": [
       "MarketableSecuritiesCurrent",
-      "AvailableForSaleSecurities",
       "AvailableForSaleSecuritiesCurrent",
       "ShortTermInvestments"
     ],
@@ -276,7 +293,7 @@
   },
   "a-c.sc.db": {
     "gaap": [
-      "AvailableForSaleSecuritiesDebtSecurities"
+      "AvailableForSaleSecuritiesDebtSecuritiesCurrent"
     ],
     "label": {
       "long": "Marketable Debt Securities",
@@ -304,8 +321,10 @@
   },
   "a-n.PPE": {
     "calculation": {
-      "a-n.PPE.acm_DDA": -1,
-      "a-n.PPE.gs": 1
+      "all": {
+        "a-n.PPE.acm_DDA": -1,
+        "a-n.PPE.gs": 1
+      }
     },
     "gaap": [
       "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet",
@@ -352,9 +371,11 @@
   },
   "a-n.PPE.gs": {
     "calculation": {
-      "a-n.PPE.gs.BL": 1,
-      "a-n.PPE.gs.FF": 1,
-      "a-n.PPE.gs.ME": 1
+      "any": {
+        "a-n.PPE.gs.BL": 1,
+        "a-n.PPE.gs.FF": 1,
+        "a-n.PPE.gs.ME": 1
+      }
     },
     "gaap": [
       "PropertyPlantAndEquipmentAndCapitalizedSoftwareGross",
@@ -365,7 +386,7 @@
       "short": "Gross PPE"
     }
   },
-  "a-n.db-LT": {
+  "l-n.db-LT": {
     "gaap": [
       "LongTermDebtNoncurrent"
     ],
@@ -383,8 +404,10 @@
   },
   "a-n.itg": {
     "calculation": {
-      "a-n.itg.fl": 1,
-      "a-n.itg.il": 1
+      "any": {
+        "a-n.itg.fl": 1,
+        "a-n.itg.il": 1
+      }
     },
     "gaap": [
       "IntangibleAssetsNetExcludingGoodwill"
@@ -396,8 +419,10 @@
   },
   "a-n.itg.fl": {
     "calculation": {
-      "a-n.itg.fl.acm_am": -1,
-      "a-n:itg.fl.gs": 1
+      "all": {
+        "a-n.itg.fl.acm_am": -1,
+        "a-n:itg.fl.gs": 1
+      }
     },
     "gaap": [
       "FiniteLivedIntangibleAssetsNet"
@@ -424,8 +449,10 @@
   },
   "a-n.itg.gs": {
     "calculation": {
-      "a-n.itg.fl.gs": 1,
-      "a-n.itg.il.gs": 1
+      "all": {
+        "a-n.itg.fl.gs": 1,
+        "a-n.itg.il.gs": 1
+      }
     },
     "gaap": [
       "IntangibleAssetsGross",
@@ -438,8 +465,10 @@
   },
   "a-n.itg.il": {
     "calculation": {
-      "a-n.itg.il.acm_am": -1,
-      "a-n.itg.il.gs": 1
+      "all": {
+        "a-n.itg.il.acm_am": -1,
+        "a-n.itg.il.gs": 1
+      }
     },
     "gaap": [
       "IndefiniteLivedIntangibleAssetsExcludingGoodwill"
@@ -474,6 +503,14 @@
       "long": "Non-current Marketable Securities"
     }
   },
+  "a-n.sc.db": {
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Marketable Debt Securities"
+    }
+  },
   "a-n.ot": {
     "gaap": [
       "OtherAssetsNoncurrent"
@@ -488,6 +525,24 @@
     ],
     "label": {
       "long": "Accumulated Other Comprehensive Income"
+    }
+  },
+  "eq.acm_OCI.iv": {
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax"
+    ],
+    "label": {
+      "long": "Accumulated Other Comprehensive Income Investment Adjustment",
+      "short": "AOCI Investment Adjustment"
+    }
+  },
+  "eq.acm_OCI.DI": {
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossCumulativeChangesInNetGainLossFromCashFlowHedgesEffectNetOfTax"
+    ],
+    "label": {
+      "long": "Accumulated Other Comprehensive Income Derivative Instrument Adjustment",
+      "short": "AOCI Derivative Instrument Adjustment"
     }
   },
   "as": {
@@ -512,7 +567,7 @@
       "short": "CAPEX"
     }
   },
-  "cf.ef_ex_rt_CCE": {
+  "cf.ex_rt_ef": {
     "gaap": [
       "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations"
     ],
@@ -527,6 +582,14 @@
     "label": {
       "long": "Net Cash Flow Including Exchange Rate Effects",
       "short": "Net Cash Flow"
+    },
+    "calculation": {
+      "all": {
+        "cf.op": 1,
+        "cf.iv": 1,
+        "cf.fn": 1,
+        "cf.ex_rt_ef": 1
+      }
     }
   },
   "cf.fn": {
@@ -556,7 +619,7 @@
       "short": "Operating Cash Flow"
     }
   },
-  "cf.fn.db.ry-LT": {
+  "cf.fn.db.ry": {
     "gaap": [
       "RepaymentsOfLongTermDebt"
     ],
@@ -624,12 +687,32 @@
     "gaap": [],
     "label": {
       "long": "Change in Long-term Debt"
+    },
+    "calculation": {
+      "all": {
+        "cf.fn.db.pc": 1,
+        "cf.fn.db.ry": -1
+      }
     }
   },
   "cf.fn.cm_st": {
     "gaap": [],
     "label": {
       "long": "Change in Common Stock"
+    },
+    "calculation": {
+      "all": {
+        "cf.fn.cm_st.pc": 1,
+        "cf.fn.cm_st.py": -1
+      }
+    }
+  },
+  "cf.fn.cm_st.py": {
+    "gaap": [
+      "PaymentsForRepurchaseOfCommonStock"
+    ],
+    "label": {
+      "long": "Payments for Repurchase of Common Stock"
     }
   },
   "cg|l-c.d-rv": {
@@ -666,14 +749,19 @@
       "short": "Change in Accounts Payable"
     }
   },
-  "cf.op.WC.": {
+  "cf.op.WC": {
     "calculation": {
       "any": {
+        "cg|a-c.rc": 1,
         "cg|a-c.ivt": 1,
         "cg|a-c.pp_ep": 1,
-        "cg|a-c.rc": 1,
+        "cg|a-c.d-tx": 1,
+        "cg|a-c.ot": 1,
+        "cg|l-c.pb": -1,
         "cg|l-c.acr_ep": -1,
-        "cg|l-c.pb": -1
+        "cg|l-c.d-tx": -1,
+        "cg|l-c.d-rv": -1,
+        "cg|l-c.ot": -1
       }
     },
     "gaap": [],
@@ -687,14 +775,18 @@
       "long": "Net Cash from Acquisitions and Divestitures"
     },
     "calculation": {
-      "cf.iv.aq_ds.py": -1
+      "any": {
+        "cf.iv.aq_ds.py": -1
+      }
     }
   },
   "d-tx": {
     "calculation": {
-      "d-tx.fo": 1,
-      "d-tx.lc": 1,
-      "d-tx.na": 1
+      "any": {
+        "d-tx.fo": 1,
+        "d-tx.lc": 1,
+        "d-tx.na": 1
+      }
     },
     "gaap": [
       "DeferredIncomeTaxExpenseBenefit"
@@ -772,8 +864,10 @@
   },
   "op_ep.SGA": {
     "calculation": {
-      "op_ep.SGA.GA": 1,
-      "op_ep.SGA.SM": 1
+      "any": {
+        "op_ep.SGA.GA": 1,
+        "op_ep.SGA.SM": 1
+      }
     },
     "gaap": [
       "SellingGeneralAndAdministrativeExpense"
@@ -824,8 +918,10 @@
       "long": "Impairment Loss"
     },
     "calculation": {
-      "n-op_ep.imp.gw": 1,
-      "n-op_ep.imp.itg": 1
+      "any": {
+        "n-op_ep.imp.gw": 1,
+        "n-op_ep.imp.itg": 1
+      }
     }
   },
   "n-op_ep.imp.gw": {
@@ -856,10 +952,9 @@
   },
   "n-op_ep": {
     "gaap": [
-      "Non-Operating Expense"
     ],
     "label": {
-      "long": "Interest Expense"
+      "long": "Non-Operating Expense"
     },
     "calculation": {
       "any": {
@@ -875,7 +970,9 @@
       "long": "Non-operating Income"
     },
     "calculation": {
-      "n-op_in.iv": 1
+      "any": {
+        "n-op_in.iv": 1
+      } 
     }
   },
   "n-op_in.iv": {
@@ -965,8 +1062,10 @@
   },
   "gs_pf": {
     "calculation": {
-      "rv": 1,
-      "rv_cs": -1
+      "all": {
+        "rv": 1,
+        "rv_cs": -1
+      }
     },
     "gaap": [
       "GrossProfit"
@@ -1085,8 +1184,10 @@
       "short": "Pretax Income (Loss)"
     },
     "calculation": {
-      "op_i/l": 1,
-      "n-op_i/e": -1
+      "all": {
+        "op_i/l": 1,
+        "n-op_i/e": -1
+      }
     }
   },
   "l-c": {
@@ -1129,8 +1230,10 @@
       "long": "Current Debt"
     },
     "calculation": {
-      "l-c.db.LT": 1,
-      "l-c.db.ot": 1
+      "any": {
+        "l-c.db.LT": 1,
+        "l-c.db.ot": 1
+      }
     }
   },
   "l-c.db.LT": {
@@ -1193,9 +1296,10 @@
       "long": "Non-current Accrued Liabilities"
     }
   },
-  "l-n.acr_ep.mk": {
+  "l-c.acr_ep.mk": {
     "gaap": [
-      "AccruedMarketingCostsCurrent"
+      "AccruedMarketingCostsCurrent",
+      "AccruedMarketingAndDistributionCurrent"
     ],
     "label": {
       "long": "Current Accrued Marketing Costs"
@@ -1284,10 +1388,12 @@
   },
   "NWC": {
     "calculation": {
-      "a-c.ivt": 1,
-      "a-c.rc": 1,
-      "l-c.acr_ep": -1,
-      "l-c.pb": -1
+      "all": {
+        "a-c.ivt": 1,
+        "a-c.rc": 1,
+        "l-c.acr_ep": -1,
+        "l-c.pb": -1
+      }
     },
     "label": {
       "long": "Net Working Capital"
@@ -1343,8 +1449,10 @@
   },
   "cf.iv.pc_sc": {
     "calculation": {
-      "cf.iv.pc_sc.db": 1,
-      "cf.iv.pc_sc.eq": 1
+      "any": {
+        "cf.iv.pc_sc.db": 1,
+        "cf.iv.pc_sc.eq": 1
+      }
     },
     "gaap": [],
     "label": {
@@ -1382,7 +1490,7 @@
       "short": ""
     }
   },
-  "cf.iv.PPE.py": {
+  "cf.iv.py_PPE": {
     "gaap": [
       "PaymentsToAcquirePropertyPlantAndEquipment",
       "PaymentsToAcquireProductiveAssets"
@@ -1427,8 +1535,10 @@
   },
   "cf.iv.py_sc": {
     "calculation": {
-      "cf.iv.py_sc.db": 1,
-      "cf.iv.py_sc.eq": 1
+      "any": {
+        "cf.iv.py_sc.db": 1,
+        "cf.iv.py_sc.eq": 1
+      }
     },
     "gaap": [
       "PaymentsToAcquireAvailableForSaleSecurities"
@@ -1513,9 +1623,11 @@
   },
   "rv.sv": {
     "calculation": {
-      "rv.sv.eg": 1,
-      "rv.sv.la": 1,
-      "rv.sv.tr": 1
+      "any": {
+        "rv.sv.eg": 1,
+        "rv.sv.la": 1,
+        "rv.sv.tr": 1
+      }
     },
     "gaap": [
       "Revenues.Service",
@@ -1609,11 +1721,13 @@
       "long": "Other Comprehensive Income (Loss)"
     },
     "calculation": {
-      "oc_i/l.DI": 1,
-      "oc_i/l.iv": 1,
-      "oc_i/l.fx_tt": 1,
-      "oc_i/l.pn_bf_pl": 1,
-      "oc_i/l.LDIC_DRC": 1
+      "any": {
+        "oc_i/l.DI": 1,
+        "oc_i/l.iv": 1,
+        "oc_i/l.fx_tt": 1,
+        "oc_i/l.pn_bf_pl": 1,
+        "oc_i/l.LDIC_DRC": 1
+      }
     }
   },
   "oc_i/l.ot": {
@@ -1633,8 +1747,10 @@
       "long": "Adjustment for Unrealized Gain (Loss) on Derivative Instruments"
     },
     "calculation": {
-      "oc_i/l.DI.b-rc": 1,
-      "oc_i/l.DI.rc": 1
+      "all": {
+        "oc_i/l.DI.b-rc": 1,
+        "oc_i/l.DI.rc": 1
+      }
     }
   },
   "oc_i/l.DI.b-rc": {
@@ -1661,7 +1777,10 @@
       "long": "Adjustment for Unrealized Gain (Loss) on Investments"
     },
     "calculation": {
-      "oc_i/l.iv.rc": 1
+      "all": {
+        "oc_i/l.iv.b-rc": 1,
+        "oc_i/l.iv.rc": 1
+      }
     }
   },
   "oc_i/l.iv.b-rc": {
@@ -1672,8 +1791,10 @@
       "long": "Unrealized Gains (Losses) on Investments"
     },
     "calculation": {
-      "oc_i/l.iv.b-rc": 1,
-      "oci:u-g/l:iv-rc-tx": -1
+      "all": {
+        "oc_i/l.iv.b-rc": 1,
+        "oc_i/l.iv.rc": -1
+      }
     }
   },
   "oc_i/l.iv.b-rc.b-tx": {
@@ -1684,16 +1805,15 @@
       "long": "Unrealized Gains (Losses) on Investments Before Tax"
     }
   },
-  "oci:u-g/l:iv-rc": {
+  "oc_i/l.iv.rc": {
     "gaap": [
-      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesTax",
       "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesNetOfTax"
     ],
     "label": {
       "long": "Unrealized Gains (Losses) on Investments Tax Adjustment"
     }
   },
-  "oc_i/l.iv.b-rc.b-tx.tx": {
+  "oc_i/l.iv.rc.tx": {
     "gaap": [
       "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesTax"
     ],
@@ -1709,8 +1829,10 @@
       "long": "Foreign Currency Transaction and Translation Adjustment"
     },
     "calculation": {
-      "oc_i/l.fx_tt.b-tx": 1,
-      "oc_i/l.fx_tt.tx": -1
+      "all": {
+        "oc_i/l.fx_tt.b-tx": 1,
+        "oc_i/l.fx_tt.tx": -1
+      }
     }
   },
   "oc_i/l.fx_tt.b-tx": {
@@ -1737,8 +1859,10 @@
       "long": "Long Duration Insurance Contracts Discount Rate Changes"
     },
     "calculation": {
-      "oc_i/l.LDIC_DRC.b-tx": 1,
-      "oc_i/l.LDIC_DRC.tx": -1
+      "all": {
+        "oc_i/l.LDIC_DRC.b-tx": 1,
+        "oc_i/l.LDIC_DRC.tx": -1
+      }
     }
   },
   "oc_i/l.LDIC_DRC.b-tx": {
@@ -1765,8 +1889,10 @@
       "long": "Pension Benefit Plans"
     },
     "calculation": {
-      "oc_i/l.pn_bf_pl.b-tx": 1,
-      "oc_i/l.pn_bf_pl.tx": -1
+      "all": {
+        "oc_i/l.pn_bf_pl.b-tx": 1,
+        "oc_i/l.pn_bf_pl.tx": -1
+      }
     }
   },
   "oc_i/l.pn_bf_pl.b-tx": {
