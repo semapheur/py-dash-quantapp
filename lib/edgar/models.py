@@ -23,7 +23,7 @@ class Member(Value):
 
 class Item(Value):
   period: Interval|Instant
-  members: Optional[dict[str, Member]] = None
+  members: Optional[dict[str, Member]]
 
 class Financials:
   meta: Meta

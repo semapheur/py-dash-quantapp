@@ -20,7 +20,7 @@ from lib.edgar.parse import (
   parse_taxonomy,
   statement_to_df
 )
-from lib.fin.utils import load_items
+from lib.fin.utils import Taxonomy, calculate_items
 from lib.utils import camel_split, snake_abbreviate
 
 class Ticker():
@@ -136,7 +136,7 @@ class Ticker():
 
   async def financials(self, 
     date_format: Optional[str] = None,
-    order_items: Optional[bool] = False
+    taxonomy: Optional[Taxonomy] = None
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
@@ -158,9 +158,19 @@ class Ticker():
         df.index.levels[1]
       ])
 
-    if order_items:
-      items = load_items('item', df.columns)
-      df = df[items.values]
+    if taxonomy:
+      _filter = taxonomy.item_names('gaap')
+      df = df[list(set(df.columns).intersection(_filter))]
+      df.rename(columns=taxonomy.rename_schema('gaap'), inplace=True)
+
+      if duplicate_columns := df.columns[df.columns.duplicated()]:
+        
+        for col in duplicate_columns:
+          df[col] = df[col].combine_first(df[col])
+
+        df = df[~df.columns.duplicated()]
+
+      df = calculate_items(df, taxonomy.extra_calculation_schema('gaap'))
 
     return df
 

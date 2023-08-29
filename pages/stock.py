@@ -11,7 +11,7 @@ import pandas as pd
 
 from components.sparklines import make_sparkline
 from lib.edgar.ticker import Ticker
-from lib.fin.utils import load_items
+from lib.fin.utils import Taxonomy, load_taxonomy, load_template
 from lib.ticker.fetch import stock_label, find_cik
 #from lib.utils import load_json
 
@@ -92,13 +92,16 @@ def layout(id: Optional[str] = None):
 
   cik = find_cik(id)
 
-  fin = tmpl = {}
+  financials = template = {}
   if cik:
-    fin = asyncio.run(Ticker(cik).financials('%Y-%m-%d', True))
-    tmpl = load_items(_filter=fin.columns, fill_empty=True)
+    template = load_template()
+    taxonomy = Taxonomy(set(template['item']))
+    template = template.merge(taxonomy.labels(), on='item', how='left')
 
-    fin = fin.reset_index().to_dict('records')
-    tmpl = tmpl.to_dict('records')
+    financials = asyncio.run(Ticker(cik).financials('%Y-%m-%d', taxonomy))
+
+    financials = financials.reset_index().to_dict('records')
+    template = template.to_dict('records')
 
   return html.Main(className='flex flex-col h-full', children=[
     dcc.RadioItems(id='stock-radio:sheet', className=radio_wrap_style,
@@ -111,8 +114,8 @@ def layout(id: Optional[str] = None):
         {'label': 'Cash Flow', 'value': 'cash'}
       ]),
     html.Div(id='stock-div:table-wrap', className='h-full p-2'),
-    dcc.Store(id='stock-store:financials', data=fin),
-    dcc.Store(id='stock-store:template', data=tmpl)
+    dcc.Store(id='stock-store:financials', data=financials),
+    dcc.Store(id='stock-store:template', data=template)
   ])
 
 @callback(
@@ -152,47 +155,3 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
     fixed_columns={'headers': True, 'data': 1},
     fixed_rows={'headers': True},
   )
-
-'''
-[Company Name]
-Statement of Cash Flows
-For the Year Ended [Reporting Period]
-
-Operating Activities:
-------------------------------
-Net Income: [Value]
-Adjustments to Reconcile Net Income to Net Cash Provided by Operating Activities:
-  Depreciation and Amortization: [Value]
-  Changes in Working Capital:
-    Increase (Decrease) in Accounts Receivable: [Value]
-    Increase (Decrease) in Inventory: [Value]
-    Increase (Decrease) in Accounts Payable: [Value]
-    Other Changes in Operating Assets and Liabilities: [Value]
-Net Cash Provided by Operating Activities: [Value]
-
-Investing Activities:
-------------------------------
-Capital Expenditures: [Value]
-Proceeds from Sale of Investments: [Value]
-Purchases of Investments: [Value]
-Acquisitions: [Value]
-Other Investing Activities: [Value]
-Net Cash Used in Investing Activities: [Value]
-
-Financing Activities:
-------------------------------
-Issuance of Common Stock: [Value]
-Issuance of Debt: [Value]
-Repayment of Debt: [Value]
-Dividends Paid: [Value]
-Other Financing Activities: [Value]
-Net Cash Provided by (Used in) Financing Activities: [Value]
-
-Net Increase (Decrease) in Cash and Cash Equivalents: [Value]
-
-Cash and Cash Equivalents, Beginning of Period: [Value]
-
-Cash and Cash Equivalents, End of Period: [Value]
-------------------------------
-
-'''

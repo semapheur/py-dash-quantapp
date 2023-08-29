@@ -27,7 +27,7 @@ async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
   result = await asyncio.gather(*tasks)
   return list(filter(None, result))
 
-async def xbrl_url(cik, doc_id: str, doc_type='htm') -> str:
+async def xbrl_url(doc_id: str, doc_type='htm') -> str:
   url = f'https://www.sec.gov/Archives/edgar/data/{doc_id}/{doc_id}-index.htm'
   async with httpx.AsyncClient() as client:
     rs = await client.get(url, headers=HEADERS)
@@ -193,54 +193,32 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
       return dt.strptime(period['instant'], '%Y-%m-%d')
     
     return dt.strptime(period['end_date'], '%Y-%m-%d')
-    
-  def insert_value(df_data:dict, col:str, val:float, date:dt, scope:str):
-    if (date, scope) not in df_data:
-      df_data[(date, scope)] = {}
-        
-    df_data[(date, scope)][col] = val
-  
-  taxonomy = load_taxonomy('gaap')
-  mask = taxonomy['member'].isna()
+      
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
   
   df_data: dict[tuple[dt, str], dict[str, float]] = {
     (fin_date, scope[0]): {}
   }
-  items = set(taxonomy.index).intersection(set(data['data'].keys()))
-  for i in items:
-    entries: list = glom(data, f'data.{i}')
+  
+  for item in data['data'].keys():
+    entries: list = glom(data, f'data.{item}')
     
-    for e in entries:
-      if 'value' not in e:
-        continue
-
-      date = parse_period(e['period']) 
+    for entry in entries:
+      
+      date = parse_period(entry['period']) 
       if date != fin_date:
         continue
       
-      col = taxonomy.loc[mask, 'item'].loc[i]
-      df_data[(date, scope[0])][col] = e['value']
+      if value := entry.get('value'):
+        df_data[(date, scope[0])][item] = value
       
-      if 'member' not in e:
+      if 'member' not in entry:
         continue
-
-      mem = taxonomy.loc[i,'member']
-      if isinstance(mem, float): 
-        continue
-        
-      mem = set(mem).intersection(set(e['member'].keys()))
-      if not mem:
-        continue
-            
-      for m in mem:
-        col = taxonomy.loc[
-          (taxonomy.index == i) & 
-          (taxonomy['member'] == m), 
-          'item'
-        ].loc[i]
-        df_data[(date, scope[0])][col] = e['value']
+      
+      for member in glom(data, f'data.{item}.member'):
+        if value := member.get('value'):
+          df_data[(date, scope[0])][f'{item}.{member}'] = value
       
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
@@ -262,7 +240,7 @@ def get_ciks():
 
   return df
 
-def gaap_items() -> set[str]:
+def all_gaap_items() -> set[str]:
   db_path = DB_DIR / 'edgar.json'
   db = TinyDB(db_path)
   
