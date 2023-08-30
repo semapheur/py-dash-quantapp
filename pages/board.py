@@ -1,3 +1,6 @@
+import asyncio
+import threading
+
 from dash import callback, ctx, html, no_update, register_page, Input, Output
 
 #from components.map import choropleth_map
@@ -28,16 +31,28 @@ layout = html.Main(className=main_style, children=[
   Input('board-button:cik', 'n_clicks')
 )
 def update_tickers(btn1: int, btn2: int):
+
   button_id = ctx.triggered_id if not None else ''
 
   if not button_id:
     return no_update
 
-  if button_id == 'board-button:stock':
-    df = get_tickers('stock')
+  # Run the asyncio coroutine in a separate thread
+  def run_coroutine():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    df = loop.run_until_complete(get_tickers('stock'))
     df.set_index('id', inplace=True)
     df.sort_values('name', inplace=True)
     insert_sqlite(df, 'ticker.db', 'stock', 'overwrite')
+
+    loop.close()
+          
+  if button_id == 'board-button:stock':
+    thread = threading.Thread(target=run_coroutine)
+    thread.start()
+    
   elif button_id == 'board-button:cik':
     df = get_ciks()
     insert_sqlite(df, 'ticker.db', 'edgar', 'overwrite')

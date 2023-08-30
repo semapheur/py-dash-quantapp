@@ -1,8 +1,10 @@
-# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
+# venv: python -m venv ./<env>
+# <env>\Scripts\activate.bat
+# conda: conda create --name <env> --file <this file>
 # pip freeze > <this file>
 # pip install -r <this file>
 
+aimeter
 asyncio
 branca
 bs4

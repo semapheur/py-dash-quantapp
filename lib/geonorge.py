@@ -1,4 +1,6 @@
+import aiometer
 import asyncio
+from functools import partial
 import json
 
 import geopandas as gpd
@@ -68,24 +70,27 @@ def find_municipality(point: Point):
       'https://ws.geonorge.no/kommuneinfo/v1/punkt', 
       headers=HEADERS, params=params
     )
-    parse = json.loads(rs.text)
+    parse = rs.json()
     
   return parse
 
 async def municipality_poly(id: str) -> Polygon:
   url = f'https://ws.geonorge.no/kommuneinfo/v1/kommuner/{id}/omrade'
-  async with httpx.AsyncClient() as client:
+  limits = httpx.Limits(max_connections=10)
+  async with httpx.AsyncClient(limits=limits) as client:
     rs = await client.get(url, headers=HEADERS)
     parse = rs.json()
 
   poly = Polygon(parse['omrade']['coordinates'][0][0])
   return poly
 
-async def municipality_polys(tolerance: float=0.) -> gpd.GeoDataFrame:
+async def municipality_polys(tolerance: float = 0.) -> gpd.GeoDataFrame:
   df = get_municipalities()
 
-  tasks = [asyncio.create_task(municipality_poly(id)) for id in df['id']]
-  polys = await asyncio.gather(*tasks)
+  #tasks = [asyncio.create_task(municipality_poly(id)) for id in df['id']]
+  #polys = await asyncio.gather(*tasks)
+  tasks = [partial(municipality_poly, id) for id in df['id']]
+  polys = await aiometer.run_all(tasks, max_at_once=5, max_per_second=10) 
 
   gdf = gpd.GeoDataFrame(df, crs=4258, geometry=polys)
   if tolerance > 0:

@@ -140,7 +140,7 @@ async def get_tickers(
 
   if total > page_size:
     pages = int(np.ceil(total / page_size))
-    data = asyncio.run(fetch_data(params, pages))
+    data = await fetch_data(params, pages)
 
     error = False
     for d in data:

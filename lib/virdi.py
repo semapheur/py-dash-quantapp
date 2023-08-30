@@ -1,6 +1,6 @@
 import requests
-
 from typing import Literal, TypedDict
+import json
 
 import numpy as np
 import geopandas as gpd
@@ -15,7 +15,6 @@ from lib.utils import update_json
 VIRDI_PATH = DB_DIR / 'hjemla.json'
 
 class Virdi(TypedDict):
-  id: int
   geometry: Point
   municipality: str
   postal_code: int
@@ -29,11 +28,11 @@ class Virdi(TypedDict):
   common_debt: float
   asking_price: float
 
-def load_geo_data(unit: str) -> gpd.GeoDataFrame:
+async def load_geo_data(unit: str) -> gpd.GeoDataFrame:
   path = DB_DIR / f'nor_{unit}.json'
   if not path.exists():
     if unit == 'municipality':
-      gdf = municipality_polys(0.001)
+      gdf = await municipality_polys(0.001)
     elif unit == 'postal_code':
       gdf = postal_code_polys()
 
@@ -55,8 +54,8 @@ def postal_code_polys() -> gpd.GeoDataFrame:
   
   rnm = {
     'kommune': 'municipality',
-    'postnummer': 'postalcode',
-    'poststedsnavn': 'postalarea'
+    'postnummer': 'postal_code',
+    'poststedsnavn': 'postal_area'
   }
   gdf = gpd.read_file(raw, driver='GeoJSON', encoding='utf-8')
   gdf.rename(columns=rnm, inplace=True)
@@ -100,7 +99,6 @@ def real_estate_price_data(
       pnt = Point(street['coordinatesLng'], street['coordinatesLat'])  
       for unit in street['units']:
         scrap.append({
-          'id': int(unit['id']),
           'geometry': pnt,
           'municipality': street['municipalityName'],
           'postal_code': int(street.get('postalCode', np.nan)),
@@ -134,7 +132,6 @@ def load_price_data():
   return price
 
 def spatial_price_stats(price: gpd.GeoDataFrame, unit: str) -> pd.DataFrame:
-
   price = price[[unit, 'price_per_area']]
   stats = price.groupby([unit]).agg(
     price_per_area=('price_per_area', 'mean'), 
@@ -181,11 +178,11 @@ def hex_choropleth(hex_sizes: list[float]):
     hex_gdf = hex_gdf.join(stats_df, on=f'hex{int(hs)}')
     hex_gdf.to_file(path)
 
-def choropleth_polys(unit: Literal['municipality', 'postal_code']):
+async def choropleth_polys(unit: Literal['municipality', 'postal_code']):
   price = load_price_data()
 
   df = spatial_price_stats(price, unit)
-  gdf = load_geo_data(unit)
+  gdf = await load_geo_data(unit)
   gdf = gdf.join(df, on=unit)
   #gdf = gdf[['geometry', 'postal_code', 'price_per_area', 'price_per_area_std']]
 

@@ -1,9 +1,19 @@
 from typing import Literal
 
 import pandas as pd
-from sqlalchemy import create_engine, inspect, text #event
+from sqlalchemy import create_engine, inspect, text, Engine #event
 
 from lib.const import DB_DIR
+
+def check_table(tables: str|set[str], engine: Engine) -> bool:
+  db_tables = inspect(engine).get_table_names()
+  if not db_tables:
+    return False
+  
+  if isinstance(tables, str):
+    tables = set(tables)
+
+  return tables.issubset(set(db_tables))
 
 def sqlite_name(db_name: str) -> str:
   if not db_name.endswith('.db'):

@@ -1,5 +1,5 @@
 from glom import glom
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 
 from lib.const import DB_DIR
 
@@ -34,7 +34,7 @@ def read_tinydb(
   db = TinyDB(db_path)
 
   if tbl:
-    if not tbl in db.tables():
+    if tbl not in db.tables():
       return []
     db = db.table(tbl)
 

@@ -1,4 +1,4 @@
-from dash import callback, ctx, html, no_update, register_page, Input, Output, State, MATCH
+from dash import callback, ctx, html, no_update, register_page, Input, Output, State
 
 from components.ticker_select import TickerSelectAIO
 from components.quote_graph import QuoteGraphAIO, quote_volume_graph, quote_graph_relayout, quote_graph_range

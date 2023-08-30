@@ -20,7 +20,6 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
-from lib.fin.utils import load_taxonomy
 
 async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
   tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
@@ -47,7 +46,7 @@ async def xbrl_url(doc_id: str, doc_type='htm') -> str:
   href = a_node.get('href')
   return f'https://www.sec.gov/{href}'
 
-async def parse_statement(url: str, cik: str):
+async def parse_statement(url: str):
 
   def parse_period(period: et.Element) -> Instant|Interval:
     if (el := period.find('./{*}instant')) is not None:
@@ -87,8 +86,6 @@ async def parse_statement(url: str, cik: str):
     '10-Q': 'quarterly'
   }
   meta: Meta = {
-    #'cik': int(cik),
-    #'ticker': root.find('.{*}TradingSymbol').text,
     'id': url.split('/')[-2],
     'scope': form[root.find('.{*}DocumentType').text],
     'date': root.find('.{*}DocumentPeriodEndDate').text,

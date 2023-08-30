@@ -32,9 +32,12 @@ class Ticker():
   def padded_cik(self):
     return str(self._cik).zfill(10)
 
-  def filings(self, forms:list=[]):
+  def filings(
+    self, 
+    forms: Optional[list[str]] = None,
+    date: Optional[dt|str] = None) -> pd.DataFrame:
       
-    def json_to_df(dct):
+    def json_to_df():
       data = {
         'id': parse['accessionNumber'],
         'date': parse['reportDate'],
@@ -78,20 +81,17 @@ class Ticker():
       df.sort_values('date', ascending=True, inplace=True)
 
     if forms:
-      mask = df['form'].isin(forms)
-      df = df.loc[mask]
-        
+      df = df.loc[df['form'].isin(forms)]
+
+    if date:
+      if isinstance(date, str):
+        date = dt.strptime(date, '%Y-%m-%d')
+      
+      df = df.loc[df['date'] > date]
+         
     return df
-
-  async def raw_financials(self, delta=120) -> list[Financials]:
-
-    def new_financials(start_date:dt|str='') -> pd.DataFrame:
-      docs = self.filings(['10-K', '10-Q'])
-
-      if start_date:
-        docs = docs.loc[docs['date'] > start_date]
-
-      return docs
+  
+  async def financials(self, delta=120) -> list[Financials]:
 
     async def fetch(docs: pd.Index) -> list[Financials]:
       tasks = []
@@ -105,7 +105,7 @@ class Ticker():
       
       financials = await asyncio.gather(*tasks)
       return financials
-
+    
     # Load financials
     financials = read_tinydb('edgar.json', None, str(self._cik))
 
@@ -115,7 +115,7 @@ class Ticker():
       last_date = dates.max()
       
       if relativedelta(dt.now(), last_date).days > delta:
-        new_forms = new_financials(last_date)
+        new_forms = self.filings(['10-K', '10-Q'], last_date)
 
         if not new_forms:
           return financials
@@ -126,28 +126,27 @@ class Ticker():
         if not new_docs:
           return financials
     else:
-      new_docs = new_financials().index
+      new_docs = self.filings().index
 
-    new_financials = asyncio.run(fetch(new_docs))
+    new_financials = await fetch(new_docs)
     if new_financials:
       insert_tinydb(new_financials, 'edgar.json', str(self._cik))
     
     return [*financials, *new_financials]
 
-  async def financials(self, 
+  async def financials_to_df(self, 
     date_format: Optional[str] = None,
     taxonomy: Optional[Taxonomy] = None
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
-    docs = read_tinydb('edgar.json', None, str(self._cik))
-    if not docs:
-      docs = await self.raw_financials()
+    financials = await self.get_financials()
+    financials = sorted(financials, key=lambda x: glom(x, 'meta.date'), reverse=True)
 
     dfs = []
 
-    for doc in docs:
-      dfs.append(statement_to_df(doc))
+    for f in financials:
+      dfs.append(statement_to_df(f))
     
     df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
@@ -217,8 +216,9 @@ class Ticker():
       df = pd.concat(dfs)
       df = df.loc[~df.index.duplicated()]
       return df
-
-    return asyncio.run(fetch())
+    
+    result = await fetch()
+    return result
 
 def process_taxonomy():
     df = read_sqlite('SELECT * FROM financials', 'taxonomy.db', 'item')

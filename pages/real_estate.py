@@ -1,11 +1,10 @@
+import asyncio
 import branca.colormap as cm
-from dash import callback, html, no_update, register_page, Input, Output, State
+from dash import callback, no_update, register_page, Input, Output, State
 from dash_extensions.javascript import arrow_function, assign
 import dash_leaflet as dl
 import dash_leaflet.express as dlx
-import geopandas as gpd
 import numpy as np
-from shapely.geometry import Polygon
 
 #from components.map import choropleth_map, MAP_PATH
 from lib.color import rgba_to_hex
@@ -80,7 +79,7 @@ def make_hideout(unit: str, prop: str, style: dict, classes: int=5) -> tuple:
 for unit in ('municipality', 'postal_code'):
   path = STATIC_DIR / f'realestate_choro_{unit}.json'
   if not path.exists():
-    choropleth_polys(unit)
+    asyncio.run(choropleth_polys(unit))
 
 style = dict(weight=1, opacity=1, color='black', fillOpacity=0.5)
 hideout = make_hideout('municipality', 'price_per_area', style)
