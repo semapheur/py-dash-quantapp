@@ -90,7 +90,7 @@ async def municipality_polys(tolerance: float = 0.) -> gpd.GeoDataFrame:
   #tasks = [asyncio.create_task(municipality_poly(id)) for id in df['id']]
   #polys = await asyncio.gather(*tasks)
   tasks = [partial(municipality_poly, id) for id in df['id']]
-  polys = await aiometer.run_all(tasks, max_at_once=5, max_per_second=10) 
+  polys = await aiometer.run_all(tasks, max_per_second=10)
 
   gdf = gpd.GeoDataFrame(df, crs=4258, geometry=polys)
   if tolerance > 0:

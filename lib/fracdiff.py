@@ -1,7 +1,22 @@
 import numpy as np
 from scipy.fft import fft, ifft
 
-def frac_diff(x, d: float):
+def _frac_diff(x: np.ndarray, order: float, step: float) -> np.ndarray:
+
+  n = len(x)
+  max_j = min(n - 1, int(np.ceil(order)))
+
+  j_values = np.arange(max_j + 1)
+  binom_coef = np.array([np.math.comb(order, j) for j in j_values])
+
+  diff_sum = np.zeros_like(x, dtype=float)
+  for k in range(max_j, n):
+    diff_sum[k] = np.sum(((-1)**j_values) * binom_coef * x[k - j_values])
+
+  result = diff_sum / (step ** order)
+  return result
+
+def frac_diff(x: np.ndarray, d: float) -> np.ndarray:
   n = len(x)
 
   weights = np.zeros(n)
@@ -19,7 +34,7 @@ def frac_diff(x, d: float):
 
   return result
 
-def fast_frac_diff(x, d: float):
+def fast_frac_diff(x: np.ndarray, d: float) -> np.ndarray:
   
   def next_pow2(n):
     return (n - 1).bit_length()

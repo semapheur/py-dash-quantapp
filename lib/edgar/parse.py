@@ -21,13 +21,16 @@ from lib.edgar.models import (
   Meta
 )
 
-async def fetch_urls(cik:str, doc_ids:list, doc_type:str) -> list:
-  tasks = [xbrl_url(cik, doc_id) for doc_id in doc_ids]
+async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> list[str]:
+  tasks = [asyncio.create_task(xbrl_url(cik, doc_id, doc_type)) for doc_id in doc_ids]
   result = await asyncio.gather(*tasks)
   return list(filter(None, result))
 
-async def xbrl_url(doc_id: str, doc_type='htm') -> str:
-  url = f'https://www.sec.gov/Archives/edgar/data/{doc_id}/{doc_id}-index.htm'
+async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str:
+  url = (
+    'https://www.sec.gov/Archives/edgar/data/'
+    f"{cik}/{doc_id.replace('-', '')}/{doc_id}-index.htm"
+  )
   async with httpx.AsyncClient() as client:
     rs = await client.get(url, headers=HEADERS)
     parse = bs.BeautifulSoup(rs.text, 'lxml')
@@ -44,9 +47,9 @@ async def xbrl_url(doc_id: str, doc_type='htm') -> str:
     return None
   
   href = a_node.get('href')
-  return f'https://www.sec.gov/{href}'
+  return f'https://www.sec.gov{href}'
 
-async def parse_statement(url: str):
+async def parse_statement(url: str) -> Financials:
 
   def parse_period(period: et.Element) -> Instant|Interval:
     if (el := period.find('./{*}instant')) is not None:
@@ -77,6 +80,7 @@ async def parse_statement(url: str):
       }
     }
   
+  print(url)
   async with httpx.AsyncClient() as client:
     rs = await client.get(url, headers=HEADERS)
     root = et.fromstring(rs.content)

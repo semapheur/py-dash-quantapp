@@ -7,6 +7,7 @@ from lib.const import DB_DIR
 
 def check_table(tables: str|set[str], engine: Engine) -> bool:
   db_tables = inspect(engine).get_table_names()
+
   if not db_tables:
     return False
   
@@ -151,3 +152,12 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     )
     con.execute(text(query))
     #con.execute(text('DROP TABLE temp')) # Delete temporary table
+
+def replace_sqlite(col: str, replacements: dict[str, str]) -> str:
+  old, new = replacements.popitem()
+  query = f'REPLACE({col}, "{old}", "{new}")'
+
+  for old, new in replacements.items():
+    query = f'REPLACE({query}, "{old}", "{new}")'
+
+  return query

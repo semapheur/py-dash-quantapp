@@ -3,9 +3,6 @@ import json
 
 import pandas as pd
 
-from lib.const import DB_DIR
-from lib.utils import load_json
-
 class Template(TypedDict):
   income: dict[str, int]
   balance: dict[str, int]
@@ -60,7 +57,7 @@ class Taxonomy:
   def labels(self) -> pd.DataFrame:
     df_data = [
       (key, value['label'].get('long', ''), value['label'].get('short', '')) 
-      for key, value in self._data
+      for key, value in self._data.items()
     ]
 
     return pd.DataFrame(df_data, columns=['item', 'long', 'short'])

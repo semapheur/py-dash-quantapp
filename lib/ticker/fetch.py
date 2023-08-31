@@ -22,10 +22,10 @@ def stock_label(id: str) -> str:
   if not check_table('stock', ENGINE):
     return None
 
-  query = f'''
+  query = text('''
     SELECT name || " (" || ticker || ":" exchange || ")" AS label 
-    FROM stock WHERE id = "{id}"
-  '''
+    FROM stock WHERE id = :id
+  ''').bindparams(id=id)
 
   with ENGINE.begin() as con:
     fetch = con.execute(text(query))
@@ -53,13 +53,15 @@ def fetch_stock(id: str, cols: Optional[set] = None) -> Optional[Stock]:
     return {c: f for c, f in zip(cols, fetch)}
 
 def find_cik(id: str) -> Optional[int]:
-  if not check_table({'stock', 'cik'}, ENGINE):
+  if not check_table({'stock', 'edgar'}, ENGINE):
     return None
 
   query = f'''
     SELECT  
-      cik.cik AS cik FROM stock, cik
-    WHERE stock.id = "{id}" AND cik.ticker = stock.ticker
+      edgar.cik AS cik FROM stock, edgar
+    WHERE 
+      stock.id = "{id}" AND 
+      REPLACE(edgar.ticker, "-", "") = REPLACE(stock.ticker, ".", "")
   '''
 
   with ENGINE.begin() as con:

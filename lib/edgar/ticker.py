@@ -1,21 +1,24 @@
+import aiometer
 import asyncio
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
+from functools import partial
 import re
 from typing import Optional
 import xml.etree.ElementTree as et
 
 from glom import glom
 import pandas as pd
-import requests
+import httpx
 
 # Local
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
 from lib.db.tiny import insert_tinydb, read_tinydb
 from lib.edgar.models import Financials
-from lib.edgar.parse import ( 
-  xbrl_url, 
+from lib.edgar.parse import (
+  xbrl_url,
+  xbrl_urls, 
   parse_statement, 
   parse_taxonomy,
   statement_to_df
@@ -26,7 +29,7 @@ from lib.utils import camel_split, snake_abbreviate
 class Ticker():
   __slots__ = ('_cik')
 
-  def __init__(self, cik:int):
+  def __init__(self, cik: int):
     self._cik = cik
 
   def padded_cik(self):
@@ -35,13 +38,24 @@ class Ticker():
   def filings(
     self, 
     forms: Optional[list[str]] = None,
-    date: Optional[dt|str] = None) -> pd.DataFrame:
-      
-    def json_to_df():
+    date: Optional[dt|str] = None,
+    filter_xbrl: bool = False
+  ) -> pd.DataFrame:
+    
+    def fetch(url: str):
+      with httpx.Client() as client:
+        rs = client.get(url, headers=HEADERS)
+        parse = rs.json()
+
+      return parse
+
+    def json_to_df(filings: dict[str, list[str]]):
       data = {
-        'id': parse['accessionNumber'],
-        'date': parse['reportDate'],
-        'form': parse['form'],
+        'id': filings['accessionNumber'],
+        'date': filings['reportDate'],
+        'form': filings['form'],
+        'primary_document': filings['primaryDocument'],
+        'is_XBRL': filings['isXBRL']
         #'description': parse['primaryDescription']
       }
       df = pd.DataFrame(data)
@@ -50,27 +64,17 @@ class Ticker():
       return df
     
     dfs = []
-    
-    try:
-      url = (
-        f'https://data.sec.gov/submissions/CIK{self.padded_cik()}'
-        '-submissions-001.json'
-      )
-      with requests.Session() as s:
-        rs = s.get(url, headers=HEADERS)
-        parse = rs.json()
-          
-      dfs.append(json_to_df(parse)) 
-    except Exception:
-      pass
-    
+        
     url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
-    with requests.Session() as s:
-      rs = s.get(url, headers=HEADERS)
-      parse = rs.json()
-    
-    parse = parse['filings']['recent']
-    dfs.append(json_to_df(parse))
+    parse = fetch(url)
+    filings = parse['filings']['recent']
+    dfs.append(json_to_df(filings))
+
+    if files := parse['filings'].get('files'):
+      for f in files:
+        url = f"https://data.sec.gov/submissions/{f['name']}"
+        filings = fetch(url)
+        dfs.append(json_to_df(filings))
     
     if len(dfs) == 1:
       df = dfs.pop()
@@ -88,22 +92,42 @@ class Ticker():
         date = dt.strptime(date, '%Y-%m-%d')
       
       df = df.loc[df['date'] > date]
+
+    if filter_xbrl:
+      df = df.loc[df['is_XBRL'].astype(bool)]
          
     return df
   
+  def xbrls(self, date: Optional[dt|str] = None) -> list[str]:
+    filings = self.filings(['10-K', '10-Q'], date, True)
+    filings.sort_values('date', ascending=False, inplace=True)
+    filings.reset_index(inplace=True)
+
+    ticker: str = filings['primary_document'].iloc[0]
+    ticker = ticker.split('-')[0]
+
+    filings['xbrl'] = str(self._cik) + '/' + filings['id'].str.replace('-', '') + '/'
+
+    mask = filings['date'] >= dt(2019, 7, 1)
+    filings.loc[~mask, 'xbrl'] += (
+      ticker + '-' + filings['date'].dt.strftime('%Y%m%d') + '.xml'
+    )
+
+    filings.loc[mask, 'xbrl'] += (
+      filings.loc[mask, 'primary_document'].str.replace('.htm', '_htm.xml')
+    )
+
+    return filings['xbrl'].tolist()
+  
   async def financials(self, delta=120) -> list[Financials]:
 
-    async def fetch(docs: pd.Index) -> list[Financials]:
-      tasks = []
-      for d in docs:
-        url = await xbrl_url(self.padded_cik(), d)
-        if not url:
-          continue
-        tasks.append(asyncio.create_task(
-          parse_statement(url, self.padded_cik())
-        ))
-      
-      financials = await asyncio.gather(*tasks)
+    async def fetch(doc_ids: list[str]) -> list[Financials]:
+      urls = await xbrl_urls(self._cik, doc_ids, 'htm')
+      urls = list(filter(lambda x: x is not None, urls))
+
+      tasks = [partial(parse_statement, url) for url in urls]
+      financials = await aiometer.run_all(tasks, max_per_second=10)
+
       return financials
     
     # Load financials
@@ -126,9 +150,9 @@ class Ticker():
         if not new_docs:
           return financials
     else:
-      new_docs = self.filings().index
+      new_docs = self.filings(['10-K', '10-Q']).index
 
-    new_financials = await fetch(new_docs)
+    new_financials = await fetch(list(new_docs))
     if new_financials:
       insert_tinydb(new_financials, 'edgar.json', str(self._cik))
     
@@ -140,7 +164,7 @@ class Ticker():
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
-    financials = await self.get_financials()
+    financials = await self.financials()
     financials = sorted(financials, key=lambda x: glom(x, 'meta.date'), reverse=True)
 
     dfs = []
@@ -177,8 +201,8 @@ class Ticker():
     ns = 'http://www.w3.org/1999/xlink'
 
     url = xbrl_url(self._cik, doc_id)
-    with requests.Session() as s:
-      rs = s.get(url, headers=HEADERS)
+    with httpx.Client() as client:
+      rs = client.get(url, headers=HEADERS)
       root = et.fromstring(rs.content)
 
     url_pattern = r'https?://www\..+/'
