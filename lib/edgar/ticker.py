@@ -1,8 +1,6 @@
-import aiometer
 import asyncio
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
-from functools import partial
 import re
 from typing import Optional
 import xml.etree.ElementTree as et
