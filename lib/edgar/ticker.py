@@ -19,7 +19,7 @@ from lib.edgar.models import Financials
 from lib.edgar.parse import (
   xbrl_url,
   xbrl_urls, 
-  parse_statement, 
+  parse_statements, 
   parse_taxonomy,
   statement_to_df
 )
@@ -100,35 +100,43 @@ class Ticker():
   
   def xbrls(self, date: Optional[dt|str] = None) -> list[str]:
     filings = self.filings(['10-K', '10-Q'], date, True)
+
+    if filings['date'].max() < dt(2020, 7, 1):
+      raise Exception('Not possible to find XBRL names')
+    
+    prefix ='https://www.sec.gov/Archives/edgar/data/'
+
     filings.sort_values('date', ascending=False, inplace=True)
     filings.reset_index(inplace=True)
 
     ticker: str = filings['primary_document'].iloc[0]
     ticker = ticker.split('-')[0]
 
-    filings['xbrl'] = str(self._cik) + '/' + filings['id'].str.replace('-', '') + '/'
-
+    filings['xbrl'] = (
+      prefix + str(self._cik) + '/' + filings['id'].str.replace('-', '') + '/'
+    )
     mask = filings['date'] >= dt(2019, 7, 1)
     filings.loc[~mask, 'xbrl'] += (
       ticker + '-' + filings['date'].dt.strftime('%Y%m%d') + '.xml'
     )
-
     filings.loc[mask, 'xbrl'] += (
       filings.loc[mask, 'primary_document'].str.replace('.htm', '_htm.xml')
     )
-
-    return filings['xbrl'].tolist()
+    filings.set_index('id', inplace=True)
+    return filings['xbrl']
   
   async def financials(self, delta=120) -> list[Financials]:
+  
+    async def fetch_urls(date: Optional[str|dt] = None) -> pd.Series:
 
-    async def fetch(doc_ids: list[str]) -> list[Financials]:
-      urls = await xbrl_urls(self._cik, doc_ids, 'htm')
-      urls = list(filter(lambda x: x is not None, urls))
+      try:
+        urls = self.xbrls(date)
+      
+      except Exception:
+        filings = self.filings(['10-Q', '10-K'], date, True)
+        urls = await xbrl_urls(self._cik, filings.index, 'htm')
 
-      tasks = [partial(parse_statement, url) for url in urls]
-      financials = await aiometer.run_all(tasks, max_per_second=10)
-
-      return financials
+      return urls
     
     # Load financials
     financials = read_tinydb('edgar.json', None, str(self._cik))
@@ -139,20 +147,20 @@ class Ticker():
       last_date = dates.max()
       
       if relativedelta(dt.now(), last_date).days > delta:
-        new_forms = self.filings(['10-K', '10-Q'], last_date)
+        new_filings = await fetch_urls(last_date)
 
-        if not new_forms:
+        if not new_filings:
           return financials
 
-        old_docs = {glom(f, 'meta.id') for f in financials}
-        new_docs = set(new_forms.index).difference(old_docs)
+        old_filings = {glom(f, 'meta.id') for f in financials}
+        new_filings = set(new_filings.index).difference(old_filings)
 
-        if not new_docs:
+        if not new_filings:
           return financials
     else:
-      new_docs = self.filings(['10-K', '10-Q']).index
+      new_filings = fetch_urls()
 
-    new_financials = await fetch(list(new_docs))
+    new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
       insert_tinydb(new_financials, 'edgar.json', str(self._cik))
     

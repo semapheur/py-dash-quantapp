@@ -73,3 +73,21 @@ class renamer():
     else:
       self.d[x] += 1
       return '%s_%d' % (x, self.d[x])
+    
+def insert_characters(string: str, inserts: dict[str, list[int]]):
+  result = string
+  offset = 0
+
+  for char in inserts.keys():
+    for pos in inserts[char]:
+      result = result[:pos + offset] + char + result[pos + offset:]
+      offset += len(char)
+
+  return result
+
+# Example usage
+original_string = "abcdefghij"
+char_to_insert = "-"
+positions = [2, 5, 8]
+modified_string = insert_characters(original_string, char_to_insert, positions)
+print(modified_string)

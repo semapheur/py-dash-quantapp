@@ -1,7 +1,9 @@
 from datetime import datetime as dt
+from functools import partial
 import re
 import xml.etree.ElementTree as et
 
+import aiometer
 import asyncio
 import httpx
 import bs4 as bs
@@ -20,11 +22,16 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
+from lib.utils import insert_characters
 
-async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> list[str]:
+async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> pd.Series:
   tasks = [asyncio.create_task(xbrl_url(cik, doc_id, doc_type)) for doc_id in doc_ids]
-  result = await asyncio.gather(*tasks)
-  return list(filter(None, result))
+  urls = await asyncio.gather(*tasks)
+
+  result = pd.Series(urls, index=doc_ids)
+  result = result.loc[result.notnull()]
+
+  return result 
 
 async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str:
   url = (
@@ -48,6 +55,12 @@ async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str:
   
   href = a_node.get('href')
   return f'https://www.sec.gov{href}'
+
+async def parse_statements(urls: list[str]) -> list[Financials]:
+  tasks = [partial(parse_statement, url) for url in urls]
+  financials = await aiometer.run_all(tasks, max_per_second=10)
+
+  return financials
 
 async def parse_statement(url: str) -> Financials:
 
@@ -80,10 +93,21 @@ async def parse_statement(url: str) -> Financials:
       }
     }
   
-  print(url)
-  async with httpx.AsyncClient() as client:
-    rs = await client.get(url, headers=HEADERS)
-    root = et.fromstring(rs.content)
+  async def fetch(url: str) -> et.Element:
+    async with httpx.AsyncClient() as client:
+      rs = await client.get(url, headers=HEADERS)
+      root = et.fromstring(rs.content)
+
+    return root
+  
+  try:
+    root = await fetch(url)
+
+  except Exception:
+    cik, doc_id = url.split('/')[6:8]
+    doc_id = insert_characters(doc_id, {'-': [10, 12]})
+    url = xbrl_url(cik, doc_id)
+    root = await fetch(url)
 
   form = {
     '10-K': 'annual',

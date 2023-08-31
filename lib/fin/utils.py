@@ -1,4 +1,4 @@
-from typing import Literal, Optional, TypedDict
+from typing import Optional, TypedDict
 import json
 
 import pandas as pd
