@@ -117,7 +117,7 @@ def quote_volume_graph(
   rangeselector: list[str] = [], 
   rangeslider=False
 ) -> go.Figure:
-  if not 'volume' in data.keys():
+  if 'volume' not in data.keys():
     return quote_graph(data, plot, rangeselector, rangeslider)
 
   fig = make_subplots(

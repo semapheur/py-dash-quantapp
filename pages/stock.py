@@ -10,7 +10,7 @@ from dash.dash_table.Format import Format, Sign
 import pandas as pd
 
 from components.sparklines import make_sparkline
-from lib.edgar.ticker import Ticker
+from lib.edgar.company import Company
 from lib.fin.utils import Taxonomy, load_template
 from lib.ticker.fetch import stock_label, find_cik
 #from lib.utils import load_json
@@ -22,15 +22,6 @@ radio_input_style = 'appearance-none absolute inset-0 h-full cursor-pointer chec
 radio_label_style = 'relative px-1'
 
 def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
-
-  emph = tmpl.loc[tmpl['level'] == 0, 'long']
-  emph_ix = [index[index == e].index[0] for e in emph]
-
-  tab = tmpl.loc[tmpl['level'] == 2, 'long']
-  tab_ix = [index[index == t].index[0] for t in tab]
-
-  ttab = tmpl.loc[tmpl['level'] == 3, 'long']
-  ttab_ix = [index[index == t].index[0] for t in ttab]
 
   styling: list[dict] = [
     {
@@ -46,35 +37,22 @@ def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
       'textAlign': 'left',
       'paddingLeft': '2rem'
     },
-    {
+  ]
+
+  for level in tmpl['level'].unique():
+    items = tmpl.loc[tmpl['level'] == level, 'long']
+    row_ix = [index[index == i].index[0] for i in items] 
+
+    styling.append({
       'if': {
-        'row_index': emph_ix,
+        'row_index': row_ix,
         'column_id': 'index',
       },
-      'fontWeight': 'bold',
-      'paddingLeft': '1rem',
-    },
-    {
-      'if': {
-        'row_index': emph_ix,
-      },
-      'borderBottom': '1px solid rgb(var(--color-text))'
-    },
-    {
-      'if': {
-        'row_index': tab_ix,
-        'column_id': 'index'
-      },
-      'paddingLeft': '3rem'
-    },
-    {
-      'if': {
-        'row_index': ttab_ix,
-        'column_id': 'index'
-      },
-      'paddingLeft': '4rem'
-    }
-  ]
+      'paddingLeft': f'{level + 1}rem',
+      'fontWeight': 'bold' if level == 0 else 'normal',
+      'borderBottom': '1px solid rgb(var(--color-text))' if level == 0 else None
+    })
+
   return styling
 
 def format_columns(columns: list[str], index: str) -> dict:
@@ -98,7 +76,7 @@ def layout(id: Optional[str] = None):
     taxonomy = Taxonomy(set(template['item']))
     template = template.merge(taxonomy.labels(), on='item', how='left')
 
-    financials = asyncio.run(Ticker(cik).financials_to_df('%Y-%m-%d', taxonomy))
+    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
 
     financials = financials.reset_index().to_dict('records')
     template = template.to_dict('records')
@@ -130,7 +108,7 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
     return no_update
   
   tmpl = pd.DataFrame.from_records(tmpl)
-  tmpl = tmpl[tmpl['sheet'] == sheet]
+  tmpl = tmpl.loc[tmpl['sheet'] == sheet]
   labels = pd.Series(tmpl['long'].values, index=tmpl['item']).to_dict()
 
   fin = (pd.DataFrame.from_records(fin)
@@ -138,9 +116,10 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
     .xs('a', level=1) 
     .sort_index(ascending=False) 
   )
-  cols = list(OrderedSet(fin.columns).intersection(OrderedSet(tmpl['item'])))
+  cols = list(OrderedSet(OrderedSet(tmpl['item']).intersection(fin.columns)))
   fin = fin[cols]
   fin.rename(columns=labels, inplace=True)
+  tmpl = tmpl.loc[tmpl['item'].isin(cols)]
 
   fin = fin.T.reset_index()
   fin.insert(1, 'Trend', make_sparkline(fin[fin.columns[1:]]))

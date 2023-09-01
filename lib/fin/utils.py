@@ -103,7 +103,7 @@ def calculate_items(
     for key, value in schema.items():
       financials[item] += value * financials[key]
 
-    return financials
+    return financials.copy()
 
   col_set = set(financials.columns)
 
@@ -111,13 +111,13 @@ def calculate_items(
     if isinstance(value.get('all'), dict):
       items = set(value.get('all').keys())
       if items.issubset(col_set):
-        financials = apply_calculation(key, items, value.get('all'))
+        financials = apply_calculation(key, value.get('all'))
 
     elif isinstance(value.get('any'), dict):
       schema = {
         k: v for k, v in value.get('any').items() if k in col_set
       }
       if schema:
-        financials = apply_calculation(key, items, schema)
+        financials = apply_calculation(key, schema)
 
   return financials

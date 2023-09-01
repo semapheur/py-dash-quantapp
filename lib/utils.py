@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
+import pandas as pd
+
 def load_json(path: str|Path) -> dict:
   with open(path, 'r') as f:
     return json.load(f)
@@ -85,9 +87,17 @@ def insert_characters(string: str, inserts: dict[str, list[int]]):
 
   return result
 
-# Example usage
-original_string = "abcdefghij"
-char_to_insert = "-"
-positions = [2, 5, 8]
-modified_string = insert_characters(original_string, char_to_insert, positions)
-print(modified_string)
+def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
+    
+  duplicated = df.columns.duplicated()
+
+  if not duplicated.any():
+    return df
+
+  df_duplicated = combine_duplicate_columns(df.loc[:, duplicated])
+  df = df.loc[:, ~duplicated]
+
+  for col in df_duplicated.columns:
+    df.loc[:, col] = df[col].combine_first(df_duplicated[col])
+
+  return df

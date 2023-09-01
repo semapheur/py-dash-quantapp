@@ -222,29 +222,23 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
   
-  df_data: dict[tuple[dt, str], dict[str, float]] = {
-    (fin_date, scope[0]): {}
-  }
-  
-  for item in data['data'].keys():
-    entries: list = glom(data, f'data.{item}')
-    
+  df_data: dict[str, int] = {}
+
+  for item, entries in data['data'].items():
     for entry in entries:
-      
       date = parse_period(entry['period']) 
       if date != fin_date:
         continue
       
       if value := entry.get('value'):
-        df_data[(date, scope[0])][item] = value
+        df_data[item] = value
       
-      if 'member' not in entry:
-        continue
-      
-      for member in glom(data, f'data.{item}.member'):
-        if value := member.get('value'):
-          df_data[(date, scope[0])][f'{item}.{member}'] = value
-      
+      if members := entry.get('member'):
+        for member, m_entry in members.items():
+          if m_value := m_entry.get('value'):
+            df_data[f'{item}.{member}'] = m_value
+  
+  df_data: dict[tuple[dt, str], dict[str, int]] = {(fin_date, scope[0]): df_data}
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
   df.index.names = ['date', 'period']
