@@ -40,7 +40,7 @@ def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
   ]
 
   for level in tmpl['level'].unique():
-    items = tmpl.loc[tmpl['level'] == level, 'long']
+    items = tmpl.loc[tmpl['level'] == level, 'short']
     row_ix = [index[index == i].index[0] for i in items] 
 
     styling.append({
@@ -75,6 +75,8 @@ def layout(id: Optional[str] = None):
     template = load_template()
     taxonomy = Taxonomy(set(template['item']))
     template = template.merge(taxonomy.labels(), on='item', how='left')
+    mask = template['short'] == ''
+    template.loc[mask, 'short'] = template.loc[mask, 'long']
 
     financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
 
@@ -109,7 +111,8 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
   
   tmpl = pd.DataFrame.from_records(tmpl)
   tmpl = tmpl.loc[tmpl['sheet'] == sheet]
-  labels = pd.Series(tmpl['long'].values, index=tmpl['item']).to_dict()
+
+  labels = pd.Series(tmpl['short'].values, index=tmpl['item']).to_dict()
 
   fin = (pd.DataFrame.from_records(fin)
     .set_index(['date', 'period'])
@@ -124,6 +127,13 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
   fin = fin.T.reset_index()
   fin.insert(1, 'Trend', make_sparkline(fin[fin.columns[1:]]))
 
+  tooltips = [{
+    'index': {
+      'type': 'markdown',
+      'value': long
+    }
+  } for long in tmpl['long']]
+
   return DataTable(
     fin.to_dict('records'),
     columns=format_columns(fin.columns, fin.columns[0]),
@@ -133,4 +143,5 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
     style_data_conditional=style_table(fin['index'], tmpl),
     fixed_columns={'headers': True, 'data': 1},
     fixed_rows={'headers': True},
+    tooltip_data=tooltips
   )
