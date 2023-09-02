@@ -19,8 +19,11 @@
   },
   "FCF": {
     "calculation": {
-      "CAPEX": -1,
-      "op_CF": 1
+      "order": 7,
+      "all": {
+        "cf.iv.CAPEX": -1,
+        "cf.op": 1
+      }
     },
     "gaap": [],
     "label": {
@@ -30,6 +33,7 @@
   },
   "NWC": {
     "calculation": {
+      "order": 2,
       "all": {
         "a-c.ivt": 1,
         "a-c.rc": 1,
@@ -52,6 +56,7 @@
   },
   "a-c.CCE": {
     "calculation": {
+      "order": 0,
       "all": {
         "a-c.CCE.CE": 1,
         "a-c.CCE.ch": 1
@@ -67,6 +72,7 @@
   },
   "a-c.CCE&RCRCE": {
     "calculation": {
+      "order": 1,
       "all": {
         "a-c.CCE": 1,
         "a-c.RCRCE": 1
@@ -122,6 +128,7 @@
   },
   "a-c.ivt": {
     "calculation": {
+      "order": 1,
       "any": {
         "a-c.ivt.FG": 1,
         "a-c.ivt.PC": 1,
@@ -168,6 +175,7 @@
   },
   "a-c.ivt.WIPRM": {
     "calculation": {
+      "order": 0,
       "any": {
         "a-c.ivt.RM": 1,
         "a-c.ivt.WIP": 1
@@ -183,6 +191,7 @@
   },
   "a-c.lq": {
     "calculation": {
+      "order": 2,
       "any": {
         "a-c.CCE": 1,
         "a-c.sc": 1
@@ -215,6 +224,7 @@
   },
   "a-c.rc": {
     "calculation": {
+      "order": 0,
       "any": {
         "a-c.rc.al_dbf": -1,
         "a-c.rc.n-td": 1,
@@ -264,6 +274,7 @@
   },
   "a-c.sc": {
     "calculation": {
+      "order": 0,
       "any": {
         "a-c.sc.db": 1,
         "a-c.sc.eq": 1
@@ -325,6 +336,7 @@
   },
   "a-n.PPE": {
     "calculation": {
+      "order": 1,
       "all": {
         "a-n.PPE.acm_DDA": -1,
         "a-n.PPE.gs": 1
@@ -351,6 +363,7 @@
   },
   "a-n.PPE.gs": {
     "calculation": {
+      "order": 0,
       "any": {
         "a-n.PPE.gs.BL": 1,
         "a-n.PPE.gs.FF": 1,
@@ -400,6 +413,7 @@
   },
   "a-n.itg": {
     "calculation": {
+      "order": 1,
       "any": {
         "a-n.itg.fl": 1,
         "a-n.itg.il": 1
@@ -415,6 +429,7 @@
   },
   "a-n.itg.fl": {
     "calculation": {
+      "order": 0,
       "all": {
         "a-n.itg.fl.acm_am": -1,
         "a-n:itg.fl.gs": 1
@@ -445,6 +460,7 @@
   },
   "a-n.itg.gs": {
     "calculation": {
+      "order": 0,
       "all": {
         "a-n.itg.fl.gs": 1,
         "a-n.itg.il.gs": 1
@@ -461,6 +477,7 @@
   },
   "a-n.itg.il": {
     "calculation": {
+      "order": 0,
       "all": {
         "a-n.itg.il.acm_am": -1,
         "a-n.itg.il.gs": 1
@@ -517,6 +534,7 @@
   },
   "as": {
     "calculation": {
+      "order": 2,
       "all": {
         "a-c": 1,
         "a-n": 1
@@ -532,6 +550,7 @@
   },
   "cf": {
     "calculation": {
+      "order": 2,
       "all": {
         "cf.ex_rt_ef": 1,
         "cf.fn": 1,
@@ -566,6 +585,7 @@
   },
   "cf.fn.cm_st": {
     "calculation": {
+      "order": 0,
       "all": {
         "cf.fn.cm_st.pc": 1,
         "cf.fn.cm_st.py": -1
@@ -594,6 +614,7 @@
   },
   "cf.fn.db": {
     "calculation": {
+      "order": 0,
       "all": {
         "cf.fn.db.pc": 1,
         "cf.fn.db.ry": -1
@@ -687,6 +708,7 @@
   },
   "cf.iv.aq_ds": {
     "calculation": {
+      "order": 0,
       "any": {
         "cf.iv.aq_ds.py": -1
       }
@@ -698,6 +720,7 @@
   },
   "cf.iv.pc_sc": {
     "calculation": {
+      "order": 0,
       "any": {
         "cf.iv.pc_sc.db": 1,
         "cf.iv.pc_sc.eq": 1
@@ -759,6 +782,7 @@
   },
   "cf.iv.py_sc": {
     "calculation": {
+      "order": 0,
       "any": {
         "cf.iv.py_sc.db": 1,
         "cf.iv.py_sc.eq": 1
@@ -799,10 +823,21 @@
     "label": {
       "long": "Net Cash Provided by (Used in) Operating Activities",
       "short": "Operating Cash Flow"
+    },
+    "calculation": {
+      "order": 6,
+      "all": {
+        "i/l": 1,
+        "op_ep.DDAA": -1,
+        "cf.op.sh_cp": 1,
+        "cf.op.ot_n-ch": 1,
+        "cf.op.WC": 1
+      }
     }
   },
   "cf.op.WC": {
     "calculation": {
+      "order": 1,
       "any": {
         "cg|a-c.d-tx": 1,
         "cg|a-c.ivt": 1,
@@ -914,6 +949,7 @@
   },
   "ci": {
     "calculation": {
+      "order": 2,
       "all": {
         "ci.mn_it": -1,
         "ci.nt_mn_it": 1
@@ -944,6 +980,7 @@
   },
   "d-tx": {
     "calculation": {
+      "order": 0,
       "any": {
         "d-tx.fo": 1,
         "d-tx.lc": 1,
@@ -1053,6 +1090,7 @@
   },
   "gs_pf": {
     "calculation": {
+      "order": 1,
       "all": {
         "rv": 1,
         "rv_cs": -1
@@ -1067,6 +1105,7 @@
   },
   "i/l": {
     "calculation": {
+      "order": 5,
       "all": {
         "i/l.mn_it": -1,
         "i/l.nt_mn_it": 1
@@ -1082,6 +1121,7 @@
   },
   "i/l.b-tx": {
     "calculation": {
+      "order": 3,
       "all": {
         "n-op_i/e": -1,
         "op_i/l": 1
@@ -1118,6 +1158,7 @@
   },
   "i/l.nt_mn_it": {
     "calculation": {
+      "order": 4,
       "all": {
         "i/l.b-tx": 1,
         "tx": -1
@@ -1130,7 +1171,7 @@
       "long": "Net Income (Loss) Including Portion Attributable to Minority Interest"
     }
   },
-  "i/l:nrc": {
+  "nrcr-i/l": {
     "gaap": [],
     "label": {
       "long": "Non-recurring Income (Loss)"
@@ -1199,6 +1240,7 @@
   },
   "l-c.db": {
     "calculation": {
+      "order": 0,
       "any": {
         "l-c.db.LT": 1,
         "l-c.db.ot": 1
@@ -1310,6 +1352,7 @@
   },
   "lb": {
     "calculation": {
+      "order": 2,
       "all": {
         "l-c": 1,
         "l-n": 1
@@ -1325,6 +1368,7 @@
   },
   "lb_eq": {
     "calculation": {
+      "order": 3,
       "all": {
         "eq": 1,
         "lb": 1
@@ -1339,6 +1383,7 @@
   },
   "n-op_ep": {
     "calculation": {
+      "order": 1,
       "any": {
         "n-op_ep.imp": 1,
         "n-op_ep.it": 1
@@ -1351,6 +1396,7 @@
   },
   "n-op_ep.imp": {
     "calculation": {
+      "order": 0,
       "any": {
         "n-op_ep.imp.gw": 1,
         "n-op_ep.imp.itg": 1
@@ -1389,6 +1435,7 @@
   },
   "n-op_i/e": {
     "calculation": {
+      "order": 2,
       "all": {
         "n-op_ep": -1,
         "n-op_i/e.ot": 1,
@@ -1412,6 +1459,7 @@
   },
   "n-op_in": {
     "calculation": {
+      "order": 0,
       "any": {
         "n-op_in.iv": 1
       }
@@ -1431,6 +1479,7 @@
   },
   "oc_i/l": {
     "calculation": {
+      "order": 2,
       "any": {
         "oc_i/l.DI": 1,
         "oc_i/l.LDIC_DRC": 1,
@@ -1449,6 +1498,7 @@
   },
   "oc_i/l.DI": {
     "calculation": {
+      "order": 0,
       "all": {
         "oc_i/l.DI.b-rc": 1,
         "oc_i/l.DI.rc": 1
@@ -1480,6 +1530,7 @@
   },
   "oc_i/l.LDIC_DRC": {
     "calculation": {
+      "order": 0,
       "all": {
         "oc_i/l.LDIC_DRC.b-tx": 1,
         "oc_i/l.LDIC_DRC.tx": -1
@@ -1510,6 +1561,7 @@
   },
   "oc_i/l.fx_tt": {
     "calculation": {
+      "order": 0,
       "all": {
         "oc_i/l.fx_tt.b-tx": 1,
         "oc_i/l.fx_tt.tx": -1
@@ -1540,6 +1592,7 @@
   },
   "oc_i/l.iv": {
     "calculation": {
+      "order": 1,
       "all": {
         "oc_i/l.iv.b-rc": 1,
         "oc_i/l.iv.rc": 1
@@ -1554,9 +1607,10 @@
   },
   "oc_i/l.iv.b-rc": {
     "calculation": {
+      "order": 0,
       "all": {
-        "oc_i/l.iv.b-rc": 1,
-        "oc_i/l.iv.rc": -1
+        "oc_i/l.iv.b-rc.b-tx": 1,
+        "oc_i/l.iv.rc.tx": -1
       }
     },
     "gaap": [
@@ -1600,6 +1654,7 @@
   },
   "oc_i/l.pn_bf_pl": {
     "calculation": {
+      "order": 1,
       "all": {
         "oc_i/l.pn_bf_pl.b-tx": 1,
         "oc_i/l.pn_bf_pl.tx": -1
@@ -1630,6 +1685,7 @@
   },
   "op_ep": {
     "calculation": {
+      "order": 1,
       "any": {
         "op_ep.DDAA": 1,
         "op_ep.RD": 1,
@@ -1647,6 +1703,7 @@
   },
   "op_ep.DDAA": {
     "calculation": {
+      "order": 0,
       "any": {
         "op_ep.DDAA.am": 1,
         "op_ep.DDAA.dp": 1
@@ -1690,6 +1747,7 @@
   },
   "op_ep.SGA": {
     "calculation": {
+      "order": 0,
       "any": {
         "op_ep.SGA.GA": 1,
         "op_ep.SGA.SM": 1
@@ -1747,6 +1805,7 @@
   },
   "op_i/l": {
     "calculation": {
+      "order": 2,
       "all": {
         "gs_pf": 1,
         "op_ep": -1
@@ -1772,6 +1831,7 @@
   },
   "rv.fn": {
     "calculation": {
+      "order": 0,
       "any": {
         "rv.fn.pm": 1
       }
@@ -1805,6 +1865,7 @@
   },
   "rv.sv": {
     "calculation": {
+      "order": 0,
       "any": {
         "rv.sv.eg": 1,
         "rv.sv.la": 1,
