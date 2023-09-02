@@ -1,10 +1,11 @@
+import asyncio
 from datetime import datetime as dt
+from enum import Enum
 from functools import partial
 import re
 import xml.etree.ElementTree as et
 
 import aiometer
-import asyncio
 import httpx
 import bs4 as bs
 from glom import glom
@@ -22,7 +23,11 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
-from lib.utils import insert_characters
+from lib.utils import insert_characters, month_difference
+
+class Scope(Enum):
+  QUARTERLY = 4
+  ANNUAL = 12
 
 async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> pd.Series:
   tasks = [asyncio.create_task(xbrl_url(cik, doc_id, doc_type)) for doc_id in doc_ids]
@@ -69,10 +74,17 @@ async def parse_statement(url: str) -> Financials:
       return {
         'instant': el.text
       }
-    else: 
+    else:
+      start_date = period.find('./{*}startDate').text
+      end_date = dt.strptime(period.find('./{*}endDate').text, '%Y-%m-%d')
+      months = month_difference(
+        dt.strptime(start_date, '%Y-%m-%d'), 
+        dt.strptime(end_date, '%Y-%m-%d')
+      )
       return {
         'start_date': period.find('./{*}startDate').text,
         'end_date': period.find('./{*}endDate').text,
+        'months': months
       }
 
   def parse_unit(text:str) -> str:
@@ -213,11 +225,15 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
 def statement_to_df(data: Financials) -> pd.DataFrame:
     
-  def parse_period(period: dict[str, str]) -> dt:
+  def parse_period(period: dict[str, str]) -> tuple[int, dt]:
     if 'instant' in period:
-      return dt.strptime(period['instant'], '%Y-%m-%d')
-    
-    return dt.strptime(period['end_date'], '%Y-%m-%d')
+      return Scope[scope.upper()].value, dt.strptime(period['instant'], '%Y-%m-%d')
+        
+    start_date = dt.strptime(period['start_date'], '%Y-%m-%d')
+    end_date = dt.strptime(period['end_date'], '%Y-%m-%d')
+    months = month_difference(start_date, end_date)
+
+    return months, dt.strptime(period['end_date'], '%Y-%m-%d')
       
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
@@ -226,8 +242,14 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
 
   for item, entries in data['data'].items():
     for entry in entries:
-      date = parse_period(entry['period']) 
-      if date != fin_date:
+      #if ('instant' not in entry['period'] and 
+      #  entry['period'].get('months', 0) != Scope[scope].value
+      #):
+      #  continue
+
+      months, date = parse_period(entry['period'])
+
+      if months != Scope[scope.upper()].value or date != fin_date:
         continue
       
       if value := entry.get('value'):

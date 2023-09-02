@@ -94,33 +94,36 @@ def calculate_items(
 ) -> pd.DataFrame:
   
   def apply_calculation(
+    df: pd.DataFrame,
     item: str,
     schema: dict[str, int]
   ) -> pd.DataFrame:
 
     key, value = schema.popitem()
-    financials[item] = value * financials[key]
+    temp = value * df[key]
 
     for key, value in schema.items():
-      financials[item] += value * financials[key]
+      temp += value * df[key]
 
-    return financials.copy()
+    new_columns = pd.DataFrame({item: temp})
+    df = pd.concat([df, new_columns], axis=1)
+
+    return df
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
-  print(json.dumps(schemas, indent=2))
   col_set = set(financials.columns)
 
   for key, value in schemas.items():
     if isinstance(value.get('all'), dict):
       items = set(value.get('all').keys())
       if items.issubset(col_set):
-        financials = apply_calculation(key, value.get('all'))
+        financials = apply_calculation(financials, key, value.get('all'))
 
     elif isinstance(value.get('any'), dict):
       schema = {
         k: v for k, v in value.get('any').items() if k in col_set
       }
       if schema:
-        financials = apply_calculation(key, schema)
+        financials = apply_calculation(financials, key, schema)
 
   return financials

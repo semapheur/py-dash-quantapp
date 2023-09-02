@@ -1,3 +1,5 @@
+from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta
 import json
 import re
 from pathlib import Path
@@ -101,3 +103,7 @@ def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[:, col] = df[col].combine_first(df_duplicated[col])
 
   return df
+
+def month_difference(date1: dt, date2: dt) -> int:
+  delta = relativedelta(max(date2, date1), min(date2, date1))
+  return delta.years * 12 + delta.months + round(delta.days / 30)

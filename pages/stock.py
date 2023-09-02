@@ -84,15 +84,25 @@ def layout(id: Optional[str] = None):
     template = template.to_dict('records')
 
   return html.Main(className='flex flex-col h-full', children=[
-    dcc.RadioItems(id='stock-radio:sheet', className=radio_wrap_style,
-      inputClassName=radio_input_style,
-      labelClassName=radio_label_style,
-      value='income',
-      options=[
-        {'label': 'Income', 'value': 'income'},
-        {'label': 'Balance', 'value': 'balance'},
-        {'label': 'Cash Flow', 'value': 'cashflow'}
-      ]),
+    html.Div(className='flex justify-around', children=[
+      dcc.RadioItems(id='stock-radio:sheet', className=radio_wrap_style,
+        inputClassName=radio_input_style,
+        labelClassName=radio_label_style,
+        value='income',
+        options=[
+          {'label': 'Income', 'value': 'income'},
+          {'label': 'Balance', 'value': 'balance'},
+          {'label': 'Cash Flow', 'value': 'cashflow'}
+        ]),
+      dcc.RadioItems(id='stock-radio:scope', className=radio_wrap_style,
+        inputClassName=radio_input_style,
+        labelClassName=radio_label_style,
+        value='a',
+        options=[
+          {'label': 'Annual', 'value': 'a'},
+          {'label': 'Quarterly', 'value': 'q'},
+        ]),
+    ]),
     html.Div(id='stock-div:table-wrap', className='flex-1 overflow-x-hidden p-2'),
     dcc.Store(id='stock-store:financials', data=financials),
     dcc.Store(id='stock-store:template', data=template)
@@ -102,10 +112,10 @@ def layout(id: Optional[str] = None):
   Output('stock-div:table-wrap', 'children'),
   Input('stock-store:financials', 'data'),
   Input('stock-store:template', 'data'),
-  Input('stock-radio:sheet', 'value')
-  #Input('stock-scope:annual/quarterly')
+  Input('stock-radio:sheet', 'value'),
+  Input('stock-radio:scope', 'value')
 )
-def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
+def update_table(fin: list[dict], tmpl: list[dict], sheet: str, scope: str):
   if not fin or not tmpl:
     return no_update
   
@@ -116,7 +126,7 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str):
 
   fin = (pd.DataFrame.from_records(fin)
     .set_index(['date', 'period'])
-    .xs('a', level=1) 
+    .xs(scope, level=1) 
     .sort_index(ascending=False) 
   )
   cols = list(OrderedSet(OrderedSet(tmpl['item']).intersection(fin.columns)))
