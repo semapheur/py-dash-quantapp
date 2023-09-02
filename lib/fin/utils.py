@@ -13,6 +13,7 @@ class TaxonomyLabel(TypedDict):
   short: str
 
 class TaxononmyCalculation(TypedDict):
+  order: int
   all: Optional[dict[str, int]]
   any: Optional[dict[str, int]]
 
@@ -105,6 +106,8 @@ def calculate_items(
 
     return financials.copy()
 
+  schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
+  print(json.dumps(schemas, indent=2))
   col_set = set(financials.columns)
 
   for key, value in schemas.items():

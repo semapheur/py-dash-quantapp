@@ -91,9 +91,9 @@ def layout(id: Optional[str] = None):
       options=[
         {'label': 'Income', 'value': 'income'},
         {'label': 'Balance', 'value': 'balance'},
-        {'label': 'Cash Flow', 'value': 'cash'}
+        {'label': 'Cash Flow', 'value': 'cashflow'}
       ]),
-    html.Div(id='stock-div:table-wrap', className='h-full p-2'),
+    html.Div(id='stock-div:table-wrap', className='flex-1 overflow-x-hidden p-2'),
     dcc.Store(id='stock-store:financials', data=financials),
     dcc.Store(id='stock-store:template', data=template)
   ])

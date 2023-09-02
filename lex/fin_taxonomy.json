@@ -17,20 +17,6 @@
       "short": "Diluted EPS"
     }
   },
-  "FCF": {
-    "calculation": {
-      "order": 7,
-      "all": {
-        "cf.iv.CAPEX": -1,
-        "cf.op": 1
-      }
-    },
-    "gaap": [],
-    "label": {
-      "long": "Free Cash Flow",
-      "short": "FCF"
-    }
-  },
   "NWC": {
     "calculation": {
       "order": 2,
@@ -581,6 +567,15 @@
     "label": {
       "long": "Net Cash Provided by (Used in) Financing Activities",
       "short": "Financing Cash Flow"
+    },
+    "calculation": {
+      "order": 2,
+      "all": {
+        "cf.fn.py_dv": -1,
+        "cf.fn.cm_st": 1,
+        "cf.fn.db": 1,
+        "cf.fn.py/pc_ot": 1
+      }
     }
   },
   "cf.fn.cm_st": {
@@ -689,13 +684,17 @@
     "label": {
       "long": "Net Cash Provided by (Used in) Investing Activities",
       "short": "Investing Cash Flow"
-    }
-  },
-  "cf.iv.CAPEX": {
-    "gaap": [],
-    "label": {
-      "long": "Capital Expenditure",
-      "short": "CAPEX"
+    },
+    "calculation": {
+      "order": 2,
+      "all": {
+        "cf.iv.py_PPE": -1,
+        "cf.iv.py_itg": -1,
+        "cf.iv.pc_sc": 1,
+        "cf.iv.py_sc": -1,
+        "cf.iv.aq_ds": 1,
+        "cf.iv.py/pc_ot": 1
+      }
     }
   },
   "cf.iv.ac_ds.py": {
@@ -723,7 +722,8 @@
       "order": 0,
       "any": {
         "cf.iv.pc_sc.db": 1,
-        "cf.iv.pc_sc.eq": 1
+        "cf.iv.pc_sc.eq": 1,
+        "cf.iv.pc_sc.mt": 1
       }
     },
     "gaap": [],
@@ -828,7 +828,8 @@
       "order": 6,
       "all": {
         "i/l": 1,
-        "op_ep.DDAA": -1,
+        "d-tx": -1,
+        "op_ep.DDAA": 1,
         "cf.op.sh_cp": 1,
         "cf.op.ot_n-ch": 1,
         "cf.op.WC": 1
