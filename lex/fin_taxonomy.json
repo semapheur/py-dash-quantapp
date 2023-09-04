@@ -1300,6 +1300,13 @@
     ],
     "label": {
       "long": "Non-current Accrued Liabilities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": {
+        "l-n.acr_ep.tx": 1,
+        "l-n.acr_ep.ot": 1
+      }
     }
   },
   "l-n.acr_ep.ot": {
