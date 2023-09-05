@@ -1865,7 +1865,7 @@
   },
   "rv.pd": {
     "gaap": [
-      "RevenueFromContractWithCustomerExcludingAssessedTax.Product"
+      "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Product"
     ],
     "label": {
       "long": "Product Revenue"
@@ -1881,8 +1881,8 @@
       }
     },
     "gaap": [
-      "Revenues.Service",
-      "RevenueFromContractWithCustomerExcludingAssessedTax.Service"
+      "Revenues.ProductOrServiceAxis.Service",
+      "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Service"
     ],
     "label": {
       "long": "Service Revenue"

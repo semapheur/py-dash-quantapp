@@ -11,7 +11,7 @@ import pandas as pd
 
 from components.sparklines import make_sparkline
 from lib.edgar.company import Company
-from lib.fin.utils import Taxonomy, load_template
+from lib.fin.utils import Taxonomy, calculate_items, load_template
 from lib.ticker.fetch import stock_label, find_cik
 #from lib.utils import load_json
 
@@ -79,6 +79,8 @@ def layout(id: Optional[str] = None):
     template.loc[mask, 'short'] = template.loc[mask, 'long']
 
     financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
+    schema = taxonomy.calculation_schema(set(template['item']))
+    financials = calculate_items(financials, schema)
 
     financials = financials.reset_index().to_dict('records')
     template = template.to_dict('records')

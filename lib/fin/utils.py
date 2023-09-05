@@ -62,18 +62,26 @@ class Taxonomy:
     ]
 
     return pd.DataFrame(df_data, columns=['item', 'long', 'short'])
-  
-  def all_calculation_schema(self) -> dict[str, TaxononmyCalculation]:
-    schema =  {
-      key: calc for key, value in self._data.items() 
-      if (calc := value.get('calculation'))
+    
+  def calculation_schema(
+    self, 
+    select: Optional[set[str]] = None
+  ) -> dict[str, TaxononmyCalculation]:
+
+    keys = set(self._data.keys())
+    if select:
+      keys = keys.intersection(select)
+
+    schema = {
+      key: calc for key in keys if (calc := self._data[key].get('calculation'))
     }
+   
     return schema
-  
+
   def extra_calculation_schema(self, source: str) -> dict[str, TaxononmyCalculation]:
     schema =  {
       key: calc for key, value in self._data.items() 
-      if (calc := value.get('calculation')) and not value.get(source)
+      if not value.get(source) and (calc := value.get('calculation'))
     }
     return schema
 
@@ -90,7 +98,8 @@ def load_template() -> pd.DataFrame:
 
 def calculate_items(
   financials: pd.DataFrame, 
-  schemas: dict[str, TaxononmyCalculation]
+  schemas: dict[str, TaxononmyCalculation],
+  recalc: bool = False
 ) -> pd.DataFrame:
   
   def apply_calculation(
@@ -110,8 +119,16 @@ def calculate_items(
 
     return df
 
-  schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
   col_set = set(financials.columns)
+
+  if not recalc:
+    keys = set(schemas.keys()).difference(col_set)
+    schemas = {
+      key: schemas[key] for key in keys
+    }
+
+  schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
+  
 
   for key, value in schemas.items():
     if isinstance(value.get('all'), dict):

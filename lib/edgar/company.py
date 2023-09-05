@@ -21,7 +21,7 @@ from lib.edgar.parse import (
   parse_taxonomy,
   statement_to_df
 )
-from lib.fin.utils import Taxonomy, calculate_items
+from lib.fin.utils import Taxonomy
 from lib.utils import camel_split, combine_duplicate_columns, snake_abbreviate
 
 class Company():
@@ -166,7 +166,8 @@ class Company():
 
   async def financials_to_df(self, 
     date_format: Optional[str] = None,
-    taxonomy: Optional[Taxonomy] = None
+    taxonomy: Optional[Taxonomy] = None,
+    select: bool = False
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
@@ -189,11 +190,13 @@ class Company():
 
     if taxonomy:
       _filter = taxonomy.item_names('gaap')
-      df = df[list(set(df.columns).intersection(_filter))]
+
+      if select:
+        df = df[list(set(df.columns).intersection(_filter))]
+        
       df.rename(columns=taxonomy.rename_schema('gaap'), inplace=True)
 
       df = combine_duplicate_columns(df)
-      df = calculate_items(df, taxonomy.extra_calculation_schema('gaap'))
 
     return df
 

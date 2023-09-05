@@ -1,0 +1,66 @@
+{
+  "income": {
+    "rv": {
+      "color": "rgba(0,0,255,1)",
+      "links": {
+        "gs_pf": "rgba(0,255,0,0.5)",
+        "rv_cs": "rgba(255,0,0,0.5)"
+      }
+    },
+    "rv_cs": {
+      "color": "rgba(255,0,0,1)"
+    },
+    "gs_pf": {
+      "color": "rgba(0,255,0,1)",
+      "links": {
+        "op_i/l": "rgba(0,255,0,0.5)",
+        "op_ep": "rgba(255,0,0,0.5"
+      }
+    },
+    "op_i/l": {
+      "color": "rgba(0,0,255,1)",
+      "links": {
+        "i/l.b-tx": "rgba(0,255,0,1)"
+      },
+      "op_ep": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "op_ep.SGA": "rgba(255,0,0,1)",
+          "op_ep.RD": "rbga(255,0,0,1)"
+        }
+      }
+    },
+    "n-op_i/e": {
+      "color": "rbga(0,255,0,1)",
+      "links": {
+        "i/l.b-tx": "rgba(0,255,0,1)"
+      }
+    },
+    "n-op_ep.it": {
+      "color": "rgba(255,0,0,1)",
+      "links": {
+        "n-op_i/e": "rgba(255,0,0,1)"
+      }
+    },
+    "n-op_i/e.ot": {
+      "color": "",
+      "links": {
+        "n-op_i/e": ""
+      }
+    },
+    "i/l.b-tx": {
+      "color": "rbga(0,255,0,1)",
+      "links": {
+        "i/l.nt": "rgba(0,255,0,1)",
+        "tx": "rgba(255,0,0,1)"
+      }
+    }
+
+  },
+  "balance": {
+
+  },
+  "cashflow": {
+
+  }
+}

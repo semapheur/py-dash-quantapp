@@ -234,7 +234,7 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
     months = month_difference(start_date, end_date)
 
     return months, dt.strptime(period['end_date'], '%Y-%m-%d')
-      
+        
   fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
   scope = glom(data, 'meta.scope')
   
@@ -258,7 +258,8 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
       if members := entry.get('member'):
         for member, m_entry in members.items():
           if m_value := m_entry.get('value'):
-            df_data[f'{item}.{member}'] = m_value
+            dim = '.' + d if (d := m_entry.get("dim")) else ''
+            df_data[f'{item}{dim}.{member}'] = m_value
   
   df_data: dict[tuple[dt, str], dict[str, int]] = {(fin_date, scope[0]): df_data}
   df = pd.DataFrame.from_dict(df_data, orient='index')

@@ -87,5 +87,5 @@ def msdr_trace(data: pd.Series, regimes: int) -> list:
         mode='lines'
       )
     )
-  
+    
   return trace

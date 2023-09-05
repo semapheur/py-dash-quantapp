@@ -29,7 +29,8 @@ def stock_label(id: str) -> str:
 
   with ENGINE.begin() as con:
     fetch = con.execute(text(query))
-    return fetch.first()[0]
+  
+  return fetch.first()[0]
 
 def fetch_stock(id: str, cols: Optional[set] = None) -> Optional[Stock]:
   
