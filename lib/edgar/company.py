@@ -135,7 +135,7 @@ class Company():
       return urls
     
     # Load financials
-    financials = read_tinydb('edgar.json', None, str(self._cik))
+    financials = read_tinydb('data/edgar.json', None, str(self._cik))
 
     if financials:
       dates = [glom(f, 'meta.date') for f in financials]
@@ -160,7 +160,7 @@ class Company():
 
     new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
-      insert_tinydb(new_financials, 'edgar.json', str(self._cik))
+      insert_tinydb(new_financials, 'data/edgar.json', str(self._cik))
     
     return [*financials, *new_financials]
 
@@ -193,7 +193,7 @@ class Company():
 
       if select:
         df = df[list(set(df.columns).intersection(_filter))]
-        
+
       df.rename(columns=taxonomy.rename_schema('gaap'), inplace=True)
 
       df = combine_duplicate_columns(df)

@@ -3,7 +3,7 @@ from typing import Optional
 from ordered_set import OrderedSet
 
 from dash import (
-  callback, dcc, html, no_update, register_page, Output, Input
+  callback, dcc, html, no_update, register_page, Output, Input, State
 )
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Sign
@@ -11,7 +11,7 @@ import pandas as pd
 
 from components.sparklines import make_sparkline
 from lib.edgar.company import Company
-from lib.fin.utils import Taxonomy, calculate_items, load_template
+from lib.fin.utils import Taxonomy, calculate_items, load_template, merge_labels
 from lib.ticker.fetch import stock_label, find_cik
 #from lib.utils import load_json
 
@@ -72,13 +72,11 @@ def layout(id: Optional[str] = None):
 
   financials = template = {}
   if cik:
-    template = load_template()
+    template = load_template('table')
     taxonomy = Taxonomy(set(template['item']))
-    template = template.merge(taxonomy.labels(), on='item', how='left')
-    mask = template['short'] == ''
-    template.loc[mask, 'short'] = template.loc[mask, 'long']
+    template = merge_labels(template, taxonomy)
 
-    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
+    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy, True))
     schema = taxonomy.calculation_schema(set(template['item']))
     financials = calculate_items(financials, schema)
 
@@ -113,9 +111,9 @@ def layout(id: Optional[str] = None):
 @callback(
   Output('stock-div:table-wrap', 'children'),
   Input('stock-store:financials', 'data'),
-  Input('stock-store:template', 'data'),
   Input('stock-radio:sheet', 'value'),
-  Input('stock-radio:scope', 'value')
+  Input('stock-radio:scope', 'value'),
+  State('stock-store:template', 'data'),
 )
 def update_table(fin: list[dict], tmpl: list[dict], sheet: str, scope: str):
   if not fin or not tmpl:

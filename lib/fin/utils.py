@@ -3,6 +3,8 @@ import json
 
 import pandas as pd
 
+from lib.db.tiny import read_tinydb
+
 class Template(TypedDict):
   income: dict[str, int]
   balance: dict[str, int]
@@ -85,16 +87,31 @@ class Taxonomy:
     }
     return schema
 
-def load_template() -> pd.DataFrame:
-  with open('lex/fin_template.json') as file:
-    template: Template = json.load(file)
+def load_template(cat: str) -> pd.DataFrame:
+  template = read_tinydb('lex/fin_template.json', tbl=cat)
 
-  items = [
-    (sheet, item, level) for sheet, values in template.items() 
-    for item, level in values.items()
-  ]
+  if cat == 'sheet':
+    data = [
+      (sheet, item, level) for sheet, values in template.items() 
+      for item, level in values.items()
+    ]
+    cols = ['sheet', 'item', 'level']
 
-  return pd.DataFrame(items, columns=['sheet', 'item', 'level'])
+  elif cat == 'sankey':
+    data = [
+      (sheet, item, entry['color'], entry.get('links',{})) 
+      for sheet, values in template.items() 
+      for item, entry in values.items()
+    ]
+    cols = ['sheet', 'item', 'color', 'links']
+
+  return pd.DataFrame(data, columns=cols)
+
+def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
+  template = template.merge(taxonomy.labels(), on='item', how='left')
+  mask = template['short'] == ''
+  template.loc[mask, 'short'] = template.loc[mask, 'long']
+  return template
 
 def calculate_items(
   financials: pd.DataFrame, 

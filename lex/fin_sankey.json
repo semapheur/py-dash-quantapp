@@ -8,6 +8,16 @@
       }
     },
     "rv_cs": {
+      "color": "rgba(255,0,0,1)",
+      "links": {
+        "rv_cs.pd": "rgba(255,0,0,0.5)",
+        "rv_cs.sv": "rgba(255,0,0,0.5)"
+      }
+    },
+    "rv_cs.pd": {
+      "color": "rgba(255,0,0,1)"
+    },
+    "rv_cs.sv": {
       "color": "rgba(255,0,0,1)"
     },
     "gs_pf": {

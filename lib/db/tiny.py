@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from glom import glom
 from tinydb import TinyDB
 
@@ -11,10 +13,9 @@ def tinydb_name(db_name):
 
 def insert_tinydb(
   data: list|dict,
-  db_name: str,
+  db_path: str|Path,
   tbl: str=''
 ):
-  db_path = DB_DIR / tinydb_name(db_name)
   db = TinyDB(db_path)
 
   if tbl:
@@ -26,11 +27,11 @@ def insert_tinydb(
     db.insert(data)
 
 def read_tinydb(
-  db_name: str, 
+  db_path: str|Path, 
   query=None, 
-  tbl: str=''
+  tbl: str = ''
 ) -> list|dict :
-  db_path = DB_DIR / tinydb_name(db_name)
+  
   db = TinyDB(db_path)
 
   if tbl:
