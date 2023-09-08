@@ -28,7 +28,7 @@ def stock_label(id: str) -> str:
   ''').bindparams(id=id)
 
   with ENGINE.begin() as con:
-    fetch = con.execute(text(query))
+    fetch = con.execute(query)
   
   return fetch.first()[0]
 
@@ -57,16 +57,16 @@ def find_cik(id: str) -> Optional[int]:
   if not check_table({'stock', 'edgar'}, ENGINE):
     return None
 
-  query = f'''
+  query = text('''
     SELECT  
       edgar.cik AS cik FROM stock, edgar
     WHERE 
-      stock.id = "{id}" AND 
+      stock.id = :id AND 
       REPLACE(edgar.ticker, "-", "") = REPLACE(stock.ticker, ".", "")
-  '''
+  ''').bindparams(id=id)
 
   with ENGINE.begin() as con:
-    cursor = con.execute(text(query))
+    cursor = con.execute(query)
     fetch = cursor.first()
 
   if fetch:

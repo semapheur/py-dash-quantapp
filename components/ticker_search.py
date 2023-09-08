@@ -1,12 +1,10 @@
-from inspect import cleandoc
-
 from dash import callback, dcc, html, no_update, Input, Output
 
 from lib.ticker.fetch import search_tickers
 
-input_style = cleandoc(
+input_style = (
   'peer min-w-[20vw] h-full p-1 bg-primary text-text '
-  'rounded border border-text/10  hover:border-text/50 focus:border-secondary '
+  'rounded border border-text/10 hover:border-text/50 focus:border-secondary '
   'placeholder-transparent'
 )
 
@@ -24,21 +22,25 @@ nav_style = (
 def TickerSearch():
   return html.Div(className='relative h-full', children=[
     dcc.Input(
-      id='ticker-search', 
+      id='input:ticker-search', 
       className=input_style, 
       placeholder='Ticker', 
       type='text'
     ),
-    html.Label(htmlFor='ticker-search', className=label_style, children=['Ticker']),
+    html.Label(
+      htmlFor='input:ticker-search', 
+      className=label_style, 
+      children=['Ticker']
+    ),
     html.Nav(
-      id='ticker-search-result',
+      id='nav:ticker-search',
       className=nav_style
     )
   ])
 
 @callback(
-  Output('ticker-search-result', 'children'),
-  Input('ticker-search', 'value'),
+  Output('nav:ticker-search', 'children'),
+  Input('input:ticker-search', 'value'),
 )
 def ticker_results(search: str) -> list[dict[str, str]]:
   if search is None or len(search) < 2:

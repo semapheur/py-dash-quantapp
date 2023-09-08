@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import Literal, Optional, TypedDict
 import json
 
 import pandas as pd
@@ -87,10 +87,13 @@ class Taxonomy:
     }
     return schema
 
-def load_template(cat: str) -> pd.DataFrame:
-  template = read_tinydb('lex/fin_template.json', tbl=cat)
+def load_template(cat: Literal['table', 'sankey']) -> pd.DataFrame:
+  with open('lex/fin_template.json', 'r') as file:
+    template = json.load(file)
 
-  if cat == 'sheet':
+  template = template[cat]
+
+  if cat == 'table':
     data = [
       (sheet, item, level) for sheet, values in template.items() 
       for item, level in values.items()

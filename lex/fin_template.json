@@ -163,15 +163,15 @@
       "rv": {
         "color": "rgba(0,0,255,1)",
         "links": {
-          "gs_pf": "rgba(0,255,0,0.5)",
-          "rv_cs": "rgba(255,0,0,0.5)"
+          "gs_pf": "rgba(0,255,0,0.3)",
+          "rv_cs": "rgba(255,0,0,0.3)"
         }
       },
       "rv_cs": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "rv_cs.pd": "rgba(255,0,0,0.5)",
-          "rv_cs.sv": "rgba(255,0,0,0.5)"
+          "rv_cs.pd": "rgba(255,0,0,0.3)",
+          "rv_cs.sv": "rgba(255,0,0,0.3)"
         }
       },
       "rv_cs.pd": {
@@ -184,7 +184,7 @@
         "color": "rgba(0,255,0,1)",
         "links": {
           "op_i/l": "",
-          "op_ep": "rgba(255,0,0,0.5"
+          "op_ep": "rgba(255,0,0,0.3)"
         }
       },
       "op_i/l": {
@@ -197,11 +197,11 @@
         "color": "rgba(255,0,0,1)",
         "links": {
           "op_ep.SGA": "rgba(255,0,0,1)",
-          "op_ep.RD": "rbga(255,0,0,1)"
+          "op_ep.RD": "rgba(255,0,0,1)"
         }
       },
       "n-op_i/e": {
-        "color": "rbga(0,255,0,1)",
+        "color": "rgba(0,255,0,1)",
         "links": {
           "i/l.b-tx": "rgba(0,255,0,1)"
         }

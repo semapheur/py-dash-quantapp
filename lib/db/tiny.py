@@ -3,8 +3,6 @@ from pathlib import Path
 from glom import glom
 from tinydb import TinyDB
 
-from lib.const import DB_DIR
-
 def tinydb_name(db_name):
   if not db_name.endswith('.json'):
     return db_name + '.json'
