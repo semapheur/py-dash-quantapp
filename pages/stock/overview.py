@@ -1,6 +1,6 @@
 import asyncio
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 from dash import callback, dcc,html, no_update, register_page, Output, Input, State
 import numpy as np
@@ -21,7 +21,7 @@ radio_input_style = (
 radio_label_style = 'relative px-1'
 
 def sankey_color(sign: int, opacity: float = 1) -> str:
-  return f'rgba(0,255,0,{opacity})' if sign == -1 else f'rgba(255,0,0,{opacity})'
+  return f'rgba(255,0,0,{opacity})' if sign == -1 else f'rgba(0,255,0,{opacity})'
 
 def layout(id: Optional[str] = None):
 
@@ -84,6 +84,22 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
 
   if not date:
     return no_update
+  
+  def parse_links(links: dict, flow: Literal['in', 'out']):
+
+    for key in links[flow].keys():
+      if key not in fin.index:
+        continue
+
+      sources.append(Nodes[key].value)
+      targets.append(Nodes[item].value)
+      values.append(fin.loc[key])
+
+      color = links['in'][key]
+      if not color:
+        color = sankey_color(np.sign(fin.loc[key]), 0.3)
+
+      link_colors.append(color)
 
   tmpl = pd.DataFrame.from_records(tmpl)
   tmpl = tmpl.loc[tmpl['sheet'] == sheet]
@@ -101,29 +117,37 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
   link_colors = []
   node_colors = []
 
-  for item in fin.index:
-    
-    color = tmpl.at[(tmpl['item'] == item).idxmax(), 'color']
-    if not color:
+  for item in fin.index:    
+    row = (tmpl['item'] == item).idxmax()
+
+    if not (color := tmpl.at[row, 'color']):
       color = sankey_color(np.sign(fin.loc[item]))
 
     node_colors.append(color)
 
-    links: dict = tmpl.at[(tmpl['item'] == item).idxmax(), 'links']
-    if links:
-      for key in links.keys():
-        if key not in fin.index:
-          continue
+    links: dict = tmpl.at[row, 'links']
+    if not links:
+      continue
 
-        sources.append(Nodes[item].value)
-        targets.append(Nodes[key].value)
-        values.append(fin.loc[key])
+    for key, value in links.items():
+      if key not in fin.index:
+        continue
+      
+      if value.get('direction') == 'in':
+        source = Nodes[key].value
+        target = Nodes[item].value
+      else:
+        source = Nodes[item].value
+        target = Nodes[key].value
+      
+      sources.append(source)
+      targets.append(target)
+      values.append(fin.loc[key])
 
-        color = links[key]
-        if not color:
-          color = sankey_color(np.sign(fin.loc[key]), 0.3)
+      if not (color := value.get('color')):
+        color = sankey_color(np.sign(fin.loc[key]), 0.3)
 
-        link_colors.append(color)
+      link_colors.append(color)
 
   fig = go.Figure(data=[go.Sankey(
     node = dict(
