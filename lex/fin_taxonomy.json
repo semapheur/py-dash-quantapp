@@ -1935,7 +1935,7 @@
   },
   "rv_cs.pd": {
     "gaap": [
-      "CostOfGoodsAndServicesSold.Product"
+      "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Product"
     ],
     "label": {
       "long": "Product Revenue Cost"
@@ -1943,7 +1943,7 @@
   },
   "rv_cs.sv": {
     "gaap": [
-      "CostOfGoodsAndServicesSold.Service"
+      "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Service"
     ],
     "label": {
       "long": "Service Revenue Cost"
