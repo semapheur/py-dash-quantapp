@@ -102,7 +102,7 @@ def load_template(cat: Literal['table', 'sankey']) -> pd.DataFrame:
 
   elif cat == 'sankey':
     data = [
-      (sheet, item, entry['color'], entry.get('links',{})) 
+      (sheet, item, entry.get('color', ''), entry.get('links',{})) 
       for sheet, values in template.items() 
       for item, entry in values.items()
     ]
@@ -129,28 +129,27 @@ def calculate_items(
   ) -> pd.DataFrame:
 
     key, value = schema.popitem()
-    temp = value * df[key]
+    temp = value * df[key].fillna(0)
 
     for key, value in schema.items():
-      temp += value * df[key]
+      temp += value * df[key].fillna(0)
 
     new_columns = pd.DataFrame({item: temp})
     df = pd.concat([df, new_columns], axis=1)
 
     return df
 
-  col_set = set(financials.columns)
-
   if not recalc:
-    keys = set(schemas.keys()).difference(col_set)
+    keys = set(schemas.keys()).difference(set(financials.columns))
     schemas = {
       key: schemas[key] for key in keys
     }
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
   
-
   for key, value in schemas.items():
+    col_set = set(financials.columns)
+
     if isinstance(value.get('all'), dict):
       items = set(value.get('all').keys())
       if items.issubset(col_set):

@@ -1826,6 +1826,16 @@
       "long": "Operating Income (Loss)"
     }
   },
+  "op_i/l.sankey": {
+    "calculation": {
+      "order": 2,
+      "all": {
+        "op_i/l": 1,
+        "n-op_ep": -1
+      }
+    },
+    "label": {}
+  },
   "rv": {
     "gaap": [
       "Revenues",

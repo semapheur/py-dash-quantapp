@@ -47,7 +47,7 @@ def layout(id: Optional[str] = None):
     return html.Main(className='flex flex-col h-full', children=[
       html.Div(id='div:stock:sankey', children=[
         html.Div(className='flex justify-around', children=[
-          dcc.Dropdown(id='dd:stock:date'),
+          dcc.Dropdown(id='dd:stock:date', className='w-36'),
           dcc.RadioItems(id='radio:stock:sheet', className=radio_wrap_style,
           inputClassName=radio_input_style,
           labelClassName=radio_label_style,
@@ -85,31 +85,16 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
   if not date:
     return no_update
   
-  def parse_links(links: dict, flow: Literal['in', 'out']):
-
-    for key in links[flow].keys():
-      if key not in fin.index:
-        continue
-
-      sources.append(Nodes[key].value)
-      targets.append(Nodes[item].value)
-      values.append(fin.loc[key])
-
-      color = links['in'][key]
-      if not color:
-        color = sankey_color(np.sign(fin.loc[key]), 0.3)
-
-      link_colors.append(color)
-
-  tmpl = pd.DataFrame.from_records(tmpl)
-  tmpl = tmpl.loc[tmpl['sheet'] == sheet]
-
   fin = (pd.DataFrame.from_records(fin)
     .set_index(['date', 'period'])
     .xs((date, scope))
   )
 
-  Nodes = Enum('Node', fin.index.tolist(), start=0)
+  tmpl = pd.DataFrame.from_records(tmpl)
+  tmpl = tmpl.loc[tmpl['sheet'] == sheet]
+  tmpl = tmpl.loc[tmpl['item'].isin(fin.index)]
+
+  Nodes = Enum('Node', tmpl['item'].tolist(), start=0)
 
   sources = []
   targets = []
@@ -117,20 +102,19 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
   link_colors = []
   node_colors = []
 
-  for item in fin.index:    
-    row = (tmpl['item'] == item).idxmax()
+  for item, node_color, links in zip(tmpl['item'], tmpl['color'], tmpl['links']):    
 
-    if not (color := tmpl.at[row, 'color']):
-      color = sankey_color(np.sign(fin.loc[item]))
+    if not node_color:
+      node_color = sankey_color(np.sign(fin.loc[item]))
 
-    node_colors.append(color)
+    node_colors.append(node_color)
 
-    links: dict = tmpl.at[row, 'links']
     if not links:
       continue
 
     for key, value in links.items():
-      if key not in fin.index:
+
+      if key not in set(tmpl['item']):
         continue
       
       if value.get('direction') == 'in':
@@ -142,10 +126,12 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
       
       sources.append(source)
       targets.append(target)
-      values.append(fin.loc[key])
+
+      link_value = fin.loc[value.get('value', key)]
+      values.append(link_value)
 
       if not (color := value.get('color')):
-        color = sankey_color(np.sign(fin.loc[key]), 0.3)
+        color = sankey_color(np.sign(link_value), 0.3)
 
       link_colors.append(color)
 
@@ -154,7 +140,7 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
       pad = 15,
       thickness = 20,
       line = dict(color = 'black', width = 0.5),
-      label = [member.name for member in Nodes],
+      label = tmpl['short'].tolist(),
       color = node_colors
     ),
     link = dict(

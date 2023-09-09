@@ -159,6 +159,9 @@
     }
   },
   "sankey": {
+    "calculation": {
+      "op_i/l.sankey": {}
+    },
     "income": {
       "rv": {
         "color": "rgba(0,0,255,1)",
@@ -219,7 +222,13 @@
         }
       },
       "op_i/l": {
-        "color": ""
+        "color": "",
+        "links": {
+          "n-op_ep": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
       },
       "op_ep": {
         "color": "rgba(255,0,0,1)",
@@ -232,6 +241,10 @@
             "direction": "out", 
             "color": "rgba(255,0,0,0.3)"
           }
+        },
+        "op_ep.DDAA": {
+          "direction": "out", 
+          "color": "rgba(255,0,0,0.3)"
         }
       },
       "op_ep.SGA": {
@@ -240,35 +253,51 @@
       "op_ep.RD": {
         "color": "rgba(255,0,0,1)"
       },
-      "n-op_i/e": {
-        "color": "rgba(0,255,0,1)",
+      "op_ep.DDAA": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "n-op_ep": {
+        "color": "rgba(255,0,0,1)",
         "links": {
           "n-op_ep.it": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.5)"
+            "direction": "out",
+            "color": "rgba(255,0,0,1)"
           },
-          "n-op_i/e": {
-            "direction": "in",
-            "color": ""
+          "n-op_ep.imp": {
+            "direction": "out",
+            "color": "rgba(255,0,0,1)"
           }
         }
       },
       "n-op_ep.it": {
         "color": "rgba(255,0,0,1)"
       },
-      "n-op_i/e.ot": {
-        "color": ""
+      "n-op_ep.imp": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "n-op_in": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "n-op_in.iv": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "n-op_in.iv": {
+        "color": "rgba(0,255,0,1)"
       },
       "i/l.b-tx": {
         "color": "",
         "links": {
           "op_i/l": {
             "direction": "in",
-            "color": ""
+            "color": "rgba(0,255,0,0.3)",
+            "value": "op_i/l.sankey"
           },
-          "n-op_i/e": {
+          "n-op_in": {
             "direction": "in",
-            "color": ""
+            "color": "rgba(0,255,0,0.3)"
           },
           "i/l": {
             "direction": "out",
@@ -277,6 +306,10 @@
           "tx": {
             "direction": "out",
             "color": ""
+          },
+          "i/l.mn_it": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
           }
         }
       },
@@ -284,6 +317,9 @@
         "color": ""
       },
       "tx": {
+        "color": ""
+      },
+      "i/l.mn_it": {
         "color": ""
       }
     },
