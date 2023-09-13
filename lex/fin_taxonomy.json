@@ -318,6 +318,16 @@
     "label": {
       "long": "Total Non-current Assets",
       "short": "Non-current Assets"
+    },
+    "calculation": {
+      "order": 2,
+      "any": {
+        "a-n.PPE": 1,
+        "a-n.itg": 1,
+        "a-n.gw": 1,
+        "a-n.sc": 1,
+        "a-n.ot": 1
+      }
     }
   },
   "a-n.PPE": {
@@ -1194,6 +1204,15 @@
     ],
     "label": {
       "long": "Current Accrued Liabilities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": {
+        "l-c.acr_ep.tx": 1,
+        "l-c.acr_ep.mk": 1,
+        "l-c.acr_ep.em_bf": 1,
+        "l-c.acr_ep.ot": 1
+      }
     }
   },
   "l-c.acr_ep.em_bf": {

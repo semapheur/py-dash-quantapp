@@ -135,20 +135,23 @@ def calculate_items(
       temp += value * df[key].fillna(0)
 
     if item in df.columns:
-      df.loc[:,item] = temp
+      df.loc[:,item] = temp if recalc else df[item].combine_first(temp)
+
     else:
-      new_columns = pd.DataFrame({item: temp})
-      df = pd.concat([df, new_columns], axis=1)
+      new_column = pd.DataFrame({item: temp})
+      df = pd.concat([df, new_column], axis=1)
 
     return df
 
-  if not recalc:
-    keys = set(schemas.keys()).difference(set(financials.columns))
-    schemas = {
-      key: schemas[key] for key in keys
-    }
+  #if not recalc:
+  #  keys = set(schemas.keys()).difference(set(financials.columns))
+  #  schemas = {
+  #    key: schemas[key] for key in keys
+  #  }
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
+
+  print(financials['a-n'])
   
   for key, value in schemas.items():
     col_set = set(financials.columns)
@@ -164,5 +167,7 @@ def calculate_items(
       }
       if schema:
         financials = apply_calculation(financials, key, schema)
+
+  print(financials['a-n'])
 
   return financials

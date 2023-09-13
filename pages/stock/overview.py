@@ -139,7 +139,7 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
   fig = go.Figure(data=[go.Sankey(
     node = dict(
       pad = 15,
-      thickness = 20,
+      thickness = 10,
       line = dict(color = 'black', width = 0.5),
       label = tmpl['short'].tolist(),
       color = node_colors

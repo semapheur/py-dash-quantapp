@@ -411,7 +411,7 @@
         }
       },
       "a-c.rc": {
-        "color": "rgba(0,255,0,0.3)"
+        "color": "rgba(0,255,0,1)"
       },
       "a-c.ivt": {
         "color": "rgba(0,255,0,1)",
@@ -518,6 +518,43 @@
         }
       },
       "l-c": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "l-c.pb": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-c.acr_ep": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-c.db": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-c.d-rv": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-c.ot": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "l-c.pb": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-c.acr_ep": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-c.db": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-c.d-rv": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-c.ot": {
         "color": "rgba(255,0,0,1)"
       },
       "l-n": {
