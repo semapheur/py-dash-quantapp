@@ -1,5 +1,5 @@
 FROM python:3.11
-FROM node:19
+FROM node:20
 
 #ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
