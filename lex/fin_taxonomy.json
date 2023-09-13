@@ -434,8 +434,8 @@
       "FiniteLivedIntangibleAssetsNet"
     ],
     "label": {
-      "long": "Net Finite Lived Intangible Assets",
-      "short": "Finite Lived Intangible Assets"
+      "long": "Net Finite-lived Intangible Assets",
+      "short": "Finite-lived"
     }
   },
   "a-n.itg.fl.acm_am": {
@@ -443,7 +443,8 @@
       "FiniteLivedIntangibleAssetsAccumulatedAmortization"
     ],
     "label": {
-      "long": "Finite Lived Intangible Assets Accumulated Amortization"
+      "long": "Accumulated Amortization of Finite-ived Intangible Assets",
+      "short": "Accumulated Amortization"
     }
   },
   "a-n.itg.fl.gs": {
@@ -451,7 +452,7 @@
       "FiniteLivedIntangibleAssetsGross"
     ],
     "label": {
-      "long": "Gross Finite Lived Intangible Assets"
+      "long": "Gross Finite-lived Intangible Assets"
     }
   },
   "a-n.itg.gs": {
@@ -483,8 +484,8 @@
       "IndefiniteLivedIntangibleAssetsExcludingGoodwill"
     ],
     "label": {
-      "long": "Net Indefinite Lived Intangible Assets Excluding Goodwill",
-      "short": "Indefinite Lived Intangible Assets"
+      "long": "Net Indefinite-lived Intangible Assets Excluding Goodwill",
+      "short": "Indefinite-lived"
     }
   },
   "a-n.itg.il.acm_am": {
@@ -492,7 +493,8 @@
       "IndefiniteLivedIntangibleAssetsAccumulatedAmortization"
     ],
     "label": {
-      "long": "Indefinite Lived Intangible Assets Accumulated Amortization"
+      "long": "Accumulated Amortization of Indefinite Lived Intangible Assets",
+      "short": "Accumulated Amortization"
     }
   },
   "a-n.itg.il.gs": {
@@ -500,7 +502,7 @@
       "IndefiniteLivedIntangibleAssetsGross"
     ],
     "label": {
-      "long": "Gross Indefinite Lived Intangible Assets"
+      "long": "Gross Indefinite-lived Intangible Assets"
     }
   },
   "a-n.ot": {
