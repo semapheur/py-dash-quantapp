@@ -324,7 +324,208 @@
       }
     },
     "balance": {
-  
+      "as": {
+        "color": "rgba(0,0,255,1)",
+        "links": {
+          "a-c": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-n": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "lb": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "eq": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-c": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "a-c.lq": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.RCRCE": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.rc": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.ivt": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.d-tx": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.pp_ep": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.ot": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-c.lq": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "a-c.CCE": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.sc": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-c.CCE": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.sc": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.RCRCE": {
+        "color": "rgba(0,255,0,0.3)",
+        "links": {
+          "a-c.RC": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.RCE": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-c.rc": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "a-c.ivt": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "a-c.ivt.FG": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.ivt.PC": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.ivt.WIPRM": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-c.ivt.FG": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "a-c.ivt.PC": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "a-c.ivt.WIPRM": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "a-c.d-tx": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.pp_ep": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.ot": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-n": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "a-n.PPE": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-n.itg": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-n.gw": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-n.sc": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-n.ot": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-n.PPE": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-n.itg": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "a-n.itg.fl": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-n.itg.il": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-n.itg.fl": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-n.itg.il": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-n.gw": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-n.sc": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-n.ot": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "lb": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "l-c": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-n": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "l-c": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-n": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "eq": {
+        "color": "rgba(0,255,0,1)"
+      }
     },
     "cashflow": {
   

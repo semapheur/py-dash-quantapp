@@ -134,8 +134,11 @@ def calculate_items(
     for key, value in schema.items():
       temp += value * df[key].fillna(0)
 
-    new_columns = pd.DataFrame({item: temp})
-    df = pd.concat([df, new_columns], axis=1)
+    if item in df.columns:
+      df.loc[:,item] = temp
+    else:
+      new_columns = pd.DataFrame({item: temp})
+      df = pd.concat([df, new_columns], axis=1)
 
     return df
 
