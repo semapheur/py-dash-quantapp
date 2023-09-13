@@ -1,7 +1,6 @@
 import asyncio
 from enum import Enum
-import json
-from typing import Literal, Optional
+from typing import Optional
 
 from dash import callback, dcc,html, no_update, register_page, Output, Input, State
 import numpy as np
@@ -23,6 +22,15 @@ radio_label_style = 'relative px-1'
 
 def sankey_color(sign: int, opacity: float = 1) -> str:
   return f'rgba(255,0,0,{opacity})' if sign == -1 else f'rgba(0,255,0,{opacity})'
+
+def sankey_direction(sign: int) -> str:
+  match sign:
+    case -1:
+      return 'in'
+    case 1:
+      return 'out'
+    case _:
+      raise Exception('Invalid sign')
 
 def layout(id: Optional[str] = None):
 
@@ -118,7 +126,13 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
       if key not in set(tmpl['item']):
         continue
       
-      if value.get('direction') == 'in':
+      link_value = fin.loc[value.get('value', key)]
+      values.append(link_value)
+
+      if not (direction := value.get('direction')):
+        direction = sankey_direction(np.sign(link_value))
+
+      if direction == 'in':
         source = Nodes[key].value
         target = Nodes[item].value
       else:
@@ -127,9 +141,6 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
       
       sources.append(source)
       targets.append(target)
-
-      link_value = fin.loc[value.get('value', key)]
-      values.append(link_value)
 
       if not (color := value.get('color')):
         color = sankey_color(np.sign(link_value), 0.3)

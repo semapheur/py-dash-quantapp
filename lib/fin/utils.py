@@ -151,8 +151,6 @@ def calculate_items(
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
 
-  print(financials['a-n'])
-  
   for key, value in schemas.items():
     col_set = set(financials.columns)
 
@@ -167,7 +165,5 @@ def calculate_items(
       }
       if schema:
         financials = apply_calculation(financials, key, schema)
-
-  print(financials['a-n'])
 
   return financials

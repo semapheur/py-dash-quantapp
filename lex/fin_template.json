@@ -48,7 +48,6 @@
       "a-c.CCE.CE": 3,
       "a-c.sc": 2,
       "a-c.sc.db": 3,
-      "a-c.sc.db.CP": 4,
       "a-c.sc.db.t-bl": 4,
       "a-c.sc.eq": 3,
       "a-c.RCRCE": 1,
@@ -91,6 +90,7 @@
       "l-c.acr_ep.em_bf": 2,
       "l-c.acr_ep.ot": 2,
       "l-c.db": 1,
+      "l-c.db.CP": 1,
       "l-c.db.LT": 2,
       "l-c.db.ot": 2,
       "l-c.d-tx": 1,
@@ -411,6 +411,36 @@
         }
       },
       "a-c.rc": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "a-c.rc.td": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.rc.n-td": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.rc.ns": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "a-c.rc.ot": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "a-c.rc.td": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.rc.n-td": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.rc.ns": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "a-c.rc.ot": {
         "color": "rgba(0,255,0,1)"
       },
       "a-c.ivt": {
@@ -549,6 +579,29 @@
         "color": "rgba(255,0,0,1)"
       },
       "l-c.db": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "l-c.db.CP": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-c.db.LT": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-c.db.ot": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "l-c.db.CP": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-c.db.LT": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-c.db.ot": {
         "color": "rgba(255,0,0,1)"
       },
       "l-c.d-rv": {
@@ -558,10 +611,78 @@
         "color": "rgba(255,0,0,1)"
       },
       "l-n": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "l-n.acr_ep": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-n.d-rv": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-n.d-tx": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-n.db-LT": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "l-n.ot": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "l-n.acr_ep": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-n.d-rv": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-n.d-tx": {
+        "direction": "out",
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-n.db-LT": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "l-n.ot": {
         "color": "rgba(255,0,0,1)"
       },
       "eq": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "eq.cm_st_APIC": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "eq.mn_it": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "eq.rtn_ea/acm_dfc": {
+            "direction": "",
+            "color": ""
+          },
+          "eq.acm_OCI": {
+            "direction": "",
+            "color": ""
+          }
+        }
+      },
+      "eq.cm_st_APIC": {
         "color": "rgba(0,255,0,1)"
+      },
+      "eq.mn_it": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "eq.rtn_ea/acm_dfc": {
+        "color": ""
+      },
+      "eq.acm_OCI": {
+        "color": ""
       }
     },
     "cashflow": {

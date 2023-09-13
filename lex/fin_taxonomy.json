@@ -208,21 +208,28 @@
       "long": "Current Prepaid Expense"
     }
   },
+  "a-c.rc.td": {
+    "gaap": [
+      "AccountsReceivableNetCurrent"
+    ],
+    "label": {
+      "long": "Accounts Receivable Net",
+      "short": "Trade Receivables"
+    }
+  },
   "a-c.rc": {
     "calculation": {
       "order": 0,
       "any": {
-        "a-c.rc.al_dbf": -1,
+        "a-c.rc.td": 1,
         "a-c.rc.n-td": 1,
         "a-c.rc.ns": 1,
         "a-c.rc.ot": 1
       }
     },
-    "gaap": [
-      "AccountsReceivableNetCurrent"
-    ],
     "label": {
-      "long": "Accounts Receivable Net"
+      "long": "Current Receivables",
+      "short": "Receivables"
     }
   },
   "a-c.rc.al_dbf": {
@@ -282,14 +289,6 @@
     "label": {
       "long": "Marketable Debt Securities",
       "short": "Debt Securities"
-    }
-  },
-  "a-c.sc.db.CP": {
-    "gaap": [
-      "CommercialPaper"
-    ],
-    "label": {
-      "long": "Commercial Paper"
     }
   },
   "a-c.sc.db.t-bl": {
@@ -419,8 +418,8 @@
       "IntangibleAssetsNetExcludingGoodwill"
     ],
     "label": {
-      "long": "Net Intangible Assets Net Excluding Goodwill",
-      "short": "Net Intangible Assets Net Excluding Goodwill"
+      "long": "Net Intangible Assets Excluding Goodwill",
+      "short": "Intangible Assets"
     }
   },
   "a-n.itg.fl": {
@@ -435,7 +434,8 @@
       "FiniteLivedIntangibleAssetsNet"
     ],
     "label": {
-      "long": "Net Finite Lived Intangible Assets"
+      "long": "Net Finite Lived Intangible Assets",
+      "short": "Finite Lived Intangible Assets"
     }
   },
   "a-n.itg.fl.acm_am": {
@@ -484,7 +484,7 @@
     ],
     "label": {
       "long": "Net Indefinite Lived Intangible Assets Excluding Goodwill",
-      "short": "Net Indefinite Lived Intangible Assets"
+      "short": "Indefinite Lived Intangible Assets"
     }
   },
   "a-n.itg.il.acm_am": {
@@ -513,6 +513,7 @@
   },
   "a-n.sc": {
     "gaap": [
+      "AvailableForSaleSecuritiesNoncurrent",
       "MarketableSecuritiesNoncurrent",
       "LongTermInvestments"
     ],
@@ -1069,8 +1070,15 @@
       "CommonStockNoParValue"
     ],
     "label": {
-      "long": "Common Stock Value",
-      "short": ""
+      "long": "Common Stock Value"
+    }
+  },
+  "eq.APIC": {
+    "gaap": [
+      "AdditionalPaidInCapital"
+    ],
+    "label": {
+      "long": "Additional Paid In Capital"
     }
   },
   "eq.cm_st_APIC": {
@@ -1078,8 +1086,14 @@
       "CommonStocksIncludingAdditionalPaidInCapital"
     ],
     "label": {
-      "long": "Common Stocks and Additional Paid In Capital",
-      "short": ""
+      "long": "Common Stocks and Additional Paid In Capital"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "eq.cm_st": 1,
+        "eq.APIC": 1
+      }
     }
   },
   "eq.mn_it": {
@@ -1262,6 +1276,7 @@
     "calculation": {
       "order": 0,
       "any": {
+        "l-c.db.CP": 1,
         "l-c.db.LT": 1,
         "l-c.db.ot": 1
       }
@@ -1269,6 +1284,14 @@
     "gaap": [],
     "label": {
       "long": "Current Debt"
+    }
+  },
+  "l-c.db.CP": {
+    "gaap": [
+      "CommercialPaper"
+    ],
+    "label": {
+      "long": "Commercial Paper"
     }
   },
   "l-c.db.LT": {
