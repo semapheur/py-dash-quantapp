@@ -1,9 +1,8 @@
 from typing import Literal, Optional, TypedDict
 import json
 
+import numpy as np
 import pandas as pd
-
-from lib.db.tiny import read_tinydb
 
 class Template(TypedDict):
   income: dict[str, int]
@@ -62,7 +61,6 @@ class Taxonomy:
       (key, value['label'].get('long', ''), value['label'].get('short', '')) 
       for key, value in self._data.items()
     ]
-
     return pd.DataFrame(df_data, columns=['item', 'long', 'short'])
     
   def calculation_schema(
@@ -77,7 +75,6 @@ class Taxonomy:
     schema = {
       key: calc for key in keys if (calc := self._data[key].get('calculation'))
     }
-   
     return schema
 
   def extra_calculation_schema(self, source: str) -> dict[str, TaxononmyCalculation]:
@@ -124,21 +121,38 @@ def calculate_items(
   
   def apply_calculation(
     df: pd.DataFrame,
-    item: str,
+    calculee: str,
     schema: dict[str, int]
   ) -> pd.DataFrame:
+    
+    def parameter(calculer: str, instruction: int|dict) -> pd.Series:
+      result = df[calculer].fillna(0)
+
+      if isinstance(instruction, int):
+        result *= instruction
+      elif isinstance(instruction, dict):
+        if 'sign' in instruction:
+          result = result.where(result.apply(np.sign) == instruction['sign'], 0)
+        
+        if (op := instruction.get('operation', '')):
+          if op == 'diff':
+            result = result.diff()
+
+        result *= instruction['weight'] 
+
+      return result
 
     key, value = schema.popitem()
-    temp = value * df[key].fillna(0)
+    temp = parameter(key, value)
 
     for key, value in schema.items():
-      temp += value * df[key].fillna(0)
+      temp += parameter(key, value)
 
-    if item in df.columns:
-      df.loc[:,item] = temp if recalc else df[item].combine_first(temp)
+    if calculee in df.columns:
+      df.loc[:,calculee] = temp if recalc else df[calculee].combine_first(temp)
 
     else:
-      new_column = pd.DataFrame({item: temp})
+      new_column = pd.DataFrame({calculee: temp})
       df = pd.concat([df, new_column], axis=1)
 
     return df

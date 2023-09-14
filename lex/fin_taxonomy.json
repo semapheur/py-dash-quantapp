@@ -1,4 +1,22 @@
 {
+  "CAPEX": {
+    "label": {
+      "long": "Capital Expenditure",
+      "short": "CAPEX"
+    },
+    "calculation": {
+      "all": {
+        "a-n.PPE": {
+          "operation": "diff",
+          "weight": 1
+        },
+        "a-n.PPE.acm_DDA": {
+          "operation": "diff",
+          "weight": 1
+        }
+      }
+    }
+  },
   "EPSB": {
     "gaap": [
       "EarningsPerShareBasic"
@@ -587,21 +605,22 @@
         "cf.fn.py_dv": -1,
         "cf.fn.cm_st": 1,
         "cf.fn.db": 1,
-        "cf.fn.py/pc_ot": 1
+        "cf.fn.ot": 1
       }
     }
   },
   "cf.fn.cm_st": {
     "calculation": {
       "order": 0,
-      "all": {
+      "any": {
         "cf.fn.cm_st.pc": 1,
         "cf.fn.cm_st.py": -1
       }
     },
     "gaap": [],
     "label": {
-      "long": "Change in Common Stock"
+      "long": "Net Cash from Issuance and Repurchase of Common Stock",
+      "short": "Change in Common Stock"
     }
   },
   "cf.fn.cm_st.pc": {
@@ -623,14 +642,15 @@
   "cf.fn.db": {
     "calculation": {
       "order": 0,
-      "all": {
+      "any": {
         "cf.fn.db.pc": 1,
         "cf.fn.db.ry": -1
       }
     },
     "gaap": [],
     "label": {
-      "long": "Change in Long-term Debt"
+      "long": "Net Cash from Issuance and Repayment of Long-term Debt",
+      "short": "Change in Long-term Debt"
     }
   },
   "cf.fn.db.pc": {
@@ -649,23 +669,115 @@
       "long": "Repayments of Long-term Debt"
     }
   },
-  "cf.fn.pc/ry_CP": {
+  "cf.fn.db-ST": {
     "gaap": [
-      "ProceedsFromRepaymentsOfCommercialPaper"
-    ],
-    "label": {
-      "long": "Proceeds from (Repayments of) Commercial Paper"
-    }
-  },
-  "cf.fn.pc/ry_db-ST": {
-    "gaap": [
+      "ProceedsFromRepaymentsOfCommercialPaper",
       "ProceedsFromRepaymentsOfShortTermDebt"
     ],
     "label": {
-      "long": "Proceeds from (Repayments of) Short-term Debt"
+      "long": "Net Cash from Issuance and Repayments of Commercial Paper",
+      "short": "Change in Short-term Debt"
+    },
+    "calculation": {
+      "order": 1,
+      "any": {
+        "cf.fn.db-ST.l-3m": 1,
+        "cf.fn.db-ST.g-3m": 1,
+        "cf.fn.db-ST.ot": 1
+      }
     }
   },
-  "cf.fn.py/pc_ot": {
+  "cf.fn.db-ST.l-3m": {
+    "gaap": [
+      "ProceedsFromRepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
+    ],
+    "label": {
+      "long": "Proceeds from (Repayments of) Short-term Debt Maturing In Three Months Or Less"
+    },
+    "calculation": {
+      "order": 0,
+      "any": {
+        "cf.fn.db-ST.l-3m.pc": 1,
+        "cf.fn.db-ST.l-3m.ry": -1
+      }
+    }
+  },
+  "cf.fn.db-ST.l-3m.pc": {
+    "gaap": [
+      "ProceedsFromShortTermDebtMaturingInThreeMonthsOrLess"
+    ],
+    "label": {
+      "long": "Proceeds from (Repayments of) Short-term Debt Maturing In Three Months Or Less"
+    }
+  },
+  "cf.fn.db-ST.l-3m.ry": {
+    "gaap": [
+      "RepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
+    ],
+    "label": {
+      "long": "Proceeds from (Repayments of) Short-term Debt Maturing In Three Months Or Less"
+    }
+  },
+  "cf.fn.db-ST.g-3m": {
+    "gaap": [
+      "ProceedsFromShortTermDebtMaturingInMoreThanThreeMonths"
+    ],
+    "label": {
+      "long": "Proceeds from (Repayments of) Short-term Debt Maturing In More Than Three Months"
+    },
+    "calculation": {
+      "order": 0,
+      "any": {
+        "cf.fn.db-ST.g-3m.pc": 1,
+        "cf.fn.db-ST.g-3m.ry": -1
+      }
+    }
+  },
+  "cf.fn.db-ST.g-3m.pc": {
+    "gaap": [
+      "ProceedsFromShortTermDebtMaturingInMoreThanThreeMonths"
+    ],
+    "label": {
+      "long": "Proceeds from Short-term Debt Maturing In Three Months Or Less"
+    }
+  },
+  "cf.fn.db-ST.g-3m.ry": {
+    "gaap": [
+      "RepaymentsOfShortTermDebtMaturingInMoreThanThreeMonths"
+    ],
+    "label": {
+      "long": "Repayments of Short-term Debt Maturing In Three Months Or Less"
+    }
+  },
+  "cf.fn.db-ST.ot": {
+    "label": {
+      "long": "Proceeds from (Repayments of) Other Short-term Debt"
+    },
+    "calculation": {
+      "order": 0,
+      "any": {
+        "cf.fn.db-ST.ot.pc": 1,
+        "cf.fn.db-ST.ot.ry": -1
+      }
+    }
+  },
+  "cf.fn.db-ST.ot.pc": {
+    "gaap": [
+      "ProceedsFromOtherShortTermDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Other Short-term Debt"
+    }
+  },
+  "cf.fn.db-ST.ot.ry": {
+    "gaap": [
+      "RepaymentsOfOtherShortTermDebt"
+    ],
+    "label": {
+      "long": "Repayments of Other Short-term Debt"
+    }
+  },
+  "cf.fn.ot": {
     "gaap": [
       "ProceedsFromPaymentsForOtherFinancingActivities"
     ],
@@ -700,17 +812,24 @@
     },
     "calculation": {
       "order": 2,
-      "all": {
-        "cf.iv.py_PPE": -1,
-        "cf.iv.py_itg": -1,
-        "cf.iv.pc_sc": 1,
-        "cf.iv.py_sc": -1,
-        "cf.iv.aq_ds": 1,
-        "cf.iv.py/pc_ot": 1
+      "any": {
+        "cf.iv.PPE": 1,
+        "cf.iv.itg": 1,
+        "cf.iv.sc": 1,
+        "cf.iv.bs": 1,
+        "cf.iv.ot": 1
       }
     }
   },
-  "cf.iv.ac_ds.py": {
+  "cf.iv.bs.pc": {
+    "gaap": [
+      "ProceedsFromDivestitureOfBusinessesAndInterestsInAffiliates"
+    ],
+    "label": {
+      "long": "Proceeds from Divestiture of Businesses"
+    }
+  },
+  "cf.iv.bs.py": {
     "gaap": [
       "PaymentsToAcquireBusinessesNetOfCashAcquired"
     ],
@@ -718,11 +837,12 @@
       "long": "Payments to Acquire Businesses"
     }
   },
-  "cf.iv.aq_ds": {
+  "cf.iv.bs": {
     "calculation": {
       "order": 0,
       "any": {
-        "cf.iv.aq_ds.py": -1
+        "cf.iv.bs.pc": 1,
+        "cf.iv.bs.py": -1
       }
     },
     "gaap": [],
@@ -730,7 +850,7 @@
       "long": "Net Cash from Acquisitions and Divestitures"
     }
   },
-  "cf.iv.pc_sc": {
+  "cf.iv.sc.pc": {
     "calculation": {
       "order": 0,
       "any": {
@@ -744,7 +864,7 @@
       "long": "Proceeds from Sale of Marketable Securities"
     }
   },
-  "cf.iv.pc_sc.db": {
+  "cf.iv.sc.pc.db": {
     "gaap": [
       "ProceedsFromSaleOfAvailableForSaleSecuritiesDebt"
     ],
@@ -752,13 +872,13 @@
       "long": "Proceeds from Sale of Marketable Debt Securities"
     }
   },
-  "cf.iv.pc_sc.eq": {
+  "cf.iv.sc.pc.eq": {
     "gaap": [],
     "label": {
       "long": "Proceeds from Sale of Marketable Equity Securities"
     }
   },
-  "cf.iv.pc_sc.mt": {
+  "cf.iv.sc.pc.mt": {
     "gaap": [
       "ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailableForSaleSecurities"
     ],
@@ -766,26 +886,67 @@
       "long": "Proceeds from Maturities of Marketable Securities"
     }
   },
-  "cf.iv.py/pc_ot": {
+  "cf.iv.ot": {
     "gaap": [
       "PaymentsForProceedsFromOtherInvestingActivities"
     ],
     "label": {
       "long": "Payments for (Proceeds from) Other Investing Activities",
-      "short": ""
+      "short": "Other Investing Activities"
     }
   },
-  "cf.iv.py_PPE": {
+  "cf.iv.PPE": {
+    "label": {
+      "long": "Net Cash from Purchase and Sale of Property, Plant and Equipment",
+      "short": "Net PPE Purchase/Sales"
+    },
+    "calculation": {
+      "any": {
+        "cf.iv.PPE.pc": 1,
+        "cf.iv.PPE.py": -1
+      }
+    }
+  },
+  "cf.iv.PPE.py": {
     "gaap": [
       "PaymentsToAcquirePropertyPlantAndEquipment",
       "PaymentsToAcquireProductiveAssets"
+    ],
+    "label": {
+      "long": "Payments to Acquire Property, Plant and Equipment",
+      "short": "Payments to Acquire Fixed Assets"
+    }
+  },
+  "cf.iv.PPE.pc": {
+    "gaap": [
+      "ProcceedsFromSaleOfPropertyPlantAndEquipment"
     ],
     "label": {
       "long": "Payments to Acquire Property Plant and Equipment",
       "short": "Payments to Acquire Fixed Assets"
     }
   },
-  "cf.iv.py_itg": {
+  "cf.iv.itg": {
+    "label": {
+      "long": "Net Cash from Purchase and Sale of Intangible Assets",
+      "short": "Net Intangible Purchase and Sales"
+    },
+    "calculation": {
+      "any": {
+        "cf.iv.itg.pc": 1,
+        "cf.iv.itg.py": -1
+      }
+    }
+  },
+  "cf.iv.itg.pc": {
+    "gaap": [
+      "ProceedsFromSaleOfIntangibleAssets"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Intangible Assets"
+    }
+  },
+  "cf.iv.itg.py": {
     "gaap": [
       "PaymentsToAcquireIntangibleAssets"
     ],
@@ -793,12 +954,12 @@
       "long": "Payments to Acquire Intangible Assets"
     }
   },
-  "cf.iv.py_sc": {
+  "cf.iv.sc.py": {
     "calculation": {
       "order": 0,
       "any": {
-        "cf.iv.py_sc.db": 1,
-        "cf.iv.py_sc.eq": 1
+        "cf.iv.sc.py.db": 1,
+        "cf.iv.sc.py.eq": 1
       }
     },
     "gaap": [
@@ -808,7 +969,7 @@
       "long": "Payments to Acquire Marketable Securities"
     }
   },
-  "cf.iv.py_sc.db": {
+  "cf.iv.sc.py.db": {
     "gaap": [
       "PaymentsToAcquireAvailableForSaleSecuritiesDebt"
     ],
@@ -816,17 +977,25 @@
       "long": "Payments To Acquire Marketable Debt Securities"
     }
   },
-  "cf.iv.py_sc.eq": {
+  "cf.iv.sc.py.eq": {
     "gaap": [],
     "label": {
       "long": "Payments to Acquire Marketable Equity Securities"
     }
   },
   "cf.iv.sc": {
-    "gaap": [],
+    "gaap": [
+      "PaymentsForProceedsFromInvestments"
+    ],
     "label": {
-      "long": "Change in Investments",
-      "short": ""
+      "long": "Net Cash from Purchase and Sale of Investments",
+      "short": "Net Investment Purchase and Sales"
+    },
+    "calculation": {
+      "any": {
+        "cf.iv.sc.pc": 1,
+        "cf.iv.sc.py": -1
+      }
     }
   },
   "cf.op": {
@@ -844,8 +1013,8 @@
         "d-tx": -1,
         "op_ep.DDAA": 1,
         "cf.op.sh_cp": 1,
-        "cf.op.ot_n-ch": 1,
-        "cf.op.WC": 1
+        "cf.op.WC": 1,
+        "cf.op.ot_n-ch": 1
       }
     }
   },
@@ -886,8 +1055,71 @@
       "long": "Share-based Compensation"
     }
   },
+  "cf.op.in": {
+    "label": {
+      "long": "Operating Inflow"
+    },
+    "calculation": {
+      "order": 2,
+      "any": {
+        "i/l": {
+          "weight": 1,
+          "sign": 1
+        },
+        "op_ep.DDAA": {
+          "weight": 1,
+          "sign": 1
+        },
+        "d-tx": {
+          "weight": 1,
+          "sign": -1
+        },
+        "cf.op.sh_cp": {
+          "weight": 1,
+          "sign": 1
+        },
+        "cf.op.WC": {
+          "weight": 1,
+          "sign": 1
+        },
+        "cf.op.ot_n-ch": {
+          "weight": 1,
+          "sign": 1
+        } 
+      }
+    }
+  },
+  "cf.op.out": {
+    "label": {
+      "long": "Operating Outflow"
+    },
+    "calculation": {
+      "order": 2,
+      "any": {
+        "i/l": {
+          "weight": 1,
+          "sign": -1
+        },
+        "d-tx": {
+          "weight": 1,
+          "sign": 1
+        },
+        "cf.op.sh_cp": {
+          "weight": 1,
+          "sign": -1
+        },
+        "cf.op.WC": {
+          "weight": 1,
+          "sign": -1
+        },
+        "cf.op.ot_n-ch": {
+          "weight": 1,
+          "sign": -1
+        } 
+      }
+    }
+  },
   "cg|a-c.d-tx": {
-    "gaap": [],
     "label": {
       "long": "Increase (Decrease) in Deferred Tax Assets",
       "short": "Change in Current Deferred Tax Assets"
@@ -912,7 +1144,6 @@
     }
   },
   "cg|a-c.pp_ep": {
-    "gaap": [],
     "label": {
       "long": "Increase (Decrease) in Prepaid Expenses",
       "short": "Change in Prepaid Expenses"
@@ -1786,6 +2017,14 @@
     ],
     "label": {
       "long": "Depreciation"
+    },
+    "calculation": {
+      "all": {
+        "a-n.PPE.acm_DDA": {
+          "operation": "diff",
+          "weight": 1
+        }
+      }
     }
   },
   "op_ep.RD": {

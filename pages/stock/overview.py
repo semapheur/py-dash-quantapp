@@ -127,7 +127,12 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
         continue
       
       link_value = fin.loc[value.get('value', key)]
-      values.append(link_value)
+
+      sign = value.get('sign', np.sign(link_value))
+      if sign != np.sign(link_value):
+        continue
+
+      values.append(np.abs(link_value))
 
       if not (direction := value.get('direction')):
         direction = sankey_direction(np.sign(link_value))

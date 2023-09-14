@@ -132,15 +132,22 @@
       "cg|l-c.d-rv": 2,
       "cg|l-c.ot": 2,
       "cf.op": 0,
-      "cf.iv.py_PPE": 1,
-      "cf.iv.py_itg": 1,
-      "cf.iv.pc_sc.db": 1,
-      "cf.iv.py_sc": 1,
-      "cf.iv.pc_sc.mt": 1,
-      "cf.iv.py_sc.db": 2,
-      "cf.iv.py_sc.eq": 1,
-      "cf.iv.aq_ds.py": 1,
-      "cf.iv.py/pc_ot": 1,
+      "cf.iv.PPE": 1,
+      "cf.iv.PPE.pc": 2,
+      "cf.iv.PPE.py": 2,
+      "cf.iv.itg": 1,
+      "cf.iv.itg.pc": 2,
+      "cf.iv.itg.py": 2,
+      "cf.iv.sc": 1,
+      "cf.iv.sc.pc.db": 2,
+      "cf.iv.sc.eq.db": 2,
+      "cf.iv.sc.pc.mt": 2,
+      "cf.iv.sc.py.db": 2,
+      "cf.iv.sc.py.eq": 1,
+      "cf.iv.bs": 1,
+      "cf.iv.bs.pc": 2,
+      "cf.iv.bs.py": 2,
+      "cf.iv.ot": 1,
       "cf.iv": 0,
       "cf.fn.py_dv": 1,
       "cf.fn.py_dv.cm_st": 2,
@@ -150,9 +157,11 @@
       "cf.fn.db": 1,
       "cf.fn.db.pc": 2,
       "cf.fn.db.ry": 2,
-      "cf.fn.pc/ry_db-ST": 1,
-      "cf.fn.pc/ry_CP": 2,
-      "cf.fn.py/pc_ot": 1,
+      "cf.fn.db-ST": 1,
+      "cf.fn.db-ST.l-3m": 2,
+      "cf.fn.db-ST.g-3m": 2,
+      "cf.fn.db-ST.ot": 2,
+      "cf.fn.ot": 1,
       "cf.fn": 0,
       "cf.ex_rt_ef": 1,
       "cf": 0
@@ -686,7 +695,277 @@
       }
     },
     "cashflow": {
-  
+      "cf": {
+        "color": "",
+        "links": {
+          "cf.op": {
+            "direction": "in",
+            "color": ""
+          },
+          "cf.iv": {
+            "direction": "in",
+            "color": ""
+          },
+          "cf.fn": {
+            "direction": "in",
+            "color": ""
+          }
+        }
+      },
+      "cf.op": {
+        "color": "",
+        "links": {
+          "cf.op.in": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cf.op.out": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cf.op.in": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "i/l": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "op_ep.DDAA": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.op.sh_cp": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "d-tx": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": -1
+          },
+          "cf.op.ot_n-ch": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          }
+        }
+      },
+      "cf.op.out": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "i/l": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.op.sh_cp": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "d-tx": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": 1
+          },
+          "cf.op.ot_n-ch": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          }
+        }
+      },
+      "i/l": {
+        "color": ""
+      },
+      "op_ep.DDAA": {
+        "color": ""
+      },
+      "cf.op.sh_cp": {
+        "color": ""
+      },
+      "d-tx": {
+        "color": ""
+      },
+      "cf.op.ot_n-ch": {
+        "color": ""
+      },
+      "cf.iv": {
+        "color": "",
+        "links": {
+          "cf.iv.in": {
+            "direction": "in",
+            "color": "rgba(0,255,0,1)"
+          },
+          "cf.iv.out": {
+            "direction": "in",
+            "color": "rgba(255,0,0,1)"
+          }
+        }
+      },
+      "cf.iv.in": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cf.iv.PPE": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.iv.itg": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.iv.sc": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.iv.bs": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.iv.ot": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          }
+        }
+      },
+      "cf.iv.out": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "cf.iv.PPE": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.iv.itg": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.iv.sc": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.iv.bs": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.iv.ot": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          }
+        }
+      },
+      "cf.iv.PPE": {
+        "color": ""
+      },
+      "cf.iv.itg": {
+        "color": ""
+      },
+      "cf.iv.sc": {
+        "color": ""
+      },
+      "cf.iv.bs": {
+        "color": ""
+      },
+      "cf.iv.ot": {
+        "color": ""
+      },
+      "cf.fn": {
+        "color": "",
+        "links": {
+          "cf.fn.in": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cf.fn.out": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "cf.fn.in": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cf.fn.cm_st": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.fn.db": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.fn.db-ST": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "cf.fn.ot": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          }
+        }
+      },
+      "cf.fn.out": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "cf.fn.py_dv": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": 1
+          },
+          "cf.fn.cm_st": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.fn.db": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.fn.db-ST": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "cf.fn.ot": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          }
+        }
+      },
+      "cf.fn.py_dv": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cf.fn.cm_st": {
+        "color": ""
+      },
+      "cf.fn.db": {
+        "color": ""
+      },
+      "cf.fn.db-ST": {
+        "color": ""
+      },
+      "cf.fn.ot": {
+        "color": ""
+      }
     }
   }
 }
