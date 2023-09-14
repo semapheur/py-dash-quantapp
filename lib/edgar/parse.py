@@ -189,7 +189,10 @@ async def parse_statement(url: str) -> Financials:
   return data
 
 async def parse_taxonomy(url: str) -> pd.DataFrame:
-  ns = 'http://www.w3.org/1999/xlink'
+  namespace = {
+    'link': 'http://www.xbrl.org/2003/linkbase',
+    'xlink': 'http://www.w3.org/1999/xlink'
+  }
 
   def rename_sheet(txt: str) -> str:
     pattern = r'income|balance|cashflow'
@@ -207,15 +210,15 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   el_pattern = r'(?<=_)[A-Z][A-Za-z]+(?=_)?'
 
   taxonomy = []
-  for sheet in root.findall('.//{*}calculationLink'):
-    sheet_label = re.sub(url_pattern, '', sheet.attrib[f'{{{ns}}}role'])
+  for sheet in root.findall('.//link:calculationLink', namespaces=namespace):
+    sheet_label = re.sub(url_pattern, '', sheet.attrib[f'{{{namespace["xlink"]}}}role'])
     sheet_label = rename_sheet(sheet_label)
 
-    for el in sheet.findall('.//{*}calculationArc'):
+    for el in sheet.findall('.//link:calculationArc', namespaces=namespace):
       taxonomy.append({
         'sheet': sheet_label,
-        'gaap': re.search(el_pattern, el.attrib[f'{{{ns}}}to']).group(),
-        'parent': re.search(el_pattern, el.attrib[f'{{{ns}}}from']).group(),
+        'gaap': re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}to']).group(),
+        'parent': re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}from']).group(),
       })
   
   df = pd.DataFrame.from_records(taxonomy)

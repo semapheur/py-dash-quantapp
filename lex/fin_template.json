@@ -721,13 +721,23 @@
           },
           "cf.op.out": {
             "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
+            "color": "rgba(255,0,0,0.3)"
           },
           "CAPEX": {
             "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
+            "color": ""
+          },
+          "FCFF": {
+            "direction": "out",
+            "color": ""
           }
         }
+      },
+      "CAPEX": {
+        "color": ""
+      },
+      "FCFF": {
+        "color": ""
       },
       "cf.op.in": {
         "color": "rgba(0,255,0,1)",

@@ -915,6 +915,7 @@
       "short": "Net PPE Purchase/Sales"
     },
     "calculation": {
+      "order": 0,
       "any": {
         "cf.iv.PPE.pc": 1,
         "cf.iv.PPE.py": -1
@@ -946,6 +947,7 @@
       "short": "Net Intangible Purchase and Sales"
     },
     "calculation": {
+      "order": 0,
       "any": {
         "cf.iv.itg.pc": 1,
         "cf.iv.itg.py": -1
@@ -1006,6 +1008,7 @@
       "short": "Net Investment Purchase and Sales"
     },
     "calculation": {
+      "order": 1,
       "any": {
         "cf.iv.sc.pc": 1,
         "cf.iv.sc.py": -1
@@ -1250,7 +1253,8 @@
       "DeferredIncomeTaxExpenseBenefit"
     ],
     "label": {
-      "long": "Deferred Income Tax Expense (Benefit)"
+      "long": "Deferred Income Tax Expense (Benefit)",
+      "short": "Deferred Tax"
     }
   },
   "d-tx.lc": {
@@ -1761,7 +1765,6 @@
         "n-op_in.iv": 1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Non-operating Income"
     }

@@ -66,8 +66,9 @@ def read_sqlite(
 def insert_sqlite(
   df: pd.DataFrame, 
   db_name: str, 
-  tbl_name: str, 
-  action: Literal['merge', 'replace'] = 'merge'
+  tbl_name: str,
+  action: Literal['merge', 'replace'] = 'merge',
+  index: bool = True
 ) -> None:
 
   db_path = DB_DIR / sqlite_name(db_name)
@@ -76,18 +77,22 @@ def insert_sqlite(
 
   if not insp.has_table(tbl_name):
     with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(tbl_name, con=con, index=True)
+      df.to_sql(tbl_name, con=con, index=index)
     return
 
   if action == 'replace':
-    df.to_sql(tbl_name, con=engine, if_exists='replace', index=True)
+    df.to_sql(tbl_name, con=engine, if_exists='replace', index=index)
     return
 
-  query = f'SELECT * FROM "{tbl_name}"'
+  query = text(f'SELECT * FROM "{tbl_name}"')
   ix = list(df.index.names)
 
   with engine.connect().execution_options(autocommit=True) as con:
-    df_old = pd.read_sql(text(query), con=engine, parse_dates={'date': {'format': '%Y-%m-%d'}}, index_col=ix)
+    df_old = pd.read_sql(
+      query, con=engine, 
+      parse_dates={'date': {'format': '%Y-%m-%d'}}, 
+      index_col=ix
+    )
 
   df_old = df_old.combine_first(df)
   diff_cols = df.columns.difference(df_old.columns).tolist()
@@ -95,7 +100,7 @@ def insert_sqlite(
   if diff_cols:
     df_old = df_old.join(df[diff_cols], how='outer')
 
-  df_old.to_sql(tbl_name, con=engine, if_exists='replace', index=True)
+  df_old.to_sql(tbl_name, con=engine, if_exists='replace', index=index)
 
 def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
 
