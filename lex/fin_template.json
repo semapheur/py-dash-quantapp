@@ -722,6 +722,10 @@
           "cf.op.out": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
+          },
+          "CAPEX": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
           }
         }
       },

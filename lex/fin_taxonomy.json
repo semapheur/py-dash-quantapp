@@ -5,15 +5,29 @@
       "short": "CAPEX"
     },
     "calculation": {
+      "order": 1,
       "all": {
         "a-n.PPE": {
           "operation": "diff",
           "weight": 1
         },
-        "a-n.PPE.acm_DDA": {
+        "op_ep.DDAA.dp": {
           "operation": "diff",
           "weight": 1
         }
+      }
+    }
+  },
+  "FCFF": {
+    "label": {
+      "long": "Free Cash Flow To Firm",
+      "short": "FCFF"
+    },
+    "calculation": {
+      "order": 7,
+      "all": {
+        "cf.op": 1,
+        "CAPEX": -1
       }
     }
   },
@@ -1986,7 +2000,7 @@
   },
   "op_ep.DDAA": {
     "calculation": {
-      "order": 0,
+      "order": 1,
       "any": {
         "op_ep.DDAA.am": 1,
         "op_ep.DDAA.dp": 1
@@ -2019,6 +2033,7 @@
       "long": "Depreciation"
     },
     "calculation": {
+      "order": 0,
       "all": {
         "a-n.PPE.acm_DDA": {
           "operation": "diff",
