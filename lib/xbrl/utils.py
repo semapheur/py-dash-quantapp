@@ -123,11 +123,6 @@ def gaap_calculation(url: str) -> pd.DataFrame:
         'weight': float(calc.get('weight'))
       }
     }
-    
-    if parent not in data:
-      data[parent] = schema
-    
-    else:
-      data[parent].update(schema)
+    data.setdefault(parent, {}).update(schema)
 
   return data
