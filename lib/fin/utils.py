@@ -177,9 +177,11 @@ def calculate_items(
 
   return financials
 
-def fix(financials: pd.DataFrame) -> pd.DataFrame:
+def fix(df: pd.DataFrame) -> pd.DataFrame:
 
-  annual = financials.xs('a', level=1)
+  df.reset_index(level='period', inplace=True)
+  mask = (df.index.get_level_values('months') < 12) & (df['period'] == 'FY')
+  df.loc[mask, 'period'] = 'Q4'
+  df.set_index('period', append=True, inplace=True)
 
-  for date in annual.index:
-    pass
+  return df

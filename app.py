@@ -4,7 +4,11 @@ from dash.dependencies import Input, Output
 
 from components.header import Header
 
-app = Dash(__name__, use_pages=True, title='Gelter') # run with 'python app.py'
+app = Dash(__name__, 
+  use_pages=True, 
+  title='Gelter', 
+  suppress_callback_exceptions=True
+) # run with 'python app.py'
 
 #print(page_registry)
 
@@ -25,4 +29,7 @@ app.clientside_callback(
 )
 
 if __name__ == '__main__':
-  app.run_server(debug=True, dev_tools_hot_reload=False) #, host='0.0.0.0', port=8080) 
+  app.run_server(
+    debug=True, 
+    dev_tools_hot_reload=False,
+  ) #, host='0.0.0.0', port=8080) 

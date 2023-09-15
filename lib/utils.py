@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import json
+import math
 import re
 from pathlib import Path
 from typing import Optional
@@ -105,5 +106,16 @@ def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 def month_difference(date1: dt, date2: dt) -> int:
-  delta = relativedelta(max(date2, date1), min(date2, date1))
+  delta = relativedelta(max(date1, date2), min(date1, date2))
   return delta.years * 12 + delta.months + round(delta.days / 30)
+
+def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:
+
+  condition = date.month < fiscal_month or (
+    date.month == fiscal_month and date.day <= fiscal_day
+  )
+  fiscal_year = date.year - 1 if condition else date.year
+  fiscal_start = dt(fiscal_year, fiscal_month, fiscal_day)
+  months = month_difference(date, fiscal_start)
+  
+  return f'Q{math.ceil(months/3)}'

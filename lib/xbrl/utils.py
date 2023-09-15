@@ -131,23 +131,3 @@ def gaap_calculation(url: str) -> pd.DataFrame:
       data[parent].update(schema)
 
   return data
-
-  
-'''
-  taxonomy = []
-  for sheet in root.findall('.//link:calculationLink', namespaces=namespace):
-    sheet_label = re.sub(url_pattern, '', sheet.attrib[f'{{{namespace["xlink"]}}}role'])
-    sheet_label = rename_sheet(sheet_label)
-
-    for el in sheet.findall('.//link:calculationArc', namespaces=namespace):
-      taxonomy.append({
-        'sheet': sheet_label,
-        'gaap': re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}to']).group(),
-        'parent': re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}from']).group(),
-      })
-  
-  df = pd.DataFrame.from_records(taxonomy)
-  df.set_index('item', inplace=True)
-  df.drop_duplicates(inplace=True)
-  return df
-'''

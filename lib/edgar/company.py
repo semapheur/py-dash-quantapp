@@ -112,7 +112,7 @@ class Company():
     filings['xbrl'] = (
       prefix + str(self._cik) + '/' + filings['id'].str.replace('-', '') + '/'
     )
-    mask = filings['date'] >= dt(2019, 7, 1)
+    mask = filings['date'] >= dt(2020, 7, 1)
     filings.loc[~mask, 'xbrl'] += (
       ticker + '-' + filings['date'].dt.strftime('%Y%m%d') + '.xml'
     )
@@ -156,7 +156,7 @@ class Company():
       if not new_filings:
         return financials
     else:
-      new_filings = fetch_urls()
+      new_filings = await fetch_urls()
 
     new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
@@ -183,10 +183,10 @@ class Company():
     df.sort_index(level=0, ascending=True, inplace=True)
 
     if date_format:
-      df.index = df.index.set_levels([
+      df.index = df.index.set_levels(
         df.index.levels[0].strftime(date_format),
-        df.index.levels[1]
-      ])
+        level='date'
+      )
 
     if taxonomy:
       _filter = taxonomy.item_names('gaap')

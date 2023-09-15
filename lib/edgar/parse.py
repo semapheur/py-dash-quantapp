@@ -23,7 +23,7 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
-from lib.utils import insert_characters, month_difference
+from lib.utils import insert_characters, month_difference, fiscal_quarter
 
 class Scope(Enum):
   QUARTERLY = 3
@@ -70,7 +70,7 @@ async def parse_statements(urls: list[str]) -> list[Financials]:
 async def parse_statement(url: str) -> Financials:
 
   def parse_period(period: et.Element) -> Instant|Interval:
-    if (el := period.find('./{*}instant')):
+    if (el := period.find('./{*}instant')) is not None:
       return {'instant': el.text}
 
     start_date = period.find('./{*}startDate').text
@@ -109,25 +109,41 @@ async def parse_statement(url: str) -> Financials:
       rs = await client.get(url, headers=HEADERS)
       return et.fromstring(rs.content)
   
-  try:
-    root = await fetch(url)
-
-  except Exception:
+  root = await fetch(url)
+  if root.tag == 'Error':
     cik, doc_id = url.split('/')[6:8]
     doc_id = insert_characters(doc_id, {'-': [10, 12]})
-    url = xbrl_url(cik, doc_id)
+    url = await xbrl_url(cik, doc_id)
     root = await fetch(url)
 
   form = {
     '10-K': 'annual',
     '10-Q': 'quarterly'
   }
+
+  scope = form[root.find('.{*}DocumentType').text]
+  date = root.find('.{*}DocumentPeriodEndDate').text
+  fiscal_end = root.find('.{*}CurrentFiscalYearEndDate').text[1:]
+
+  if (el := root.find('.{*}DocumentFiscalPeriodFocus')) is not None:
+    fiscal_period = el.text
+  elif scope == 'annual':
+    fiscal_period = 'FY'
+  else:
+    pattern = r'(\d{2})-(\d{2})'
+
+    match = re.search(pattern, fiscal_end)
+    month = int(match.group(1))
+    day = int(match.group(2))
+
+    fiscal_period = fiscal_quarter(dt.strptime(date, '%Y-%m-%d'), month, day)
+
   meta: Meta = {
     'id': url.split('/')[-2],
-    'date': root.find('.{*}DocumentPeriodEndDate').text,
-    'scope': form[root.find('.{*}DocumentType').text],
-    'fiscal_period': root.find('.{*}DocumentFiscalPeriodFocus').text,
-    'fiscal_end': root.find('.{*}CurrentFiscalYearEndDate').text[1:]
+    'date': date,
+    'scope': scope,
+    'period': fiscal_period,
+    'fiscal_end': fiscal_end
   }
   data: Financials = {
     'meta': meta,
@@ -138,38 +154,38 @@ async def parse_statement(url: str) -> Financials:
     if item.text is None:
       continue
     
-    temp: Item = {}
+    scrap: Item = {}
     
-    # Period
     ctx = item.attrib['contextRef']
     period_el = root.find(f'./{{*}}context[@id="{ctx}"]').find('./{*}period')
-    temp['period'] = parse_period(period_el)
-
+    
+    scrap['period'] = parse_period(period_el)
+   
     segment = root \
       .find(f'./{{*}}context[@id="{ctx}"]') \
       .find('.//{*}segment/{*}explicitMember')
     
     if segment is not None:
-      temp['member'] = parse_member(item, segment)
+      scrap['member'] = parse_member(item, segment)
     else:    
-      temp['value'] = float(item.text)
-      temp['unit'] = parse_unit(item.attrib['unitRef'])
+      scrap['value'] = float(item.text)
+      scrap['unit'] = parse_unit(item.attrib['unitRef'])
     
     item_name = item.tag.split('}')[-1]
     if item_name not in data['data']:
-      data['data'][item_name] = [temp]
+      data['data'][item_name] = [scrap]
       continue
 
     try:
       entry = next(i for i in data['data'][item_name]
-        if i['period'] == temp['period']
+        if i['period'] == scrap['period']
       )
-      if 'member' in temp:
-        entry.setdefault('member', {}).update(temp['member'])
+      if 'member' in scrap:
+        entry.setdefault('member', {}).update(scrap['member'])
       else:
-        entry.update(temp)
+        entry.update(scrap)
     except Exception:
-      data['data'][item_name].append(temp)    
+      data['data'][item_name].append(scrap)    
 
   # Sort items
   data['data'] = {
@@ -237,7 +253,7 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
       if date != fin_date:
         continue
 
-      months = entry['period'].get('months', Scope[fin_scope].value)
+      months = entry['period'].get('months', Scope[fin_scope.upper()].value)
       
       if value := entry.get('value'):
         df_data.setdefault((fin_date, fin_period, months), {})[item] = value
@@ -249,11 +265,11 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
         if m_value := m_entry.get('value'):
           dim = '.' + d if (d := m_entry.get('dim')) else ''
           key = f'{item}{dim}.{member}'
-          df_data.setdefault((fin_date, get_scope(months)), {})[key] = m_value
+          df_data.setdefault((fin_date, fin_period, months), {})[key] = m_value
   
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
-  df.index.names = ['date', 'period']
+  df.index.names = ['date', 'period', 'months']
   return df
 
 def get_ciks():
