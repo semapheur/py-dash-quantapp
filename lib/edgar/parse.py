@@ -233,21 +233,23 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
 
   for item, entries in financials['data'].items():
     for entry in entries:
-      months = entry['period'].get('months', Scope[fin_scope].value)
       date = parse_date(entry['period'])
-
       if date != fin_date:
         continue
+
+      months = entry['period'].get('months', Scope[fin_scope].value)
       
       if value := entry.get('value'):
         df_data.setdefault((fin_date, fin_period, months), {})[item] = value
       
-      if members := entry.get('member'):
-        for member, m_entry in members.items():
-          if m_value := m_entry.get('value'):
-            dim = '.' + d if (d := m_entry.get('dim')) else ''
-            key = f'{item}{dim}.{member}'
-            df_data.setdefault((fin_date, get_scope(months)), {})[key] = m_value
+      if not (members := entry.get('member')):
+        continue
+
+      for member, m_entry in members.items():
+        if m_value := m_entry.get('value'):
+          dim = '.' + d if (d := m_entry.get('dim')) else ''
+          key = f'{item}{dim}.{member}'
+          df_data.setdefault((fin_date, get_scope(months)), {})[key] = m_value
   
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
