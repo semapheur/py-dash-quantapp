@@ -762,6 +762,11 @@
             "color": "rgba(0,255,0,0.3)",
             "sign": -1
           },
+          "cf.op.WC": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
           "cf.op.ot_n-ch": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
@@ -787,6 +792,11 @@
             "color": "rgba(255,0,0,0.3)",
             "sign": 1
           },
+          "cf.op.WC": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
           "cf.op.ot_n-ch": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
@@ -804,6 +814,9 @@
         "color": ""
       },
       "d-tx": {
+        "color": ""
+      },
+      "cf.op.WC": {
         "color": ""
       },
       "cf.op.ot_n-ch": {

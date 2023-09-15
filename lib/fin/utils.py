@@ -134,7 +134,7 @@ def calculate_items(
         if 'sign' in instruction:
           result = result.where(result.apply(np.sign) == instruction['sign'], 0)
         
-        if (op := instruction.get('operation', '')):
+        if (op := instruction.get('apply', '')):
           if op == 'diff':
             result = result.diff()
 

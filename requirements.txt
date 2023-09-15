@@ -1,5 +1,5 @@
 # venv: python -m venv ./<env>
-# <env>\Scripts\activate.bat
+# <env>\scripts\activate.<bat/ps1>
 # conda: conda create --name <env> --file <this file>
 # pip freeze > <this file>
 # pip install -r <this file>

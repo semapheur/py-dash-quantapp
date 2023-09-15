@@ -8,11 +8,11 @@
       "order": 1,
       "all": {
         "a-n.PPE": {
-          "operation": "diff",
+          "apply": "diff",
           "weight": 1
         },
         "op_ep.DDAA.dp": {
-          "operation": "diff",
+          "apply": "diff",
           "weight": 1
         }
       }
@@ -245,7 +245,7 @@
       "AccountsReceivableNetCurrent"
     ],
     "label": {
-      "long": "Accounts Receivable Net",
+      "long": "Net Accounts Receivable",
       "short": "Trade Receivables"
     }
   },
@@ -623,6 +623,47 @@
       }
     }
   },
+  "cf.fn.in": {
+    "label": {
+      "long": "Financing Cash Inflow",
+      "short": "Financing Inflow"
+    },
+    "calculation": {
+      "order": 1,
+      "any": {
+        "cf.fn.cm_st.pc": 1,
+        "cf.fn.db.pc": 1,
+        "cf.fn.db-ST.l-3m.pc": 1,
+        "cf.fn.db-ST.g-3m.pc": 1,
+        "cf.fn.db-ST.ot.pc": 1,
+        "cf.fn.ot": {
+          "weight": 1,
+          "sign": 1
+        }
+      }
+    }
+  },
+  "cf.fn.out": {
+    "label": {
+      "long": "Financing Cash Outflow",
+      "short": "Financing Outflow"
+    },
+    "calculation": {
+      "order": 1,
+      "any": {
+        "cf.fn.py_dv": 1,
+        "cf.fn.cm_st.py": 1,
+        "cf.fn.db.ry": 1,
+        "cf.fn.db-ST.l-3m.ry": 1,
+        "cf.fn.db-ST.g-3m.ry": 1,
+        "cf.fn.db-ST.ot.ry": 1,
+        "cf.fn.ot": {
+          "weight": 1,
+          "sign": -1
+        }
+      }
+    }
+  },
   "cf.fn.cm_st": {
     "calculation": {
       "order": 0,
@@ -796,7 +837,8 @@
       "ProceedsFromPaymentsForOtherFinancingActivities"
     ],
     "label": {
-      "long": "Proceeds from (Payments for) Other Financing Activities"
+      "long": "Proceeds from (Payments for) Other Financing Activities",
+      "short": "Other Financing Activities"
     }
   },
   "cf.fn.py_dv": {
@@ -832,6 +874,44 @@
         "cf.iv.sc": 1,
         "cf.iv.bs": 1,
         "cf.iv.ot": 1
+      }
+    }
+  },
+  "cf.iv.in": {
+    "label": {
+      "long": "Investing Cash Inflow",
+      "short": "Investing Inflow"
+    },
+    "calculation": {
+      "order": 2,
+      "any": {
+        "cf.iv.PPE.pc": 1,
+        "cf.iv.itg.pc": 1,
+        "cf.iv.sc.pc": 1,
+        "cf.iv.bs.pc": 1,
+        "cf.iv.ot": {
+          "weight": 1,
+          "sign": 1
+        }
+      }
+    }
+  },
+  "cf.iv.out": {
+    "label": {
+      "long": "Investing Cash Outflow",
+      "short": "Investing Outflow"
+    },
+    "calculation": {
+      "order": 2,
+      "any": {
+        "cf.iv.PPE.py": 1,
+        "cf.iv.itg.py": 1,
+        "cf.iv.sc.py": 1,
+        "cf.iv.bs.py": 1,
+        "cf.iv.ot": {
+          "weight": 1,
+          "sign": -1
+        }
       }
     }
   },
@@ -873,9 +953,9 @@
         "cf.iv.pc_sc.mt": 1
       }
     },
-    "gaap": [],
     "label": {
-      "long": "Proceeds from Sale of Marketable Securities"
+      "long": "Proceeds from Sale and Maturity of Marketable Securities",
+      "short": "Proceeds from Marketable Securities"
     }
   },
   "cf.iv.sc.pc.db": {
@@ -1037,7 +1117,7 @@
   },
   "cf.op.WC": {
     "calculation": {
-      "order": 1,
+      "order": 2,
       "any": {
         "cg|a-c.d-tx": 1,
         "cg|a-c.ivt": 1,
@@ -1074,7 +1154,8 @@
   },
   "cf.op.in": {
     "label": {
-      "long": "Operating Inflow"
+      "long": "Operating Cash Inflow",
+      "short": "Operating Inflow"
     },
     "calculation": {
       "order": 2,
@@ -1089,7 +1170,7 @@
         },
         "d-tx": {
           "weight": 1,
-          "sign": -1
+          "sign": 1
         },
         "cf.op.sh_cp": {
           "weight": 1,
@@ -1101,14 +1182,15 @@
         },
         "cf.op.ot_n-ch": {
           "weight": 1,
-          "sign": 1
+          "sign": -1
         } 
       }
     }
   },
   "cf.op.out": {
     "label": {
-      "long": "Operating Outflow"
+      "long": "Operating Cash Outflow",
+      "short": "Operating Outflow"
     },
     "calculation": {
       "order": 2,
@@ -1119,7 +1201,7 @@
         },
         "d-tx": {
           "weight": 1,
-          "sign": 1
+          "sign": -1
         },
         "cf.op.sh_cp": {
           "weight": 1,
@@ -1131,7 +1213,7 @@
         },
         "cf.op.ot_n-ch": {
           "weight": 1,
-          "sign": -1
+          "sign": 1
         } 
       }
     }
@@ -1140,6 +1222,15 @@
     "label": {
       "long": "Increase (Decrease) in Deferred Tax Assets",
       "short": "Change in Current Deferred Tax Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "a-c.d-tx": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|a-c.ivt": {
@@ -1149,6 +1240,15 @@
     "label": {
       "long": "Increase (Decrease) in Inventories",
       "short": "Change in Inventories"
+    },
+    "calculation": {
+      "order": 2,
+      "all": {
+        "a-c.ivt": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|a-c.ot": {
@@ -1158,21 +1258,63 @@
     "label": {
       "long": "Increase (Decrease) in Other Operating Assets",
       "short": "Change in Other Operating Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "a-c.ot": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|a-c.pp_ep": {
     "label": {
       "long": "Increase (Decrease) in Prepaid Expenses",
       "short": "Change in Prepaid Expenses"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "a-c.pp_ep": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
-  "cg|a-c.rc": {
+  "cg|a-c.rc.td": {
     "gaap": [
       "IncreaseDecreaseInAccountsReceivable"
     ],
     "label": {
-      "long": "Increase (Decrease) in Accounts Receivable",
-      "short": "Change in Accounts Receivable"
+      "long": "Increase (Decrease) in Net Accounts Receivable",
+      "short": "Change in Trade Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "a-c.rc.td": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
+    }
+  },
+  "cg|l-c.acr_ep": {
+    "label": {
+      "long": "Increase (Decrease) in Accrued Expenses",
+      "short": "Change in Accrued Expenses"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "l-c.acr_ep": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|l-c.d-rv": {
@@ -1183,12 +1325,30 @@
     "label": {
       "long": "Increase (Decrease) in Deferred Revenue",
       "short": "Change in Deferred Revenue"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "l-c.d-rv": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|l-c.d-tx": {
     "gaap": [],
     "label": {
       "long": "Change in Current Deferred Tax Liabilities"
+    },
+    "calculation": {
+      "order": 1,
+      "all": {
+        "l-c.d-tx": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|l-c.ot": {
@@ -1198,6 +1358,15 @@
     "label": {
       "long": "Increase (Decrease) in Other Operating Liabilities",
       "short": "Change in Other Operating Liabilities"
+    },
+    "calculation": {
+      "order": 1,
+      "all": {
+        "l-c.ot": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "cg|l-c.pb": {
@@ -1207,6 +1376,15 @@
     "label": {
       "long": "Increase (Decrease) in Accounts Payable",
       "short": "Change in Accounts Payable"
+    },
+    "calculation": {
+      "order": 1,
+      "all": {
+        "l-c.pb": {
+          "weight": 1,
+          "apply": "diff"
+        }
+      }
     }
   },
   "ci": {
@@ -2039,7 +2217,7 @@
       "order": 0,
       "all": {
         "a-n.PPE.acm_DDA": {
-          "operation": "diff",
+          "apply": "diff",
           "weight": 1
         }
       }

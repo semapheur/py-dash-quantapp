@@ -26,7 +26,7 @@ from lib.edgar.models import (
 from lib.utils import insert_characters, month_difference
 
 class Scope(Enum):
-  QUARTERLY = 4
+  QUARTERLY = 3
   ANNUAL = 12
 
 async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> pd.Series:
@@ -226,11 +226,14 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   df.drop_duplicates(inplace=True)
   return df
 
-def statement_to_df(data: Financials) -> pd.DataFrame:
+def statement_to_df(financials: Financials) -> pd.DataFrame:
+
+  def get_scope(months: int) -> str:
+    return Scope(months).name[0].lower()
     
   def parse_period(period: dict[str, str]) -> tuple[int, dt]:
     if 'instant' in period:
-      return Scope[scope.upper()].value, dt.strptime(period['instant'], '%Y-%m-%d')
+      return Scope[fin_scope.upper()].value, dt.strptime(period['instant'], '%Y-%m-%d')
         
     start_date = dt.strptime(period['start_date'], '%Y-%m-%d')
     end_date = dt.strptime(period['end_date'], '%Y-%m-%d')
@@ -238,12 +241,12 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
 
     return months, dt.strptime(period['end_date'], '%Y-%m-%d')
         
-  fin_date = dt.strptime(glom(data, 'meta.date'), '%Y-%m-%d')
-  scope = glom(data, 'meta.scope')
+  fin_date = dt.strptime(glom(financials, 'meta.date'), '%Y-%m-%d')
+  fin_scope = glom(financials, 'meta.scope')
   
-  df_data: dict[str, int] = {}
+  df_data: dict[tuple(dt, str), dict[str, int]] = {}
 
-  for item, entries in data['data'].items():
+  for item, entries in financials['data'].items():
     for entry in entries:
       #if ('instant' not in entry['period'] and 
       #  entry['period'].get('months', 0) != Scope[scope].value
@@ -252,19 +255,38 @@ def statement_to_df(data: Financials) -> pd.DataFrame:
 
       months, date = parse_period(entry['period'])
 
-      if months != Scope[scope.upper()].value or date != fin_date:
+      condition = (date == fin_date and (
+        fin_scope == 'annual' and months in {3, 12} or
+        fin_scope == 'quarterly' and months == 3
+      ))
+
+      if not condition:
         continue
       
       if value := entry.get('value'):
-        df_data[item] = value
+        df_data.setdefault((fin_date, get_scope(months)), {})[item] = value
+        #df_data[(fin_date, get_scope(months))].update({
+        #  item: value
+        #})
+
+        if fin_scope == 'annual' and 'instant' in entry['period']:
+          df_data.setdefault((fin_date, 'q'), {})[item] = value
+          #df_data[(fin_date, 'q')].update({
+          #  item: value
+          #})
       
       if members := entry.get('member'):
         for member, m_entry in members.items():
           if m_value := m_entry.get('value'):
-            dim = '.' + d if (d := m_entry.get("dim")) else ''
-            df_data[f'{item}{dim}.{member}'] = m_value
+            dim = '.' + d if (d := m_entry.get('dim')) else ''
+            key = f'{item}{dim}.{member}'
+            df_data.setdefault((fin_date, get_scope(months)), {})[key] = m_value
+            #df_data[(fin_date, get_scope(months))] \
+            #  .update({key: m_value})
+
+            if fin_scope == 'annual' and 'instant' in entry['period']:
+              df_data.setdefault((fin_date, 'q'), {})[key] = m_value
   
-  df_data: dict[tuple[dt, str], dict[str, int]] = {(fin_date, scope[0]): df_data}
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
   df.index.names = ['date', 'period']

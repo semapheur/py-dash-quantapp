@@ -169,7 +169,9 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
 
   return fig
 
-@callback(Output('dd:stock:date', 'options'),
+@callback(
+  Output('dd:stock:date', 'options'),
+  Output('dd:stock:date', 'value'),
   Input('store:stock:financials', 'data'),
   Input('radio:stock:scope', 'value')
 )
@@ -180,4 +182,4 @@ def update_dropdown(fin: list[dict], scope: str):
     .sort_index(ascending=False) 
   )
 
-  return list(fin.index.get_level_values(0))
+  return list(fin.index.get_level_values(0)), ''
