@@ -184,4 +184,10 @@ def fix(df: pd.DataFrame) -> pd.DataFrame:
   df.loc[mask, 'period'] = 'Q4'
   df.set_index('period', append=True, inplace=True)
 
+  df['month_diff'] = np.round((
+    pd.to_datetime(df.index.get_level_values('date'))
+      .to_series().diff()
+    ) / np.timedelta64(1, 'M')
+  ).values
+
   return df
