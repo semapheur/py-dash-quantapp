@@ -43,6 +43,7 @@ def layout(id: Optional[str] = None):
 
     schema = taxonomy.calculation_schema(set(template['item']))
     financials = calculate_items(financials, schema)
+    financials.to_csv('test.csv')
 
     #pattern = r'^(Sales)?(AndService)?Revenue'\
     #  r'(s|Net|FromContractWithCustomerExcludingAssessedTax)'\
@@ -181,5 +182,4 @@ def update_dropdown(fin: list[dict], scope: str):
     .xs(scope, level=1) 
     .sort_index(ascending=False) 
   )
-
   return list(fin.index.get_level_values(0)), ''

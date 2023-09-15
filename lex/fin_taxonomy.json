@@ -1,5 +1,6 @@
 {
   "CAPEX": {
+    "period": "duration",
     "label": {
       "long": "Capital Expenditure",
       "short": "CAPEX"
@@ -19,6 +20,7 @@
     }
   },
   "FCFF": {
+    "period": "duration",
     "label": {
       "long": "Free Cash Flow To Firm",
       "short": "FCFF"
@@ -32,6 +34,7 @@
     }
   },
   "EPSB": {
+    "period": "duration",
     "gaap": [
       "EarningsPerShareBasic"
     ],
@@ -41,6 +44,7 @@
     }
   },
   "EPSD": {
+    "period": "duration",
     "gaap": [
       "EarningsPerShareDiluted"
     ],
@@ -50,6 +54,7 @@
     }
   },
   "NWC": {
+    "period": "instant",
     "calculation": {
       "order": 2,
       "all": {
@@ -64,6 +69,7 @@
     }
   },
   "a-c": {
+    "period": "instant",
     "gaap": [
       "AssetsCurrent"
     ],
@@ -73,6 +79,7 @@
     }
   },
   "a-c.CCE": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "all": {
@@ -89,6 +96,7 @@
     }
   },
   "a-c.CCE&RCRCE": {
+    "period": "instant",
     "calculation": {
       "order": 1,
       "all": {
@@ -105,6 +113,7 @@
     }
   },
   "a-c.CCE.CE": {
+    "period": "instant",
     "gaap": [
       "CashEquivalentsAtCarryingValue"
     ],
@@ -113,6 +122,7 @@
     }
   },
   "a-c.CCE.ch": {
+    "period": "instant",
     "gaap": [
       "Cash"
     ],
@@ -121,6 +131,7 @@
     }
   },
   "a-c.RC": {
+    "period": "instant",
     "gaap": [
       "RestrictedCash"
     ],
@@ -129,6 +140,7 @@
     }
   },
   "a-c.RCRCE": {
+    "period": "instant",
     "gaap": [
       "RestrictedCashAndCashEquivalentsAtCarryingValue"
     ],
@@ -137,6 +149,7 @@
     }
   },
   "a-c.d-tx": {
+    "period": "instant",
     "gaap": [
       "DeferredTaxAssetsNetCurrent"
     ],
@@ -145,6 +158,7 @@
     }
   },
   "a-c.ivt": {
+    "period": "instant",
     "calculation": {
       "order": 1,
       "any": {
@@ -161,6 +175,7 @@
     }
   },
   "a-c.ivt.FG": {
+    "period": "instant",
     "gaap": [
       "InventoryFinishedGoodsNetOfReserves"
     ],
@@ -170,6 +185,7 @@
     }
   },
   "a-c.ivt.PC": {
+    "period": "instant",
     "gaap": [
       "InventoryPartsAndComponentsNetOfReserves"
     ],
@@ -179,19 +195,20 @@
     }
   },
   "a-c.ivt.RM": {
-    "gaap": [],
+    "period": "instant",
     "label": {
       "long": "Raw Materials"
     }
   },
   "a-c.ivt.WIP": {
-    "gaap": [],
+    "period": "instant",
     "label": {
       "long": "",
       "short": "Work-in-process"
     }
   },
   "a-c.ivt.WIPRM": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "any": {
@@ -208,6 +225,7 @@
     }
   },
   "a-c.lq": {
+    "period": "instant",
     "calculation": {
       "order": 2,
       "any": {
@@ -225,6 +243,7 @@
     }
   },
   "a-c.ot": {
+    "period": "instant",
     "gaap": [
       "OtherAssetsCurrent"
     ],
@@ -233,6 +252,7 @@
     }
   },
   "a-c.pp_ep": {
+    "period": "instant",
     "gaap": [
       "OtherPrepaidExpenseCurrent"
     ],
@@ -241,6 +261,7 @@
     }
   },
   "a-c.rc.td": {
+    "period": "instant",
     "gaap": [
       "AccountsReceivableNetCurrent"
     ],
@@ -250,6 +271,7 @@
     }
   },
   "a-c.rc": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "any": {
@@ -265,6 +287,7 @@
     }
   },
   "a-c.rc.al_dbf": {
+    "period": "instant",
     "gaap": [
       "AllowanceForDoubtfulAccountsReceivableCurrent"
     ],
@@ -274,6 +297,7 @@
     }
   },
   "a-c.rc.n-td": {
+    "period": "instant",
     "gaap": [
       "NontradeReceivablesCurrent"
     ],
@@ -282,6 +306,7 @@
     }
   },
   "a-c.rc.ns": {
+    "period": "instant",
     "gaap": [
       "NotesReceivableNet"
     ],
@@ -290,6 +315,7 @@
     }
   },
   "a-c.rc.ot": {
+    "period": "instant",
     "gaap": [
       "PremiumsAndOtherReceivablesNet"
     ],
@@ -298,6 +324,7 @@
     }
   },
   "a-c.sc": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "any": {
@@ -315,6 +342,7 @@
     }
   },
   "a-c.sc.db": {
+    "period": "instant",
     "gaap": [
       "AvailableForSaleSecuritiesDebtSecuritiesCurrent"
     ],
@@ -324,6 +352,7 @@
     }
   },
   "a-c.sc.db.t-bl": {
+    "period": "instant",
     "gaap": [
       "USTreasuryBills"
     ],
@@ -333,6 +362,7 @@
     }
   },
   "a-c.sc.eq": {
+    "period": "instant",
     "gaap": [
       "EquitySecuritiesFvNi"
     ],
@@ -342,6 +372,7 @@
     }
   },
   "a-n": {
+    "period": "instant",
     "gaap": [
       "NoncurrentAssets",
       "AssetsNoncurrent"
@@ -362,6 +393,7 @@
     }
   },
   "a-n.PPE": {
+    "period": "instant",
     "calculation": {
       "order": 1,
       "all": {
@@ -379,6 +411,7 @@
     }
   },
   "a-n.PPE.acm_DDA": {
+    "period": "instant",
     "gaap": [
       "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentAndCapitalizedSoftware",
       "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment"
@@ -389,6 +422,7 @@
     }
   },
   "a-n.PPE.gs": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "any": {
@@ -407,6 +441,7 @@
     }
   },
   "a-n.PPE.gs.FF": {
+    "period": "instant",
     "gaap": [
       "FurnitureAndFixturesGross"
     ],
@@ -415,6 +450,7 @@
     }
   },
   "a-n.PPE.gs.LB": {
+    "period": "instant",
     "gaap": [
       "LandAndBuildingsGross"
     ],
@@ -423,6 +459,7 @@
     }
   },
   "a-n.PPE.gs.ME": {
+    "period": "instant",
     "gaap": [
       "MachineryEquipmentAndInternalUseSoftwareGross"
     ],
@@ -431,6 +468,7 @@
     }
   },
   "a-n.gw": {
+    "period": "instant",
     "gaap": [
       "Goodwill"
     ],
@@ -439,6 +477,7 @@
     }
   },
   "a-n.itg": {
+    "period": "instant",
     "calculation": {
       "order": 1,
       "any": {
@@ -455,6 +494,7 @@
     }
   },
   "a-n.itg.fl": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "all": {
@@ -471,6 +511,7 @@
     }
   },
   "a-n.itg.fl.acm_am": {
+    "period": "instant",
     "gaap": [
       "FiniteLivedIntangibleAssetsAccumulatedAmortization"
     ],
@@ -480,6 +521,7 @@
     }
   },
   "a-n.itg.fl.gs": {
+    "period": "instant",
     "gaap": [
       "FiniteLivedIntangibleAssetsGross"
     ],
@@ -488,6 +530,7 @@
     }
   },
   "a-n.itg.gs": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "all": {
@@ -505,6 +548,7 @@
     }
   },
   "a-n.itg.il": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "all": {
@@ -521,6 +565,7 @@
     }
   },
   "a-n.itg.il.acm_am": {
+    "period": "instant",
     "gaap": [
       "IndefiniteLivedIntangibleAssetsAccumulatedAmortization"
     ],
@@ -530,6 +575,7 @@
     }
   },
   "a-n.itg.il.gs": {
+    "period": "instant",
     "gaap": [
       "IndefiniteLivedIntangibleAssetsGross"
     ],
@@ -538,6 +584,7 @@
     }
   },
   "a-n.ot": {
+    "period": "instant",
     "gaap": [
       "OtherAssetsNoncurrent"
     ],
@@ -546,6 +593,7 @@
     }
   },
   "a-n.sc": {
+    "period": "instant",
     "gaap": [
       "AvailableForSaleSecuritiesNoncurrent",
       "MarketableSecuritiesNoncurrent",
@@ -556,6 +604,7 @@
     }
   },
   "a-n.sc.db": {
+    "period": "instant",
     "gaap": [
       "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
     ],
@@ -564,6 +613,7 @@
     }
   },
   "as": {
+    "period": "instant",
     "calculation": {
       "order": 2,
       "all": {
@@ -580,6 +630,7 @@
     }
   },
   "cf": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "all": {
@@ -598,6 +649,7 @@
     }
   },
   "cf.ex_rt_ef": {
+    "period": "duration",
     "gaap": [
       "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations"
     ],
@@ -606,6 +658,7 @@
     }
   },
   "cf.fn": {
+    "period": "duration",
     "gaap": [
       "NetCashProvidedByUsedInFinancingActivities"
     ],
@@ -624,6 +677,7 @@
     }
   },
   "cf.fn.in": {
+    "period": "duration",
     "label": {
       "long": "Financing Cash Inflow",
       "short": "Financing Inflow"
@@ -644,6 +698,7 @@
     }
   },
   "cf.fn.out": {
+    "period": "duration",
     "label": {
       "long": "Financing Cash Outflow",
       "short": "Financing Outflow"
@@ -665,6 +720,7 @@
     }
   },
   "cf.fn.cm_st": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -679,6 +735,7 @@
     }
   },
   "cf.fn.cm_st.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromIssuanceOfCommonStock"
     ],
@@ -687,6 +744,7 @@
     }
   },
   "cf.fn.cm_st.py": {
+    "period": "duration",
     "gaap": [
       "PaymentsForRepurchaseOfCommonStock"
     ],
@@ -695,6 +753,7 @@
     }
   },
   "cf.fn.db": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -702,13 +761,13 @@
         "cf.fn.db.ry": -1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Net Cash from Issuance and Repayment of Long-term Debt",
       "short": "Change in Long-term Debt"
     }
   },
   "cf.fn.db.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromIssuanceOfLongTermDebt"
     ],
@@ -717,6 +776,7 @@
     }
   },
   "cf.fn.db.ry": {
+    "period": "duration",
     "gaap": [
       "RepaymentsOfLongTermDebt"
     ],
@@ -725,6 +785,7 @@
     }
   },
   "cf.fn.db-ST": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromRepaymentsOfCommercialPaper",
       "ProceedsFromRepaymentsOfShortTermDebt"
@@ -743,6 +804,7 @@
     }
   },
   "cf.fn.db-ST.l-3m": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromRepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
     ],
@@ -758,6 +820,7 @@
     }
   },
   "cf.fn.db-ST.l-3m.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromShortTermDebtMaturingInThreeMonthsOrLess"
     ],
@@ -766,6 +829,7 @@
     }
   },
   "cf.fn.db-ST.l-3m.ry": {
+    "period": "duration",
     "gaap": [
       "RepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
     ],
@@ -774,6 +838,7 @@
     }
   },
   "cf.fn.db-ST.g-3m": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromShortTermDebtMaturingInMoreThanThreeMonths"
     ],
@@ -789,6 +854,7 @@
     }
   },
   "cf.fn.db-ST.g-3m.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromShortTermDebtMaturingInMoreThanThreeMonths"
     ],
@@ -797,6 +863,7 @@
     }
   },
   "cf.fn.db-ST.g-3m.ry": {
+    "period": "duration",
     "gaap": [
       "RepaymentsOfShortTermDebtMaturingInMoreThanThreeMonths"
     ],
@@ -805,6 +872,7 @@
     }
   },
   "cf.fn.db-ST.ot": {
+    "period": "duration",
     "label": {
       "long": "Proceeds from (Repayments of) Other Short-term Debt"
     },
@@ -817,6 +885,7 @@
     }
   },
   "cf.fn.db-ST.ot.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromOtherShortTermDebt"
     ],
@@ -825,6 +894,7 @@
     }
   },
   "cf.fn.db-ST.ot.ry": {
+    "period": "duration",
     "gaap": [
       "RepaymentsOfOtherShortTermDebt"
     ],
@@ -833,6 +903,7 @@
     }
   },
   "cf.fn.ot": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromPaymentsForOtherFinancingActivities"
     ],
@@ -842,6 +913,7 @@
     }
   },
   "cf.fn.py_dv": {
+    "period": "duration",
     "gaap": [
       "PaymentsOfDividends"
     ],
@@ -850,6 +922,7 @@
     }
   },
   "cf.fn.py_dv.cm_st": {
+    "period": "duration",
     "gaap": [
       "PaymentsOfDividendsCommonStock",
       "PaymentsOfDividendsAndDividendEquivalentsOnCommonStockAndRestrictedStockUnits"
@@ -859,6 +932,7 @@
     }
   },
   "cf.iv": {
+    "period": "duration",
     "gaap": [
       "NetCashProvidedByUsedInInvestingActivities"
     ],
@@ -878,6 +952,7 @@
     }
   },
   "cf.iv.in": {
+    "period": "duration",
     "label": {
       "long": "Investing Cash Inflow",
       "short": "Investing Inflow"
@@ -897,6 +972,7 @@
     }
   },
   "cf.iv.out": {
+    "period": "duration",
     "label": {
       "long": "Investing Cash Outflow",
       "short": "Investing Outflow"
@@ -916,6 +992,7 @@
     }
   },
   "cf.iv.bs.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromDivestitureOfBusinessesAndInterestsInAffiliates"
     ],
@@ -924,6 +1001,7 @@
     }
   },
   "cf.iv.bs.py": {
+    "period": "duration",
     "gaap": [
       "PaymentsToAcquireBusinessesNetOfCashAcquired"
     ],
@@ -932,6 +1010,7 @@
     }
   },
   "cf.iv.bs": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -939,12 +1018,12 @@
         "cf.iv.bs.py": -1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Net Cash from Acquisitions and Divestitures"
     }
   },
   "cf.iv.sc.pc": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -959,6 +1038,7 @@
     }
   },
   "cf.iv.sc.pc.db": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromSaleOfAvailableForSaleSecuritiesDebt"
     ],
@@ -967,12 +1047,13 @@
     }
   },
   "cf.iv.sc.pc.eq": {
-    "gaap": [],
+    "period": "duration",
     "label": {
       "long": "Proceeds from Sale of Marketable Equity Securities"
     }
   },
   "cf.iv.sc.pc.mt": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailableForSaleSecurities"
     ],
@@ -981,6 +1062,7 @@
     }
   },
   "cf.iv.ot": {
+    "period": "duration",
     "gaap": [
       "PaymentsForProceedsFromOtherInvestingActivities"
     ],
@@ -990,6 +1072,7 @@
     }
   },
   "cf.iv.PPE": {
+    "period": "duration",
     "label": {
       "long": "Net Cash from Purchase and Sale of Property, Plant and Equipment",
       "short": "Net PPE Purchase/Sales"
@@ -1003,6 +1086,7 @@
     }
   },
   "cf.iv.PPE.py": {
+    "period": "duration",
     "gaap": [
       "PaymentsToAcquirePropertyPlantAndEquipment",
       "PaymentsToAcquireProductiveAssets"
@@ -1013,6 +1097,7 @@
     }
   },
   "cf.iv.PPE.pc": {
+    "period": "duration",
     "gaap": [
       "ProcceedsFromSaleOfPropertyPlantAndEquipment"
     ],
@@ -1022,6 +1107,7 @@
     }
   },
   "cf.iv.itg": {
+    "period": "duration",
     "label": {
       "long": "Net Cash from Purchase and Sale of Intangible Assets",
       "short": "Net Intangible Purchase and Sales"
@@ -1035,6 +1121,7 @@
     }
   },
   "cf.iv.itg.pc": {
+    "period": "duration",
     "gaap": [
       "ProceedsFromSaleOfIntangibleAssets"
     ],
@@ -1043,6 +1130,7 @@
     }
   },
   "cf.iv.itg.py": {
+    "period": "duration",
     "gaap": [
       "PaymentsToAcquireIntangibleAssets"
     ],
@@ -1051,6 +1139,7 @@
     }
   },
   "cf.iv.sc.py": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -1066,6 +1155,7 @@
     }
   },
   "cf.iv.sc.py.db": {
+    "period": "duration",
     "gaap": [
       "PaymentsToAcquireAvailableForSaleSecuritiesDebt"
     ],
@@ -1074,12 +1164,14 @@
     }
   },
   "cf.iv.sc.py.eq": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Payments to Acquire Marketable Equity Securities"
     }
   },
   "cf.iv.sc": {
+    "period": "duration",
     "gaap": [
       "PaymentsForProceedsFromInvestments"
     ],
@@ -1096,6 +1188,7 @@
     }
   },
   "cf.op": {
+    "period": "duration",
     "gaap": [
       "NetCashProvidedByUsedInOperatingActivities"
     ],
@@ -1116,6 +1209,7 @@
     }
   },
   "cf.op.WC": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "any": {
@@ -1131,12 +1225,12 @@
         "cg|l-c.pb": -1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Change in Net Working Capital"
     }
   },
   "cf.op.ot_n-ch": {
+    "period": "duration",
     "gaap": [
       "OtherNoncashIncomeExpense"
     ],
@@ -1145,6 +1239,7 @@
     }
   },
   "cf.op.sh_cp": {
+    "period": "duration",
     "gaap": [
       "ShareBasedCompensation"
     ],
@@ -1153,6 +1248,7 @@
     }
   },
   "cf.op.in": {
+    "period": "duration",
     "label": {
       "long": "Operating Cash Inflow",
       "short": "Operating Inflow"
@@ -1188,6 +1284,7 @@
     }
   },
   "cf.op.out": {
+    "period": "duration",
     "label": {
       "long": "Operating Cash Outflow",
       "short": "Operating Outflow"
@@ -1219,6 +1316,7 @@
     }
   },
   "cg|a-c.d-tx": {
+    "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Deferred Tax Assets",
       "short": "Change in Current Deferred Tax Assets"
@@ -1234,6 +1332,7 @@
     }
   },
   "cg|a-c.ivt": {
+    "period": "duration",
     "gaap": [
       "IncreaseDecreaseInInventories"
     ],
@@ -1252,6 +1351,7 @@
     }
   },
   "cg|a-c.ot": {
+    "period": "duration",
     "gaap": [
       "IncreaseDecreaseInOtherOperatingAssets"
     ],
@@ -1270,6 +1370,7 @@
     }
   },
   "cg|a-c.pp_ep": {
+    "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Prepaid Expenses",
       "short": "Change in Prepaid Expenses"
@@ -1285,6 +1386,7 @@
     }
   },
   "cg|a-c.rc.td": {
+    "period": "duration",
     "gaap": [
       "IncreaseDecreaseInAccountsReceivable"
     ],
@@ -1303,6 +1405,7 @@
     }
   },
   "cg|l-c.acr_ep": {
+    "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Accrued Expenses",
       "short": "Change in Accrued Expenses"
@@ -1318,6 +1421,7 @@
     }
   },
   "cg|l-c.d-rv": {
+    "period": "duration",
     "gaap": [
       "IncreaseDecreaseInDeferredRevenue",
       "IncreaseDecreaseInContractWithCustomerLiability"
@@ -1337,6 +1441,7 @@
     }
   },
   "cg|l-c.d-tx": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Change in Current Deferred Tax Liabilities"
@@ -1352,6 +1457,7 @@
     }
   },
   "cg|l-c.ot": {
+    "period": "duration",
     "gaap": [
       "IncreaseDecreaseInOtherOperatingLiabilities"
     ],
@@ -1370,6 +1476,7 @@
     }
   },
   "cg|l-c.pb": {
+    "period": "duration",
     "gaap": [
       "IncreaseDecreaseInAccountsPayable"
     ],
@@ -1388,6 +1495,7 @@
     }
   },
   "ci": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "all": {
@@ -1403,6 +1511,7 @@
     }
   },
   "ci.mn_it": {
+    "period": "duration",
     "gaap": [
       "ComprehensiveIncomeNetOfTaxAttributableToNoncontrollingInterest"
     ],
@@ -1411,6 +1520,7 @@
     }
   },
   "ci.nt_mn_it": {
+    "period": "duration",
     "gaap": [
       "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest"
     ],
@@ -1419,6 +1529,7 @@
     }
   },
   "d-tx": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -1436,6 +1547,7 @@
     }
   },
   "d-tx.lc": {
+    "period": "duration",
     "gaap": [
       "DeferredStateAndLocalIncomeTaxExpenseBenefit"
     ],
@@ -1444,6 +1556,7 @@
     }
   },
   "d-tx.na": {
+    "period": "duration",
     "gaap": [
       "DeferredFederalIncomeTaxExpenseBenefit"
     ],
@@ -1452,6 +1565,7 @@
     }
   },
   "d_tx.fo": {
+    "period": "duration",
     "gaap": [
       "DeferredForeignIncomeTaxExpenseBenefit"
     ],
@@ -1460,6 +1574,7 @@
     }
   },
   "eq": {
+    "period": "instant",
     "gaap": [
       "StockholdersEquity"
     ],
@@ -1468,6 +1583,7 @@
     }
   },
   "eq.acm_OCI": {
+    "period": "instant",
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossNetOfTax"
     ],
@@ -1476,6 +1592,7 @@
     }
   },
   "eq.acm_OCI.DI": {
+    "period": "instant",
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossCumulativeChangesInNetGainLossFromCashFlowHedgesEffectNetOfTax"
     ],
@@ -1485,6 +1602,7 @@
     }
   },
   "eq.acm_OCI.iv": {
+    "period": "instant",
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax"
     ],
@@ -1494,6 +1612,7 @@
     }
   },
   "eq.cm_st": {
+    "period": "instant",
     "gaap": [
       "CommonStockValue",
       "CommonStockNoParValue"
@@ -1503,6 +1622,7 @@
     }
   },
   "eq.APIC": {
+    "period": "instant",
     "gaap": [
       "AdditionalPaidInCapital"
     ],
@@ -1511,6 +1631,7 @@
     }
   },
   "eq.cm_st_APIC": {
+    "period": "instant",
     "gaap": [
       "CommonStocksIncludingAdditionalPaidInCapital"
     ],
@@ -1526,6 +1647,7 @@
     }
   },
   "eq.mn_it": {
+    "period": "instant",
     "gaap": [
       "NoncontrollingInterest"
     ],
@@ -1535,6 +1657,7 @@
     }
   },
   "eq.rtn_ea/acm_dfc": {
+    "period": "instant",
     "gaap": [
       "RetainedEarningsAccumulatedDeficit"
     ],
@@ -1543,6 +1666,7 @@
     }
   },
   "gs_pf": {
+    "period": "duration",
     "calculation": {
       "order": 1,
       "all": {
@@ -1558,6 +1682,7 @@
     }
   },
   "i/l": {
+    "period": "duration",
     "calculation": {
       "order": 5,
       "all": {
@@ -1574,6 +1699,7 @@
     }
   },
   "i/l.b-tx": {
+    "period": "duration",
     "calculation": {
       "order": 3,
       "all": {
@@ -1591,18 +1717,21 @@
     }
   },
   "i/l.cn_op": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Net Income (Loss) from Continuing Operations"
     }
   },
   "i/l.dc_op": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Income (Loss) from Discontinued Operations"
     }
   },
   "i/l.mn_it": {
+    "period": "duration",
     "gaap": [
       "NetIncomeLossAttributableToNoncontrollingInterest"
     ],
@@ -1611,6 +1740,7 @@
     }
   },
   "i/l.nt_mn_it": {
+    "period": "duration",
     "calculation": {
       "order": 4,
       "all": {
@@ -1626,12 +1756,14 @@
     }
   },
   "nrcr-i/l": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Non-recurring Income (Loss)"
     }
   },
   "l-c": {
+    "period": "instant",
     "gaap": [
       "LiabilitiesCurrent"
     ],
@@ -1641,6 +1773,7 @@
     }
   },
   "l-c.acr_ep": {
+    "period": "instant",
     "gaap": [
       "AccruedLiabilities",
       "AccruedLiabilitiesCurrent"
@@ -1659,6 +1792,7 @@
     }
   },
   "l-c.acr_ep.em_bf": {
+    "period": "instant",
     "gaap": [
       "EmployeeRelatedLiabilitiesCurrent"
     ],
@@ -1667,6 +1801,7 @@
     }
   },
   "l-c.acr_ep.mk": {
+    "period": "instant",
     "gaap": [
       "AccruedMarketingCostsCurrent",
       "AccruedMarketingAndDistributionCurrent"
@@ -1676,6 +1811,7 @@
     }
   },
   "l-c.acr_ep.ot": {
+    "period": "instant",
     "gaap": [
       "OtherAccruedLiabilitiesCurrent"
     ],
@@ -1684,6 +1820,7 @@
     }
   },
   "l-c.acr_ep.tx": {
+    "period": "instant",
     "gaap": [
       "AccruedIncomeTaxesCurrent"
     ],
@@ -1692,6 +1829,7 @@
     }
   },
   "l-c.d-rv": {
+    "period": "instant",
     "gaap": [
       "DeferredRevenueCurrent",
       "ContractWithCustomerLiability",
@@ -1702,6 +1840,7 @@
     }
   },
   "l-c.db": {
+    "period": "instant",
     "calculation": {
       "order": 0,
       "any": {
@@ -1716,6 +1855,7 @@
     }
   },
   "l-c.db.CP": {
+    "period": "instant",
     "gaap": [
       "CommercialPaper"
     ],
@@ -1724,6 +1864,7 @@
     }
   },
   "l-c.db.LT": {
+    "period": "instant",
     "gaap": [
       "LongTermDebtCurrent"
     ],
@@ -1732,6 +1873,7 @@
     }
   },
   "l-c.db.ot": {
+    "period": "instant",
     "gaap": [
       "OtherShortTermBorrowings"
     ],
@@ -1740,6 +1882,7 @@
     }
   },
   "l-c.ot": {
+    "period": "instant",
     "gaap": [
       "OtherLiabilitiesCurrent"
     ],
@@ -1748,6 +1891,7 @@
     }
   },
   "l-c.pb": {
+    "period": "instant",
     "gaap": [
       "AccountsPayable",
       "AccountsPayableCurrent"
@@ -1757,6 +1901,7 @@
     }
   },
   "l-n": {
+    "period": "instant",
     "gaap": [
       "LiabilitiesNoncurrent"
     ],
@@ -1766,6 +1911,7 @@
     }
   },
   "l-n.acr_ep": {
+    "period": "instant",
     "gaap": [
       "AccruedLiabilitiesNoncurrent"
     ],
@@ -1781,6 +1927,7 @@
     }
   },
   "l-n.acr_ep.ot": {
+    "period": "instant",
     "gaap": [
       "OtherAccruedLiabilitiesNoncurrent"
     ],
@@ -1789,6 +1936,7 @@
     }
   },
   "l-n.acr_ep.tx": {
+    "period": "instant",
     "gaap": [
       "AccruedIncomeTaxesNoncurrent"
     ],
@@ -1797,6 +1945,7 @@
     }
   },
   "l-n.d-rv": {
+    "period": "instant",
     "gaap": [
       "DeferredRevenueNoncurrent",
       "ContractWithCustomerLiabilityNoncurrent"
@@ -1806,6 +1955,7 @@
     }
   },
   "l-n.d-tx": {
+    "period": "instant",
     "gaap": [
       "DeferredTaxLiabilitiesNoncurrent"
     ],
@@ -1814,6 +1964,7 @@
     }
   },
   "l-n.db-LT": {
+    "period": "instant",
     "gaap": [
       "LongTermDebtNoncurrent"
     ],
@@ -1822,6 +1973,7 @@
     }
   },
   "l-n.ot": {
+    "period": "instant",
     "gaap": [
       "OtherLiabilitiesNoncurrent"
     ],
@@ -1830,6 +1982,7 @@
     }
   },
   "lb": {
+    "period": "instant",
     "calculation": {
       "order": 2,
       "all": {
@@ -1846,6 +1999,7 @@
     }
   },
   "lb_eq": {
+    "period": "instant",
     "calculation": {
       "order": 3,
       "all": {
@@ -1861,6 +2015,7 @@
     }
   },
   "n-op_ep": {
+    "period": "duration",
     "calculation": {
       "order": 1,
       "any": {
@@ -1874,6 +2029,7 @@
     }
   },
   "n-op_ep.imp": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -1887,6 +2043,7 @@
     }
   },
   "n-op_ep.imp.gw": {
+    "period": "duration",
     "gaap": [
       "GoodwillImpairmentLoss"
     ],
@@ -1895,6 +2052,7 @@
     }
   },
   "n-op_ep.imp.itg": {
+    "period": "duration",
     "gaap": [
       "ImpairmentOfIntangibleAssetsExcludingGoodwill",
       "ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill"
@@ -1905,6 +2063,7 @@
     }
   },
   "n-op_ep.it": {
+    "period": "duration",
     "gaap": [
       "InterestExpense"
     ],
@@ -1913,6 +2072,7 @@
     }
   },
   "n-op_i/e": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "all": {
@@ -1929,6 +2089,7 @@
     }
   },
   "n-op_i/e.ot": {
+    "period": "duration",
     "gaap": [
       "OtherNonoperatingIncomeExpense"
     ],
@@ -1937,6 +2098,7 @@
     }
   },
   "n-op_in": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -1948,6 +2110,7 @@
     }
   },
   "n-op_in.iv": {
+    "period": "duration",
     "gaap": [
       "InvestmentIncomeInterestAndDividend"
     ],
@@ -1956,6 +2119,7 @@
     }
   },
   "oc_i/l": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "any": {
@@ -1975,6 +2139,7 @@
     }
   },
   "oc_i/l.DI": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "all": {
@@ -1991,6 +2156,7 @@
     }
   },
   "oc_i/l.DI.b-rc": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossbeforeReclassificationafterTax"
     ],
@@ -1999,6 +2165,7 @@
     }
   },
   "oc_i/l.DI.rc": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossReclassificationAfterTax"
     ],
@@ -2007,6 +2174,7 @@
     }
   },
   "oc_i/l.LDIC_DRC": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "all": {
@@ -2022,6 +2190,7 @@
     }
   },
   "oc_i/l.LDIC_DRC.b-tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossLongDurationInsuranceContractsDiscountRateChangesBeforeTax"
     ],
@@ -2030,6 +2199,7 @@
     }
   },
   "oc_i/l.LDIC_DRC.tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossLongDurationInsuranceContractDiscountRateChangesTax"
     ],
@@ -2038,6 +2208,7 @@
     }
   },
   "oc_i/l.fx_tt": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "all": {
@@ -2053,6 +2224,7 @@
     }
   },
   "oc_i/l.fx_tt.b-tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentBeforeTax"
     ],
@@ -2061,6 +2233,7 @@
     }
   },
   "oc_i/l.fx_tt.tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentTax"
     ],
@@ -2069,6 +2242,7 @@
     }
   },
   "oc_i/l.iv": {
+    "period": "duration",
     "calculation": {
       "order": 1,
       "all": {
@@ -2084,6 +2258,7 @@
     }
   },
   "oc_i/l.iv.b-rc": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "all": {
@@ -2099,6 +2274,7 @@
     }
   },
   "oc_i/l.iv.b-rc.b-tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeUnrealizedHoldingGainLossOnSecuritiesArisingDuringPeriodBeforeTax"
     ],
@@ -2107,6 +2283,7 @@
     }
   },
   "oc_i/l.iv.rc": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesNetOfTax"
     ],
@@ -2115,6 +2292,7 @@
     }
   },
   "oc_i/l.iv.rc.tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesTax"
     ],
@@ -2123,6 +2301,7 @@
     }
   },
   "oc_i/l.ot": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeOtherNetOfTax"
     ],
@@ -2131,6 +2310,7 @@
     }
   },
   "oc_i/l.pn_bf_pl": {
+    "period": "duration",
     "calculation": {
       "order": 1,
       "all": {
@@ -2146,6 +2326,7 @@
     }
   },
   "oc_i/l.pn_bf_pl.b-tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentBeforeTax"
     ],
@@ -2154,6 +2335,7 @@
     }
   },
   "oc_i/l.pn_bf_pl.tx": {
+    "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansTax"
     ],
@@ -2162,6 +2344,7 @@
     }
   },
   "op_ep": {
+    "period": "duration",
     "calculation": {
       "order": 1,
       "any": {
@@ -2180,6 +2363,7 @@
     }
   },
   "op_ep.DDAA": {
+    "period": "duration",
     "calculation": {
       "order": 1,
       "any": {
@@ -2198,6 +2382,7 @@
     }
   },
   "op_ep.DDAA.am": {
+    "period": "duration",
     "gaap": [
       "AmortizationOfIntangibleAssets",
       "FiniteLivedIntangibleAssetsAmortizationExpense"
@@ -2207,6 +2392,7 @@
     }
   },
   "op_ep.DDAA.dp": {
+    "period": "duration",
     "gaap": [
       "Depreciation"
     ],
@@ -2224,6 +2410,7 @@
     }
   },
   "op_ep.RD": {
+    "period": "duration",
     "gaap": [
       "ResearchAndDevelopmentExpense"
     ],
@@ -2233,6 +2420,7 @@
     }
   },
   "op_ep.SGA": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -2249,6 +2437,7 @@
     }
   },
   "op_ep.SGA.GA": {
+    "period": "duration",
     "gaap": [
       "GeneralAndAdministrativeExpense"
     ],
@@ -2258,6 +2447,7 @@
     }
   },
   "op_ep.SGA.SM": {
+    "period": "duration",
     "gaap": [
       "SellingAndMarketingExpense",
       "MarketingExpense"
@@ -2267,6 +2457,7 @@
     }
   },
   "op_ep.SGA.SM.av": {
+    "period": "duration",
     "gaap": [
       "AdvertisingExpense"
     ],
@@ -2275,6 +2466,7 @@
     }
   },
   "op_ep.la_rn": {
+    "period": "duration",
     "gaap": [
       "LeaseAndRentalExpense"
     ],
@@ -2283,6 +2475,7 @@
     }
   },
   "op_ep.ot": {
+    "period": "duration",
     "gaap": [
       "OtherOperatingExpense"
     ],
@@ -2291,6 +2484,7 @@
     }
   },
   "op_i/l": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "all": {
@@ -2306,6 +2500,7 @@
     }
   },
   "op_i/l.sankey": {
+    "period": "duration",
     "calculation": {
       "order": 2,
       "all": {
@@ -2316,6 +2511,7 @@
     "label": {}
   },
   "rv": {
+    "period": "duration",
     "gaap": [
       "Revenues",
       "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -2327,6 +2523,7 @@
     }
   },
   "rv.fn": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -2339,6 +2536,7 @@
     }
   },
   "rv.fn.pm": {
+    "period": "duration",
     "gaap": [
       "PremiumsEarnedNet"
     ],
@@ -2347,12 +2545,14 @@
     }
   },
   "rv.ot": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Other Revenue"
     }
   },
   "rv.pd": {
+    "period": "duration",
     "gaap": [
       "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Product"
     ],
@@ -2361,6 +2561,7 @@
     }
   },
   "rv.sv": {
+    "period": "duration",
     "calculation": {
       "order": 0,
       "any": {
@@ -2378,6 +2579,7 @@
     }
   },
   "rv.sv.eg": {
+    "period": "duration",
     "gaap": [
       "UtilityAndEnergyOperatingRevenues"
     ],
@@ -2386,6 +2588,7 @@
     }
   },
   "rv.sv.la": {
+    "period": "duration",
     "gaap": [
       "OperatingLeaseLeaseIncome"
     ],
@@ -2394,6 +2597,7 @@
     }
   },
   "rv.sv.tr": {
+    "period": "duration",
     "gaap": [
       "FreightRailTransportationRevenues"
     ],
@@ -2402,6 +2606,7 @@
     }
   },
   "rv_cs": {
+    "period": "duration",
     "gaap": [
       "CostOfGoodsAndServicesSold"
     ],
@@ -2411,18 +2616,21 @@
     }
   },
   "rv_cs.fn": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Finance Revenue Cost"
     }
   },
   "rv_cs.ot": {
+    "period": "duration",
     "gaap": [],
     "label": {
       "long": "Other Revenue Cost"
     }
   },
   "rv_cs.pd": {
+    "period": "duration",
     "gaap": [
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Product"
     ],
@@ -2431,6 +2639,7 @@
     }
   },
   "rv_cs.sv": {
+    "period": "duration",
     "gaap": [
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Service"
     ],
@@ -2439,6 +2648,7 @@
     }
   },
   "sh.os-b": {
+    "period": "duration",
     "gaap": [
       "WeightedAverageNumberOfSharesOutstandingBasic"
     ],
@@ -2448,6 +2658,7 @@
     }
   },
   "sh.os-d": {
+    "period": "duration",
     "gaap": [
       "WeightedAverageNumberOfDilutedSharesOutstanding",
       "WeightedAverageNumberDilutedSharesOutstandingAdjustment"
@@ -2458,6 +2669,7 @@
     }
   },
   "tx": {
+    "period": "duration",
     "gaap": [
       "IncomeTaxExpenseBenefit"
     ],

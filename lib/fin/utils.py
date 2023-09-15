@@ -121,6 +121,7 @@ def calculate_items(
   
   def apply_calculation(
     df: pd.DataFrame,
+    df_cols: set[str],
     calculee: str,
     schema: dict[str, int]
   ) -> pd.DataFrame:
@@ -148,7 +149,7 @@ def calculate_items(
     for key, value in schema.items():
       temp += parameter(key, value)
 
-    if calculee in df.columns:
+    if calculee in df_cols:
       df.loc[:,calculee] = temp if recalc else df[calculee].combine_first(temp)
 
     else:
@@ -156,12 +157,6 @@ def calculate_items(
       df = pd.concat([df, new_column], axis=1)
 
     return df
-
-  #if not recalc:
-  #  keys = set(schemas.keys()).difference(set(financials.columns))
-  #  schemas = {
-  #    key: schemas[key] for key in keys
-  #  }
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
 
@@ -171,13 +166,20 @@ def calculate_items(
     if isinstance(value.get('all'), dict):
       items = set(value.get('all').keys())
       if items.issubset(col_set):
-        financials = apply_calculation(financials, key, value.get('all'))
+        financials = apply_calculation(financials, col_set, key, value.get('all'))
 
     elif isinstance(value.get('any'), dict):
       schema = {
         k: v for k, v in value.get('any').items() if k in col_set
       }
       if schema:
-        financials = apply_calculation(financials, key, schema)
+        financials = apply_calculation(financials, col_set, key, schema)
 
   return financials
+
+def fix(financials: pd.DataFrame) -> pd.DataFrame:
+
+  annual = financials.xs('a', level=1)
+
+  for date in annual.index:
+    pass

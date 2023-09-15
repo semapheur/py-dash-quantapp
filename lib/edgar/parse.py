@@ -70,27 +70,26 @@ async def parse_statements(urls: list[str]) -> list[Financials]:
 async def parse_statement(url: str) -> Financials:
 
   def parse_period(period: et.Element) -> Instant|Interval:
-    if (el := period.find('./{*}instant')) is not None:
-      return {
-        'instant': el.text
-      }
-    else:
-      start_date = period.find('./{*}startDate').text
-      end_date = dt.strptime(period.find('./{*}endDate').text, '%Y-%m-%d')
-      months = month_difference(
-        dt.strptime(start_date, '%Y-%m-%d'), 
-        dt.strptime(end_date, '%Y-%m-%d')
-      )
-      return {
-        'start_date': period.find('./{*}startDate').text,
-        'end_date': period.find('./{*}endDate').text,
-        'months': months
-      }
+    if (el := period.find('./{*}instant')):
+      return {'instant': el.text}
+
+    start_date = period.find('./{*}startDate').text
+    end_date = period.find('./{*}endDate').text
+    months = month_difference(
+      dt.strptime(start_date, '%Y-%m-%d'), 
+      dt.strptime(end_date, '%Y-%m-%d')
+    )
+    return {
+      'start_date': start_date ,
+      'end_date': end_date,
+      'months': months
+    }
 
   def parse_unit(text:str) -> str:
-    if '_' in text:
-      text = text.split('_')[-1].lower()
-    return text
+    if '_' not in text:
+      return text
+    
+    return text.split('_')[-1].lower()
 
   def parse_member(item: et.Element, segment: et.Element) -> Member:
     def name(text:str) -> str|None:
@@ -108,9 +107,7 @@ async def parse_statement(url: str) -> Financials:
   async def fetch(url: str) -> et.Element:
     async with httpx.AsyncClient() as client:
       rs = await client.get(url, headers=HEADERS)
-      root = et.fromstring(rs.content)
-
-    return root
+      return et.fromstring(rs.content)
   
   try:
     root = await fetch(url)
@@ -127,8 +124,9 @@ async def parse_statement(url: str) -> Financials:
   }
   meta: Meta = {
     'id': url.split('/')[-2],
-    'scope': form[root.find('.{*}DocumentType').text],
     'date': root.find('.{*}DocumentPeriodEndDate').text,
+    'scope': form[root.find('.{*}DocumentType').text],
+    'fiscal_period': root.find('.{*}DocumentFiscalPeriodFocus').text,
     'fiscal_end': root.find('.{*}CurrentFiscalYearEndDate').text[1:]
   }
   data: Financials = {
@@ -147,21 +145,16 @@ async def parse_statement(url: str) -> Financials:
     period_el = root.find(f'./{{*}}context[@id="{ctx}"]').find('./{*}period')
     temp['period'] = parse_period(period_el)
 
-    # Segment
-    seg = root \
+    segment = root \
       .find(f'./{{*}}context[@id="{ctx}"]') \
       .find('.//{*}segment/{*}explicitMember')
     
-    if seg is not None:
-      temp['member'] = parse_member(item, seg)
+    if segment is not None:
+      temp['member'] = parse_member(item, segment)
     else:    
-      # Numerical value
       temp['value'] = float(item.text)
-      
-      # Unit
       temp['unit'] = parse_unit(item.attrib['unitRef'])
     
-    # Append scrapping
     item_name = item.tag.split('}')[-1]
     if item_name not in data['data']:
       data['data'][item_name] = [temp]
@@ -172,10 +165,7 @@ async def parse_statement(url: str) -> Financials:
         if i['period'] == temp['period']
       )
       if 'member' in temp:
-        if 'member' in entry:
-          entry['member'].update(temp['member'])
-        else:
-          entry['member'] = temp['member']
+        entry.setdefault('member', {}).update(temp['member'])
       else:
         entry.update(temp)
     except Exception:
@@ -231,49 +221,26 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   def get_scope(months: int) -> str:
     return Scope(months).name[0].lower()
     
-  def parse_period(period: dict[str, str]) -> tuple[int, dt]:
-    if 'instant' in period:
-      return Scope[fin_scope.upper()].value, dt.strptime(period['instant'], '%Y-%m-%d')
-        
-    start_date = dt.strptime(period['start_date'], '%Y-%m-%d')
-    end_date = dt.strptime(period['end_date'], '%Y-%m-%d')
-    months = month_difference(start_date, end_date)
-
-    return months, dt.strptime(period['end_date'], '%Y-%m-%d')
+  def parse_date(period: dict[str, str]) -> tuple[int, dt]:
+    date = period.get('instant', period.get('end_date'))
+    return dt.strptime(date, '%Y-%m-%d')
         
   fin_date = dt.strptime(glom(financials, 'meta.date'), '%Y-%m-%d')
   fin_scope = glom(financials, 'meta.scope')
+  fin_period = glom(financials, 'meta.period')
   
   df_data: dict[tuple(dt, str), dict[str, int]] = {}
 
   for item, entries in financials['data'].items():
     for entry in entries:
-      #if ('instant' not in entry['period'] and 
-      #  entry['period'].get('months', 0) != Scope[scope].value
-      #):
-      #  continue
+      months = entry['period'].get('months', Scope[fin_scope].value)
+      date = parse_date(entry['period'])
 
-      months, date = parse_period(entry['period'])
-
-      condition = (date == fin_date and (
-        fin_scope == 'annual' and months in {3, 12} or
-        fin_scope == 'quarterly' and months == 3
-      ))
-
-      if not condition:
+      if date != fin_date:
         continue
       
       if value := entry.get('value'):
-        df_data.setdefault((fin_date, get_scope(months)), {})[item] = value
-        #df_data[(fin_date, get_scope(months))].update({
-        #  item: value
-        #})
-
-        if fin_scope == 'annual' and 'instant' in entry['period']:
-          df_data.setdefault((fin_date, 'q'), {})[item] = value
-          #df_data[(fin_date, 'q')].update({
-          #  item: value
-          #})
+        df_data.setdefault((fin_date, fin_period, months), {})[item] = value
       
       if members := entry.get('member'):
         for member, m_entry in members.items():
@@ -281,11 +248,6 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
             dim = '.' + d if (d := m_entry.get('dim')) else ''
             key = f'{item}{dim}.{member}'
             df_data.setdefault((fin_date, get_scope(months)), {})[key] = m_value
-            #df_data[(fin_date, get_scope(months))] \
-            #  .update({key: m_value})
-
-            if fin_scope == 'annual' and 'instant' in entry['period']:
-              df_data.setdefault((fin_date, 'q'), {})[key] = m_value
   
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)

@@ -7,6 +7,16 @@ import pandas as pd
 
 from lib.db.lite import insert_sqlite
 
+def xbrl_namespaces(dom: bs.BeautifulSoup) -> dict:
+
+  pattern = r'(?<=^xmlns:)[a-z\-]+$'
+  namespaces = {}
+  for ns, url in dom.find('xbrl').attrs.items():
+    if (match := re.search(pattern, ns)):
+      namespaces[match.group()] = url
+
+  return namespaces
+
 def gaap_items(year: int = 2023) -> pd.DataFrame:
 
   def parse_type(text: str):
