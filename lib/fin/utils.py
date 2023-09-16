@@ -5,6 +5,8 @@ from glom import glom
 import numpy as np
 import pandas as pd
 
+from lib.utils import df_month_difference
+
 class Template(TypedDict):
   income: dict[str, int]
   balance: dict[str, int]
@@ -129,6 +131,32 @@ def calculate_items(
   recalc: bool = False
 ) -> pd.DataFrame:
   
+  def differ(s: pd.Series) -> pd.DataFrame:
+    
+    slices = (
+      (slice(None), 'FY', 12),
+      (slice(None), slice(None), 3)
+    )
+    update = [pd.Series()] * len(slices)
+
+    for i, ix in enumerate(slices):
+      _s = s.loc[ix,:]
+      _s.sort_index('date', inplace=True)
+
+      month_diff = df_month_difference(_s.index.get_level_values('date'))
+
+      _s = _s.diff()
+      _s = _s.loc[month_diff == ix[2]]
+      update[i] = _s
+
+    update = pd.concat(update, axis=0)
+    nan_index = pd.Index(list(set(s.index).difference(update.index)))
+
+    s.loc[_s.index] = update
+    s.loc[nan_index] = np.nan
+
+    return s
+  
   def apply_calculation(
     df: pd.DataFrame,
     df_cols: set[str],
@@ -147,7 +175,7 @@ def calculate_items(
         
         if (op := instruction.get('apply', '')):
           if op == 'diff':
-            result = result.diff()
+            result = differ(result)
 
         result *= instruction['weight'] 
 

@@ -26,7 +26,8 @@ from lib.edgar.models import (
 )
 from lib.fin.utils import Taxonomy
 from lib.utils import (
-  combine_duplicate_columns, 
+  combine_duplicate_columns,
+  df_month_difference, 
   insert_characters, 
   month_difference, 
   fiscal_quarter
@@ -286,11 +287,6 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   return df
 
 def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
-
-  def month_diff(dates: pd.DatetimeIndex):
-    return  np.round(
-      dates.to_series().diff() / np.timedelta64(1, 'M')
-    ).array
   
   _filter = taxonomy.item_names('gaap')
   df = df[list(set(df.columns).intersection(_filter))]
@@ -317,10 +313,11 @@ def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
     )
     _df = df.loc[mask,duration] # duration
     _df.sort_index(level='date')
-    _df.loc[:,'month_diff'] = month_diff(_df.index.get_level_values('date'))
+    _df.loc[:,'month_diff'] = df_month_difference(
+      _df.index.get_level_values('date')).array
 
-    _df = _df.loc[_df['month_diff'] == 3,:]
     _df = _df.diff()
+    _df = _df.loc[_df['month_diff'] == 3,:]
 
     _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]),:]
     _df.reset_index(level='months', inplace=True)
@@ -342,9 +339,12 @@ def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
     (months == 12) & (period == 'FY')
   )
 
-  df.reset_index(level='months', drop=True, inplace=True)
+  #df.reset_index(level='months', inplace=True)
+  #df.loc[df['months'] == 12,'months'] = 'a'
+  #df.loc[df['months'] == 3,'months'] = 'q'
+  #df.rename(columns={'months': 'scope'}, inplace=True)
+  #df.set_index('scope', append=True, inplace=True)
 
-  df.set_index('period', append=True, inplace=True)
   df = df.loc[mask, df.columns != 'month_diff']
   
   return df.copy()
