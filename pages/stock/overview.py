@@ -38,7 +38,7 @@ def layout(id: Optional[str] = None):
   if cik:
     template = load_template('sankey')
     taxonomy = Taxonomy(set(template['item']))
-    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy, True))
+    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
     template = merge_labels(template, taxonomy)
 
     schema = taxonomy.calculation_schema(set(template['item']))
@@ -70,10 +70,10 @@ def layout(id: Optional[str] = None):
           dcc.RadioItems(id='radio:stock:scope', className=radio_wrap_style,
             inputClassName=radio_input_style,
             labelClassName=radio_label_style,
-            value='a',
+            value=12,
             options=[
-              {'label': 'Annual', 'value': 'a'},
-              {'label': 'Quarterly', 'value': 'q'},
+              {'label': 'Annual', 'value': 12},
+              {'label': 'Quarterly', 'value': 3},
             ]),
         ]),
         dcc.Graph(id='graph:stock:sankey', responsive=True)
@@ -96,7 +96,7 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
     return no_update
   
   fin = (pd.DataFrame.from_records(fin)
-    .set_index(['date', 'period'])
+    .set_index(['date', 'months'])
     .xs((date, scope))
   )
 
@@ -178,7 +178,7 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
 )
 def update_dropdown(fin: list[dict], scope: str):
   fin = (pd.DataFrame.from_records(fin)
-    .set_index(['date', 'period'])
+    .set_index(['date', 'months'])
     .xs(scope, level=1) 
     .sort_index(ascending=False) 
   )

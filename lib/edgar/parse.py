@@ -313,20 +313,21 @@ def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
     )
     _df = df.loc[mask,duration] # duration
     _df.sort_index(level='date')
-    _df.loc[:,'month_diff'] = df_month_difference(
+    _df.loc[:, 'month_diff'] = df_month_difference(
       _df.index.get_level_values('date')).array
 
-    _df = _df.diff()
+    cols = _df.columns.difference(['month_diff'])
+    _df.loc[:, cols] = _df.loc[:, cols].diff()
     _df = _df.loc[_df['month_diff'] == 3,:]
 
-    _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]),:]
+    _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
     _df.reset_index(level='months', inplace=True)
-    _df.loc[:,'months'] = 3
+    _df.loc[:, 'months'] = 3
     _df.set_index('months', append=True, inplace=True)
 
     if conditions[i][0] == 'FY':
       _df.reset_index(level='period', inplace=True)
-      _df.loc[:,'period'] = 'Q4'
+      _df.loc[:, 'period'] = 'Q4'
       _df.set_index('period', append=True, inplace=True)
       _df = _df.reorder_levels(['date', 'period', 'months'])
 
