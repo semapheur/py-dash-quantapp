@@ -23,7 +23,7 @@ from lib.edgar.parse import (
   statement_to_df
 )
 from lib.fin.utils import Taxonomy
-from lib.utils import camel_split, combine_duplicate_columns, snake_abbreviate
+from lib.utils import camel_split, snake_abbreviate
 
 class Company():
   __slots__ = ('_cik')
@@ -306,7 +306,8 @@ if {'2q', '3q', '4q'}.intersection(set(df.index.get_level_values('period'))):
 # Additional items
 df['rvnEx'].fillna(df['rvn'] - df['grsPrft'], inplace=True)
 
-df['ebit'] = df['netInc'] + df['intEx'] + df['taxEx'] #df['ebit'] = df['rvn'] - df['rvnEx'] - df['opEx']
+df['ebit'] = df['netInc'] + df['intEx'] + df['taxEx'] 
+#df['ebit'] = df['rvn'] - df['rvnEx'] - df['opEx']
 df['ebitda'] = df['ebit'] + df['da']
 df['intCvg'] = (df['ebit'] / df['intEx']) # Interest coverage
 df['taxRate'] = df['taxEx'] / df['ebt'] # Tax rate
