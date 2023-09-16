@@ -1,6 +1,7 @@
 from typing import Literal, Optional, TypedDict
 import json
 
+from glom import glom
 import numpy as np
 import pandas as pd
 
@@ -41,6 +42,15 @@ class Taxonomy:
   @property
   def data(self):
     return self._data
+  
+  def select_items(self, query: dict[str, str]) -> set[str]:
+    target_key, target_value = query.popitem()
+
+    result = {
+      k for k, v in self._data.items()
+      if glom(v, target_key) == target_value
+    }
+    return result
 
   def rename_schema(self, source: str) -> dict[str, str]:
     schema = {
@@ -177,17 +187,18 @@ def calculate_items(
 
   return financials
 
-def fix(df: pd.DataFrame) -> pd.DataFrame:
+def fix(df: pd.DataFrame):
+
+  def month_diff(dates: pd.DatetimeIndex):
+    return  np.round((
+      pd.to_datetime(dates, format='%Y-%m-%d')
+        .to_series().diff()
+      ) / np.timedelta64(1, 'M')
+    ).array
 
   df.reset_index(level='period', inplace=True)
   mask = (df.index.get_level_values('months') < 12) & (df['period'] == 'FY')
   df.loc[mask, 'period'] = 'Q4'
   df.set_index('period', append=True, inplace=True)
-
-  df['month_diff'] = np.round((
-    pd.to_datetime(df.index.get_level_values('date'))
-      .to_series().diff()
-    ) / np.timedelta64(1, 'M')
-  ).values
 
   return df

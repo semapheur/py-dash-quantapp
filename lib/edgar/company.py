@@ -15,6 +15,7 @@ from lib.db.lite import read_sqlite
 from lib.db.tiny import insert_tinydb, read_tinydb
 from lib.edgar.models import Financials
 from lib.edgar.parse import (
+  fix_financials_df,
   xbrl_url,
   xbrl_urls, 
   parse_statements, 
@@ -167,7 +168,6 @@ class Company():
   async def financials_to_df(self, 
     date_format: Optional[str] = None,
     taxonomy: Optional[Taxonomy] = None,
-    select: bool = False
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     
@@ -182,21 +182,14 @@ class Company():
     df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
 
+    if taxonomy:
+      df = fix_financials_df(df, taxonomy)
+
     if date_format:
       df.index = df.index.set_levels(
         df.index.levels[0].strftime(date_format),
         level='date'
       )
-
-    if taxonomy:
-      _filter = taxonomy.item_names('gaap')
-
-      if select:
-        df = df[list(set(df.columns).intersection(_filter))]
-
-      df.rename(columns=taxonomy.rename_schema('gaap'), inplace=True)
-
-      df = combine_duplicate_columns(df)
 
     return df
 

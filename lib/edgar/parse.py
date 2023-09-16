@@ -9,6 +9,7 @@ import aiometer
 import httpx
 import bs4 as bs
 from glom import glom
+import numpy as np
 
 import pandas as pd
 from tinydb import TinyDB
@@ -23,7 +24,13 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
-from lib.utils import insert_characters, month_difference, fiscal_quarter
+from lib.fin.utils import Taxonomy
+from lib.utils import (
+  combine_duplicate_columns, 
+  insert_characters, 
+  month_difference, 
+  fiscal_quarter
+)
 
 class Scope(Enum):
   QUARTERLY = 3
@@ -233,9 +240,6 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 def statement_to_df(financials: Financials) -> pd.DataFrame:
-
-  def get_scope(months: int) -> str:
-    return Scope(months).name[0].lower()
     
   def parse_date(period: dict[str, str]) -> tuple[int, dt]:
     date = period.get('instant', period.get('end_date'))
@@ -254,9 +258,15 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
         continue
 
       months = entry['period'].get('months', Scope[fin_scope.upper()].value)
+      period = fin_period
+      if fin_period == 'FY' and months < 12:
+        period = 'Q4'
       
       if value := entry.get('value'):
-        df_data.setdefault((fin_date, fin_period, months), {})[item] = value
+        df_data.setdefault((fin_date, period, months), {})[item] = value
+
+        if fin_period == 'FY' and 'instant' in entry['period']:
+          df_data.setdefault((fin_date, 'Q4', 3), {})[item] = value
       
       if not (members := entry.get('member')):
         continue
@@ -265,12 +275,79 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
         if m_value := m_entry.get('value'):
           dim = '.' + d if (d := m_entry.get('dim')) else ''
           key = f'{item}{dim}.{member}'
-          df_data.setdefault((fin_date, fin_period, months), {})[key] = m_value
+          df_data.setdefault((fin_date, period, months), {})[key] = m_value
+
+          if fin_period == 'FY' and 'instant' in entry['period']:
+            df_data.setdefault((fin_date, 'Q4', 3), {})[key] = m_value
   
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
   df.index.names = ['date', 'period', 'months']
   return df
+
+def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
+
+  def month_diff(dates: pd.DatetimeIndex):
+    return  np.round(
+      dates.to_series().diff() / np.timedelta64(1, 'M')
+    ).array
+  
+  _filter = taxonomy.item_names('gaap')
+  df = df[list(set(df.columns).intersection(_filter))]
+
+  df.rename(columns=taxonomy.rename_schema('gaap'), inplace=True)
+  df = combine_duplicate_columns(df)
+
+  duration = taxonomy.select_items({'period': 'duration'})
+  duration = list(duration.intersection(set(df.columns)))
+  
+  conditions = (
+    ('Q1', 3),
+    ('Q2', 6),
+    ('Q3', 9),
+    ('FY', 12)
+  )
+
+  for i in range(1, len(conditions)):
+    period = df.index.get_level_values('period')
+    months = df.index.get_level_values('months')
+    mask = (
+      (period == conditions[i-1][0]) & (months == conditions[i-1][1]) |
+      (period == conditions[i][0]) & (months == conditions[i][1])
+    )
+    _df = df.loc[mask,duration] # duration
+    _df.sort_index(level='date')
+    _df.loc[:,'month_diff'] = month_diff(_df.index.get_level_values('date'))
+
+    _df = _df.loc[_df['month_diff'] == 3,:]
+    _df = _df.diff()
+
+    _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]),:]
+    _df.reset_index(level='months', inplace=True)
+    _df.loc[:,'months'] = 3
+    _df.set_index('months', append=True, inplace=True)
+
+    if conditions[i][0] == 'FY':
+      _df.reset_index(level='period', inplace=True)
+      _df.loc[:,'period'] = 'Q4'
+      _df.set_index('period', append=True, inplace=True)
+      _df = _df.reorder_levels(['date', 'period', 'months'])
+
+    df = df.combine_first(_df)
+
+  period = df.index.get_level_values('period')
+  months = df.index.get_level_values('months')
+  mask = (
+    (months == 3) & (period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) |
+    (months == 12) & (period == 'FY')
+  )
+
+  df.reset_index(level='months', drop=True, inplace=True)
+
+  df.set_index('period', append=True, inplace=True)
+  df = df.loc[mask, df.columns != 'month_diff']
+  
+  return df.copy()
 
 def get_ciks():
   rnm = {'cik_str': 'cik', 'title': 'name'}
