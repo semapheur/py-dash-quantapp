@@ -165,8 +165,7 @@ class Company():
     
     return [*financials, *new_financials]
 
-  async def financials_to_df(self, 
-    date_format: Optional[str] = None,
+  async def financials_to_df(self,
     taxonomy: Optional[Taxonomy] = None,
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
@@ -184,12 +183,6 @@ class Company():
 
     if taxonomy:
       df = fix_financials_df(df, taxonomy)
-
-    if date_format:
-      df.index = df.index.set_levels(
-        df.index.levels[0].strftime(date_format),
-        level='date'
-      )
 
     return df
 

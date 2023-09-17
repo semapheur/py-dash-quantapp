@@ -1,16 +1,15 @@
-import asyncio
 from enum import Enum
+import json
 from typing import Optional
 
 from dash import callback, dcc,html, no_update, register_page, Output, Input, State
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from components.stock_header import StockHeader
+from sqlalchemy import create_engine, text
 
-from lib.edgar.company import Company
-from lib.fin.utils import Taxonomy, calculate_items, load_template, merge_labels
-from lib.ticker.fetch import find_cik, stock_label
+from components.stock_header import StockHeader
+from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<id>/', title=stock_label)
 
@@ -35,75 +34,63 @@ def sankey_direction(sign: int) -> str:
 
 def layout(id: Optional[str] = None):
 
-  cik = find_cik(id)
-  if cik:
-    template = load_template('sankey')
-    taxonomy = Taxonomy(set(template['item']))
-    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
-    template = merge_labels(template, taxonomy)
-
-    schema = taxonomy.calculation_schema(set(template['item']))
-    financials = calculate_items(financials, schema)
-
-    #pattern = r'^(Sales)?(AndService)?Revenue'\
-    #  r'(s|Net|FromContractWithCustomerExcludingAssessedTax)'\
-    #  r'(?=\..+\..+$)'
-    #financials.columns = financials.columns.str.replace(pattern, 'rv')
-    #rv = financials.filter(regex=r'^rv\..+\..+$', axis=1)
-
-    financials = financials.reset_index().to_dict('records')
-    template = template.to_dict('records')
-
-    return html.Main(className='flex flex-col h-full', children=[
-      StockHeader(id),
-      html.Div(id='div:stock:sankey', children=[
-        html.Div(className='flex justify-around', children=[
-          dcc.Dropdown(id='dd:stock:date', className='w-36'),
-          dcc.RadioItems(id='radio:stock:sheet', className=radio_wrap_style,
+  return html.Main(className='flex flex-col h-full', children=[
+    StockHeader(id),
+    html.Div(id='div:stock:sankey', children=[
+      html.Div(className='flex justify-around', children=[
+        dcc.Dropdown(id='dd:stock:date', className='w-36'),
+        dcc.RadioItems(id='radio:stock:sheet', className=radio_wrap_style,
+        inputClassName=radio_input_style,
+        labelClassName=radio_label_style,
+        value='income',
+        options=[
+          {'label': 'Income', 'value': 'income'},
+          {'label': 'Balance', 'value': 'balance'},
+          {'label': 'Cash Flow', 'value': 'cashflow'}
+        ]),
+        dcc.RadioItems(id='radio:stock:scope', className=radio_wrap_style,
           inputClassName=radio_input_style,
           labelClassName=radio_label_style,
-          value='income',
+          value=12,
           options=[
-            {'label': 'Income', 'value': 'income'},
-            {'label': 'Balance', 'value': 'balance'},
-            {'label': 'Cash Flow', 'value': 'cashflow'}
+            {'label': 'Annual', 'value': 12},
+            {'label': 'Quarterly', 'value': 3},
           ]),
-          dcc.RadioItems(id='radio:stock:scope', className=radio_wrap_style,
-            inputClassName=radio_input_style,
-            labelClassName=radio_label_style,
-            value=12,
-            options=[
-              {'label': 'Annual', 'value': 12},
-              {'label': 'Quarterly', 'value': 3},
-            ]),
-        ]),
-        dcc.Graph(id='graph:stock:sankey', responsive=True)
       ]),
-      dcc.Store(id='store:stock:financials', data=financials),
-      dcc.Store(id='store:stock:template', data=template)
-    ])
+      dcc.Graph(id='graph:stock:sankey', responsive=True)
+    ]),
+  ])
 
 @callback(
   Output('graph:stock:sankey', 'figure'),
-  Input('store:stock:financials', 'data'),
   Input('radio:stock:sheet', 'value'),
   Input('dd:stock:date', 'value'),
   State('radio:stock:scope', 'value'),
-  State('store:stock:template', 'data'),
+  State('store:ticker-search:financials', 'data'),
 )
-def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[dict]):
+def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
 
-  if not date:
+  if not (date and data):
     return no_update
   
-  fin = (pd.DataFrame.from_records(fin)
+  fin = (pd.DataFrame.from_records(data)
     .set_index(['date', 'months'])
     .xs((date, scope))
   )
 
-  tmpl = pd.DataFrame.from_records(tmpl)
-  tmpl = tmpl.loc[tmpl['sheet'] == sheet]
-  tmpl = tmpl.loc[tmpl['item'].isin(fin.index)]
+  engine = create_engine('sqlite+pysqlite:///data/taxonomy.db')
+  query = text('''SELECT 
+    sankey.item, items.short, items.long, sankey.color, sankey.links FROM sankey 
+    LEFT JOIN items ON sankey.item = items.item
+      WHERE sankey.sheet = :sheet
+  ''').bindparams(sheet=sheet)
+
+  with engine.connect().execution_options(autocommit=True) as con:
+    tmpl = pd.read_sql(query, con=con)
+
+  tmpl = tmpl.loc[tmpl['item'].isin(set(fin.index))]
+  tmpl.loc[:,'links'] = tmpl['links'].apply(lambda x: json.loads(x))
+  tmpl.loc[:,'short'].fillna(tmpl['long'], inplace=True)
 
   Nodes = Enum('Node', tmpl['item'].tolist(), start=0)
 
@@ -174,11 +161,14 @@ def update_graph(fin: list[dict], sheet: str, date: str, scope: str, tmpl: list[
 @callback(
   Output('dd:stock:date', 'options'),
   Output('dd:stock:date', 'value'),
-  Input('store:stock:financials', 'data'),
-  Input('radio:stock:scope', 'value')
+  Input('radio:stock:scope', 'value'),
+  Input('store:ticker-search:financials', 'data'),
 )
-def update_dropdown(fin: list[dict], scope: str):
-  fin = (pd.DataFrame.from_records(fin)
+def update_dropdown(scope: str, data: list[dict]):
+  if not data:
+    return no_update
+
+  fin = (pd.DataFrame.from_records(data)
     .set_index(['date', 'months'])
     .xs(scope, level=1) 
     .sort_index(ascending=False) 

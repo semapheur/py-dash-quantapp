@@ -9,6 +9,12 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
+def int_parser(value):
+  try:
+    return int(value)
+  except (ValueError, TypeError):
+    return value
+
 def load_json(path: str|Path) -> dict:
   with open(path, 'r') as f:
     return json.load(f)

@@ -1,19 +1,17 @@
-import asyncio
 from typing import Optional
 from ordered_set import OrderedSet
 
 from dash import (
-  callback, dcc, html, no_update, register_page, Output, Input, State
+  callback, dcc, html, no_update, register_page, Output, Input
 )
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Sign
 import pandas as pd
+from sqlalchemy import create_engine, text
 
 from components.sparklines import make_sparkline
 from components.stock_header import StockHeader
-from lib.edgar.company import Company
-from lib.fin.utils import Taxonomy, calculate_items, load_template, merge_labels
-from lib.ticker.fetch import stock_label, find_cik
+from lib.ticker.fetch import stock_label
 #from lib.utils import load_json
 
 register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
@@ -69,21 +67,6 @@ def format_columns(columns: list[str], index: str) -> dict:
 
 def layout(id: Optional[str] = None):
 
-  cik = find_cik(id)
-
-  financials = template = {}
-  if cik:
-    template = load_template('table')
-    taxonomy = Taxonomy(set(template['item']))
-    template = merge_labels(template, taxonomy)
-
-    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
-    schema = taxonomy.calculation_schema(set(template['item']))
-    financials = calculate_items(financials, schema)
-
-    financials = financials.reset_index().to_dict('records')
-    template = template.to_dict('records')
-
   return html.Main(className='flex flex-col h-full', children=[
     StockHeader(id),
     html.Div(className='flex justify-around', children=[
@@ -109,30 +92,36 @@ def layout(id: Optional[str] = None):
           {'label': 'Quarterly', 'value': 3},
         ]),
     ]),
-    html.Div(id='div:stock-financials:table-wrap', className='flex-1 overflow-x-hidden p-2'),
-    dcc.Store(id='store:stock-financials:financials', data=financials),
-    dcc.Store(id='store:stock-financials:template', data=template)
+    html.Div(
+      id='div:stock-financials:table-wrap', 
+      className='flex-1 overflow-x-hidden p-2'),
   ])
 
 @callback(
   Output('div:stock-financials:table-wrap', 'children'),
-  Input('store:stock-financials:financials', 'data'),
+  Input('store:ticker-search:financials', 'data'),
   Input('radio:stock-financials:sheet', 'value'),
   Input('radio:stock-financials:scope', 'value'),
-  State('store:stock-financials:template', 'data'),
 )
-def update_table(fin: list[dict], tmpl: list[dict], sheet: str, scope: str):
-  if not fin or not tmpl:
+def update_table(data: list[dict], sheet: str, scope: str):
+  if not data:
     return no_update
   
-  tmpl = pd.DataFrame.from_records(tmpl)
-  print(tmpl)
-  tmpl = tmpl.loc[tmpl['sheet'] == sheet]
+  engine = create_engine('sqlite+pysqlite:///data/taxonomy.db')
+  query = text('''SELECT 
+    t.item, items.short, items.long, t.level FROM "table" AS t 
+    LEFT JOIN items ON t.item = items.item
+    WHERE t.sheet = :sheet
+  ''').bindparams(sheet=sheet)
 
+  with engine.connect().execution_options(autocommit=True) as con:
+    tmpl = pd.read_sql(query, con=con)
+
+  tmpl.loc[:, 'short'].fillna(tmpl['long'], inplace=True)
   labels = pd.Series(tmpl['short'].values, index=tmpl['item']).to_dict()
 
-  fin = (pd.DataFrame.from_records(fin)
-    .set_index(['date', 'period'])
+  fin = (pd.DataFrame.from_records(data)
+    .set_index(['date', 'months'])
     .xs(scope, level=1) 
     .sort_index(ascending=False) 
   )

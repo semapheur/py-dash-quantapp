@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dash import Dash, html, page_container
+from dash import Dash, dcc, html, page_container
 from dash.dependencies import Input, Output
 
 from components.header import Header
@@ -15,6 +15,7 @@ app = Dash(__name__,
 app.layout = html.Div(id='app', children=[
   Header(),
   page_container,
+  dcc.Location(id='location:app', refresh=False)
 ])
 
 app.clientside_callback(
