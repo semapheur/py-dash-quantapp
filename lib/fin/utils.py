@@ -235,16 +235,17 @@ def calculate_items(
   def differ(s: pd.Series) -> pd.DataFrame:
     
     slices = (
-      (slice(None), 'FY', 12),
-      (slice(None), slice(None), 3)
+      (slice(None), slice('FY'), slice(12)),
+      (slice(None), slice(None), slice(3))
     )
     update = [pd.Series()] * len(slices)
-
+    
     for i, ix in enumerate(slices):
-      _s = s.loc[ix,:]
-      _s.sort_index('date', inplace=True)
+      _s = s.loc[ix]
+      _s.sort_index(level='date', inplace=True)
 
-      month_diff = df_month_difference(_s.index.get_level_values('date'))
+      dates = pd.to_datetime(_s.index.get_level_values('date'))
+      month_diff = pd.Series(df_month_difference(dates).array, index=_s.index)
 
       _s = _s.diff()
       _s = _s.loc[month_diff == ix[2]]
@@ -253,7 +254,7 @@ def calculate_items(
     update = pd.concat(update, axis=0)
     nan_index = pd.Index(list(set(s.index).difference(update.index)))
 
-    s.loc[_s.index] = update
+    s.loc[update.index] = update
     s.loc[nan_index] = np.nan
 
     return s

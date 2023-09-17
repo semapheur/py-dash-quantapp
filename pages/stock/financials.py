@@ -10,6 +10,7 @@ from dash.dash_table.Format import Format, Sign
 import pandas as pd
 
 from components.sparklines import make_sparkline
+from components.stock_header import StockHeader
 from lib.edgar.company import Company
 from lib.fin.utils import Taxonomy, calculate_items, load_template, merge_labels
 from lib.ticker.fetch import stock_label, find_cik
@@ -76,7 +77,7 @@ def layout(id: Optional[str] = None):
     taxonomy = Taxonomy(set(template['item']))
     template = merge_labels(template, taxonomy)
 
-    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy, True))
+    financials = asyncio.run(Company(cik).financials_to_df('%Y-%m-%d', taxonomy))
     schema = taxonomy.calculation_schema(set(template['item']))
     financials = calculate_items(financials, schema)
 
@@ -84,8 +85,11 @@ def layout(id: Optional[str] = None):
     template = template.to_dict('records')
 
   return html.Main(className='flex flex-col h-full', children=[
+    StockHeader(id),
     html.Div(className='flex justify-around', children=[
-      dcc.RadioItems(id='radio:stock-financials:sheet', className=radio_wrap_style,
+      dcc.RadioItems(
+        id='radio:stock-financials:sheet', 
+        className=radio_wrap_style,
         inputClassName=radio_input_style,
         labelClassName=radio_label_style,
         value='income',
@@ -94,13 +98,15 @@ def layout(id: Optional[str] = None):
           {'label': 'Balance', 'value': 'balance'},
           {'label': 'Cash Flow', 'value': 'cashflow'}
         ]),
-      dcc.RadioItems(id='radio:stock-financials:scope', className=radio_wrap_style,
+      dcc.RadioItems(
+        id='radio:stock-financials:scope', 
+        className=radio_wrap_style,
         inputClassName=radio_input_style,
         labelClassName=radio_label_style,
-        value='a',
+        value=12,
         options=[
-          {'label': 'Annual', 'value': 'a'},
-          {'label': 'Quarterly', 'value': 'q'},
+          {'label': 'Annual', 'value': 12},
+          {'label': 'Quarterly', 'value': 3},
         ]),
     ]),
     html.Div(id='div:stock-financials:table-wrap', className='flex-1 overflow-x-hidden p-2'),
@@ -120,6 +126,7 @@ def update_table(fin: list[dict], tmpl: list[dict], sheet: str, scope: str):
     return no_update
   
   tmpl = pd.DataFrame.from_records(tmpl)
+  print(tmpl)
   tmpl = tmpl.loc[tmpl['sheet'] == sheet]
 
   labels = pd.Series(tmpl['short'].values, index=tmpl['item']).to_dict()

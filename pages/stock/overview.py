@@ -6,6 +6,7 @@ from dash import callback, dcc,html, no_update, register_page, Output, Input, St
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+from components.stock_header import StockHeader
 
 from lib.edgar.company import Company
 from lib.fin.utils import Taxonomy, calculate_items, load_template, merge_labels
@@ -43,7 +44,6 @@ def layout(id: Optional[str] = None):
 
     schema = taxonomy.calculation_schema(set(template['item']))
     financials = calculate_items(financials, schema)
-    financials.to_csv('test.csv')
 
     #pattern = r'^(Sales)?(AndService)?Revenue'\
     #  r'(s|Net|FromContractWithCustomerExcludingAssessedTax)'\
@@ -55,6 +55,7 @@ def layout(id: Optional[str] = None):
     template = template.to_dict('records')
 
     return html.Main(className='flex flex-col h-full', children=[
+      StockHeader(id),
       html.Div(id='div:stock:sankey', children=[
         html.Div(className='flex justify-around', children=[
           dcc.Dropdown(id='dd:stock:date', className='w-36'),
