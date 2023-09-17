@@ -1,9 +1,11 @@
 from typing import Literal, Optional, TypedDict
 import json
+import sqlite3
 
 from glom import glom
 import numpy as np
 import pandas as pd
+from sqlalchemy import create_engine, insert, text, JSON
 
 from lib.utils import df_month_difference
 
@@ -95,6 +97,84 @@ class Taxonomy:
       if not value.get(source) and (calc := value.get('calculation'))
     }
     return schema
+  
+  def to_sql(self, db_path: str):
+    engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+
+    columns = ('item', 'period', 'long', 'short', 'gaap', 'calculation')
+    data = []
+    for k, v in self._data.items():
+      if (gaap := v.get('gaap')) is not None:
+        gaap = json.dumps(gaap)
+
+      if (calc := v.get('calculation')) is not None:
+        calc = json.dumps(calc)
+
+      data.append((
+        k,
+        v.get('period'), 
+        v['label'].get('long'),
+        v['label'].get('short'),
+        gaap,
+        calc
+      ))
+
+    df = pd.DataFrame(data, columns=columns)
+
+    with engine.connect().execution_options(autocommit=True) as con:
+      df.to_sql('items', 
+        con=con, 
+        if_exists='replace', 
+        index=False,
+        dtype={
+          'gaap': JSON,
+          'calculation': JSON
+        }
+      )
+
+  def to_sqlite(self, db_path: str):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+
+    fields = {
+      'name': 'TEXT PRIMARY KEY',
+      'period': 'TEXT',
+      'long': 'TEXT',
+      'short': 'TEXT',
+      'gaap': 'JSON',
+      'calculation': 'JSON',
+    }
+    columns = ','.join(tuple(fields.keys()))
+    fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
+
+    values: list[tuple[str|None]] = []
+    for k, v in self._data.items():
+      if (gaap := v.get('gaap')) is not None:
+        gaap = json.dumps(gaap)
+
+      if (calc := v.get('calculation')) is not None:
+        calc = json.dumps(calc)
+
+      values.append((
+        k,
+        v.get('period'), 
+        v['label'].get('long'),
+        v['label'].get('short'),
+        gaap,
+        calc
+      ))
+
+    #with engine.connect() as con:
+    cur.execute('DROP TABLE IF EXISTS items')
+    cur.execute(f'CREATE TABLE IF NOT EXISTS items ({fields_text})')
+    con.commit()
+
+    query = f'''INSERT INTO items 
+      ({columns}) VALUES (?,?,?,?,?,?)
+    '''
+    cur.executemany(query,values)
+    con.commit()
+    con.close()
 
 def load_template(cat: Literal['table', 'sankey']) -> pd.DataFrame:
   with open('lex/fin_template.json', 'r') as file:
@@ -119,6 +199,27 @@ def load_template(cat: Literal['table', 'sankey']) -> pd.DataFrame:
 
   return pd.DataFrame(data, columns=cols)
 
+def template_to_sql(db_path: str):
+  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+
+  dtypes = {
+    'table': {},
+    'sankey': {
+      'links': JSON
+    }
+  }
+
+  for template in ('table', 'sankey'):
+    df = load_template(template)
+
+    with engine.connect().execution_options(autocommit=True) as con:
+      df.to_sql(template, 
+        con=con, 
+        if_exists='replace', 
+        index=False, 
+        dtype=dtypes[template]
+      )
+  
 def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
   template = template.merge(taxonomy.labels(), on='item', how='left')
   mask = template['short'] == ''
@@ -214,19 +315,3 @@ def calculate_items(
         financials = apply_calculation(financials, col_set, key, schema)
 
   return financials
-
-def fix(df: pd.DataFrame):
-
-  def month_diff(dates: pd.DatetimeIndex):
-    return  np.round((
-      pd.to_datetime(dates, format='%Y-%m-%d')
-        .to_series().diff()
-      ) / np.timedelta64(1, 'M')
-    ).array
-
-  df.reset_index(level='period', inplace=True)
-  mask = (df.index.get_level_values('months') < 12) & (df['period'] == 'FY')
-  df.loc[mask, 'period'] = 'Q4'
-  df.set_index('period', append=True, inplace=True)
-
-  return df

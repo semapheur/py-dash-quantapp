@@ -728,7 +728,6 @@
         "cf.fn.cm_st.py": -1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Net Cash from Issuance and Repurchase of Common Stock",
       "short": "Change in Common Stock"
@@ -1165,7 +1164,6 @@
   },
   "cf.iv.sc.py.eq": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Payments to Acquire Marketable Equity Securities"
     }
@@ -1442,7 +1440,6 @@
   },
   "cg|l-c.d-tx": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Change in Current Deferred Tax Liabilities"
     },
@@ -1718,14 +1715,12 @@
   },
   "i/l.cn_op": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Net Income (Loss) from Continuing Operations"
     }
   },
   "i/l.dc_op": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Income (Loss) from Discontinued Operations"
     }
@@ -1757,7 +1752,6 @@
   },
   "nrcr-i/l": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Non-recurring Income (Loss)"
     }
@@ -1849,7 +1843,6 @@
         "l-c.db.ot": 1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Current Debt"
     }
@@ -2023,7 +2016,6 @@
         "n-op_ep.it": 1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Non-Operating Expense"
     }
@@ -2037,7 +2029,6 @@
         "n-op_ep.imp.itg": 1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Impairment Loss"
     }
@@ -2530,7 +2521,6 @@
         "rv.fn.pm": 1
       }
     },
-    "gaap": [],
     "label": {
       "long": "Finance Revenue"
     }
@@ -2546,7 +2536,6 @@
   },
   "rv.ot": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Other Revenue"
     }
@@ -2617,14 +2606,12 @@
   },
   "rv_cs.fn": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Finance Revenue Cost"
     }
   },
   "rv_cs.ot": {
     "period": "duration",
-    "gaap": [],
     "label": {
       "long": "Other Revenue Cost"
     }
