@@ -1,4 +1,120 @@
 {
+  "ROE": {
+    "period": "ratio",
+    "label": {
+      "long": "Return on Equity",
+      "short": "ROE"
+    },
+    "calculation": {
+      "order": 6,
+      "all": {
+        "i/l": 1,
+        "eq": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
+  "NPM": {
+    "period": "ratio",
+    "label": {
+      "long": "Net Profit Margin",
+      "short": "NPM"
+    },
+    "calculation": {
+      "order": 5,
+      "all": {
+        "i/l": 1,
+        "rv": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
+  "tx_rt": {
+    "period": "ratio",
+    "label": {
+      "long": "Effective Tax Rate",
+      "short": "Tax Rate"
+    },
+    "calculation": {
+      "all": {
+        "tx": 4,
+        "i/l.b-tx": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
+  "tx_bd": {
+    "period": "ratio",
+    "label": {
+      "long": "Tax Burden"
+    },
+    "calculation": {
+      "order": 5,
+      "all": {
+        "i/l": 1,
+        "i/l.b-tx": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
+  "ICR": {
+    "period": "ratio",
+    "label": {
+      "long": "Interest Coverage Ratio",
+      "short": "ICR"
+    },
+    "calculation": {
+      "order": 2,
+      "all": {
+        "op_i/l": 1,
+        "n-op_ep.it": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
+  "it_bd": {
+    "period": "ratio",
+    "label": {
+      "long": "Interest Burden"
+    },
+    "calculation": {
+      "order": 4,
+      "all": {
+        "i/l.b-tx": 1,
+        "op_i/l": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
+  "ATR": {
+    "period": "ratio",
+    "label": {
+      "long": "Asset Turnover Ratio",
+      "short": "ATR"
+    },
+    "calculation": {
+      "order": 1,
+      "all": {
+        "rv": 1,
+        "avg|as": {
+          "weight": 1,
+          "operation": "div"
+        }
+      }
+    }
+  },
   "CAPEX": {
     "period": "duration",
     "label": {
@@ -34,7 +150,7 @@
     }
   },
   "EPSB": {
-    "period": "duration",
+    "period": "ratio",
     "gaap": [
       "EarningsPerShareBasic"
     ],
@@ -44,7 +160,7 @@
     }
   },
   "EPSD": {
-    "period": "duration",
+    "period": "ratio",
     "gaap": [
       "EarningsPerShareDiluted"
     ],
@@ -66,6 +182,22 @@
     },
     "label": {
       "long": "Net Working Capital"
+    }
+  },
+  "avg|as": {
+    "period": "instant",
+    "label": {
+      "long": "Average Total Assets",
+      "short": "Average Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "all": {
+        "as": {
+          "weight": 1,
+          "apply": "average"
+        }
+      }
     }
   },
   "a-c": {

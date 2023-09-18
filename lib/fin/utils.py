@@ -232,7 +232,7 @@ def calculate_items(
   recalc: bool = False
 ) -> pd.DataFrame:
   
-  def differ(s: pd.Series) -> pd.DataFrame:
+  def applyer(s: pd.Series, fn: str) -> pd.Series:
     
     slices = (
       (slice(None), slice('FY'), slice(12)),
@@ -247,7 +247,11 @@ def calculate_items(
       dates = pd.to_datetime(_s.index.get_level_values('date'))
       month_diff = pd.Series(df_month_difference(dates).array, index=_s.index)
 
-      _s = _s.diff()
+      if fn == 'diff':
+        _s = _s.diff()
+      elif fn == 'avg':
+        _s = _s.rolling(window=2, min_periods=2).mean()
+      
       _s = _s.loc[month_diff == ix[2]]
       update[i] = _s
 
@@ -258,7 +262,7 @@ def calculate_items(
     s.loc[nan_index] = np.nan
 
     return s
-  
+    
   def apply_calculation(
     df: pd.DataFrame,
     df_cols: set[str],
@@ -267,7 +271,7 @@ def calculate_items(
   ) -> pd.DataFrame:
     
     def parameter(calculer: str, instruction: int|dict) -> pd.Series:
-      result = df[calculer].fillna(0)
+      result = df[calculer]
 
       if isinstance(instruction, int):
         result *= instruction
@@ -275,19 +279,23 @@ def calculate_items(
         if 'sign' in instruction:
           result = result.where(result.apply(np.sign) == instruction['sign'], 0)
         
-        if (op := instruction.get('apply', '')):
-          if op == 'diff':
-            result = differ(result)
+        if (op := instruction.get('apply')) is not None:
+          result = applyer(result, op)
+          
+        result *= instruction.get('weight', 1) 
 
-        result *= instruction['weight'] 
-
-      return result
+      return result.fillna(0)
 
     key, value = schema.popitem()
     temp = parameter(key, value)
 
     for key, value in schema.items():
-      temp += parameter(key, value)
+      op = value.get('operation')
+      match op:
+        case 'div':
+          temp /= parameter(key, value)
+        case _:
+          temp += parameter(key, value)
 
     if calculee in df_cols:
       df.loc[:,calculee] = temp if recalc else df[calculee].combine_first(temp)

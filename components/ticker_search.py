@@ -109,5 +109,4 @@ def update_store(path: str):
   )
   financials.reset_index(inplace=True)
   
-  
   return financials.to_dict('records')
