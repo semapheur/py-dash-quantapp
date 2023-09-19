@@ -22,7 +22,7 @@ from lib.edgar.parse import (
   parse_taxonomy,
   statement_to_df
 )
-from lib.fin.utils import Taxonomy
+from lib.fin.taxonomy import Taxonomy
 from lib.utils import camel_split, snake_abbreviate
 
 class Company():

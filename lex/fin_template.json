@@ -1,996 +1,997 @@
-{"table":
+{"statement":
   {
     "income": {
-      "rv": 1,
-      "rv.pd": 2,
-      "rv.sv": 2,
-      "rv_cs": 1,
-      "rv_cs.pd": 2,
-      "rv_cs.sv": 2,
-      "gs_pf": 0,
-      "op_ep": 1,
-      "op_ep.DDAA": 2,
-      "op_ep.DDAA.am": 3,
-      "op_ep.DDAA.dp": 3,
-      "op_ep.RD": 2,
-      "op_ep.SGA": 2,
-      "op_ep.SGA.GA": 3,
-      "op_ep.SGA.SM": 3,
-      "op_ep.SGA.SM.av": 4,
-      "op_ep.la_rn": 2,
-      "op_ep.ot": 2,
-      "op_i/l": 0,
-      "n-op_i/e": 1,
-      "n-op_ep.it": 2,
-      "n-op_in.iv": 2,
-      "n-op_ep.imp": 2,
-      "n-op_ep.imp.gw": 3,
-      "n-op_ep.imp.itg": 3,
-      "n-op_i/e.ot": 2,
-      "i/l.b-tx": 0,
-      "tx": 1,
-      "d-tx": 2,
-      "d-tx.fo": 3,
-      "d-tx.lc": 3,
-      "d-tx.na": 3,
-      "i/l.nt_mn_it": 0,
-      "i/l.mn_it": 1,
-      "i/l": 0,
-      "EPSB": 0,
-      "sh.os-b": 1,
-      "EPSD": 0,
-      "sh.os-d": 1
+      "revenue": 1,
+      "product_revenue": 2,
+      "service_revenue": 2,
+      "revenue_cost": 1,
+      "product_revenue_cost": 2,
+      "service_revenue_cost": 2,
+      "gross_profit": 0,
+      "operating_expenses": 1,
+      "depreciation_depletion_amortization_accretion": 2,
+      "amortization": 3,
+      "depreciation": 3,
+      "research_development_expense": 2,
+      "selling_general_administrative_expense": 2,
+      "general_administrative_expense": 3,
+      "selling_marketing_expense": 3,
+      "advertising_expense": 4,
+      "lease_rental_expense": 2,
+      "other_operating_expense": 2,
+      "operating_income_loss": 0,
+      "nonoperating_income_expenses": 1,
+      "interest_expense": 2,
+      "investment_income": 2,
+      "impairment": 2,
+      "goodwill_impairment": 3,
+      "intangible_assets_impairment": 3,
+      "other_nonoperating_income_expense": 2,
+      "pretax_income_loss": 0,
+      "tax_expense_benefit": 1,
+      "deferred_tax": 2,
+      "foreign_deferred_tax": 3,
+      "national_deferred_tax": 3,
+      "local_deferred_tax": 3,
+      "net_income_loss_including_minority_interest": 0,
+      "net_income_loss_to_minority_interest": 1,
+      "net_income_loss": 0,
+      "earnings_per_share_basic": 0,
+      "average_shares_outstanding_basic": 1,
+      "earnings_per_share_diluted": 0,
+      "average_shares_outstanding_diluted": 1
     },
     "balance": {
-      "a-c.lq_as": 1,
-      "a-c.CCE": 2,
-      "a-c.CCE.ch": 3,
-      "a-c.CCE.CE": 3,
-      "a-c.sc": 2,
-      "a-c.sc.db": 3,
-      "a-c.sc.db.t-bl": 4,
-      "a-c.sc.eq": 3,
-      "a-c.RCRCE": 1,
-      "a-c.RCRCE.RC": 2,
-      "a-c.rc": 1,
-      "a-c.rc.n-td": 2,
-      "a-c.rc.ns": 2,
-      "a-c.rc.al_dbf": 2,
-      "a-c.ivt": 1,
-      "a-c.ivt.FG": 2,
-      "a-c.ivt.WIPRM": 2,
-      "a-c.ivt.PC": 2,
-      "a-c.pp_ep": 1,
-      "a-c.d-tx": 1,
-      "a-c.ot": 1,
-      "a-c": 0,
-      "a-n.PPE": 1,
-      "a-n.PPE.gs": 2,
-      "a-n.PPE.gs.FF": 3,
-      "a-n.PPE.gs.LB": 3,
-      "a-n.PPE.gs.ME": 3,
-      "a-n.PPE.acm_DDA": 2,
-      "a-n.itg": 1,
-      "a-n.itg.fl": 2,
-      "a-n.itg.fl.gs": 3,
-      "a-n.itg.fl.acm_am": 3,
-      "a-n.itg.il": 2,
-      "a-n.itg.il.gs": 3,
-      "a-n.itg.il.acm_am": 3,
-      "a-n.gw": 1,
-      "a-n.sc": 1,
-      "a-n.sc.db": 2,
-      "a-n.ot": 1,
-      "a-n": 0,
-      "as": 0,
-      "l-c.pb": 1,
-      "l-c.acr_ep": 1,
-      "l-c.acr_ep.mk": 2,
-      "l-c.acr_ep.tx": 2,
-      "l-c.acr_ep.em_bf": 2,
-      "l-c.acr_ep.ot": 2,
-      "l-c.db": 1,
-      "l-c.db.CP": 1,
-      "l-c.db.LT": 2,
-      "l-c.db.ot": 2,
-      "l-c.d-tx": 1,
-      "l-c.d-rv": 1,
-      "l-c.ot": 1,
-      "l-c": 0,
-      "l-n.db-LT": 1,
-      "l-n.acr_ep": 1,
-      "l-n.acr_ep.tx": 2,
-      "l-n.acr_ep.ot": 2,
-      "l-n.d-rv": 1,
-      "l-n.d-tx": 1,
-      "l-n.ot": 1,
-      "l-n": 0,
-      "lb": 0,
-      "eq": 0,
-      "eq.cm_st_APIC": 1,
-      "eq.cm_st": 2,
-      "eq.rtn_ea/acm_dfc": 1,
-      "eq.acm_OCI": 1,
-      "eq.mn_it": 1,
-      "lb_eq": 0
+      "liquid_assets": 1,
+      "cash_cash_equivalents": 2,
+      "cash": 3,
+      "cash_equivalents": 3,
+      "current_securities": 2,
+      "current_debt_securities": 3,
+      "us_treasury_bills": 4,
+      "current_equity_securities": 3,
+      "restricted_cash_cash_equivalents": 1,
+      "restricted_cash": 2,
+      "current_receivables": 1,
+      "bad_trade_receivables": 3,
+      "current_trade_receivables": 2,
+      "current_nontrade_receivables": 2,
+      "notes_receivables": 2,
+      "inventory": 1,
+      "finished_goods": 2,
+      "work_in_progress_raw_materials": 2,
+      "parts_components": 2,
+      "current_prepaid_expenses": 1,
+      "current_tax_assets": 1,
+      "other_current_assets": 1,
+      "current_assets": 0,
+      "fixed_assets": 1,
+      "gross_fixed_assets": 2,
+      "furniture_fixtures": 3,
+      "land_buildings": 3,
+      "machinery_equipment": 3,
+      "accumulated_depreciation_fixed_assets": 2,
+      "intangible_assets": 1,
+      "finitelived_intangible_assets": 2,
+      "gross_finitelived_intangible_assets": 3,
+      "accumulated_amortization_finitelived_intangible_assets": 3,
+      "infinitelived_intangible_assets": 2,
+      "gross_infinitelived_intangible_assets": 3,
+      "accumulated_amortization_infinitelived_intangible_assets": 3,
+      "goodwill": 1,
+      "noncurrent_securities": 1,
+      "noncurrent_debt_securities": 2,
+      "other_noncurrent_assets": 1,
+      "noncurrent_assets": 0,
+      "assets": 0,
+      "accounts_payable": 1,
+      "current_accrued_liabilities": 1,
+      "current_accrued_marketing_expenses": 2,
+      "current_accrued_taxes": 2,
+      "current_employee_related_liabilities": 2,
+      "other_current_accrued_liabilities": 2,
+      "current_debt": 1,
+      "commercial_paper": 1,
+      "current_longterm_debt": 2,
+      "other_shortterm_debt": 2,
+      "current_tax_liabilities": 1,
+      "current_deferred_revenue": 1,
+      "other_current_liabilities": 1,
+      "current_liabilities": 0,
+      "noncurrent_longterm_debt": 1,
+      "noncurrent_accrued_liabilities": 1,
+      "noncurrent_accrued_taxes": 2,
+      "other_noncurrent_accrued_liabilities": 2,
+      "noncurrent_deferred_revenue": 1,
+      "noncurrent_tax_liabilities": 1,
+      "other_noncurrent_liabilities": 1,
+      "noncurrent_liabilities": 0,
+      "liabilities": 0,
+      "equity": 0,
+      "common_stock_additional_paid_in_capital": 1,
+      "common_stock": 2,
+      "retained_earnings_accumulated_deficit": 1,
+      "accumulated_other_comprehensive_income_loss": 1,
+      "minority_interest_stock": 1,
+      "liabilities_equity": 0
     },
     "cashflow": {
-      "i/l": 0,
-      "d-tx": 1,
-      "op_ep.DDAA": 1,
-      "cf.op.ot_n-ch": 1,
-      "cf.op.sh_cp": 1,
-      "cf.op.WC": 1,
-      "cg|a-c.rc": 2,
-      "cg|a-c.ivt": 2,
-      "cg|a-c.pp_ep": 2,
-      "cg|a-c.d-tx": 2,
-      "cg|a-c.ot": 2,
-      "cg|l-c.pb": 2,
-      "cg|l-c.acr_ep": 2,
-      "cg|l-c.d-tx": 2,
-      "cg|l-c.d-rv": 2,
-      "cg|l-c.ot": 2,
-      "cf.op": 0,
-      "cf.iv.PPE": 1,
-      "cf.iv.PPE.pc": 2,
-      "cf.iv.PPE.py": 2,
-      "cf.iv.itg": 1,
-      "cf.iv.itg.pc": 2,
-      "cf.iv.itg.py": 2,
-      "cf.iv.sc": 1,
-      "cf.iv.sc.pc.db": 2,
-      "cf.iv.sc.eq.db": 2,
-      "cf.iv.sc.pc.mt": 2,
-      "cf.iv.sc.py.db": 2,
-      "cf.iv.sc.py.eq": 1,
-      "cf.iv.bs": 1,
-      "cf.iv.bs.pc": 2,
-      "cf.iv.bs.py": 2,
-      "cf.iv.ot": 1,
-      "cf.iv": 0,
-      "cf.fn.py_dv": 1,
-      "cf.fn.py_dv.cm_st": 2,
-      "cf.fn.cm_st": 1,
-      "cf.fn.cm_st.pc": 2,
-      "cf.fn.cm_st.py": 2,
-      "cf.fn.db": 1,
-      "cf.fn.db.pc": 2,
-      "cf.fn.db.ry": 2,
-      "cf.fn.db-ST": 1,
-      "cf.fn.db-ST.l-3m": 2,
-      "cf.fn.db-ST.g-3m": 2,
-      "cf.fn.db-ST.ot": 2,
-      "cf.fn.ot": 1,
-      "cf.fn": 0,
-      "cf.ex_rt_ef": 1,
-      "cf": 0
+      "net_income_loss": 0,
+      "deferred_tax": 1,
+      "depreciation_depletion_amortization_accretion": 1,
+      "other_noncash_income_expense": 1,
+      "sharebased_compensation": 1,
+      "change_working_capital": 1,
+      "change_current_receivables": 2,
+      "change_inventory": 2,
+      "change_current_prepaid_expenses": 2,
+      "change_current_tax_assets": 2,
+      "change_other_current_assets": 2,
+      "change_accounts_payable": 2,
+      "change_current_accrued_liabilities": 2,
+      "change_current_tax_liabilities": 2,
+      "change_current_deferred_revenue": 2,
+      "change_other_current_liabilities": 2,
+      "operating_cashflow": 0,
+      "fixed_assets_cashflow": 1,
+      "fixed_assets_proceeds": 2,
+      "fixed_assets_payments": 2,
+      "intangible_assets_cashflow": 1,
+      "intangible_assets_proceeds": 2,
+      "intangible_assets_payments": 2,
+      "securities_cashflow": 1,
+      "debt_securities_proceeds": 2,
+      "equity_securities_proceeds": 2,
+      "maturities_prepayments_calls_proceeds": 2,
+      "debt_securities_payments": 2,
+      "equity_securities_payments": 1,
+      "acquisition_divestitures_cashflow": 1,
+      "acquisition_divestitures_proceeds": 2,
+      "acquisition_divestitures_payments": 2,
+      "other_investing_cashflow": 1,
+      "investing_cashflow": 0,
+      "dividends_payment": 1,
+      "common_stock_dividends_payment": 2,
+      "common_stock_cashflow": 1,
+      "common_stock_proceeds": 2,
+      "common_stock_payments": 2,
+      "longterm_debt_cashflow": 1,
+      "longterm_debt_proceeds": 2,
+      "longterm_debt_repayments": 2,
+      "shortterm_debt_cashflow": 1,
+      "quarter_debt_cashflow": 2,
+      "annual_debt_cashflow": 2,
+      "other_shortterm_debt_cashflow": 2,
+      "other_financing_cashflow": 1,
+      "financing_cashflow": 0,
+      "exchange_rate_effect": 1,
+      "cashflow": 0
     }
   },
   "sankey": {
     "calculation": {
-      "op_i/l.sankey": {}
+      "sankey_operating_income_loss": {}
     },
     "income": {
-      "rv": {
+      "revenue": {
         "color": "rgba(0,0,255,1)",
         "links": {
-          "rv.pd": {
+          "product_revenue": {
             "direction": "in",
             "color": "rgba(0,0,255,0.3)"},
-          "rv.sv": {
+          "service_revenue": {
             "direction": "in",
             "color": "rgba(0,0,255,0.3)"
           },
-          "gs_pf": {
+          "gross_profit": {
             "direction": "out",
             "color": "rgba(0,255,0,0.3)"
           },
-          "rv_cs": {
+          "revenue_cost": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "rv.pd": {
+      "product_revenue": {
         "color": "rgba(0,0,255,1)"
       },
-      "rv.sv": {
+      "service_revenue": {
         "color": "rgba(0,0,255,1)"
       },
-      "rv_cs": {
+      "revenue_cost": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "rv_cs.pd": {
+          "product_revenue_cost": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "rv_cs.sv": {
+          "service_revenue_cost": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "rv_cs.pd": {
+      "product_revenue_cost": {
         "color": "rgba(255,0,0,1)"
       },
-      "rv_cs.sv": {
+      "service_revenue_cost": {
         "color": "rgba(255,0,0,1)"
       },
-      "gs_pf": {
+      "gross_profit": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "op_i/l": {
+          "operating_income_loss": {
             "direction": "out",
             "color": ""
           },
-          "op_ep": {
+          "operating_expenses": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "op_i/l": {
+      "operating_income_loss": {
         "color": "",
         "links": {
-          "n-op_ep": {
+          "nonoperating_expenses": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "op_ep": {
+      "operating_expenses": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "op_ep.SGA": {
+          "selling_general_administrative_expense": {
             "direction": "out", 
             "color": "rgba(255,0,0,0.3)"
           },
-          "op_ep.RD": {
+          "reasearch_development_expense": {
             "direction": "out", 
             "color": "rgba(255,0,0,0.3)"
           }
         },
-        "op_ep.DDAA": {
+        "depreciation_depletion_amortization_accretion": {
           "direction": "out", 
           "color": "rgba(255,0,0,0.3)"
         }
       },
-      "op_ep.SGA": {
+      "selling_general_administrative_expense": {
         "color": "rgba(255,0,0,1)"
       },
-      "op_ep.RD": {
+      "reasearch_development_expense": {
         "color": "rgba(255,0,0,1)"
       },
-      "op_ep.DDAA": {
+      "depreciation_depletion_amortization_accretion": {
         "color": "rgba(255,0,0,1)"
       },
-      "n-op_ep": {
+      "nonoperating_expenses": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "n-op_ep.it": {
+          "interest_expense": {
             "direction": "out",
             "color": "rgba(255,0,0,1)"
           },
-          "n-op_ep.imp": {
+          "impairment": {
             "direction": "out",
             "color": "rgba(255,0,0,1)"
           }
         }
       },
-      "n-op_ep.it": {
+      "interest_expense": {
         "color": "rgba(255,0,0,1)"
       },
-      "n-op_ep.imp": {
+      "impairment": {
         "color": "rgba(255,0,0,1)"
       },
-      "n-op_in": {
+      "nonoperating_income": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "n-op_in.iv": {
+          "investment_income": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "n-op_in.iv": {
+      "investment_income": {
         "color": "rgba(0,255,0,1)"
       },
-      "i/l.b-tx": {
+      "pretax_income_loss": {
         "color": "",
         "links": {
-          "op_i/l": {
+          "operating_income_loss": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
-            "value": "op_i/l.sankey"
+            "value": "sankey_operating_income_loss"
           },
-          "n-op_in": {
+          "nonoperating_income": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "i/l": {
+          "net_income_loss": {
             "direction": "out",
             "color": ""
           },
-          "tx": {
+          "tax_expense_benefit": {
             "direction": "out",
             "color": ""
           },
-          "i/l.mn_it": {
+          "net_income_loss_to_minority_interest": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "i/l": {
+      "net_income_loss": {
         "color": ""
       },
-      "tx": {
+      "tax_expense_benefit": {
         "color": ""
       },
-      "i/l.mn_it": {
+      "net_income_loss_to_minority_interest": {
         "color": ""
       }
     },
     "balance": {
-      "as": {
+      "assets": {
         "color": "rgba(0,0,255,1)",
         "links": {
-          "a-c": {
+          "current_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-n": {
+          "noncurrent_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "lb": {
+          "liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "eq": {
+          "equity": {
             "direction": "out",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-c": {
+      "current_assets": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "a-c.lq": {
+          "liquid_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.RCRCE": {
+          "restricted_cash_cash_equivalents": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.rc": {
+          "current_receivables": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.ivt": {
+          "inventory": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.d-tx": {
+          "current_tax_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.pp_ep": {
+          "current_prepaid_expenses": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.ot": {
+          "other_current_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-c.lq": {
+      "liquid_assets": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "a-c.CCE": {
+          "cash_cash_equivalents": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.sc": {
+          "current_securities": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-c.CCE": {
+      "cash_cash_equivalents": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.sc": {
+      "current_securities": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.RCRCE": {
+      "restricted_cash_cash_equivalents": {
         "color": "rgba(0,255,0,0.3)",
         "links": {
-          "a-c.RC": {
+          "restricted_cash": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.RCE": {
+          "restricted_cash_equivalents": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-c.rc": {
+      "current_receivables": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "a-c.rc.td": {
+          "current_trade_receivables": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.rc.n-td": {
+          "current_nontrade_receivables": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.rc.ns": {
+          "notes_receivable": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.rc.ot": {
+          "other_receivables": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-c.rc.td": {
+      "current_trade_receivables": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.rc.n-td": {
+      "current_nontrade_receivables": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.rc.ns": {
+      "notes_receivable": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.rc.ot": {
+      "other_receivables": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.ivt": {
+      "inventory": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "a-c.ivt.FG": {
+          "finished_goods": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.ivt.PC": {
+          "parts_components": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-c.ivt.WIPRM": {
+          "work_in_progress_raw_materials": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-c.ivt.FG": {
+      "finished_goods": {
         "color": "rgba(0,255,0,0.3)"
       },
-      "a-c.ivt.PC": {
+      "parts_components": {
         "color": "rgba(0,255,0,0.3)"
       },
-      "a-c.ivt.WIPRM": {
+      "work_in_progress_raw_materials": {
         "color": "rgba(0,255,0,0.3)"
       },
-      "a-c.d-tx": {
+      "current_tax_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.pp_ep": {
+      "current_prepaid_expenses": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-c.ot": {
+      "other_current_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-n": {
+      "noncurrent_assets": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "a-n.PPE": {
+          "fixed_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-n.itg": {
+          "intangible_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-n.gw": {
+          "goodwill": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-n.sc": {
+          "noncurrent_securities": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-n.ot": {
+          "other_noncurrent_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-n.PPE": {
+      "fixed_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-n.itg": {
+      "intangible_assets": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "a-n.itg.fl": {
+          "finitelived_intangible_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "a-n.itg.il": {
+          "infinitelived_intangible_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "a-n.itg.fl": {
+      "finitelived_intangible_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-n.itg.il": {
+      "infinitelived_intangible_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-n.gw": {
+      "goodwill": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-n.sc": {
+      "noncurrent_securities": {
         "color": "rgba(0,255,0,1)"
       },
-      "a-n.ot": {
+      "other_noncurrent_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "lb": {
+      "liabilities": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "l-c": {
+          "current_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-n": {
+          "noncurrent_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "l-c": {
+      "current_liabilities": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "l-c.pb": {
+          "accounts_payable": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-c.acr_ep": {
+          "current_accrued_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-c.db": {
+          "current_debt": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-c.d-rv": {
+          "current_deferred_revenue": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-c.ot": {
+          "other_current_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "l-c.pb": {
+      "accounts_payable": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-c.acr_ep": {
+      "current_accrued_liabilities": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-c.db": {
+      "current_debt": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "l-c.db.CP": {
+          "commercial_paper": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-c.db.LT": {
+          "current_longterm_debt": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-c.db.ot": {
+          "other_current_debt": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "l-c.db.CP": {
+      "commercial_paper": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-c.db.LT": {
+      "current_longterm_debt": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-c.db.ot": {
+      "other_current_debt": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-c.d-rv": {
+      "current_deferred_revenue": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-c.ot": {
+      "other_current_liabilities": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-n": {
+      "noncurrent_liabilities": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "l-n.acr_ep": {
+          "noncurrent_accrued_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-n.d-rv": {
+          "noncurrent_deferred_revenue": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-n.d-tx": {
+          "noncurrent_tax_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-n.db-LT": {
+          "noncurrent_longterm_debt": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "l-n.ot": {
+          "other_noncurrent_liabilities": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "l-n.acr_ep": {
+      "noncurrent_accrued_liabilities": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-n.d-rv": {
+      "noncurrent_deferred_revenue": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-n.d-tx": {
+      "noncurrent_tax_liabilities": {
         "direction": "out",
         "color": "rgba(255,0,0,1)"
       },
-      "l-n.db-LT": {
+      "noncurrent_longterm_debt": {
         "color": "rgba(255,0,0,1)"
       },
-      "l-n.ot": {
+      "other_noncurrent_liabilities": {
         "color": "rgba(255,0,0,1)"
       },
-      "eq": {
+      "equity": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "eq.cm_st_APIC": {
+          "common_stock_additional_paid_in_capital": {
             "direction": "out",
             "color": "rgba(0,255,0,0.3)"
           },
-          "eq.mn_it": {
+          "minority_interest_stock": {
             "direction": "out",
             "color": "rgba(0,255,0,0.3)"
           },
-          "eq.rtn_ea/acm_dfc": {
+          "retained_earnings_accumulated_deficit": {
             "direction": "",
             "color": ""
           },
-          "eq.acm_OCI": {
+          "accumulated_other_comprehensive_income_loss": {
             "direction": "",
             "color": ""
           }
         }
       },
-      "eq.cm_st_APIC": {
+      "common_stock_additional_paid_in_capital": {
         "color": "rgba(0,255,0,1)"
       },
-      "eq.mn_it": {
+      "minority_interest_stock": {
         "color": "rgba(0,255,0,1)"
       },
-      "eq.rtn_ea/acm_dfc": {
+      "retained_earnings_accumulated_deficit": {
         "color": ""
       },
-      "eq.acm_OCI": {
+      "accumulated_other_comprehensive_income_loss": {
         "color": ""
       }
     },
     "cashflow": {
-      "cf": {
+      "cashflow": {
         "color": "",
         "links": {
-          "cf.op": {
+          "operating_cashflow": {
             "direction": "in",
             "color": ""
           },
-          "cf.iv": {
+          "investing_cashflow": {
             "direction": "in",
             "color": ""
           },
-          "cf.fn": {
+          "financing_cashflow": {
             "direction": "in",
             "color": ""
           }
         }
       },
-      "cf.op": {
+      "operating_cashflow": {
         "color": "",
         "links": {
-          "cf.op.in": {
+          "operating_cash_inflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "cf.op.out": {
+          "operating_cash_outflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)"
           },
-          "CAPEX": {
+          "capital_expenditure": {
             "direction": "out",
             "color": ""
           },
-          "FCFF": {
+          "free_cash_flow_firm": {
             "direction": "out",
             "color": ""
           }
         }
       },
-      "CAPEX": {
+      "capital_expenditure": {
         "color": ""
       },
-      "FCFF": {
+      "free_cash_flow_firm": {
         "color": ""
       },
-      "cf.op.in": {
+      "operating_cash_inflow": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "i/l": {
+          "net_income_loss": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "op_ep.DDAA": {
+          "depreciation_depletion_amortization_accretion": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.op.sh_cp": {
+          "sharebased_compensation": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "d-tx": {
+          "deferred_tax": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": -1
           },
-          "cf.op.WC": {
+          "change_working_capital": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.op.ot_n-ch": {
+          "other_noncash_income_expense": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           }
         }
       },
-      "cf.op.out": {
+      "operating_cash_outflow": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "i/l": {
+          "net_income_loss": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.op.sh_cp": {
+          "sharebased_compensation": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "d-tx": {
+          "deferred_tax": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": 1
           },
-          "cf.op.WC": {
+          "change_working_capital": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.op.ot_n-ch": {
+          "other_noncash_income_expense": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           }
         }
       },
-      "i/l": {
+      "net_income_loss": {
         "color": ""
       },
-      "op_ep.DDAA": {
+      "depreciation_depletion_amortization_accretion": {
         "color": ""
       },
-      "cf.op.sh_cp": {
+      "sharebased_compensation": {
         "color": ""
       },
-      "d-tx": {
+      "deferred_tax": {
         "color": ""
       },
-      "cf.op.WC": {
+      "change_working_capital": {
         "color": ""
       },
-      "cf.op.ot_n-ch": {
+      "other_noncash_income_expense": {
         "color": ""
       },
-      "cf.iv": {
+      "investing_cashflow": {
         "color": "",
         "links": {
-          "cf.iv.in": {
+          "investing_cash_inflow": {
             "direction": "in",
             "color": "rgba(0,255,0,1)"
           },
-          "cf.iv.out": {
+          "investing_cash_outflow": {
             "direction": "in",
             "color": "rgba(255,0,0,1)"
           }
         }
       },
-      "cf.iv.in": {
+      "investing_cash_inflow": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "cf.iv.PPE": {
+          "fixed_assets_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.iv.itg": {
+          "intangible_assets_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.iv.sc": {
+          "securities_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.iv.bs": {
+          "acquisition_divestitures_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.iv.ot": {
+          "other_investing_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           }
         }
       },
-      "cf.iv.out": {
+      "investing_cash_outflow": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "cf.iv.PPE": {
+          "fixed_assets_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.iv.itg": {
+          "intangible_assets_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.iv.sc": {
+          "securities_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.iv.bs": {
+          "acquisition_divestitures_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.iv.ot": {
+          "other_investing_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           }
         }
       },
-      "cf.iv.PPE": {
+      "fixed_assets_cashflow": {
         "color": ""
       },
-      "cf.iv.itg": {
+      "intangible_assets_cashflow": {
         "color": ""
       },
-      "cf.iv.sc": {
+      "securities_cashflow": {
         "color": ""
       },
-      "cf.iv.bs": {
+      "acquisition_divestitures_cashflow": {
         "color": ""
       },
-      "cf.iv.ot": {
+      "other_investing_cashflow": {
         "color": ""
       },
-      "cf.fn": {
+      "financing_cashflow": {
         "color": "",
         "links": {
-          "cf.fn.in": {
+          "financing_cash_inflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "cf.fn.out": {
+          "financing_cash_outflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "cf.fn.in": {
+      "financing_cash_inflow": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "cf.fn.cm_st": {
+          "common_stock_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.fn.db": {
+          "debt_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.fn.db-ST": {
+          "shortterm_debt_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           },
-          "cf.fn.ot": {
+          "other_financing_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
           }
         }
       },
-      "cf.fn.out": {
+      "financing_cash_outflow": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "cf.fn.py_dv": {
+          "dividends_payment": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": 1
           },
-          "cf.fn.cm_st": {
+          "common_stock_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.fn.db": {
+          "debt_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.fn.db-ST": {
+          "shortterm_debt_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           },
-          "cf.fn.ot": {
+          "other_financing_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
           }
         }
       },
-      "cf.fn.py_dv": {
+      "dividends_payment": {
         "color": "rgba(255,0,0,1)"
       },
-      "cf.fn.cm_st": {
+      "common_stock_cashflow": {
         "color": ""
       },
-      "cf.fn.db": {
+      "debt_cashflow": {
         "color": ""
       },
-      "cf.fn.db-ST": {
+      "shortterm_debt_cashflow": {
         "color": ""
       },
-      "cf.fn.ot": {
+      "other_financing_cashflow": {
         "color": ""
       }
     }
