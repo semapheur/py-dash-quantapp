@@ -6,9 +6,8 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 
 from lib.edgar.company import Company
-from lib.fin.utils import Taxonomy, calculate_items
+from lib.fin.taxonomy import Taxonomy, calculate_items
 from lib.ticker.fetch import find_cik, search_tickers
-from lib.utils import int_parser
 
 input_style = (
   'peer min-w-[20vw] h-full p-1 bg-primary text-text '

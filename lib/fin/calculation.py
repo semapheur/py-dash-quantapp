@@ -1,6 +1,9 @@
 import ast
 
+import numpy as np
 import pandas as pd
+
+from lib.utils import df_month_difference
 
 class AllTransformer(ast.NodeTransformer):
   def __init__(self, df_name: str):
@@ -59,28 +62,89 @@ def calculate_items(
 
     return formula
 
-  def apply_calculation(
+  def insert_to_df(
     df: pd.DataFrame, 
     df_cols: set[str],
-    col_name: str,
-    expression: ast.Expression,
+    insert_data: pd.Series,
+    insert_name: str
   ) -> pd.DataFrame:
-    
-    code = compile(expression, '<string>', 'eval')
-    result = eval(code)
-
-    if isinstance(result, int):
-      return df
-    
-    if col_name in df_cols:
-      df.loc[:, col_name] = (result if recalc else 
-        df[col_name].combine_first(result)
+    if insert_name in df_cols:
+      df.loc[:, insert_name] = (insert_data if recalc else 
+        df[insert_name].combine_first(insert_data)
       )
     else:
-      new_column = pd.DataFrame({col_name: result})
+      new_column = pd.DataFrame({insert_name: insert_data})
       df = pd.concat([df, new_column], axis=1)
 
     return df
+
+  def calculate(
+    df: pd.DataFrame, 
+    df_cols: set[str],
+    col_name: str,
+    expression: ast.Expression|dict[str,int|dict[str,int]],
+  ) -> pd.DataFrame:
+        
+    if isinstance(expression, ast.Expression):
+      code = compile(expression, '<string>', 'eval')
+      result = eval(code)
+
+      if isinstance(result, int):
+        return df
+      
+    elif isinstance(expression, dict):
+      result = pd.Series(0, index=df.index, dtype=float)
+
+      for key, value in expression.items():
+        if key not in df_cols:
+          continue
+        
+        if isinstance(value, int):
+          result += df[key] * value
+
+        elif isinstance(value, dict):
+          weight = value.get('weight', 1)
+          sign = value.get('sign')
+
+          if sign is not None:
+            mask = df[key].appy(np.sign) == sign
+            result += df[key] * weight * mask
+          else:
+            result += df[key] * weight
+    
+    df = insert_to_df(df, df_cols, result, col_name)
+    return df
+  
+  def applyer(s: pd.Series, fn: str) -> pd.Series:
+    
+    slices = (
+      (slice(None), slice('FY'), slice(12)),
+      (slice(None), slice(None), slice(3))
+    )
+    update = [pd.Series()] * len(slices)
+    
+    for i, ix in enumerate(slices):
+      _s = s.loc[ix]
+      _s.sort_index(level='date', inplace=True)
+
+      dates = pd.to_datetime(_s.index.get_level_values('date'))
+      month_diff = pd.Series(df_month_difference(dates).array, index=_s.index)
+
+      if fn == 'diff':
+        _s = _s.diff()
+      elif fn == 'avg':
+        _s = _s.rolling(window=2, min_periods=2).mean()
+      
+      _s = _s.loc[month_diff == ix[2]]
+      update[i] = _s
+
+    update = pd.concat(update, axis=0)
+    nan_index = pd.Index(list(set(s.index).difference(update.index)))
+
+    s.loc[update.index] = update
+    s.loc[nan_index] = np.nan
+
+    return s
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
 
@@ -94,28 +158,51 @@ def calculate_items(
 
       if isinstance(formula, str):
         all_visitor.reset_names()
-        expression = ast.parse(formula, mode='eval')
-        expression = ast.fix_missing_locations(
-          all_visitor.visit(expression)
+        formula = ast.parse(formula, mode='eval')
+        formula = ast.fix_missing_locations(
+          all_visitor.visit(formula)
         )
         if not all_visitor.names.issubset(col_set):
           continue
 
-        financials = apply_calculation(
-          financials, col_set, calculee, expression
-        )
+      elif isinstance(formula, dict):
+        if not set(formula.keys()).issubset(col_set):
+          continue
+      
+      financials = calculate(financials, col_set, calculee, formula)
 
     elif 'any' in schema:
       formula = get_formula(schema, 'any')
 
       if isinstance(formula, str):
         any_visitor.set_columns(col_set)
-        expression = ast.parse(formula, mode='eval')
-        expression = ast.fix_missing_locations(
-          any_visitor.visit(expression)
+        formula = ast.parse(formula, mode='eval')
+        formula = ast.fix_missing_locations(
+          any_visitor.visit(formula)
         )
-        financials = apply_calculation(
-          financials, col_set, calculee, expression
-        )
+      elif isinstance(formula, dict):
+        formula = {
+          key: formula[key] for key in set(formula.keys()).intersection(col_set)
+        }
+        if not formula:
+          continue
+
+      financials = calculate(financials, col_set, calculee, formula)
+
+    elif 'diff' in schema:
+      calculer = schema['diff']
+      if calculer not in col_set:
+        continue
+
+      result = applyer(financials[calculer], 'diff')
+      financials = insert_to_df(financials, col_set, result, calculer)
+
+    elif 'avg':
+      calculer = schema['avg']
+      if calculer not in col_set:
+        continue
+
+      result = applyer(financials[calculer], 'avg')
+      financials = insert_to_df(financials, col_set, result, calculer)
 
   return financials

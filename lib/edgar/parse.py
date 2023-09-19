@@ -9,7 +9,6 @@ import aiometer
 import httpx
 import bs4 as bs
 from glom import glom
-import numpy as np
 
 import pandas as pd
 from tinydb import TinyDB
@@ -24,7 +23,7 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
-from lib.fin.utils import Taxonomy
+from lib.fin.taxonomy import Taxonomy
 from lib.utils import (
   combine_duplicate_columns,
   df_month_difference, 
@@ -231,8 +230,12 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
     for el in sheet.findall('.//link:calculationArc', namespaces=namespace):
       taxonomy.append({
         'sheet': sheet_label,
-        'gaap': re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}to']).group(),
-        'parent': re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}from']).group(),
+        'gaap': re.search(
+          el_pattern, 
+          el.attrib[f'{{{namespace["xlink"]}}}to']).group(),
+        'parent': re.search(
+          el_pattern, 
+          el.attrib[f'{{{namespace["xlink"]}}}from']).group(),
       })
   
   df = pd.DataFrame.from_records(taxonomy)
