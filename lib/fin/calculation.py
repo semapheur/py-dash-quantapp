@@ -48,10 +48,17 @@ class AnyTransformer(ast.NodeTransformer):
   
 def calculate_items(
   financials: pd.DataFrame, 
-  schemas: dict,
+  schemas: dict[str, dict],
   recalc: bool = False
 ) -> pd.DataFrame:
   
+  def get_formula(schema: dict[str, dict], key: str) -> str|dict:
+    formula = schema.get(key)
+    if isinstance(formula, list):
+      formula = ''.join(formula)
+
+    return formula
+
   def apply_calculation(
     df: pd.DataFrame, 
     df_cols: set[str],
@@ -60,7 +67,7 @@ def calculate_items(
   ) -> pd.DataFrame:
     
     code = compile(expression, '<string>', 'eval')
-    result = eval(code, globals(), {'financials' : df})
+    result = eval(code)
 
     if isinstance(result, int):
       return df
@@ -77,20 +84,20 @@ def calculate_items(
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
 
-  all_visitor = AllTransformer('financials')
-  any_visitor = AnyTransformer('financials')
+  all_visitor = AllTransformer('df')
+  any_visitor = AnyTransformer('df')
   for calculee, schema in schemas.items():
     col_set = set(financials.columns)
 
     if 'all' in schema:
-      all_schema = schema.get('all')
-      if isinstance(all_schema, str):
+      formula = get_formula(schema, 'all')
+
+      if isinstance(formula, str):
         all_visitor.reset_names()
-        expression = ast.parse(all_schema, mode='eval')
+        expression = ast.parse(formula, mode='eval')
         expression = ast.fix_missing_locations(
           all_visitor.visit(expression)
         )
-        
         if not all_visitor.names.issubset(col_set):
           continue
 
@@ -99,14 +106,14 @@ def calculate_items(
         )
 
     elif 'any' in schema:
-      any_schema = schema.get('any')
-      if isinstance(any_schema, str):
+      formula = get_formula(schema, 'any')
+
+      if isinstance(formula, str):
         any_visitor.set_columns(col_set)
-        expression = ast.parse(any_schema, mode='eval')
+        expression = ast.parse(formula, mode='eval')
         expression = ast.fix_missing_locations(
           any_visitor.visit(expression)
         )
-
         financials = apply_calculation(
           financials, col_set, calculee, expression
         )
