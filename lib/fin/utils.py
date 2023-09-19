@@ -31,8 +31,11 @@ class TaxonomyItem(TypedDict):
 class Taxonomy:
   _data: dict[str, TaxonomyItem]
 
-  def __init__(self, _filter: Optional[set[str]] = None):
-    with open('lex/fin_taxonomy.json') as file:
+  def __init__(self, 
+    path: str = 'lex/fin_taxonomy.json', 
+    _filter: Optional[set[str]] = None
+  ):
+    with open(path, 'r') as file:
       self._data = json.load(file)
 
     if _filter:
