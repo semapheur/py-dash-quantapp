@@ -1,4 +1,14 @@
 {
+  "equity_multiplier": {
+    "period": "ratio",
+    "label": {
+      "long": "Equity Multiplier"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "average_assets / average_equity"
+    }
+  },
   "return_on_equity": {
     "period": "ratio",
     "label": {
@@ -152,7 +162,7 @@
       "long": "Net Working Capital"
     }
   },
-  "avgerage_assets": {
+  "average_assets": {
     "period": "instant",
     "label": {
       "long": "Average Total Assets",
@@ -161,6 +171,17 @@
     "calculation": {
       "order": 0,
       "avg": "assets"
+    }
+  },
+  "average_equity": {
+    "period": "instant",
+    "label": {
+      "long": "Average Shareholder's Equity",
+      "short": "Average Equity"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "equity"
     }
   },
   "current_assets": {

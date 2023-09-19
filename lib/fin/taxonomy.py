@@ -3,11 +3,8 @@ import json
 import sqlite3
 
 from glom import glom
-import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, TEXT
-
-from lib.utils import df_month_difference
 
 class Template(TypedDict):
   income: dict[str, int]
