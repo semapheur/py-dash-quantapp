@@ -741,18 +741,13 @@ pre[data-language]::before {
   width: 1.25rem;
 }
 
-.w-full {
-  width: 100%;
-}
-
-.w-min {
-  width: -moz-min-content;
-  width: min-content;
-}
-
 .w-fit {
   width: -moz-fit-content;
   width: fit-content;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .min-w-\[20vw\] {
@@ -821,8 +816,8 @@ pre[data-language]::before {
   align-items: center;
 }
 
-.justify-normal {
-  justify-content: normal;
+.justify-center {
+  justify-content: center;
 }
 
 .justify-between {
@@ -831,10 +826,6 @@ pre[data-language]::before {
 
 .justify-around {
   justify-content: space-around;
-}
-
-.justify-evenly {
-  justify-content: space-evenly;
 }
 
 .justify-items-center {
@@ -853,6 +844,18 @@ pre[data-language]::before {
   gap: 1rem;
 }
 
+.gap-y-1 {
+  row-gap: 0.25rem;
+}
+
+.gap-y-4 {
+  row-gap: 1rem;
+}
+
+.gap-y-8 {
+  row-gap: 2rem;
+}
+
 .divide-x > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-x-reverse: 0;
   border-right-width: calc(1px * var(--tw-divide-x-reverse));
@@ -863,6 +866,10 @@ pre[data-language]::before {
   --tw-divide-y-reverse: 0;
   border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
   border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
+}
+
+.justify-self-center {
+  justify-self: center;
 }
 
 .overflow-x-hidden {
@@ -1195,6 +1202,11 @@ div.dash-spreadsheet.dash-freeze-left {
   left: 25%;
 }
 
+.before\:top-\[-1rem\]::before {
+  content: var(--tw-content);
+  top: -1rem;
+}
+
 .before\:h-\[2px\]::before {
   content: var(--tw-content);
   height: 2px;
@@ -1203,6 +1215,16 @@ div.dash-spreadsheet.dash-freeze-left {
 .before\:w-1\/2::before {
   content: var(--tw-content);
   width: 50%;
+}
+
+.before\:w-3\/4::before {
+  content: var(--tw-content);
+  width: 75%;
+}
+
+.before\:w-2\/3::before {
+  content: var(--tw-content);
+  width: 66.666667%;
 }
 
 .before\:bg-black::before {
