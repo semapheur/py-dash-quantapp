@@ -27,10 +27,10 @@ dropdown_style = 'w-1/3'
 layout = html.Main(className=main_style, children=[
   html.Form(className=form_style, children=[
     TickerSelectAIO(aio_id='stats'),
-    dcc.Input(id='stats-input:diff-order', type='number', 
+    dcc.Input(id='input:stats:diff-order', type='number', 
       className='border rounded pl-2',
       min=0, max=10, value=0),
-    dcc.Dropdown(id='stats-dropdown:transform',
+    dcc.Dropdown(id='dd:stats:transform',
       options=[
         {'label': 'Log', 'value': 'log'}
       ],
@@ -38,7 +38,7 @@ layout = html.Main(className=main_style, children=[
     ),
   ]),
   dcc.Tabs(
-    id='stats-tabs',
+    id='tabs:stats',
     value='tab-transform',
     className='inset-row',
     content_className=overview_style,
@@ -47,16 +47,16 @@ layout = html.Main(className=main_style, children=[
       dcc.Tab(label='Transform', value='tab-transform', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats-graph:price', responsive=True),
-          dcc.Graph(id='stats-graph:transform', responsive=True)
+          dcc.Graph(id='grap:stats:price', responsive=True),
+          dcc.Graph(id='graph:stats:transform', responsive=True)
       ]),
       dcc.Tab(label='Distribution', value='tab-distribution', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats-graph:distribution'),
+          dcc.Graph(id='graph:stats:distribution'),
           html.Div(className='h-full flex flex-col', children=[
-            dcc.Graph(id='stats-graph:qq'),
-            dcc.Dropdown(id='stats-dropdown:qq-distribution',
+            dcc.Graph(id='graph:stats:qq'),
+            dcc.Dropdown(id='dd:stats:qq-distribution',
               className='pb-2 px-2 drop-up',
               options=[
                 {'label': 'Normal', 'value': 'norm'},
@@ -72,8 +72,8 @@ layout = html.Main(className=main_style, children=[
       dcc.Tab(label='Autocorrelation', value='tab-autocorrelation', 
         className='inset-row',
         children=[
-          dcc.Graph(id='stats-graph:acf', responsive=True),
-          dcc.Graph(id='stats-graph:pacf', responsive=True)
+          dcc.Graph(id='graph:stats:acf', responsive=True),
+          dcc.Graph(id='graph:stats:pacf', responsive=True)
       ]),
       dcc.Tab(label='Trend', value='tab-trend',
         className='inset-row',
@@ -81,7 +81,7 @@ layout = html.Main(className=main_style, children=[
           html.Div(className='flex flex-col', children=[
             dcc.Graph(id='stats-graph:trend'),
             html.Form(className='pb-2 pl-2', children=[
-              dcc.Input(id='stats-input:period', 
+              dcc.Input(id='input:stats:period', 
                 className='border rounded pl-2', 
                 type='number', placeholder='Period',
                 min=2, max=365, step=1, value=252
@@ -94,24 +94,24 @@ layout = html.Main(className=main_style, children=[
         className='inset-row',
         children=[
           html.Div(className='flex flex-col', children=[
-            dcc.Graph(id='stats-graph:regimes', className='h-full'),
+            dcc.Graph(id='graph:stats:regimes', className='h-full'),
             html.Form(className='pb-2 pl-2', children=[
-              dcc.Input(id='stats-input:regimes', 
+              dcc.Input(id='input:stats:regimes', 
                 className='border rounded pl-2', 
                 type='number', placeholder='Regimes',
                 min=1, max=5, step=1, value=2
               ),
             ])
           ]),
-          dcc.Graph(id='stats-graph:regime-distribution')
+          dcc.Graph(id='graph:stats:regime-distribution')
       ]),
       dcc.Tab(label='Memory', value='tab-memory',
         className='inset-row',
         children=[
           html.Div(className='flex flex-col', children=[
-            dcc.Graph(id='stats-graph:memory'),
+            dcc.Graph(id='graph:stats:memory'),
             html.Form(className='pb-2 pl-2', children=[
-              dcc.Input(id='stats-input:window', 
+              dcc.Input(id='input:stats:window', 
                 className='border rounded pl-2', 
                 type='number', placeholder='Regimes',
                 min=3, value=60
@@ -121,13 +121,13 @@ layout = html.Main(className=main_style, children=[
         ]
       )
   ]),
-  dcc.Store(id='stats-store:price'),
-  dcc.Store(id='stats-store:transform'),
-  dcc.Store(id='stats-store:model')
+  dcc.Store(id='store:stats:price'),
+  dcc.Store(id='store:stats:transform'),
+  dcc.Store(id='store:stats:model')
 ])
 
 @callback(
-  Output('stats-store:price', 'data'),
+  Output('store:stats:price', 'data'),
   Input(TickerSelectAIO._id('stats'), 'value'),
 )
 def update_store(query):
@@ -141,10 +141,10 @@ def update_store(query):
   return price.to_dict('list')
 
 @callback(
-  Output('stats-store:transform', 'data'),
-  Input('stats-store:price', 'data'),
-  Input('stats-input:diff-order', 'value'),
-  Input('stats-dropdown:transform', 'value')
+  Output('store:stats:transform', 'data'),
+  Input('store:stats:price', 'data'),
+  Input('input:stats:diff-order', 'value'),
+  Input('dd:stats:transform', 'value')
 )
 def update_store(data, diff_order, transform):
   if not data:
@@ -173,9 +173,9 @@ def update_store(data, diff_order, transform):
   return price.to_dict('list')
 
 @callback(
-  Output('stats-store:model', 'data'),
-  Input('stats-store:transform', 'data'),
-  Input('stats-input:regimes', 'value')
+  Output('store:stats:model', 'data'),
+  Input('store:stats:transform', 'data'),
+  Input('input:stats:regimes', 'value')
 )
 def update_store(data, regimes):
   if not (data and regimes):
@@ -191,10 +191,10 @@ def update_store(data, regimes):
   return {'model': msdr.smoothed_marginal_probabilities}
 
 @callback(
-  Output('stats-graph:price', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:price', 'data'),
-  Input('stats-store:transform', 'data')
+  Output('graph:stats:price', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:price', 'data'),
+  Input('store:stats:transform', 'data')
 )
 def update_graph(tab, price, transform):
   if not price or tab != 'tab-transform':
@@ -202,7 +202,7 @@ def update_graph(tab, price, transform):
   
   store_id = ctx.triggered_id
 
-  if store_id == 'stats-store:price':
+  if store_id == 'store:stats:price':
     fig = go.Figure()
     fig = make_subplots(
       shared_xaxes=True,
@@ -220,7 +220,7 @@ def update_graph(tab, price, transform):
       mode='lines',
       showlegend=False,
     )
-  elif store_id == 'stats-store:transform':
+  elif store_id == 'store:stats:transform':
     fig = Patch()
     fig['data'][1]['x'] = transform['date']
     fig['data'][1]['y'] = transform['transform']
@@ -228,9 +228,9 @@ def update_graph(tab, price, transform):
   return fig
 
 @callback(
-  Output('stats-graph:transform', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data')
+  Output('graph:stats:transform', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data')
 )
 def update_graph(tab, data):
   if not data or tab != 'tab-transform':
@@ -249,9 +249,9 @@ def update_graph(tab, data):
   return fig
 
 @callback(
-  Output('stats-graph:distribution', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data')
+  Output('graph:stats:distribution', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data')
 )
 def update_graph(tab, data):
   if not data or tab != 'tab-distribution':
@@ -293,10 +293,10 @@ def update_graph(tab, data):
   return fig
 
 @callback(
-  Output('stats-graph:qq', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data'),
-  Input('stats-dropdown:qq-distribution', 'value')
+  Output('graph:stats:qq', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data'),
+  Input('dd:stats:qq-distribution', 'value')
 )
 def update_graph(tab, data, dist):
   if not data or not dist or tab != 'tab-distribution':
@@ -323,9 +323,9 @@ def update_graph(tab, data, dist):
   return fig
 
 @callback(
-  Output('stats-graph:acf', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data')
+  Output('graph:stats:acf', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data')
 ) 
 def update_acf(tab, data):
   if not data or tab != 'tab-autocorrelation':
@@ -346,9 +346,9 @@ def update_acf(tab, data):
   return fig
 
 @callback(
-  Output('stats-graph:pacf', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data')
+  Output('graph:stats:pacf', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data')
 ) 
 def update_graph(tab, data):
   if not data or tab != 'tab-autocorrelation':
@@ -369,10 +369,10 @@ def update_graph(tab, data):
   return fig
 
 @callback(
-  Output('stats-graph:trend', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data'),
-  Input('stats-input:period', 'value')
+  Output('graph:stats:trend', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data'),
+  Input('input:stats:period', 'value')
 ) 
 def update_graph(tab, data, period):
   if not data or tab != 'tab-trend' or period < 2:
@@ -409,11 +409,11 @@ def update_graph(tab, data, period):
   return fig
 
 @callback(
-  Output('stats-graph:regimes', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:model', 'data'),
-  State('stats-store:transform', 'data'),
-  State('stats-store:price', 'data'),
+  Output('graph:stats:regimes', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:model', 'data'),
+  State('store:stats:transform', 'data'),
+  State('store:stats:price', 'data'),
 ) 
 def update_graph(tab, model, transform, price):
   if not model or tab != 'tab-regimes':
@@ -476,10 +476,10 @@ def update_graph(tab, model, transform, price):
   return fig
 
 @callback(
-  Output('stats-graph:regime-distribution', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:model', 'data'),
-  State('stats-store:transform', 'data'),
+  Output('graph:stats:regime-distribution', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:model', 'data'),
+  State('store:stats:transform', 'data'),
 ) 
 def update_graph(tab, model, transform):
   if not model or tab != 'tab-regimes':
@@ -521,10 +521,10 @@ def update_graph(tab, model, transform):
   return fig
 
 @callback(
-  Output('stats-graph:memory', 'figure'),
-  Input('stats-tabs', 'value'),
-  Input('stats-store:transform', 'data'),
-  Input('stats-input:window', 'value')
+  Output('graph:stats:memory', 'figure'),
+  Input('tabs:stats', 'value'),
+  Input('store:stats:transform', 'data'),
+  Input('input:stats:window', 'value')
 ) 
 def update_graph(tab, data, window):
   if not (data and window) or tab != 'tab-memory' or window < 3:

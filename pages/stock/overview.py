@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from sqlalchemy import create_engine, text
+from components.dupont_chart import DupontChart
 
 from components.stock_header import StockHeader
 from lib.ticker.fetch import stock_label
@@ -19,6 +20,30 @@ radio_input_style = (
   'checked:bg-secondary/50'
 )
 radio_label_style = 'relative px-1'
+
+span_ids = (
+  'return_on_equity',
+  'net_profit_margin',
+  'operating_profit_margin',
+  'operating_margin:operating_income_loss',
+  'operating_margin:revenue',
+  'tax_burden',
+  'net_income_loss',
+  'tax_burden:pretax_income_loss',
+  'interest_burden',
+  'interest_burden:pretax_income_loss',
+  'interest_burden:operating_income_loss',
+  'asset_turnover',
+  'asset_turnover:revenue',
+  'asset_turnover:average_assets',
+  'equity_multiplier',
+  'equity_multiplier:average_assets',
+  'average_equity'
+)
+
+dupont_items = {
+  item.split(':')[1] if ':' in item else item for item in span_ids 
+}
 
 def sankey_color(sign: int, opacity: float = 1) -> str:
   return f'rgba(255,0,0,{opacity})' if sign == -1 else f'rgba(0,255,0,{opacity})'
@@ -37,7 +62,7 @@ def layout(id: Optional[str] = None):
   return html.Main(className='flex flex-col h-full', children=[
     StockHeader(id),
     html.Div(id='div:stock:sankey', children=[
-      html.Div(className='flex justify-around', children=[
+      html.Form(className='flex justify-around', children=[
         dcc.Dropdown(id='dd:stock:date', className='w-36'),
         dcc.RadioItems(id='radio:stock:sheet', className=radio_wrap_style,
         inputClassName=radio_input_style,
@@ -59,6 +84,20 @@ def layout(id: Optional[str] = None):
       ]),
       dcc.Graph(id='graph:stock:sankey', responsive=True)
     ]),
+    html.Div(children=[
+      html.Form(children=[
+        dcc.Dropdown(id='dd:stock-dupont:date', className='w-36'),
+        dcc.RadioItems(id='radio:stock-dupont:scope', className=radio_wrap_style,
+          inputClassName=radio_input_style,
+          labelClassName=radio_label_style,
+          value=12,
+          options=[
+            {'label': 'Annual', 'value': 12},
+            {'label': 'Quarterly', 'value': 3},
+          ]),
+      ]),
+      DupontChart()
+    ])
   ])
 
 @callback(
@@ -159,9 +198,45 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
   return fig
 
 @callback(
+  (Output('span:dupont:' + span_id, 'children') for span_id in span_ids),
+  Input('radio:stock-dupont:date'),
+  State('radio:stock-dupont:scope'),
+  State('store:ticker-search:financials', 'data'),
+)
+def update_dupont(date: str, scope: int, data: list[dict]):
+  if not (date and data):
+    return no_update
+  
+  fin = (pd.DataFrame.from_records(data)
+    .set_index(['date', 'months'])
+    .xs((date, scope))
+  )
+
+  return (
+    fin.loc[span_id.split(':')[-1]] for span_id in span_ids
+  )
+
+@callback(
   Output('dd:stock:date', 'options'),
   Output('dd:stock:date', 'value'),
   Input('radio:stock:scope', 'value'),
+  Input('store:ticker-search:financials', 'data'),
+)
+def update_dropdown(scope: str, data: list[dict]):
+  if not data:
+    return no_update
+
+  fin = (pd.DataFrame.from_records(data)
+    .set_index(['date', 'months'])
+    .xs(scope, level=1) 
+    .sort_index(ascending=False) 
+  )
+  return list(fin.index.get_level_values(0)), ''
+
+@callback(
+  Output('dd:stock-dupont:date', 'options'),
+  Output('dd:stock-dupont:date', 'value'),
+  Input('radio:stock-dupont:scope', 'value'),
   Input('store:ticker-search:financials', 'data'),
 )
 def update_dropdown(scope: str, data: list[dict]):

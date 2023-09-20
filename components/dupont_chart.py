@@ -22,10 +22,12 @@ v_sign = 'self-center text-2xl translate-x-6'
 h_sign = 'self-start text-2xl translate-y-2'
 
 def card(
-  top: str, 
-  bottom: float, 
+  top_text: str, 
+  bottom_text: float = 0.,
+  bottom_format: str = '2f',
+  bottom_id: str = '',
   center: bool = False, 
-  bud: tuple[Literal['top', 'bottom', 'left']] = tuple()
+  buds: tuple[Literal['top', 'bottom', 'left']] = tuple()
 ) -> html.Div:
   card_style = (
     'relative flex flex-col w-40 p-1 divide-y '
@@ -49,59 +51,98 @@ def card(
     )
   }
 
-  for b in bud:
+  for b in buds:
     card_style += bud_style[b]
     
   top_style = 'w-full font-bold text-center'
   bottom_style = 'w-full text-center'
   
   return html.Div(className=card_style, children=[
-    html.Span(top, className=top_style),
-    html.Span(f'{bottom:.2f}', className=bottom_style)
+    html.Span(top_text, className=top_style),
+    html.Span(f'{bottom_text:.{bottom_format}}', id=bottom_id, className=bottom_style)
   ])
 
-def dupont_chart(): 
+def DupontChart(id_prefix: str = 'span:dupont-chart:'): 
   return html.Div(className=wrapper_style, children=[
-    card('Return on Equity', 1.2991, False, ('bottom',)),
-    html.Ol(className=h_branch + 'before:left-[17.55rem] before:w-[56.4rem]', children=[
+    card(
+      top_text='Return on Equity',
+      bottom_id=id_prefix + 'return_on_equity',  
+      buds=('bottom',)),
+    html.Ul(className=h_branch + 'before:left-[17.55rem] before:w-[56.4rem]', children=[
       html.Li(className=li_style, children=[
-        card('Net Profit Margin', 0.2431, True, ('top', 'bottom')),
-        html.Ol(className=h_branch + 'before:left-20 before:w-[25.1rem]', children=[
+        card(
+          top_text='Net Profit Margin', 
+          bottom_id='net_profit_margin',
+          center=True, 
+          buds=('top', 'bottom')),
+        html.Ul(className=h_branch + 'before:left-20 before:w-[25.1rem]', children=[
           html.Li(className=li_style, children=[
-            card('Operating Margin', 0.2812, False, ('top',)),
-            html.Ol(className=v_branch, children=[
+            card(
+              top_text='Operating Margin', 
+              bottom_id=id_prefix + 'operating_profit_margin',
+              buds=('top',)),
+            html.Ul(className=v_branch, children=[
               html.Li(className=h_node, children=[
-                card('Operating Income', 92.0, False, ('left',))
+                card(
+                  top_text='Operating Income',
+                  bottom_id=id_prefix + 'operating_margin:operating_income_loss',
+                  buds=('left',))
               ]),
               html.Span('÷', className=v_sign),
               html.Li(className=h_node, children=[
-                card('Revenue', 327.2, False, ('left',))
+                card(
+                  top_text='Revenue', 
+                  bottom_format='2G',
+                  bottom_id=id_prefix + 'operating_margin:revenue',
+                  buds=('left',))
               ])
             ])
           ]),
           html.Span('×', className=h_sign),
           html.Li(className=li_style, children=[
-            card('Tax Burden', 0.8745, False, ('top',)),
-            html.Ol(className=v_branch, children=[
+            card(
+              top_text='Tax Burden',
+              bottom_id=id_prefix + 'tax_burden',
+              buds=('top',)),
+            html.Ul(className=v_branch, children=[
               html.Li(className=h_node, children=[
-                card('Net Income', 79.5, False, ('left',))
+                card(
+                  top_text='Net Income',
+                  bottom_format='2G',
+                  bottom_id=id_prefix + 'net_income_loss',
+                  buds=('left',))
               ]),
               html.Span('÷', className=v_sign),
               html.Li(className=h_node, children=[
-                card('Pretax Income', 90.9, False, ('left',))
+                card(
+                  top_text='Pretax Income',
+                  bottom_format='2G',
+                  bottom_id=id_prefix + 'tax_burden:pretax_income_loss',
+                  buds=('left',))
               ])
             ])
           ]),
           html.Span('×', className=h_sign),
           html.Li(className=li_style, children=[
-            card('Interest Burden', 0.9885, False, ('top',)),
-            html.Ol(className=v_branch, children=[
+            card(
+              top_text='Interest Burden',
+              bottom_id='interest_burden',
+              buds=('top',)),
+            html.Ul(className=v_branch, children=[
               html.Li(className=h_node, children=[
-                card('Pretax Income', 90.9, False, ('left',))
+                card(
+                  top_text='Pretax Income',
+                  bottom_format='2G',
+                  bottom_id=id_prefix + 'interest_burden:pretax_income_loss',
+                  buds=('left',))
               ]),
               html.Span('÷', className=v_sign),
               html.Li(className=h_node, children=[
-                card('Operating Income', 92.0, False, ('left',))
+                card(
+                  top_text='Operating Income',
+                  bottom_format='2G',
+                  bottom_id=id_prefix + 'interest_burden:operating_income_loss',
+                  buds=('left',))
               ])
             ])
           ])
@@ -109,27 +150,51 @@ def dupont_chart():
       ]),
       html.Span('×', className=h_sign),
       html.Li(className=li_style, children=[
-        card('Asset Turnover', 0.98, True, ('top', 'bottom')),
-        html.Ol(className=h_branch + 'before:left-20 before:w-[12.6rem]', children=[
+        card(
+          top_text='Asset Turnover',
+          bottom_id=id_prefix + 'asset_turnover',
+          center=True,
+          buds=('top', 'bottom')),
+        html.Ul(className=h_branch + 'before:left-20 before:w-[12.6rem]', children=[
           html.Li(className=li_style, children=[
-            card('Revenue', 327.2, False, ('top',))
+            card(
+              top_text='Revenue', 
+              bottom_format='2G',
+              bottom_id=id_prefix + 'asset_turnover:revenue',
+              buds=('top',))
           ]),
           html.Span('÷', className=h_sign),
           html.Li(className=li_style, children=[
-            card('Average Assets', 333.6, False, ('top',))
+            card(
+              top_text='Average Assets', 
+              bottom_format='2G',
+              bottom_id=id_prefix + 'asset_turnover:average_assets',
+              buds=('top',))
           ])
         ])
       ]),
       html.Span('×', className=h_sign),
       html.Li(className=li_style, children=[
-        card('Equity Multiplier', 5.45, True, ('top', 'bottom')),
-        html.Ol(className=h_branch + 'before:left-20 before:w-[12.6rem]', children=[
+        card(
+          top_text='Equity Multiplier',
+          bottom_id=id_prefix + 'equity_multiplier', 
+          center=True,
+          buds=('top', 'bottom')),
+        html.Ul(className=h_branch + 'before:left-20 before:w-[12.6rem]', children=[
           html.Li(className=li_style, children=[
-            card('Average Assets', 333.6, False, ('top',))
+            card(
+              top_text='Average Assets', 
+              bottom_format='2G',
+              bottom_id=id_prefix + 'equity_multiplier:average_assets',
+              buds=('top',))
           ]),
           html.Span('÷', className=h_sign),
           html.Li(className=li_style, children=[
-            card('Average Equity', 61.2, False, ('top',))
+            card(
+              top_text='Average Equity',
+              bottom_format='2G',
+              bottom_id=id_prefix + 'average_equity',
+              buds=('top',))
           ])
         ])
       ]),
