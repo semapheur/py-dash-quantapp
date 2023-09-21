@@ -2,7 +2,10 @@ from enum import Enum
 import json
 from typing import Optional
 
-from dash import callback, dcc,html, no_update, register_page, Output, Input, State
+from dash import (
+  callback, dcc, html, no_update, register_page,
+  Output, Input, State, 
+  MATCH)
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -59,21 +62,26 @@ def sankey_direction(sign: int) -> str:
 
 def layout(id: Optional[str] = None):
 
-  return html.Main(className='flex flex-col h-full', children=[
+  return html.Main(className='flex flex-col h-full overflow-y-scroll', children=[
     StockHeader(id),
     html.Div(id='div:stock:sankey', children=[
       html.Form(className='flex justify-around', children=[
-        dcc.Dropdown(id='dd:stock:date', className='w-36'),
-        dcc.RadioItems(id='radio:stock:sheet', className=radio_wrap_style,
-        inputClassName=radio_input_style,
-        labelClassName=radio_label_style,
-        value='income',
-        options=[
-          {'label': 'Income', 'value': 'income'},
-          {'label': 'Balance', 'value': 'balance'},
-          {'label': 'Cash Flow', 'value': 'cashflow'}
-        ]),
-        dcc.RadioItems(id='radio:stock:scope', className=radio_wrap_style,
+        dcc.Dropdown(
+          id={'type': 'dropdown:stock:date', 'id': 'sankey'}, 
+          className='w-36'),
+        dcc.RadioItems(
+          id='radio:stock:sheet',
+          className=radio_wrap_style,
+          inputClassName=radio_input_style,
+          labelClassName=radio_label_style,
+          value='income',
+          options=[
+            {'label': 'Income', 'value': 'income'},
+            {'label': 'Balance', 'value': 'balance'},
+            {'label': 'Cash Flow', 'value': 'cashflow'}]),
+        dcc.RadioItems(
+          id={'type': 'radio:stock:scope', 'id': 'sankey'}, 
+          className=radio_wrap_style,
           inputClassName=radio_input_style,
           labelClassName=radio_label_style,
           value=12,
@@ -86,8 +94,12 @@ def layout(id: Optional[str] = None):
     ]),
     html.Div(children=[
       html.Form(children=[
-        dcc.Dropdown(id='dd:stock-dupont:date', className='w-36'),
-        dcc.RadioItems(id='radio:stock-dupont:scope', className=radio_wrap_style,
+        dcc.Dropdown(
+          id={'type': 'dropdown:stock:date', 'id': 'dupont'}, 
+          className='w-36'),
+        dcc.RadioItems(
+          id={'type': 'radio:stock:scope', 'id': 'dupont'}, 
+          className=radio_wrap_style,
           inputClassName=radio_input_style,
           labelClassName=radio_label_style,
           value=12,
@@ -198,9 +210,9 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
   return fig
 
 @callback(
-  (Output('span:dupont:' + span_id, 'children') for span_id in span_ids),
-  Input('radio:stock-dupont:date'),
-  State('radio:stock-dupont:scope'),
+  [Output('span:dupont:' + span_id, 'children') for span_id in span_ids],
+  Input({'type': 'radio:stock:date', 'id': 'dupont'}, 'value'),
+  State({'type': 'radio:stock:scope', 'id': 'dupont'}, 'value'),
   State('store:ticker-search:financials', 'data'),
 )
 def update_dupont(date: str, scope: int, data: list[dict]):
@@ -217,26 +229,9 @@ def update_dupont(date: str, scope: int, data: list[dict]):
   )
 
 @callback(
-  Output('dd:stock:date', 'options'),
-  Output('dd:stock:date', 'value'),
-  Input('radio:stock:scope', 'value'),
-  Input('store:ticker-search:financials', 'data'),
-)
-def update_dropdown(scope: str, data: list[dict]):
-  if not data:
-    return no_update
-
-  fin = (pd.DataFrame.from_records(data)
-    .set_index(['date', 'months'])
-    .xs(scope, level=1) 
-    .sort_index(ascending=False) 
-  )
-  return list(fin.index.get_level_values(0)), ''
-
-@callback(
-  Output('dd:stock-dupont:date', 'options'),
-  Output('dd:stock-dupont:date', 'value'),
-  Input('radio:stock-dupont:scope', 'value'),
+  Output({'type': 'dd:stock:date', 'id': MATCH}, 'options'),
+  Output({'type': 'dd:stock:date', 'id': MATCH}, 'value'),
+  Input({'type': 'radio:stock:scope', 'id': MATCH}, 'value'),
   Input('store:ticker-search:financials', 'data'),
 )
 def update_dropdown(scope: str, data: list[dict]):
