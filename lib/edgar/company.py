@@ -234,7 +234,8 @@ class Company():
     return result
 
 def process_taxonomy():
-    df = read_sqlite('SELECT * FROM financials', 'taxonomy.db', 'item')
+    query = 'SELECT * FROM financials'
+    df = read_sqlite('taxonomy.db', query, index_col='item')
     if df is None:
       raise Exception('Taxonomy does not exist!')
     

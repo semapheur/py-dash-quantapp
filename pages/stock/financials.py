@@ -7,17 +7,20 @@ from dash import (
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Sign
 import pandas as pd
-from sqlalchemy import create_engine, text
+
 
 from components.sparklines import make_sparkline
 from components.stock_header import StockHeader
+from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 #from lib.utils import load_json
 
 register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
-radio_input_style = 'appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50'
+radio_input_style = (
+  'appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50'
+)
 radio_label_style = 'relative px-1'
 
 def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
@@ -107,18 +110,16 @@ def update_table(data: list[dict], sheet: str, scope: str):
   if not data:
     return no_update
   
-  engine = create_engine('sqlite+pysqlite:///data/taxonomy.db')
-  query = text('''SELECT 
+  query = '''SELECT 
     t.item, items.short, items.long, t.level FROM "table" AS t 
     LEFT JOIN items ON t.item = items.item
     WHERE t.sheet = :sheet
-  ''').bindparams(sheet=sheet)
-
-  with engine.connect().execution_options(autocommit=True) as con:
-    tmpl = pd.read_sql(query, con=con)
+  '''
+  param = {'sheet': sheet}
+  tmpl = read_sqlite('taxonomy.db', query, param)
 
   tmpl.loc[:, 'short'].fillna(tmpl['long'], inplace=True)
-  labels = pd.Series(tmpl['short'].values, index=tmpl['item']).to_dict()
+  labels = {k: v for k, v in zip(tmpl['item'], tmpl['short'])}
 
   fin = (pd.DataFrame.from_records(data)
     .set_index(['date', 'months'])

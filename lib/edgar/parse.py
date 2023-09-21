@@ -9,12 +9,12 @@ import aiometer
 import httpx
 import bs4 as bs
 from glom import glom
-
 import pandas as pd
 from tinydb import TinyDB
 
 # Local
 from lib.const import DB_DIR, HEADERS
+from lib.db.lite import read_sqlite
 from lib.edgar.models import (
   Financials, 
   Instant, 
@@ -92,19 +92,19 @@ async def parse_statement(url: str) -> Financials:
       'months': months
     }
 
-  def parse_unit(text:str) -> str:
-    if '_' not in text:
-      return text
+  def parse_unit(unit: str) -> str:
+    if '_' not in unit:
+      return unit
     
-    return text.split('_')[-1].lower()
+    return unit.split('_')[-1].lower()
 
   def parse_member(item: et.Element, segment: et.Element) -> Member:
-    def name(text:str) -> str|None:
-      text = re.sub(r'(Segment)?Member', '', text)
-      return text.split(':')[-1]
+    def parse_name(name: str) -> str|None:
+      name = re.sub(r'(Segment)?Member', '', name)
+      return name.split(':')[-1]
     
     return {
-      name(segment.text): {
+      parse_name(segment.text): {
         'dim': segment.attrib['dimension'].split(':')[-1],
         'value': float(item.text),
         'unit': parse_unit(item.attrib['unitRef'])
@@ -291,13 +291,23 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
 
 def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
   
-  _filter = taxonomy.item_names('gaap')
-  df = df[list(set(df.columns).intersection(_filter))]
+  query = '''
+    SELECT json_each.value AS gaap, item FROM items 
+    JOIN JSON_EACH(gaap) ON 1=1
+    WHERE gaap IS NOT NULL
+  '''
+  items = read_sqlite('taxonomy.db', query)
+  
+  df = df[list(set(df.columns).intersection(set(items['gaap'])))]
 
-  df.rename(columns=taxonomy.rename_schema('gaap'), inplace=True)
+  rename = {k: v for k, v in zip(items['gaap'], items['item'])}
+  df.rename(columns=rename, inplace=True)
   df = combine_duplicate_columns(df)
 
-  duration = taxonomy.select_items({'period': 'duration'})
+  query = 'SELECT item FROM items WHERE period = "duration"'
+  duration = read_sqlite('taxonomy.db', query)
+  duration = set(duration['item'])
+
   duration = list(duration.intersection(set(df.columns)))
   
   conditions = (

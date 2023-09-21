@@ -176,13 +176,13 @@ class Taxonomy:
     con.commit()
     con.close()
 
-def load_template(cat: Literal['table', 'sankey']) -> pd.DataFrame:
+def load_template(cat: Literal['statement', 'sankey']) -> pd.DataFrame:
   with open('lex/fin_template.json', 'r') as file:
     template = json.load(file)
 
   template = template[cat]
 
-  if cat == 'table':
+  if cat == 'statement':
     data = [
       (sheet, item, level) for sheet, values in template.items() 
       for item, level in values.items()
@@ -203,13 +203,13 @@ def template_to_sql(db_path: str):
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
   dtypes = {
-    'table': {},
+    'statement': {},
     'sankey': {
       'links': TEXT
     }
   }
 
-  for template in ('table', 'sankey'):
+  for template in ('statement', 'sankey'):
     df = load_template(template)
 
     with engine.connect().execution_options(autocommit=True) as con:

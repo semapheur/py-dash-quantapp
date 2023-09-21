@@ -1,7 +1,7 @@
-from typing import Literal
+from typing import Literal, Optional
 
 import pandas as pd
-from sqlalchemy import create_engine, inspect, text, Engine #event
+from sqlalchemy import create_engine, inspect, text, Engine, TextClause #event
 
 from lib.const import DB_DIR
 
@@ -41,9 +41,10 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
   cursor.close()
 
 def read_sqlite(
-  query: str, 
   db_name: str,
-  index_col: str | list[str],
+  query: str|TextClause,
+  params: Optional[dict[str, str]] = None,
+  index_col: Optional[str | list[str]] = None,
   parse_dates=False,
 ) -> pd.DataFrame | None:
   
@@ -56,10 +57,16 @@ def read_sqlite(
   
   parser = None
   if parse_dates:
-    parser = {'date': {'format': '%Y-%m-%d %H:%M:%S.%f'}}    
+    parser = {'date': {'format': '%Y-%m-%d %H:%M:%S.%f'}}
+
+  if isinstance(query, str):
+    query = text(query)
+
+    if params:
+      query = query.bindparams(**params) 
 
   with engine.connect().execution_options(autocommit=True) as con:
-    df = pd.read_sql(text(query), con=con, parse_dates=parser, index_col=index_col)
+    df = pd.read_sql(query, con=con, parse_dates=parser, index_col=index_col)
 
   return df
 

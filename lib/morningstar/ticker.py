@@ -315,8 +315,9 @@ def get_ohlcv(
   if 'date' not in cols:
     cols.append('date')
   
-  query = f'SELECT {", ".join(cols)} FROM {security} WHERE id = "{id}"'
-  ohlcv = read_sqlite(query, 'ohlcv.db', 'date', True)
+  query = f'SELECT {", ".join(cols)} FROM {security} WHERE id = :id'
+  param = {'id': f'"{id}"'}
+  ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
 
   if ohlcv is None:
     ohlcv = Ticker(id, security, currency).ohlcv()
@@ -339,6 +340,6 @@ def get_ohlcv(
     ohlcv['id'] = id
     ohlcv.set_index(['id'], append=True, inplace=True)
     upsert_sqlite(ohlcv, 'ohlcv.db', security)
-    ohlcv = read_sqlite(query, 'ohlcv.db', 'date', True)
+    ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
 
   return ohlcv

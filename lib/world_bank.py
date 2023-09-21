@@ -43,7 +43,7 @@ def load_wdi(cols: str|list[str]='*', years=0, delta=2) -> pd.DataFrame:
     where = f' WHERE year > (SELECT MAX(year) FROM wdi) - {years}'
 
   query = f'SELECT {cols} FROM wdi' + where
-  df = read_sqlite(query, 'macro.db', ['year', 'country'])
+  df = read_sqlite('macro.db', query, index_col=['year', 'country'])
 
   this_year = dt.today().year
 
