@@ -111,9 +111,9 @@ def update_table(data: list[dict], sheet: str, scope: str):
     return no_update
   
   query = '''SELECT 
-    t.item, items.short, items.long, t.level FROM "table" AS t 
-    LEFT JOIN items ON t.item = items.item
-    WHERE t.sheet = :sheet
+    s.item, items.short, items.long, s.level FROM statement AS s 
+    LEFT JOIN items ON s.item = items.item
+    WHERE s.sheet = :sheet
   '''
   param = {'sheet': sheet}
   tmpl = read_sqlite('taxonomy.db', query, param)

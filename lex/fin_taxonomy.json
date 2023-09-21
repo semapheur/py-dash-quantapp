@@ -31,6 +31,17 @@
       "all": "net_income_loss / revenue"
     }
   },
+  "operating_profit_margin": {
+    "period": "ratio",
+    "label": {
+      "long": "Operating Profit Margin",
+      "short": "NPM"
+    },
+    "calculation": {
+      "order": 3,
+      "all": "operating_income_loss / revenue"
+    }
+  },
   "tax_rate": {
     "period": "ratio",
     "label": {
@@ -1599,6 +1610,15 @@
     ],
     "label": {
       "long": "Gross Profit"
+    }
+  },
+  "gross_profit_margin": {
+    "label": {
+      "long": "Gross Profit Margin"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "gross_profit / revenue"
     }
   },
   "net_income_loss": {

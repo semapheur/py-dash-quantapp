@@ -86,8 +86,9 @@ def update_store(path: str):
 
   query = text('''
     SELECT template.item, items.calculation FROM (
-      SELECT item FROM "table" UNION
-      SELECT item FROM sankey
+      SELECT item FROM statement UNION
+      SELECT item FROM sankey UNION
+      SELECT item FROM dupont
     ) AS template
     LEFT JOIN items ON template.item = items.item
     WHERE items.calculation IS NOT NULL
@@ -98,7 +99,7 @@ def update_store(path: str):
 
   template = template.loc[template['calculation'] != 'null']
   template.loc[:,'calculation'] = (
-    template['calculation'].apply(lambda x: json.loads(json.loads(x)))
+    template['calculation'].apply(lambda x: json.loads(x))
   )
   schema = dict(zip(template['item'], template['calculation']))
   financials = calculate_items(financials, schema)

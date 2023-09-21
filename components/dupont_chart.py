@@ -72,7 +72,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
       html.Li(className=li_style, children=[
         card(
           top_text='Net Profit Margin', 
-          bottom_id='net_profit_margin',
+          bottom_id=id_prefix + 'net_profit_margin',
           center=True, 
           buds=('top', 'bottom')),
         html.Ul(className=h_branch + 'before:left-20 before:w-[25.1rem]', children=[
@@ -126,7 +126,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
           html.Li(className=li_style, children=[
             card(
               top_text='Interest Burden',
-              bottom_id='interest_burden',
+              bottom_id=id_prefix + 'interest_burden',
               buds=('top',)),
             html.Ul(className=v_branch, children=[
               html.Li(className=h_node, children=[

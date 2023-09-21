@@ -107,7 +107,7 @@ def calculate_items(
           sign = value.get('sign')
 
           if sign is not None:
-            mask = df[key].appy(np.sign) == sign
+            mask = df[key].apply(np.sign) == sign
             result += df[key] * weight * mask
           else:
             result += df[key] * weight

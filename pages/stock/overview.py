@@ -93,7 +93,7 @@ def layout(id: Optional[str] = None):
       dcc.Graph(id='graph:stock:sankey', responsive=True)
     ]),
     html.Div(children=[
-      html.Form(children=[
+      html.Form(className='flex justify-center', children=[
         dcc.Dropdown(
           id={'type': 'dropdown:stock:date', 'id': 'dupont'}, 
           className='w-36'),
@@ -115,8 +115,8 @@ def layout(id: Optional[str] = None):
 @callback(
   Output('graph:stock:sankey', 'figure'),
   Input('radio:stock:sheet', 'value'),
-  Input('dd:stock:date', 'value'),
-  State('radio:stock:scope', 'value'),
+  Input({'type': 'dropdown:stock:date', 'id': 'sankey'}, 'value'),
+  State({'type': 'radio:stock:scope', 'id': 'sankey'}, 'value'),
   State('store:ticker-search:financials', 'data'),
 )
 def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
@@ -210,8 +210,8 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
   return fig
 
 @callback(
-  [Output('span:dupont:' + span_id, 'children') for span_id in span_ids],
-  Input({'type': 'radio:stock:date', 'id': 'dupont'}, 'value'),
+  [Output('span:dupont-chart:' + span_id, 'children') for span_id in span_ids],
+  Input({'type': 'dropdown:stock:date', 'id': 'dupont'}, 'value'),
   State({'type': 'radio:stock:scope', 'id': 'dupont'}, 'value'),
   State('store:ticker-search:financials', 'data'),
 )
@@ -224,13 +224,13 @@ def update_dupont(date: str, scope: int, data: list[dict]):
     .xs((date, scope))
   )
 
-  return (
-    fin.loc[span_id.split(':')[-1]] for span_id in span_ids
+  return tuple(
+    fin.at[span_id.split(':')[-1]] for span_id in span_ids
   )
 
 @callback(
-  Output({'type': 'dd:stock:date', 'id': MATCH}, 'options'),
-  Output({'type': 'dd:stock:date', 'id': MATCH}, 'value'),
+  Output({'type': 'dropdown:stock:date', 'id': MATCH}, 'options'),
+  Output({'type': 'dropdown:stock:date', 'id': MATCH}, 'value'),
   Input({'type': 'radio:stock:scope', 'id': MATCH}, 'value'),
   Input('store:ticker-search:financials', 'data'),
 )

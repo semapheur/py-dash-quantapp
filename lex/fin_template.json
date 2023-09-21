@@ -995,5 +995,20 @@
         "color": ""
       }
     }
-  }
+  },
+  "dupont": [
+    "return_on_equity",
+    "net_profit_margin",
+    "operating_profit_margin",
+    "operating_income_loss",
+    "revenue",
+    "tax_burden",
+    "net_income_loss",
+    "pretax_income_loss",
+    "interest_burden",
+    "asset_turnover",
+    "average_assets",
+    "equity_multiplier",
+    "average_equity"
+  ]
 }

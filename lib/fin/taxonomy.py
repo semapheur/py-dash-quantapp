@@ -1,4 +1,4 @@
-from typing import Literal, Optional, TypedDict
+from typing import Optional, TypedDict
 import json
 import sqlite3
 
@@ -176,7 +176,7 @@ class Taxonomy:
     con.commit()
     con.close()
 
-def load_template(cat: Literal['statement', 'sankey']) -> pd.DataFrame:
+def load_template(cat: str) -> pd.DataFrame:
   with open('lex/fin_template.json', 'r') as file:
     template = json.load(file)
 
@@ -191,11 +191,15 @@ def load_template(cat: Literal['statement', 'sankey']) -> pd.DataFrame:
 
   elif cat == 'sankey':
     data = [
-      (sheet, item, entry.get('color', ''), entry.get('links',{})) 
+      (sheet, item, entry.get('color', ''), entry.get('links')) 
       for sheet, values in template.items() 
       for item, entry in values.items()
     ]
     cols = ['sheet', 'item', 'color', 'links']
+
+  elif cat == 'dupont':
+    data = template
+    cols = ['item']
 
   return pd.DataFrame(data, columns=cols)
 
@@ -206,11 +210,16 @@ def template_to_sql(db_path: str):
     'statement': {},
     'sankey': {
       'links': TEXT
-    }
+    },
+    'dupont': {}
   }
 
-  for template in ('statement', 'sankey'):
+  for template in ('statement', 'sankey', 'dupont'):
     df = load_template(template)
+
+    if template == 'sankey':
+      mask = df['links'].notnull()
+      df.loc[mask, 'links'] = df.loc[mask, 'links'].apply(lambda x: json.dumps(x))
 
     with engine.connect().execution_options(autocommit=True) as con:
       df.to_sql(template, 
