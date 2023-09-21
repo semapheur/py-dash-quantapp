@@ -1,4 +1,5 @@
 import ast
+import json
 
 import numpy as np
 import pandas as pd
@@ -135,8 +136,9 @@ def calculate_items(
       elif fn == 'avg':
         _s = _s.rolling(window=2, min_periods=2).mean()
       
-      _s = _s.loc[month_diff == ix[2]]
+      _s = _s.loc[month_diff == ix[2].stop]
       update[i] = _s
+      
 
     update = pd.concat(update, axis=0)
     nan_index = pd.Index(list(set(s.index).difference(update.index)))
@@ -162,6 +164,7 @@ def calculate_items(
         formula = ast.fix_missing_locations(
           all_visitor.visit(formula)
         )
+
         if not all_visitor.names.issubset(col_set):
           continue
 
@@ -195,7 +198,7 @@ def calculate_items(
         continue
 
       result = applyer(financials[calculer], 'diff')
-      financials = insert_to_df(financials, col_set, result, calculer)
+      financials = insert_to_df(financials, col_set, result, calculee)
 
     elif 'avg':
       calculer = schema['avg']
@@ -203,6 +206,6 @@ def calculate_items(
         continue
 
       result = applyer(financials[calculer], 'avg')
-      financials = insert_to_df(financials, col_set, result, calculer)
+      financials = insert_to_df(financials, col_set, result, calculee)
 
   return financials

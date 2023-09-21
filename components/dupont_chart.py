@@ -24,7 +24,6 @@ h_sign = 'self-start text-2xl translate-y-2'
 def card(
   top_text: str, 
   bottom_text: float = 0.,
-  bottom_format: str = '2f',
   bottom_id: str = '',
   center: bool = False, 
   buds: tuple[Literal['top', 'bottom', 'left']] = tuple()
@@ -59,7 +58,7 @@ def card(
   
   return html.Div(className=card_style, children=[
     html.Span(top_text, className=top_style),
-    html.Span(f'{bottom_text:.{bottom_format}}', id=bottom_id, className=bottom_style)
+    html.Span(f'{bottom_text:.3G}', id=bottom_id, className=bottom_style)
   ])
 
 def DupontChart(id_prefix: str = 'span:dupont-chart:'): 
@@ -92,7 +91,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
               html.Li(className=h_node, children=[
                 card(
                   top_text='Revenue', 
-                  bottom_format='2G',
+  
                   bottom_id=id_prefix + 'operating_margin:revenue',
                   buds=('left',))
               ])
@@ -108,7 +107,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
               html.Li(className=h_node, children=[
                 card(
                   top_text='Net Income',
-                  bottom_format='2G',
+  
                   bottom_id=id_prefix + 'net_income_loss',
                   buds=('left',))
               ]),
@@ -116,7 +115,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
               html.Li(className=h_node, children=[
                 card(
                   top_text='Pretax Income',
-                  bottom_format='2G',
+  
                   bottom_id=id_prefix + 'tax_burden:pretax_income_loss',
                   buds=('left',))
               ])
@@ -132,7 +131,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
               html.Li(className=h_node, children=[
                 card(
                   top_text='Pretax Income',
-                  bottom_format='2G',
+  
                   bottom_id=id_prefix + 'interest_burden:pretax_income_loss',
                   buds=('left',))
               ]),
@@ -140,7 +139,7 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
               html.Li(className=h_node, children=[
                 card(
                   top_text='Operating Income',
-                  bottom_format='2G',
+  
                   bottom_id=id_prefix + 'interest_burden:operating_income_loss',
                   buds=('left',))
               ])
@@ -159,7 +158,6 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
           html.Li(className=li_style, children=[
             card(
               top_text='Revenue', 
-              bottom_format='2G',
               bottom_id=id_prefix + 'asset_turnover:revenue',
               buds=('top',))
           ]),
@@ -167,7 +165,6 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
           html.Li(className=li_style, children=[
             card(
               top_text='Average Assets', 
-              bottom_format='2G',
               bottom_id=id_prefix + 'asset_turnover:average_assets',
               buds=('top',))
           ])
@@ -184,7 +181,6 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
           html.Li(className=li_style, children=[
             card(
               top_text='Average Assets', 
-              bottom_format='2G',
               bottom_id=id_prefix + 'equity_multiplier:average_assets',
               buds=('top',))
           ]),
@@ -192,7 +188,6 @@ def DupontChart(id_prefix: str = 'span:dupont-chart:'):
           html.Li(className=li_style, children=[
             card(
               top_text='Average Equity',
-              bottom_format='2G',
               bottom_id=id_prefix + 'average_equity',
               buds=('top',))
           ])

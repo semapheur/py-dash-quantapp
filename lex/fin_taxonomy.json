@@ -5,7 +5,7 @@
       "long": "Equity Multiplier"
     },
     "calculation": {
-      "order": 0,
+      "order": 1,
       "all": "average_assets / average_equity"
     }
   },

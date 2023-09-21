@@ -225,7 +225,7 @@ def update_dupont(date: str, scope: int, data: list[dict]):
   )
 
   return tuple(
-    fin.at[span_id.split(':')[-1]] for span_id in span_ids
+    f'{fin.at[span_id.split(":")[-1]]:.3G}' for span_id in span_ids
   )
 
 @callback(
