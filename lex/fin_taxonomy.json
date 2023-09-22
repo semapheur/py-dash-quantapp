@@ -41,7 +41,7 @@
     },
     "calculation": {
       "order": 2,
-      "all": "(liquid_assets + current_receivables) / current_liabilities"
+      "all": "(liquid_assets + trade_receivables) / current_liabilities"
     }
   },
   "cash_ratio": {
@@ -89,7 +89,7 @@
       "all": [
         "days_inventory_outstanding",
         "+days_sales_outstanding", 
-        "-days_payables_outstanding"
+        "-days_payable_outstanding"
       ]
     }
   },
@@ -110,17 +110,44 @@
     },
     "calculation": {
       "order": 1,
-      "all": "average_accounts_receivable / revenue * 365"
+      "all": "average_trade_receivables / revenue * 365"
     }
   },
-  "days_payables_outstanding": {
+  "days_payable_outstanding": {
     "label": {
       "long": "Days Payable Outstanding",
       "short": "DPO"
     },
     "calculation": {
       "order": 1,
-      "all": "average_accounts_payable / revenue_cost * 365"
+      "all": "average_trade_payables / revenue_cost * 365"
+    }
+  },
+  "average_trade_payables": {
+    "label": {
+      "long": "Average Accounts Payable"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "trade_payables"
+    }
+  },
+  "average_inventory": {
+    "label": {
+      "long": "Average Inventory"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "average_inventory"
+    }
+  },
+  "average_trade_receivables": {
+    "label": {
+      "long": "Average Accounts Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "average_trade_receivables"
     }
   },
   "equity_multiplier": {
@@ -290,11 +317,54 @@
   "working_capital": {
     "period": "instant",
     "calculation": {
-      "order": 2,
-      "all": "inventory + current_receivables - accounts_payable - current_accrued_liabilities"
+      "order": 0,
+      "all": "current_assets - current_liabilities"
     },
     "label": {
-      "long": "Net Working Capital"
+      "long": "Working Capital"
+    }
+  },
+  "operating_working_capital": {
+    "period": "instant",
+    "calculation": {
+      "order": 2,
+      "any": [
+        "trade_receivables",
+        "+inventory", 
+        "+current_prepaid_expenses",
+        "-trade_payables",
+        "-current_deferred_revenue",
+        "-current_accrued_expenses"
+      ]
+    },
+    "label": {
+      "long": "Operating Working Capital"
+    }
+  },
+  "net_current_asset_value": {
+    "period": "instant",
+    "calculation": {
+      "order": 2,
+      "all": "current_assets - liabilities"
+    },
+    "label": {
+      "long": "Net-Net Working Capital",
+      "short": "NCAV"
+    }
+  },
+  "net_net_working_capital": {
+    "period": "instant",
+    "calculation": {
+      "order": 2,
+      "all": [
+        "liquid_assets",
+        "+0.75 * trade_receivables",
+        "+ 0.5 * inventory", 
+        "-liabilities"
+      ]
+    },
+    "label": {
+      "long": "Net-Net Working Capital"
     }
   },
   "average_assets": {
@@ -512,7 +582,7 @@
       "any": "trade_receivables + current_nontrade_receivables + note_receivables + other_receivables"
     },
     "label": {
-      "long": "Current Receivables",
+      "long": "Current Total Receivables",
       "short": "Receivables"
     }
   },
@@ -1331,13 +1401,13 @@
       "any": [
         "change_current_tax_assets",
         "+change_inventories",
-        "+change_current_receivables",
+        "+change_trade_receivables",
         "+change_current_prepaid_expenses",
         "+change_other_current_assets",
-        "-change_current_accrued_liabilities",
+        "-change_current_accrued_expenses",
         "-change_current_deferred_revenue",
         "-change_current_tax_liabilities",
-        "-change_accounts_payable",
+        "-change_trade_payables",
         "-change_other_current_liabilities"
       ]
     },
@@ -1495,7 +1565,7 @@
       "diff": "current_trade_receivables"
     }
   },
-  "change_current_accrued_liabilities": {
+  "change_current_accrued_expenses": {
     "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Accrued Expenses",
@@ -1503,7 +1573,7 @@
     },
     "calculation": {
       "order": 0,
-      "diff": "current_accrued_liabilities"
+      "diff": "current_accrued_expenses"
     }
   },
   "change_current_deferred_revenue": {
@@ -1545,7 +1615,7 @@
       "diff": "other_current_liabilities"
     }
   },
-  "change_accounts_payable": {
+  "change_trade_payables": {
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInAccountsPayable"
@@ -1556,7 +1626,7 @@
     },
     "calculation": {
       "order": 1,
-      "diff": "accounts_payable"
+      "diff": "trade_payables"
     }
   },
   "comprehensive_income_loss": {
@@ -1827,7 +1897,7 @@
       "short": "Current Liabilities"
     }
   },
-  "current_accrued_liabilities": {
+  "current_accrued_expenses": {
     "period": "instant",
     "gaap": [
       "AccruedLiabilities",
@@ -1842,7 +1912,7 @@
         "current_employee_related_liabilities",
         "+current_accrued_marketing_expenses",
         "+current_accrued_taxes",
-        "+other_current_accrued_liabilities"
+        "+other_current_accrued_expenses"
       ]
     }
   },
@@ -1865,7 +1935,7 @@
       "long": "Current Accrued Marketing Costs"
     }
   },
-  "other_current_accrued_liabilities": {
+  "other_current_accrued_expenses": {
     "period": "instant",
     "gaap": [
       "OtherAccruedLiabilitiesCurrent"
@@ -1940,7 +2010,7 @@
       "long": "Other Current Liabilities"
     }
   },
-  "accounts_payable": {
+  "trade_payables": {
     "period": "instant",
     "gaap": [
       "AccountsPayable",
@@ -1960,7 +2030,7 @@
       "short": "Non-current Liabilities"
     }
   },
-  "noncurrent_accrued_liabilities": {
+  "noncurrent_accrued_expenses": {
     "period": "instant",
     "gaap": [
       "AccruedLiabilitiesNoncurrent"
@@ -1970,10 +2040,10 @@
     },
     "calculation": {
       "order": 0,
-      "any": "noncurrent_accrued_taxes + other_noncurrent_accrued_liabilities"
+      "any": "noncurrent_accrued_taxes + other_noncurrent_accrued_expenses"
     }
   },
-  "other_noncurrent_accrued_liabilities": {
+  "other_noncurrent_accrued_expenses": {
     "period": "instant",
     "gaap": [
       "OtherAccruedLiabilitiesNoncurrent"
