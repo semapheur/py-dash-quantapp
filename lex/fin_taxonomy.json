@@ -25,7 +25,7 @@
     },
     "calculation": {
       "order": 2,
-      "all": "equity + debt"
+      "all": "equity + debt - liquid_assets"
     }
   },
   "average_invested_capital": {
@@ -292,6 +292,9 @@
   },
   "tax_rate": {
     "period": "ratio",
+    "gaap": [
+      "EffectiveIncomeTaxRateContinuingOperations"
+    ],
     "label": {
       "long": "Effective Tax Rate",
       "short": "Tax Rate"
