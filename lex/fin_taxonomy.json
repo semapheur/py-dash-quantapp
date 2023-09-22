@@ -1,4 +1,70 @@
 {
+  "net_operating_profit_after_tax": {
+    "label": {
+      "long": "Net Operating Profit After Tax",
+      "short": "NOPAT"
+    },
+    "calculation": {
+      "order": 5,
+      "all": "operating_income_loss * (1 - tax_rate)"
+    }
+  },
+  "return_on_invested_capital": {
+    "label": {
+      "long": "Return on Invested Capital",
+      "short": "ROIC"
+    },
+    "calculation": {
+      "order": 5,
+      "all": "net_operating_profit_after_tax / average_invested_capital"
+    }
+  },
+  "invested_capital": {
+    "label": {
+      "long": "Invested Capital"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "equity + debt"
+    }
+  },
+  "average_invested_capital": {
+    "label": {
+      "long": "Average Invested Capital"
+    },
+    "calculation": {
+      "order": 3,
+      "avg": "average_invested_capital"
+    }
+  },
+  "return_on_capital_employed": {
+    "label": {
+      "long": "Return on Capital Employed",
+      "short": "ROIC"
+    },
+    "calculation": {
+      "order": 5,
+      "all": "net_operating_profit_after_tax / average_capital_employed"
+    }
+  },
+  "capital_employed": {
+    "label": {
+      "long": "Capital Employed"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "assets - current_liabilities"
+    }
+  },
+  "average_capital_employed": {
+    "label": {
+      "long": "Average Capital Employed"
+    },
+    "calculation": {
+      "order": 1,
+      "avg": "capital_employed"
+    }
+  },
   "debt_to_equity": {
     "label": {
       "long": "Debt-to-Equity Ratio"
@@ -169,6 +235,37 @@
     "calculation": {
       "order": 6,
       "all": "net_income_loss / equity"
+    }
+  },
+  "return_on_net_assets": {
+    "period": "ratio",
+    "label": {
+      "long": "Return on Net Assets",
+      "short": "RONA"
+    },
+    "calculation": {
+      "order": 6,
+      "all": "net_income_loss / (average_fixed_assets + average_operating_working_capital)"
+    }
+  },
+  "average_fixed_assets": {
+    "period": "ratio",
+    "label": {
+      "long": "Average Fixed Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "fixed_assets"
+    }
+  },
+  "average_operating_working_capital": {
+    "period": "ratio",
+    "label": {
+      "long": "Average Operating Working Capital"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "operating_working_capital"
     }
   },
   "net_profit_margin": {
