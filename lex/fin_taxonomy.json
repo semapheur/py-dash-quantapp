@@ -1,4 +1,128 @@
 {
+  "debt_to_equity": {
+    "label": {
+      "long": "Debt-to-Equity Ratio"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "debt / equity"
+    }
+  },
+  "debt_to_asset": {
+    "label": {
+      "long": "Debt-to-Asset Ratio"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "debt / assets"
+    }
+  },
+  "debt": {
+    "label": {
+      "long": "Total Debt"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "current_debt + noncurrent_longterm_debt"
+    }
+  },
+  "current_ratio": {
+    "label": {
+      "long": "Current Ratio"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_assets / current_liabilities"
+    }
+  },
+  "quick_ratio": {
+    "label": {
+      "long": "Quick Ratio"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "(liquid_assets + current_receivables) / current_liabilities"
+    }
+  },
+  "cash_ratio": {
+    "label": {
+      "long": "Cash Ratio"
+    },
+    "calculation": {
+      "order": 3,
+      "all": "liquid_assets / current_liabilities"
+    }
+  },
+  "capital_expenditure_to_operating_cashflow": {
+    "label": {
+      "long": "Capital-Expenditure-to-Operating-Cash-Flow" 
+    },
+    "calculation": {
+      "order": 2,
+      "all": "capital_expenditure / operating_cashflow"
+    }
+  },
+  "capital_expenditure_to_operating_income": {
+    "label": {
+      "long": "Capital-Expenditure-to-Operating-Income" 
+    },
+    "calculation": {
+      "order": 2,
+      "all": "capital_expenditure / operating_income_loss"
+    }
+  },
+  "capital_expenditure_to_revenue": {
+    "label": {
+      "long": "Capital-Expenditure-to-Revenue" 
+    },
+    "calculation": {
+      "order": 2,
+      "all": "capital_expenditure / revenue"
+    }
+  },
+  "cash_conversion_cycle": {
+    "label": {
+      "long": "Cash Conversion Cycle"
+    },
+    "calculation": {
+      "order": 1,
+      "all": [
+        "days_inventory_outstanding",
+        "+days_sales_outstanding", 
+        "-days_payables_outstanding"
+      ]
+    }
+  },
+  "days_inventory_outstanding": {
+    "label": {
+      "long": "Days Sales of Inventory",
+      "short": "DSI"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "average_inventory / revenue_cost * 365"
+    }
+  },
+  "days_sales_outstanding": {
+    "label": {
+      "long": "Days Sales Outstanding",
+      "short": "DSO"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "average_accounts_receivable / revenue * 365"
+    }
+  },
+  "days_payables_outstanding": {
+    "label": {
+      "long": "Days Payable Outstanding",
+      "short": "DPO"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "average_accounts_payable / revenue_cost * 365"
+    }
+  },
   "equity_multiplier": {
     "period": "ratio",
     "label": {
