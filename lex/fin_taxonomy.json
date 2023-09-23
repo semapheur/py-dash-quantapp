@@ -1,4 +1,37 @@
 {
+  "altman_z_score": {
+    "label": {
+      "long": "Altman Z Score",
+      "short": "Z Score"
+    },
+    "calculation": {
+      "all": [
+        "1.2 * average_operating_working_capital / average_assets",
+        "+1.4 * retained_earnings_accumulated_deficit / average_assets",
+        "+3.3 * operating_income_loss / average_assets",
+        "+0.6 * market_capitalization / liabilities",
+        "+ average_revenue / average_assets"
+      ]
+    }
+  },
+  "dividend_payout_ratio": {
+    "label": {
+      "long": "Dividend Payout Ratio"
+    },
+    "calculation": {
+      "order": 6,
+      "all": "dividend_payments / net_income"
+    }
+  },
+  "interest_rate": {
+    "label": {
+      "long": "Effective Interest Rate"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "interest_expense / average_debt"
+    }
+  },
   "net_operating_profit_after_tax": {
     "label": {
       "long": "Net Operating Profit After Tax",
@@ -25,7 +58,16 @@
     },
     "calculation": {
       "order": 2,
-      "all": "equity + debt - liquid_assets"
+      "all": "equity + debt - undue_cash"
+    }
+  },
+  "undue_cash": {
+    "label": {
+      "long": "Undue Cash"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "cash_cash_equivalents - current_debt - (interest_rate * debt) + operating_working_capital"
     }
   },
   "average_invested_capital": {
@@ -71,7 +113,7 @@
     },
     "calculation": {
       "order": 2,
-      "all": "debt / equity"
+      "all": "average_debt / average_equity"
     }
   },
   "debt_to_asset": {
@@ -80,7 +122,7 @@
     },
     "calculation": {
       "order": 2,
-      "all": "debt / assets"
+      "all": "average_debt / average_assets"
     }
   },
   "debt": {
@@ -90,6 +132,15 @@
     "calculation": {
       "order": 1,
       "all": "current_debt + noncurrent_longterm_debt"
+    }
+  },
+  "average_debt": {
+    "label": {
+      "long": "Average Total Debt"
+    },
+    "calculation": {
+      "order": 2,
+      "avg": "debt"
     }
   },
   "current_ratio": {
@@ -166,7 +217,7 @@
     },
     "calculation": {
       "order": 1,
-      "all": "average_inventory / revenue_cost * 365"
+      "all": "average_inventory / revenue_cost_per_day"
     }
   },
   "days_sales_outstanding": {
@@ -176,7 +227,7 @@
     },
     "calculation": {
       "order": 1,
-      "all": "average_trade_receivables / revenue * 365"
+      "all": "average_trade_receivables / revenue_per_day"
     }
   },
   "days_payable_outstanding": {
@@ -186,7 +237,7 @@
     },
     "calculation": {
       "order": 1,
-      "all": "average_trade_payables / revenue_cost * 365"
+      "all": "average_trade_payables / revenue_cost_per_day"
     }
   },
   "average_trade_payables": {
@@ -237,25 +288,25 @@
       "all": "net_income_loss / equity"
     }
   },
-  "return_on_net_assets": {
+  "return_on_equity_adjusted_to_book_value": {
     "period": "ratio",
     "label": {
-      "long": "Return on Net Assets",
-      "short": "RONA"
+      "long": "Return on Equity Adjusted to Book Value",
+      "short": "ROEABV"
     },
     "calculation": {
-      "order": 6,
-      "all": "net_income_loss / (average_fixed_assets + average_operating_working_capital)"
+      "order": 7,
+      "all": "return_on_equity / price_to_book_value"
     }
   },
-  "average_fixed_assets": {
+  "average_productive_assets": {
     "period": "ratio",
     "label": {
       "long": "Average Fixed Assets"
     },
     "calculation": {
       "order": 0,
-      "avg": "fixed_assets"
+      "avg": "productive_assets"
     }
   },
   "average_operating_working_capital": {
@@ -354,16 +405,16 @@
     },
     "calculation": {
       "order": 1,
-      "all": "change_fixed_assets + change_depreciation"
+      "all": "change_productive_assets + change_depreciation"
     }
   },
-  "change_fixed_assets": {
+  "change_productive_assets": {
     "label": {
       "long": "Increase (Decrease) in Fixed Assets"
     },
     "calculation": {
       "order": 2,
-      "diff": "fixed_assets"
+      "diff": "productive_assets"
     }
   },
   "change_depreciation": {
@@ -372,7 +423,7 @@
     },
     "calculation": {
       "order": 0,
-      "diff": "fixed_assets_accumulated_depreciation"
+      "diff": "productive_assets_accumulated_depreciation"
     }
   },
   "free_cash_flow_firm": {
@@ -780,14 +831,14 @@
     },
     "calculation": {
       "order": 2,
-      "any": "fixed_assets + intangible_assets + goodwill + noncurrent_securities + other_noncurrent_assets"
+      "any": "productive_assets + intangible_assets + goodwill + noncurrent_securities + other_noncurrent_assets"
     }
   },
-  "fixed_assets": {
+  "productive_assets": {
     "period": "instant",
     "calculation": {
       "order": 1,
-      "all": "gross_fixed_assets - accumulated_depreciation_fixed_assets"
+      "all": "gross_productive_assets - accumulated_depreciation_productive_assets"
     },
     "gaap": [
       "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet",
@@ -798,7 +849,7 @@
       "short": "Fixed Assets"
     }
   },
-  "accumulated_depreciation_fixed_assets": {
+  "accumulated_depreciation_productive_assets": {
     "period": "instant",
     "gaap": [
       "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentAndCapitalizedSoftware",
@@ -809,7 +860,7 @@
       "short": "Accumulated DDA"
     }
   },
-  "gross_fixed_assets": {
+  "gross_productive_assets": {
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -1033,7 +1084,7 @@
     "calculation": {
       "order": 2,
       "all": [
-        "dividends_payments",
+        "dividend_payments",
         "+stock_cashflow",
         "+longterm_debt_cashflow",
         "+shortterm_debt_cashflow",
@@ -1278,7 +1329,7 @@
     "calculation": {
       "order": 2,
       "any": [
-        "fixed_assets_cashflow",
+        "productive_assets_cashflow",
         "+intangible_assets_cashflow",
         "+securities_cashflow",
         "+acquisition_divestitures_cashflow",
@@ -1294,7 +1345,7 @@
     },
     "calculation": {
       "order": 2,
-      "any": "fixed_assets_proceeds + intangible_assets_proceeds + securities_proceeds + acquisition_divestitures_proceeds"
+      "any": "productive_assets_proceeds + intangible_assets_proceeds + securities_proceeds + acquisition_divestitures_proceeds"
     }
   },
   "investing_cash_outflow": {
@@ -1305,7 +1356,7 @@
     },
     "calculation": {
       "order": 2,
-      "any": "fixed_assets_payments + intangible_assets_payments + securities_payments + acquisition_divestitures_payments"
+      "any": "productive_assets_payments + intangible_assets_payments + securities_payments + acquisition_divestitures_payments"
     }
   },
   "acquisition_divestitures_proceeds": {
@@ -1384,7 +1435,7 @@
       "short": "Other Investing Activities"
     }
   },
-  "fixed_assets_cashflow": {
+  "productive_assets_cashflow": {
     "period": "duration",
     "label": {
       "long": "Net Cash from Purchase and Sale of Property, Plant and Equipment",
@@ -1392,10 +1443,10 @@
     },
     "calculation": {
       "order": 0,
-      "any": "fixed_assets_proceeds + fixed_assets_payments"
+      "any": "productive_assets_proceeds + productive_assets_payments"
     }
   },
-  "fixed_assets_payments": {
+  "productive_assets_payments": {
     "period": "duration",
     "gaap": [
       "PaymentsToAcquirePropertyPlantAndEquipment",
@@ -1406,7 +1457,7 @@
       "short": "Payments to Acquire Fixed Assets"
     }
   },
-  "fixed_assets_proceeds": {
+  "productive_assets_proceeds": {
     "period": "duration",
     "gaap": [
       "ProcceedsFromSaleOfPropertyPlantAndEquipment"
@@ -2274,6 +2325,15 @@
       "long": "Interest Expense"
     }
   },
+  "debt_interest_expense": {
+    "period": "duration",
+    "gaap": [
+      "InterestExpenseDebt"
+    ],
+    "label": {
+      "long": "Debt Interest Expense"
+    }
+  },
   "nonoperating_income_expense": {
     "period": "duration",
     "calculation": {
@@ -2595,7 +2655,7 @@
     },
     "calculation": {
       "order": 0,
-      "diff": "accumulated_depreciation_fixed_assets"
+      "diff": "accumulated_depreciation_productive_assets"
     }
   },
   "research_development_expense": {
@@ -2702,6 +2762,15 @@
       "long": "Revenue"
     }
   },
+  "revenue_per_day": {
+    "label": {
+      "long": "Revenue Per Day"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "revenue / days"
+    }
+  },
   "finance_revenue": {
     "period": "duration",
     "calculation": {
@@ -2785,6 +2854,15 @@
     "label": {
       "long": "Cost of Goods and Services Sold",
       "short": "COGS"
+    }
+  },
+  "revenue_cost_per_day": {
+    "label": {
+      "long": "Revenue Cost Per Day"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "revenue_cost / days"
     }
   },
   "finance_revenue_cost": {

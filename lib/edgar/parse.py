@@ -26,7 +26,7 @@ from lib.edgar.models import (
 from lib.fin.taxonomy import Taxonomy
 from lib.utils import (
   combine_duplicate_columns,
-  df_month_difference, 
+  df_time_difference, 
   insert_characters, 
   month_difference, 
   fiscal_quarter
@@ -326,8 +326,8 @@ def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
     )
     _df = df.loc[mask,duration] # duration
     _df.sort_index(level='date')
-    _df.loc[:, 'month_diff'] = df_month_difference(
-      _df.index.get_level_values('date')).array
+    _df.loc[:, 'month_diff'] = df_time_difference(
+      _df.index.get_level_values('date'), 'M').array
 
     cols = _df.columns.difference(['month_diff'])
     _df.loc[:, cols] = _df.loc[:, cols].diff()

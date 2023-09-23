@@ -116,9 +116,9 @@ def month_difference(date1: dt, date2: dt) -> int:
   delta = relativedelta(max(date1, date2), min(date1, date2))
   return delta.years * 12 + delta.months + round(delta.days / 30)
 
-def df_month_difference(dates: pd.DatetimeIndex) -> pd.Series:
+def df_time_difference(dates: pd.DatetimeIndex, freq: str = 'M') -> pd.Series:
   return  np.round(
-    dates.to_series().diff() / np.timedelta64(1, 'M')
+    dates.to_series().diff() / np.timedelta64(1, freq)
   )
 
 def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:

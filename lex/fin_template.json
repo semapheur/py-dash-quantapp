@@ -65,12 +65,12 @@
       "current_tax_assets": 1,
       "other_current_assets": 1,
       "current_assets": 0,
-      "fixed_assets": 1,
-      "gross_fixed_assets": 2,
+      "productive_assets": 1,
+      "gross_productive_assets": 2,
       "furniture_fixtures": 3,
       "land_buildings": 3,
       "machinery_equipment": 3,
-      "accumulated_depreciation_fixed_assets": 2,
+      "accumulated_depreciation_productive_assets": 2,
       "intangible_assets": 1,
       "finitelived_intangible_assets": 2,
       "gross_finitelived_intangible_assets": 3,
@@ -133,9 +133,9 @@
       "change_current_deferred_revenue": 2,
       "change_other_current_liabilities": 2,
       "operating_cashflow": 0,
-      "fixed_assets_cashflow": 1,
-      "fixed_assets_proceeds": 2,
-      "fixed_assets_payments": 2,
+      "productive_assets_cashflow": 1,
+      "productive_assets_proceeds": 2,
+      "productive_assets_payments": 2,
       "intangible_assets_cashflow": 1,
       "intangible_assets_proceeds": 2,
       "intangible_assets_payments": 2,
@@ -491,7 +491,7 @@
       "noncurrent_assets": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "fixed_assets": {
+          "productive_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
@@ -513,7 +513,7 @@
           }
         }
       },
-      "fixed_assets": {
+      "productive_assets": {
         "color": "rgba(0,255,0,1)"
       },
       "intangible_assets": {
@@ -839,7 +839,7 @@
       "investing_cash_inflow": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "fixed_assets_cashflow": {
+          "productive_assets_cashflow": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
@@ -869,7 +869,7 @@
       "investing_cash_outflow": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "fixed_assets_cashflow": {
+          "productive_assets_cashflow": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
@@ -896,7 +896,7 @@
           }
         }
       },
-      "fixed_assets_cashflow": {
+      "productive_assets_cashflow": {
         "color": ""
       },
       "intangible_assets_cashflow": {

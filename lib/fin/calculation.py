@@ -1,10 +1,15 @@
 import ast
-import json
+from typing import Any, Iterable
 
 import numpy as np
 import pandas as pd
 
-from lib.utils import df_month_difference
+from lib.utils import df_time_difference
+
+SLICES = (
+  (slice(None), slice('FY'), slice(12)),
+  (slice(None), slice(None), slice(3))
+)
 
 class AllTransformer(ast.NodeTransformer):
   def __init__(self, df_name: str):
@@ -49,7 +54,51 @@ class AnyTransformer(ast.NodeTransformer):
       keywords=[]
     )
     return call
+
+def day_difference(df: pd.DataFrame, slices = SLICES):
   
+  for ix in enumerate(slices):
+    _df: pd.DataFrame = df.loc[ix]
+    _df.sort_index(level='date', inplace=True)
+
+    dates = pd.to_datetime(_df.index.get_level_values('date'))
+    df.loc[ix, 'days'] = df_time_difference(dates, 'M').array
+
+  return df
+
+def applier(
+  s: pd.Series, 
+  fn: str, 
+  slices: Iterable[Iterable[slice|Any]] = SLICES
+) -> pd.Series:
+  
+  update = [pd.Series()] * len(slices)
+  
+  for i, ix in enumerate(slices):
+    _s: pd.Series = s.loc[ix]
+    _s.sort_index(level='date', inplace=True)
+
+    dates = pd.to_datetime(_s.index.get_level_values('date'))
+    month_diff = pd.Series(df_time_difference(dates, 'M').array, index=_s.index)
+
+    if fn == 'diff':
+      _s = _s.diff()
+    elif fn == 'avg':
+      _s = _s.rolling(window=2, min_periods=2).mean()
+    elif fn == 'shift':
+      _s = _s.shift()
+    
+    _s = _s.loc[month_diff == ix[2].stop]
+    update[i] = _s
+    
+  update = pd.concat(update, axis=0)
+  nan_index = pd.Index(list(set(s.index).difference(update.index)))
+
+  s.loc[update.index] = update
+  s.loc[nan_index] = np.nan
+
+  return s
+
 def calculate_items(
   financials: pd.DataFrame, 
   schemas: dict[str, dict],
@@ -116,39 +165,9 @@ def calculate_items(
     df = insert_to_df(df, df_cols, result, col_name)
     return df
   
-  def applyer(s: pd.Series, fn: str) -> pd.Series:
-    
-    slices = (
-      (slice(None), slice('FY'), slice(12)),
-      (slice(None), slice(None), slice(3))
-    )
-    update = [pd.Series()] * len(slices)
-    
-    for i, ix in enumerate(slices):
-      _s = s.loc[ix]
-      _s.sort_index(level='date', inplace=True)
-
-      dates = pd.to_datetime(_s.index.get_level_values('date'))
-      month_diff = pd.Series(df_month_difference(dates).array, index=_s.index)
-
-      if fn == 'diff':
-        _s = _s.diff()
-      elif fn == 'avg':
-        _s = _s.rolling(window=2, min_periods=2).mean()
-      
-      _s = _s.loc[month_diff == ix[2].stop]
-      update[i] = _s
-      
-
-    update = pd.concat(update, axis=0)
-    nan_index = pd.Index(list(set(s.index).difference(update.index)))
-
-    s.loc[update.index] = update
-    s.loc[nan_index] = np.nan
-
-    return s
-
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
+
+  financials = day_difference(financials) 
 
   all_visitor = AllTransformer('df')
   any_visitor = AnyTransformer('df')
@@ -197,7 +216,7 @@ def calculate_items(
       if calculer not in col_set:
         continue
 
-      result = applyer(financials[calculer], 'diff')
+      result = applier(financials[calculer], 'diff')
       financials = insert_to_df(financials, col_set, result, calculee)
 
     elif 'avg':
@@ -205,7 +224,7 @@ def calculate_items(
       if calculer not in col_set:
         continue
 
-      result = applyer(financials[calculer], 'avg')
+      result = applier(financials[calculer], 'avg')
       financials = insert_to_df(financials, col_set, result, calculee)
 
   return financials

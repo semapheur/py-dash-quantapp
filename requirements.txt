@@ -4,11 +4,12 @@
 # pip freeze > <this file>
 # pip install -r <this file>
 
-aimeter
+aiometer
 asyncio
 branca
 bs4
 dash
+dash-ag-grid
 dash-bootstrap-components
 dash-extensions
 dash-leaflet
