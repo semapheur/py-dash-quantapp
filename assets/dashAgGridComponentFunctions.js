@@ -11,3 +11,18 @@ dagcomponentfuncs.FinancialsTooltip = function(props) {
     React.createElement('h4', {}, props.labels[props.rowIndex])
   )
 }
+
+dagcomponentfuncs.TrendLine = function(props) {
+  //const {setData} = props
+  //function setProps() {
+  //  const graphProps = arguments[0]
+  //  if (graphProps['clickData']) {
+  //    setData(graphProps)
+  //  }
+  //}
+  return React.createElement(window.dash_core_components.Graph, {
+    figure: props.value,
+    style: {height: '100%'},
+    config: {displayModeBar: false}
+  })
+}

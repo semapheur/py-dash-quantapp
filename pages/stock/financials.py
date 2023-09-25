@@ -6,6 +6,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 import pandas as pd
+import plotly.express as px
 
 from components.stock_header import StockHeader
 from lib.db.lite import read_sqlite
@@ -94,32 +95,43 @@ def update_table(data: list[dict], sheet: str, scope: str):
   )
 
   #fin.insert(1, 'Trend', make_sparkline(fin[fin.columns[1:]]))
+  fin['trend'] = ''
+  for i, r in fin.iterrows():
+    fig = px.line(
+      r.iloc[1:-1]
+    )
+    fig.update_layout(
+      showlegend=False,
+      xaxis=dict(autorange='reversed'),
+      xaxis_visible=False,
+      xaxis_showticklabels=False,
+      yaxis_visible=False,
+      yaxis_showticklabels=False,
+      margin=dict(l=0, r=0, t=0, b=0),
+      template='plotly_white'
+    )
+    fin.at[i, 'trend'] = fig 
 
-  #tooltips = [{
-  #  'index': {
-  #    'type': 'markdown',
-  #    'value': long
-  #  }
-  #} for long in tmpl['long']]
-  #'cellClassRules': {
-  #      f'pl-{(lvl + 1) * 4}': f'{row_indices(tmpl, lvl)}.includes(params.rowIndex)'
-  #      for lvl in tmpl['level'].unique()
-  #  },
-
-  columnDefs = [{
-    'field': 'index', 'headerName': 'Item', 
-    'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
-    'cellStyle': {
-      'styleConditions': [{
-        'condition': (
-          f'{row_indices(tmpl, lvl)}'
-          '.includes(params.rowIndex)'),
-        'style': {'paddingLeft': f'{lvl + 1}rem'}
-      } for lvl in tmpl['level'].unique()]
+  columnDefs = [
+    {
+      'field': 'index', 'headerName': 'Item', 
+      'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
+      'cellStyle': {
+        'styleConditions': [{
+          'condition': (
+            f'{row_indices(tmpl, lvl)}'
+            '.includes(params.rowIndex)'),
+          'style': {'paddingLeft': f'{lvl + 1}rem'}
+        } for lvl in tmpl['level'].unique()]
+      },
+      'tooltipField': 'index',
+      'tooltipComponentParams': {'labels': tmpl['long'].to_list()}
     },
-    'tooltipField': 'index',
-    'tooltipComponentParams': {'labels': tmpl['long'].to_list()}
-  }] + [{
+    {
+      'field': 'trend', 'headerName': 'Trend',
+      'cellRenderer': 'TrendLine'
+    }
+  ] + [{
     'field': col,
     'type': 'numericColumn',
     'valueFormatter': {'function': 'd3.format("(,")(params.value)'}
