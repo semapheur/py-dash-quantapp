@@ -44,10 +44,10 @@ def fetch_stock(id: str, cols: Optional[set] = None) -> Optional[Stock]:
   if not cols:
     raise Exception(f'Columns must be from {Stock.__optional_keys__}')
 
-  query = f'SELECT {",".join(cols)} FROM stock WHERE id = "{id}"'
+  query = text(f'SELECT {",".join(cols)} FROM stock WHERE id = :id').bindparams(id=id)
 
   with ENGINE.begin() as con:
-    cursor = con.execute(text(query))
+    cursor = con.execute(query)
     fetch = cursor.first()
   
   if fetch:

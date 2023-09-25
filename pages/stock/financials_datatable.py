@@ -4,15 +4,18 @@ from ordered_set import OrderedSet
 from dash import (
   callback, dcc, html, no_update, register_page, Output, Input
 )
-import dash_ag_grid as dag
+from dash.dash_table import DataTable
+from dash.dash_table.Format import Format, Sign
 import pandas as pd
 
+
+from components.sparklines import make_sparkline
 from components.stock_header import StockHeader
 from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 #from lib.utils import load_json
 
-register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
+#register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
@@ -20,11 +23,50 @@ radio_input_style = (
 )
 radio_label_style = 'relative px-1'
 
-def row_indices(template: pd.DataFrame, level: int) -> str:
+def style_table(index: pd.Series, tmpl: pd.DataFrame) -> list[dict]:
 
-  mask = template['level'] == level
-  return str(template.loc[mask].index.to_list())
-  #return str(index[index.isin(items)].index.to_list())
+  styling: list[dict] = [
+    {
+      'if': {
+        'column_id': 'Trend'
+      },
+      'font_family': 'Sparks-Dotline-Extrathick'
+    },
+    {
+      'if': {
+        'column_id': 'index'
+      },
+      'textAlign': 'left',
+      'paddingLeft': '2rem'
+    },
+  ]
+
+  for level in tmpl['level'].unique():
+    items = tmpl.loc[tmpl['level'] == level, 'short']
+    row_ix = [index[index == i].index[0] for i in items] 
+
+    styling.append({
+      'if': {
+        'row_index': row_ix,
+        'column_id': 'index',
+      },
+      'paddingLeft': f'{level + 1}rem',
+      'fontWeight': 'bold' if level == 0 else 'normal',
+      'borderBottom': '1px solid rgb(var(--color-text))' if level == 0 else None
+    })
+
+  return styling
+
+def format_columns(columns: list[str], index: str) -> dict:
+  return [{
+    'name': c,
+    'id': c,
+    'type': 'text' if c == index else 'numeric',
+    'format': None if c == index else Format(
+      group=True,
+      sign=Sign.parantheses
+    )
+  } for c in columns]
 
 def layout(id: Optional[str] = None):
 
@@ -55,11 +97,11 @@ def layout(id: Optional[str] = None):
     ]),
     html.Div(
       id='div:stock-financials:table-wrap', 
-      className='flex-1 p-2'),
+      className='flex-1 overflow-x-hidden p-2'),
   ])
 
 @callback(
-  Output('div:stock-financials:table-wrap', 'children'),
+  Output('div:stock-financials:datatable-wrap', 'children'),
   Input('store:ticker-search:financials', 'data'),
   Input('radio:stock-financials:sheet', 'value'),
   Input('radio:stock-financials:scope', 'value'),
@@ -77,7 +119,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
   tmpl = read_sqlite('taxonomy.db', query, param)
 
   tmpl.loc[:, 'short'].fillna(tmpl['long'], inplace=True)
-  #labels = {k: v for k, v in zip(tmpl['item'], tmpl['short'])}
+  labels = {k: v for k, v in zip(tmpl['item'], tmpl['short'])}
 
   fin = (pd.DataFrame.from_records(data)
     .set_index(['date', 'months'])
@@ -86,62 +128,27 @@ def update_table(data: list[dict], sheet: str, scope: str):
   )
   cols = list(OrderedSet(OrderedSet(tmpl['item']).intersection(fin.columns)))
   fin = fin[cols]
+  fin.rename(columns=labels, inplace=True)
+  tmpl = tmpl.loc[tmpl['item'].isin(cols)]
+
   fin = fin.T.reset_index()
-  tmpl = (tmpl
-    .set_index('item')
-    .loc[cols]
-    .reset_index()
-  )
+  fin.insert(1, 'Trend', make_sparkline(fin[fin.columns[1:]]))
 
-  #fin.insert(1, 'Trend', make_sparkline(fin[fin.columns[1:]]))
+  tooltips = [{
+    'index': {
+      'type': 'markdown',
+      'value': long
+    }
+  } for long in tmpl['long']]
 
-  #tooltips = [{
-  #  'index': {
-  #    'type': 'markdown',
-  #    'value': long
-  #  }
-  #} for long in tmpl['long']]
-  #'cellClassRules': {
-  #      f'pl-{(lvl + 1) * 4}': f'{row_indices(tmpl, lvl)}.includes(params.rowIndex)'
-  #      for lvl in tmpl['level'].unique()
-  #  },
-
-  columnDefs = [{
-    'field': 'index', 'headerName': 'Item', 
-    'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
-    'cellStyle': {
-      'styleConditions': [{
-        'condition': (
-          f'{row_indices(tmpl, lvl)}'
-          '.includes(params.rowIndex)'),
-        'style': {'paddingLeft': f'{lvl + 1}rem'}
-      } for lvl in tmpl['level'].unique()]
+  return DataTable(
+    fin.to_dict('records'),
+    columns=format_columns(fin.columns, fin.columns[0]),
+    style_header={
+      'fontWeight': 'bold'
     },
-    'tooltipField': 'index',
-    'tooltipComponentParams': {'labels': tmpl['long'].to_list()}
-  }] + [{
-    'field': col,
-    'type': 'numericColumn',
-    'valueFormatter': {'function': 'd3.format("(,")(params.value)'}
-  } for col in fin.columns[1:]]
-
-  row_style = {
-    'font-bold border-b border-text': (
-      f'{row_indices(tmpl, 0)}'
-      '.includes(params.rowIndex)')
-  }
-  
-  fin.loc[:,'index'] = fin['index'].apply(
-    lambda x: tmpl.loc[tmpl['item'] == x, 'short'].iloc[0]
+    style_data_conditional=style_table(fin['index'], tmpl),
+    fixed_columns={'headers': True, 'data': 1},
+    fixed_rows={'headers': True},
+    tooltip_data=tooltips
   )
-
-  return dag.AgGrid(
-    id='table:stock-financials',
-    columnDefs=columnDefs,
-    rowData=fin.to_dict('records'),
-    columnSize='autoSize',
-    defaultColDef={'tooltipComponent': 'FinancialsTooltip'},
-    rowClassRules=row_style,
-    style={'height': '100%'}
-    #defaultColDef={'resizable': True, 'sortable': True, 'filter': True, },
-  ),

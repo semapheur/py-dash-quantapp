@@ -57,7 +57,7 @@ class AnyTransformer(ast.NodeTransformer):
 
 def day_difference(df: pd.DataFrame, slices = SLICES):
   
-  for ix in enumerate(slices):
+  for ix in slices:
     _df: pd.DataFrame = df.loc[ix]
     _df.sort_index(level='date', inplace=True)
 

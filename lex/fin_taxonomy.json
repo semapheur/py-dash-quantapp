@@ -1831,7 +1831,8 @@
       "DeferredStateAndLocalIncomeTaxExpenseBenefit"
     ],
     "label": {
-      "long": "Deferred State and Local Income Tax Expense (Benefit)"
+      "long": "Deferred State and Local Income Tax Expense (Benefit)",
+      "short": "Local"
     }
   },
   "national_deferred_tax": {
@@ -1840,7 +1841,8 @@
       "DeferredFederalIncomeTaxExpenseBenefit"
     ],
     "label": {
-      "long": "Deferred National Income Tax Expense (Benefit)"
+      "long": "Deferred National Income Tax Expense (Benefit)",
+      "short": "National"
     }
   },
   "foreign_deferred_tax": {
@@ -1849,7 +1851,8 @@
       "DeferredForeignIncomeTaxExpenseBenefit"
     ],
     "label": {
-      "long": "Deferred Foreign Income Tax Expense (Benefit)"
+      "long": "Deferred Foreign Income Tax Expense (Benefit)",
+      "short": "Foreign"
     }
   },
   "equity": {
