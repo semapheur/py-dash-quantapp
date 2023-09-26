@@ -62,7 +62,7 @@ def day_difference(df: pd.DataFrame, slices = SLICES):
     _df.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_df.index.get_level_values('date'))
-    df.loc[ix, 'days'] = df_time_difference(dates, 'M').array
+    df.loc[ix, 'days'] = df_time_difference(dates, 'D').array
 
   return df
 
@@ -166,7 +166,6 @@ def calculate_items(
     return df
   
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
-
   financials = day_difference(financials) 
 
   all_visitor = AllTransformer('df')

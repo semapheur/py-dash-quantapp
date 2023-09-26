@@ -1,7 +1,10 @@
-from dash import callback, dcc, no_update, Input, Output, MATCH
+from functools import partial
 import uuid
 
-from lib.morningstar.ticker import get_ohlcv
+from dash import callback, dcc, no_update, Input, Output, MATCH
+
+from lib.morningstar.ticker import Ticker
+from lib.ticker.fetch import get_ohlcv
 from components.ticker_select import TickerSelectAIO
 
 class QuoteStoreAIO(dcc.Store):
@@ -34,7 +37,8 @@ class QuoteStoreAIO(dcc.Store):
       return no_update
     
     id, currency = query.split('|')
-    ohlcv = get_ohlcv(id, 'stock', currency)
+    fetcher = partial(Ticker(id, 'stock', currency).ohlcv)
+    ohlcv = get_ohlcv(id, 'stock', fetcher)
     ohlcv.reset_index(inplace=True)
     return ohlcv.to_dict('list')
   

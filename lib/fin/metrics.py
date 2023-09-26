@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from functools import partial
 from typing import Literal
 

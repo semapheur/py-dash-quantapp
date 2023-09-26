@@ -46,8 +46,8 @@ def TickerSearch():
       id='nav:ticker-search',
       className=nav_style
     ),
-    dcc.Store(id='store:ticker-search:financials'),
-    dcc.Store(id='store:ticker-search:id')
+    dcc.Store(id='store:ticker-search:financials', storage_type='session'),
+    dcc.Store(id='store:ticker-search:id', storage_type='session', data={})
   ])
 
 @callback(
@@ -79,7 +79,7 @@ def update_store(path: str, id_store: dict[str,str]):
   new_id = path_split[2]
   old_id = id_store.get('id', '')
 
-  if old_id['id'] == new_id:
+  if old_id == new_id:
     return no_update
 
   return {'id': new_id}
@@ -123,20 +123,23 @@ def update_store(id_store: dict[str, str], path_name: str):
   template.loc[:,'calculation'] = (
     template['calculation'].apply(lambda x: json.loads(x))
   )
-  security = path_name.split('/')[0]
 
   start_date = financials.index.get_level_values('date').min()
   fetcher = partial(
-    Ticker(id, security, 'USD').ohlcv, 
+    Ticker(id, 'stock', 'USD').ohlcv, 
     start_date.strftime('%Y-%m-%d')
   )
 
-  price = get_ohlcv(id, security, fetcher, cols=['date', 'close'])
+  price = get_ohlcv(id, 'stock', fetcher, cols={'date', 'close'})
   price.rename(columns={'close': 'share_price'}, inplace=True)
   price = price.resample('D').ffill()
 
-  financials = financials.merge(price, how='left', on='date')
-
+  financials.reset_index(inplace=True)
+  financials = (financials
+    .reset_index()
+    .merge(price, how='left', on='date')
+    .set_index(['date', 'period', 'months']) 
+  )
   schema = dict(zip(template['item'], template['calculation']))
   financials = calculate_items(financials, schema)
  
@@ -145,5 +148,6 @@ def update_store(id_store: dict[str, str], path_name: str):
     level='date'
   )
   financials.reset_index(inplace=True)
+  financials.to_csv('test.csv')
   
   return financials.to_dict('records')

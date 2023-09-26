@@ -1,3 +1,5 @@
+from functools import partial
+
 import numpy as np
 import pandas as pd
 from dash import (
@@ -13,7 +15,8 @@ import fathon
 from fathon import fathonUtils as fu
 
 from lib.fracdiff import fast_frac_diff as frac_diff
-from lib.morningstar.ticker import get_ohlcv
+from lib.morningstar.ticker import Ticker
+from lib.ticker.fetch import get_ohlcv
 from components.ticker_select import TickerSelectAIO
 from components.statistical_plots import acf_trace, qqplot_trace
 
@@ -135,7 +138,9 @@ def update_store(query):
     return no_update
     
   id, currency = query.split('|')
-  price = get_ohlcv(id, 'stock', currency, cols=['close'])
+
+  fetcher = partial(Ticker(id, 'stock', currency).ohlcv)
+  price = get_ohlcv(id, 'stock', fetcher, cols={'close'})
 
   price.reset_index(inplace=True)
   return price.to_dict('list')

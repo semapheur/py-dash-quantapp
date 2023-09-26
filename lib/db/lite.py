@@ -150,19 +150,17 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
         con.execute(text(f'ALTER TABLE "{tbl_name}" ADD COLUMN {c}'))
 
     # Upsert data to main table
-    query = f'''
+    query = text(f'''
       INSERT INTO "{tbl_name}" ({headers_text})
       SELECT {headers_text} FROM temp WHERE true
       ON CONFLICT ({ix_cols_text}) DO UPDATE 
       SET {update_text}
-    '''
+    ''')
 
-    con.execute(
-      text(
-        f'CREATE UNIQUE INDEX IF NOT EXISTS ix ON {tbl_name} ({ix_cols_text})'
-      )
-    )
-    con.execute(text(query))
+    con.execute(text(
+      f'CREATE UNIQUE INDEX IF NOT EXISTS ix ON "{tbl_name}" ({ix_cols_text})'
+    ))
+    con.execute(query)
     #con.execute(text('DROP TABLE temp')) # Delete temporary table
 
 def replace_sqlite(col: str, replacements: dict[str, str]) -> str:

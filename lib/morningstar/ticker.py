@@ -9,7 +9,6 @@ import requests
 import pandas as pd
 
 from lib.const import HEADERS
-from lib.db.lite import read_sqlite, upsert_sqlite
 from lib.models import OHLCV
 from lib.morningstar.fetch import get_currency
 from lib.utils import replace_all
@@ -300,46 +299,3 @@ class Ticker():
         
     df = pd.DataFrame.from_records(scrap)
     return df
-  
-def get_ohlcv(
-  id: str, 
-  security: str, 
-  currency: str = '', 
-  delta: int = 1,
-  cols: Optional[list[str]] = None
-) -> pd.DataFrame:
-  
-  if not cols:
-    cols = ['date', 'open', 'high', 'low', 'close', 'volume']
-
-  if 'date' not in cols:
-    cols.append('date')
-  
-  query = f'SELECT {", ".join(cols)} FROM {security} WHERE id = :id'
-  param = {'id': f'"{id}"'}
-  ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
-
-  if ohlcv is None:
-    ohlcv = Ticker(id, security, currency).ohlcv()
-    ohlcv['id'] = id
-    ohlcv.set_index(['id'], append=True, inplace=True)
-    upsert_sqlite(ohlcv, 'ohlcv.db', security)
-    ohlcv.reset_index(level='id', drop=True, inplace=True)
-
-    return ohlcv[cols]
-  
-  last_date = ohlcv.index.get_level_values('date').max()
-  if relativedelta(dt.now(), last_date).days > delta:
-    new_ohlcv = (Ticker(id, currency, security)
-      .ohlcv(last_date.strftime('%Y-%m-%d'))
-    )
-
-    if new_ohlcv is None:
-      return ohlcv
-
-    ohlcv['id'] = id
-    ohlcv.set_index(['id'], append=True, inplace=True)
-    upsert_sqlite(ohlcv, 'ohlcv.db', security)
-    ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
-
-  return ohlcv

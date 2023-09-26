@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from functools import partial
 from typing import Optional, TypedDict
 
@@ -27,7 +27,7 @@ def stock_label(id: str) -> str:
 
   query = text('''
     SELECT name || " (" || ticker || ":" exchange || ")" AS label 
-    FROM stock WHERE id = :id
+    FROM stock WHERE id = ":id"
   ''').bindparams(id=id)
 
   with ENGINE.begin() as con:
@@ -47,7 +47,7 @@ def fetch_stock(id: str, cols: Optional[set] = None) -> Optional[Stock]:
   if not cols:
     raise Exception(f'Columns must be from {Stock.__optional_keys__}')
 
-  query = text(f'SELECT {",".join(cols)} FROM stock WHERE id = :id').bindparams(id=id)
+  query = text(f'SELECT {",".join(cols)} FROM stock WHERE id = ":id"').bindparams(id=id)
 
   with ENGINE.begin() as con:
     cursor = con.execute(query)
@@ -104,27 +104,26 @@ def get_ohlcv(
   security: str,
   ohlcv_fetcher: partial[pd.DataFrame | None],
   delta: int = 1,
-  cols: Optional[list[str]] = None
+  cols: Optional[set[str]] = None
 ) -> pd.DataFrame:
   
   if not cols:
-    cols = ['date', 'open', 'high', 'low', 'close', 'volume']
+    cols = {'date', 'open', 'high', 'low', 'close', 'volume'}
 
   if 'date' not in cols:
-    cols.append('date')
+    cols.add('date')
   
-  query = f'SELECT {", ".join(cols)} FROM {security} WHERE id = :id'
-  param = {'id': f'"{id}"'}
-  ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
+  query = f'SELECT {", ".join(cols)} FROM "{id}"'
+  ohlcv = read_sqlite(f'{security}_quote.db', query, 
+    index_col='date', 
+    parse_dates=True
+  )
 
   if ohlcv is None:
     ohlcv = ohlcv_fetcher()
-    ohlcv['id'] = id
-    ohlcv.set_index(['id'], append=True, inplace=True)
-    upsert_sqlite(ohlcv, 'ohlcv.db', security)
-    ohlcv.reset_index(level='id', drop=True, inplace=True)
+    upsert_sqlite(ohlcv, f'{security}_quote.db', id)
 
-    return ohlcv[cols]
+    return ohlcv[list(cols.difference({'date'}))]
   
   last_date = ohlcv.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days > delta:
@@ -133,9 +132,10 @@ def get_ohlcv(
     if new_ohlcv is None:
       return ohlcv
 
-    ohlcv['id'] = id
-    ohlcv.set_index(['id'], append=True, inplace=True)
-    upsert_sqlite(ohlcv, 'ohlcv.db', security)
-    ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
+    upsert_sqlite(ohlcv, f'{security}_quote.db', id)
+    ohlcv = read_sqlite(f'{security}_quote.db', query, 
+      index_col='date', 
+      parse_dates=True
+    )
 
   return ohlcv
