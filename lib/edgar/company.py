@@ -167,6 +167,7 @@ class Company():
 
   async def financials_to_df(self,
     taxonomy: Optional[Taxonomy] = None,
+    ohlcv_parser = None
   ) -> pd.DataFrame:
     #period = {'10-Q': 'q', '10-K': 'a'}
     

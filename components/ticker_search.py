@@ -1,14 +1,16 @@
 import asyncio
+from functools import partial
 import json
 
-from dash import callback, dcc, html, no_update, Input, Output
+from dash import callback, dcc, html, no_update, Input, Output, State
 import pandas as pd
 from sqlalchemy import create_engine, text
 
 from lib.edgar.company import Company
 from lib.fin.taxonomy import Taxonomy
 from lib.fin.calculation import calculate_items
-from lib.ticker.fetch import find_cik, search_tickers
+from lib.morningstar.ticker import Ticker
+from lib.ticker.fetch import find_cik, get_ohlcv, search_tickers
 
 input_style = (
   'peer min-w-[20vw] h-full p-1 bg-primary text-text '
@@ -44,7 +46,8 @@ def TickerSearch():
       id='nav:ticker-search',
       className=nav_style
     ),
-    dcc.Store(id='store:ticker-search:financials')
+    dcc.Store(id='store:ticker-search:financials'),
+    dcc.Store(id='store:ticker-search:id')
   ])
 
 @callback(
@@ -63,16 +66,35 @@ def ticker_results(search: str) -> list[dict[str, str]]:
   return links
 
 @callback(
-  Output('store:ticker-search:financials', 'data'),
-  Input('location:app', 'pathname')
+  Output('store:ticker-search:id', 'data'),
+  Input('location:app', 'pathname'),
+  State('store:ticker-search:id', 'data')
 )
-def update_store(path: str):
+def update_store(path: str, id_store: dict[str,str]):
   path_split = path.split('/')
 
   if path_split[1] != 'stock':
     return no_update
   
-  id = path_split[2]
+  new_id = path_split[2]
+  old_id = id_store.get('id', '')
+
+  if old_id['id'] == new_id:
+    return no_update
+
+  return {'id': new_id}
+
+@callback(
+  Output('store:ticker-search:financials', 'data'),
+  Input('store:ticker-search:id', 'data'),
+  State('location:app', 'pathname')
+)
+def update_store(id_store: dict[str, str], path_name: str):
+  
+  id = id_store.get('id')
+  if id is None:
+    return no_update
+
   cik = find_cik(id)
 
   if cik is None:
@@ -101,6 +123,20 @@ def update_store(path: str):
   template.loc[:,'calculation'] = (
     template['calculation'].apply(lambda x: json.loads(x))
   )
+  security = path_name.split('/')[0]
+
+  start_date = financials.index.get_level_values('date').min()
+  fetcher = partial(
+    Ticker(id, security, 'USD').ohlcv, 
+    start_date.strftime('%Y-%m-%d')
+  )
+
+  price = get_ohlcv(id, security, fetcher, cols=['date', 'close'])
+  price.rename(columns={'close': 'price'}, inplace=True)
+  price = price.resample('D').ffill()
+
+  financials = financials.merge(price, how='left', on='date')
+
   schema = dict(zip(template['item'], template['calculation']))
   financials = calculate_items(financials, schema)
  

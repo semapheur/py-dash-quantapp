@@ -10,9 +10,10 @@ branca
 bs4
 dash
 dash-ag-grid
-dash-bootstrap-components
+#dash-bootstrap-components
 dash-extensions
 dash-leaflet
+#dash-mantine-components
 fathon
 #folium
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas

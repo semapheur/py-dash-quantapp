@@ -1,10 +1,13 @@
+from datetime import datetime as dt
+from dateutil import relativedelta
+from functools import partial
 from typing import Optional, TypedDict
 
 import pandas as pd
 from sqlalchemy import create_engine, text
 
 from lib.const import DB_DIR
-from lib.db.lite import check_table
+from lib.db.lite import check_table, read_sqlite, upsert_sqlite
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -95,3 +98,44 @@ def search_tickers(
     df = pd.read_sql(query, con=con)
     
   return df
+
+def get_ohlcv(
+  id: str, 
+  security: str,
+  ohlcv_fetcher: partial[pd.DataFrame | None],
+  delta: int = 1,
+  cols: Optional[list[str]] = None
+) -> pd.DataFrame:
+  
+  if not cols:
+    cols = ['date', 'open', 'high', 'low', 'close', 'volume']
+
+  if 'date' not in cols:
+    cols.append('date')
+  
+  query = f'SELECT {", ".join(cols)} FROM {security} WHERE id = :id'
+  param = {'id': f'"{id}"'}
+  ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
+
+  if ohlcv is None:
+    ohlcv = ohlcv_fetcher()
+    ohlcv['id'] = id
+    ohlcv.set_index(['id'], append=True, inplace=True)
+    upsert_sqlite(ohlcv, 'ohlcv.db', security)
+    ohlcv.reset_index(level='id', drop=True, inplace=True)
+
+    return ohlcv[cols]
+  
+  last_date = ohlcv.index.get_level_values('date').max()
+  if relativedelta(dt.now(), last_date).days > delta:
+    new_ohlcv = ohlcv_fetcher(last_date.strftime('%Y-%m-%d'))
+
+    if new_ohlcv is None:
+      return ohlcv
+
+    ohlcv['id'] = id
+    ohlcv.set_index(['id'], append=True, inplace=True)
+    upsert_sqlite(ohlcv, 'ohlcv.db', security)
+    ohlcv = read_sqlite('ohlcv.db', query, param, 'date', True)
+
+  return ohlcv

@@ -51,7 +51,7 @@ async def get_tickers(
 
   rename = {
     'SecId': 'id',
-    'LegalName': 'name',
+    'LegalName': 'legal_name',
     'ExchangeId': 'mic',
     'SectorName': 'sector',
     'IndustryName': 'industry',
@@ -59,7 +59,7 @@ async def get_tickers(
   }
   fields = {
     'stock': (
-      'SecId', 'Ticker', 'Name', 'ExchangeId', 'Currency', 
+      'SecId', 'Ticker', 'Name', 'LegalName', 'ExchangeId', 'Currency', 
       'SectorName', 'IndustryName', 'ClosePrice'
     ),
     'eft': (
