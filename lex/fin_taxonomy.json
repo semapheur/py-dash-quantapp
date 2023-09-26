@@ -73,24 +73,54 @@
       "all": "market_capitalization / net_income_loss"
     }
   },
-  "price_to_book_value": {
+  "price_to_bookvalue": {
     "label": {
       "long": "Price-to-Book-Value Ratio",
       "short": "P/B"
     },
     "calculation": {
-      "order": 0,
+      "order": 1,
       "all": "market_capitalization / equity"
     }
   },
-  "price_to_cashflow": {
+  "price_to_tangible_bookvalue": {
     "label": {
-      "long": "Price-to-Cash-Flow Ratio",
-      "short": "P/CF"
+      "long": "Price-to-Tangible-Book-Value Ratio",
+      "short": "P/TB"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "market_capitalization / (assets - intangible_assets - goodwill) - total_liabilities"
+    }
+  },
+  "price_to_sales": {
+    "label": {
+      "long": "Price-to-Sales Ratio",
+      "short": "P/S"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "market_capitalization / equity"
+    }
+  },
+  "price_to_operating_cashflow": {
+    "label": {
+      "long": "Price-to-Operating-Cash-Flow Ratio",
+      "short": "P/OCF"
     },
     "calculation": {
       "order": 7,
       "all": "market_capitalization / operating_cashflow"
+    }
+  },
+  "price_to_free_cashflow": {
+    "label": {
+      "long": "Price-to-Operating-Cash-Flow Ratio",
+      "short": "P/OCF"
+    },
+    "calculation": {
+      "order": 7,
+      "all": "market_capitalization / free_cash_flow_firm"
     }
   },
   "altman_z_score": {
@@ -115,6 +145,15 @@
     "calculation": {
       "order": 0,
       "all": "average_shares_outstanding_basic * share_price"
+    }
+  },
+  "dividend_yield": {
+    "label": {
+      "long": "Dividend Yield"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "dividend_payments / market_capitalization"
     }
   },
   "dividend_payout_ratio": {
@@ -391,7 +430,7 @@
       "all": "net_income_loss / equity"
     }
   },
-  "return_on_equity_adjusted_to_book_value": {
+  "return_on_equity_adjusted_to_bookvalue": {
     "period": "ratio",
     "label": {
       "long": "Return on Equity Adjusted to Book Value",
@@ -399,7 +438,7 @@
     },
     "calculation": {
       "order": 7,
-      "all": "return_on_equity / price_to_book_value"
+      "all": "return_on_equity / price_to_bookvalue"
     }
   },
   "average_productive_assets": {

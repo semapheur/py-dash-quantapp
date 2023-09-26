@@ -168,6 +168,18 @@
       "cashflow": 0
     }
   },
+  "fundamentals": {
+    "calculation": [
+      "market_capitalization"
+    ],
+    "valuation": [
+      "price_to_earnings",
+      "price_to_bookvalue",
+      "price_to_sales",
+      "price_to_operating_cashflow",
+      "price_to_free_cashflow"
+    ]
+  },
   "sankey": {
     "calculation": {
       "sankey_operating_income_loss": {}
