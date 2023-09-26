@@ -132,7 +132,7 @@ def update_store(id_store: dict[str, str], path_name: str):
   )
 
   price = get_ohlcv(id, security, fetcher, cols=['date', 'close'])
-  price.rename(columns={'close': 'price'}, inplace=True)
+  price.rename(columns={'close': 'share_price'}, inplace=True)
   price = price.resample('D').ffill()
 
   financials = financials.merge(price, how='left', on='date')

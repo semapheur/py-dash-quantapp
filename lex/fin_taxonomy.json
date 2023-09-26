@@ -1,4 +1,98 @@
 {
+  "net_operating_assets": {
+    "label": {
+      "long": "Net Operating Assets"
+    },
+    "calculation": {
+      "order": 3,
+      "all": "assets - liquid_assets - liabilities + debt"
+    }
+  },
+  "average_net_operating_assets": {
+    "label": {
+      "long": "Average Net Operating Assets"
+    },
+    "calculation": {
+      "order": 4,
+      "avg": "net_operating_assets"
+    }
+  },
+  "change_net_operating_assets": {
+    "label": {
+      "long": "Balance Sheet Aggregate Accruals"
+    },
+    "calculation": {
+      "order": 4,
+      "diff": "net_operating_assets"
+    }
+  },
+  "balance_sheet_aggregate_accruals_ratio": {
+    "label": {
+      "long": "Balance Sheet Aggregate Accruals Ratio"
+    },
+    "calculation": {
+      "order": 5,
+      "all": "change_net_operating_assets / average_net_operating_assets"
+    }
+  },
+  "sloan_ratio": {
+    "label": {
+      "long": "Sloan Ratio"
+    },
+    "calculation": {
+      "order": 6,
+      "all": "(net_income_loss - operating_cashflow - investing_cashflow) / assets"
+    }
+  },
+  "debt_cashflow": {
+    "label": {
+      "long": "Net Cash from Issuance and Repayments of Debt",
+      "short": "Net Borrowing"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "longterm_debt_cashflow + shortterm_debt_cashflow"
+    }
+  },
+  "interest_tax_shield": {
+    "label": {
+      "long": "Interest Tax Shield"
+    },
+    "calculation": {
+      "order": 5,
+      "all": "interest_expense * tax_rate"
+    }
+  },
+  "price_to_earnings": {
+    "label": {
+      "long": "Price-to-Earnings Ratio",
+      "short": "P/E"
+    },
+    "calculation": {
+      "order": 6,
+      "all": "market_capitalization / net_income_loss"
+    }
+  },
+  "price_to_book_value": {
+    "label": {
+      "long": "Price-to-Book-Value Ratio",
+      "short": "P/B"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "market_capitalization / equity"
+    }
+  },
+  "price_to_cashflow": {
+    "label": {
+      "long": "Price-to-Cash-Flow Ratio",
+      "short": "P/CF"
+    },
+    "calculation": {
+      "order": 7,
+      "all": "market_capitalization / operating_cashflow"
+    }
+  },
   "altman_z_score": {
     "label": {
       "long": "Altman Z Score",
@@ -12,6 +106,15 @@
         "+0.6 * market_capitalization / liabilities",
         "+ average_revenue / average_assets"
       ]
+    }
+  },
+  "market_capitalization": {
+    "label": {
+      "long": "Market Capitalization"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "average_shares_outstanding_basic * share_price"
     }
   },
   "dividend_payout_ratio": {
@@ -426,7 +529,7 @@
       "diff": "productive_assets_accumulated_depreciation"
     }
   },
-  "free_cash_flow_firm": {
+  "free_cashflow_firm": {
     "period": "duration",
     "label": {
       "long": "Free Cash Flow To Firm",
@@ -434,7 +537,18 @@
     },
     "calculation": {
       "order": 7,
-      "all": "operating_cash_flow - capital_expenditure"
+      "all": "operating_cashflow + interest_expense - interest_tax_shield - capital_expenditure"
+    }
+  },
+  "free_cashflow_equity": {
+    "period": "duration",
+    "label": {
+      "long": "Free Cash Flow To Equity",
+      "short": "FCFE"
+    },
+    "calculation": {
+      "order": 7,
+      "all": "operating_cashflow - capital_expenditure + debt_cashflow"
     }
   },
   "earnings_per_share_basic": {
@@ -1157,7 +1271,7 @@
       "any": "longterm_debt_proceeds - longterm_debt_repayments"
     },
     "label": {
-      "long": "Net Cash from Issuance and Repayment of Long-term Debt",
+      "long": "Net Cash from Issuance and Repayments of Long-term Debt",
       "short": "Change in Long-term Debt"
     }
   },
