@@ -1,4 +1,13 @@
 {
+  "enterprise_value": {
+    "label": {
+      "long": "Enterprise Value"
+    },
+    "calculation": {
+      "order": 1,
+      "all": "market_capitalization + debt + minority_interest - liquid_assets"
+    }
+  },
   "net_operating_assets": {
     "label": {
       "long": "Net Operating Assets"
