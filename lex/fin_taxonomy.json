@@ -157,9 +157,10 @@
       "short": "Z Score"
     },
     "calculation": {
+      "order": 3,
       "all": [
-        "1.2 * average_operating_working_capital / average_assets",
-        "+1.4 * retained_earnings_accumulated_deficit / average_assets",
+        "1.2 * operating_working_capital / assets",
+        "+1.4 * retained_earnings_accumulated_deficit / assets",
         "+3.3 * operating_income_loss / average_assets",
         "+0.6 * market_capitalization / liabilities",
         "+ average_revenue / average_assets"
@@ -531,7 +532,7 @@
       "long": "Average Operating Working Capital"
     },
     "calculation": {
-      "order": 0,
+      "order": 3,
       "avg": "operating_working_capital"
     }
   },

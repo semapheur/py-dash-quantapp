@@ -46,8 +46,8 @@ def TickerSearch():
       id='nav:ticker-search',
       className=nav_style
     ),
-    dcc.Store(id='store:ticker-search:financials', storage_type='session'),
-    dcc.Store(id='store:ticker-search:id', storage_type='session', data={})
+    dcc.Store(id='store:ticker-search:financials'),
+    dcc.Store(id='store:ticker-search:id', data={})
   ])
 
 @callback(
@@ -87,9 +87,8 @@ def update_store(path: str, id_store: dict[str,str]):
 @callback(
   Output('store:ticker-search:financials', 'data'),
   Input('store:ticker-search:id', 'data'),
-  State('location:app', 'pathname')
 )
-def update_store(id_store: dict[str, str], path_name: str):
+def update_store(id_store: dict[str, str]):
   
   _id = id_store.get('id')
   if _id is None:
@@ -101,7 +100,7 @@ def update_store(id_store: dict[str, str], path_name: str):
     return no_update
 
   financials_fetcher = partial(Company(cik).financials_to_df)
-  ohlcv_fetcher = partial(Ticker(_id, 'stock', 'USD'))
+  ohlcv_fetcher = partial(Ticker(_id, 'stock', 'USD').ohlcv)
 
   fundamentals = asyncio.run(get_fundamentals(
     _id, financials_fetcher, ohlcv_fetcher))

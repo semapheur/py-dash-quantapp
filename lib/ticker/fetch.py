@@ -103,17 +103,22 @@ def search_tickers(
   return df
 
 def get_ohlcv(
-  id: str, 
+  _id: str, 
   security: str,
-  ohlcv_fetcher: partial[pd.DataFrame | None],
+  ohlcv_fetcher: partial[pd.DataFrame],
   delta: int = 1,
   cols: Optional[set[str]] = None
 ) -> pd.DataFrame:
   
-  if not cols:
-    cols = {'open', 'high', 'low', 'close', 'volume'}
+  col_text = '*'
+  if cols is not None:
+    col_text = ', '.join(cols.union({'date'}))
   
-  query = f'SELECT {", ".join(cols.add("date"))} FROM "{id}"'
+  query = f'SELECT {col_text} FROM "{_id}"'
+
+  if date := ohlcv_fetcher.args:
+    query += f' WHERE DATE(date) >= DATE({date[0]})'
+  
   ohlcv = read_sqlite(f'{security}_quote.db', query, 
     index_col='date', 
     parse_dates=True
@@ -121,11 +126,11 @@ def get_ohlcv(
 
   if ohlcv is None:
     ohlcv = ohlcv_fetcher()
-    upsert_sqlite(ohlcv, f'{security}_quote.db', id)
+    upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
 
     return ohlcv[list(cols)]
   
-  last_date = ohlcv.index.get_level_values('date').max()
+  last_date: dt = ohlcv.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
     return ohlcv
 
@@ -134,7 +139,7 @@ def get_ohlcv(
   if new_ohlcv is None:
     return ohlcv
 
-  upsert_sqlite(ohlcv, f'{security}_quote.db', id)
+  upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
   ohlcv = read_sqlite(f'{security}_quote.db', query, 
     index_col='date', 
     parse_dates=True
@@ -156,13 +161,13 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
   schema = {k: v for k, v in zip(df['item'], df['calculation'])}
   return schema
 
-
 def calculate_fundamentals(
+  _id: str,
   financials: pd.DataFrame,
   ohlcv_fetcher: partial[pd.DataFrame]
 ) -> pd.DataFrame:
   
-  price = get_ohlcv(id, 'stock', ohlcv_fetcher, cols={'date', 'close'})
+  price = get_ohlcv(_id, 'stock', ohlcv_fetcher, cols={'date', 'close'})
   price.rename(columns={'close': 'share_price'}, inplace=True)
   price = price.resample('D').ffill()
 
@@ -170,7 +175,8 @@ def calculate_fundamentals(
   financials = (financials
     .reset_index()
     .merge(price, how='left', on='date')
-    .set_index(['date', 'period', 'months']) 
+    .set_index(['date', 'period', 'months'])
+    .drop('index', axis=1)
   )
   schema = load_schema()
   financials = calculate_items(financials, schema)
@@ -178,7 +184,7 @@ def calculate_fundamentals(
   return financials
 
 async def get_fundamentals(
-  id: str,
+  _id: str,
   financials_fetcher: partial[Awaitable[pd.DataFrame]],
   ohlcv_fetcher: partial[pd.DataFrame],
   cols: Optional[set[str]] = None,
@@ -190,7 +196,7 @@ async def get_fundamentals(
   if cols is not None:
     col_text = ", ".join(cols.union(index_col))
 
-  query = f'SELECT {col_text} FROM "{id}"'
+  query = f'SELECT {col_text} FROM "{_id}"'
   df = read_sqlite('fundamentals.db', query, 
     index_col=list(index_col), 
     parse_dates=True
@@ -198,10 +204,10 @@ async def get_fundamentals(
 
   if df is None:
     df = await financials_fetcher()
-    df = calculate_fundamentals(df, ohlcv_fetcher)
-    upsert_sqlite(df, 'fundamentals.db', id)
+    df = calculate_fundamentals(_id, df, ohlcv_fetcher)
+    upsert_sqlite(df, 'fundamentals.db', _id)
 
-  last_date = df.index.get_level_values('date').max()
+  last_date: dt = df.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
     return df
 
@@ -211,10 +217,9 @@ async def get_fundamentals(
     return _df
   
   _df = calculate_fundamentals(_df, ohlcv_fetcher)
-  upsert_sqlite(_df, 'fundamentals.db', id)
+  upsert_sqlite(_df, 'fundamentals.db', _id)
   df = read_sqlite('fundamentals.db', query, 
     index_col=index_col, 
     parse_dates=True
   )
-
   return df

@@ -124,7 +124,7 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
 
     # Create index
     with engine.begin() as con:
-      con.execute(text(f'CREATE UNIQUE INDEX ix ON {tbl_name} ({ix_cols_text})'))
+      con.execute(text(f'CREATE UNIQUE INDEX ix ON "{tbl_name}" ({ix_cols_text})'))
 
     return
 
@@ -142,7 +142,7 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     df.to_sql('temp', con=con, if_exists='replace', index=True)
     
     # Check if new columns must be inserted
-    result = con.execute(f'SELECT * FROM "{tbl_name}"')
+    result = con.execute(text(f'SELECT * FROM "{tbl_name}"'))
     old_cols = set([c for c in result.keys()]).difference(set(ix_cols))
     new_cols = list(set(cols).difference(old_cols))
     if new_cols:
