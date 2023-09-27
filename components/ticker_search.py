@@ -10,7 +10,7 @@ from lib.edgar.company import Company
 from lib.fin.taxonomy import Taxonomy
 from lib.fin.calculation import calculate_items
 from lib.morningstar.ticker import Ticker
-from lib.ticker.fetch import find_cik, get_ohlcv, search_tickers
+from lib.ticker.fetch import find_cik, get_fundamentals, get_ohlcv, search_tickers
 
 input_style = (
   'peer min-w-[20vw] h-full p-1 bg-primary text-text '
@@ -91,62 +91,25 @@ def update_store(path: str, id_store: dict[str,str]):
 )
 def update_store(id_store: dict[str, str], path_name: str):
   
-  id = id_store.get('id')
-  if id is None:
+  _id = id_store.get('id')
+  if _id is None:
     return no_update
 
-  cik = find_cik(id)
+  cik = find_cik(_id)
 
   if cik is None:
     return no_update
-  
-  taxonomy = Taxonomy()
-  financials = asyncio.run(Company(cik).financials_to_df(taxonomy))
 
-  db_path = 'data/taxonomy.db'
-  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+  financials_fetcher = partial(Company(cik).financials_to_df)
+  ohlcv_fetcher = partial(Ticker(_id, 'stock', 'USD'))
 
-  query = text('''
-    SELECT template.item, items.calculation FROM (
-      SELECT item FROM statement UNION
-      SELECT item FROM sankey UNION
-      SELECT item FROM dupont
-    ) AS template
-    LEFT JOIN items ON template.item = items.item
-    WHERE items.calculation IS NOT NULL
-  ''')
-
-  with engine.connect().execution_options(autocommit=True) as con:
-    template = pd.read_sql(query, con=con)
-
-  template = template.loc[template['calculation'] != 'null']
-  template.loc[:,'calculation'] = (
-    template['calculation'].apply(lambda x: json.loads(x))
-  )
-
-  start_date = financials.index.get_level_values('date').min()
-  fetcher = partial(
-    Ticker(id, 'stock', 'USD').ohlcv, 
-    start_date.strftime('%Y-%m-%d')
-  )
-
-  price = get_ohlcv(id, 'stock', fetcher, cols={'date', 'close'})
-  price.rename(columns={'close': 'share_price'}, inplace=True)
-  price = price.resample('D').ffill()
-
-  financials.reset_index(inplace=True)
-  financials = (financials
-    .reset_index()
-    .merge(price, how='left', on='date')
-    .set_index(['date', 'period', 'months']) 
-  )
-  schema = dict(zip(template['item'], template['calculation']))
-  financials = calculate_items(financials, schema)
+  fundamentals = asyncio.run(get_fundamentals(
+    _id, financials_fetcher, ohlcv_fetcher))
  
-  financials.index = financials.index.set_levels(
-    financials.index.levels[0].strftime('%Y-%m-%d'),
+  fundamentals.index = fundamentals.index.set_levels(
+    fundamentals.index.levels[0].strftime('%Y-%m-%d'),
     level='date'
   )
-  financials.reset_index(inplace=True)
+  fundamentals.reset_index(inplace=True)
   
-  return financials.to_dict('records')
+  return fundamentals.to_dict('records')

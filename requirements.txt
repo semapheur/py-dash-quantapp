@@ -39,5 +39,6 @@ scipy
 sqlalchemy
 statsmodels
 tinydb
+tinydb-serialization
 topojson
 wbgapi

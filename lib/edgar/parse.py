@@ -23,7 +23,6 @@ from lib.edgar.models import (
   Member, 
   Meta
 )
-from lib.fin.taxonomy import Taxonomy
 from lib.utils import (
   combine_duplicate_columns,
   df_time_difference, 
@@ -78,14 +77,12 @@ async def parse_statement(url: str) -> Financials:
 
   def parse_period(period: et.Element) -> Instant|Interval:
     if (el := period.find('./{*}instant')) is not None:
-      return {'instant': el.text}
+      return {'instant': dt.strptime(el.text, '%Y-%m-%d')}
 
-    start_date = period.find('./{*}startDate').text
-    end_date = period.find('./{*}endDate').text
-    months = month_difference(
-      dt.strptime(start_date, '%Y-%m-%d'), 
-      dt.strptime(end_date, '%Y-%m-%d')
-    )
+    start_date = dt.strptime(period.find('./{*}startDate').text, '%Y-%m-%d')
+    end_date = dt.strptime(period.find('./{*}endDate').text, '%Y-%m-%d')
+    months = month_difference(start_date, end_date)
+
     return {
       'start_date': start_date ,
       'end_date': end_date,
@@ -129,7 +126,7 @@ async def parse_statement(url: str) -> Financials:
   }
 
   scope = form[root.find('.{*}DocumentType').text]
-  date = root.find('.{*}DocumentPeriodEndDate').text
+  date = dt.strptime(root.find('.{*}DocumentPeriodEndDate').text, '%Y-%m-%d')
   fiscal_end = root.find('.{*}CurrentFiscalYearEndDate').text[1:]
 
   if (el := root.find('.{*}DocumentFiscalPeriodFocus')) is not None:
@@ -184,7 +181,7 @@ async def parse_statement(url: str) -> Financials:
       continue
 
     try:
-      entry = next(i for i in data['data'][item_name]
+      entry: dict = next(i for i in data['data'][item_name]
         if i['period'] == scrap['period']
       )
       if 'member' in scrap:
@@ -289,7 +286,7 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   df.index.names = ['date', 'period', 'months']
   return df
 
-def fix_financials_df(df: pd.DataFrame, taxonomy: Taxonomy) -> pd.DataFrame:
+def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
   
   query = '''
     SELECT json_each.value AS gaap, item FROM items 

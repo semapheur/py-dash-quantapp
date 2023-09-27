@@ -1,7 +1,14 @@
 from pathlib import Path
+from typing import Optional
 
 from glom import glom
-from tinydb import TinyDB
+from tinydb import TinyDB, Query
+from tinydb.storages import JSONStorage
+from tinydb_serialization import SerializationMiddleware
+from tinydb_serialization.serializers import DateTimeSerializer
+
+serialization = SerializationMiddleware(JSONStorage)
+serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
 
 def tinydb_name(db_name):
   if not db_name.endswith('.json'):
@@ -12,9 +19,15 @@ def tinydb_name(db_name):
 def insert_tinydb(
   data: list|dict,
   db_path: str|Path,
-  tbl: str=''
+  tbl: str='',
+  dt_serialize: bool = False
 ):
-  db = TinyDB(db_path)
+  
+  storage = None
+  if dt_serialize:
+    storage = serialization
+  
+  db = TinyDB(db_path, storage=storage)
 
   if tbl:
     db = db.table(tbl)
@@ -26,11 +39,16 @@ def insert_tinydb(
 
 def read_tinydb(
   db_path: str|Path, 
-  query=None, 
-  tbl: str = ''
+  query: Optional[Query] = None, 
+  tbl: Optional[str] = None,
+  dt_serialize: bool = False
 ) -> list|dict :
   
-  db = TinyDB(db_path)
+  storage = None
+  if dt_serialize:
+    storage = serialization
+
+  db = TinyDB(db_path, storage=storage)
 
   if tbl:
     if tbl not in db.tables():

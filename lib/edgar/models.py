@@ -1,10 +1,11 @@
 #from dataclasses import dataclass
+from datetime import datetime
 from typing import Literal, Optional, TypedDict
 
 class Meta(TypedDict):
   id: str
   scope: Literal['annual', 'quarterly']
-  date: str
+  date: datetime
   fiscal_end: str
 
 class Value(TypedDict):
@@ -12,11 +13,11 @@ class Value(TypedDict):
   unit: str
 
 class Interval(TypedDict):
-  start_date: str
-  end_date: str
+  start_date: datetime
+  end_date: datetime
 
 class Instant(TypedDict):
-  instant: str
+  instant: datetime
 
 class Member(Value):
   dim: str

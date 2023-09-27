@@ -8,6 +8,7 @@ import xml.etree.ElementTree as et
 from glom import glom
 import pandas as pd
 import httpx
+from tinydb import where
 
 # Local
 from lib.const import HEADERS
@@ -22,7 +23,6 @@ from lib.edgar.parse import (
   parse_taxonomy,
   statement_to_df
 )
-from lib.fin.taxonomy import Taxonomy
 from lib.utils import camel_split, snake_abbreviate
 
 class Company():
@@ -123,7 +123,7 @@ class Company():
     filings.set_index('id', inplace=True)
     return filings['xbrl']
   
-  async def financials(self, delta=120) -> list[Financials]:
+  async def financials(self, delta=120, date: Optional[str] = None) -> list[Financials]:
   
     async def fetch_urls(date: Optional[str|dt] = None) -> pd.Series:
       try:
@@ -136,7 +136,11 @@ class Company():
       return urls
     
     # Load financials
-    financials = read_tinydb('data/edgar.json', None, str(self._cik))
+    query = None
+    if date:
+      query = where('meta')['date'] >= dt.strptime(date, '%Y-%m-%d')
+
+    financials = read_tinydb('data/edgar.json', query, str(self._cik), True)
 
     if financials:
       dates = [glom(f, 'meta.date') for f in financials]
@@ -161,14 +165,11 @@ class Company():
 
     new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
-      insert_tinydb(new_financials, 'data/edgar.json', str(self._cik))
+      insert_tinydb(new_financials, 'data/edgar.json', str(self._cik), True)
     
     return [*financials, *new_financials]
 
-  async def financials_to_df(self,
-    taxonomy: Optional[Taxonomy] = None,
-  ) -> pd.DataFrame:
-    #period = {'10-Q': 'q', '10-K': 'a'}
+  async def financials_to_df(self) -> pd.DataFrame:
     
     financials = await self.financials()
     financials = sorted(financials, key=lambda x: glom(x, 'meta.date'), reverse=True)
@@ -180,9 +181,7 @@ class Company():
     
     df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
-
-    if taxonomy:
-      df = fix_financials_df(df, taxonomy)
+    df = fix_financials_df(df)
 
     return df
 
@@ -296,52 +295,5 @@ for p in range(2,5):
 
 if {'2q', '3q', '4q'}.intersection(set(df.index.get_level_values('period'))):
   df = df.loc[(slice(None), ['a', 'q']), :]
-    
-# Additional items
-df['rvnEx'].fillna(df['rvn'] - df['grsPrft'], inplace=True)
-
-df['ebit'] = df['netInc'] + df['intEx'] + df['taxEx'] 
-#df['ebit'] = df['rvn'] - df['rvnEx'] - df['opEx']
-df['ebitda'] = df['ebit'] + df['da']
-df['intCvg'] = (df['ebit'] / df['intEx']) # Interest coverage
-df['taxRate'] = df['taxEx'] / df['ebt'] # Tax rate
-
-df['cceStInv'].fillna(df['cce'] + df['stInv'], inplace=True)
-df['totNoCrtLbt'].fillna(df['totAst'] - df['totCrtAst'], inplace=True)
-df['totNoCrtLbt'].fillna(df['totLbt'] - df['totCrtLbt'], inplace=True)
-
-# Working capital
-for p in df.index.get_level_values('period').unique():
-  msk = (slice(None), p)
-  df.loc[msk, 'wrkCap'] = (
-    df.loc[msk, 'totCrtAst'].rolling(2, min_periods=0).mean() -
-    df.loc[msk, 'totCrtLbt'].rolling(2, min_periods=0).mean()
-  )
-
-  df.loc[msk, 'chgWrkCap'] = df.loc[msk, 'wrkCap'].diff()
-
-# Total debt
-df['totDbt'] = df['stDbt'] + df['ltDbt']
-
-#df['tgbEqt'] = (df['totEqt'] - df['prfEqt'] - df['itgbAst'] - df['gw'])
-
-# Capital expenditure
-for p in df.index.get_level_values('period').unique():
-  msk = (slice(None), p)
-  df.loc[msk, 'capEx'] = df.loc[msk, 'ppe'].diff() + df.loc[msk, 'da']
-
-# Free cash flow
-if 'freeCf' not in set(df.columns):
-  df['freeCfFirm'] = (
-    df['netInc'] + 
-    df['da'] +
-    df['intEx'] * (1 - df['taxRate']) - 
-    df['chgWrkCap'] -
-    df['capEx']
-  )
-  df['freeCf'] = (
-    df['freeCfFirm'] + 
-    df['totDbt'].diff() - 
-    df['intEx'] * (1 - df['taxRate']))
 
 '''
