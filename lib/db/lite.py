@@ -7,12 +7,12 @@ from lib.const import DB_DIR
 
 def check_table(tables: str|set[str], engine: Engine) -> bool:
   db_tables = inspect(engine).get_table_names()
-
+  
   if not db_tables:
     return False
   
   if isinstance(tables, str):
-    tables = set(tables)
+    tables = {tables}
 
   return tables.issubset(set(db_tables))
 

@@ -13,7 +13,7 @@ from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 #from lib.utils import load_json
 
-register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
+register_page(__name__, path_template='/stock/<id>/fundamentals', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
@@ -21,58 +21,40 @@ radio_input_style = (
 )
 radio_label_style = 'relative px-1'
 
-def row_indices(template: pd.DataFrame, level: int) -> str:
-
-  mask = template['level'] == level
-  return str(template.loc[mask].index.to_list())
-  #return str(index[index.isin(items)].index.to_list())
-
 def layout(_id: Optional[str] = None):
 
   return html.Main(className='flex flex-col h-full', children=[
     StockHeader(_id),
     html.Div(className='flex justify-around', children=[
       dcc.RadioItems(
-        id='radio:stock-financials:sheet', 
+        id='radio:stock-fundamentals:sheet', 
         className=radio_wrap_style,
         inputClassName=radio_input_style,
         labelClassName=radio_label_style,
-        value='income',
+        value='valuation',
         options=[
-          {'label': 'Income', 'value': 'income'},
-          {'label': 'Balance', 'value': 'balance'},
-          {'label': 'Cash Flow', 'value': 'cashflow'}
-        ]),
-      dcc.RadioItems(
-        id='radio:stock-financials:scope', 
-        className=radio_wrap_style,
-        inputClassName=radio_input_style,
-        labelClassName=radio_label_style,
-        value=12,
-        options=[
-          {'label': 'Annual', 'value': 12},
-          {'label': 'Quarterly', 'value': 3},
+          {'label': 'Valuation', 'value': 'valuation'},
         ]),
     ]),
     html.Div(
-      id='div:stock-financials:table-wrap', 
+      id='div:stock-fundamentals:table-wrap', 
       className='flex-1 p-2'),
   ])
 
 @callback(
-  Output('div:stock-financials:table-wrap', 'children'),
+  Output('div:stock-fundamentals:table-wrap', 'children'),
   Input('store:ticker-search:financials', 'data'),
-  Input('radio:stock-financials:sheet', 'value'),
-  Input('radio:stock-financials:scope', 'value'),
+  Input('radio:stock-fundamentals:sheet')
 )
-def update_table(data: list[dict], sheet: str, scope: str):
+def update_table(data: list[dict], sheet: str):
+
   if not data:
     return no_update
   
   query = '''SELECT 
-    s.item, items.short, items.long, s.level FROM statement AS s 
-    LEFT JOIN items ON s.item = items.item
-    WHERE s.sheet = :sheet
+    f.item, items.short, items.long FROM fundamentals AS f 
+    LEFT JOIN items ON f.item = items.item
+    WHERE f.sheet = :sheet
   '''
   param = {'sheet': sheet}
   tmpl = read_sqlite('taxonomy.db', query, param)
@@ -80,7 +62,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
 
   fin = (pd.DataFrame.from_records(data)
     .set_index(['date', 'months'])
-    .xs(scope, level=1) 
+    .xs(12, level=1) 
     .sort_index(ascending=False) 
   )
   cols = list(OrderedSet(OrderedSet(tmpl['item']).intersection(fin.columns)))
@@ -107,20 +89,12 @@ def update_table(data: list[dict], sheet: str, scope: str):
       margin=dict(l=0, r=0, t=0, b=0),
       template='plotly_white'
     )
-    fin.at[i, 'trend'] = fig 
+    fin.at[i, 'trend'] = fig
 
   columnDefs = [
     {
-      'field': 'index', 'headerName': 'Item', 
+      'field': 'index', 'headerName': 'Metric', 
       'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
-      'cellStyle': {
-        'styleConditions': [{
-          'condition': (
-            f'{row_indices(tmpl, lvl)}'
-            '.includes(params.rowIndex)'),
-          'style': {'paddingLeft': f'{lvl + 1}rem'}
-        } for lvl in tmpl['level'].unique()]
-      },
       'tooltipField': 'index',
       'tooltipComponentParams': {'labels': tmpl['long'].to_list()}
     },
@@ -133,24 +107,17 @@ def update_table(data: list[dict], sheet: str, scope: str):
     'type': 'numericColumn',
     'valueFormatter': {'function': 'd3.format("(,")(params.value)'}
   } for col in fin.columns[1:]]
-
-  row_style = {
-    'font-bold border-b border-text': (
-      f'{row_indices(tmpl, 0)}'
-      '.includes(params.rowIndex)')
-  }
   
   fin.loc[:,'index'] = fin['index'].apply(
     lambda x: tmpl.loc[tmpl['item'] == x, 'short'].iloc[0]
   )
 
   return dag.AgGrid(
-    id='table:stock-financials',
+    id='table:stock-fundamentals',
     columnDefs=columnDefs,
     rowData=fin.to_dict('records'),
     columnSize='autoSize',
     defaultColDef={'tooltipComponent': 'FinancialsTooltip'},
-    rowClassRules=row_style,
     style={'height': '100%'}
     #defaultColDef={'resizable': True, 'sortable': True, 'filter': True, },
-  ),
+  )

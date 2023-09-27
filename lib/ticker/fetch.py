@@ -9,8 +9,8 @@ from sqlalchemy import create_engine, text
 
 from lib.const import DB_DIR
 from lib.db.lite import check_table, read_sqlite, upsert_sqlite
-from lib.edgar.company import Company
 from lib.fin.calculation import calculate_items
+from lib.fin.metrics import f_score, m_score
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -24,14 +24,14 @@ class Stock(TypedDict, total=False):
   sector: str
   industry: str
 
-def stock_label(id: str) -> str:
+def stock_label(_id: str) -> str:
   if not check_table('stock', ENGINE):
     return None
 
   query = text('''
-    SELECT name || " (" || ticker || ":" exchange || ")" AS label 
-    FROM stock WHERE id = ":id"
-  ''').bindparams(id=id)
+    SELECT name || " (" || ticker || ":" || mic || ")" AS label 
+    FROM stock WHERE id = :id
+  ''').bindparams(id=_id)
 
   with ENGINE.begin() as con:
     fetch = con.execute(query)
@@ -180,6 +180,8 @@ def calculate_fundamentals(
   )
   schema = load_schema()
   financials = calculate_items(financials, schema)
+  financials = f_score(financials)
+  financials = m_score(financials)
 
   return financials
 

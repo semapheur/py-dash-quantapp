@@ -14,7 +14,7 @@ def f_score(df: pd.DataFrame) -> pd.DataFrame:
   
   df['piotroski_f_score'] = (
     np.heaviside(df['return_on_equity'], 0) +
-    np.heaviside(df['return_on_assets'].diff(), 0) +
+    np.heaviside(applier(df['return_on_assets'], 'diff'), 0) +
     np.heaviside(ocf, 0) +
     np.heaviside(ocf / df['assets'] - df['return_on_assets'], 0) +
     np.heaviside(applier(df['debt'], 'diff'), 0) +
