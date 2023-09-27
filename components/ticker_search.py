@@ -148,6 +148,5 @@ def update_store(id_store: dict[str, str], path_name: str):
     level='date'
   )
   financials.reset_index(inplace=True)
-  financials.to_csv('test.csv')
   
   return financials.to_dict('records')
