@@ -139,3 +139,13 @@ def get_ohlcv(
     )
 
   return ohlcv
+
+def get_financials(cols: Optional[list[str]] = None) -> pd.DataFrame:
+
+  query = f'SELECT {", ".join(cols)} FROM "{id}"'
+  financials = read_sqlite(f'financials.db', query, 
+    index_col=['date', 'period', 'months'], 
+    parse_dates=True
+  )
+
+  return

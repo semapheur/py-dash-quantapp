@@ -1,5 +1,6 @@
 {
   "enterprise_value": {
+    "value": "monetary",
     "label": {
       "long": "Enterprise Value"
     },
@@ -9,6 +10,7 @@
     }
   },
   "net_operating_assets": {
+    "value": "monetary",
     "label": {
       "long": "Net Operating Assets"
     },
@@ -18,6 +20,8 @@
     }
   },
   "average_net_operating_assets": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Net Operating Assets"
     },
@@ -27,6 +31,8 @@
     }
   },
   "change_net_operating_assets": {
+    "value": "monetary",
+    "period": "duration",
     "label": {
       "long": "Balance Sheet Aggregate Accruals"
     },
@@ -36,6 +42,7 @@
     }
   },
   "balance_sheet_aggregate_accruals_ratio": {
+    "value": "fundamental",
     "label": {
       "long": "Balance Sheet Aggregate Accruals Ratio"
     },
@@ -45,6 +52,7 @@
     }
   },
   "sloan_ratio": {
+    "value": "fundamental",
     "label": {
       "long": "Sloan Ratio"
     },
@@ -54,6 +62,8 @@
     }
   },
   "debt_cashflow": {
+    "value": "monetary",
+    "period": "duration",
     "label": {
       "long": "Net Cash from Issuance and Repayments of Debt",
       "short": "Net Borrowing"
@@ -64,6 +74,8 @@
     }
   },
   "interest_tax_shield": {
+    "value": "monetary",
+    "period": "duration",
     "label": {
       "long": "Interest Tax Shield"
     },
@@ -73,6 +85,7 @@
     }
   },
   "price_to_earnings": {
+    "value": "fundamental",
     "label": {
       "long": "Price-to-Earnings Ratio",
       "short": "P/E"
@@ -83,6 +96,7 @@
     }
   },
   "price_to_bookvalue": {
+    "value": "fundamental",
     "label": {
       "long": "Price-to-Book-Value Ratio",
       "short": "P/B"
@@ -93,6 +107,7 @@
     }
   },
   "price_to_tangible_bookvalue": {
+    "value": "fundamental",
     "label": {
       "long": "Price-to-Tangible-Book-Value Ratio",
       "short": "P/TB"
@@ -103,6 +118,7 @@
     }
   },
   "price_to_sales": {
+    "value": "fundamental",
     "label": {
       "long": "Price-to-Sales Ratio",
       "short": "P/S"
@@ -113,6 +129,7 @@
     }
   },
   "price_to_operating_cashflow": {
+    "value": "fundamental",
     "label": {
       "long": "Price-to-Operating-Cash-Flow Ratio",
       "short": "P/OCF"
@@ -123,6 +140,7 @@
     }
   },
   "price_to_free_cashflow": {
+    "value": "fundamental",
     "label": {
       "long": "Price-to-Operating-Cash-Flow Ratio",
       "short": "P/OCF"
@@ -133,6 +151,7 @@
     }
   },
   "altman_z_score": {
+    "value": "fundamental",
     "label": {
       "long": "Altman Z Score",
       "short": "Z Score"
@@ -148,6 +167,7 @@
     }
   },
   "market_capitalization": {
+    "value": "monetary",
     "label": {
       "long": "Market Capitalization"
     },
@@ -157,6 +177,7 @@
     }
   },
   "dividend_yield": {
+    "value": "fundamental",
     "label": {
       "long": "Dividend Yield"
     },
@@ -166,6 +187,7 @@
     }
   },
   "dividend_payout_ratio": {
+    "value": "fundamental",
     "label": {
       "long": "Dividend Payout Ratio"
     },
@@ -175,6 +197,7 @@
     }
   },
   "interest_rate": {
+    "value": "fundamental",
     "label": {
       "long": "Effective Interest Rate"
     },
@@ -184,6 +207,8 @@
     }
   },
   "net_operating_profit_after_tax": {
+    "value": "monetary",
+    "period": "duration",
     "label": {
       "long": "Net Operating Profit After Tax",
       "short": "NOPAT"
@@ -194,6 +219,7 @@
     }
   },
   "return_on_invested_capital": {
+    "value": "fundamental",
     "label": {
       "long": "Return on Invested Capital",
       "short": "ROIC"
@@ -204,6 +230,8 @@
     }
   },
   "invested_capital": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Invested Capital"
     },
@@ -213,6 +241,8 @@
     }
   },
   "undue_cash": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Undue Cash"
     },
@@ -222,6 +252,8 @@
     }
   },
   "average_invested_capital": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Invested Capital"
     },
@@ -231,6 +263,7 @@
     }
   },
   "return_on_capital_employed": {
+    "value": "fundamental",
     "label": {
       "long": "Return on Capital Employed",
       "short": "ROIC"
@@ -241,6 +274,8 @@
     }
   },
   "capital_employed": {
+    "value": "monetary",
+    "duration": "instant",
     "label": {
       "long": "Capital Employed"
     },
@@ -250,6 +285,8 @@
     }
   },
   "average_capital_employed": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Capital Employed"
     },
@@ -259,6 +296,7 @@
     }
   },
   "debt_to_equity": {
+    "value": "fundamental",
     "label": {
       "long": "Debt-to-Equity Ratio"
     },
@@ -268,6 +306,7 @@
     }
   },
   "debt_to_asset": {
+    "value": "fundamental",
     "label": {
       "long": "Debt-to-Asset Ratio"
     },
@@ -277,6 +316,8 @@
     }
   },
   "debt": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Total Debt"
     },
@@ -286,6 +327,8 @@
     }
   },
   "average_debt": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Total Debt"
     },
@@ -295,6 +338,7 @@
     }
   },
   "current_ratio": {
+    "value": "fundamental",
     "label": {
       "long": "Current Ratio"
     },
@@ -304,6 +348,7 @@
     }
   },
   "quick_ratio": {
+    "value": "fundamental",
     "label": {
       "long": "Quick Ratio"
     },
@@ -313,6 +358,7 @@
     }
   },
   "cash_ratio": {
+    "value": "fundamental",
     "label": {
       "long": "Cash Ratio"
     },
@@ -322,8 +368,10 @@
     }
   },
   "capital_expenditure_to_operating_cashflow": {
+    "value": "fundamental",
     "label": {
-      "long": "Capital-Expenditure-to-Operating-Cash-Flow" 
+      "long": "Capital-Expenditure-to-Operating-Cash-Flow",
+      "short": "CAPEX/OCF"
     },
     "calculation": {
       "order": 2,
@@ -331,8 +379,10 @@
     }
   },
   "capital_expenditure_to_operating_income": {
+    "value": "fundamental",
     "label": {
-      "long": "Capital-Expenditure-to-Operating-Income" 
+      "long": "Capital-Expenditure-to-Operating-Income",
+      "short": "CAPEX-to-Operating-Income"
     },
     "calculation": {
       "order": 2,
@@ -340,8 +390,10 @@
     }
   },
   "capital_expenditure_to_revenue": {
+    "value": "fundamental",
     "label": {
-      "long": "Capital-Expenditure-to-Revenue" 
+      "long": "Capital-Expenditure-to-Revenue",
+      "short": "CAPEX-to-Revenue" 
     },
     "calculation": {
       "order": 2,
@@ -349,6 +401,7 @@
     }
   },
   "cash_conversion_cycle": {
+    "value": "fundamental",
     "label": {
       "long": "Cash Conversion Cycle"
     },
@@ -362,6 +415,7 @@
     }
   },
   "days_inventory_outstanding": {
+    "value": "fundamental",
     "label": {
       "long": "Days Sales of Inventory",
       "short": "DSI"
@@ -372,6 +426,7 @@
     }
   },
   "days_sales_outstanding": {
+    "value": "fundamental",
     "label": {
       "long": "Days Sales Outstanding",
       "short": "DSO"
@@ -382,6 +437,7 @@
     }
   },
   "days_payable_outstanding": {
+    "value": "fundamental",
     "label": {
       "long": "Days Payable Outstanding",
       "short": "DPO"
@@ -392,6 +448,8 @@
     }
   },
   "average_trade_payables": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Accounts Payable"
     },
@@ -401,6 +459,8 @@
     }
   },
   "average_inventory": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Inventory"
     },
@@ -410,6 +470,8 @@
     }
   },
   "average_trade_receivables": {
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Accounts Receivable"
     },
@@ -419,7 +481,7 @@
     }
   },
   "equity_multiplier": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Equity Multiplier"
     },
@@ -429,18 +491,19 @@
     }
   },
   "return_on_equity": {
-    "period": "ratio",
+    "value": "fundamental",
+    "period": "duration",
     "label": {
       "long": "Return on Equity",
       "short": "ROE"
     },
     "calculation": {
       "order": 6,
-      "all": "net_income_loss / equity"
+      "all": "net_income_loss / average_equity"
     }
   },
   "return_on_equity_adjusted_to_bookvalue": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Return on Equity Adjusted to Book Value",
       "short": "ROEABV"
@@ -451,7 +514,8 @@
     }
   },
   "average_productive_assets": {
-    "period": "ratio",
+    "value": "fundamental",
+    "period": "instant",
     "label": {
       "long": "Average Fixed Assets"
     },
@@ -461,7 +525,8 @@
     }
   },
   "average_operating_working_capital": {
-    "period": "ratio",
+    "value": "monetary",
+    "period": "instant",
     "label": {
       "long": "Average Operating Working Capital"
     },
@@ -471,7 +536,7 @@
     }
   },
   "net_profit_margin": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Net Profit Margin",
       "short": "NPM"
@@ -482,7 +547,7 @@
     }
   },
   "operating_profit_margin": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Operating Profit Margin",
       "short": "NPM"
@@ -493,7 +558,7 @@
     }
   },
   "tax_rate": {
-    "period": "ratio",
+    "value": "fundamental",
     "gaap": [
       "EffectiveIncomeTaxRateContinuingOperations"
     ],
@@ -507,7 +572,7 @@
     }
   },
   "tax_burden": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Tax Burden"
     },
@@ -517,7 +582,7 @@
     }
   },
   "interest_coverage_ratio": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Interest Coverage Ratio",
       "short": "ICR"
@@ -528,7 +593,7 @@
     }
   },
   "interest_burden": {
-    "period": "ratio",
+    "value": "fundamental",
     "label": {
       "long": "Interest Burden"
     },
@@ -538,7 +603,8 @@
     }
   },
   "asset_turnover": {
-    "period": "ratio",
+    "value": "fundamental",
+    "period": "duration",
     "label": {
       "long": "Asset Turnover Ratio",
       "short": "ATR"
@@ -549,6 +615,7 @@
     }
   },
   "capital_expenditure": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Capital Expenditure",
@@ -560,6 +627,8 @@
     }
   },
   "change_productive_assets": {
+    "value": "monetary",
+    "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Fixed Assets"
     },
@@ -569,6 +638,8 @@
     }
   },
   "change_depreciation": {
+    "value": "monetary",
+    "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Deprecitation"
     },
@@ -578,6 +649,7 @@
     }
   },
   "free_cashflow_firm": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Free Cash Flow To Firm",
@@ -589,6 +661,7 @@
     }
   },
   "free_cashflow_equity": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Free Cash Flow To Equity",
@@ -600,7 +673,8 @@
     }
   },
   "earnings_per_share_basic": {
-    "period": "ratio",
+    "value": "fundamental",
+    "period": "duration",
     "gaap": [
       "EarningsPerShareBasic"
     ],
@@ -614,7 +688,8 @@
     }
   },
   "earnings_per_share_diluted": {
-    "period": "ratio",
+    "value": "fundamental",
+    "period": "duration",
     "gaap": [
       "EarningsPerShareDiluted"
     ],
@@ -628,6 +703,7 @@
     }
   },
   "working_capital": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -638,6 +714,7 @@
     }
   },
   "operating_working_capital": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 2,
@@ -655,6 +732,7 @@
     }
   },
   "net_current_asset_value": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 2,
@@ -666,6 +744,7 @@
     }
   },
   "net_net_working_capital": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 2,
@@ -681,6 +760,7 @@
     }
   },
   "average_assets": {
+    "value": "monetary",
     "period": "instant",
     "label": {
       "long": "Average Total Assets",
@@ -692,6 +772,7 @@
     }
   },
   "average_equity": {
+    "value": "monetary",
     "period": "instant",
     "label": {
       "long": "Average Shareholder's Equity",
@@ -703,6 +784,7 @@
     }
   },
   "current_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AssetsCurrent"
@@ -713,6 +795,7 @@
     }
   },
   "cash_cash_equivalents": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -727,6 +810,7 @@
     }
   },
   "cash_cash_equivalents_restricted_cash_cash_equivalents": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 1,
@@ -741,6 +825,7 @@
     }
   },
   "cash_equivalents": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "CashEquivalentsAtCarryingValue"
@@ -750,6 +835,7 @@
     }
   },
   "cash": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "Cash"
@@ -759,6 +845,7 @@
     }
   },
   "restricted_cash": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "RestrictedCash"
@@ -768,6 +855,7 @@
     }
   },
   "restricted_cash_cash_equivalents": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "RestrictedCashAndCashEquivalentsAtCarryingValue"
@@ -777,6 +865,7 @@
     }
   },
   "current_tax_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "DeferredTaxAssetsNetCurrent"
@@ -786,6 +875,7 @@
     }
   },
   "inventory": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 1,
@@ -799,6 +889,7 @@
     }
   },
   "finished_goods": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "InventoryFinishedGoodsNetOfReserves"
@@ -809,6 +900,7 @@
     }
   },
   "parts_components": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "InventoryPartsAndComponentsNetOfReserves"
@@ -819,12 +911,14 @@
     }
   },
   "raw_materials": {
+    "value": "monetary",
     "period": "instant",
     "label": {
       "long": "Raw Materials"
     }
   },
   "work_in_progress": {
+    "value": "monetary",
     "period": "instant",
     "label": {
       "long": "",
@@ -832,6 +926,7 @@
     }
   },
   "work_in_progress_raw_materials": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -846,6 +941,7 @@
     }
   },
   "liquid_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 2,
@@ -861,6 +957,7 @@
     }
   },
   "other_current_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherAssetsCurrent"
@@ -870,6 +967,7 @@
     }
   },
   "current_prepaid_expenses": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherPrepaidExpenseCurrent"
@@ -879,6 +977,7 @@
     }
   },
   "current_trade_receivables": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccountsReceivableNetCurrent"
@@ -889,6 +988,7 @@
     }
   },
   "current_receivables": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -900,6 +1000,7 @@
     }
   },
   "bad_trade_receivables": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AllowanceForDoubtfulAccountsReceivableCurrent"
@@ -910,6 +1011,7 @@
     }
   },
   "current_nontrade_receivables": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "NontradeReceivablesCurrent"
@@ -919,6 +1021,7 @@
     }
   },
   "notes_receivable": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "NotesReceivableNet"
@@ -928,6 +1031,7 @@
     }
   },
   "other_receivables": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "PremiumsAndOtherReceivablesNet"
@@ -937,6 +1041,7 @@
     }
   },
   "current_securities": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -952,6 +1057,7 @@
     }
   },
   "current_debt_securities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AvailableForSaleSecuritiesDebtSecuritiesCurrent"
@@ -962,6 +1068,7 @@
     }
   },
   "us_treasury_bills": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "USTreasuryBills"
@@ -972,6 +1079,7 @@
     }
   },
   "current_equity_securities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "EquitySecuritiesFvNi"
@@ -982,6 +1090,7 @@
     }
   },
   "noncurrent_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "NoncurrentAssets",
@@ -997,6 +1106,7 @@
     }
   },
   "productive_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 1,
@@ -1012,6 +1122,7 @@
     }
   },
   "accumulated_depreciation_productive_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentAndCapitalizedSoftware",
@@ -1023,6 +1134,7 @@
     }
   },
   "gross_productive_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -1038,6 +1150,7 @@
     }
   },
   "furniture_fixtures": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "FurnitureAndFixturesGross"
@@ -1047,6 +1160,7 @@
     }
   },
   "land_buildings": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "LandAndBuildingsGross"
@@ -1056,6 +1170,7 @@
     }
   },
   "machinery_equipment": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "MachineryEquipmentAndInternalUseSoftwareGross"
@@ -1065,6 +1180,7 @@
     }
   },
   "goodwill": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "Goodwill"
@@ -1074,6 +1190,7 @@
     }
   },
   "intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 1,
@@ -1088,6 +1205,7 @@
     }
   },
   "finitelived_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -1102,6 +1220,7 @@
     }
   },
   "accumulated_amortization_finitelived_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "FiniteLivedIntangibleAssetsAccumulatedAmortization"
@@ -1112,6 +1231,7 @@
     }
   },
   "gross_finitelived_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "FiniteLivedIntangibleAssetsGross"
@@ -1121,6 +1241,7 @@
     }
   },
   "gross_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -1136,6 +1257,7 @@
     }
   },
   "infinitelived_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -1150,6 +1272,7 @@
     }
   },
   "accumulated_amortization_infinitelived_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "IndefiniteLivedIntangibleAssetsAccumulatedAmortization"
@@ -1160,6 +1283,7 @@
     }
   },
   "gross_infinitelived_intangible_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "IndefiniteLivedIntangibleAssetsGross"
@@ -1169,6 +1293,7 @@
     }
   },
   "other_noncurrent_assets": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherAssetsNoncurrent"
@@ -1178,6 +1303,7 @@
     }
   },
   "noncurrent_securities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AvailableForSaleSecuritiesNoncurrent",
@@ -1189,6 +1315,7 @@
     }
   },
   "noncurrent_debt_securities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
@@ -1198,6 +1325,7 @@
     }
   },
   "assets": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 2,
@@ -1212,6 +1340,7 @@
     }
   },
   "cashflow": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
@@ -1226,6 +1355,7 @@
     }
   },
   "exchange_rate_effect": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations"
@@ -1235,6 +1365,7 @@
     }
   },
   "financing_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "NetCashProvidedByUsedInFinancingActivities"
@@ -1255,6 +1386,7 @@
     }
   },
   "financing_cash_inflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Financing Cash Inflow",
@@ -1266,6 +1398,7 @@
     }
   },
   "financing_cash_outflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Financing Cash Outflow",
@@ -1284,6 +1417,7 @@
     }
   },
   "stock_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -1295,6 +1429,7 @@
     }
   },
   "stock_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromIssuanceOfCommonStock"
@@ -1304,6 +1439,7 @@
     }
   },
   "stock_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsForRepurchaseOfCommonStock"
@@ -1313,6 +1449,7 @@
     }
   },
   "longterm_debt_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -1324,6 +1461,7 @@
     }
   },
   "longterm_debt_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromIssuanceOfLongTermDebt"
@@ -1333,6 +1471,7 @@
     }
   },
   "debt_repayments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "RepaymentsOfLongTermDebt"
@@ -1342,6 +1481,7 @@
     }
   },
   "shortterm_debt_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromRepaymentsOfCommercialPaper",
@@ -1357,6 +1497,7 @@
     }
   },
   "quarterly_debt_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromRepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
@@ -1371,6 +1512,7 @@
     }
   },
   "quarterly_debt_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromShortTermDebtMaturingInThreeMonthsOrLess"
@@ -1381,6 +1523,7 @@
     }
   },
   "quarterly_debt_repayments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "RepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
@@ -1391,6 +1534,7 @@
     }
   },
   "annual_debt_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromRepaymentsOfShortTermDebtMaturingInMoreThanThreeMonths"
@@ -1405,6 +1549,7 @@
     }
   },
   "annual_debt_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromShortTermDebtMaturingInMoreThanThreeMonths"
@@ -1414,6 +1559,7 @@
     }
   },
   "annual_debt_repayments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "RepaymentsOfShortTermDebtMaturingInMoreThanThreeMonths"
@@ -1423,6 +1569,7 @@
     }
   },
   "other_shortterm_debt_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Proceeds from (Repayments of) Other Short-term Debt"
@@ -1433,6 +1580,7 @@
     }
   },
   "other_shortterm_debt_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromOtherShortTermDebt"
@@ -1442,6 +1590,7 @@
     }
   },
   "other_shortterm_debt_repayments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "RepaymentsOfOtherShortTermDebt"
@@ -1451,6 +1600,7 @@
     }
   },
   "other_financing_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromPaymentsForOtherFinancingActivities"
@@ -1461,6 +1611,7 @@
     }
   },
   "dividend_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsOfDividends"
@@ -1470,6 +1621,7 @@
     }
   },
   "common_stock_dividend_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsOfDividendsCommonStock",
@@ -1480,6 +1632,7 @@
     }
   },
   "investing_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "NetCashProvidedByUsedInInvestingActivities"
@@ -1500,6 +1653,7 @@
     }
   },
   "investing_cash_inflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Investing Cash Inflow",
@@ -1511,6 +1665,7 @@
     }
   },
   "investing_cash_outflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Investing Cash Outflow",
@@ -1522,6 +1677,7 @@
     }
   },
   "acquisition_divestitures_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromDivestitureOfBusinessesAndInterestsInAffiliates"
@@ -1531,6 +1687,7 @@
     }
   },
   "acquisition_divestitures_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsToAcquireBusinessesNetOfCashAcquired"
@@ -1540,6 +1697,7 @@
     }
   },
   "acquisition_divestitures_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -1550,6 +1708,7 @@
     }
   },
   "securities_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsForProceedsFromInvestments"
@@ -1564,6 +1723,7 @@
     }
   },
   "debt_securities_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromSaleOfAvailableForSaleSecuritiesDebt"
@@ -1573,12 +1733,14 @@
     }
   },
   "equity_securities_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Proceeds from Sale of Marketable Equity Securities"
     }
   },
   "maturities_prepayments_calls_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailableForSaleSecurities"
@@ -1588,6 +1750,7 @@
     }
   },
   "other_investing_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsForProceedsFromOtherInvestingActivities"
@@ -1598,6 +1761,7 @@
     }
   },
   "productive_assets_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Net Cash from Purchase and Sale of Property, Plant and Equipment",
@@ -1609,6 +1773,7 @@
     }
   },
   "productive_assets_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsToAcquirePropertyPlantAndEquipment",
@@ -1620,6 +1785,7 @@
     }
   },
   "productive_assets_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProcceedsFromSaleOfPropertyPlantAndEquipment"
@@ -1630,6 +1796,7 @@
     }
   },
   "intangible_assets_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Net Cash from Purchase and Sale of Intangible Assets",
@@ -1641,6 +1808,7 @@
     }
   },
   "intangible_assets_proceeds": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ProceedsFromSaleOfIntangibleAssets"
@@ -1650,6 +1818,7 @@
     }
   },
   "intangible_assets_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsToAcquireIntangibleAssets"
@@ -1659,6 +1828,7 @@
     }
   },
   "securities_payments": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -1672,6 +1842,7 @@
     }
   },
   "debt_securities_payments": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PaymentsToAcquireAvailableForSaleSecuritiesDebt"
@@ -1681,12 +1852,14 @@
     }
   },
   "equity_securities_payments": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Payments to Acquire Marketable Equity Securities"
     }
   },
   "operating_cashflow": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "NetCashProvidedByUsedInOperatingActivities"
@@ -1708,6 +1881,7 @@
     }
   },
   "change_working_capital": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
@@ -1729,6 +1903,7 @@
     }
   },
   "other_noncash_income_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherNoncashIncomeExpense"
@@ -1738,6 +1913,7 @@
     }
   },
   "sharebased_compensation": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ShareBasedCompensation"
@@ -1747,6 +1923,7 @@
     }
   },
   "operating_cash_inflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Operating Cash Inflow",
@@ -1783,6 +1960,7 @@
     }
   },
   "operating_cash_outflow": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Operating Cash Outflow",
@@ -1815,6 +1993,7 @@
     }
   },
   "change_current_tax_assets": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Deferred Tax Assets",
@@ -1826,6 +2005,7 @@
     }
   },
   "change_inventories": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInInventories"
@@ -1840,6 +2020,7 @@
     }
   },
   "change_other_current_assets": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInOtherOperatingAssets"
@@ -1854,6 +2035,7 @@
     }
   },
   "change_current_prepaid_expenses": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Prepaid Expenses",
@@ -1865,6 +2047,7 @@
     }
   },
   "change_current_trade_receivables": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInAccountsReceivable"
@@ -1879,6 +2062,7 @@
     }
   },
   "change_current_accrued_expenses": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Increase (Decrease) in Accrued Expenses",
@@ -1890,6 +2074,7 @@
     }
   },
   "change_current_deferred_revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInDeferredRevenue",
@@ -1905,6 +2090,7 @@
     }
   },
   "change_current_tax_liabilities": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Change in Current Deferred Tax Liabilities"
@@ -1915,6 +2101,7 @@
     }
   },
   "change_other_current_liabilities": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInOtherOperatingLiabilities"
@@ -1929,6 +2116,7 @@
     }
   },
   "change_trade_payables": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncreaseDecreaseInAccountsPayable"
@@ -1943,6 +2131,7 @@
     }
   },
   "comprehensive_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
@@ -1956,6 +2145,7 @@
     }
   },
   "comprehensive_income_minority_interest": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ComprehensiveIncomeNetOfTaxAttributableToNoncontrollingInterest"
@@ -1965,6 +2155,7 @@
     }
   },
   "comprehensive_income_net_minority_interest": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest"
@@ -1974,6 +2165,7 @@
     }
   },
   "deferred_tax": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -1988,6 +2180,7 @@
     }
   },
   "local_deferred_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "DeferredStateAndLocalIncomeTaxExpenseBenefit"
@@ -1998,6 +2191,7 @@
     }
   },
   "national_deferred_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "DeferredFederalIncomeTaxExpenseBenefit"
@@ -2008,6 +2202,7 @@
     }
   },
   "foreign_deferred_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "DeferredForeignIncomeTaxExpenseBenefit"
@@ -2018,6 +2213,7 @@
     }
   },
   "equity": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "StockholdersEquity"
@@ -2027,6 +2223,7 @@
     }
   },
   "accumulated_other_comprehensive_income_loss": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossNetOfTax"
@@ -2036,6 +2233,7 @@
     }
   },
   "accumulated_other_comprehensive_income_loss_derivatives_adjustment": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossCumulativeChangesInNetGainLossFromCashFlowHedgesEffectNetOfTax"
@@ -2046,6 +2244,7 @@
     }
   },
   "accumulated_other_comprehensive_income_loss_investment_adjustment": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax"
@@ -2056,6 +2255,7 @@
     }
   },
   "common_stock": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "CommonStockValue",
@@ -2066,6 +2266,7 @@
     }
   },
   "additional_paid_in_capital": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AdditionalPaidInCapital"
@@ -2075,6 +2276,7 @@
     }
   },
   "common_stock_additional_paid_in_capital": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "CommonStocksIncludingAdditionalPaidInCapital"
@@ -2091,6 +2293,7 @@
     }
   },
   "minority_interest_stock": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "NoncontrollingInterest"
@@ -2101,6 +2304,7 @@
     }
   },
   "retained_earnings_accumulated_deficit": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "RetainedEarningsAccumulatedDeficit"
@@ -2110,6 +2314,7 @@
     }
   },
   "gross_profit": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 1,
@@ -2123,6 +2328,8 @@
     }
   },
   "gross_profit_margin": {
+    "value": "fundamental",
+    "period": "instant",
     "label": {
       "long": "Gross Profit Margin"
     },
@@ -2132,6 +2339,7 @@
     }
   },
   "net_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 5,
@@ -2146,6 +2354,7 @@
     }
   },
   "pretax_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 3,
@@ -2161,18 +2370,21 @@
     }
   },
   "net_income_loss_continuing_operations": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Net Income (Loss) from Continuing Operations"
     }
   },
   "income_loss_discontinued_operations": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Income (Loss) from Discontinued Operations"
     }
   },
   "net_income_loss_to_minority_interest": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "NetIncomeLossAttributableToNoncontrollingInterest"
@@ -2182,6 +2394,7 @@
     }
   },
   "net_income_loss_including_minority_interest": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 4,
@@ -2198,12 +2411,14 @@
     }
   },
   "nonrecurring_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Non-recurring Income (Loss)"
     }
   },
   "current_liabilities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "LiabilitiesCurrent"
@@ -2214,6 +2429,7 @@
     }
   },
   "current_accrued_expenses": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccruedLiabilities",
@@ -2233,6 +2449,7 @@
     }
   },
   "current_employee_related_liabilities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "EmployeeRelatedLiabilitiesCurrent"
@@ -2242,6 +2459,7 @@
     }
   },
   "current_accrued_marketing_expenses": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccruedMarketingCostsCurrent",
@@ -2252,6 +2470,7 @@
     }
   },
   "other_current_accrued_expenses": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherAccruedLiabilitiesCurrent"
@@ -2261,6 +2480,7 @@
     }
   },
   "current_accrued_taxes": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccruedIncomeTaxesCurrent"
@@ -2270,6 +2490,7 @@
     }
   },
   "current_deferred_revenue": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "DeferredRevenueCurrent",
@@ -2281,6 +2502,7 @@
     }
   },
   "current_debt": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 0,
@@ -2291,6 +2513,7 @@
     }
   },
   "commercial_paper": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "CommercialPaper"
@@ -2300,6 +2523,7 @@
     }
   },
   "current_longterm_debt": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "LongTermDebtCurrent"
@@ -2309,6 +2533,7 @@
     }
   },
   "other_shortterm_debt": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherShortTermBorrowings"
@@ -2318,6 +2543,7 @@
     }
   },
   "other_current_liabilities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherLiabilitiesCurrent"
@@ -2327,6 +2553,7 @@
     }
   },
   "trade_payables": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccountsPayable",
@@ -2337,6 +2564,7 @@
     }
   },
   "noncurrent_liabilities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "LiabilitiesNoncurrent"
@@ -2347,6 +2575,7 @@
     }
   },
   "noncurrent_accrued_expenses": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccruedLiabilitiesNoncurrent"
@@ -2360,6 +2589,7 @@
     }
   },
   "other_noncurrent_accrued_expenses": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherAccruedLiabilitiesNoncurrent"
@@ -2369,6 +2599,7 @@
     }
   },
   "noncurrent_accrued_taxes": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccruedIncomeTaxesNoncurrent"
@@ -2378,6 +2609,7 @@
     }
   },
   "noncurrent_deferred_revenue": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "DeferredRevenueNoncurrent",
@@ -2388,6 +2620,7 @@
     }
   },
   "noncurrent_tax_liabilities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "DeferredTaxLiabilitiesNoncurrent"
@@ -2397,6 +2630,7 @@
     }
   },
   "noncurrent_longterm_debt": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "LongTermDebtNoncurrent"
@@ -2406,6 +2640,7 @@
     }
   },
   "other_noncurrent_liabilities": {
+    "value": "monetary",
     "period": "instant",
     "gaap": [
       "OtherLiabilitiesNoncurrent"
@@ -2415,6 +2650,7 @@
     }
   },
   "liabilities": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 2,
@@ -2429,6 +2665,7 @@
     }
   },
   "liabilities_equity": {
+    "value": "monetary",
     "period": "instant",
     "calculation": {
       "order": 3,
@@ -2442,6 +2679,7 @@
     }
   },
   "non_operating_expenses": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 1,
@@ -2452,6 +2690,7 @@
     }
   },
   "impairment": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2462,6 +2701,7 @@
     }
   },
   "goodwill_impairment": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "GoodwillImpairmentLoss"
@@ -2471,6 +2711,7 @@
     }
   },
   "intangible_assets_impairment": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ImpairmentOfIntangibleAssetsExcludingGoodwill",
@@ -2482,6 +2723,7 @@
     }
   },
   "interest_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "InterestExpense"
@@ -2491,6 +2733,7 @@
     }
   },
   "debt_interest_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "InterestExpenseDebt"
@@ -2500,6 +2743,7 @@
     }
   },
   "nonoperating_income_expense": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
@@ -2513,6 +2757,7 @@
     }
   },
   "other_nonoperating_income_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherNonoperatingIncomeExpense"
@@ -2522,6 +2767,7 @@
     }
   },
   "nonoperating_income": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2532,6 +2778,7 @@
     }
   },
   "investment_income": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "InvestmentIncomeInterestAndDividend"
@@ -2541,16 +2788,18 @@
     }
   },
   "other_comprehensive_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
-      "any": {
-        "oc_i/l.DI": 1,
-        "oc_i/l.LDIC_DRC": 1,
-        "oc_i/l.fx_tt": 1,
-        "oc_i/l.iv": 1,
-        "oc_i/l.pn_bf_pl": 1
-      }
+      "any": [
+        "derivatives_adjustment",
+        "+long_duration_insurance_contracts_discount_rate_changes",
+        "+foreign_currency_transaction_translation_adjustment",
+        "+securities_adjustment",
+        "+pension_postretirement_benefit_plans_adjustment",
+        "+other_comprehensive_income"
+      ]
     },
     "gaap": [
       "OtherComprehensiveIncomeLossNetOfTax",
@@ -2561,6 +2810,7 @@
     }
   },
   "derivatives_adjustment": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2578,6 +2828,7 @@
     }
   },
   "derivatives_gain_loss_before_reclassification_after_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossbeforeReclassificationafterTax"
@@ -2587,6 +2838,7 @@
     }
   },
   "derivatives_gain_loss_reclassification_after_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossReclassificationAfterTax"
@@ -2596,6 +2848,7 @@
     }
   },
   "long_duration_insurance_contracts_discount_rate_changes": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2612,6 +2865,7 @@
     }
   },
   "long_duration_insurance_contracts_discount_rate_changes_before_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossLongDurationInsuranceContractsDiscountRateChangesBeforeTax"
@@ -2621,6 +2875,7 @@
     }
   },
   "long_duration_insurance_contracts_discount_rate_changes_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossLongDurationInsuranceContractDiscountRateChangesTax"
@@ -2630,6 +2885,7 @@
     }
   },
   "foreign_currency_transaction_translation_adjustment": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2646,6 +2902,7 @@
     }
   },
   "foreign_currency_transaction_translation_adjustment_before_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentBeforeTax"
@@ -2655,6 +2912,7 @@
     }
   },
   "foreign_currency_transaction_translation_adjustment_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentTax"
@@ -2664,6 +2922,7 @@
     }
   },
   "securities_adjustment": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 1,
@@ -2680,6 +2939,7 @@
     }
   },
   "securities_unrealized_gain_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2696,6 +2956,7 @@
     }
   },
   "securities_unrealized_gain_loss_before_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeUnrealizedHoldingGainLossOnSecuritiesArisingDuringPeriodBeforeTax"
@@ -2705,6 +2966,7 @@
     }
   },
   "securities_sales_reclassification": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesNetOfTax"
@@ -2714,6 +2976,7 @@
     }
   },
   "securities_sales_reclassification_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIForSaleOfSecuritiesTax"
@@ -2723,6 +2986,7 @@
     }
   },
   "other_comprehensive_income": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeOtherNetOfTax"
@@ -2732,6 +2996,7 @@
     }
   },
   "pension_postretirement_benefit_plans_adjustment": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 1,
@@ -2748,6 +3013,7 @@
     }
   },
   "pension_postretirement_benefit_plans_adjustment_before_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentBeforeTax"
@@ -2757,6 +3023,7 @@
     }
   },
   "pension_postretirement_benefit_plans_adjustment_tax": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansTax"
@@ -2766,6 +3033,7 @@
     }
   },
   "operating_expenses": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 1,
@@ -2785,6 +3053,7 @@
     }
   },
   "depreciation_depletion_amortization_accretion": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 1,
@@ -2801,6 +3070,7 @@
     }
   },
   "intangible_assets_amortization": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "AmortizationOfIntangibleAssets",
@@ -2811,6 +3081,7 @@
     }
   },
   "depreciation": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "Depreciation"
@@ -2824,6 +3095,7 @@
     }
   },
   "research_development_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "ResearchAndDevelopmentExpense"
@@ -2834,6 +3106,7 @@
     }
   },
   "selling_general_administrative_expense": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2848,6 +3121,7 @@
     }
   },
   "general_administrative_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "GeneralAndAdministrativeExpense"
@@ -2858,6 +3132,7 @@
     }
   },
   "selling_marketing_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "SellingAndMarketingExpense",
@@ -2868,6 +3143,7 @@
     }
   },
   "advertising_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "AdvertisingExpense"
@@ -2877,6 +3153,7 @@
     }
   },
   "lease_rental_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "LeaseAndRentalExpense"
@@ -2886,6 +3163,7 @@
     }
   },
   "other_operating_expense": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OtherOperatingExpense"
@@ -2895,6 +3173,7 @@
     }
   },
   "operating_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
@@ -2908,6 +3187,7 @@
     }
   },
   "sankey_operating_income_loss": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 2,
@@ -2916,6 +3196,7 @@
     "label": {}
   },
   "revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "Revenues",
@@ -2928,6 +3209,8 @@
     }
   },
   "revenue_per_day": {
+    "value": "fundamental",
+    "period": "instant",
     "label": {
       "long": "Revenue Per Day"
     },
@@ -2937,6 +3220,7 @@
     }
   },
   "finance_revenue": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2947,6 +3231,7 @@
     }
   },
   "premiums_revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "PremiumsEarnedNet"
@@ -2956,12 +3241,14 @@
     }
   },
   "other_revenue": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Other Revenue"
     }
   },
   "product_revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Product"
@@ -2971,6 +3258,7 @@
     }
   },
   "service_revenue": {
+    "value": "monetary",
     "period": "duration",
     "calculation": {
       "order": 0,
@@ -2985,6 +3273,7 @@
     }
   },
   "energy_operating_revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "UtilityAndEnergyOperatingRevenues"
@@ -2994,6 +3283,7 @@
     }
   },
   "lease_revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "OperatingLeaseLeaseIncome"
@@ -3003,6 +3293,7 @@
     }
   },
   "freight_rail_revenue": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "FreightRailTransportationRevenues"
@@ -3012,6 +3303,7 @@
     }
   },
   "revenue_cost": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "CostOfGoodsAndServicesSold"
@@ -3022,6 +3314,8 @@
     }
   },
   "revenue_cost_per_day": {
+    "value": "fundamental",
+    "period": "instant",
     "label": {
       "long": "Revenue Cost Per Day"
     },
@@ -3031,18 +3325,21 @@
     }
   },
   "finance_revenue_cost": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Finance Revenue Cost"
     }
   },
   "other_revenue_cost": {
+    "value": "monetary",
     "period": "duration",
     "label": {
       "long": "Other Revenue Cost"
     }
   },
   "product_revenue_cost": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Product"
@@ -3052,6 +3349,7 @@
     }
   },
   "service_revenue_cost": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Service"
@@ -3061,7 +3359,8 @@
     }
   },
   "average_shares_outstanding_basic": {
-    "period": "duration",
+    "value": "shares",
+    "period": "instant",
     "gaap": [
       "WeightedAverageNumberOfSharesOutstandingBasic"
     ],
@@ -3071,7 +3370,8 @@
     }
   },
   "average_shares_outstanding_diluted": {
-    "period": "duration",
+    "value": "shares",
+    "period": "instant",
     "gaap": [
       "WeightedAverageNumberOfDilutedSharesOutstanding",
       "WeightedAverageNumberDilutedSharesOutstandingAdjustment"
@@ -3082,6 +3382,7 @@
     }
   },
   "tax_expense_benefit": {
+    "value": "monetary",
     "period": "duration",
     "gaap": [
       "IncomeTaxExpenseBenefit"
