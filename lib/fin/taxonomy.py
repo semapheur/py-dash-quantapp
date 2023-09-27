@@ -98,11 +98,8 @@ class Taxonomy:
     }
     return schema
   
-  def to_sql(self, db_path: str):
-    engine = create_engine(f'sqlite+pysqlite:///{db_path}')
-
-    columns = ('item', 'period', 'long', 'short', 'gaap', 'calculation')
-    data = []
+  def to_records(self) -> list[tuple[str|None]]:
+    result: list[tuple[str|None]] = []
     for k, v in self._data.items():
       if (gaap := v.get('gaap')) is not None:
         gaap = json.dumps(gaap)
@@ -110,8 +107,9 @@ class Taxonomy:
       if (calc := v.get('calculation')) is not None:
         calc = json.dumps(calc)
 
-      data.append((
+      result.append((
         k,
+        v.get('value'),
         v.get('period'), 
         v['label'].get('long'),
         v['label'].get('short'),
@@ -119,6 +117,13 @@ class Taxonomy:
         calc
       ))
 
+    return result
+
+  def to_sql(self, db_path: str):
+    engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+
+    columns = ('item', 'value' 'period', 'long', 'short', 'gaap', 'calculation')
+    data = self.to_records()
     df = pd.DataFrame(data, columns=columns)
 
     with engine.connect().execution_options(autocommit=True) as con:
@@ -137,7 +142,8 @@ class Taxonomy:
     cur = con.cursor()
 
     fields = {
-      'name': 'TEXT PRIMARY KEY',
+      'item': 'TEXT PRIMARY KEY',
+      'value': 'TEXT',
       'period': 'TEXT',
       'long': 'TEXT',
       'short': 'TEXT',
@@ -147,23 +153,7 @@ class Taxonomy:
     columns = ','.join(tuple(fields.keys()))
     fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
 
-    values: list[tuple[str|None]] = []
-    for k, v in self._data.items():
-      if (gaap := v.get('gaap')) is not None:
-        gaap = json.dumps(gaap)
-
-      if (calc := v.get('calculation')) is not None:
-        calc = json.dumps(calc)
-
-      values.append((
-        k,
-        v.get('period'), 
-        v['label'].get('long'),
-        v['label'].get('short'),
-        gaap,
-        calc
-      ))
-
+    values = self.to_records()
     #with engine.connect() as con:
     cur.execute('DROP TABLE IF EXISTS items')
     cur.execute(f'CREATE TABLE IF NOT EXISTS items ({fields_text})')
@@ -187,7 +177,14 @@ def load_template(cat: str) -> pd.DataFrame:
       (sheet, item, level) for sheet, values in template.items() 
       for item, level in values.items()
     ]
-    cols = ['sheet', 'item', 'level']
+    cols = ('sheet', 'item', 'level')
+
+  elif cat == 'fundamentals':
+    data = [
+      (sheet, item) for sheet, values in template.items()
+      for item in values
+    ]
+    cols = ('sheet', 'item')
 
   elif cat == 'sankey':
     data = [
@@ -195,11 +192,11 @@ def load_template(cat: str) -> pd.DataFrame:
       for sheet, values in template.items() 
       for item, entry in values.items()
     ]
-    cols = ['sheet', 'item', 'color', 'links']
+    cols = ('sheet', 'item', 'color', 'links')
 
   elif cat == 'dupont':
     data = template
-    cols = ['item']
+    cols = ('item',)
 
   return pd.DataFrame(data, columns=cols)
 
@@ -208,13 +205,14 @@ def template_to_sql(db_path: str):
 
   dtypes = {
     'statement': {},
+    'fundamentals': {},
     'sankey': {
       'links': TEXT
     },
     'dupont': {}
   }
 
-  for template in ('statement', 'sankey', 'dupont'):
+  for template in ('statement', 'fundamentals', 'sankey', 'dupont'):
     df = load_template(template)
 
     if template == 'sankey':

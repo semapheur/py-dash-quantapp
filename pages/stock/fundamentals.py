@@ -13,7 +13,7 @@ from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 #from lib.utils import load_json
 
-register_page(__name__, path_template='/stock/<id>/fundamentals', title=stock_label)
+register_page(__name__, path_template='/stock/<_id>/fundamentals', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
@@ -44,7 +44,7 @@ def layout(_id: Optional[str] = None):
 @callback(
   Output('div:stock-fundamentals:table-wrap', 'children'),
   Input('store:ticker-search:financials', 'data'),
-  Input('radio:stock-fundamentals:sheet')
+  Input('radio:stock-fundamentals:sheet', 'value')
 )
 def update_table(data: list[dict], sheet: str):
 
@@ -105,8 +105,8 @@ def update_table(data: list[dict], sheet: str):
   ] + [{
     'field': col,
     'type': 'numericColumn',
-    'valueFormatter': {'function': 'd3.format("(,")(params.value)'}
-  } for col in fin.columns[1:]]
+    'valueFormatter': {'function': 'd3.format(".2f")(params.value)'}
+  } for col in fin.columns[1:-1]] #.difference(['index', 'trend'])
   
   fin.loc[:,'index'] = fin['index'].apply(
     lambda x: tmpl.loc[tmpl['item'] == x, 'short'].iloc[0]
@@ -118,6 +118,6 @@ def update_table(data: list[dict], sheet: str):
     rowData=fin.to_dict('records'),
     columnSize='autoSize',
     defaultColDef={'tooltipComponent': 'FinancialsTooltip'},
-    style={'height': '100%'}
+    style={'height': 'auto'}
     #defaultColDef={'resizable': True, 'sortable': True, 'filter': True, },
   )

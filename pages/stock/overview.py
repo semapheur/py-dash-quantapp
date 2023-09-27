@@ -15,7 +15,7 @@ from components.dupont_chart import DupontChart
 from components.stock_header import StockHeader
 from lib.ticker.fetch import stock_label
 
-register_page(__name__, path_template='/stock/<id>/', title=stock_label)
+register_page(__name__, path_template='/stock/<_id>/', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
@@ -60,10 +60,10 @@ def sankey_direction(sign: int) -> str:
     case _:
       raise Exception('Invalid sign')
 
-def layout(id: Optional[str] = None):
+def layout(_id: Optional[str] = None):
 
   return html.Main(className='flex flex-col h-full overflow-y-scroll', children=[
-    StockHeader(id),
+    StockHeader(_id),
     html.Div(id='div:stock:sankey', children=[
       html.Form(className='flex justify-around', children=[
         dcc.Dropdown(

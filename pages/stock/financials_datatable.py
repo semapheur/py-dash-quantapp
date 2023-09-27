@@ -2,7 +2,8 @@ from typing import Optional
 from ordered_set import OrderedSet
 
 from dash import (
-  callback, dcc, html, no_update, register_page, Output, Input
+  callback, dcc, html, no_update, Output, Input
+  #register_page
 )
 from dash.dash_table import DataTable
 from dash.dash_table.Format import Format, Sign
@@ -12,10 +13,9 @@ import pandas as pd
 from components.sparklines import make_sparkline
 from components.stock_header import StockHeader
 from lib.db.lite import read_sqlite
-from lib.ticker.fetch import stock_label
-#from lib.utils import load_json
+#from lib.ticker.fetch import stock_label
 
-#register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
+#register_page(__name__, path_template='/stock/<_id>/financials', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
@@ -68,7 +68,7 @@ def format_columns(columns: list[str], index: str) -> dict:
     )
   } for c in columns]
 
-def layout(id: Optional[str] = None):
+def layout(_id: Optional[str] = None):
 
   return html.Main(className='flex flex-col h-full', children=[
     StockHeader(id),

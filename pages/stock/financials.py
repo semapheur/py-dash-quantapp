@@ -13,7 +13,7 @@ from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 #from lib.utils import load_json
 
-register_page(__name__, path_template='/stock/<id>/financials', title=stock_label)
+register_page(__name__, path_template='/stock/<_id>/financials', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
@@ -132,7 +132,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
     'field': col,
     'type': 'numericColumn',
     'valueFormatter': {'function': 'd3.format("(,")(params.value)'}
-  } for col in fin.columns[1:]]
+  } for col in fin.columns[1:]] #.difference(['index', 'trend'])
 
   row_style = {
     'font-bold border-b border-text': (

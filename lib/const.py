@@ -5,7 +5,8 @@ DB_DIR = WORK_DIR / 'data'
 STATIC_DIR = WORK_DIR / 'assets'
 
 HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/112.0',
+  'User-Agent': (
+    'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/112.0'),
   'Accept': 'application/json, text/plain, */*',
   'Accept-Language': 'en-US,en;q=0.5',
   #'Accept-Encoding': 'gzip, deflate, br',
