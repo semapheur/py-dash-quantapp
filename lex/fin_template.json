@@ -175,6 +175,7 @@
     "valuation": [
       "price_to_earnings",
       "price_to_bookvalue",
+      "price_to_tangible_bookvalue",
       "price_to_sales",
       "price_to_operating_cashflow",
       "price_to_free_cashflow"

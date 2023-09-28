@@ -23,6 +23,6 @@ dagcomponentfuncs.TrendLine = function(props) {
   return React.createElement(window.dash_core_components.Graph, {
     figure: props.value,
     style: {height: '100%'},
-    config: {displayModeBar: false}
+    config: {displayModeBar: false, staticPlot: true}
   })
 }

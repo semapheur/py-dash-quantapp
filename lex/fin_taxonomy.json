@@ -121,8 +121,8 @@
       "short": "P/TB"
     },
     "calculation": {
-      "order": 1,
-      "all": "market_capitalization / (assets - intangible_assets - goodwill) - total_liabilities"
+      "order": 2,
+      "all": "market_capitalization / (assets - intangible_assets - goodwill - total_liabilities)"
     }
   },
   "price_to_sales": {
@@ -150,12 +150,12 @@
   "price_to_free_cashflow": {
     "value": "fundamental",
     "label": {
-      "long": "Price-to-Operating-Cash-Flow Ratio",
-      "short": "P/OCF"
+      "long": "Price-to-Free-Cash-Flow Ratio",
+      "short": "P/FCF"
     },
     "calculation": {
-      "order": 7,
-      "all": "market_capitalization / free_cash_flow_firm"
+      "order": 8,
+      "all": "market_capitalization / free_cashflow_firm"
     }
   },
   "altman_z_score": {
@@ -643,8 +643,8 @@
       "short": "CAPEX"
     },
     "calculation": {
-      "order": 1,
-      "all": "change_productive_assets + change_depreciation"
+      "order": 3,
+      "all": "change_productive_assets + depreciation"
     }
   },
   "change_productive_assets": {
@@ -656,17 +656,6 @@
     "calculation": {
       "order": 2,
       "diff": "productive_assets"
-    }
-  },
-  "change_depreciation": {
-    "value": "monetary",
-    "period": "duration",
-    "label": {
-      "long": "Increase (Decrease) in Deprecitation"
-    },
-    "calculation": {
-      "order": 0,
-      "diff": "productive_assets_accumulated_depreciation"
     }
   },
   "free_cashflow_firm": {
