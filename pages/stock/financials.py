@@ -80,7 +80,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
 
   fin = (pd.DataFrame.from_records(data)
     .set_index(['date', 'months'])
-    .xs(scope, level=1) 
+    .xs(scope, level='months') 
     .sort_index(ascending=False) 
   )
   cols = list(OrderedSet(OrderedSet(tmpl['item']).intersection(fin.columns)))
@@ -132,7 +132,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
     'field': col,
     'type': 'numericColumn',
     'valueFormatter': {'function': 'd3.format("(,")(params.value)'}
-  } for col in fin.columns[1:]] #.difference(['index', 'trend'])
+  } for col in fin.columns[1:-1]] #.difference(['index', 'trend'])
 
   row_style = {
     'font-bold border-b border-text': (

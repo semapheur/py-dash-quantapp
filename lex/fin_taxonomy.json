@@ -1,4 +1,12 @@
 {
+  "stock_split_ratio": {
+    "gaap": [
+      "StockholdersEquityNoteStockSplitConversionRatio1"
+    ],
+    "label": {
+      "long": "stock_split_ratio"
+    }
+  },
   "enterprise_value": {
     "value": "monetary",
     "label": {

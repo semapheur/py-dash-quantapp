@@ -17,6 +17,7 @@ from lib.db.tiny import insert_tinydb, read_tinydb
 from lib.edgar.models import Financials
 from lib.edgar.parse import (
   fix_financials_df,
+  get_stock_splits,
   xbrl_url,
   xbrl_urls, 
   parse_statements, 
@@ -123,6 +124,25 @@ class Company():
     filings.set_index('id', inplace=True)
     return filings['xbrl']
   
+  def stock_splits(self) -> pd.DataFrame:
+
+    field = 'StockholdersEquityNoteStockSplitConversionRatio1'
+    query = where('data')[field].exists()
+    financials = read_tinydb('data/edgar.json', query, str(self._cik))
+
+    if not financials:
+      return
+    
+    data: list[dict] = []
+    for f in financials:
+      data.extend(get_stock_splits(f))
+
+    df = pd.DataFrame(data)
+    df.drop_duplicates(inplace=True)
+    df.set_index('date', inplace=True)
+
+    return df
+
   async def financials(self, delta=120, date: Optional[str] = None) -> list[Financials]:
   
     async def fetch_urls(date: Optional[str|dt] = None) -> pd.Series:

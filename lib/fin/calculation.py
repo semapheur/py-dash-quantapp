@@ -66,6 +66,18 @@ def day_difference(df: pd.DataFrame, slices = SLICES):
 
   return df
 
+def stock_split(df: pd.DataFrame) -> pd.DataFrame:
+
+  _df = df.xs(3, level='months')
+  _df = df['average_shares_outstanding_basic']
+  _df.sort_index(level='date')
+
+  _df.loc[:,'shift'] = _df['average_shares_outstanding_basic'].shift()
+
+  ratio = np.round(_df.max(axis=1) / _df.min(axis=1))
+
+  return df
+
 def applier(
   s: pd.Series, 
   fn: str, 

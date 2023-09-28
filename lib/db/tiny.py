@@ -23,11 +23,10 @@ def insert_tinydb(
   dt_serialize: bool = False
 ):
   
-  storage = None
   if dt_serialize:
-    storage = serialization
+    serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
   
-  db = TinyDB(db_path, storage=storage)
+  db = TinyDB(db_path, storage=serialization)
 
   if tbl:
     db = db.table(tbl)
@@ -44,11 +43,10 @@ def read_tinydb(
   dt_serialize: bool = False
 ) -> list|dict :
   
-  storage = None
   if dt_serialize:
-    storage = serialization
+    serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
 
-  db = TinyDB(db_path, storage=storage)
+  db = TinyDB(db_path, storage=serialization)
 
   if tbl:
     if tbl not in db.tables():

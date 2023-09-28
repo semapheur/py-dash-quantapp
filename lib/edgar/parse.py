@@ -286,6 +286,27 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   df.index.names = ['date', 'period', 'months']
   return df
 
+def get_stock_splits(financials: Financials) -> list[dict]:
+
+  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
+  splits = glom(financials, f'data.{name}')
+  if splits is None:
+    return
+  
+  data: list[dict] = []
+  for entry in splits:
+    value = entry.get('value')
+    if value is None:
+      continue
+    
+    data.append({
+      'date': dt.strptime(
+        glom(entry, 'period.start_date'), '%Y-%m-%d'),
+      'split_ratio': value
+    })
+  
+  return data
+
 def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
   
   query = '''
