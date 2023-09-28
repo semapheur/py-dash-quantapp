@@ -312,7 +312,7 @@ def get_stock_splits(financials: Financials) -> list[dict]:
     data.append({
       'date': dt.strptime(
         glom(entry, 'period.start_date'), '%Y-%m-%d'),
-      'split_ratio': value
+      'stock_split_ratio': value
     })
   
   return data

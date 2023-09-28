@@ -133,7 +133,7 @@
     },
     "calculation": {
       "order": 1,
-      "all": "market_capitalization / equity"
+      "all": "market_capitalization / revenue"
     }
   },
   "price_to_operating_cashflow": {
@@ -182,7 +182,7 @@
     },
     "calculation": {
       "order": 0,
-      "all": "average_shares_outstanding_basic * share_price"
+      "all": "adjusted_weighted_average_shares_outstanding_basic * share_price"
     }
   },
   "dividend_yield": {
@@ -705,7 +705,7 @@
     },
     "calculation": {
       "order": 5,
-      "all": "net_income_loss / average_shares_outstanding_basic"
+      "all": "net_income_loss / weighted_average_shares_outstanding_basic"
     }
   },
   "earnings_per_share_diluted": {
@@ -720,7 +720,7 @@
     },
     "calculation": {
       "order": 5,
-      "all": "net_income_loss / average_shares_outstanding_diluted"
+      "all": "net_income_loss / weighted_average_shares_outstanding_diluted"
     }
   },
   "working_capital": {

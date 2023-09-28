@@ -19,7 +19,7 @@ def f_score(df: pd.DataFrame) -> pd.DataFrame:
     np.heaviside(ocf / df['assets'] - df['return_on_assets'], 0) +
     np.heaviside(applier(df['debt'], 'diff'), 0) +
     np.heaviside(applier(df['quick_ratio'], 'diff'), 0) +
-    np.heaviside(-applier(df['average_shares_outstanding_basic'], 'diff'), 1) +
+    np.heaviside(-applier(df['weighted_average_shares_outstanding_basic'], 'diff'), 1) +
     np.heaviside(applier(df['gross_profit_margin'], 'diff'), 0) + 
     np.heaviside(applier(df['asset_turnover'], 'diff'), 0)
   )

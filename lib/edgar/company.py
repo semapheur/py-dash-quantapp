@@ -24,6 +24,7 @@ from lib.edgar.parse import (
   parse_taxonomy,
   statement_to_df
 )
+from lib.fin.calculation import stock_split_adjust
 from lib.utils import camel_split, snake_abbreviate
 
 class Company():
@@ -202,6 +203,10 @@ class Company():
     df = pd.concat(dfs, join='outer')
     df.sort_index(level=0, ascending=True, inplace=True)
     df = fix_financials_df(df)
+
+    ratios = self.stock_splits()
+    if ratios is not None:
+      df = stock_split_adjust(df, ratios)
 
     return df
 

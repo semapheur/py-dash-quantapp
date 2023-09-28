@@ -78,7 +78,11 @@ def stock_split_adjust(
   }
   cols = list(cols.intersection(set(df.columns)))
 
-  for date, ratio in ratios.iteritems():
+  for i, col in enumerate(cols):
+    df.loc[:, f'adjusted_{col}'] = df[col]
+    cols[i] = f'adjusted_{col}'
+
+  for date, ratio in ratios.items():
     
     mask = df.index.get_level_values('date') < date
     df.loc[mask, cols] *= ratio
@@ -87,8 +91,8 @@ def stock_split_adjust(
 
 def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
   cols = [
-    'average_shares_outstanding_basic',
-    'average_shares_outstanding_basic_shift'
+    'weighted_average_shares_outstanding_basic',
+    'weighted_average_shares_outstanding_basic_shift'
   ]
 
   _df = df.xs(3, level='months')
@@ -118,10 +122,11 @@ def applier(
   slices: Iterable[Iterable[slice|Any]] = SLICES
 ) -> pd.Series:
   
+  result = s.copy()
   update = [pd.Series()] * len(slices)
   
   for i, ix in enumerate(slices):
-    _s: pd.Series = s.loc[ix]
+    _s: pd.Series = result.loc[ix]
     _s.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_s.index.get_level_values('date'))
@@ -138,12 +143,12 @@ def applier(
     update[i] = _s
     
   update = pd.concat(update, axis=0)
-  nan_index = pd.Index(list(set(s.index).difference(update.index)))
+  nan_index = pd.Index(list(set(result.index).difference(update.index)))
 
-  s.loc[update.index] = update
-  s.loc[nan_index] = np.nan
+  result.loc[update.index] = update
+  result.loc[nan_index] = np.nan
 
-  return s
+  return result
 
 def calculate_items(
   financials: pd.DataFrame, 

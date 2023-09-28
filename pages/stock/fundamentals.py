@@ -118,6 +118,6 @@ def update_table(data: list[dict], sheet: str):
     rowData=fin.to_dict('records'),
     columnSize='autoSize',
     defaultColDef={'tooltipComponent': 'FinancialsTooltip'},
-    style={'height': 'auto'}
+    style={'height': '100%'}
     #defaultColDef={'resizable': True, 'sortable': True, 'filter': True, },
   )
