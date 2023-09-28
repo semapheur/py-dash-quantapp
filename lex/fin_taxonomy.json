@@ -3389,7 +3389,7 @@
       "long": "Shares Outstanding"
     }
   },
-  "average_shares_outstanding_basic": {
+  "weighted_average_shares_outstanding_basic": {
     "value": "shares",
     "period": "average",
     "gaap": [
@@ -3400,7 +3400,7 @@
       "short": "Basic Shares Outstanding"
     }
   },
-  "average_shares_outstanding_diluted": {
+  "weighted_average_shares_outstanding_diluted": {
     "value": "shares",
     "period": "average",
     "gaap": [

@@ -73,8 +73,8 @@ def stock_split_adjust(
 
   cols = {
     'shares_outstanding',
-    'average_shares_outstanding_basic',
-    'average_shares_outstanding_diluted'
+    'weighted_average_shares_outstanding_basic',
+    'weighted_average_shares_outstanding_diluted'
   }
   cols = list(cols.intersection(set(df.columns)))
 

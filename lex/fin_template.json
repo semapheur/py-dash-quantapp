@@ -37,9 +37,9 @@
       "net_income_loss_to_minority_interest": 1,
       "net_income_loss": 0,
       "earnings_per_share_basic": 0,
-      "average_shares_outstanding_basic": 1,
+      "weighted_average_shares_outstanding_basic": 1,
       "earnings_per_share_diluted": 0,
-      "average_shares_outstanding_diluted": 1
+      "weighted_average_shares_outstanding_diluted": 1
     },
     "balance": {
       "liquid_assets": 1,
