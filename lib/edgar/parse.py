@@ -334,15 +334,15 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
     ('Q3', 9),
     ('FY', 12)
   )
-
+  
+  period = df.index.get_level_values('period')
+  months = df.index.get_level_values('months')
   for i in range(1, len(conditions)):
-    period = df.index.get_level_values('period')
-    months = df.index.get_level_values('months')
     mask = (
       (period == conditions[i-1][0]) & (months == conditions[i-1][1]) |
       (period == conditions[i][0]) & (months == conditions[i][1])
     )
-    _df = df.loc[mask,duration] # duration
+    _df = df.loc[mask, duration] # duration
     _df.sort_index(level='date')
     _df.loc[:, 'month_diff'] = df_time_difference(
       _df.index.get_level_values('date'), 'M').array

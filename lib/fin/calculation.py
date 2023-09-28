@@ -66,15 +66,36 @@ def day_difference(df: pd.DataFrame, slices = SLICES):
 
   return df
 
-def stock_split(df: pd.DataFrame) -> pd.DataFrame:
+def stock_split_adjust(df: pd.DataFrame) -> pd.DataFrame:
+
+  cols = (
+    'average_shares_outstanding_basic',
+    'average_shares_outstanding_basic_shift'
+  )
 
   _df = df.xs(3, level='months')
-  _df = df['average_shares_outstanding_basic']
+  _df = df[cols[0]]
   _df.sort_index(level='date')
 
-  _df.loc[:,'shift'] = _df['average_shares_outstanding_basic'].shift()
+  _df.loc[:,cols[1]] = _df[cols[0]].shift()
 
-  ratio = np.round(_df.max(axis=1) / _df.min(axis=1))
+  _df.loc[:, 'action'] = 'split'
+  mask = df[cols[0]] >= df[cols[1]]
+  _df.loc[:, 'action'] = _df.where(mask, 'reverse')
+
+  _df.loc[:, 'ratio'] = np.round(_df[cols].max(axis=1) / _df[cols].min(axis=1))
+
+  col = f'split_adjusted_{cols[0]}'
+  df.loc[:, col] = df[cols[0]]
+  for ix, row in _df[('action', 'ratio')].iterrows():
+    
+    mask = df.index.get_level_values('date') < ix[0]
+    
+    df.loc[mask, col] = (
+      df.loc[mask, col] * row['ratio'] 
+      if row['action'] == 'split' else 
+      df.loc[mask, col] // row['ratio']
+    )
 
   return df
 

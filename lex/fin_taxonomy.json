@@ -3367,6 +3367,16 @@
       "long": "Service Revenue Cost"
     }
   },
+  "shares_outstanding": {
+    "value": "shares",
+    "period": "instant",
+    "gaap": [
+      "CommonStockSharesOutstanding"
+    ],
+    "label": {
+      "long": "Shares Outstanding"
+    }
+  },
   "average_shares_outstanding_basic": {
     "value": "shares",
     "period": "instant",
@@ -3376,6 +3386,10 @@
     "label": {
       "long": "Weighted Average Number Of Basic Shares Outstanding",
       "short": "Basic Shares Outstanding"
+    },
+    "calculation": {
+      "order": 0,
+      "avg": "shares_outstanding"
     }
   },
   "average_shares_outstanding_diluted": {
