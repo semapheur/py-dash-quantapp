@@ -77,7 +77,7 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
   
   # Total Accruals to Total Assets
   ocf = df['operating_cashflow']
-  tata = (df['operating_income_loss'] - ocf) / df['totAst']
+  tata = (df['operating_income_loss'] - ocf) / df['average_assets']
   
   # Beneish M-score
   df['beneish_m_score'] = (-4.84 +

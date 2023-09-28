@@ -66,38 +66,51 @@ def day_difference(df: pd.DataFrame, slices = SLICES):
 
   return df
 
-def stock_split_adjust(df: pd.DataFrame) -> pd.DataFrame:
+def stock_split_adjust(
+  df: pd.DataFrame, 
+  ratios: pd.Series
+) -> pd.DataFrame:
 
-  cols = (
+  cols = {
+    'shares_outstanding',
     'average_shares_outstanding_basic',
-    'average_shares_outstanding_basic_shift'
-  )
+    'average_shares_outstanding_diluted'
+  }
+  cols = list(cols.intersection(set(df.columns)))
 
-  _df = df.xs(3, level='months')
-  _df = df[cols[0]]
-  _df.sort_index(level='date')
-
-  _df.loc[:,cols[1]] = _df[cols[0]].shift()
-
-  _df.loc[:, 'action'] = 'split'
-  mask = df[cols[0]] >= df[cols[1]]
-  _df.loc[:, 'action'] = _df.where(mask, 'reverse')
-
-  _df.loc[:, 'ratio'] = np.round(_df[cols].max(axis=1) / _df[cols].min(axis=1))
-
-  col = f'split_adjusted_{cols[0]}'
-  df.loc[:, col] = df[cols[0]]
-  for ix, row in _df[('action', 'ratio')].iterrows():
+  for date, ratio in ratios.iteritems():
     
-    mask = df.index.get_level_values('date') < ix[0]
-    
-    df.loc[mask, col] = (
-      df.loc[mask, col] * row['ratio'] 
-      if row['action'] == 'split' else 
-      df.loc[mask, col] // row['ratio']
-    )
+    mask = df.index.get_level_values('date') < date
+    df.loc[mask, cols] *= ratio
 
   return df
+
+def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
+  cols = [
+    'average_shares_outstanding_basic',
+    'average_shares_outstanding_basic_shift'
+  ]
+
+  _df = df.xs(3, level='months')
+  _df.reset_index(level='period', drop=True, inplace=True)
+  _df.sort_index(level='date', inplace=True)
+
+  _df.loc[:,cols[1]] = _df[cols[0]].shift()
+  _df = _df[cols]
+
+  _df.loc[:, 'action'] = 'split'
+  mask = _df[cols[0]] >= _df[cols[1]]
+  _df.loc[:, 'action'] = _df.where(mask, 'reverse')
+
+  _df.loc[:, 'stock_split_ratio'] = np.round(
+    _df[cols].max(axis=1) / _df[cols].min(axis=1)
+  )
+  _df = _df.loc[_df['stock_split_ratio'] > 1]
+
+  mask = _df['action'] == 'reverse'
+  _df.loc[mask, 'stock_split_ratio'] = 1 / _df.loc[mask, 'split_ratio']
+
+  return _df['stock_split_ratio']
 
 def applier(
   s: pd.Series, 

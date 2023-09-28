@@ -122,7 +122,7 @@ class Taxonomy:
   def to_sql(self, db_path: str):
     engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
-    columns = ('item', 'value' 'period', 'long', 'short', 'gaap', 'calculation')
+    columns = ('item', 'value', 'period', 'long', 'short', 'gaap', 'calculation')
     data = self.to_records()
     df = pd.DataFrame(data, columns=columns)
 

@@ -266,20 +266,30 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
       if value := entry.get('value'):
         df_data.setdefault((fin_date, period, months), {})[item] = value
 
-        if fin_period == 'FY' and 'instant' in entry['period']:
+        cond = (fin_period == 'FY' and (
+          'instant' in entry['period'] or
+          entry.get('unit') == 'shares'
+        ))
+        if cond:
           df_data.setdefault((fin_date, 'Q4', 3), {})[item] = value
       
       if not (members := entry.get('member')):
         continue
 
       for member, m_entry in members.items():
-        if m_value := m_entry.get('value'):
-          dim = '.' + d if (d := m_entry.get('dim')) else ''
-          key = f'{item}{dim}.{member}'
-          df_data.setdefault((fin_date, period, months), {})[key] = m_value
+        if not (m_value := m_entry.get('value')):
+          continue
 
-          if fin_period == 'FY' and 'instant' in entry['period']:
-            df_data.setdefault((fin_date, 'Q4', 3), {})[key] = m_value
+        dim = '.' + d if (d := m_entry.get('dim')) else ''
+        key = f'{item}{dim}.{member}'
+        df_data.setdefault((fin_date, period, months), {})[key] = m_value
+
+        cond = (fin_period == 'FY' and (
+          'instant' in entry['period'] or
+          m_entry.get('unit') == 'shares'
+        ))
+        if cond:
+          df_data.setdefault((fin_date, 'Q4', 3), {})[key] = m_value
   
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
@@ -323,10 +333,8 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
   df = combine_duplicate_columns(df)
 
   query = 'SELECT item FROM items WHERE period = "duration"'
-  duration = read_sqlite('taxonomy.db', query)
-  duration = set(duration['item'])
-
-  duration = list(duration.intersection(set(df.columns)))
+  diff_items = read_sqlite('taxonomy.db', query)
+  diff_items = list(set(diff_items['item']).intersection(set(df.columns)))
   
   conditions = (
     ('Q1', 3),
@@ -338,18 +346,20 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
   period = df.index.get_level_values('period')
   months = df.index.get_level_values('months')
   for i in range(1, len(conditions)):
+
     mask = (
       (period == conditions[i-1][0]) & (months == conditions[i-1][1]) |
       (period == conditions[i][0]) & (months == conditions[i][1])
     )
-    _df = df.loc[mask, duration] # duration
-    _df.sort_index(level='date')
-    _df.loc[:, 'month_diff'] = df_time_difference(
-      _df.index.get_level_values('date'), 'M').array
+    _df = df.loc[mask, diff_items] 
+    _df.sort_index(level='date', inplace=True)
 
-    cols = _df.columns.difference(['month_diff'])
-    _df.loc[:, cols] = _df.loc[:, cols].diff()
-    _df = _df.loc[_df['month_diff'] == 3,:]
+    _df.loc[:, 'month_diff'] = df_time_difference(
+      _df.index.get_level_values('date'), 'M'
+    ).array
+
+    _df.loc[:, diff_items] = _df[diff_items].diff()
+    _df = _df.loc[_df['month_diff'] == 3, diff_items]
 
     _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
     _df.reset_index(level='months', inplace=True)
@@ -364,8 +374,6 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.combine_first(_df)
 
-  period = df.index.get_level_values('period')
-  months = df.index.get_level_values('months')
   mask = (
     (months == 3) & (period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) |
     (months == 12) & (period == 'FY')
@@ -377,7 +385,7 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
   #df.rename(columns={'months': 'scope'}, inplace=True)
   #df.set_index('scope', append=True, inplace=True)
 
-  df = df.loc[mask, df.columns != 'month_diff']
+  df = df.loc[mask, :]
   
   return df.copy()
 

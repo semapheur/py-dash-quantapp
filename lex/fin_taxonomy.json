@@ -362,8 +362,8 @@
       "long": "Quick Ratio"
     },
     "calculation": {
-      "order": 2,
-      "all": "(liquid_assets + trade_receivables) / current_liabilities"
+      "order": 3,
+      "all": "(liquid_assets + current_trade_receivables) / current_liabilities"
     }
   },
   "cash_ratio": {
@@ -442,7 +442,7 @@
     },
     "calculation": {
       "order": 1,
-      "all": "average_trade_receivables / revenue_per_day"
+      "all": "average_current_trade_receivables / revenue_per_day"
     }
   },
   "days_payable_outstanding": {
@@ -478,7 +478,7 @@
       "avg": "average_inventory"
     }
   },
-  "average_trade_receivables": {
+  "average_current_trade_receivables": {
     "value": "monetary",
     "period": "instant",
     "label": {
@@ -486,7 +486,7 @@
     },
     "calculation": {
       "order": 0,
-      "avg": "average_trade_receivables"
+      "avg": "current_trade_receivables"
     }
   },
   "equity_multiplier": {
@@ -497,6 +497,18 @@
     "calculation": {
       "order": 1,
       "all": "average_assets / average_equity"
+    }
+  },
+  "return_on_assets": {
+    "value": "fundamental",
+    "period": "duration",
+    "label": {
+      "long": "Return on Assets",
+      "short": "ROA"
+    },
+    "calculation": {
+      "order": 6,
+      "all": "net_income_loss / average_equity"
     }
   },
   "return_on_equity": {
@@ -728,7 +740,7 @@
     "calculation": {
       "order": 2,
       "any": [
-        "trade_receivables",
+        "current_trade_receivables",
         "+inventory", 
         "+current_prepaid_expenses",
         "-trade_payables",
@@ -756,10 +768,10 @@
     "value": "monetary",
     "period": "instant",
     "calculation": {
-      "order": 2,
+      "order": 3,
       "all": [
         "liquid_assets",
-        "+0.75 * trade_receivables",
+        "+0.75 * current_trade_receivables",
         "+ 0.5 * inventory", 
         "-liabilities"
       ]
@@ -1001,14 +1013,14 @@
     "period": "instant",
     "calculation": {
       "order": 0,
-      "any": "trade_receivables + current_nontrade_receivables + note_receivables + other_receivables"
+      "any": "current_trade_receivables + current_nontrade_receivables + note_receivables + other_receivables"
     },
     "label": {
       "long": "Current Total Receivables",
       "short": "Receivables"
     }
   },
-  "bad_trade_receivables": {
+  "current_bad_trade_receivables": {
     "value": "monetary",
     "period": "instant",
     "gaap": [
@@ -1897,7 +1909,7 @@
       "any": [
         "change_current_tax_assets",
         "+change_inventories",
-        "+change_trade_receivables",
+        "+change_current_trade_receivables",
         "+change_current_prepaid_expenses",
         "+change_other_current_assets",
         "-change_current_accrued_expenses",
@@ -3379,22 +3391,18 @@
   },
   "average_shares_outstanding_basic": {
     "value": "shares",
-    "period": "instant",
+    "period": "average",
     "gaap": [
       "WeightedAverageNumberOfSharesOutstandingBasic"
     ],
     "label": {
       "long": "Weighted Average Number Of Basic Shares Outstanding",
       "short": "Basic Shares Outstanding"
-    },
-    "calculation": {
-      "order": 0,
-      "avg": "shares_outstanding"
     }
   },
   "average_shares_outstanding_diluted": {
     "value": "shares",
-    "period": "instant",
+    "period": "average",
     "gaap": [
       "WeightedAverageNumberOfDilutedSharesOutstanding",
       "WeightedAverageNumberDilutedSharesOutstandingAdjustment"

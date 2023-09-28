@@ -124,7 +124,7 @@ class Company():
     filings.set_index('id', inplace=True)
     return filings['xbrl']
   
-  def stock_splits(self) -> pd.DataFrame:
+  def stock_splits(self) -> pd.Series:
 
     field = 'StockholdersEquityNoteStockSplitConversionRatio1'
     query = where('data')[field].exists()
@@ -141,7 +141,7 @@ class Company():
     df.drop_duplicates(inplace=True)
     df.set_index('date', inplace=True)
 
-    return df
+    return df['stock_split_ratio']
 
   async def financials(self, delta=120, date: Optional[str] = None) -> list[Financials]:
   
