@@ -78,7 +78,7 @@ def gaap_taxonomy(year: int) -> pd.DataFrame:
 
   result = items.merge(description, how='left', on='name')
   result.sort_values('name', inplace=True)
-  insert_sqlite(result, 'taxonomy', 'gaap', 'replace')
+  insert_sqlite(result, 'taxonomy', 'gaap', 'replace', False)
 
 def gaap_calculation_url(year: int = 2023) -> list[str]:
 

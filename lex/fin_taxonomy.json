@@ -114,6 +114,12 @@
       "all": "market_capitalization / equity"
     }
   },
+  "tangible_common_equity": {
+    "calculation": {
+      "order": 2,
+      "any": "assets - intangible_assets - goodwill - liabilities - preferred_stock"
+    }
+  },
   "price_to_tangible_bookvalue": {
     "value": "fundamental",
     "label": {
@@ -121,8 +127,8 @@
       "short": "P/TB"
     },
     "calculation": {
-      "order": 2,
-      "all": "market_capitalization / (assets - intangible_assets - goodwill - total_liabilities)"
+      "order": 3,
+      "all": "market_capitalization / tangible_common_equity"
     }
   },
   "price_to_sales": {
@@ -1641,6 +1647,16 @@
       "long": "Payments of Dividends on Common Stock"
     }
   },
+  "preferred_stock_dividend_payments": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "PaymentsOfDividendsPreferredStockAndPreferenceStock"
+    ],
+    "label": {
+      "long": "Payments of Dividends on Preferred Stock"
+    }
+  },
   "investing_cashflow": {
     "value": "monetary",
     "period": "duration",
@@ -2268,11 +2284,20 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "CommonStockValue",
-      "CommonStockNoParValue"
+      "CommonStockValue"
     ],
     "label": {
       "long": "Common Stock Value"
+    }
+  },
+  "preferred_stock": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "PreferredStockValue"
+    ],
+    "label": {
+      "long": "Preferred Stock Value"
     }
   },
   "additional_paid_in_capital": {
@@ -2503,9 +2528,9 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
+      "ContractWithCustomerLiabilityCurrent",
       "DeferredRevenueCurrent",
-      "ContractWithCustomerLiability",
-      "ContractWithCustomerLiabilityCurrent"
+      "ContractWithCustomerLiability"
     ],
     "label": {
       "long": "Current Deferred Revenue"
@@ -2622,8 +2647,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "DeferredRevenueNoncurrent",
-      "ContractWithCustomerLiabilityNoncurrent"
+      "ContractWithCustomerLiabilityNoncurrent",
+      "DeferredRevenueNoncurrent"
     ],
     "label": {
       "long": "Non-current Deferred Revenue"
@@ -3209,8 +3234,8 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "Revenues",
       "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "Revenues",
       "SalesRevenueNet",
       "SalesAndServiceRevenue"
     ],
@@ -3316,7 +3341,8 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "CostOfGoodsAndServicesSold"
+      "CostOfGoodsAndServicesSold",
+      "CostOfRevenue"
     ],
     "label": {
       "long": "Cost of Goods and Services Sold",
