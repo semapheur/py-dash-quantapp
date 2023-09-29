@@ -5,8 +5,10 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
 from lib.fin.calculation import applier
+from lib.ticker.fetch import get_ohlcv
 
 def f_score(df: pd.DataFrame) -> pd.DataFrame:
     
@@ -87,131 +89,123 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 # Weighted average cost of capital
-'''
+
 def wacc(
+  _id: str,
   df: pd.DataFrame, 
   quote_fetcher: partial[pd.DataFrame], 
-  mktParser,
-  rskFreeParser,
-  tickerId='',
-  betaPeriod=1,
-  dbtMaturity=5
+  market_fetcher: partial[pd.DataFrame],
+  riskefree_fetcher: partial[pd.DataFrame],
+  beta_period: int = 1,
+  debt_maturity: int = 5
 ) -> pd.DataFrame: # yahoo: ^TNX/'^TYX; fred: DSG10
   
-  if 'shDil' not in set(df.columns):
-    raise ValueError
 
   # Load quotes
-  startDate = df.index.get_level_values('date').min() - relativedelta(years=betaPeriod)
-  startDate = dt.strftime(startDate, '%Y-%m-%d')
+  start_date = df.index.get_level_values('date').min() - relativedelta(years=beta_period)
+  start_date = dt.strftime(start_date, '%Y-%m-%d')
 
-  if tickerId:
-    dfOhlcv = getFinData(quoteParser, 'ohlcv.db', tickerId)
-  else:
-    dfOhlcv = quoteParser(startDate)
+  quote = get_ohlcv(_id, 'stock', quote_fetcher, cols={'date', 'close'})
+  market = market_fetcher()
+  market = (market['close']
+    .rename('market')
+    .resample('D').ffill()
+  )
+  riskfree = riskefree_fetcher()
+  riskfree = (riskfree['close']
+    .rename('riskfree')
+    .resample('D').ffill()
+  )
 
-  if 'adjClose' in dfOhlcv.columns:
-    dfOhlcv = dfOhlcv['adjClose']
-  else:
-    dfOhlcv = dfOhlcv['close']
-
-  dfOhlcv.rename('close', inplace=True)
-  dfOhlcv = dfOhlcv.resample('D').ffill()
-  dfMkt = mktParser(startDate)['close'].resample('D').ffill()
-  dfMkt.rename('market', inplace=True)
-  dfRskFree = rskFreeParser(startDate).resample('D').ffill()
-
-  if 'riskFree' not in set(dfRskFree.columns):
-    raise ValueError
-
-  dfReturns = pd.concat([dfOhlcv, dfMkt, dfRskFree], axis=1)#.dropna()
+  returns = pd.concat([quote, market, riskfree], axis=1)
   cols = ['close', 'market']
-  dfReturns[cols] = (dfReturns[cols].diff() / dfReturns[cols].abs().shift(1))
-  dfReturns.dropna(inplace=True)
+  returns[cols] = (returns[cols].diff() / returns[cols].abs().shift(1))
+  returns.dropna(inplace=True)
 
-  if 'mktCap' not in set(df.columns):
-    df['mktCap'] = df['shQuote'] * df['shDil']
-
-  # Add capitalization class
-  if df['mktCap'].isnull().all():
-    df['capCls'] = df['totAst'].apply(
-      lambda x: 'small' if x < 2e9 else 'large')
+  df.loc[:, 'capitalization_class'] = df['market_capitalization'].apply(
+    lambda x: 'small' if x < 2e9 else 'large'
+  )
       
-  else:
-    df['capCls'] = df['mktCap'].apply(lambda x: 'small' 
-      if x < 2e9 else 'large')
-                                      
-  df['crdtSprd'] = df.apply(lambda r: creditRating(r['intCvg'],
-    r['capCls']), axis=1)
+  df.loc[:, 'credit_spread'] = df.apply(
+    lambda r: credit_rating(
+      r['interest_coverage_rate'],
+      r['capCls'])
+    , axis=1)
   
   beta = {
     'beta': [],
-    'mktRet': [],
-    'rfr': []
+    'market_return': [],
+    'riskfree_rate': []
   }
-  #delta = ttm['period'].apply(lambda x: relativedelta(years=-1) if x == 'A' 
-  #                            else relativedelta(months=-3))
+  #delta = ttm['period'].apply(
+  # lambda x: relativedelta(years=-1) if x == 'A' 
+  # else relativedelta(months=-3))
 
-  ixDates = df.sort_values('date').index.get_level_values('date').unique()
-  if dfReturns.index.min() > ixDates.min():
-    ixDates = ixDates[ixDates.values > dfReturns.index.min()]
+  dates = df.sort_values('date').index.get_level_values('date').unique()
+  if returns.index.min() > dates.min():
+    dates = dates[dates.values > returns.index.min()]
   
-  for i in range(len(ixDates)):
+  for i in range(len(dates)):
     if i == 0:
       mask = (
-        (dfReturns.index >= min(ixDates[i], dfReturns.index.min())) & 
-        (dfReturns.index <= ixDates[i])
+        (returns.index >= min(dates[i], returns.index.min())) & 
+        (returns.index <= dates[i])
       )
     else:  
-      mask = (dfReturns.index >= ixDates[i-1]) & (dfReturns.index <= ixDates[i])
+      mask = (returns.index >= dates[i-1]) & (returns.index <= dates[i])
     
-    temp = dfReturns[mask]
+    temp: pd.DataFrame = returns.loc[mask]
     if not temp.empty:
       x = sm.add_constant(temp['market'])
       model = sm.OLS(temp['close'], x)
       results = model.fit()
       beta['beta'].append(results.params[-1])
       
-      beta['mktRet'].append(temp['market'].mean() * 252)
-      beta['rfr'].append(temp['riskFree'].mean() / 100)
+      beta['market_return'].append(temp['market'].mean() * 252)
+      beta['riskfree_rate'].append(temp['riskFree'].mean() / 100)
         
     else:
       beta['beta'].append(np.nan)
-      beta['mktRet'].append(np.nan)
-      beta['rfr'].append(np.nan)        
+      beta['market_return'].append(np.nan)
+      beta['riskfree_rate'].append(np.nan)        
   
-  dfBeta = pd.DataFrame(data=beta, index=ixDates)
-  df = df.reset_index().merge(dfBeta, on='date', how='left').set_index(['date', 'period'])
+  beta = pd.DataFrame(data=beta, index=dates)
+  df = (df
+    .reset_index()
+    .merge(beta, on='date', how='left')
+    .set_index(['date', 'period', 'months'])
+  )
 
-  df['betaLvr'] = df['beta'] * (1 + (1 - df['taxRate']) * 
-    df['totDbt'] / df['totEqt'])
+  df['beta_levered'] = df['beta'] * (1 + (1 - df['tax_rate']) * 
+    df['debt'] / df['equity'])
   
   # Cost of equity
-  df['cstEqt'] = df['rfr'] + df['betaLvr'] * (
-      df['mktRet'] - df['rfr'])
+  df['cost_equity'] = df['riskfree_rate'] + df['beta_levered'] * (
+      df['market_return'] - df['riskfree_rate'])
   # Cost of debt
-  df['cstDbt'] = df['rfr'] + df['crdtSprd']
+  df['cost_debt'] = df['riskfree_rate'] + df['credit_spread']
   
-  intEx = df['intEx'].copy()
-  if 'q' in df.index.get_level_values('period'):
-    mask = (slice(None), 'q')
-    intEx.loc[mask] = intEx.loc[mask].rolling(window=4, min_periods=4).sum()
-    intEx = intEx.combine_first(df['intEx'] * 4)
+  int_ex = df['interest_expense'].copy()
+  #if 3 in df.index.get_level_values('months'):
+  #  mask = (slice(None), slice(None), 3)
+  #  int_ex.loc[mask] = int_ex.loc[mask].rolling(window=4, min_periods=4).sum()
+  #  int_ex = int_ex.combine_first(df['int_ex'] * 4)
 
   # Market value of debt
-  df['mktValDbt'] = (intEx / df['cstDbt']) * (
-    1 - (1 / (1 + df['cstDbt'])**dbtMaturity)) + (
-      df['totDbt'] / (1 + df['cstDbt'])**dbtMaturity)
+  df['market_value_debt'] = (int_ex / df['cost_debt']) * (
+    1 - (1 / (1 + df['cost_debt'])**debt_maturity)) + (
+      df['debt'] / (1 + df['cost_debt'])**debt_maturity)
 
-  df['wacc'] = (
-    df['cstEqt'] * df['mktCap'] / (df['mktCap'] + df['mktValDbt']) +
-    df['cstDbt'] * (1 - df['taxRate']) * df['totDbt'] / (
-      df['mktCap'] + df['mktValDbt'])
+  df['weighted_average_cost_of_capital'] = (
+    df['cost_equity'] * df['market_capitalization'] / 
+      (df['market_capitalization'] + df['market_value_debt']) +
+    df['cost_debt'] * (1 - df['tax_rate']) * df['debt'] / 
+      (df['market_capitalization'] + df['market_value_debt'])
   )
-  excl = ['crdtSprd', 'mktRet', 'rfr']
+  excl = ['credit_spread', 'market_return', 'riskfree_rate']
   df = df[df.columns.difference(excl)]
   return 
-'''
+
 
 def credit_rating(icr: float, cap: Literal['small', 'large']):
   # ICR: Interest Coverage Ratio

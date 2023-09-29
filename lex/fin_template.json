@@ -179,6 +179,25 @@
       "price_to_sales",
       "price_to_operating_cashflow",
       "price_to_free_cashflow"
+    ],
+    "profitability": [
+      "gross_profit_margin",
+      "operating_profit_margin",
+      "net_profit_margin",
+      "return_on_equity",
+      "return_on_equity_adjusted_to_bookvalue",
+      "return_on_assets",
+      "return_on_capital_employed",
+      "return_on_invested_capital"
+    ],
+    "liquidity": [
+      "current_ratio",
+      "quick_ratio",
+      "cash_ratio",
+      "interest_coverage_ratio"
+    ],
+    "efficiency": [
+
     ]
   },
   "sankey": {

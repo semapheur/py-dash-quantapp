@@ -115,6 +115,9 @@
     }
   },
   "tangible_common_equity": {
+    "label": {
+      "long": "Tangible Common Equity"
+    },
     "calculation": {
       "order": 2,
       "any": "assets - intangible_assets - goodwill - liabilities - preferred_stock"
