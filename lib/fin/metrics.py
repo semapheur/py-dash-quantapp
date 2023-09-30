@@ -8,7 +8,6 @@ import pandas as pd
 import statsmodels.api as sm
 
 from lib.fin.calculation import applier
-from lib.ticker.fetch import get_ohlcv
 
 def f_score(df: pd.DataFrame) -> pd.DataFrame:
     
@@ -99,10 +98,10 @@ def wacc(
   beta_period: int = 1,
   debt_maturity: int = 5
 ) -> pd.DataFrame: # yahoo: ^TNX/'^TYX; fred: DSG10
+  from lib.ticker.fetch import get_ohlcv
   
-
-  # Load quotes
-  start_date = df.index.get_level_values('date').min() - relativedelta(years=beta_period)
+  start_date = (df.index.get_level_values('date').min() - 
+    relativedelta(years=beta_period))
   start_date = dt.strftime(start_date, '%Y-%m-%d')
 
   quote = get_ohlcv(_id, 'stock', quote_fetcher, cols={'date', 'close'})
@@ -129,7 +128,7 @@ def wacc(
   df.loc[:, 'credit_spread'] = df.apply(
     lambda r: credit_rating(
       r['interest_coverage_rate'],
-      r['capCls'])
+      r['capitalization_class'])
     , axis=1)
   
   beta = {

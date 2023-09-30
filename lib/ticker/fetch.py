@@ -10,7 +10,8 @@ from sqlalchemy import create_engine, text
 from lib.const import DB_DIR
 from lib.db.lite import check_table, read_sqlite, upsert_sqlite
 from lib.fin.calculation import calculate_items
-from lib.fin.metrics import f_score, m_score
+from lib.fin.metrics import f_score, m_score, wacc
+from lib.yahoo.ticker import Ticker
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -180,6 +181,10 @@ def calculate_fundamentals(
   )
   schema = load_schema()
   financials = calculate_items(financials, schema)
+  market_fetcher = partial(Ticker('^GSPC').ohlcv)
+  riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
+  financials = wacc(_id, financials, 
+    ohlcv_fetcher, market_fetcher, riskfree_fetcher)
   financials = f_score(financials)
   financials = m_score(financials)
 
