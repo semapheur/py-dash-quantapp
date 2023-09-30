@@ -57,6 +57,9 @@ def layout(_id: Optional[str] = None):
     html.Div(
       id='div:stock-financials:table-wrap', 
       className='flex-1 p-2'),
+    html.Dialog(id='dialog:stock-financials', open=False, children=[
+      dcc.Graph(id='graph:stock-financials')
+    ])
   ])
 
 @callback(
@@ -151,6 +154,22 @@ def update_table(data: list[dict], sheet: str, scope: str):
     columnSize='autoSize',
     defaultColDef={'tooltipComponent': 'FinancialsTooltip'},
     rowClassRules=row_style,
-    style={'height': '100%'}
+    style={'height': '100%'},
+    dashGridOptions={'rowSelection': 'single'},
     #defaultColDef={'resizable': True, 'sortable': True, 'filter': True, },
   ),
+
+@callback(
+  Output('dialog:stock-financials', 'open'),
+  Output('graph:stock-financials', 'figure'),
+  Input('table:stock-financials', 'selectedRows')
+)
+def update_modal(row: list[dict]):
+  if not row:
+    return False, no_update
+  
+  df = pd.DataFrame(row)
+  fig = px.line(
+    df.T
+  )
+  return True, fig

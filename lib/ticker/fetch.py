@@ -4,6 +4,7 @@ from functools import partial
 import json
 from typing import Awaitable, Optional, TypedDict
 
+from ordered_set import OrderedSet
 import pandas as pd
 from sqlalchemy import create_engine, text
 
@@ -199,9 +200,9 @@ async def get_fundamentals(
 ) -> pd.DataFrame:
 
   col_text = '*'
-  index_col = {'date', 'period', 'months'}
+  index_col = OrderedSet(('date', 'period', 'months'))
   if cols is not None:
-    col_text = ", ".join(cols.union(index_col))
+    col_text = ', '.join(cols.union(index_col))
 
   query = f'SELECT {col_text} FROM "{_id}"'
   df = read_sqlite('fundamentals.db', query, 
@@ -218,10 +219,14 @@ async def get_fundamentals(
   if relativedelta(dt.now(), last_date).days <= delta:
     return df
 
-  _df = financials_fetcher(last_date.strftime('%Y-%m-%d'))
-
+  _df = await financials_fetcher(last_date.strftime('%Y-%m-%d'))
   if _df is None:
     return _df
+  
+  for m in _df.index.get_level_values('months').unique():
+    _df = pd.concat([_df,
+      df.loc[(slice(None), slice(None), m),:].sort_index(level='date').iloc[-1]
+    ])
   
   _df = calculate_fundamentals(_df, ohlcv_fetcher)
   upsert_sqlite(_df, 'fundamentals.db', _id)

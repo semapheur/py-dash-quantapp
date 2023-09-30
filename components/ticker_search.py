@@ -104,6 +104,8 @@ def update_store(id_store: dict[str, str]):
 
   fundamentals = asyncio.run(get_fundamentals(
     _id, financials_fetcher, ohlcv_fetcher))
+  
+  print(fundamentals.index.levels)
  
   fundamentals.index = fundamentals.index.set_levels(
     fundamentals.index.levels[0].strftime('%Y-%m-%d'),
