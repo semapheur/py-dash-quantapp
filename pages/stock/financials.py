@@ -2,7 +2,7 @@ from typing import Optional
 from ordered_set import OrderedSet
 
 from dash import (
-  callback, clientside_callback, ClientsideFunction, 
+  callback, clientside_callback,
   dcc, html, no_update, register_page, Output, Input, State
 )
 import dash_ag_grid as dag
@@ -16,6 +16,7 @@ from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<_id>/financials', title=stock_label)
 
+modal_style = 'relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md'
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
   'appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50'
@@ -30,7 +31,7 @@ def row_indices(template: pd.DataFrame, level: int) -> str:
 
 def layout(_id: Optional[str] = None):
 
-  return html.Main(className='flex flex-col h-full', children=[
+  return html.Main(className='relative flex flex-col h-full', children=[
     StockHeader(_id),
     html.Div(className='flex justify-around', children=[
       dcc.RadioItems(
@@ -58,11 +59,17 @@ def layout(_id: Optional[str] = None):
     html.Div(
       id='div:stock-financials:table-wrap', 
       className='flex-1 p-2'),
-    html.Dialog(id='dialog:stock-financials', open=False, children=[
-      dcc.Graph(id='graph:stock-financials'),
-      html.Button(id='button:stock-financials:close-modal')
+    html.Dialog(
+      id='dialog:stock-financials', 
+      className=modal_style, 
+      children=[
+        dcc.Graph(id='graph:stock-financials'),
+        html.Button('x', 
+          id='button:stock-financials:close-modal',
+          className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
+        )
     ]),
-    dcc.Store(id='store:stock-financials:row-data', data=[])
+    dcc.Store(id='store:stock-financials:row-data', data={})
   ])
 
 @callback(
@@ -172,24 +179,30 @@ def update_store(row: list[dict]):
   
   df = pd.DataFrame(row).drop(['index', 'trend'], axis=1).T
 
-  return [{
-    'x': df.index,
-    'y': df.iloc[:,0],
-    'mode': 'line'
-  }]
+  return {
+    'title': row[0]['index'],
+    'data': [{
+      'x': df.index,
+      'y': df.iloc[:,0],
+      'mode': 'line'
+    }]
+  } 
 
 clientside_callback(
   '''function(data) {
     console.log(data)
-    if (data === undefined || Array.isArray(data) && data.length === 0) { 
-      return {}
-    }
+    if (data === undefined || (
+      typeof data == 'object' && Object.keys(data).length === 0)
+    ) { return {} }
 
     dialog = document.getElementById('dialog:stock-financials')
     dialog.showModal()
 
     return {
-      data: data
+      data: data.data,
+      layout: {
+        title: data.title
+      }
     }
   }''',
   Output('graph:stock-financials', 'figure'),
