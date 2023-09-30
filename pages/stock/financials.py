@@ -2,7 +2,7 @@ from typing import Optional
 from ordered_set import OrderedSet
 
 from dash import (
-  callback, clientside_callback,
+  callback, clientside_callback, ClientsideFunction,
   dcc, html, no_update, register_page, Output, Input, State
 )
 import dash_ag_grid as dag
@@ -171,52 +171,43 @@ def update_table(data: list[dict], sheet: str, scope: str):
 
 @callback(
   Output('store:stock-financials:row-data', 'data'),
-  Input('table:stock-financials', 'selectedRows')
+  Input('table:stock-financials', 'selectedRows'),
 )
 def update_store(row: list[dict]):
   if not row:
     return []
   
-  df = pd.DataFrame(row).drop(['index', 'trend'], axis=1).T
+  df = (pd.DataFrame(row)
+    .drop(['index', 'trend'], axis=1)
+    .T
+    .sort_index()
+  )
 
   return {
     'title': row[0]['index'],
     'data': [{
       'x': df.index,
-      'y': df.iloc[:,0],
+      'y': df[0].pct_change(),
       'mode': 'line'
     }]
   } 
 
 clientside_callback(
-  '''function(data) {
-    console.log(data)
-    if (data === undefined || (
-      typeof data == 'object' && Object.keys(data).length === 0)
-    ) { return {} }
-
-    dialog = document.getElementById('dialog:stock-financials')
-    dialog.showModal()
-
-    return {
-      data: data.data,
-      layout: {
-        title: data.title
-      }
-    }
-  }''',
+  ClientsideFunction(
+    namespace='clientside',
+    function_name='open_financials_modal'
+  ),
   Output('graph:stock-financials', 'figure'),
   Input('store:stock-financials:row-data', 'data'),
+  State('dialog:stock-financials', 'id')
 )
 
 clientside_callback(
-  '''function(n_clicks, class_name) {
-    dialog = document.getElementById('dialog:stock-financials')
-    if (n_clicks > 0) {dialog.close()}
-
-    return class_name
-  }''',
-  Output('button:stock-financials:close-modal', 'className'),
+  ClientsideFunction(
+    namespace='clientside',
+    function_name='close_financials_modal'
+  ),
+  Output('dialog:stock-financials', 'id'),
   Input('button:stock-financials:close-modal', 'n_clicks'),
-  State('button:stock-financials:close-modal', 'className')
+  State('dialog:stock-financials', 'id')
 )

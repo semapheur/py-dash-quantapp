@@ -1,29 +1,43 @@
-windows.dash_clientside = Object.assign({}, windows.dash_clientside, {
+window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
     /**
-     * @typedef {Array<[key: string]: Array<number> | string} DataArray
-     * @param {DataArray} data 
+     * @typedef {Object} Trace
+     * @property {Array<string>} x
+     * @property {Array<float>} y
+     * @property {string} mode
+     * 
+     * @typedef {Object} Data
+     * @property {string} title
+     * @property {Array<Trace>} data
+     * 
+     * @param {Data} data
+     * @param {string} dialog_id
      */
-    open_financials_modal: function(data) {
-      dialog = document.getElementById('dialog:stock-financials')
+    open_financials_modal: function(data, dialog_id) {
+      if (data === undefined || (
+        typeof data == 'object' && Object.keys(data).length === 0)
+      ) { return {} }
+  
+      dialog = document.getElementById(dialog_id)
       dialog.showModal()
-
-      if (!row) { return {}}
-
+  
       return {
-        data: data
+        data: data.data,
+        layout: {
+          title: data.title
+        }
       }
-    }
-  },
-  /**
-   * @param {number} n_clicks
-   * @param {string} class_name
-   * @returns {string}
-   */
-  close_financials_modal: function(n_clicks, class_name) {
-    dialog = document.getElementById('dialog:stock-financials')
-    if (n_clicks > 0) {dialog.close()}
+    },
+    /**
+     * @param {number} n_clicks
+     * @param {string} class_name
+     * @returns {string}
+     */
+    close_financials_modal: function(n_clicks, dialog_id) {
+      dialog = document.getElementById(dialog_id)
+      if (n_clicks > 0) {dialog.close()}
 
-    return class_name
+      return dialog_id
+    }
   }
 })

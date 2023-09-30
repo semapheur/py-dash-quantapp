@@ -1,5 +1,6 @@
 -r requirements.txt
 
+bandit
 black
 ipykernel
 mypy

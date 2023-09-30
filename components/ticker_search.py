@@ -1,23 +1,17 @@
 import asyncio
 from functools import partial
-import json
 
 from dash import callback, dcc, html, no_update, Input, Output, State
-import pandas as pd
-from sqlalchemy import create_engine, text
 
 from lib.edgar.company import Company
-from lib.fin.taxonomy import Taxonomy
-from lib.fin.calculation import calculate_items
 from lib.morningstar.ticker import Ticker
-from lib.ticker.fetch import find_cik, get_fundamentals, get_ohlcv, search_tickers
+from lib.ticker.fetch import find_cik, get_fundamentals, search_tickers
 
 input_style = (
   'peer min-w-[20vw] h-full p-1 bg-primary text-text '
   'rounded border border-text/10 hover:border-text/50 focus:border-secondary '
   'placeholder-transparent'
 )
-
 label_style = (
   'absolute left-1 -top-2 px-1 bg-primary text-text/500 text-xs '
   'peer-placeholder-shown:text-base peer-placeholder-shown:text-text/50 '
