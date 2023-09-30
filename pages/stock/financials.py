@@ -2,7 +2,8 @@ from typing import Optional
 from ordered_set import OrderedSet
 
 from dash import (
-  callback, dcc, html, no_update, register_page, Output, Input
+  callback, clientside_callback, ClientsideFunction, 
+  dcc, html, no_update, register_page, Output, Input, State
 )
 import dash_ag_grid as dag
 import pandas as pd
@@ -58,8 +59,10 @@ def layout(_id: Optional[str] = None):
       id='div:stock-financials:table-wrap', 
       className='flex-1 p-2'),
     html.Dialog(id='dialog:stock-financials', open=False, children=[
-      dcc.Graph(id='graph:stock-financials')
-    ])
+      dcc.Graph(id='graph:stock-financials'),
+      html.Button(id='button:stock-financials:close-modal')
+    ]),
+    dcc.Store(id='store:stock-financials:row-data', data=[])
   ])
 
 @callback(
@@ -160,16 +163,47 @@ def update_table(data: list[dict], sheet: str, scope: str):
   ),
 
 @callback(
-  Output('dialog:stock-financials', 'open'),
-  Output('graph:stock-financials', 'figure'),
+  Output('store:stock-financials:row-data', 'data'),
   Input('table:stock-financials', 'selectedRows')
 )
-def update_modal(row: list[dict]):
+def update_store(row: list[dict]):
   if not row:
-    return False, no_update
+    return []
   
-  df = pd.DataFrame(row)
-  fig = px.line(
-    df.T
-  )
-  return True, fig
+  df = pd.DataFrame(row).drop(['index', 'trend'], axis=1).T
+
+  return [{
+    'x': df.index,
+    'y': df.iloc[:,0],
+    'mode': 'line'
+  }]
+
+clientside_callback(
+  '''function(data) {
+    console.log(data)
+    if (data === undefined || Array.isArray(data) && data.length === 0) { 
+      return {}
+    }
+
+    dialog = document.getElementById('dialog:stock-financials')
+    dialog.showModal()
+
+    return {
+      data: data
+    }
+  }''',
+  Output('graph:stock-financials', 'figure'),
+  Input('store:stock-financials:row-data', 'data'),
+)
+
+clientside_callback(
+  '''function(n_clicks, class_name) {
+    dialog = document.getElementById('dialog:stock-financials')
+    if (n_clicks > 0) {dialog.close()}
+
+    return class_name
+  }''',
+  Output('button:stock-financials:close-modal', 'className'),
+  Input('button:stock-financials:close-modal', 'n_clicks'),
+  State('button:stock-financials:close-modal', 'className')
+)
