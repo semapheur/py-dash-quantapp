@@ -245,3 +245,111 @@ def credit_rating(icr: float, cap: Literal['small', 'large']):
         break
   
   return spread
+
+def discounted_cash_flow(
+  df: pd.DataFrame, 
+  fc_period: int = 20, 
+  longterm_growth: float = 0.03
+) -> pd.DataFrame:
+    
+  # Weighted average cost of capital
+  if df['weight_average_cost_of_capital'].isnull().all():
+    df['discounted_cashflow_value'] = np.nan
+    return df
+  
+  else:
+    wacc = df['weight_average_cost_of_capital'].ewm(
+      span=len(df['weight_average_cost_of_capital'])).mean()
+  
+  # Free cash flow growth
+  fcf = df['free_cash_flow_firm']
+  fcf_roc = fcf.diff() / fcf.abs().shift(1)
+
+  fcf_growth = fcf_roc.ewm(span=len(fcf_roc.dropna())).mean()
+          
+  dcf = np.zeros(len(df))
+  x = np.arange(1, fc_period + 1)
+  for i, cfg in enumerate(fcf_growth):
+    growth_projection = (
+      longterm_growth + (cfg - longterm_growth) / 
+      (1 + np.exp(np.sign(cfg - longterm_growth) * (x - fc_period/2)))
+    )
+    
+    cf = fcf[i]
+    for j, g in zip(x, growth_projection):
+      cf += np.abs(cf) * g
+      present = cf / ((1 + wacc[i])**j)
+      dcf[i] += present
+        
+    if wacc[i] > longterm_growth:
+      terminal = np.abs(present) * (1 + longterm_growth) / (wacc[i] - longterm_growth)
+    else:
+      terminal = np.abs(df['ev'].iloc[i] * (1 + longterm_growth)**fc_period)
+                    
+    terminal /= (1 + wacc[i])**fc_period
+    dcf[i] += terminal
+      
+  dcf += (df['liquid_assets'] - df['debt'])
+  
+  df['discounted_cashflow_value'] = (
+    dcf / df['split_adjusted_weighted_average_shares_outstanding_basic'])
+  #df['price_to_discounted_cashflow'] = (
+  # df['share_price'] / df['discounted_cashflow_value'])
+      
+  return df
+
+def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
+    
+  # Weighted average cost of capital
+  if df['weighted_average_cost_of_capital'].isnull().all():
+    df['earnings_power_value'] = np.nan
+    return df
+  
+  else:
+    wacc = df['weighted_average_cost_of_capital'].ewm(
+      span=len(df['weighted_average_cost_of_capital'])).mean()
+  
+  # Sustainable revenue
+  rev = df['revenue'].dropna()
+  if len(rev) == 0:
+    df['earnings_power_value'] = np.nan
+    return df
+
+  sust_rev = rev.ewm(span=len(rev)).mean()
+  
+  # Tax rate
+  tax = df['tax_rate']
+  
+  # Adjusted depreciation
+  ad = 0.5 * tax * df['depreciation_depletion_amortization_accretion']
+  
+  # Maintenance capex
+  rev_growth = rev.diff() / rev.abs().shift(1)
+  
+  if rev_growth.dropna().empty:
+    maint_capex = df['depreciation_depletion_amortization_accretion'] / sust_rev
+  
+  else:
+    capex = df['capital_expenditure'].ewm(span=len(df['capital_expenditure'])).mean()
+    capex_margin = capex / sust_rev
+    rev_growth = rev_growth.ewm(span=len(rev_growth.dropna())).mean()    
+    maint_capex = capex_margin * (1 - rev_growth)
+    # maint_capex = capex - (capex_margin * rev_growth)
+      
+  # Operating margins
+  om = (df['pretax_income_loss'] + df['interest_expense']) / df['revenue'] 
+  
+  om_mean = om.ewm(span=len(om.dropna())).mean()
+  
+  # Adjusted earning
+  adj_earn = sust_rev * om_mean * (1 - tax) + ad - (maint_capex * sust_rev)
+      
+  # Earnings power
+  epv = adj_earn / wacc
+    
+  epv += df['liquid_assets'] - df['debt']
+  
+  # Fair value
+  df['earnings_power_value'] = epv / df['shDil']
+  
+  return df

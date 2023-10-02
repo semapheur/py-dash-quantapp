@@ -774,60 +774,6 @@ def priceMultiples(df):
 
   return df
 
-# Discounted cash flow
-def dcf(df, fcPer=20, ltGrowth=0.03):
-    
-  # Weighted average cost of capital
-  if df['wacc'].isnull().all():
-    df['dcfFairVal'] = np.nan
-    return df
-  
-  else:
-    wacc = df['wacc'].ewm(span=len(df['wacc'])).mean()
-  
-  # Free cash flow growth
-  fcf = df['freeCf']
-  
-  fcfRoc = fcf.diff()/fcf.abs().shift(1)
-  #fcfG = fcfG.dropna().mean()
-  fcfGrowth = fcfRoc.ewm(span=len(fcfRoc.dropna())).mean()
-          
-  dcf = np.zeros(len(df))
-  x = np.arange(1, fcPer + 1)
-  for i, cfg in enumerate(fcfGrowth):
-      
-    # Growth projection (damping)
-    gProj = (
-      ltGrowth + (cfg - ltGrowth) / 
-      (1 + np.exp(np.sign(cfg - ltGrowth) * (x - fcPer/2)))
-    )
-    
-    cf = fcf[i]
-    for j, g in zip(x, gProj):
-        
-      # Discounted cash flow
-      cf += np.abs(cf) * g
-      npv = cf / ((1 + wacc[i])**j) # Net present value
-      dcf[i] += npv
-        
-    # Terminal value
-    
-    if wacc[i] > ltGrowth:
-      tv = np.abs(npv) * (1 + ltGrowth) / (wacc[i] - ltGrowth)
-    
-    else:
-      tv = np.abs(df['ev'].iloc[i] * (1 + ltGrowth)**fcPer)
-                    
-    tv /= (1 + wacc[i])**fcPer
-    dcf[i] += tv
-      
-  dcf += (df['cceStInv'] - df['totDbt'])
-  
-  df['dcfFairVal'] = dcf / df['shDil']
-  #df['pdcfRatio'] = df['stockPrice'] / df['dcfFairVal'] 
-      
-  return df
-
 # Market cap-projected cash flow growth
 def cfGrowth(row, n=10,  gL=0.03):
     
@@ -871,64 +817,6 @@ def cfGrowth(row, n=10,  gL=0.03):
     
     except:
         return np.nan
-
-# Earnings power value
-def epv(df):
-    
-  # Weighted average cost of capital
-  if df['wacc'].isnull().all():
-    df['epvFairVal'] = np.nan
-    return df
-  
-  else:
-      wacc = df['wacc'].ewm(span=len(df['wacc'])).mean()
-  
-  # Sustainable revenue
-  rev = df['rvn'].dropna()
-  if len(rev) == 0:
-    df['epvFairVal'] = np.nan
-    return df
-
-  sustRev = rev.ewm(span=len(rev)).mean()
-  
-  # Tax rate
-  tax = df['taxRate']
-  
-  # Adjusted depreciation
-  ad = 0.5 * tax * df['da']
-  
-  # Maintenance capex
-  revGrowth = rev.diff() / rev.abs().shift(1)
-  
-  if revGrowth.dropna().empty:
-    maintCapEx = df['da'] / sustRev
-  
-  else:
-    capEx = df['capEx'].ewm(span=len(df['capEx'])).mean()
-    capExMargin = capEx / sustRev
-
-    revGrowth = revGrowth.ewm(span=len(revGrowth.dropna())).mean()    
-
-    maintCapEx = capExMargin * (1 - revGrowth)
-    # maintCapEx = capEx - (capExMargin * revGrowth)
-      
-  # Operating margins
-  om = (df['ebt'] + df['intEx']) / df['rvn'] 
-  
-  omMean = om.ewm(span=len(om.dropna())).mean()
-  
-  # Adjusted earning
-  adjEarn = sustRev * omMean * (1 - tax) + ad - (maintCapEx * sustRev)
-      
-  # Earnings power
-  epv = adjEarn / wacc
-    
-  epv += df['cceStInv'] - df['totDbt']
-  
-  # Fair value
-  df['epvFairVal'] = epv / df['shDil']
-  
-  return df
 
 # Dividend growth
 def ggm(df, fcPer=20, ltGrowth=0.03):
