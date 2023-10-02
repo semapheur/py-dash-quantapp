@@ -24,7 +24,6 @@ def f_score(df: pd.DataFrame) -> pd.DataFrame:
     np.heaviside(applier(df['gross_profit_margin'], 'diff'), 0) + 
     np.heaviside(applier(df['asset_turnover'], 'diff'), 0)
   )
-
   return df
 
 def z_score(df: pd.DataFrame) -> pd.DataFrame:
