@@ -1,10 +1,11 @@
 from dash import callback, html, dcc, no_update, Input, Output, State
 
-def StockHeader(id: str):
+def StockHeader(_id: str):
   return html.Nav(className='flex gap-4', children=[
-    dcc.Link('Overview', href=f'/stock/{id}', id='link:stock:overview'),
-    dcc.Link('Financials', href=f'/stock/{id}/financials'),
-    dcc.Link('Fundamentals', href=f'/stock/{id}/fundamentals')
+    dcc.Link('Overview', href=f'/stock/{_id}', id='link:stock:overview'),
+    dcc.Link('Financials', href=f'/stock/{_id}/financials'),
+    dcc.Link('Fundamentals', href=f'/stock/{_id}/fundamentals'),
+    dcc.Link('Valuation', href=f'/stock/{_id}/valuation')
   ])
 
 @callback(
