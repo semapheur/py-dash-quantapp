@@ -1,18 +1,16 @@
 var dagcomponentfuncs = window.dashAgGridComponentFunctions = window.dashAgGridComponentFunctions || {};
 
-dagcomponentfuncs.FinancialsTooltip = function(props) {
+dagcomponentfuncs.FinancialsTooltip = (props) => {
   style = 'p-2 border border-secondary rounded shadow bg-text/50 backdrop-blur-sm'
 
-  return React.createElement(
-    'div',
-    {
+  return React.createElement('div', {
       className: props.className || style
     },
     React.createElement('h4', {}, props.labels[props.rowIndex])
   )
 }
 
-dagcomponentfuncs.TrendLine = function(props) {
+dagcomponentfuncs.TrendLine = (props) => {
   //const {setData} = props
   //function setProps() {
   //  const graphProps = arguments[0]
@@ -24,5 +22,22 @@ dagcomponentfuncs.TrendLine = function(props) {
     figure: props.value,
     style: {height: '100%'},
     config: {displayModeBar: false, staticPlot: true}
+  })
+}
+
+dagcomponentfuncs.DistributionInput = (props) => {
+  const {setData, data} = props
+
+  return React.createElement('div', {
+    className: 'flex',
+    children: [
+      React.createElement(window.dash_core_components.Dropdown, {
+        id: props.dropdown_id,
+        options: props.options
+      }),
+      React.createElement('form', {
+        id: props.form_id
+      })
+    ]
   })
 }

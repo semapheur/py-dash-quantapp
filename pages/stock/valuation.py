@@ -45,7 +45,7 @@ def component(index: str) -> html.Div:
 
   options = [
     {'label': v.get('label', k.upper()), 'value': k}
-    for k, v in distributions
+    for k, v in distributions.items()
   ]
 
   return html.Div(className='flex', children=[
@@ -71,6 +71,8 @@ def layout(_id: str|None = None):
     },
     {
       'field': 'phase_1', 'headerName': 'Phase 1',
+      'cellRenderer': 'DBC_Button_Simple',
+      'cellRendererParams': {'color': 'success'}
     },
     {
       'field': 'terminal', 'headerName': 'Terminal Phase', 
