@@ -25,6 +25,7 @@ lxml
 matplotlib
 numba
 numpy
+openturns
 ordered-set
 pandas
 #polars

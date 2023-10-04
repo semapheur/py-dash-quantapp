@@ -1,6 +1,7 @@
 
 
-from dash import callback, html, no_update, register_page, Output, Input, State
+from dash import (
+  callback, dcc, html, no_update, register_page, Output, Input, State, MATCH)
 import dash_ag_grid as dag
 import pandas as pd
 
@@ -9,6 +10,57 @@ from lib.ticker.fetch import stock_label
 
 #register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
 register_page(__name__, path_template='/valuation')
+
+distributions = {
+  'normal': {
+    'parameters': {
+      'mu': 'Mean',
+      'sigma': 'Scale'
+    }
+  },
+  'skewnormal': {
+    'label': 'Skew normal',
+    'parameters': {
+      'a': 'Skewness',
+      'loc': 'Mean',
+      'scale': 'Scale'
+    }
+  },
+  'triangular': {
+    'parameters': {
+      'a': 'Lower bound',
+      'm': 'Mode',
+      'b': 'Upper bound'
+    }
+  },
+  'uniform': {
+    'parameters': {
+      'a': 'Lower bound',
+      'b': 'Upper bound'
+    }
+  }
+}
+
+def component(index: str) -> html.Div:
+
+  options = [
+    {'label': v.get('label', k.upper()), 'value': k}
+    for k, v in distributions
+  ]
+
+  return html.Div(className='flex', children=[
+    dcc.Dropdown(
+      id={
+        'type': 'dropdown:stock-valuation:distribution', 
+        'index': index
+      },
+      options=options),
+    html.Form(
+      id={
+        'type': 'form:stock-valuation:parameters',
+        'index': index
+      })
+  ])
 
 def layout(_id: str|None = None):
 
@@ -26,14 +78,17 @@ def layout(_id: str|None = None):
     },
   ]
 
-  rowData = [
-    {'factor': 'Years', 'phase_1': 'component', 'terminal': 'component'},
-    {'factor': 'Revenue Growth', 'phase_1': 'component', 'terminal': 'component'},
-    {'factor': 'Operating Margin', 'phase_1': 'component', 'terminal': 'component'},
-    {'factor': 'Tax Rate', 'phase_1': 'component', 'terminal': 'component'},
-    {'factor': 'Beta', 'phase_1': 'component', 'terminal': 'component'},
-    {'factor': 'Risk Free Rate', 'phase_1': 'component', 'terminal': 'component'}
-  ]
+  factors = ['years', 'revenue_growth', 'operating_margin', 'tax_rate', 'beta', 
+    'risk_free_rate']
+
+  rowData = [{
+    'factor': 'Years', 
+    'phase_1': component('years:1'), 
+    'terminal': '∞'
+  }] + [{
+    'factor': i.replace('_', '').capitalize(), 
+    'phase_1': component(f'{i}:1'), 'terminal': component(f'{i}:t')
+  } for i in factors]
 
   return html.Main(className='h-full flex flex-col', children=[
     StockHeader(_id),
@@ -66,3 +121,24 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   cols.append({'field': f'phase_{n_clicks+1}', 'headerName': f'Phase {n_clicks+1}'})
   
   return cols, df.to_dict('records')
+
+@callback(
+  Output({'type': 'form:stock-valuation:parameters', 'index': MATCH}, 'children'),
+  Input({'type': 'dropdown:stock-valuation:distribution', 'index': MATCH}, 'value'),
+  State({'type': 'dropdown:stock-valuation:distribution', 'index': MATCH}, 'id')
+)
+def update_inputs(distribution: str, index=dict[str,str]):
+
+  params: dict[str,str] = distributions[distribution].get('parameters')
+  inputs = []
+  for k, v in params.items():
+    inputs.append(dcc.Input(
+      id={
+        'type': f'input:stock-valuation:{distribution}-{k}',
+        'index': index['index']
+      },
+      type='number',
+      placeholder=v
+    ))
+
+  return inputs
