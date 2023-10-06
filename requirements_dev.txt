@@ -2,6 +2,7 @@
 
 bandit
 black
+icecream
 ipykernel
 mypy
 pipreqs

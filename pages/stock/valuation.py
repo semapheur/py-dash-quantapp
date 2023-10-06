@@ -1,4 +1,4 @@
-
+import json
 
 from dash import (
   callback, dcc, html, no_update, register_page, Output, Input, State, MATCH)
@@ -42,37 +42,34 @@ distributions = {
 }
 
 def component(index: str) -> html.Div:
-
-  options = [
-    {'label': v.get('label', k.upper()), 'value': k}
-    for k, v in distributions.items()
-  ]
-
-  return html.Div(className='flex', children=[
-    dcc.Dropdown(
-      id={
-        'type': 'dropdown:stock-valuation:distribution', 
-        'index': index
-      },
-      options=options),
-    html.Form(
-      id={
-        'type': 'form:stock-valuation:parameters',
-        'index': index
-      })
-  ])
+  return {
+    'dropdown_id': json.dumps({
+      'type': 'dropdown:stock-valuation:distribution', 
+      'index': index
+    }),
+    'form_id': json.dumps({
+      'type': 'form:stock-valuation:parameters',
+      'index': index
+    })
+  }
 
 def layout(_id: str|None = None):
 
-  columnDefs = [
+  column_defs = [
     {
       'field': 'factor', 'headerName': 'Factor', 
       'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
     },
     {
       'field': 'phase_1', 'headerName': 'Phase 1',
-      'cellRenderer': 'DBC_Button_Simple',
-      'cellRendererParams': {'color': 'success'}
+      'cellEditor': 'agSelectCellEditor', #{'function: 'DccDropdown'}
+      'cellEditorParams': { #{'function': 'dynamicOptions(params)'}
+        'values': []
+      },
+      'cellRendererParams': {'options': [
+        {'label': v.get('label', k.capitalize()), 'value': k}
+        for k, v in distributions.items()
+      ]}
     },
     {
       'field': 'terminal', 'headerName': 'Terminal Phase', 
@@ -83,7 +80,7 @@ def layout(_id: str|None = None):
   factors = ['years', 'revenue_growth', 'operating_margin', 'tax_rate', 'beta', 
     'risk_free_rate']
 
-  rowData = [{
+  row_data = [{
     'factor': 'Years', 
     'phase_1': component('years:1'), 
     'terminal': '∞'
@@ -99,9 +96,10 @@ def layout(_id: str|None = None):
     ]),
     dag.AgGrid(
       id='table:stock-valuation:dcf',
-      columnDefs=columnDefs,
-      rowData=rowData,
+      columnDefs=column_defs,
+      rowData=row_data,
       columnSize='autoSize',
+      defaultColDef={'editable': False, 'minWidth': 300},
       style={'height': '100%'}
     )
   ])

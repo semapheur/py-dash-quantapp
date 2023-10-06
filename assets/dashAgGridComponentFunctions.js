@@ -24,20 +24,3 @@ dagcomponentfuncs.TrendLine = (props) => {
     config: {displayModeBar: false, staticPlot: true}
   })
 }
-
-dagcomponentfuncs.DistributionInput = (props) => {
-  const {setData, data} = props
-
-  return React.createElement('div', {
-    className: 'flex',
-    children: [
-      React.createElement(window.dash_core_components.Dropdown, {
-        id: props.dropdown_id,
-        options: props.options
-      }),
-      React.createElement('form', {
-        id: props.form_id
-      })
-    ]
-  })
-}
