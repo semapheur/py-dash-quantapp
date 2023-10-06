@@ -69,3 +69,24 @@ dagfuncs.DccDropdown = class {
     this.prevFocus.focus()
   }
 }
+
+dagfuncs.ParameterInput = class {
+  init(params) {
+    this.eInput = document.createElement('input')
+    this.eInput.value = params.value
+    this.eInput.placeholder = params.placeholder || ''
+  }
+
+  getGui() {
+    return this.eInput
+  }
+
+  afterGuiAttached() {
+    this.eInput.focus();
+    this.eInput.select();
+  }
+
+  getValue() {
+    return this.eInput.value;
+  }
+}
