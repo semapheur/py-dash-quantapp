@@ -70,7 +70,7 @@ def layout(_id: str|None = None):
         },
         {
           'field': 'phase_1:parameters', 'headerName': 'Parameters',
-          'cellEditor': 'agTextCellEditor'
+          'cellEditor': {'function': 'ParameterInput'}
         }
       ]
     },
@@ -87,7 +87,7 @@ def layout(_id: str|None = None):
         {
           'field': 'terminal:parameters', 'headerName': 'Parameters',
           'pinned': 'right', 'lockPinned': True, 'cellClass': 'lock-pinned',
-          'cellEditor': 'agTextCellEditor'
+          'cellEditor': {'function': 'ParameterInput'}
         }
       ]
     },
@@ -153,7 +153,7 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
       },
       {
         'field': f'phase_{phase}:parameters', 'headerName': 'Parameters',
-        'cellEditor': 'agTextCellEditor'
+        'cellEditor': {'function': 'ParameterInput'},
       }
     ]
   })

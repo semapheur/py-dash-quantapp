@@ -70,23 +70,76 @@ dagfuncs.DccDropdown = class {
   }
 }
 
+distributions = {
+  normal: {
+    parameters: {
+      mu: 'Mean',
+      sigma: 'Scale'
+    }
+  },
+  skewnormal: {
+    parameters: {
+      a: 'Skew',
+      loc: 'Mean',
+      scale: 'Scale'
+    }
+  },
+  triangular: {
+    parameters: {
+      a: 'Min',
+      m: 'Mode',
+      b: 'Max'
+    }
+  },
+  uniform: {
+    parameters: {
+      a: 'Min',
+      b: 'Max'
+    }
+  }
+}
+
 dagfuncs.ParameterInput = class {
   init(params) {
-    this.eInput = document.createElement('input')
-    this.eInput.value = params.value
-    this.eInput.placeholder = params.placeholder || ''
+    console.log(params)
+
+    const phase = params.colDef.field.split(':')[0]
+
+    this.eForm = document.createElement('form')
+    this.eForm.className = 'w-full flex gap-1'
+
+    const dist = params.data[`${phase}:distribution`].toLowerCase()
+    
+    const distParams = distributions[dist]['parameters']
+    const width = `${(1 / Object.keys(distParams).length) * 100}%`
+    this.eInputs = []
+    for (const key in distParams) {
+      const eInput = document.createElement('input')
+      eInput.placeholder = distParams[key]
+      eInput.type = 'numeric'
+      eInput.style.width = width
+
+      this.eForm.appendChild(eInput)
+
+      this.eInputs.push(eInput)
+    }
   }
 
   getGui() {
-    return this.eInput
+    return this.eForm
   }
 
   afterGuiAttached() {
-    this.eInput.focus();
-    this.eInput.select();
+    this.eForm.focus();
   }
 
   getValue() {
-    return this.eInput.value;
+    const values = []
+
+    for (const input of this.eInputs) {
+      values.push(input.value)
+    }
+
+    return `(${values.join(',')})`;
   }
 }
