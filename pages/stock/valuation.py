@@ -40,23 +40,11 @@ distributions = {
   }
 }
 
-def component(index: str) -> html.Div:
-  return {
-    'dropdown_id': json.dumps({
-      'type': 'dropdown:stock-valuation:distribution', 
-      'index': index
-    }),
-    'form_id': json.dumps({
-      'type': 'form:stock-valuation:parameters',
-      'index': index
-    })
-  }
-
 def layout(_id: str|None = None):
 
   column_defs = [
     {
-      'field': 'factor', 'headerName': 'Factor', 
+      'field': 'factor', 'headerName': 'Factor', 'editable': False,
       'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
     },
     {
@@ -95,11 +83,18 @@ def layout(_id: str|None = None):
 
   factors = ['revenue_growth', 'operating_margin', 'tax_rate', 'beta', 
     'risk_free_rate']
+  
+  _factors = {
+    'revenue_growth': {
+      'intial': '(0.15,0.3)',
+      'terminal': '(0.02,0.005)'
+    }
+  }
 
   row_data = [{
     'factor': 'Years', 
-    'phase_1:distribution': 'Normal',
-    'phase_1:parameters': '',
+    'phase_1:distribution': 'Uniform',
+    'phase_1:parameters': '(5,10)',
     'terminal:distribution': '∞',
     'terminal:parameters': '',
   }] + [{
@@ -113,7 +108,8 @@ def layout(_id: str|None = None):
   return html.Main(className='h-full flex flex-col', children=[
     StockHeader(_id),
     html.Div(children=[
-      html.Button('Add', id='button:stock-valuation:dcf-add')
+      html.Button('Add', id='button:stock-valuation:dcf-add'),
+      html.Button('Calc', id='button:stock-valuation:dcf-sim')
     ]),
     dag.AgGrid(
       id='table:stock-valuation:dcf',
@@ -160,22 +156,16 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   return cols, df.to_dict('records')
 
 @callback(
-  Output({'type': 'form:stock-valuation:parameters', 'index': MATCH}, 'children'),
-  Input({'type': 'dropdown:stock-valuation:distribution', 'index': MATCH}, 'value'),
-  State({'type': 'dropdown:stock-valuation:distribution', 'index': MATCH}, 'id')
+  Output('button:stock-valuation:dcf-sim','className'),
+  Input('button:stock-valuation:dcf-sim', 'n_clicks'),
+  State('table:stock-valuation:dcf', 'rowData'),
+  State('button:stock-valuation:dcf-sim', 'className')
 )
-def update_inputs(distribution: str, index=dict[str,str]):
+def monte_carlo(n_clicks: int, data: list[dict], cls: str):
+  print('yay')
+  if not n_clicks:
+    return no_update
+  
+  print(json.dumps(data, indent=2))
 
-  params: dict[str,str] = distributions[distribution].get('parameters')
-  inputs = []
-  for k, v in params.items():
-    inputs.append(dcc.Input(
-      id={
-        'type': f'input:stock-valuation:{distribution}-{k}',
-        'index': index['index']
-      },
-      type='number',
-      placeholder=v
-    ))
-
-  return inputs
+  return cls

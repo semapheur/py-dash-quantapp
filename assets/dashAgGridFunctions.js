@@ -101,8 +101,6 @@ distributions = {
 
 dagfuncs.ParameterInput = class {
   init(params) {
-    console.log(params)
-
     const phase = params.colDef.field.split(':')[0]
 
     this.eForm = document.createElement('form')
