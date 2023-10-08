@@ -4,6 +4,8 @@ from dash.dependencies import Input, Output
 
 from components.header import Header
 
+#https://utxo.live/oracle/
+
 app = Dash(__name__, 
   use_pages=True, 
   title='Gelter', 

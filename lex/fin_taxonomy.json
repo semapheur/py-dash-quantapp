@@ -233,6 +233,20 @@
       "all": "interest_expense / average_debt"
     }
   },
+  "shortterm_interest_rate": {
+    "value": "fundamental",
+    "period": "instant",
+    "gaap": [
+      "ShortTermDebtWeightedAverageInterestRate"
+    ],
+    "label": {
+      "long": "Short-term Weighted Average Interest Rate"
+    },
+    "calculation": {
+      "order": 2,
+      "all": "interest_expense / average_debt"
+    }
+  },
   "net_operating_profit_after_tax": {
     "value": "monetary",
     "period": "duration",
@@ -340,6 +354,17 @@
     "calculation": {
       "order": 2,
       "all": "average_debt / average_assets"
+    }
+  },
+  "longterm_debt": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "DebtInstrumentCarryingAmount"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "current_longterm_debt + noncurrent_longterm_debt"
     }
   },
   "debt": {

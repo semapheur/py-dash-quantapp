@@ -1,3 +1,4 @@
+from numba import jit
 import numpy as np
 import openturns as ot
 import scipy.stats as stt
@@ -32,14 +33,33 @@ def make_distribution(name: str, params: list[float]):
 
   return dist
 
+@jit(nopython=True)
 def dcf(
-  present_revenue: float,
+  current_revenue: float,
   revenue_growths: np.ndarray[float],
-  operating_margins: np.ndarray[float]
+  operating_margins: np.ndarray[float],
+  tax_rates: np.ndarray[float],
+  reinvestment_rates: np.ndarray[float],
+  risk_free_rates: np.ndarray[float],
+  yield_spreads: np.ndarray[float],
+  equity_risk_premiums: np.ndarray[float],
+  equity_value_weights: np.ndarray[float],
+  betas: np.ndarray[float]
 ):
 
-  revenue = present_revenue * (1 + np.array([revenue_growths])).cumprod()
-  operating_income = revenue * operating_margins
-  #pretax_income
+  revenue = current_revenue * (1 + np.array([revenue_growths])).cumprod()
+  ebit = revenue * operating_margins
+  nopat = ebit * (1 - tax_rates)
+  fcff = nopat * (1 - reinvestment_rates)
 
-  return
+  cost_debt = (risk_free_rates + yield_spreads) * (1 - tax_rates)
+  cost_equity = risk_free_rates + betas * equity_risk_premiums
+
+  cost_capital = (
+    equity_value_weights * cost_equity + 
+    (1 - equity_value_weights) * cost_debt
+  )
+
+  dcf = fcff / (1 - cost_capital).cumprod()
+
+  return dcf.sum()
