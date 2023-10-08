@@ -8,7 +8,7 @@ import openturns as ot
 import pandas as pd
 
 from components.stock_header import StockHeader
-from lib.fin.dcf import discount_cashflow, make_distribution
+from lib.fin.dcf import discount_cashflow, make_distribution, terminal_value
 from lib.ticker.fetch import stock_label
 
 #register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
@@ -185,7 +185,7 @@ def monte_carlo(n_clicks: int, rowData: list[dict], cls: str, financials: list[d
 
   copula = ot.NormalCopula(corr_mat)
 
-  result = np.array([0, revenue, 0]).repeat(n, 1)
+  dcf = np.array([0, revenue, 0]).repeat(n, 1)
   for p in range(1, phases):
 
     variables = [
@@ -194,10 +194,22 @@ def monte_carlo(n_clicks: int, rowData: list[dict], cls: str, financials: list[d
     ]
     composed_distribution = ot.ComposedDistribution(variables, copula)
     sample = np.array(composed_distribution.getSample(n))
-    args = np.concatenate((result[:2,:], sample), axis=1)
-    temp = np.apply_along_axis(discount_cashflow, 0, args)
-    result += temp
+    args = np.concatenate((dcf[:2,:], sample), axis=1)
+    dcf += np.apply_along_axis(discount_cashflow, 0, args)
+
+  dcf = dcf[2,:] 
 
   # terminal value
+  variables = [
+    make_distribution(dist, params) for dist, params in 
+    zip(
+      df['terminal:distribution'].iloc[1:], 
+      df['terminal:parameters'].iloc[1:]
+    )
+  ]
+  composed_distribution = ot.ComposedDistribution(variables, copula)
+  sample = np.array(composed_distribution.getSample(n))
+  args = np.concatenate((dcf[1,:], sample), axis=1)
+  dcf += np.apply_along_axis(terminal_value, 0, args)
 
   return cls

@@ -49,7 +49,8 @@ def discount_cashflow(
   beta: float
 ):
 
-  revenue = start_revenue * np.array([(1 + revenue_growth)**start_year] * years).cumprod()
+  revenue = (start_revenue * 
+    np.array([(1 + revenue_growth)**start_year] * years).cumprod())
   fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
 
   cost_debt = (risk_free_rate + yield_spread) * (1 - tax_rate)
@@ -63,6 +64,34 @@ def discount_cashflow(
   dcf = fcff / (1 - np.array([cost_capital] * years)).cumprod()
 
   return np.array([years, revenue[-1], dcf.sum()])
+
+def terminal_value(
+  start_revenue: float,
+  revenue_growth: float,
+  operating_margin: float,
+  tax_rate: float,
+  reinvestment_rate: float,
+  risk_free_rate: float,
+  yield_spread: float,
+  equity_risk_premium: float,
+  equity_value_weight: float,
+  beta: float
+):
+  
+  revenue = start_revenue * (1 + revenue_growth)
+  fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
+
+  cost_debt = (risk_free_rate + yield_spread) * (1 - tax_rate)
+  cost_equity = risk_free_rate + beta * equity_risk_premium
+
+  cost_capital = (
+    equity_value_weight * cost_equity + 
+    (1 - equity_value_weight) * cost_debt
+  )
+
+  return fcff / (cost_capital - revenue_growth)
+
+
 
 @jit(nopython=True)
 def _dcf(
