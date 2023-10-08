@@ -47,7 +47,7 @@ def discount_cashflow(
   equity_risk_premium: float,
   equity_value_weight: float,
   beta: float
-):
+) -> np.ndarray[float]:
 
   revenue = (start_revenue * 
     np.array([(1 + revenue_growth)**start_year] * years).cumprod())
@@ -76,7 +76,7 @@ def terminal_value(
   equity_risk_premium: float,
   equity_value_weight: float,
   beta: float
-):
+) -> float:
   
   revenue = start_revenue * (1 + revenue_growth)
   fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
@@ -90,8 +90,6 @@ def terminal_value(
   )
 
   return fcff / (cost_capital - revenue_growth)
-
-
 
 @jit(nopython=True)
 def _dcf(
