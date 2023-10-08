@@ -1,3 +1,4 @@
+import numpy as np
 import openturns as ot
 import scipy.stats as stt
 
@@ -30,3 +31,15 @@ def make_distribution(name: str, params: list[float]):
       dist = ot.Uniform(*params)
 
   return dist
+
+def dcf(
+  present_revenue: float,
+  revenue_growths: np.ndarray[float],
+  operating_margins: np.ndarray[float]
+):
+
+  revenue = present_revenue * (1 + np.array([revenue_growths])).cumprod()
+  operating_income = revenue * operating_margins
+  #pretax_income
+
+  return

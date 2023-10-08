@@ -1,4 +1,13 @@
 {
+  "reinvestment_rate": {
+    "label": {
+      "long": "Reinvestment Rate"
+    },
+    "calculation": {
+      "order": 6,
+      "all": "(capital_expenditure - depreciation_depletion_amortization_accretion + change_working_capital) / net_operating_profit_after_tax"
+    }
+  },
   "stock_split_ratio": {
     "gaap": [
       "StockholdersEquityNoteStockSplitConversionRatio1"
@@ -392,7 +401,7 @@
       "short": "CAPEX/OCF"
     },
     "calculation": {
-      "order": 2,
+      "order": 7,
       "all": "capital_expenditure / operating_cashflow"
     }
   },
@@ -403,7 +412,7 @@
       "short": "CAPEX-to-Operating-Income"
     },
     "calculation": {
-      "order": 2,
+      "order": 4,
       "all": "capital_expenditure / operating_income_loss"
     }
   },
@@ -414,7 +423,7 @@
       "short": "CAPEX-to-Revenue" 
     },
     "calculation": {
-      "order": 2,
+      "order": 4,
       "all": "capital_expenditure / revenue"
     }
   },
@@ -424,12 +433,8 @@
       "long": "Cash Conversion Cycle"
     },
     "calculation": {
-      "order": 1,
-      "all": [
-        "days_inventory_outstanding",
-        "+days_sales_outstanding", 
-        "-days_payable_outstanding"
-      ]
+      "order": 2,
+      "all": "days_inventory_outstanding + days_sales_outstanding - days_payable_outstanding"
     }
   },
   "days_inventory_outstanding": {
@@ -619,7 +624,7 @@
     },
     "calculation": {
       "order": 2,
-      "all": "income_loss_operating / interest_expense"
+      "all": "operating_income_loss / interest_expense"
     }
   },
   "interest_burden": {

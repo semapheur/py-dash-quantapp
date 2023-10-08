@@ -81,8 +81,17 @@ def layout(_id: str|None = None):
     },
   ]
 
-  factors = ['revenue_growth', 'operating_margin', 'tax_rate', 'beta', 
-    'risk_free_rate']
+  factors = [
+    'revenue_growth', 
+    'operating_margin', 
+    'tax_rate',
+    'reinvestment_rate',
+    'risk_free_rate',
+    'beta',
+    'expected_market_return',
+    'default_spread',
+    'debt_maturity'
+  ]
   
   _factors = {
     'revenue_growth': {
