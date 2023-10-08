@@ -648,8 +648,8 @@
       "short": "ICR"
     },
     "calculation": {
-      "order": 2,
-      "all": "operating_income_loss / interest_expense"
+      "order": 4,
+      "all": "(operating_income_loss - depreciation_depletion_amortization_accretion - capital_expenditure) / interest_expense"
     }
   },
   "interest_burden": {
