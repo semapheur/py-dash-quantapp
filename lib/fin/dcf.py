@@ -34,7 +34,38 @@ def make_distribution(name: str, params: list[float]):
   return dist
 
 @jit(nopython=True)
-def dcf(
+def discount_cashflow(
+  start_year: int,
+  start_revenue: float,
+  years: int,
+  revenue_growth: float,
+  operating_margin: float,
+  tax_rate: float,
+  reinvestment_rate: float,
+  risk_free_rate: float,
+  yield_spread: float,
+  equity_risk_premium: float,
+  equity_value_weight: float,
+  beta: float
+):
+
+  revenue = start_revenue * np.array([(1 + revenue_growth)**start_year] * years).cumprod()
+  fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
+
+  cost_debt = (risk_free_rate + yield_spread) * (1 - tax_rate)
+  cost_equity = risk_free_rate + beta * equity_risk_premium
+
+  cost_capital = (
+    equity_value_weight * cost_equity + 
+    (1 - equity_value_weight) * cost_debt
+  )
+
+  dcf = fcff / (1 - np.array([cost_capital] * years)).cumprod()
+
+  return np.array([years, revenue[-1], dcf.sum()])
+
+@jit(nopython=True)
+def _dcf(
   current_revenue: float,
   revenue_growths: np.ndarray[float],
   operating_margins: np.ndarray[float],
@@ -47,7 +78,7 @@ def dcf(
   betas: np.ndarray[float]
 ):
 
-  revenue = current_revenue * (1 + np.array([revenue_growths])).cumprod()
+  revenue = current_revenue * (1 + revenue_growths).cumprod()
   ebit = revenue * operating_margins
   nopat = ebit * (1 - tax_rates)
   fcff = nopat * (1 - reinvestment_rates)

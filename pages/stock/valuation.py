@@ -3,41 +3,50 @@ import json
 from dash import (
   callback, dcc, html, no_update, register_page, Output, Input, State, MATCH)
 import dash_ag_grid as dag
+import numpy as np
+import openturns as ot
 import pandas as pd
 
 from components.stock_header import StockHeader
+from lib.fin.dcf import discount_cashflow, make_distribution
 from lib.ticker.fetch import stock_label
 
 #register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
 register_page(__name__, path_template='/valuation')
 
-distributions = {
-  'normal': {
-    'parameters': {
-      'mu': 'Mean',
-      'sigma': 'Scale'
-    }
-  },
-  'skewnormal': {
-    'parameters': {
-      'a': 'Skewness',
-      'loc': 'Mean',
-      'scale': 'Scale'
-    }
-  },
-  'triangular': {
-    'parameters': {
-      'a': 'Lower bound',
-      'm': 'Mode',
-      'b': 'Upper bound'
-    }
-  },
-  'uniform': {
-    'parameters': {
-      'a': 'Lower bound',
-      'b': 'Upper bound'
-    }
+distributions = [
+  'Normal',
+  'Skewnormal',
+  'Triangular',
+  'Uniform'
+]
+
+factors = [
+  'years'
+  'revenue_growth', 
+  'operating_margin', 
+  'tax_rate',
+  'reinvestment_rate',
+  'risk_free_rate',
+  'yield_spread',
+  'equity_risk_premium',
+  'equity_to_capital',
+  'beta',
+]
+
+_factors = {
+  'revenue_growth': {
+    'intial': '(0.15,0.3)',
+    'terminal': '(0.02,0.005)'
   }
+}
+
+correlation = {
+  ('risk_free_rate', 'yield_spread'): 0.9,
+  ('risk_free_rate', 'equity_risk_premium'): 0.9,
+  ('equity_risk_premium', 'revenue_growth'): 0.4,
+  ('reinvestment_rate', 'operating_margin'): 0.8,
+  ('yield_spread', 'operating_margin'): 0.8
 }
 
 def layout(_id: str|None = None):
@@ -53,7 +62,7 @@ def layout(_id: str|None = None):
           'field': 'phase_1:distribution', 'headerName': 'Distribution',
           'cellEditor': 'agSelectCellEditor',
           'cellEditorParams': {
-            'values': [k.capitalize() for k in distributions.keys()]
+            'values': distributions
           },
         },
         {
@@ -69,7 +78,7 @@ def layout(_id: str|None = None):
           'pinned': 'right', 'lockPinned': True, 'cellClass': 'lock-pinned',
           'cellEditor': 'agSelectCellEditor',
           'cellEditorParams': {
-            'values': [k.capitalize() for k in distributions.keys()]
+            'values': distributions
           },
         },
         {
@@ -80,25 +89,6 @@ def layout(_id: str|None = None):
       ]
     },
   ]
-
-  factors = [
-    'revenue_growth', 
-    'operating_margin', 
-    'tax_rate',
-    'reinvestment_rate',
-    'risk_free_rate',
-    'beta',
-    'expected_market_return',
-    'default_spread',
-    'debt_maturity'
-  ]
-  
-  _factors = {
-    'revenue_growth': {
-      'intial': '(0.15,0.3)',
-      'terminal': '(0.02,0.005)'
-    }
-  }
 
   row_data = [{
     'factor': 'Years', 
@@ -112,7 +102,7 @@ def layout(_id: str|None = None):
     'phase_1:parameters': '',
     'terminal:distribution': 'Normal',
     'terminal:parameters': '',
-  } for i in factors]
+  } for i in factors[1:]]
 
   return html.Main(className='h-full flex flex-col', children=[
     StockHeader(_id),
@@ -153,7 +143,7 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
         'field': f'phase_{phase}:distribution', 'headerName': 'Distribution',
         'cellEditor': 'agSelectCellEditor',
         'cellEditorParams': {
-          'values': [k.capitalize() for k in distributions.keys()]
+          'values': distributions
         },
       },
       {
@@ -168,13 +158,46 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   Output('button:stock-valuation:dcf-sim','className'),
   Input('button:stock-valuation:dcf-sim', 'n_clicks'),
   State('table:stock-valuation:dcf', 'rowData'),
-  State('button:stock-valuation:dcf-sim', 'className')
+  State('button:stock-valuation:dcf-sim', 'className'),
+  State('store:ticker-search:financials', 'data')
 )
-def monte_carlo(n_clicks: int, data: list[dict], cls: str):
-  print('yay')
+def monte_carlo(n_clicks: int, rowData: list[dict], cls: str, financials: list[dict]):
   if not n_clicks:
     return no_update
   
-  print(json.dumps(data, indent=2))
+  n = 1000
+
+  fin = pd.DataFrame.from_records(financials) 
+  fin = fin.set_index(['date', 'months']).sort_index('date')       
+
+  revenue = fin.loc[(slice(None), 12), 'revenue'].iloc[-1]
+
+  df = pd.DataFrame.from_records(rowData)
+
+  phases = len(df.columns) - 3 // 2
+
+  corr_mat = ot.CorrelationMatrix(len(factors))
+  df_factors = pd.DataFrame([dict(zip(factors, range(0, factors)))])
+
+  for pair, value in correlation.items():
+    location = df_factors[pair].values[0]
+    corr_mat[location[0], location[1]] = value
+
+  copula = ot.NormalCopula(corr_mat)
+
+  result = np.array([0, revenue, 0]).repeat(n, 1)
+  for p in range(1, phases):
+
+    variables = [
+      make_distribution(dist, params) for dist, params in 
+      zip(df[f'phase_{p}:distribution'], df[f'phase_{p}:parameters'])
+    ]
+    composed_distribution = ot.ComposedDistribution(variables, copula)
+    sample = np.array(composed_distribution.getSample(n))
+    args = np.concatenate((result[:2,:], sample), axis=1)
+    temp = np.apply_along_axis(discount_cashflow, 0, args)
+    result += temp
+
+  # terminal value
 
   return cls
