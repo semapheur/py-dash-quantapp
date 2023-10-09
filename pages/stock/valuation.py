@@ -1,3 +1,5 @@
+from enum import Enum
+
 from dash import (
   callback, dcc, html, no_update, register_page, Output, Input, State)
 import dash_ag_grid as dag
@@ -19,28 +21,50 @@ distributions = [
   'Uniform'
 ]
 
-factors = [
-  'years'
-  'revenue_growth', 
-  'operating_margin', 
-  'tax_rate',
-  'reinvestment_rate',
-  'risk_free_rate',
-  'yield_spread',
-  'equity_risk_premium',
-  'equity_to_capital',
-  'beta',
-]
-
-_factors = {
+factors = {
   'years': {
-    'initial': '(0.0)'
+    'initial': ('Uniform', '5, 10'),
+    'terminal': ('∞', '')
   },
   'revenue_growth': {
-    'initial': '(0.15,0.3)',
-    'terminal': '(0.02,0.005)'
+    'initial': ('Normal', '0.15, 0.05'),
+    'terminal': ('Normal', '0.02, 0.001'),
+  },
+  'operating_margin': {
+    'initial': ('Normal', '0.10, 0.02'),
+    'terminal': ('Normal', '0.10, 0.02'),
+  },
+  'tax_rate': {
+    'initial': ('Normal', '0.25, 0.05'),
+    'terminal': ('Normal', '0.25, 0.05'),
+  },
+  'reinvestment_rate': {
+    'initial': ('Normal', '0.10, 0.05'),
+    'terminal': ('Normal', '0.10, 0.05'),
+  },
+  'risk_free_rate': {
+    'initial': ('Normal', '0.04, 0.01'),
+    'terminal': ('Normal', '0.02, 0.05'),
+  },
+  'yield_spread': {
+    'initial': ('Normal', '0.02, 0.01'),
+    'terminal': ('Normal', '0.01, 0.005'),
+  },
+  'equity_risk_premium': {
+    'initial': ('Normal', '0.02, 0.01'),
+    'terminal': ('Normal', '0.01, 0.005'),
+  },
+  'equity_to_capital': {
+    'initial': ('Normal', '0.5, 0.3'),
+    'terminal': ('Normal', '0.5, 0.3'),
+  },
+  'beta': {
+    'initial': ('Normal', '0.5, 0.3'),
+    'terminal': ('Normal', '0.5, 0.3'),
   }
 }
+
+Factors = Enum('Factors', list(factors.keys()), start=0)
 
 correlation = {
   ('risk_free_rate', 'yield_spread'): 0.9,
@@ -92,18 +116,12 @@ def layout(_id: str|None = None):
   ]
 
   row_data = [{
-    'factor': 'Years', 
-    'phase_1:distribution': 'Uniform',
-    'phase_1:parameters': '(5,10)',
-    'terminal:distribution': '∞',
-    'terminal:parameters': '',
-  }] + [{
-    'factor': i.replace('_', ' ').capitalize(), 
-    'phase_1:distribution': 'Normal',
-    'phase_1:parameters': '',
-    'terminal:distribution': 'Normal',
-    'terminal:parameters': '',
-  } for i in factors[1:]]
+    'factor': k.replace('_', ' ').capitalize(), 
+    'phase_1:distribution': factors[k]['initial'][0],
+    'phase_1:parameters': factors[k]['initial'][1],
+    'terminal:distribution': factors[k]['terminal'][0],
+    'terminal:parameters': factors[k]['terminal'][1],
+  } for k in factors]
 
   return html.Main(className='h-full flex flex-col', children=[
     StockHeader(_id),
@@ -169,7 +187,7 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
   n = 1000
 
   fin = pd.DataFrame.from_records(financials) 
-  fin = fin.set_index(['date', 'months']).sort_index('date')       
+  fin = fin.set_index(['date', 'months']).sort_index(level='date')       
 
   revenue = fin.loc[(slice(None), 12), 'revenue'].iloc[-1]
 
@@ -178,11 +196,9 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
   phases = len(df.columns) - 3 // 2
 
   corr_mat = ot.CorrelationMatrix(len(factors))
-  df_factors = pd.DataFrame([dict(zip(factors, range(0, factors)))])
-
   for pair, value in correlation.items():
-    location = df_factors[pair].values[0]
-    corr_mat[location[0], location[1]] = value
+    ix = (Factors[pair[0]].value, Factors[pair[1]].value)
+    corr_mat[ix] = value
 
   copula = ot.NormalCopula(corr_mat)
 
