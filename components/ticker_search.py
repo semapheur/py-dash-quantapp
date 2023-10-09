@@ -54,7 +54,7 @@ def ticker_results(search: str) -> list[dict[str, str]]:
 
   df = search_tickers('stock', search)
   links = [
-    dcc.Link(label, href=href, className=link_style) 
+    dcc.Link(label, href=href + '/overview', className=link_style) 
     for label, href in zip(df['label'], df['href'])
   ]
   return links

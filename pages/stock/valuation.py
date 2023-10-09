@@ -1,18 +1,16 @@
-import json
-
 from dash import (
-  callback, dcc, html, no_update, register_page, Output, Input, State, MATCH)
+  callback, dcc, html, no_update, register_page, Output, Input, State)
 import dash_ag_grid as dag
 import numpy as np
 import openturns as ot
 import pandas as pd
+import plotly.express as px
 
 from components.stock_header import StockHeader
 from lib.fin.dcf import discount_cashflow, make_distribution, terminal_value
 from lib.ticker.fetch import stock_label
 
-#register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
-register_page(__name__, path_template='/valuation')
+register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
 
 distributions = [
   'Normal',
@@ -35,8 +33,11 @@ factors = [
 ]
 
 _factors = {
+  'years': {
+    'initial': '(0.0)'
+  },
   'revenue_growth': {
-    'intial': '(0.15,0.3)',
+    'initial': '(0.15,0.3)',
     'terminal': '(0.02,0.005)'
   }
 }
@@ -118,7 +119,8 @@ def layout(_id: str|None = None):
       defaultColDef={'editable': True},
       dashGridOptions={'singleClickEdit': True},
       style={'height': '100%'}
-    )
+    ),
+    dcc.Graph(id='graph:stock-valuation:dcf')
   ])
 
 @callback(
@@ -155,14 +157,13 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   return cols, df.to_dict('records')
 
 @callback(
-  Output('button:stock-valuation:dcf-sim','className'),
+  Output('graph:stock-valuation:dcf', 'figure'),
   Input('button:stock-valuation:dcf-sim', 'n_clicks'),
   State('table:stock-valuation:dcf', 'rowData'),
-  State('button:stock-valuation:dcf-sim', 'className'),
   State('store:ticker-search:financials', 'data')
 )
-def monte_carlo(n_clicks: int, rowData: list[dict], cls: str, financials: list[dict]):
-  if not n_clicks:
+def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
+  if not (n_clicks and financials):
     return no_update
   
   n = 1000
@@ -212,4 +213,6 @@ def monte_carlo(n_clicks: int, rowData: list[dict], cls: str, financials: list[d
   args = np.concatenate((dcf[1,:], sample), axis=1)
   dcf += np.apply_along_axis(terminal_value, 0, args)
 
-  return cls
+  fig = px.histogram(dcf)
+
+  return fig

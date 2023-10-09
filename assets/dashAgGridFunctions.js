@@ -72,30 +72,30 @@ dagfuncs.DccDropdown = class {
 
 distributions = {
   normal: {
-    parameters: {
-      mu: 'Mean',
-      sigma: 'Scale'
-    }
+    parameters: [
+      'Mean',
+      'Scale'
+    ]
   },
   skewnormal: {
-    parameters: {
-      a: 'Skew',
-      loc: 'Mean',
-      scale: 'Scale'
-    }
+    parameters: [
+      'Skew',
+      'Mean',
+      'Scale'
+    ]
   },
   triangular: {
-    parameters: {
-      a: 'Min',
-      m: 'Mode',
-      b: 'Max'
-    }
+    parameters: [
+      'Min',
+      'Mode',
+      'Max'
+    ]
   },
   uniform: {
-    parameters: {
-      a: 'Min',
-      b: 'Max'
-    }
+    parameters: [
+      'Min',
+      'Max'
+    ]
   }
 }
 
@@ -111,9 +111,10 @@ dagfuncs.ParameterInput = class {
     const distParams = distributions[dist]['parameters']
     const width = `${(1 / Object.keys(distParams).length) * 100}%`
     this.eInputs = []
-    for (const key in distParams) {
+    for (const i in distParams) {
       const eInput = document.createElement('input')
-      eInput.placeholder = distParams[key]
+      eInput.value = params.value.split(', ')[i] ?? ''
+      eInput.placeholder = distParams[i]
       eInput.type = 'numeric'
       eInput.style.width = width
 
@@ -137,7 +138,6 @@ dagfuncs.ParameterInput = class {
     for (const input of this.eInputs) {
       values.push(input.value)
     }
-
-    return `(${values.join(',')})`;
+    return values.join(', ');
   }
 }

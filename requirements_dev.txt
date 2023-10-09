@@ -6,5 +6,6 @@ icecream
 ipykernel
 mypy
 pipreqs
+pyright
 ruff
 tqdm

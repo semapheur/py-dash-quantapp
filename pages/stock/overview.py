@@ -15,7 +15,7 @@ from components.dupont_chart import DupontChart
 from components.stock_header import StockHeader
 from lib.ticker.fetch import stock_label
 
-register_page(__name__, path_template='/stock/<_id>/', title=stock_label)
+register_page(__name__, path_template='/stock/<_id>/overview', title=stock_label)
 
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
