@@ -57,9 +57,10 @@ def discount_cashflow(
   beta: float
 ) -> np.ndarray[float]:
 
-  print('yay')
   revenue = (start_revenue * 
-    np.array([(1 + revenue_growth)**start_year] * years).cumprod())
+    np.array(np.power((1 + revenue_growth), start_year))
+      .repeat(years)
+      .cumprod())
   fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
 
   cost_debt = (risk_free_rate + yield_spread) * (1 - tax_rate)
