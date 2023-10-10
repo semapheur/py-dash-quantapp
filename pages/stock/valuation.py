@@ -202,9 +202,9 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
     ix = (Factors[pair[0]].value, Factors[pair[1]].value)
     corr_mat[ix] = value
 
-  corr_mat = nearest_postive_definite_matrix(corr_mat)
-  corr_mat = ot.CorrelationMatrix(len(factors), corr_mat.flatten())
-  copula = ot.NormalCopula(corr_mat)
+  corr_mat_psd = nearest_postive_definite_matrix(corr_mat)
+  corr_mat_psd = ot.CorrelationMatrix(len(factors), corr_mat_psd.flatten())
+  copula = ot.NormalCopula(corr_mat_psd)
 
   dcf = np.array([[1, float(revenue), 0.]]).repeat(n, 0)
   phases = (len(df.columns) - 3) // 2
@@ -215,24 +215,32 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
 
     variables = [
       make_distribution(dist, params) for dist, params in 
-      zip(df[f'phase_{p}:distribution'], df[f'phase_{p}:parameters'])
-    ]
+      zip(
+        df[f'phase_{p}:distribution'], 
+        df[f'phase_{p}:parameters']
+      )]
     composed_distribution = ot.ComposedDistribution(variables, copula)
     sample = np.array(composed_distribution.getSample(n))
     args = np.concatenate((dcf[:,:2], sample), axis=1)
     dcf += np.apply_along_axis(lambda x: discount_cashflow(*x), 1, args)
 
   # terminal value
+  df.loc[1:, 'terminal:parameters'] = df.loc[1:, 'terminal:parameters'].apply(
+    lambda x: [float(num) for num in x.split(', ')]
+  )
   variables = [
     make_distribution(dist, params) for dist, params in 
     zip(
-      df['terminal:distribution'].iloc[1:], 
-      df['terminal:parameters'].iloc[1:]
-    )
-  ]
+      df.loc[1:, 'terminal:distribution'], 
+      df.loc[1:, 'terminal:parameters']
+    )]
+  corr_mat_psd = nearest_postive_definite_matrix(corr_mat[1:, 1:])
+  corr_mat_psd = ot.CorrelationMatrix(len(factors) - 1, corr_mat_psd.flatten())
+  copula = ot.NormalCopula(corr_mat_psd)
   composed_distribution = ot.ComposedDistribution(variables, copula)
+
   sample = np.array(composed_distribution.getSample(n))
-  args = np.concatenate((dcf[:,1], sample), axis=1)
+  args = np.concatenate((dcf[:,1].reshape(-1, 1), sample), axis=1)
   tv = np.apply_along_axis(lambda x: terminal_value(*x), 1, args)
 
   dcf = dcf[:,2] + tv

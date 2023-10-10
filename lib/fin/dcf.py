@@ -19,7 +19,6 @@ def make_distribution(name: str, params: list[float]):
     if (n := len(params)) == length:
       return
     
-    print(params)
     raise ValueError(
       f'The {name} distribution takes {length} parameters, however {n} were given!')
 
