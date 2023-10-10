@@ -45,7 +45,7 @@ def make_distribution(name: str, params: list[float]):
 def discount_cashflow(
   start_year: int,
   start_revenue: float,
-  years: int,
+  years: int | float,
   revenue_growth: float,
   operating_margin: float,
   tax_rate: float,
@@ -57,8 +57,10 @@ def discount_cashflow(
   beta: float
 ) -> np.ndarray[float]:
 
+  years = int(years)
+
   revenue = (start_revenue * 
-    np.array(np.power((1 + revenue_growth), start_year))
+    np.array(np.power(1 + revenue_growth, start_year))
       .repeat(years)
       .cumprod())
   fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
@@ -71,7 +73,10 @@ def discount_cashflow(
     (1 - equity_value_weight) * cost_debt
   )
 
-  dcf = fcff / (1 - np.array([cost_capital] * years)).cumprod()
+  dcf = (fcff / 
+    np.array(np.power(1 - cost_capital, start_year))
+      .repeat(years)
+      .cumprod()) 
 
   return np.array([years, revenue[-1], dcf.sum()])
 

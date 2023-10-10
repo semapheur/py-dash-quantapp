@@ -197,8 +197,6 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
 
   df = pd.DataFrame.from_records(rowData)
 
-  phases = len(df.columns) - 3 // 2
-
   corr_mat = np.eye(len(factors))
   for pair, value in correlation.items():
     ix = (Factors[pair[0]].value, Factors[pair[1]].value)
@@ -208,7 +206,8 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
   corr_mat = ot.CorrelationMatrix(len(factors), corr_mat.flatten())
   copula = ot.NormalCopula(corr_mat)
 
-  dcf = np.array([[1, revenue, 0]]).repeat(n, 0)
+  dcf = np.array([[1, float(revenue), 0.]]).repeat(n, 0)
+  phases = (len(df.columns) - 3) // 2
   for p in range(1, phases):
     df.loc[:, f'phase_{p}:parameters'] = df[f'phase_{p}:parameters'].apply(
       lambda x: [float(num) for num in x.split(', ')]
