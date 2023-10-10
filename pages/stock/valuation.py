@@ -9,7 +9,11 @@ import pandas as pd
 import plotly.express as px
 
 from components.stock_header import StockHeader
-from lib.fin.dcf import discount_cashflow, make_distribution, terminal_value
+from lib.fin.dcf import (
+  discount_cashflow, 
+  make_distribution, 
+  nearest_postive_definite_matrix, 
+  terminal_value)
 from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
@@ -195,15 +199,20 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
 
   phases = len(df.columns) - 3 // 2
 
-  corr_mat = ot.CorrelationMatrix(len(factors))
+  corr_mat = np.eye(len(factors))
   for pair, value in correlation.items():
     ix = (Factors[pair[0]].value, Factors[pair[1]].value)
     corr_mat[ix] = value
 
+  corr_mat = nearest_postive_definite_matrix(corr_mat)
+  corr_mat = ot.CorrelationMatrix(len(factors), corr_mat.flatten())
   copula = ot.NormalCopula(corr_mat)
 
-  dcf = np.array([0, revenue, 0]).repeat(n, 1)
+  dcf = np.array([[0, revenue, 0]]).repeat(n, 0)
   for p in range(1, phases):
+    df.loc[:, f'phase_{p}:parameters'] = df[f'phase_{p}:parameters'].apply(
+      lambda x: [float(num) for num in x.split(', ')]
+    )
 
     variables = [
       make_distribution(dist, params) for dist, params in 
@@ -211,10 +220,8 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
     ]
     composed_distribution = ot.ComposedDistribution(variables, copula)
     sample = np.array(composed_distribution.getSample(n))
-    args = np.concatenate((dcf[:2,:], sample), axis=1)
-    dcf += np.apply_along_axis(discount_cashflow, 0, args)
-
-  dcf = dcf[2,:] 
+    args = np.concatenate((dcf[:,:2], sample), axis=1)
+    dcf += np.apply_along_axis(lambda x: discount_cashflow(*x), 1, args)
 
   # terminal value
   variables = [
@@ -226,8 +233,10 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
   ]
   composed_distribution = ot.ComposedDistribution(variables, copula)
   sample = np.array(composed_distribution.getSample(n))
-  args = np.concatenate((dcf[1,:], sample), axis=1)
-  dcf += np.apply_along_axis(terminal_value, 0, args)
+  args = np.concatenate((dcf[:,1], sample), axis=1)
+  tv = np.apply_along_axis(lambda x: terminal_value(*x), 1, args)
+
+  dcf = dcf[:,2] + tv
 
   fig = px.histogram(dcf)
 

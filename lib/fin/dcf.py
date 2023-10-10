@@ -6,12 +6,20 @@ import scipy.stats as stt
 # https://colab.research.google.com/drive/1XtCNkpbfSoiMXpypcJ3DOzXBZy4jRzn_?usp=sharing#scrollTo=feJ1s39mkFEw
 # https://www.youtube.com/watch?v=30uh1YBrsQ0
 
+def nearest_postive_definite_matrix(A: np.ndarray) -> np.ndarray:
+  C = (A + A.T)/2
+  eigval, eigvec = np.linalg.eig(C)
+  eigval[eigval < 0] = 0
+
+  return eigvec.dot(np.diag(eigval)).dot(eigvec.T)
+
 def make_distribution(name: str, params: list[float]):
 
   def check_params(length: int, params: list[float],):
     if (n := len(params)) == length:
       return
     
+    print(params)
     raise ValueError(
       f'The {name} distribution takes {length} parameters, however {n} were given!')
 
@@ -49,6 +57,7 @@ def discount_cashflow(
   beta: float
 ) -> np.ndarray[float]:
 
+  print('yay')
   revenue = (start_revenue * 
     np.array([(1 + revenue_growth)**start_year] * years).cumprod())
   fcff = revenue * operating_margin * (1 - tax_rate) * (1 - reinvestment_rate)
