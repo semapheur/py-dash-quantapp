@@ -195,7 +195,7 @@ def update_store(row: list[dict]):
 clientside_callback(
   ClientsideFunction(
     namespace='clientside',
-    function_name='open_financials_modal'
+    function_name='graph_modal'
   ),
   Output('graph:stock-financials', 'figure'),
   Input('store:stock-financials:row-data', 'data'),
@@ -205,7 +205,7 @@ clientside_callback(
 clientside_callback(
   ClientsideFunction(
     namespace='clientside',
-    function_name='close_financials_modal'
+    function_name='close_modal'
   ),
   Output('dialog:stock-financials', 'id'),
   Input('button:stock-financials:close-modal', 'n_clicks'),

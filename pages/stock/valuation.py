@@ -1,7 +1,8 @@
 from enum import Enum
 
 from dash import (
-  callback, dcc, html, no_update, register_page, Output, Input, State)
+  callback, clientside_callback, ClientsideFunction, 
+  dcc, html, no_update, register_page, Output, Input, State)
 import dash_ag_grid as dag
 import numpy as np
 import openturns as ot
@@ -17,6 +18,8 @@ from lib.fin.dcf import (
 from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
+
+modal_style = 'relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md'
 
 distributions = [
   'Normal',
@@ -142,7 +145,18 @@ def layout(_id: str|None = None):
       dashGridOptions={'singleClickEdit': True},
       style={'height': '100%'}
     ),
-    dcc.Graph(id='graph:stock-valuation:dcf')
+    dcc.Graph(id='graph:stock-valuation:dcf'),
+    html.Dialog(
+      id='dialog:stock-valuation', 
+      className=modal_style, 
+      children=[
+        dcc.Graph(id='graph:stock-valuation:factors'),
+        html.Button('x', 
+          id='button:stock-valuation:close-modal',
+          className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
+        )
+    ]),
+    dcc.Store(id='store:stock-valuations:factors-data', data={})
   ])
 
 @callback(
@@ -177,6 +191,50 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
     ]
   })
   return cols, df.to_dict('records')
+
+@callback(
+  Output('store:stock-valuation:factors-data', 'data'),
+  Input('table:stock-valuation:dcf', 'cellSelected'),
+  State('store:ticker-search:financials', 'data')
+)
+def update_store(cell: dict, data: list[dict]):
+  if not data or cell['colId'] != 'factors':
+    return no_update
+  
+  df = pd.DataFrame.from_records(data)
+  df.set_index(['date', 'months'], inplace=True)
+
+  df = df.loc[(slice(None), 12), cell['value']]
+  df.reset_index(level='months', inplace=True)
+
+  return {
+    'title': cell['value'],
+    'data': [{
+      'x': df.index,
+      'y': df.pct_change(),
+      'mode': 'line'
+    }]
+  } 
+
+clientside_callback(
+  ClientsideFunction(
+    namespace='clientside',
+    function_name='graph_modal'
+  ),
+  Output('graph:stock-valuation:factors', 'figure'),
+  Input('store:stock-valuation:factors-data', 'data'),
+  State('dialog:stock-valuation', 'id')
+)
+
+clientside_callback(
+  ClientsideFunction(
+    namespace='clientside',
+    function_name='close_modal'
+  ),
+  Output('dialog:stock-valuation', 'id'),
+  Input('button:stock-valuation:close-modal', 'n_clicks'),
+  State('dialog:stock-valuation', 'id')
+)
 
 @callback(
   Output('graph:stock-valuation:dcf', 'figure'),
