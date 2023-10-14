@@ -184,13 +184,12 @@ def calculate_fundamentals(
   )
   schema = load_schema()
   financials = calculate_items(financials, schema)
+
   market_fetcher = partial(Ticker('^GSPC').ohlcv)
   riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
-  
-  price = price.set_index('date')['share_price']
-  price.rename('equity_return')
-
+  price.rename(columns={'share_price': 'equity_return'}, inplace=True)
   financials = beta(_id, financials, price, market_fetcher, riskfree_fetcher)
+
   financials = weighted_average_cost_of_capital(financials)
   financials = f_score(financials)
   financials = m_score(financials)

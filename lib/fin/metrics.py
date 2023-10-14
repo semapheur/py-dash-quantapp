@@ -103,8 +103,8 @@ def beta(
   ) -> pd.DataFrame:
     
     days = {
-      3: 63,
-      12: 252
+      3: 63.,
+      12: 252.
     }
 
     beta = np.full(len(dates), np.nan)
@@ -120,10 +120,8 @@ def beta(
           (returns.index >= min(dates[i], returns.index.min())) & 
           (returns.index <= dates[i])
         )
-        period = days[months]
       else:  
         mask = (returns.index >= dates[i-1]) & (returns.index <= dates[i])
-        period = np.busday_count(dates[i-1], dates[i])
       
       temp: pd.DataFrame = returns.loc[mask]
       if temp.empty:
@@ -132,7 +130,7 @@ def beta(
       x = sm.add_constant(temp['market_return'])
       model = sm.OLS(temp['equity_return'], x)
       ols_result = model.fit()
-      beta[i] = ols_result.params[-1]
+      beta[i] = ols_result.params.iloc[-1]
       
       market_return[i] = temp['market_return'].mean() * period
       risk_free_rate[i] = temp['risk_free_rate'].mean()
@@ -142,6 +140,8 @@ def beta(
       columns=('date', 'beta', 'market_return', 'risk_free_rate'),
     )
     result['months'] = months
+
+    result.loc[:, 'market_return'] *= days[period]
     
     if months == 3:
       result.loc[:, 'risk_free_rate'] = result['risk_free_rate'] / 4  
@@ -154,7 +154,7 @@ def beta(
 
   if isinstance(quote, partial):
     quote: pd.DataFrame = get_ohlcv(_id, 'stock', quote, cols={'date', 'close'})
-    quote.rename(columns={'close': 'share_price'}, inplace=True)
+    quote.rename(columns={'close': 'equity_return'}, inplace=True)
     quote.set_index('date', inplace=True)
 
   market = market_fetcher(start_date)
@@ -166,12 +166,10 @@ def beta(
 
   returns: pd.DataFrame = pd.concat([quote, market, riskfree], axis=1).ffill()
 
-  cols = ['close', 'market_return']
+  cols = ['equity_return', 'market_return']
   returns.loc[:, cols] = returns[cols].pct_change() 
   #returns.loc[:, cols] = returns[cols].diff() / returns[cols].abs().shift(1)
   returns.dropna(inplace=True)
-
-  dates = fin.sort_values('date').index.get_level_values('date').unique()
   
   betas: list[pd.DataFrame] = []
   for period in (3, 12):
@@ -187,6 +185,7 @@ def beta(
     .reset_index()
     .merge(beta, on=['date', 'months'], how='left')
     .set_index(['date', 'period', 'months'])
+    .drop('index', axis=1)
   )
   return fin
 

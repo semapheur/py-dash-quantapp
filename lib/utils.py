@@ -124,6 +124,17 @@ def df_time_difference(
   return np.round(
     dates.to_series().diff() / np.timedelta64(periods, freq)
   )
+
+def df_business_days(
+  dates: pd.DatetimeIndex, 
+  fill: float = np.nan
+) -> pd.Series:
+  dates = dates.to_series().values.astype('datetime64[D]')
+
+  values = np.concatenate(
+    ([fill], np.busday_count(dates[:-1], dates[1:]))
+  )
+  return pd.Series(values)
   
 def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:
 
