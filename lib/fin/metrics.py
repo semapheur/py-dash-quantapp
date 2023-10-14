@@ -200,10 +200,10 @@ def wacc(
 
   df['weighted_average_cost_of_capital'] = (
     df['cost_equity'] * df['equity_to_capital'] +
-    df['cost_debt'] * (1 - df['tax_rate']) * df['debt'] / 
+    df['cost_debt'] * (1 - df['tax_rate']) * df['market_value_debt'] / 
       (df['market_capitalization'] + df['market_value_debt'])
   )
-  excl = ['yield_spread', 'market_return', 'risk_free_rate']
+  excl = ['yield_spread', 'market_return']
   df = df[df.columns.difference(excl)]
   return 
 

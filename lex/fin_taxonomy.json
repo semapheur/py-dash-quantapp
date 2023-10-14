@@ -2800,7 +2800,7 @@
     "period": "duration",
     "calculation": {
       "order": 2,
-      "any": "derivatives_adjustment + long_duration_insurance_contracts_discount_rate_changes + foreign_currency_transaction_translation_adjustment + securities_adjustment + pension_postretirement_benefit_plans_adjustment+ other_comprehensive_income"
+      "any": "derivatives_adjustment + long_duration_insurance_contracts_discount_rate_changes + foreign_currency_transaction_translation_adjustment + securities_adjustment + pension_postretirement_benefit_plans_adjustment + other_comprehensive_income"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossNetOfTax",

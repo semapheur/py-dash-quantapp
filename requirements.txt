@@ -27,13 +27,14 @@ numba
 numpy
 openturns
 ordered-set
+orjson
 pandas
 #polars
 protobuf==3.20
 pycountry
 pydantic
 python-dotenv
-pyyaml
+#pyyaml
 requests
 scikit-learn
 scipy
