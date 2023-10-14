@@ -215,7 +215,7 @@ def update_graph(cell: dict[str, str|int], data: list[dict]):
 
   return px.line(
     x=df.index,
-    y=df,
+    y=df.pct_change() if factor == 'revenue' else df,
     title=cell['value'],
     labels={
       'x': 'Date',
