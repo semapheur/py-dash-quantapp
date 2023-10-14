@@ -3,7 +3,8 @@ from dash import html, dcc, page_registry
 from components.ticker_search import TickerSearch
 from components.theme_toggle import ThemeToggle
 
-header_style = 'grid grid-cols-[auto_1fr_auto_auto] justify-items-center content-start gap-4 p-2 bg-primary border-b border-b-secondary'
+header_style = ('grid grid-cols-[auto_1fr_auto_auto] justify-items-center '
+  'content-start gap-4 p-2 bg-primary border-b border-b-secondary')
 logo_style = 'text-4xl text-text hover:text-secondary leading-none'
 link_style = 'text-2xl text-text hover:text-secondary'
 

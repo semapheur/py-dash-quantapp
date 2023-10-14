@@ -21,15 +21,14 @@ function open_modal(dialog_id) {
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
     /**
-     * @param {Object} data
+     * @param {Object|Array} select
      * @param {string} dialog_id
      * @returns {Figure}
      */
-    graph_modal: function(data, dialog_id) {
-
+    graph_modal: function(select, dialog_id) {
+      if (select === undefined) { return select}
       open_modal(dialog_id)
-  
-      return dialog_id
+      return select
     },
     /**
      * @param {number} n_clicks

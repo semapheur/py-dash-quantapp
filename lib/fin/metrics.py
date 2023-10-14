@@ -135,10 +135,12 @@ def beta(
       market_return[i] = temp['market_return'].mean() * period
       risk_free_rate[i] = temp['risk_free_rate'].mean()
 
-    result = pd.DataFrame(
-      data=(dates.to_list(), beta, market_return, risk_free_rate), 
-      columns=('date', 'beta', 'market_return', 'risk_free_rate'),
-    )
+    result = pd.DataFrame(data={
+      'date': dates, 
+      'beta': beta,
+      'market_return': market_return, 
+      'risk_free_rate': risk_free_rate
+    })
     result['months'] = months
 
     result.loc[:, 'market_return'] *= days[period]
@@ -185,7 +187,6 @@ def beta(
     .reset_index()
     .merge(beta, on=['date', 'months'], how='left')
     .set_index(['date', 'period', 'months'])
-    .drop('index', axis=1)
   )
   return fin
 
@@ -204,7 +205,7 @@ def weighted_average_cost_of_capital(
       
   fin.loc[:, 'yield_spread'] = fin.apply(
     lambda r: yield_spread(
-      r['interest_coverage_rate'],
+      r['interest_coverage_ratio'],
       r['capitalization_class'])
     , axis=1)
   
@@ -238,7 +239,7 @@ def weighted_average_cost_of_capital(
         fin['market_capitalization'] + 
         fin['market_value_debt']))
   )
-  excl = ['market_return']
+  excl = ['market_return', 'capitalization_class']
   fin = fin[fin.columns.difference(excl)]
   return fin
 

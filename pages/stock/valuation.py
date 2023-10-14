@@ -37,7 +37,7 @@ factors = {
     'initial': ('Normal', '0.15, 0.05'),
     'terminal': ('Normal', '0.02, 0.001'),
   },
-  'operating_margin': {
+  'operating_profit_margin': {
     'initial': ('Normal', '0.10, 0.02'),
     'terminal': ('Normal', '0.10, 0.02'),
   },
@@ -150,12 +150,12 @@ def layout(_id: str|None = None):
       id='dialog:stock-valuation', 
       className=modal_style, 
       children=[
-        dcc.Graph(id='graph:stock-valuation:factors'),
+        dcc.Graph(id='graph:stock-valuation:factor'),
         html.Button('x', 
           id='button:stock-valuation:close-modal',
           className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
         )
-    ]),
+    ])
   ])
 
 @callback(
@@ -192,32 +192,35 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   return cols, df.to_dict('records')
 
 @callback(
-  Output('graph:stock-valuation:factors', 'figure'),
-  Input('table:stock-valuation:dcf', 'cellSelected'),
+  Output('graph:stock-valuation:factor', 'figure'),
+  Input('table:stock-valuation:dcf', 'cellClicked'),
   State('store:ticker-search:financials', 'data')
 )
 def update_graph(cell: dict[str, str|int], data: list[dict]):
-  if not data or cell['colId'] != 'factors':
+  if not (cell and data) or cell['colId'] != 'factor':
     return no_update
   
+  if cell['rowIndex'] == 0:
+    return no_update
+
   factor = cell['value'].lower().replace(' ', '_')
 
-  if factor == 'years':
-    return no_update
-  
   df = pd.DataFrame.from_records(data)
-  df.set_index(['date', 'months'], inplace=True)
+  df.set_index('date', inplace=True)
 
   if factor == 'revenue_growth':
     factor = 'revenue'
 
-  df = df.loc[(slice(None), 12), factor]
-  df.reset_index(level='months', inplace=True)
+  df = df.loc[df['months'] == 12, factor]
 
   return px.line(
     x=df.index,
     y=df,
-    title=cell['value']
+    title=cell['value'],
+    labels={
+      'x': 'Date',
+      'y': ''
+    }
   )
 
 clientside_callback(
@@ -225,10 +228,9 @@ clientside_callback(
     namespace='clientside',
     function_name='graph_modal'
   ),
-  Output('dialog:stock-valuation', 'id', allow_duplicate=True),
-  Input('graph:stock-valuation:factors', 'figure'),
+  Output('table:stock-valuation:dcf', 'cellClicked'),
+  Input('table:stock-valuation:dcf', 'cellClicked'),
   State('dialog:stock-valuation', 'id'),
-  prevent_initial_call=True
 )
 
 clientside_callback(

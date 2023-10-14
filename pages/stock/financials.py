@@ -68,8 +68,7 @@ def layout(_id: Optional[str] = None):
           id='button:stock-financials:close-modal',
           className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
         )
-    ]),
-    dcc.Store(id='store:stock-financials:row-data', data={})
+    ])
   ])
 
 @callback(
@@ -170,7 +169,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
   ),
 
 @callback(
-  Output('store:stock-financials:row-data', 'data'),
+  Output('graph:stock-financials', 'figure'),
   Input('table:stock-financials', 'selectedRows'),
 )
 def update_store(row: list[dict]):
@@ -183,23 +182,24 @@ def update_store(row: list[dict]):
     .sort_index()
   )
 
-  return {
-    'title': row[0]['index'],
-    'data': [{
-      'x': df.index,
-      'y': df[0].pct_change(),
-      'mode': 'line'
-    }]
-  } 
+  return px.line(
+    x=df.index,
+    y=df[0].pct_change(),
+    title=row[0]['index'],
+    labels={
+      'x': 'Date',
+      'y': ''
+    }
+  )
 
 clientside_callback(
   ClientsideFunction(
     namespace='clientside',
     function_name='graph_modal'
   ),
-  Output('graph:stock-financials', 'figure'),
-  Input('store:stock-financials:row-data', 'data'),
-  State('dialog:stock-financials', 'id')
+  Output('table:stock-financials', 'selectedRows'),
+  Input('table:stock-financials', 'selectedRows'),
+  State('dialog:stock-financials', 'id'),
 )
 
 clientside_callback(
