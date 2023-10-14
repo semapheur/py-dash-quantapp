@@ -95,7 +95,7 @@ def wacc(
   market_fetcher: partial[pd.DataFrame],
   riskefree_fetcher: partial[pd.DataFrame],
   beta_period: int = 1,
-  debt_maturity: int = 5
+  debt_maturity: int = 10
 ) -> pd.DataFrame: # yahoo: ^TNX/'^TYX; fred: DSG10
   from lib.ticker.fetch import get_ohlcv
   
@@ -111,7 +111,7 @@ def wacc(
   )
   riskfree = riskefree_fetcher()
   riskfree = (riskfree['close']
-    .rename('riskfree')
+    .rename('risk_free_rate')
     .resample('D').ffill()
   )
 
@@ -124,8 +124,8 @@ def wacc(
     lambda x: 'small' if x < 2e9 else 'large'
   )
       
-  df.loc[:, 'credit_spread'] = df.apply(
-    lambda r: credit_rating(
+  df.loc[:, 'yield_spread'] = df.apply(
+    lambda r: yield_spread(
       r['interest_coverage_rate'],
       r['capitalization_class'])
     , axis=1)
@@ -133,7 +133,7 @@ def wacc(
   beta = {
     'beta': [],
     'market_return': [],
-    'riskfree_rate': []
+    'risk_free_rate': []
   }
   #delta = ttm['period'].apply(
   # lambda x: relativedelta(years=-1) if x == 'A' 
@@ -160,12 +160,12 @@ def wacc(
       beta['beta'].append(results.params[-1])
       
       beta['market_return'].append(temp['market'].mean() * 252)
-      beta['riskfree_rate'].append(temp['riskFree'].mean() / 100)
+      beta['risk_free_rate'].append(temp['risk_free_rate'].mean() / 100)
         
     else:
       beta['beta'].append(np.nan)
       beta['market_return'].append(np.nan)
-      beta['riskfree_rate'].append(np.nan)        
+      beta['risk_free_rate'].append(np.nan)        
   
   beta = pd.DataFrame(data=beta, index=dates)
   df = (df
@@ -178,10 +178,10 @@ def wacc(
     df['debt'] / df['equity'])
   
   # Cost of equity
-  df['cost_equity'] = df['riskfree_rate'] + df['beta_levered'] * (
-      df['market_return'] - df['riskfree_rate'])
+  df['cost_equity'] = df['risk_free_rate'] + df['beta_levered'] * (
+      df['market_return'] - df['risk_free_rate'])
   # Cost of debt
-  df['cost_debt'] = df['riskfree_rate'] + df['credit_spread']
+  df['cost_debt'] = df['risk_free_rate'] + df['yield_spread']
   
   int_ex = df['interest_expense'].copy()
   #if 3 in df.index.get_level_values('months'):
@@ -193,19 +193,22 @@ def wacc(
   df['market_value_debt'] = (int_ex / df['cost_debt']) * (
     1 - (1 / (1 + df['cost_debt'])**debt_maturity)) + (
       df['debt'] / (1 + df['cost_debt'])**debt_maturity)
+  
+  df['equity_to_capital'] = (df['market_capitalization'] / 
+    (df['market_capitalization'] + df['market_value_debt'])
+  )
 
   df['weighted_average_cost_of_capital'] = (
-    df['cost_equity'] * df['market_capitalization'] / 
-      (df['market_capitalization'] + df['market_value_debt']) +
+    df['cost_equity'] * df['equity_to_capital'] +
     df['cost_debt'] * (1 - df['tax_rate']) * df['debt'] / 
       (df['market_capitalization'] + df['market_value_debt'])
   )
-  excl = ['credit_spread', 'market_return', 'riskfree_rate']
+  excl = ['yield_spread', 'market_return', 'risk_free_rate']
   df = df[df.columns.difference(excl)]
   return 
 
 
-def credit_rating(icr: float, cap: Literal['small', 'large']):
+def yield_spread(icr: float, cap: Literal['small', 'large']):
   # ICR: Interest Coverage Ratio
   
   if np.isnan(icr):

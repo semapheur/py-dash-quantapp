@@ -184,13 +184,7 @@
     },
     "calculation": {
       "order": 3,
-      "all": [
-        "1.2 * operating_working_capital / assets",
-        "+1.4 * retained_earnings_accumulated_deficit / assets",
-        "+3.3 * operating_income_loss / average_assets",
-        "+0.6 * market_capitalization / liabilities",
-        "+ average_revenue / average_assets"
-      ]
+      "all": "1.2 * operating_working_capital / assets + 1.4 * retained_earnings_accumulated_deficit / assets + 3.3 * operating_income_loss / average_assets + 0.6 * market_capitalization / liabilities + average_revenue / average_assets"
     }
   },
   "market_capitalization": {
@@ -767,14 +761,7 @@
     "period": "instant",
     "calculation": {
       "order": 2,
-      "any": [
-        "current_trade_receivables",
-        "+inventory", 
-        "+current_prepaid_expenses",
-        "-trade_payables",
-        "-current_deferred_revenue",
-        "-current_accrued_expenses"
-      ]
+      "any": "current_trade_receivables + inventory + current_prepaid_expenses - trade_payables - current_deferred_revenue - current_accrued_expenses"
     },
     "label": {
       "long": "Operating Working Capital"
@@ -797,12 +784,7 @@
     "period": "instant",
     "calculation": {
       "order": 3,
-      "all": [
-        "liquid_assets",
-        "+0.75 * current_trade_receivables",
-        "+ 0.5 * inventory", 
-        "-liabilities"
-      ]
+      "all": "liquid_assets + 0.75 * current_trade_receivables + 0.5 * inventory - liabilities"
     },
     "label": {
       "long": "Net-Net Working Capital"
@@ -1425,13 +1407,7 @@
     },
     "calculation": {
       "order": 2,
-      "all": [
-        "dividend_payments",
-        "+stock_cashflow",
-        "+longterm_debt_cashflow",
-        "+shortterm_debt_cashflow",
-        "+other_financing_cashflow"
-      ]
+      "all": "dividend_payments + stock_cashflow + longterm_debt_cashflow + shortterm_debt_cashflow + other_financing_cashflow"
     }
   },
   "financing_cash_inflow": {
@@ -1455,14 +1431,7 @@
     },
     "calculation": {
       "order": 1,
-      "any": [
-        "dividend_payments", 
-        "+stock_payments",
-        "+debt_repayments",
-        "+quarterly_debt_repayments",
-        "+annual_debt_repayments",
-        "+other_shortterm_debt_repayments"
-      ]
+      "any": "dividend_payments + stock_payments + debt_repayments + quarterly_debt_repayments + annual_debt_repayments + other_shortterm_debt_repayments"
     }
   },
   "stock_cashflow": {
@@ -1702,13 +1671,7 @@
     },
     "calculation": {
       "order": 2,
-      "any": [
-        "productive_assets_cashflow",
-        "+intangible_assets_cashflow",
-        "+securities_cashflow",
-        "+acquisition_divestitures_cashflow",
-        "+other_investing_cashflow"
-      ]
+      "any": "productive_assets_cashflow + intangible_assets_cashflow + securities_cashflow + acquisition_divestitures_cashflow + other_investing_cashflow"
     }
   },
   "investing_cash_inflow": {
@@ -1929,14 +1892,7 @@
     },
     "calculation": {
       "order": 6,
-      "any": [
-        "net_income_loss", 
-        "-deferred_tax", 
-        "+depreciation_depletion_amortization_accretion",
-        "+sharebased_compensation", 
-        "+change_working_capital",
-        "+other_noncash_income_expense"
-      ]
+      "any": "net_income_loss - deferred_tax + depreciation_depletion_amortization_accretion + sharebased_compensation+ change_working_capital + other_noncash_income_expense"
     }
   },
   "change_working_capital": {
@@ -1944,18 +1900,7 @@
     "period": "duration",
     "calculation": {
       "order": 2,
-      "any": [
-        "change_current_tax_assets",
-        "+change_inventories",
-        "+change_current_trade_receivables",
-        "+change_current_prepaid_expenses",
-        "+change_other_current_assets",
-        "-change_current_accrued_expenses",
-        "-change_current_deferred_revenue",
-        "-change_current_tax_liabilities",
-        "-change_trade_payables",
-        "-change_other_current_liabilities"
-      ]
+      "any": "change_current_tax_assets + change_inventories + change_current_trade_receivables + change_current_prepaid_expenses + change_other_current_assets - change_current_accrued_expenses - change_current_deferred_revenue - change_current_tax_liabilities - change_trade_payables - change_other_current_liabilities"
     },
     "label": {
       "long": "Change in Net Working Capital"
@@ -2508,12 +2453,7 @@
     },
     "calculation": {
       "order": 0,
-      "any": [
-        "current_employee_related_liabilities",
-        "+current_accrued_marketing_expenses",
-        "+current_accrued_taxes",
-        "+other_current_accrued_expenses"
-      ]
+      "any": "current_employee_related_liabilities + current_accrued_marketing_expenses + current_accrued_taxes + other_current_accrued_expenses"
     }
   },
   "current_employee_related_liabilities": {
@@ -2860,14 +2800,7 @@
     "period": "duration",
     "calculation": {
       "order": 2,
-      "any": [
-        "derivatives_adjustment",
-        "+long_duration_insurance_contracts_discount_rate_changes",
-        "+foreign_currency_transaction_translation_adjustment",
-        "+securities_adjustment",
-        "+pension_postretirement_benefit_plans_adjustment",
-        "+other_comprehensive_income"
-      ]
+      "any": "derivatives_adjustment + long_duration_insurance_contracts_discount_rate_changes + foreign_currency_transaction_translation_adjustment + securities_adjustment + pension_postretirement_benefit_plans_adjustment+ other_comprehensive_income"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossNetOfTax",
@@ -2882,10 +2815,7 @@
     "period": "duration",
     "calculation": {
       "order": 0,
-      "all": [
-        "derivatives_gain_loss_before_reclassification_after_tax",
-        "+derivatives_gain_loss_reclassification_after_tax"
-      ]
+      "all": "derivatives_gain_loss_before_reclassification_after_tax + derivatives_gain_loss_reclassification_after_tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossafterReclassificationandTax",
@@ -2920,10 +2850,7 @@
     "period": "duration",
     "calculation": {
       "order": 0,
-      "all": [
-        "long_duration_insurance_contracts_discount_rate_changes_before_tax",
-        "-long_duration_insurance_contracts_discount_rate_changes_tax"
-      ]
+      "all": "long_duration_insurance_contracts_discount_rate_changes_before_tax - long_duration_insurance_contracts_discount_rate_changes_tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossLongDurationInsuranceContractsDiscountRateChangesNetOfTax"
@@ -2957,10 +2884,7 @@
     "period": "duration",
     "calculation": {
       "order": 0,
-      "all": [
-        "foreign_currency_transaction_translation_adjustment_before_tax",
-        "-foreign_currency_transaction_translation_adjustment_tax"
-      ]
+      "all": "foreign_currency_transaction_translation_adjustment_before_tax - foreign_currency_transaction_translation_adjustment_tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentNetOfTax"
@@ -2994,10 +2918,7 @@
     "period": "duration",
     "calculation": {
       "order": 1,
-      "all": [
-        "securities_unrealized_gain_loss",
-        "+securities_sales_reclassification"
-      ]
+      "all": "securities_unrealized_gain_loss + securities_sales_reclassification"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax"
@@ -3011,10 +2932,7 @@
     "period": "duration",
     "calculation": {
       "order": 0,
-      "all": [
-        "securities_unrealized_gain_loss_before_tax",
-        "-securities_unrealized_gain_loss_tax"
-      ]
+      "all": "securities_unrealized_gain_loss_before_tax - securities_unrealized_gain_loss_tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeUnrealizedHoldingGainLossOnSecuritiesArisingDuringPeriodNetOfTax"
@@ -3068,10 +2986,7 @@
     "period": "duration",
     "calculation": {
       "order": 1,
-      "all": [
-        "pension_postretirement_benefit_plans_adjustment_before_tax",
-        "-pension_postretirement_benefit_plans_adjustment_tax"
-      ]
+      "all": "pension_postretirement_benefit_plans_adjustment_before_tax - pension_postretirement_benefit_plans_adjustment_tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentNetOfTax"
@@ -3105,13 +3020,7 @@
     "period": "duration",
     "calculation": {
       "order": 1,
-      "any": [
-        "depreciation_depletion_amortization_accretion",
-        "+research_development_expense",
-        "+selling_general_administrative_expense",
-        "+lease_rental_expense",
-        "+other_operating_expense"
-      ]
+      "any": "depreciation_depletion_amortization_accretion + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense"
     },
     "gaap": [
       "OperatingExpenses"

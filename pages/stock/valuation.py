@@ -197,21 +197,29 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   Input('table:stock-valuation:dcf', 'cellSelected'),
   State('store:ticker-search:financials', 'data')
 )
-def update_store(cell: dict, data: list[dict]):
+def update_store(cell: dict[str, str|int], data: list[dict]):
   if not data or cell['colId'] != 'factors':
+    return no_update
+  
+  factor = cell['value'].lower().replace(' ', '_')
+
+  if factor == 'years':
     return no_update
   
   df = pd.DataFrame.from_records(data)
   df.set_index(['date', 'months'], inplace=True)
 
-  df = df.loc[(slice(None), 12), cell['value']]
+  if factor == 'revenue_growth':
+    factor = 'revenue'
+
+  df = df.loc[(slice(None), 12), factor]
   df.reset_index(level='months', inplace=True)
 
   return {
     'title': cell['value'],
     'data': [{
       'x': df.index,
-      'y': df.pct_change(),
+      'y': df.pct_change() if factor == 'revenue_growth' else df,
       'mode': 'line'
     }]
   } 
