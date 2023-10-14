@@ -156,7 +156,6 @@ def layout(_id: str|None = None):
           className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
         )
     ]),
-    dcc.Store(id='store:stock-valuations:factors-data', data={})
   ])
 
 @callback(
@@ -193,11 +192,11 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   return cols, df.to_dict('records')
 
 @callback(
-  Output('store:stock-valuation:factors-data', 'data'),
+  Output('graph:stock-valuation:factors', 'figure'),
   Input('table:stock-valuation:dcf', 'cellSelected'),
   State('store:ticker-search:financials', 'data')
 )
-def update_store(cell: dict[str, str|int], data: list[dict]):
+def update_graph(cell: dict[str, str|int], data: list[dict]):
   if not data or cell['colId'] != 'factors':
     return no_update
   
@@ -215,22 +214,19 @@ def update_store(cell: dict[str, str|int], data: list[dict]):
   df = df.loc[(slice(None), 12), factor]
   df.reset_index(level='months', inplace=True)
 
-  return {
-    'title': cell['value'],
-    'data': [{
-      'x': df.index,
-      'y': df.pct_change() if factor == 'revenue_growth' else df,
-      'mode': 'line'
-    }]
-  } 
+  return px.line(
+    x=df.index,
+    y=df,
+    title=cell['value']
+  )
 
 clientside_callback(
   ClientsideFunction(
     namespace='clientside',
     function_name='graph_modal'
   ),
-  Output('graph:stock-valuation:factors', 'figure'),
-  Input('store:stock-valuation:factors-data', 'data'),
+  Output('dialog:stock-valuation', 'id'),
+  Input('graph:stock-valuation:factors', 'figure'),
   State('dialog:stock-valuation', 'id')
 )
 

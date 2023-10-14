@@ -11,7 +11,9 @@ from sqlalchemy import create_engine, text
 from lib.const import DB_DIR
 from lib.db.lite import check_table, read_sqlite, upsert_sqlite
 from lib.fin.calculation import calculate_items
-from lib.fin.metrics import f_score, m_score, wacc
+from lib.fin.metrics import (
+  f_score, m_score, beta, weighted_average_cost_of_capital)
+
 from lib.yahoo.ticker import Ticker
 
 db_path = DB_DIR / 'ticker.db'
@@ -184,8 +186,12 @@ def calculate_fundamentals(
   financials = calculate_items(financials, schema)
   market_fetcher = partial(Ticker('^GSPC').ohlcv)
   riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
-  financials = wacc(_id, financials, 
-    ohlcv_fetcher, market_fetcher, riskfree_fetcher)
+  
+  price = price.set_index('date')['share_price']
+  price.rename('equity_return')
+
+  financials = beta(_id, financials, price, market_fetcher, riskfree_fetcher)
+  financials = weighted_average_cost_of_capital(financials)
   financials = f_score(financials)
   financials = m_score(financials)
 

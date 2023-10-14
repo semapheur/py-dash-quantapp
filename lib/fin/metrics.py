@@ -89,7 +89,7 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
 def beta(
   _id: str,
   fin: pd.DataFrame,
-  quote_fetcher: partial[pd.DataFrame], 
+  quote: pd.Series | partial[pd.DataFrame], 
   market_fetcher: partial[pd.DataFrame],
   riskefree_fetcher: partial[pd.DataFrame], # yahoo: ^TNX/'^TYX; fred: DSG10
   period: int = 1,
@@ -129,12 +129,12 @@ def beta(
       if temp.empty:
         continue
 
-      x = sm.add_constant(temp['market'])
-      model = sm.OLS(temp['close'], x)
+      x = sm.add_constant(temp['market_return'])
+      model = sm.OLS(temp['equity_return'], x)
       ols_result = model.fit()
       beta[i] = ols_result.params[-1]
       
-      market_return[i] = temp['market'].mean() * period
+      market_return[i] = temp['market_return'].mean() * period
       risk_free_rate[i] = temp['risk_free_rate'].mean()
 
     result = pd.DataFrame(
@@ -152,8 +152,10 @@ def beta(
     relativedelta(years=period))
   start_date = dt.strftime(start_date, '%Y-%m-%d')
 
-  quote = get_ohlcv(_id, 'stock', quote_fetcher, cols={'date', 'close'})
-  quote = quote.resample('D').ffill()
+  if isinstance(quote, partial):
+    quote: pd.DataFrame = get_ohlcv(_id, 'stock', quote, cols={'date', 'close'})
+    quote.rename(columns={'close': 'share_price'}, inplace=True)
+    quote.set_index('date', inplace=True)
 
   market = market_fetcher(start_date)
   market = market['close'].rename('market_return')
@@ -162,9 +164,9 @@ def beta(
   riskfree = riskfree['close'].rename('risk_free_rate')
   riskfree /= 100
 
-  returns = pd.concat([quote, market, riskfree], axis=1).ffill()
+  returns: pd.DataFrame = pd.concat([quote, market, riskfree], axis=1).ffill()
 
-  cols = ['close', 'market']
+  cols = ['close', 'market_return']
   returns.loc[:, cols] = returns[cols].pct_change() 
   #returns.loc[:, cols] = returns[cols].diff() / returns[cols].abs().shift(1)
   returns.dropna(inplace=True)
@@ -216,7 +218,7 @@ def weighted_average_cost_of_capital(
   fin['equity_risk_premium'] = fin['beta_levered'] * (
     fin['market_return'] - fin['risk_free_rate'])
   fin['cost_equity'] = fin['risk_free_rate'] + fin['equity_risk_premium']
-  
+
   # Cost of debt
   fin['cost_debt'] = fin['risk_free_rate'] + fin['yield_spread']
   
