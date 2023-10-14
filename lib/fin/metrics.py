@@ -186,41 +186,16 @@ def beta(
     .merge(beta, on=['date', 'months'], how='left')
     .set_index(['date', 'period', 'months'])
   )
-
   return fin
 
 # Weighted average cost of capital
 def weighted_average_cost_of_capital(
-  _id: str,
   fin: pd.DataFrame, 
-  quote_fetcher: partial[pd.DataFrame], 
-  market_fetcher: partial[pd.DataFrame],
-  riskefree_fetcher: partial[pd.DataFrame],
-  beta_period: int = 1,
   debt_maturity: int = 10
 ) -> pd.DataFrame:
-  from lib.ticker.fetch import get_ohlcv
-  
-  start_date = (fin.index.get_level_values('date').min() - 
-    relativedelta(years=beta_period))
-  start_date = dt.strftime(start_date, '%Y-%m-%d')
 
-  quote = get_ohlcv(_id, 'stock', quote_fetcher, cols={'date', 'close'})
-  market = market_fetcher()
-  market = (market['close']
-    .rename('market')
-    .resample('D').ffill()
-  )
-  riskfree = riskefree_fetcher()
-  riskfree = (riskfree['close']
-    .rename('risk_free_rate')
-    .resample('D').ffill()
-  )
-
-  returns = pd.concat([quote, market, riskfree], axis=1)
-  cols = ['close', 'market']
-  returns[cols] = (returns[cols].diff() / returns[cols].abs().shift(1))
-  returns.dropna(inplace=True)
+  if 'beta' not in set(fin.columns):
+    return fin
 
   fin.loc[:, 'capitalization_class'] = fin['market_capitalization'].apply(
     lambda x: 'small' if x < 2e9 else 'large'
@@ -232,33 +207,19 @@ def weighted_average_cost_of_capital(
       r['capitalization_class'])
     , axis=1)
   
-  _df = fin.loc[(slice(None), slice(None), 12),:]
-
-
-  dates = fin.sort_values('date').index.get_level_values('date').unique()
+  fin.loc[(slice(None), slice(None), 3), 'yield_spread'] /= 4
   
-  
-  fin = (fin
-    .reset_index()
-    .merge(beta, on='date', how='left')
-    .set_index(['date', 'period', 'months'])
-  )
-
   fin['beta_levered'] = fin['beta'] * (1 + (1 - fin['tax_rate']) * 
     fin['debt'] / fin['equity'])
   
   # Cost of equity
-  fin['cost_equity'] = fin['risk_free_rate'] + fin['beta_levered'] * (
-      fin['market_return'] - fin['risk_free_rate'])
+  fin['equity_risk_premium'] = fin['beta_levered'] * (
+    fin['market_return'] - fin['risk_free_rate'])
+  fin['cost_equity'] = fin['risk_free_rate'] + fin['equity_risk_premium']
+  
   # Cost of debt
   fin['cost_debt'] = fin['risk_free_rate'] + fin['yield_spread']
   
-  #int_ex = fin['interest_expense'].copy()
-  #if 3 in fin.index.get_level_values('months'):
-  #  mask = (slice(None), slice(None), 3)
-  #  int_ex.loc[mask] = int_ex.loc[mask].rolling(window=4, min_periods=4).sum()
-  #  int_ex = int_ex.combine_first(fin['int_ex'] * 4)
-
   # Market value of debt
   fin['market_value_debt'] = (fin['interest_expense'] / 
     fin['cost_debt']) * (
@@ -276,7 +237,7 @@ def weighted_average_cost_of_capital(
         fin['market_capitalization'] + 
         fin['market_value_debt']))
   )
-  excl = ['yield_spread', 'market_return']
+  excl = ['market_return']
   fin = fin[fin.columns.difference(excl)]
   return fin
 
