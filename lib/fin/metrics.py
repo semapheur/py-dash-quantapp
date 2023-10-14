@@ -86,20 +86,122 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
   )
   return df
 
-# Weighted average cost of capital
-
-def wacc(
+def beta(
   _id: str,
-  df: pd.DataFrame, 
+  fin: pd.DataFrame,
+  quote_fetcher: partial[pd.DataFrame], 
+  market_fetcher: partial[pd.DataFrame],
+  riskefree_fetcher: partial[pd.DataFrame], # yahoo: ^TNX/'^TYX; fred: DSG10
+  period: int = 1,
+) -> pd.DataFrame:
+  from lib.ticker.fetch import get_ohlcv
+
+  def calculate_beta(
+    dates: pd.DatetimeIndex, 
+    returns: pd.DataFrame,
+    months: int
+  ) -> pd.DataFrame:
+    
+    days = {
+      3: 63,
+      12: 252
+    }
+
+    beta = np.full(len(dates), np.nan)
+    market_return = np.full(len(dates), np.nan)
+    risk_free_rate = np.full(len(dates), np.nan)
+
+    if returns.index.min() > dates.min():
+      dates = dates[dates.values > returns.index.min()]
+    
+    for i in range(len(dates)):
+      if i == 0:
+        mask = (
+          (returns.index >= min(dates[i], returns.index.min())) & 
+          (returns.index <= dates[i])
+        )
+        period = days[months]
+      else:  
+        mask = (returns.index >= dates[i-1]) & (returns.index <= dates[i])
+        period = np.busday_count(dates[i-1], dates[i])
+      
+      temp: pd.DataFrame = returns.loc[mask]
+      if temp.empty:
+        continue
+
+      x = sm.add_constant(temp['market'])
+      model = sm.OLS(temp['close'], x)
+      ols_result = model.fit()
+      beta[i] = ols_result.params[-1]
+      
+      market_return[i] = temp['market'].mean() * period
+      risk_free_rate[i] = temp['risk_free_rate'].mean()
+
+    result = pd.DataFrame(
+      data=(dates.to_list(), beta, market_return, risk_free_rate), 
+      columns=('date', 'beta', 'market_return', 'risk_free_rate'),
+    )
+    result['months'] = months
+    
+    if months == 3:
+      result.loc[:, 'risk_free_rate'] = result['risk_free_rate'] / 4  
+
+    return result
+  
+  start_date = (fin.index.get_level_values('date').min() - 
+    relativedelta(years=period))
+  start_date = dt.strftime(start_date, '%Y-%m-%d')
+
+  quote = get_ohlcv(_id, 'stock', quote_fetcher, cols={'date', 'close'})
+  quote = quote.resample('D').ffill()
+
+  market = market_fetcher(start_date)
+  market = market['close'].rename('market_return')
+
+  riskfree = riskefree_fetcher(start_date)
+  riskfree = riskfree['close'].rename('risk_free_rate')
+  riskfree /= 100
+
+  returns = pd.concat([quote, market, riskfree], axis=1).ffill()
+
+  cols = ['close', 'market']
+  returns.loc[:, cols] = returns[cols].pct_change() 
+  #returns.loc[:, cols] = returns[cols].diff() / returns[cols].abs().shift(1)
+  returns.dropna(inplace=True)
+
+  dates = fin.sort_values('date').index.get_level_values('date').unique()
+  
+  betas: list[pd.DataFrame] = []
+  for period in (3, 12):
+    mask = (slice(None), slice(None), period)
+    dates = (fin.loc[mask, :]
+      .sort_index(level='date')
+      .index.get_level_values('date')
+    )
+    betas.append(calculate_beta(dates, returns, period))
+
+  beta = pd.concat(betas)
+  fin = (fin
+    .reset_index()
+    .merge(beta, on=['date', 'months'], how='left')
+    .set_index(['date', 'period', 'months'])
+  )
+
+  return fin
+
+# Weighted average cost of capital
+def weighted_average_cost_of_capital(
+  _id: str,
+  fin: pd.DataFrame, 
   quote_fetcher: partial[pd.DataFrame], 
   market_fetcher: partial[pd.DataFrame],
   riskefree_fetcher: partial[pd.DataFrame],
   beta_period: int = 1,
   debt_maturity: int = 10
-) -> pd.DataFrame: # yahoo: ^TNX/'^TYX; fred: DSG10
+) -> pd.DataFrame:
   from lib.ticker.fetch import get_ohlcv
   
-  start_date = (df.index.get_level_values('date').min() - 
+  start_date = (fin.index.get_level_values('date').min() - 
     relativedelta(years=beta_period))
   start_date = dt.strftime(start_date, '%Y-%m-%d')
 
@@ -120,93 +222,63 @@ def wacc(
   returns[cols] = (returns[cols].diff() / returns[cols].abs().shift(1))
   returns.dropna(inplace=True)
 
-  df.loc[:, 'capitalization_class'] = df['market_capitalization'].apply(
+  fin.loc[:, 'capitalization_class'] = fin['market_capitalization'].apply(
     lambda x: 'small' if x < 2e9 else 'large'
   )
       
-  df.loc[:, 'yield_spread'] = df.apply(
+  fin.loc[:, 'yield_spread'] = fin.apply(
     lambda r: yield_spread(
       r['interest_coverage_rate'],
       r['capitalization_class'])
     , axis=1)
   
-  beta = {
-    'beta': [],
-    'market_return': [],
-    'risk_free_rate': []
-  }
-  #delta = ttm['period'].apply(
-  # lambda x: relativedelta(years=-1) if x == 'A' 
-  # else relativedelta(months=-3))
+  _df = fin.loc[(slice(None), slice(None), 12),:]
 
-  dates = df.sort_values('date').index.get_level_values('date').unique()
-  if returns.index.min() > dates.min():
-    dates = dates[dates.values > returns.index.min()]
+
+  dates = fin.sort_values('date').index.get_level_values('date').unique()
   
-  for i in range(len(dates)):
-    if i == 0:
-      mask = (
-        (returns.index >= min(dates[i], returns.index.min())) & 
-        (returns.index <= dates[i])
-      )
-    else:  
-      mask = (returns.index >= dates[i-1]) & (returns.index <= dates[i])
-    
-    temp: pd.DataFrame = returns.loc[mask]
-    if not temp.empty:
-      x = sm.add_constant(temp['market'])
-      model = sm.OLS(temp['close'], x)
-      results = model.fit()
-      beta['beta'].append(results.params[-1])
-      
-      beta['market_return'].append(temp['market'].mean() * 252)
-      beta['risk_free_rate'].append(temp['risk_free_rate'].mean() / 100)
-        
-    else:
-      beta['beta'].append(np.nan)
-      beta['market_return'].append(np.nan)
-      beta['risk_free_rate'].append(np.nan)        
   
-  beta = pd.DataFrame(data=beta, index=dates)
-  df = (df
+  fin = (fin
     .reset_index()
     .merge(beta, on='date', how='left')
     .set_index(['date', 'period', 'months'])
   )
 
-  df['beta_levered'] = df['beta'] * (1 + (1 - df['tax_rate']) * 
-    df['debt'] / df['equity'])
+  fin['beta_levered'] = fin['beta'] * (1 + (1 - fin['tax_rate']) * 
+    fin['debt'] / fin['equity'])
   
   # Cost of equity
-  df['cost_equity'] = df['risk_free_rate'] + df['beta_levered'] * (
-      df['market_return'] - df['risk_free_rate'])
+  fin['cost_equity'] = fin['risk_free_rate'] + fin['beta_levered'] * (
+      fin['market_return'] - fin['risk_free_rate'])
   # Cost of debt
-  df['cost_debt'] = df['risk_free_rate'] + df['yield_spread']
+  fin['cost_debt'] = fin['risk_free_rate'] + fin['yield_spread']
   
-  int_ex = df['interest_expense'].copy()
-  #if 3 in df.index.get_level_values('months'):
+  #int_ex = fin['interest_expense'].copy()
+  #if 3 in fin.index.get_level_values('months'):
   #  mask = (slice(None), slice(None), 3)
   #  int_ex.loc[mask] = int_ex.loc[mask].rolling(window=4, min_periods=4).sum()
-  #  int_ex = int_ex.combine_first(df['int_ex'] * 4)
+  #  int_ex = int_ex.combine_first(fin['int_ex'] * 4)
 
   # Market value of debt
-  df['market_value_debt'] = (int_ex / df['cost_debt']) * (
-    1 - (1 / (1 + df['cost_debt'])**debt_maturity)) + (
-      df['debt'] / (1 + df['cost_debt'])**debt_maturity)
+  fin['market_value_debt'] = (fin['interest_expense'] / 
+    fin['cost_debt']) * (
+      1 - (1 / (1 + fin['cost_debt'])**debt_maturity)) + (
+      fin['debt'] / (1 + fin['cost_debt'])**debt_maturity)
   
-  df['equity_to_capital'] = (df['market_capitalization'] / 
-    (df['market_capitalization'] + df['market_value_debt'])
+  fin['equity_to_capital'] = (fin['market_capitalization'] / 
+    (fin['market_capitalization'] + fin['market_value_debt'])
   )
 
-  df['weighted_average_cost_of_capital'] = (
-    df['cost_equity'] * df['equity_to_capital'] +
-    df['cost_debt'] * (1 - df['tax_rate']) * df['market_value_debt'] / 
-      (df['market_capitalization'] + df['market_value_debt'])
+  fin['weighted_average_cost_of_capital'] = (
+    fin['cost_equity'] * fin['equity_to_capital'] +
+    fin['cost_debt'] * (1 - fin['tax_rate']) * (
+      fin['market_value_debt'] / (
+        fin['market_capitalization'] + 
+        fin['market_value_debt']))
   )
   excl = ['yield_spread', 'market_return']
-  df = df[df.columns.difference(excl)]
-  return 
-
+  fin = fin[fin.columns.difference(excl)]
+  return fin
 
 def yield_spread(icr: float, cap: Literal['small', 'large']):
   # ICR: Interest Coverage Ratio
