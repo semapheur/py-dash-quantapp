@@ -1,6 +1,5 @@
 import requests
 from typing import Literal, TypedDict
-import json
 
 import numpy as np
 import geopandas as gpd
@@ -28,7 +27,7 @@ class Virdi(TypedDict):
   common_debt: float
   asking_price: float
 
-async def load_geo_data(unit: str) -> gpd.GeoDataFrame:
+async def load_geodata(unit: str) -> gpd.GeoDataFrame:
   path = DB_DIR / f'nor_{unit}.json'
   if not path.exists():
     if unit == 'municipality':
@@ -182,7 +181,7 @@ async def choropleth_polys(unit: Literal['municipality', 'postal_code']):
   price = load_price_data()
 
   df = spatial_price_stats(price, unit)
-  gdf = await load_geo_data(unit)
+  gdf = await load_geodata(unit)
   gdf = gdf.join(df, on=unit)
   #gdf = gdf[['geometry', 'postal_code', 'price_per_area', 'price_per_area_std']]
 

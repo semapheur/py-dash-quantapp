@@ -1,18 +1,18 @@
-HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
-  'Accept': '*/*',
-  'Accept-Language': 'en-US,en;q=0.5',
-  'DNT': '1',
-  'Connection': 'keep-alive',
-  'Sec-Fetch-Dest': 'empty',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Site': 'same-origin',
-  'Sec-GPC': '1',
-}
+from dateutil.relativedelta import relativedelta
+from functools import partial
+from pathlib import Path
 
-def finnData():
+import geopandas as gpd
+import httpx
+import numpy as np
+from shapely.geometry import Point
+
+from lib.const import HEADERS
+from lib.virdi import choropleth_polys, load_geodata
+
+def finn_data():
     
-  def parseJson(docs):
+  def parse_json(docs: list[dict]):
       
     scrap = []
     for doc in docs:
@@ -24,7 +24,7 @@ def finnData():
       
       pnt = Point(lon, lat)
       
-      area = doc.get('area_range', doc.get('area'))
+      area: dict = doc.get('area_range', doc.get('area'))
       area = area.get('size_from', area.get('size'))
       
       if area == 0:
@@ -41,9 +41,9 @@ def finnData():
       if 0. in price.values():
         continue
           
-      shCst = doc.get('price_shared_cost', np.nan)
-      if isinstance(shCst, dict):
-        shCst = shCst.get('amount')
+      shared_cost = doc.get('price_shared_cost', np.nan)
+      if isinstance(shared_cost, dict):
+        shared_cost = shared_cost.get('amount')
           
       beds = doc.get(
         'number_of_bedrooms', 
@@ -65,42 +65,42 @@ def finnData():
       
       scrap.append({
         'id': doc['ad_id'],
-        'timePublished': doc['timestamp'],
+        'time_published': doc['timestamp'],
         'geometry': pnt,
         'address': doc['location'],
         #'municipality': mun,
-        'priceTotal': price['price_total'],
-        'priceAsk': price['price_suggestion'],
-        'sharedCost': shCst,
+        'price_total': price['price_total'],
+        'price_ask': price['price_suggestion'],
+        'shared_cost': shared_cost,
         'area': doc['area_range']['size_from'],
         'bedrooms': beds,
-        'propertyType': doc['property_type_description'],
-        'ownerType': doc['owner_type_description'],
+        'property_type': doc['property_type_description'],
+        'owner_type': doc['owner_type_description'],
         'link': doc['ad_link']
       })
     return scrap
   
-  def iteratePages(scrap, params, startPage):
+  def iterate_pages(scrap, params, startPage):
       
     for p in range(startPage,51):
       params[-1] = ('page', str(p))
   
-      with requests.Session() as s:
+      with httpx.Client() as s:
         rs = s.get(
           'https://www.finn.no/api/search-qf', 
           headers=HEADERS, params=params
         )
-        parse = json.loads(rs.text)
+        parse: dict = rs.json()
       
-      if not 'docs' in parse['docs']:
+      if 'docs' not in parse['docs']:
         continue
       
-      scrap.extend(parseJson(parse['docs']))
+      scrap.extend(parse_json(parse['docs']))
             
     if parse['docs']:
-      last = parse['docs'][-1]
-      priceTo = last.get('price_suggestion', last.get('price_range_suggestion'))
-      priceTo = priceTo.get('amount', priceTo.get('amount_from'))
+      last: dict = parse['docs'][-1]
+      price_to = last.get('price_suggestion', last.get('price_range_suggestion'))
+      price_to = price_to.get('amount', price_to.get('amount_from'))
     
     else:
       priceTo = 0
@@ -116,38 +116,39 @@ def finnData():
     'page': '1',
   }
   
-  with requests.Session() as s:
-      rs = s.get('https://www.finn.no/api/search-qf', headers=headers, params=params)
-      parse = json.loads(rs.text)
+  with httpx.Client() as client:
+      rs = client.get('https://www.finn.no/api/search-qf', 
+        headers=HEADERS, params=params)
+      parse = rs.json()
   
   nUnits = parse['metadata']['result_size']['match_count']
   
   scrap = []
-  scrap.extend(parseJson(parse['docs']))
+  scrap.extend(parse_json(parse['docs']))
   
-  scrap, priceTo = iteratePages(scrap, params, 2)
+  scrap, price_to = iterate_pages(scrap, params, 2)
       
-  while (priceTo > 0) and (len(scrap) <= nUnits):
-      params[-2] = ('price_to', str(priceTo))
-      scrap, priceTo = iteratePages(scrap, params, 1)
+  while (price_to > 0) and (len(scrap) <= nUnits):
+      params['price_to'] = str(price_to)
+      scrap, price_to = iterate_pages(scrap, params, 1)
   
   gdf = gpd.GeoDataFrame(scrap, crs=4258)
   gdf.drop_duplicates(inplace=True)
   gdf['priceArea'] = gdf['priceTotal'] / gdf['area']
 
   # Additional data
-  for scope in {'municipality', 'postalarea'}:
-      path = Path.cwd() / 'data' / 'dgi' / f'virdi_{scope}.json'
-      parser = partial(virdiChoroPolys, scope)
-      choroPolys = loadGeodata(parser, path, relativedelta(months=6))
+  for scope in ('municipality', 'postal_code'):
+    path = Path.cwd() / 'data' / 'dgi' / f'virdi_{scope}.json'
+    parser = partial(choropleth_polys, scope)
+    choro_polys = load_geodata(parser, path, relativedelta(months=6))
 
-      fld = 'postalCode' if scope == 'postalarea' else scope
+    gdf = gdf.sjoin(
+      choro_polys[['geometry', scope, f'price_{scope}']], 
+      how='left', predicate='within')
+    gdf.drop('index_right', axis=1, inplace=True)
 
-      gdf = gdf.sjoin(choroPolys[['geometry', fld, f'price{scope.capitalize()}']], how='left', predicate='within')
-      gdf.drop('index_right', axis=1, inplace=True)
-
-      # Price delta
-      gdf[f'delta{scope.capitalize()}'] = gdf['priceArea'] - gdf[f'price{scope.capitalize()}']
-      gdf.drop(f'price{scope.capitalize()}', axis=1, inplace=True)
+    # Price delta
+    gdf[f'delta_{scope}'] = gdf['price_area'] - gdf[f'price_{scope}']
+    gdf.drop(f'price_{scope}', axis=1, inplace=True)
 
   return gdf
