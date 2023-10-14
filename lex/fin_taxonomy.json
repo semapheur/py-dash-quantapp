@@ -356,6 +356,9 @@
     "gaap": [
       "DebtInstrumentCarryingAmount"
     ],
+    "label": {
+      "long": "Long-term Debt"
+    },
     "calculation": {
       "order": 0,
       "all": "current_longterm_debt + noncurrent_longterm_debt"

@@ -355,7 +355,7 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
     _df.sort_index(level='date', inplace=True)
 
     _df.loc[:, 'month_diff'] = df_time_difference(
-      _df.index.get_level_values('date'), 'M'
+      _df.index.get_level_values('date'), 30, 'D'
     ).array
 
     _df.loc[:, diff_items] = _df[diff_items].diff()

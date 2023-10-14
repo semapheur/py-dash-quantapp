@@ -62,7 +62,7 @@ def day_difference(df: pd.DataFrame, slices = SLICES):
     _df.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_df.index.get_level_values('date'))
-    df.loc[ix, 'days'] = df_time_difference(dates, 'D').array
+    df.loc[ix, 'days'] = df_time_difference(dates, 1, 'D').array
 
   return df
 
@@ -130,7 +130,7 @@ def applier(
     _s.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_s.index.get_level_values('date'))
-    month_diff = pd.Series(df_time_difference(dates, 'M').array, index=_s.index)
+    month_diff = pd.Series(df_time_difference(dates, 30, 'D').array, index=_s.index)
 
     if fn == 'diff':
       _s = _s.diff()

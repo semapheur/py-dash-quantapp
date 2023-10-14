@@ -9,7 +9,8 @@ from components.header import Header
 app = Dash(__name__, 
   use_pages=True, 
   title='Gelter', 
-  suppress_callback_exceptions=True
+  suppress_callback_exceptions=True,
+  #prevent_initial_callbacks='initial_duplicate'
 ) # run with 'python app.py'
 
 #print(page_registry)

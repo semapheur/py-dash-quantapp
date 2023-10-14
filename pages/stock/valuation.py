@@ -225,9 +225,10 @@ clientside_callback(
     namespace='clientside',
     function_name='graph_modal'
   ),
-  Output('dialog:stock-valuation', 'id'),
+  Output('dialog:stock-valuation', 'id', allow_duplicate=True),
   Input('graph:stock-valuation:factors', 'figure'),
-  State('dialog:stock-valuation', 'id')
+  State('dialog:stock-valuation', 'id'),
+  prevent_initial_call=True
 )
 
 clientside_callback(
