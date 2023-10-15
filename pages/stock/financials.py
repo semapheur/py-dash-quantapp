@@ -195,7 +195,7 @@ def update_store(row: list[dict]):
 clientside_callback(
   ClientsideFunction(
     namespace='clientside',
-    function_name='graph_modal'
+    function_name='row_select_modal'
   ),
   Output('table:stock-financials', 'selectedRows'),
   Input('table:stock-financials', 'selectedRows'),

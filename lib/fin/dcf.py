@@ -6,9 +6,9 @@ import scipy.stats as stt
 # https://colab.research.google.com/drive/1XtCNkpbfSoiMXpypcJ3DOzXBZy4jRzn_?usp=sharing#scrollTo=feJ1s39mkFEw
 # https://www.youtube.com/watch?v=30uh1YBrsQ0
 
-def nearest_postive_definite_matrix(A: np.ndarray) -> np.ndarray:
-  C = (A + A.T)/2
-  eigval, eigvec = np.linalg.eig(C)
+def nearest_postive_definite_matrix(a: np.ndarray) -> np.ndarray:
+  b = (a + a.T)/2
+  eigval, eigvec = np.linalg.eig(b)
   eigval[eigval < 0] = 0
 
   return eigvec.dot(np.diag(eigval)).dot(eigvec.T)

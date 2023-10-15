@@ -21,14 +21,25 @@ function open_modal(dialog_id) {
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
     /**
-     * @param {Object|Array} select
+     * @param {Object} cell
      * @param {string} dialog_id
-     * @returns {Figure}
+     * @returns {Object}
      */
-    graph_modal: function(select, dialog_id) {
-      if (select === undefined) { return select}
+    dcf_factor_modal: function(cell, dialog_id) {
+      console.log(cell)
+      if (cell === undefined || cell.colId != 'factor') { return cell }
       open_modal(dialog_id)
-      return select
+      return cell
+    },
+    /**
+     * @param {Array<Object>} row
+     * @param {string} dialog_id
+     * @returns {Array<Object>}
+     */
+    row_select_modal: function(row, dialog_id) {
+      if (row === undefined) { return row }
+      open_modal(dialog_id)
+      return row
     },
     /**
      * @param {number} n_clicks

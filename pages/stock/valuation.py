@@ -142,10 +142,15 @@ def layout(_id: str|None = None):
       rowData=row_data,
       columnSize='autoSize',
       defaultColDef={'editable': True},
-      dashGridOptions={'singleClickEdit': True},
+      dashGridOptions={
+        'singleClickEdit': True,
+        'rowSelection': 'single'},
       style={'height': '100%'}
     ),
-    dcc.Graph(id='graph:stock-valuation:dcf'),
+    html.Div(className='flex', children=[
+      dcc.Graph(id='graph:stock-valuation:distribution'),
+      dcc.Graph(id='graph:stock-valuation:dcf'),
+    ]),
     html.Dialog(
       id='dialog:stock-valuation', 
       className=modal_style, 
@@ -213,12 +218,12 @@ def update_graph(cell: dict[str, str|int], data: list[dict]):
 
   df = df.loc[df['months'] == 12, factor]
 
-  return px.line(
-    x=df.index,
-    y=df.pct_change() if factor == 'revenue' else df,
+  return px.histogram(
+    x=df.pct_change() if factor == 'revenue' else df,
+    marginal='box',
     title=cell['value'],
     labels={
-      'x': 'Date',
+      'x': '',
       'y': ''
     }
   )
@@ -226,7 +231,7 @@ def update_graph(cell: dict[str, str|int], data: list[dict]):
 clientside_callback(
   ClientsideFunction(
     namespace='clientside',
-    function_name='graph_modal'
+    function_name='dcf_factor_modal'
   ),
   Output('table:stock-valuation:dcf', 'cellClicked'),
   Input('table:stock-valuation:dcf', 'cellClicked'),
@@ -242,6 +247,33 @@ clientside_callback(
   Input('button:stock-valuation:close-modal', 'n_clicks'),
   State('dialog:stock-valuation', 'id')
 )
+
+@callback(
+  Output('graph:stock-valuation:distribution', 'figure'),
+  Input('table:stock-valuation:dcf', 'cellClicked'),
+  State('table:stock-valuation:dcf', 'selectedRows')
+)
+def update_graph(cell: dict[str, str|int], row: list[dict]):
+  if not (cell and row) or cell['colId'] == 'factor':
+    return no_update
+
+  col_id = cell['colId'].split(':')
+
+  if col_id[-1] != 'distribution':
+    return no_update
+  
+  params = [float(num) 
+    for num in row[0][f'{col_id[0]}:parameters'].split(', ')
+  ]
+  
+  dist = make_distribution(cell['value'], params)
+  sample = np.array(dist.getSample(1000)).flatten()
+  print(sample)
+
+  return px.histogram(
+    x=sample,
+    marginal='box'
+  )
 
 @callback(
   Output('graph:stock-valuation:dcf', 'figure'),
