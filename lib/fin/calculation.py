@@ -1,9 +1,11 @@
 import ast
+from datetime import datetime as dt
 from typing import Any, Iterable
 
 import numpy as np
 import pandas as pd
 
+from lib.db.lite import read_sqlite
 from lib.utils import df_time_difference
 
 SLICES = (
@@ -54,6 +56,38 @@ class AnyTransformer(ast.NodeTransformer):
       keywords=[]
     )
     return call
+
+def trailing_twelve_months(df: pd.DataFrame, price=float) -> pd.DataFrame:
+
+  df.sort_index(level='date', inplace=True)
+
+  query = f'''SELECT item FROM items
+    WHERE period = "duration" AND item IN {str(tuple(df.columns))}
+  '''
+  sum_cols = read_sqlite('taxonomy.db', query)
+  sum_cols = sum_cols['item']
+
+  mask = (slice(None), slice(None), 3)
+  sums = df.loc[mask, sum_cols.to_list()].tail(4).sum()
+
+  rest_cols = list(
+    set(df.columns).difference(set(sum_cols))
+  )
+  rest = df.loc[mask, rest_cols].tail(1)
+
+  ttm: pd.Series = pd.concat((sums, rest), axis=0)
+  date = dt.now()
+  date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+  ix = pd.MultiIndex.from_tuples(
+    [(date, 'TTM', 12)], 
+    names=['date', 'period', 'months'])
+  ttm = pd.DataFrame(ttm, columns=ttm.index, index=ix)
+
+  
+
+
+  df = pd.concat((df, ttm), axis=0)
+  return df
 
 def day_difference(df: pd.DataFrame, slices = SLICES):
   

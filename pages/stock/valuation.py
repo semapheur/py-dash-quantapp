@@ -232,9 +232,9 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
     return no_update
 
   phase = len(cols) - 1
-  df = pd.DataFrame.from_records(rows)
-  df.loc[:, f'phase_{phase}:distribution'] = 'Normal'
-  df.loc[:, f'phase_{phase}:parameters'] = ''
+  rows: pd.DataFrame = pd.DataFrame.from_records(rows)
+  rows.loc[:, f'phase_{phase}:distribution'] = 'Normal'
+  rows.loc[:, f'phase_{phase}:parameters'] = ''
 
   cols.append({
     'headerName': f'Phase {phase}', 'children': [
@@ -251,15 +251,15 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
       }
     ]
   })
-  return cols, df.to_dict('records')
+  return cols, rows.to_dict('records')
 
 @callback(
   Output('graph:stock-valuation:factor', 'figure'),
   Input('table:stock-valuation:dcf', 'cellClicked'),
   State('store:ticker-search:financials', 'data')
 )
-def update_factor_graph(cell: dict[str, str|int], data: list[dict]):
-  if not (cell and data) or cell['colId'] != 'factor':
+def update_factor_graph(cell: dict[str, str|int], fin_data: list[dict]):
+  if not (cell and fin_data) or cell['colId'] != 'factor':
     return no_update
   
   if cell['rowIndex'] == 0:
@@ -267,24 +267,24 @@ def update_factor_graph(cell: dict[str, str|int], data: list[dict]):
 
   factor = cell['value'].lower().replace(' ', '_')
 
-  df = pd.DataFrame.from_records(data)
-  df.set_index('date', inplace=True)
+  fin_data: pd.DataFrame = pd.DataFrame.from_records(fin_data)
+  fin_data.set_index('date', inplace=True)
 
   if factor == 'revenue_growth':
     factor = 'revenue'
 
-  df = df.loc[df['months'] == 12, factor]
+  fin_data = fin_data.loc[fin_data['months'] == 12, factor]
 
   fig = make_subplots(rows=2, cols=1)
 
   fig.add_scatter(
-    x=df.index,
-    y=df.pct_change() if factor == 'revenue' else df,
+    x=fin_data.index,
+    y=fin_data.pct_change() if factor == 'revenue' else fin_data,
     mode='lines',
     row=1, col=1
   )
   fig.add_histogram(
-    x=df.pct_change() if factor == 'revenue' else df,
+    x=fin_data.pct_change() if factor == 'revenue' else fin_data,
     row=2, col=1
   )
   fig.update_layout(
@@ -336,7 +336,7 @@ def update_correlation(n_clicks: int, data: list[dict]):
   df = pd.DataFrame.from_records(data)
   cols = corr_factors.copy()
   cols[0] = 'revenue'
-  df = df.loc[:, cols]
+  df = df.loc[df['months'] == 12, cols]
 
   corr_mat = df.corr()
   corr_mat.index = pd.Index(corr_headers, name='factor')
@@ -375,42 +375,53 @@ def update_graph(cell: dict[str, str|int], row: list[dict]):
   Output('graph:stock-valuation:dcf', 'figure'),
   Input('button:stock-valuation:dcf-sim', 'n_clicks'),
   State('table:stock-valuation:dcf', 'rowData'),
+  State('table:stock-valuation:correlation', 'rowData'),
   State('store:ticker-search:financials', 'data')
 )
-def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
-  if not (n_clicks and financials):
+def monte_carlo(
+  n_clicks: int, 
+  dcf_input: list[dict], 
+  corr_mat: list[dict],
+  fin_data: list[dict]
+):
+  if not (n_clicks and fin_data):
     return no_update
   
   n = 1000
 
-  fin = pd.DataFrame.from_records(financials) 
-  fin = fin.set_index(['date', 'months']).sort_index(level='date')       
+  fin_data: pd.DataFrame = pd.DataFrame.from_records(fin_data) 
+  fin_data = fin_data.set_index(['date', 'months']).sort_index(level='date')       
 
-  revenue = fin.loc[(slice(None), 12), 'revenue'].iloc[-1]
+  revenue = fin_data.loc[(slice(None), 12), 'revenue'].iloc[-1]
 
-  df = pd.DataFrame.from_records(rowData)
+  dcf_input: pd.DataFrame = pd.DataFrame.from_records(dcf_input)
 
-  corr_mat = np.eye(len(factors))
-  for pair, value in correlation.items():
-    ix = (Factors[pair[0]].value, Factors[pair[1]].value)
-    corr_mat[ix] = value
+  corr_mat: pd.DataFrame = pd.DataFrame.from_records(corr_mat)
+  corr_mat.drop('factor', axis=1, inplace=True)
+  corr_mat = corr_mat.to_numpy()
+
+  #corr_mat = np.eye(len(factors))
+  #for pair, value in correlation.items():
+  #  ix = (Factors[pair[0]].value, Factors[pair[1]].value)
+  #  corr_mat[ix] = value
 
   corr_mat_psd = nearest_postive_definite_matrix(corr_mat)
   corr_mat_psd = ot.CorrelationMatrix(len(factors), corr_mat_psd.flatten())
   copula = ot.NormalCopula(corr_mat_psd)
 
   dcf = np.array([[1, float(revenue), 0.]]).repeat(n, 0)
-  phases = (len(df.columns) - 3) // 2
+  phases = (len(dcf_input.columns) - 3) // 2
   for p in range(1, phases):
-    df.loc[:, f'phase_{p}:parameters'] = df[f'phase_{p}:parameters'].apply(
-      lambda x: [float(num) for num in x.split(', ')]
-    )
+    dcf_input.loc[:, f'phase_{p}:parameters'] = (
+      dcf_input[f'phase_{p}:parameters'].apply(
+        lambda x: [float(num) for num in x.split(', ')]
+    ))
 
     variables = [
       make_distribution(dist, params) for dist, params in 
       zip(
-        df[f'phase_{p}:distribution'], 
-        df[f'phase_{p}:parameters']
+        dcf_input[f'phase_{p}:distribution'], 
+        dcf_input[f'phase_{p}:parameters']
       )]
     composed_distribution = ot.ComposedDistribution(variables, copula)
     sample = np.array(composed_distribution.getSample(n))
@@ -418,14 +429,15 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
     dcf += np.apply_along_axis(lambda x: discount_cashflow(*x), 1, args)
 
   # terminal value
-  df.loc[1:, 'terminal:parameters'] = df.loc[1:, 'terminal:parameters'].apply(
-    lambda x: [float(num) for num in x.split(', ')]
+  dcf_input.loc[1:, 'terminal:parameters'] = (
+    dcf_input.loc[1:, 'terminal:parameters'].apply(
+      lambda x: [float(num) for num in x.split(', ')])
   )
   variables = [
     make_distribution(dist, params) for dist, params in 
     zip(
-      df.loc[1:, 'terminal:distribution'], 
-      df.loc[1:, 'terminal:parameters']
+      dcf_input.loc[1:, 'terminal:distribution'], 
+      dcf_input.loc[1:, 'terminal:parameters']
     )]
   corr_mat_psd = nearest_postive_definite_matrix(corr_mat[1:, 1:])
   corr_mat_psd = ot.CorrelationMatrix(len(factors) - 1, corr_mat_psd.flatten())
@@ -437,6 +449,10 @@ def monte_carlo(n_clicks: int, rowData: list[dict], financials: list[dict]):
   tv = np.apply_along_axis(lambda x: terminal_value(*x), 1, args)
 
   dcf = dcf[:,2] + tv
+
+  cash = fin_data.loc[(slice(None), 12), 'liquid_assets'].iloc[-1]
+  debt = fin_data.loc[(slice(None), 12), 'debt'].iloc[-1]
+  equity_value = dcf + cash - debt
 
   fig = px.histogram(dcf)
 

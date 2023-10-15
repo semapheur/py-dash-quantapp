@@ -167,7 +167,7 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
 
 def calculate_fundamentals(
   _id: str,
-  financials: pd.DataFrame,
+  fin_data: pd.DataFrame,
   ohlcv_fetcher: partial[pd.DataFrame]
 ) -> pd.DataFrame:
   
@@ -175,26 +175,26 @@ def calculate_fundamentals(
   price.rename(columns={'close': 'share_price'}, inplace=True)
   price = price.resample('D').ffill()
 
-  financials.reset_index(inplace=True)
-  financials = (financials
+  fin_data.reset_index(inplace=True)
+  fin_data = (fin_data
     .reset_index()
     .merge(price, how='left', on='date')
     .set_index(['date', 'period', 'months'])
     .drop('index', axis=1)
   )
   schema = load_schema()
-  financials = calculate_items(financials, schema)
+  fin_data = calculate_items(fin_data, schema)
 
   market_fetcher = partial(Ticker('^GSPC').ohlcv)
   riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
   price.rename(columns={'share_price': 'equity_return'}, inplace=True)
-  financials = beta(_id, financials, price, market_fetcher, riskfree_fetcher)
+  fin_data = beta(_id, fin_data, price, market_fetcher, riskfree_fetcher)
 
-  financials = weighted_average_cost_of_capital(financials)
-  financials = f_score(financials)
-  financials = m_score(financials)
+  fin_data = weighted_average_cost_of_capital(fin_data)
+  fin_data = f_score(fin_data)
+  fin_data = m_score(fin_data)
 
-  return financials
+  return fin_data
 
 async def get_fundamentals(
   _id: str,
