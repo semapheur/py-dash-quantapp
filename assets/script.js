@@ -18,16 +18,31 @@ function open_modal(dialog_id) {
   })
 }
 
+/**
+ * @param {string|Object} id 
+ */
+function check_id(id) {
+  if (typeof id != 'object') { return id }
+
+  sorted_keys = Object.keys(id).sort()
+  const sorted_object = {}
+  sorted_keys.forEach((key) => {
+    sorted_object[key] = id[key]
+  })
+  return JSON.stringify(sorted_object)
+}
+
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
     /**
      * @param {Object} cell
-     * @param {string} dialog_id
+     * @param {string|Object} dialog_id
      * @returns {Object}
      */
     dcf_factor_modal: function(cell, dialog_id) {
-      console.log(cell)
       if (cell === undefined || cell.colId != 'factor') { return cell }
+
+      dialog_id = check_id(dialog_id)
       open_modal(dialog_id)
       return cell
     },
@@ -57,6 +72,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
      * @returns {string}
      */
     close_modal: function(n_clicks, dialog_id) {
+      dialog_id = check_id(dialog_id)
       dialog = document.getElementById(dialog_id)
       if (n_clicks > 0) {dialog.close()}
 

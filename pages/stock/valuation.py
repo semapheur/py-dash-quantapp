@@ -131,7 +131,7 @@ def layout(_id: str|None = None):
     'terminal:parameters': factors[k]['terminal'][1],
   } for k in factors]
 
-  corr_factors: list[str] = list[factors.keys()][1:]
+  corr_factors: list[str] = list(factors.keys())[1:]
   corr_headers = [f.replace('_', ' ').capitalize() for f in corr_factors]
   id_mat = np.eye(len(corr_factors))
 
@@ -173,7 +173,10 @@ def layout(_id: str|None = None):
       dcc.Graph(id='graph:stock-valuation:dcf'),
     ]),
     html.Dialog(
-      id='dialog:stock-valuation', 
+      id={
+        'type': 'dialog:stock-valuation',
+        'id': 'factor'
+      }, 
       className=modal_style, 
       children=[
         dcc.Graph(id='graph:stock-valuation:factor'),
@@ -289,7 +292,9 @@ clientside_callback(
   ),
   Output('table:stock-valuation:dcf', 'cellClicked'),
   Input('table:stock-valuation:dcf', 'cellClicked'),
-  State('dialog:stock-valuation', 'id'),
+  State({
+    'type': 'dialog:stock-valuation', 
+    'id': 'factor'}, 'id'),
 )
 
 clientside_callback(
