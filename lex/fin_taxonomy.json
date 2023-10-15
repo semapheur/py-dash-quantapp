@@ -102,7 +102,7 @@
     }
   },
   "price_to_earnings": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Price-to-Earnings Ratio",
       "short": "P/E"
@@ -113,7 +113,7 @@
     }
   },
   "price_to_bookvalue": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Price-to-Book-Value Ratio",
       "short": "P/B"
@@ -133,7 +133,7 @@
     }
   },
   "price_to_tangible_bookvalue": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Price-to-Tangible-Book-Value Ratio",
       "short": "P/TB"
@@ -144,7 +144,7 @@
     }
   },
   "price_to_sales": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Price-to-Sales Ratio",
       "short": "P/S"
@@ -155,7 +155,7 @@
     }
   },
   "price_to_operating_cashflow": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Price-to-Operating-Cash-Flow Ratio",
       "short": "P/OCF"
@@ -166,7 +166,7 @@
     }
   },
   "price_to_free_cashflow": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Price-to-Free-Cash-Flow Ratio",
       "short": "P/FCF"
@@ -198,7 +198,7 @@
     }
   },
   "dividend_yield": {
-    "value": "fundamental",
+    "value": "price_fundamental",
     "label": {
       "long": "Dividend Yield"
     },

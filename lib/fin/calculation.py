@@ -58,24 +58,34 @@ class AnyTransformer(ast.NodeTransformer):
     return call
 
 def trailing_twelve_months(df: pd.DataFrame, price=float) -> pd.DataFrame:
+  from lib.ticker.fetch import load_schema
 
   df.sort_index(level='date', inplace=True)
 
-  query = f'''SELECT item FROM items
-    WHERE period = "duration" AND item IN {str(tuple(df.columns))}
-  '''
-  sum_cols = read_sqlite('taxonomy.db', query)
-  sum_cols = sum_cols['item']
+  last_date = df.index.get_level_values('date').max()
+  last_annual = (
+    df.loc[(slice(None), slice(None), 12), :]
+      .index.get_level_values('date')[0])
 
-  mask = (slice(None), slice(None), 3)
-  sums = df.loc[mask, sum_cols.to_list()].tail(4).sum()
+  if last_annual == last_date:
+    ttm = df.loc[(last_annual, 'FY', 12), :]
+  else:
+    query = f'''SELECT item FROM items
+      WHERE period = "duration" AND item IN {str(tuple(df.columns))}
+    '''
+    sum_cols = read_sqlite('taxonomy.db', query)
+    sum_cols = sum_cols['item']
 
-  rest_cols = list(
-    set(df.columns).difference(set(sum_cols))
-  )
-  rest = df.loc[mask, rest_cols].tail(1)
+    mask = (slice(None), slice(None), 3)
+    sums = df.loc[mask, sum_cols.to_list()].tail(4).sum()
 
-  ttm: pd.Series = pd.concat((sums, rest), axis=0)
+    rest_cols = list(
+      set(df.columns).difference(set(sum_cols))
+    )
+    rest = df.loc[mask, rest_cols].tail(1)
+
+    ttm: pd.Series = pd.concat((sums, rest), axis=0)
+  
   date = dt.now()
   date = date.replace(hour=0, minute=0, second=0, microsecond=0)
   ix = pd.MultiIndex.from_tuples(
@@ -83,8 +93,17 @@ def trailing_twelve_months(df: pd.DataFrame, price=float) -> pd.DataFrame:
     names=['date', 'period', 'months'])
   ttm = pd.DataFrame(ttm, columns=ttm.index, index=ix)
 
-  
+  price_factor = price / ttm['share_price'].iloc[0]
+  ttm.loc[:, 'market_capitalization'] *= price_factor
 
+  query = '''SELECT item, calculation FROM items 
+    WHERE 
+      calculation IS NOT NULL AND (
+      value = "price_fundamental" OR
+      item IN ("enterprise_value", "altman_z_score"))
+  '''
+  schema = load_schema(query)
+  ttm = calculate_items(ttm, schema, True)
 
   df = pd.concat((df, ttm), axis=0)
   return df
