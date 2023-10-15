@@ -20,7 +20,9 @@ from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<_id>/valuation', title=stock_label)
 
-modal_style = 'relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md'
+modal_style = (
+  'relative left-1/2 top-1/2 '
+  '-translate-x-1/2 -translate-y-1/2 rounded-md')
 
 distributions = [
   'Normal',
@@ -71,6 +73,8 @@ factors = {
     'terminal': ('Normal', '0.5, 0.3'),
   }
 }
+corr_factors: list[str] = list(factors.keys())[1:]
+corr_headers = [f.replace('_', ' ').capitalize() for f in corr_factors]
 
 Factors = Enum('Factors', list(factors.keys()), start=0)
 
@@ -131,15 +135,14 @@ def layout(_id: str|None = None):
     'terminal:parameters': factors[k]['terminal'][1],
   } for k in factors]
 
-  corr_factors: list[str] = list(factors.keys())[1:]
-  corr_headers = [f.replace('_', ' ').capitalize() for f in corr_factors]
   id_mat = np.eye(len(corr_factors))
 
   corr_cols = [{
     'field': 'factor', 'headerName': '', 'editable': False,
       'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned'
   }] + [{
-    'field': f, 'headerName': h, 
+    'field': f, 'headerName': h, 'type': 'numericColumn',
+    'valueFormatter': {'function': 'd3.format(".2f")(params.value)'},
     'cellEditor': {'function': 'NumberInput'},
     'cellEditorParams' : {'min': -1, 'max': 1}
     } for f, h in zip(corr_factors, corr_headers)
@@ -192,7 +195,7 @@ def layout(_id: str|None = None):
         'type': 'dialog:stock-valuation',
         'id': 'correlation'
       },
-      className=modal_style, 
+      className='w-3/4 pt-10 ' + modal_style, 
       children=[
         dag.AgGrid(id='table:stock-valuation:correlation', 
           columnDefs=corr_cols,
@@ -208,6 +211,10 @@ def layout(_id: str|None = None):
             'type': 'button:stock-valuation:close-modal',
             'id': 'correlation'},
           className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
+        ),
+        html.Button('Trend', 
+          id='button:stock-valuation:correlation-trend',
+          className='absolute top-2 right-2'
         )
     ])
   ])
@@ -292,9 +299,7 @@ clientside_callback(
   ),
   Output('table:stock-valuation:dcf', 'cellClicked'),
   Input('table:stock-valuation:dcf', 'cellClicked'),
-  State({
-    'type': 'dialog:stock-valuation', 
-    'id': 'factor'}, 'id'),
+  State({'type': 'dialog:stock-valuation', 'id': 'factor'}, 'id'),
 )
 
 clientside_callback(
@@ -303,9 +308,8 @@ clientside_callback(
     function_name='close_modal'
   ),
   Output({'type': 'dialog:stock-valuation', 'id': MATCH}, 'id'),
-  Input({
-    'type': 'button:stock-valuation:close-modal',
-    'id': MATCH}, 'n_clicks'),
+  Input({'type': 'button:stock-valuation:close-modal', 'id': MATCH}, 
+    'n_clicks'),
   State({'type': 'dialog:stock-valuation', 'id': MATCH}, 'id')
 )
 
@@ -314,20 +318,32 @@ clientside_callback(
     namespace='clientside',
     function_name='modal'
   ),
-  Output('dialog:stock-valuation:correlation', 'id'),
+  Output('button:stock-valuation:correlation', 'id'),
   Input('button:stock-valuation:correlation', 'n_clicks'),
-  State('dialog:stock-valuation:correlation', 'id')
+  State({'type': 'dialog:stock-valuation', 'id': 'correlation'}, 'id'),
+  State('button:stock-valuation:correlation', 'id'),
 )
 
-#@callback(
-#  Output('dialog:stock-valuation:correlation', 'children'),
-#  Input('button:stock-valuation:correlation', 'n_clicks'),
-#  State('store:ticker-search:financials', 'data')
-#)
-#def update_correlation(n_clicks: int, data: list[dict]):
-#
-#
-#  return
+@callback(
+  Output('table:stock-valuation:correlation', 'rowData'),
+  Input('button:stock-valuation:correlation-trend', 'n_clicks'),
+  State('store:ticker-search:financials', 'data')
+)
+def update_correlation(n_clicks: int, data: list[dict]):
+  if not (data and n_clicks):
+    return no_update
+  
+  df = pd.DataFrame.from_records(data)
+  cols = corr_factors.copy()
+  cols[0] = 'revenue'
+  df = df.loc[:, cols]
+
+  corr_mat = df.corr()
+  corr_mat.index = pd.Index(corr_headers, name='factor')
+  corr_mat.reset_index(inplace=True)
+  corr_mat.rename(columns={'revenue': 'revenue_growth'}, inplace=True)
+
+  return corr_mat.to_dict('records')
 
 @callback(
   Output('graph:stock-valuation:distribution', 'figure'),
