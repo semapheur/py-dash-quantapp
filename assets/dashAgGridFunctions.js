@@ -31,11 +31,9 @@ dagfuncs.DccDropdown = class {
     // set editor value to value from the cell
     this.value = params.value
   }
-
   getGui() {
     return this.eInput
   }
-
   focusChild() {
     const clickEvent = new MouseEvent('mousedown', {
       view: window,
@@ -54,22 +52,18 @@ dagfuncs.DccDropdown = class {
       inp.dispatchEvent(clickEvent)
     }, 100)
   }
-
   afterGuiAttached() {
     this.prevFocus = document.activeElement
     this.eInput.addEventListener('focus', this.focusChild())
     this.eInput.focus()
   }
-
   getValue() {
     return this.value
   }
-
   destroy() {
     this.prevFocus.focus()
   }
 }
-
 distributions = {
   normal: {
     parameters: [
@@ -98,7 +92,6 @@ distributions = {
     ]
   }
 }
-
 dagfuncs.ParameterInput = class {
   init(params) {
     const phase = params.colDef.field.split(':')[0]
@@ -123,15 +116,12 @@ dagfuncs.ParameterInput = class {
       this.eInputs.push(eInput)
     }
   }
-
   getGui() {
     return this.eForm
   }
-
   afterGuiAttached() {
     this.eForm.focus();
   }
-
   getValue() {
     const values = []
 
@@ -139,5 +129,26 @@ dagfuncs.ParameterInput = class {
       values.push(input.value)
     }
     return values.join(', ');
+  }
+}
+dagfuncs.NumberInput = class {
+  init(params) {
+    this.eInput = document.createElement('input')
+    this.eInput.value = params.value
+    this.eInput.type = 'number'
+    this.eInput.min = params?.min,
+    this.eInput.max = params?.max,
+    this.eInput.step = params.step || 'any';
+    this.eInput.placeholder =  params.placeholder || '';
+  }
+  getGui() {
+    return this.eInput
+  }
+  afterGuiAttached() {
+    this.eInput.focus();
+    this.eInput.select();
+  }
+  getValue() {
+    return this.eInput.value;
   }
 }

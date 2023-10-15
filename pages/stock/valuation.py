@@ -2,12 +2,13 @@ from enum import Enum
 
 from dash import (
   callback, clientside_callback, ClientsideFunction, 
-  dcc, html, no_update, register_page, Output, Input, State)
+  dcc, html, no_update, register_page, Output, Input, State, MATCH)
 import dash_ag_grid as dag
 import numpy as np
 import openturns as ot
 import pandas as pd
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 from components.stock_header import StockHeader
 from lib.fin.dcf import (
@@ -83,7 +84,7 @@ correlation = {
 
 def layout(_id: str|None = None):
 
-  column_defs = [
+  dcf_columns = [
     {
       'field': 'factor', 'headerName': 'Factor', 'editable': False,
       'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned',
@@ -122,7 +123,7 @@ def layout(_id: str|None = None):
     },
   ]
 
-  row_data = [{
+  dcf_rows = [{
     'factor': k.replace('_', ' ').capitalize(), 
     'phase_1:distribution': factors[k]['initial'][0],
     'phase_1:parameters': factors[k]['initial'][1],
@@ -130,16 +131,36 @@ def layout(_id: str|None = None):
     'terminal:parameters': factors[k]['terminal'][1],
   } for k in factors]
 
+  corr_factors: list[str] = list[factors.keys()][1:]
+  corr_headers = [f.replace('_', ' ').capitalize() for f in corr_factors]
+  id_mat = np.eye(len(corr_factors))
+
+  corr_cols = [{
+    'field': 'factor', 'headerName': '', 'editable': False,
+      'pinned': 'left', 'lockPinned': True, 'cellClass': 'lock-pinned'
+  }] + [{
+    'field': f, 'headerName': h, 
+    'cellEditor': {'function': 'NumberInput'},
+    'cellEditorParams' : {'min': -1, 'max': 1}
+    } for f, h in zip(corr_factors, corr_headers)
+  ]
+  
+  corr_rows = pd.DataFrame(id_mat, 
+    columns=corr_factors, 
+    index=pd.Index(corr_headers, name='factor')
+  ).reset_index()
+
   return html.Main(className='h-full flex flex-col', children=[
     StockHeader(_id),
     html.Div(children=[
       html.Button('Add', id='button:stock-valuation:dcf-add'),
-      html.Button('Calc', id='button:stock-valuation:dcf-sim')
+      html.Button('Calc', id='button:stock-valuation:dcf-sim'),
+      html.Button('Correlation', id='button:stock-valuation:correlation')
     ]),
     dag.AgGrid(
       id='table:stock-valuation:dcf',
-      columnDefs=column_defs,
-      rowData=row_data,
+      columnDefs=dcf_columns,
+      rowData=dcf_rows,
       columnSize='autoSize',
       defaultColDef={'editable': True},
       dashGridOptions={
@@ -157,12 +178,38 @@ def layout(_id: str|None = None):
       children=[
         dcc.Graph(id='graph:stock-valuation:factor'),
         html.Button('x', 
-          id='button:stock-valuation:close-modal',
+          id={
+            'type': 'button:stock-valuation:close-modal',
+            'id': 'factor'},
+          className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
+        )
+    ]),
+    html.Dialog(
+      id={
+        'type': 'dialog:stock-valuation',
+        'id': 'correlation'
+      },
+      className=modal_style, 
+      children=[
+        dag.AgGrid(id='table:stock-valuation:correlation', 
+          columnDefs=corr_cols,
+          rowData=corr_rows.to_dict('records'),
+          columnSize='autoSize',
+          defaultColDef={'editable': True},
+          dashGridOptions={
+            'singleClickEdit': True
+          },
+        ),
+        html.Button('x', 
+          id={
+            'type': 'button:stock-valuation:close-modal',
+            'id': 'correlation'},
           className='absolute top-0 left-2 text-3xl text-secondary hover:text-red-600'
         )
     ])
   ])
 
+# DCF input table
 @callback(
   Output('table:stock-valuation:dcf', 'columnDefs'),
   Output('table:stock-valuation:dcf', 'rowData'),
@@ -201,7 +248,7 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   Input('table:stock-valuation:dcf', 'cellClicked'),
   State('store:ticker-search:financials', 'data')
 )
-def update_graph(cell: dict[str, str|int], data: list[dict]):
+def update_factor_graph(cell: dict[str, str|int], data: list[dict]):
   if not (cell and data) or cell['colId'] != 'factor':
     return no_update
   
@@ -218,15 +265,22 @@ def update_graph(cell: dict[str, str|int], data: list[dict]):
 
   df = df.loc[df['months'] == 12, factor]
 
-  return px.histogram(
-    x=df.pct_change() if factor == 'revenue' else df,
-    marginal='box',
-    title=cell['value'],
-    labels={
-      'x': '',
-      'y': ''
-    }
+  fig = make_subplots(rows=2, cols=1)
+
+  fig.add_scatter(
+    x=df.index,
+    y=df.pct_change() if factor == 'revenue' else df,
+    mode='lines',
+    row=1, col=1
   )
+  fig.add_histogram(
+    x=df.pct_change() if factor == 'revenue' else df,
+    row=2, col=1
+  )
+  fig.update_layout(
+    title=cell['value']
+  )
+  return fig
 
 clientside_callback(
   ClientsideFunction(
@@ -243,10 +297,32 @@ clientside_callback(
     namespace='clientside',
     function_name='close_modal'
   ),
-  Output('dialog:stock-valuation', 'id'),
-  Input('button:stock-valuation:close-modal', 'n_clicks'),
-  State('dialog:stock-valuation', 'id')
+  Output({'type': 'dialog:stock-valuation', 'id': MATCH}, 'id'),
+  Input({
+    'type': 'button:stock-valuation:close-modal',
+    'id': MATCH}, 'n_clicks'),
+  State({'type': 'dialog:stock-valuation', 'id': MATCH}, 'id')
 )
+
+clientside_callback(
+  ClientsideFunction(
+    namespace='clientside',
+    function_name='modal'
+  ),
+  Output('dialog:stock-valuation:correlation', 'id'),
+  Input('button:stock-valuation:correlation', 'n_clicks'),
+  State('dialog:stock-valuation:correlation', 'id')
+)
+
+#@callback(
+#  Output('dialog:stock-valuation:correlation', 'children'),
+#  Input('button:stock-valuation:correlation', 'n_clicks'),
+#  State('store:ticker-search:financials', 'data')
+#)
+#def update_correlation(n_clicks: int, data: list[dict]):
+#
+#
+#  return
 
 @callback(
   Output('graph:stock-valuation:distribution', 'figure'),
@@ -268,7 +344,6 @@ def update_graph(cell: dict[str, str|int], row: list[dict]):
   
   dist = make_distribution(cell['value'], params)
   sample = np.array(dist.getSample(1000)).flatten()
-  print(sample)
 
   return px.histogram(
     x=sample,

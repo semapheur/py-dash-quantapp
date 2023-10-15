@@ -43,6 +43,16 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     },
     /**
      * @param {number} n_clicks
+     * @param {string} dialog_id
+     * @returns {string}
+     */
+    modal: function(n_clicks, dialog_id) {
+      if (n_clicks === 0) { return dialog_id }
+      open_modal(dialog_id)
+      return dialog_id
+    },
+    /**
+     * @param {number} n_clicks
      * @param {string} class_name
      * @returns {string}
      */
