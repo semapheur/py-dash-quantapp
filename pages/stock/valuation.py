@@ -392,7 +392,8 @@ def monte_carlo(
   fin_data: pd.DataFrame = pd.DataFrame.from_records(fin_data) 
   fin_data = fin_data.set_index(['date', 'months']).sort_index(level='date')       
 
-  revenue = fin_data.loc[(slice(None), 12), 'revenue'].iloc[-1]
+  mask = (slice(None), 12)
+  revenue = fin_data.loc[mask, 'revenue'].iloc[-1]
 
   dcf_input: pd.DataFrame = pd.DataFrame.from_records(dcf_input)
 
@@ -450,10 +451,12 @@ def monte_carlo(
 
   dcf = dcf[:,2] + tv
 
-  cash = fin_data.loc[(slice(None), 12), 'liquid_assets'].iloc[-1]
-  debt = fin_data.loc[(slice(None), 12), 'debt'].iloc[-1]
-  equity_value = dcf + cash - debt
+  cash = fin_data.loc[mask, 'liquid_assets'].iloc[-1]
+  debt = fin_data.loc[mask, 'debt'].iloc[-1]
+  shares = (
+    fin_data.loc[mask, 'weighted_average_shares_outstanding_diluted'].iloc[-1])
+  price = dcf + cash - debt / shares
 
-  fig = px.histogram(dcf)
+  fig = px.histogram(price)
 
   return fig
