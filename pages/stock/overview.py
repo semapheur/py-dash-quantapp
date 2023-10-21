@@ -6,9 +6,11 @@ from dash import (
   callback, dcc, html, no_update, register_page,
   Output, Input, State, 
   MATCH)
+import dash_ag_grid as dag
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 from sqlalchemy import create_engine, text
 from components.dupont_chart import DupontChart
 
@@ -62,8 +64,27 @@ def sankey_direction(sign: int) -> str:
 
 def layout(_id: Optional[str] = None):
 
+  column_defs = [
+    {'field': 'item', 'headerName': 'Metric'},
+    {'field': 'trend', 'headerName': 'Trend', 'cellRenderer': 'TrendLine'},
+    {'field': 'current', 'headerName': 'Current'},
+  ]
+
   return html.Main(className='flex flex-col h-full overflow-y-scroll', children=[
     StockHeader(_id),
+    html.Div(className='grid gric-cols-2', children=[
+      html.Div(className='flex flex-col', children=[
+        html.Div(className='flex flex-col', children=[
+          html.H4('Financial Strength'),
+          dag.AgGrid(
+            id='table:stock-overview:financial-strength',
+            columnDefs=column_defs,
+            columnSize='autoSize',
+            style={'height': '100%'},
+          ),
+        ])
+      ])
+    ]),
     html.Div(id='div:stock:sankey', children=[
       html.Form(className='flex justify-around', children=[
         dcc.Dropdown(
@@ -111,6 +132,47 @@ def layout(_id: Optional[str] = None):
       DupontChart()
     ])
   ])
+
+@callback(
+  Output('table:stock-overview:financial-strength', 'rowData'),
+  Input('store:ticker-search:financials', 'data')
+)
+def update_table(data: list[dict]):
+  if not data:
+    return no_update
+  
+  data: pd.DataFrame = pd.DataFrame.from_records(data)
+  data.sort_values('data', inplace=True)
+
+  mask = (slice(None), slice(None), 12)
+  cols = ['piotroski_f_score', 'altman_z_score', 'beneish_m_score']
+
+  row_data = data.loc[mask, cols].T.iloc[:, -1]
+  row_data.index.name = 'item'
+
+  row_data['trend'] = ''
+  for i in row_data.index:
+    fig = px.line(
+      data.loc[:, i]
+    )
+    fig.update_layout(
+      showlegend=False,
+      xaxis=dict(autorange='reversed'),
+      xaxis_visible=False,
+      xaxis_showticklabels=False,
+      yaxis_visible=False,
+      yaxis_showticklabels=False,
+      margin=dict(l=0, r=0, t=0, b=0),
+      template='plotly_white'
+    )
+    row_data.at[i, 'trend'] = fig 
+
+  row_data.reset_index(inplace=True)
+  row_data.loc[:, 'item'] = (row_data.loc[:, 'item']
+    .str.replace('_', ' ')
+    .str.title()
+  )
+  return row_data
 
 @callback(
   Output('graph:stock:sankey', 'figure'),

@@ -165,7 +165,6 @@ def update_table(data: list[dict], sheet: str, scope: str):
     rowClassRules=row_style,
     style={'height': '100%'},
     dashGridOptions={'rowSelection': 'single'},
-    #defaultColDef={'resizable': True, 'sortable': True, 'filter': True, },
   ),
 
 @callback(
