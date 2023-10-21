@@ -12,7 +12,7 @@ from lib.const import DB_DIR
 from lib.db.lite import check_table, read_sqlite, upsert_sqlite
 from lib.fin.calculation import calculate_items
 from lib.fin.metrics import (
-  f_score, m_score, beta, weighted_average_cost_of_capital)
+  f_score, m_score, z_score, beta, weighted_average_cost_of_capital)
 
 from lib.yahoo.ticker import Ticker
 
@@ -193,6 +193,9 @@ def calculate_fundamentals(
   fin_data = weighted_average_cost_of_capital(fin_data)
   fin_data = f_score(fin_data)
   fin_data = m_score(fin_data)
+
+  if 'altman_z_score' not in set(fin_data.columns):
+    fin_data = z_score(fin_data)
 
   return fin_data
 

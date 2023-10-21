@@ -1,4 +1,16 @@
 {
+  "piotroski_f_score": {
+    "label": {
+      "long": "Piotroski F-score",
+      "short": "F-score"
+    }
+  },
+  "beneish_m_score": {
+    "label": {
+      "long": "Beneish M-score",
+      "short": "M-score"
+    }
+  },
   "reinvestment_rate": {
     "label": {
       "long": "Reinvestment Rate"
@@ -179,8 +191,8 @@
   "altman_z_score": {
     "value": "fundamental",
     "label": {
-      "long": "Altman Z Score",
-      "short": "Z Score"
+      "long": "Altman Z-score",
+      "short": "Z-score"
     },
     "calculation": {
       "order": 3,

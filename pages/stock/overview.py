@@ -15,6 +15,7 @@ from sqlalchemy import create_engine, text
 from components.dupont_chart import DupontChart
 
 from components.stock_header import StockHeader
+from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<_id>/overview', title=stock_label)
@@ -49,6 +50,47 @@ span_ids = (
 dupont_items = {
   item.split(':')[1] if ':' in item else item for item in span_ids 
 }
+
+def create_row_data(
+  fin_data: pd.DataFrame, 
+  cols: list[str]
+) -> list[dict]:
+
+  fin_data.sort_values('date', inplace=True)
+
+  query = f'''SELECT item, short, long FROM items 
+    WHERE item IN {str(tuple(cols))}
+  '''
+  #params = {'columns': str(tuple(cols))}
+  items = read_sqlite('taxonomy.db', query)
+  items.loc[:, 'short'].fillna(items['long'], inplace=True)
+  items.set_index('item', inplace=True)
+
+  mask = fin_data['months'] == 12
+  row_data = fin_data.loc[mask, cols].T.iloc[:, -1]
+  row_data.index.name = 'item'
+
+  row_data['trend'] = ''
+  for i in row_data.index:
+    fig = px.line(
+      fin_data.loc[:, i]
+    )
+    fig.update_layout(
+      showlegend=False,
+      xaxis_visible=False,
+      xaxis_showticklabels=False,
+      yaxis_visible=False,
+      yaxis_showticklabels=False,
+      margin=dict(l=0, r=0, t=0, b=0),
+      template='plotly_white'
+    )
+    row_data.at[i, 'trend'] = fig 
+
+  row_data.reset_index(inplace=True)
+  row_data.loc[:, 'item'] = items.loc[row_data['item'].tolist(), 'short']
+
+  return row_data.to_dict('records')
+
 
 def sankey_color(sign: int, opacity: float = 1) -> str:
   return f'rgba(255,0,0,{opacity})' if sign == -1 else f'rgba(0,255,0,{opacity})'
@@ -142,37 +184,9 @@ def update_table(data: list[dict]):
     return no_update
   
   data: pd.DataFrame = pd.DataFrame.from_records(data)
-  data.sort_values('data', inplace=True)
-
-  mask = (slice(None), slice(None), 12)
   cols = ['piotroski_f_score', 'altman_z_score', 'beneish_m_score']
 
-  row_data = data.loc[mask, cols].T.iloc[:, -1]
-  row_data.index.name = 'item'
-
-  row_data['trend'] = ''
-  for i in row_data.index:
-    fig = px.line(
-      data.loc[:, i]
-    )
-    fig.update_layout(
-      showlegend=False,
-      xaxis=dict(autorange='reversed'),
-      xaxis_visible=False,
-      xaxis_showticklabels=False,
-      yaxis_visible=False,
-      yaxis_showticklabels=False,
-      margin=dict(l=0, r=0, t=0, b=0),
-      template='plotly_white'
-    )
-    row_data.at[i, 'trend'] = fig 
-
-  row_data.reset_index(inplace=True)
-  row_data.loc[:, 'item'] = (row_data.loc[:, 'item']
-    .str.replace('_', ' ')
-    .str.title()
-  )
-  return row_data
+  return create_row_data(data, cols)
 
 @callback(
   Output('graph:stock:sankey', 'figure'),
