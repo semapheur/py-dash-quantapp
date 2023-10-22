@@ -10,6 +10,7 @@ from lib.utils import df_time_difference
 
 SLICES = (
   (slice(None), slice('FY'), slice(12)),
+  (slice(None), slice('TTM'), slice(12)),
   (slice(None), slice(None), slice(3))
 )
 
@@ -57,18 +58,16 @@ class AnyTransformer(ast.NodeTransformer):
     )
     return call
 
-def trailing_twelve_months(df: pd.DataFrame, price=float) -> pd.DataFrame:
-  from lib.ticker.fetch import load_schema
+def trailing_twelve_months(df: pd.DataFrame) -> pd.DataFrame:
 
   df.sort_index(level='date', inplace=True)
 
   last_date = df.index.get_level_values('date').max()
-  last_annual = (
-    df.loc[(slice(None), slice(None), 12), :]
-      .index.get_level_values('date')[0])
+  mask = (slice(None), slice('FY'), 12)
+  last_annual = df.loc[mask, :].index.get_level_values('date')[-1]
 
   if last_annual == last_date:
-    ttm = df.loc[(last_annual, 'FY', 12), :]
+    ttm = df.loc[(slice(None), 'FY', 12), :].tail(2)
   else:
     query = f'''SELECT item FROM items
       WHERE period = "duration" AND item IN {str(tuple(df.columns))}
@@ -77,34 +76,21 @@ def trailing_twelve_months(df: pd.DataFrame, price=float) -> pd.DataFrame:
     sum_cols = sum_cols['item']
 
     mask = (slice(None), slice(None), 3)
-    sums = df.loc[mask, sum_cols.to_list()].tail(4).sum()
-
+    trail = df.loc[mask, sum_cols.to_list()].tail(8)
+    sums = pd.concat(
+      (trail.head(4).sum(), trail.tail(4).sum()),
+      axis=1).T
     rest_cols = list(
       set(df.columns).difference(set(sum_cols))
     )
-    rest = df.loc[mask, rest_cols].tail(1)
+    rest = pd.concat(
+      (df.loc[mask, rest_cols].iloc[-5],
+      df.loc[mask, rest_cols].iloc[-1]), 
+      axis=1).T
 
-    ttm: pd.Series = pd.concat((sums, rest), axis=0)
+    sums.index = rest.index
+    ttm: pd.DataFrame = pd.concat((sums, rest), axis=1)
   
-  date = dt.now()
-  date = date.replace(hour=0, minute=0, second=0, microsecond=0)
-  ix = pd.MultiIndex.from_tuples(
-    [(date, 'TTM', 12)], 
-    names=['date', 'period', 'months'])
-  ttm = pd.DataFrame(ttm, columns=ttm.index, index=ix)
-
-  price_factor = price / ttm['share_price'].iloc[0]
-  ttm.loc[:, 'market_capitalization'] *= price_factor
-
-  query = '''SELECT item, calculation FROM items 
-    WHERE 
-      calculation IS NOT NULL AND (
-      value = "price_fundamental" OR
-      item IN ("enterprise_value", "altman_z_score"))
-  '''
-  schema = load_schema(query)
-  ttm = calculate_items(ttm, schema, True)
-
   df = pd.concat((df, ttm), axis=0)
   return df
 

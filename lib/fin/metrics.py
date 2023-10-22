@@ -174,13 +174,17 @@ def beta(
   returns.dropna(inplace=True)
   
   betas: list[pd.DataFrame] = []
-  for period in (3, 12):
-    mask = (slice(None), slice(None), period)
-    dates = (fin.loc[mask, :]
+  slices = (
+    (slice(None), slice(None), 3),
+    (slice(None), slice('FY'), 12),
+    (slice(None), slice('TTM'), 12)
+  )
+  for s in slices:
+    dates = (fin.loc[s, :]
       .sort_index(level='date')
       .index.get_level_values('date')
     )
-    betas.append(calculate_beta(dates, returns, period))
+    betas.append(calculate_beta(dates, returns, s[2]))
 
   beta = pd.concat(betas)
   fin = (fin

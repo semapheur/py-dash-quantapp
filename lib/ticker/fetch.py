@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, text
 
 from lib.const import DB_DIR
 from lib.db.lite import check_table, read_sqlite, upsert_sqlite
-from lib.fin.calculation import calculate_items
+from lib.fin.calculation import calculate_items, trailing_twelve_months
 from lib.fin.metrics import (
   f_score, m_score, z_score, beta, weighted_average_cost_of_capital)
 
@@ -182,6 +182,7 @@ def calculate_fundamentals(
     .set_index(['date', 'period', 'months'])
     .drop('index', axis=1)
   )
+  fin_data = trailing_twelve_months(fin_data)
   schema = load_schema()
   fin_data = calculate_items(fin_data, schema)
 
@@ -198,6 +199,17 @@ def calculate_fundamentals(
     fin_data = z_score(fin_data)
 
   return fin_data
+
+def handle_ttm(df: pd.DataFrame) -> pd.DataFrame:
+  df.sort_index(level='date', inplace=True)
+  mask = (slice(None), slice('TTM'), 12)
+  drop_index = df.loc[mask,:].head(1).index[0]
+  ttm_index = df.loc[mask,:].tail(1).index[0]
+
+  df.drop(drop_index, inplace=True)
+  df.rename(index={ttm_index: (dt(1900,1,1))})
+
+  return df
 
 async def get_fundamentals(
   _id: str,
@@ -221,7 +233,7 @@ async def get_fundamentals(
   if df is None:
     df = await financials_fetcher()
     df = calculate_fundamentals(_id, df, ohlcv_fetcher)
-    upsert_sqlite(df, 'fundamentals.db', _id)
+    upsert_sqlite(handle_ttm(df), 'fundamentals.db', _id)
 
   last_date: dt = df.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
@@ -229,7 +241,7 @@ async def get_fundamentals(
 
   _df = await financials_fetcher(last_date.strftime('%Y-%m-%d'))
   if _df is None:
-    return _df
+    return df
   
   for m in _df.index.get_level_values('months').unique():
     _df = pd.concat([_df,
