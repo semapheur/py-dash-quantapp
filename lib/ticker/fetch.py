@@ -168,12 +168,20 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
 def calculate_fundamentals(
   _id: str,
   fin_data: pd.DataFrame,
-  ohlcv_fetcher: partial[pd.DataFrame]
+  ohlcv_fetcher: partial[pd.DataFrame],
+  update: bool = False
 ) -> pd.DataFrame:
   
   price = get_ohlcv(_id, 'stock', ohlcv_fetcher, cols={'date', 'close'})
   price.rename(columns={'close': 'share_price'}, inplace=True)
   price = price.resample('D').ffill()
+
+  fin_data = trailing_twelve_months(fin_data)
+  if update and (3 in fin_data.index.levels[2]):
+    fin_data = pd.concat(
+      (fin_data.loc[(slice(None), slice(None), 3),:].tail(2),
+      fin_data.loc[(slice(None), slice(None), 12),:]), 
+      axis=0)
 
   fin_data.reset_index(inplace=True)
   fin_data = (fin_data
@@ -182,7 +190,6 @@ def calculate_fundamentals(
     .set_index(['date', 'period', 'months'])
     .drop('index', axis=1)
   )
-  fin_data = trailing_twelve_months(fin_data)
   schema = load_schema()
   fin_data = calculate_items(fin_data, schema)
 
@@ -243,10 +250,14 @@ async def get_fundamentals(
   if _df is None:
     return df
   
+  df.sort_index(level='date', inplace=True)
+  props = {
+    3: (None, 8),
+    12: ('FY', 1)
+  }
   for m in _df.index.get_level_values('months').unique():
-    _df = pd.concat([_df,
-      df.loc[(slice(None), slice(None), m),:].sort_index(level='date').iloc[-1]
-    ])
+    mask = (slice(None), slice(props[m][0]), m)
+    _df = pd.concat((df.loc[mask,:].tail(props[m][1]), _df), axis=0)
   
   _df = calculate_fundamentals(_df, ohlcv_fetcher)
   upsert_sqlite(_df, 'fundamentals.db', _id)
