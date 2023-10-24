@@ -94,6 +94,29 @@ def trailing_twelve_months(df: pd.DataFrame) -> pd.DataFrame:
   df = pd.concat((df, ttm), axis=0)
   return df
 
+def update_trailing_twelve_months(
+  df: pd.DataFrame, new_price: float
+) -> pd.DataFrame:
+  mask = (slice(None), 'TTM', 12)
+  ttm_date = df.loc[mask,:].tail(1).index.levels[0]
+  mask = (ttm_date, 'TTM', 12)
+
+  old_price = df.at[mask, 'share_price']
+  df.loc[mask, 'share_price'] = new_price
+
+  query = f'''
+    SELECT item FROM items WHERE 
+      value = "price_fundamental" AND 
+      item IN {str(tuple(df.columns))}
+    UNION ALL
+    SELECT "market_capitalization" AS item
+  '''
+  items = read_sqlite('taxonomy.db', query)
+
+  df.loc[:, items['item'].to_list()] *= old_price / new_price
+
+  return df
+
 def day_difference(df: pd.DataFrame, slices = SLICES):
   
   for ix in slices:

@@ -208,14 +208,26 @@ def calculate_fundamentals(
   return fin_data
 
 def handle_ttm(df: pd.DataFrame) -> pd.DataFrame:
+  if 'TTM' not in df.index.get_level_values('period').unique():
+    return df
+
   df.sort_index(level='date', inplace=True)
   mask = (slice(None), slice('TTM'), 12)
-  drop_index = df.loc[mask,:].head(1).index[0]
+  drop_index = df.loc[mask,:].tail(-2).index[0]
   ttm_index = df.loc[mask,:].tail(1).index[0]
 
   df.drop(drop_index, inplace=True)
-  df.rename(index={ttm_index: (dt(1900,1,1))})
+  df.rename(index={ttm_index: (dt(1900,1,1))}, inplace=True)
 
+  return df
+
+def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
+  ttm_date = df.index.get_level_values('date').max()
+
+  renamer = {
+    (dt(1900,1,1),'TTM', 12): (ttm_date,'TTM', 12)
+  }
+  df.rename(index=renamer, inplace=True)
   return df
 
 async def get_fundamentals(
@@ -260,9 +272,12 @@ async def get_fundamentals(
     _df = pd.concat((df.loc[mask,:].tail(props[m][1]), _df), axis=0)
   
   _df = calculate_fundamentals(_df, ohlcv_fetcher)
-  upsert_sqlite(_df, 'fundamentals.db', _id)
-  df = read_sqlite('fundamentals.db', query, 
-    index_col=index_col, 
-    parse_dates=True
-  )
+  _df: pd.DataFrame = _df.loc[_df.index.difference(df.index),:]
+  upsert_sqlite(handle_ttm(_df), 'fundamentals.db', _id)
+  df = pd.concat((df, _df), axis=0)
+
+  #df = read_sqlite('fundamentals.db', query, 
+  #  index_col=index_col, 
+  #  parse_dates=True
+  #)
   return df
