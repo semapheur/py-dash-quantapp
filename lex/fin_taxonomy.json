@@ -1,4 +1,14 @@
 {
+  "cash_operating_income_loss": {
+    "label": {
+      "long": "Earnings Before Interest, Tax and Depreciation & Amortization",
+      "short": "EBITDA"
+    },
+    "calculation": {
+      "order": 3,
+      "all": "operating_income_loss + depreciation_depletion_amortization_accretion"
+    }
+  },
   "piotroski_f_score": {
     "label": {
       "long": "Piotroski F-score",
