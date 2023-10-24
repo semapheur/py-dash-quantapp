@@ -1,4 +1,31 @@
 {
+  "enterprise_value_to_revenue": {
+    "label": {
+      "long": "EV/Revenue"
+    },
+    "calculation": {
+      "order": 3,
+      "all": "enterprise_value / revenue"
+    }
+  },
+  "enterprise_value_to_free_cash_flow_firm": {
+    "label": {
+      "long": "EV/FCFF"
+    },
+    "calculation": {
+      "order": 8,
+      "all": "enterprise_value / free_cash_flow_firm"
+    }
+  },
+  "enterprise_value_to_ebitda": {
+    "label": {
+      "long": "EV/EBITDA"
+    },
+    "calculation": {
+      "order": 4,
+      "all": "enterprise_value / cash_operating_income_loss"
+    }
+  },
   "cash_operating_income_loss": {
     "label": {
       "long": "Earnings Before Interest, Tax and Depreciation & Amortization",
