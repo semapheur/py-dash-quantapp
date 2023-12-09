@@ -1,9 +1,13 @@
+# Tips
 Clone this repository with 
 
 ```
 git clone https://github.com/semapheur/py-dash-quantapp
 ```
 
+## Virtual environment
+
+### venv
 Create a Python virtual environment with
 
 ```
@@ -17,18 +21,18 @@ Activate the virtual environment using
 <name>\scripts\activate.ps1
 ```
 
+### Conda
+
+
+
+## Libraries
 Install required Python libraries with
 
 ```
 pip install -r requirements.txt
 ```
 
-Run the application with
-
-```
-python app.py
-```
-
+## TailwindCSS
 Install TailwindCSS with
 
 ```
@@ -40,4 +44,12 @@ Build the CSS file with
 
 ```
 npm tw-build
+```
+
+## Application
+
+Run the application with
+
+```
+python app.py
 ```

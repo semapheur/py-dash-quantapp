@@ -1,13 +1,8 @@
-# venv: python -m venv ./<env>
-# <env>\scripts\activate.<bat/ps1>
-# conda: conda create --name <env> --file <this file>
-# pip freeze > <this file>
-# pip install -r <this file>
-
 aiometer
 asyncio
 branca
 bs4
+camelot
 dash
 dash-ag-grid
 #dash-bootstrap-components
@@ -27,7 +22,7 @@ numba
 numpy
 openturns
 ordered-set
-orjson
+#orjson
 pandas
 #polars
 protobuf==3.20
