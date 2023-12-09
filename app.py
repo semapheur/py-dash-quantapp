@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
+import atexit
+from pathlib import Path
+
 from dash import Dash, dcc, html, page_container
 from dash.dependencies import Input, Output
 
 from components.header import Header
 
 #https://utxo.live/oracle/
+
+def cleanup():
+  temp = Path('temp')
+
+  for file in temp.iterdir():
+    file.unlink()
+
+atexit.register(cleanup)
 
 app = Dash(__name__, 
   use_pages=True, 
@@ -36,4 +47,4 @@ if __name__ == '__main__':
   app.run_server(
     debug=True, 
     dev_tools_hot_reload=False,
-  ) #, host='0.0.0.0', port=8080) 
+  ) #, host='0.0.0.0', port=8080)

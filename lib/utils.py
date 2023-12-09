@@ -152,12 +152,14 @@ def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:
 
   return f'Q{math.ceil(months/3)}'
 
-def download_file(url: str, extension: str) -> Path:
+def download_file(url: str, file_path: str|Path):
   
-  with tempfile.NamedTemporaryFile('wb', delete=False, suffix=extension) as file:
+  with open(file_path, 'wb') as file:
     with httpx.stream('GET', url=url, headers=HEADERS) as response:
-
-      total = int(response.headers['Content-Length'])
+      total = int(response.headers.get('Content-Length', 0))
+      if not total:
+        print(response.headers)
+        raise Exception('Download failed!')
 
       with tqdm(total=total, unit_scale=True, unit_divisor=1024, unit='B') as progress:
         bytes_downloaded = response.num_bytes_downloaded
@@ -165,5 +167,3 @@ def download_file(url: str, extension: str) -> Path:
           file.write(chunk)
           progress.update(response.num_bytes_downloaded - bytes_downloaded)
           bytes_downloaded = response.num_bytes_downloaded
-
-    return Path(file.name)
