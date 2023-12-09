@@ -15,7 +15,7 @@ def cleanup():
   for file in temp.iterdir():
     file.unlink()
 
-atexit.register(cleanup)
+#atexit.register(cleanup)
 
 app = Dash(__name__, 
   use_pages=True, 
@@ -44,6 +44,8 @@ app.clientside_callback(
 )
 
 if __name__ == '__main__':
+  #cleanup()
+
   app.run_server(
     debug=True, 
     dev_tools_hot_reload=False,

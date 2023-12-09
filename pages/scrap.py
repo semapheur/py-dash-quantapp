@@ -80,7 +80,6 @@ def update_object(url: str):
     return no_update
   
   doc_id = get_doc_id(url)
-  print(doc_id)
   if not doc_id:
     return []
   
@@ -101,11 +100,14 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
   if not (n_clicks and pdf_url and pages):
     return no_update
   
-  doc_id = get_doc_id(pdf_url)
-  pdf_path = Path(f'temp/{doc_id}.pdf')
+  #doc_id = get_doc_id(pdf_url)
+  #pdf_path = Path(f'temp/{doc_id}.pdf')
+  temp = io.BytesIO()
+  response = httpx.get(url=pdf_url, headers=HEADERS)
+  temp.write(response.content)
 
-  pages = [int(p) for p in pages.split(',')]
-  pdf = PDF(src=pdf_path, pages=pages)
+  pages = [int(p) - 1 for p in pages.split(',')]
+  pdf = PDF(src=temp, pages=pages)
   
   ocr = TesseractOCR(lang='eng')
 
@@ -114,7 +116,7 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
     borderless_tables=True if 'borderless' in options else False,
     implicit_rows=True if 'implicit' in options else False)
   
-  print(tables[0].df)
+  print(tables[pages[0]][0].df)
   
   return []
   #columnDefs = [{'field': c} for c in tables[0].df.columns]
