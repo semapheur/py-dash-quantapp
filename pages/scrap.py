@@ -6,10 +6,14 @@ from lib.morningstar.ticker import Ticker
 
 register_page(__name__, path='/scrap')
 
-layout = html.Main(children=[
-  TickerSelectAIO(aio_id='scrap'),
-  dcc.Dropdown(id='dropdown:scrap:pdf'),
-  html.ObjectEl(id='object:scrap:pdf', width='800', height='500')
+main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full'
+layout = html.Main(className=main_style, children=[
+  html.Aside(children=[
+    TickerSelectAIO(aio_id='scrap'),
+    dcc.Dropdown(id='dropdown:scrap:pdf')
+  ]
+  ),
+  html.Div(id='div:scrap:pdf', className='h-full w-full')
 ])
 
 @callback(
@@ -27,11 +31,11 @@ def update_dropdown(ticker: str):
   return docs[['label', 'value']].to_dict('records')
 
 @callback(
-  Output('object:scrap:pdf', 'data'),
+  Output('div:scrap:pdf', 'children'),
   Input('dropdown:scrap:pdf', 'value')
 )
 def update_object(url: str):
   if not url:
     return no_update
   
-  return url
+  return html.ObjectEl(data=url, width='100%', height='100%')
