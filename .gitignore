@@ -20,6 +20,9 @@
 .pnp.js
 pnpm-lock.yaml
 
+# temporary files
+/temp
+
 # python virtual environment
 /.venv
 /venv

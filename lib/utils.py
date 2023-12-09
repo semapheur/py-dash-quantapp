@@ -153,10 +153,9 @@ def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:
   return f'Q{math.ceil(months/3)}'
 
 def download_file(url: str, file_path: str|Path):
-  
   with open(file_path, 'wb') as file:
     with httpx.stream('GET', url=url, headers=HEADERS) as response:
-      total = int(response.headers.get('Content-Length', 0))
+      total = int(response.headers.get('content-length', 0))
       if not total:
         print(response.headers)
         raise Exception('Download failed!')

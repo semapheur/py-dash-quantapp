@@ -248,7 +248,12 @@ class Ticker():
     return df
 
   def documents(self):
-      
+    replacements = {
+      'http:': 'https:',
+      'amp;': '',
+      '?': '/?'
+    }
+
     p = 0
     params = {
       'id': f'{self._id}]3]0]E0WWE`$`$ALL',
@@ -287,7 +292,7 @@ class Ticker():
           'type': rep_type,
           'language': d.find('languageid').text.replace('\n', ''),
           'format': d.find('format').text,
-          'link': d.find('downloadurl').text.replace('amp;', '')
+          'link': replace_all(d.find('downloadurl').text, replacements)
         })
 
       p += 1

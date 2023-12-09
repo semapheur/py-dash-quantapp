@@ -1,3 +1,7 @@
+import io
+import re
+from pathlib import Path
+
 from dash import callback, dcc, html, no_update, register_page, Input, Output, State
 import dash_ag_grid as dag
 import httpx
@@ -6,10 +10,21 @@ from img2table.ocr import TesseractOCR
 
 from components.ticker_select import TickerSelectAIO
 
+from lib.const import HEADERS
 from lib.morningstar.ticker import Ticker
 from lib.utils import download_file
 
 register_page(__name__, path='/scrap')
+
+def get_doc_id(url: str) -> str:
+
+  pattern = r'(?<=/)[a-z0-9]+(?=\.msdoc)'
+  match = re.search(pattern, url)
+
+  if not match:
+    return ''
+
+  return match.group()
 
 main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full'
 input_style = 'p-1 rounded-l border-l border-t border-b border-text/10'
@@ -64,6 +79,15 @@ def update_object(url: str):
   if not url:
     return no_update
   
+  doc_id = get_doc_id(url)
+  print(doc_id)
+  if not doc_id:
+    return []
+  
+  pdf_path = Path(f'temp/{doc_id}.pdf')
+  if not pdf_path.exists():
+    download_file(url, pdf_path)
+  
   return html.ObjectEl(data=url, width='100%', height='100%')
 
 @callback(
@@ -77,7 +101,8 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
   if not (n_clicks and pdf_url and pages):
     return no_update
   
-  pdf_path = download_file(pdf_url, '.pdf')
+  doc_id = get_doc_id(pdf_url)
+  pdf_path = Path(f'temp/{doc_id}.pdf')
 
   pages = [int(p) for p in pages.split(',')]
   pdf = PDF(src=pdf_path, pages=pages)
