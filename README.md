@@ -23,7 +23,9 @@ Activate the virtual environment using
 
 ### Conda
 
-
+```
+conda create --name <env> --file <this file>
+```
 
 ## Libraries
 Install required Python libraries with

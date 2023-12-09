@@ -2,7 +2,7 @@ aiometer
 asyncio
 branca
 bs4
-camelot
+camelot-py[base]
 dash
 dash-ag-grid
 #dash-bootstrap-components
