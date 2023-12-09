@@ -165,7 +165,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
     rowClassRules=row_style,
     style={'height': '100%'},
     dashGridOptions={'rowSelection': 'single'},
-  ),
+  )
 
 @callback(
   Output('graph:stock-financials', 'figure'),

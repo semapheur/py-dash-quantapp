@@ -2,7 +2,7 @@ aiometer
 asyncio
 branca
 bs4
-camelot-py[base]
+#camelot-py[base]
 dash
 dash-ag-grid
 #dash-bootstrap-components
@@ -16,6 +16,8 @@ fathon
 geopandas
 glom
 httpx
+img2table
+#jpype1
 lxml
 matplotlib
 numba
@@ -27,7 +29,8 @@ pandas
 #polars
 protobuf==3.20
 pycountry
-pydantic
+#pydantic
+#pypdf2<3.0.0
 python-dotenv
 #pyyaml
 requests
@@ -35,7 +38,9 @@ scikit-learn
 scipy
 sqlalchemy
 statsmodels
+#tabula-py
 tinydb
 tinydb-serialization
 topojson
+tqdm
 wbgapi

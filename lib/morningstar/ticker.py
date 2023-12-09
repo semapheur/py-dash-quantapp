@@ -298,4 +298,6 @@ class Ticker():
         soup = bs.BeautifulSoup(rs.text, 'lxml')
         
     df = pd.DataFrame.from_records(scrap)
+    df.drop_duplicates(ignore_index=True, inplace=True)
+
     return df
