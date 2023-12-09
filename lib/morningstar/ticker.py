@@ -1,15 +1,16 @@
+#import asyncio
 from datetime import datetime as dt
 import re
 from typing import Literal, Optional
 
 import bs4 as bs
+import httpx
 import numpy as np
-import requests
 import pandas as pd
 
 from lib.const import HEADERS
 from lib.models import OHLCV
-from lib.morningstar.fetch import get_currency
+#from lib.morningstar.fetch import get_currency
 from lib.utils import replace_all
 
 SCREENER_API = (
@@ -24,17 +25,17 @@ class Ticker():
   def __init__(self, 
     id: str, 
     security: Literal['stock', 'etf', 'fund'], 
-    currency: Optional[str]=''
+    currency: Optional[str] = ''
   ):
     self._id = id # Morningstar ID
     self._security = security
-    self._currency = currency if currency else get_currency(id)
+    self._currency = currency if currency else 'USD' #asyncio.run(get_currency(id))
 
   def ohlcv(self, start_date:str='1970-01-01'):
 
     def parser(params):
-      with requests.Session() as s:
-        rs = s.get(url, headers=HEADERS, params=params)
+      with httpx.Client() as client:
+        rs = client.get(url, headers=HEADERS, params=params)
         if rs.status_code != 200:
           return None
         parse = rs.json()
@@ -115,8 +116,8 @@ class Ticker():
 
     url = 'https://tools.morningstar.no/no/stockreport/default.aspx'
     
-    with requests.Session() as s:
-      rs = s.get(url, headers=HEADERS, params=params)
+    with httpx.Client() as client:
+      rs = client.get(url, headers=HEADERS, params=params)
       soup = bs.BeautifulSoup(rs.text, 'lxml')
     
     table = soup.find('table', {'class': 'right years5'})
@@ -175,8 +176,8 @@ class Ticker():
     }
 
     url = 'https://www.morningstar.no/no/funds/snapshot/snapshot.aspx?id=' + self._id
-    with requests.Session() as s:
-      rs = s.get(url)
+    with httpx.Client() as client:
+      rs = client.get(url)
       soup = bs.BeautifulSoup(rs.text, 'lxml')
     # Fees
     tbl_cls = 'snapshotTextColor snapshotTextFontStyle snapshotTable'
@@ -197,8 +198,8 @@ class Ticker():
 
     # Alfa/beta (best fit)
     tab = url + '&tab=2'
-    with requests.Session() as s:
-      rs = s.get(tab)
+    with httpx.Client() as client:
+      rs = client.get(tab)
       soup = bs.BeautifulSoup(rs.text, 'lxml')
     tbl = soup.find('table', {'class': f'{tbl_cls} ratingMptStatsTable'})
     beta = tbl.findAll('tr')[3].findAll('td')[2].text
@@ -210,8 +211,8 @@ class Ticker():
 
     # Portfolio
     tab = url + '&tab=3'
-    with requests.Session() as s:
-      rs = s.get(tab)
+    with httpx.Client() as client:
+      rs = client.get(tab)
       soup = bs.BeautifulSoup(rs.text, 'lxml')
     # Check if equity/bond fund
 
@@ -253,7 +254,7 @@ class Ticker():
       'id': f'{self._id}]3]0]E0WWE`$`$ALL',
       'currencyId': 'NOK',
       'languageId': 'nb-NO',
-      'pageSize': '15',
+      'pageSize': '1000',
       'moduleId': '59',
       'documentCategory': 'financials',
       'pageNumber': f'{p}',
@@ -262,8 +263,8 @@ class Ticker():
       'https://tools.morningstar.no/api/rest.svc/'
       'security_documents/dr6pz9spfi'
     )
-    with requests.Session() as s:
-      rs = s.get(url, headers=HEADERS, params=params)
+    with httpx.Client() as client:
+      rs = client.get(url, headers=HEADERS, params=params)
       soup = bs.BeautifulSoup(rs.text, 'lxml')
         
     pages = soup.find('documents').get('totalnumberofpages')
@@ -276,24 +277,24 @@ class Ticker():
                       
         att = d.find('attributes')
         if att is not None:
-          repType = att.text.replace('\n', '')
+          rep_type = att.text.replace('\n', '')
         
         else:
-          repType = 'N/A'
+          rep_type = 'N/A'
         
         scrap.append({
           'date': d.find('effectivedate').text,
-          'type': repType,
+          'type': rep_type,
           'language': d.find('languageid').text.replace('\n', ''),
           'format': d.find('format').text,
           'link': d.find('downloadurl').text.replace('amp;', '')
         })
 
       p += 1
-      params[-1] = ('pageNumber', f'{p}'),
+      params['pageNumber'] = f'{p}'
 
-      with requests.Session() as s:
-        rs = s.get(url, headers=HEADERS, params=params)
+      with httpx.Client() as client:
+        rs = client.get(url, headers=HEADERS, params=params)
         soup = bs.BeautifulSoup(rs.text, 'lxml')
         
     df = pd.DataFrame.from_records(scrap)

@@ -85,11 +85,10 @@ def finn_data():
     for p in range(startPage,51):
       params[-1] = ('page', str(p))
   
-      with httpx.Client() as s:
-        rs = s.get(
+      with httpx.Client() as client:
+        rs = client.get(
           'https://www.finn.no/api/search-qf', 
-          headers=HEADERS, params=params
-        )
+          headers=HEADERS, params=params)
         parse: dict = rs.json()
       
       if 'docs' not in parse['docs']:

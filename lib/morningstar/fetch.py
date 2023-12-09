@@ -1,7 +1,7 @@
+import asyncio
 import re
 from typing import Literal, Optional
 
-import asyncio
 import httpx
 import numpy as np
 import pandas as pd
