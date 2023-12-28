@@ -8,7 +8,10 @@
     /* Light theme (default) */
     --color-primary: 250 250 249;
     --color-secondary: 67 56 202;
-    --color-text: 24 24 27;  
+    --color-text: 24 24 27;
+    
+    /* Fonts */
+    --font-sans: system-ui, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
   }
   /* Dark theme */
   [data-theme='dark'] {
@@ -35,6 +38,7 @@
   }
 
   body {
+    font-family: var(--font-sans);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
