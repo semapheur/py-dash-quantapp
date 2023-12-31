@@ -16,7 +16,7 @@ from lib.ticker.fetch import stock_label
 
 register_page(__name__, path_template='/stock/<_id>/financials', title=stock_label)
 
-modal_style = 'relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md'
+modal_style = 'relative m-auto rounded-md'
 radio_wrap_style = 'flex divide-x rounded-sm shadow'
 radio_input_style = (
   'appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50'

@@ -1,7 +1,23 @@
 /**
+ * 
+ * @param {HTMLElement} el 
+ * @param {boolean} withChildren 
+ */
+function removeAllEventListeners(el, withChildren = false) {
+  if (withChildren) {
+    el.parentNode.replaceChild(el.cloneNode(true), el)
+  }
+  else {
+    const newEl = el.cloneNode(false)
+    while (el.hasChildNodes()) newEl.appendChild(el.firstChild)
+    el.parentNode.replaceChild(newEl, el)
+  }
+}
+
+/**
  * @param {string} dialog_id 
  */
-function open_modal(dialog_id) {
+function open_dialog(dialog_id) {
   dialog = document.getElementById(dialog_id)
   dialog.showModal()
 
@@ -14,15 +30,25 @@ function open_modal(dialog_id) {
       e.clientY > dialogDimensions.bottom
     ) {
       dialog.close()
+      removeAllEventListeners(dialog, false)
     }
   })
+}
+
+/**
+ * @param {string} dialog_id 
+ */
+function close_dialog(dialog_id) {
+  dialog = document.getElementById(dialog_id)
+  dialog.close()
+  removeAllEventListeners(dialog, false)
 }
 
 /**
  * @param {string|Object} id 
  */
 function check_id(id) {
-  if (typeof id != 'object') { return id }
+  if (typeof id !== 'object') { return id }
 
   sorted_keys = Object.keys(id).sort()
   const sorted_object = {}
@@ -59,25 +85,47 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     /**
      * @param {number} n_clicks
      * @param {Object|string} dialog_id
-     * @param {string} button_id
      * @returns {string}
      */
-    modal: function(n_clicks, dialog_id, button_id) {
+    open_modal: function(n_clicks, dialog_id) {
       dialog_id = check_id(dialog_id)
-      if (n_clicks === undefined || n_clicks === 0) { return button_id }
-      open_modal(dialog_id)
-      return button_id
+      if (n_clicks === undefined || n_clicks === 0) { return dialog_id }
+      open_dialog(dialog_id)
+      return dialog_id
     },
     /**
      * @param {number} n_clicks
-     * @param {string} class_name
+     * @param {string} dialog_id
      * @returns {string}
      */
     close_modal: function(n_clicks, dialog_id) {
       dialog_id = check_id(dialog_id)
-      dialog = document.getElementById(dialog_id)
-      if (n_clicks > 0) {dialog.close()}
+      if (n_clicks > 0) {close_dialog(dialog_id)}
 
+      return dialog_id
+    },
+    /**
+     * @param {number} open_stamp
+     * @param {number} close_stamp
+     * @param {string} class_name
+     * @returns {string}
+     */
+    handle_modal: function(open_stamp, close_stamp, dialog_id) {
+      dialog_id = check_id(dialog_id)
+
+      if (open_stamp === undefined && 
+        close_stamp === undefined) {
+          return dialog_id
+      }
+      if (close_stamp === undefined && open_stamp) {
+        open_dialog(dialog_id)
+      } else if (open_stamp === undefined && close_stamp) {
+        close_dialog(dialog_id)
+      } else if (close_stamp > open_stamp) {
+        close_dialog(dialog_id)
+      } else if (open_stamp > close_stamp) {
+        open_dialog(dialog_id)
+      }
       return dialog_id
     }
   }
