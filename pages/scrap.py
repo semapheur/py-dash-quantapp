@@ -135,6 +135,10 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
     rowData=tables[pages[0]][0].df.to_dict('records'),
     columnSize='autoSize',
     defaultColDef = {'editable': True},
+    dashGridOptions={
+      'undoRedoCellEditing': True,
+      'undoRedoCellEditingLimit': 10
+    },
     style={'height': '100%'},
   )
 
@@ -143,5 +147,13 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
   Input('button:scrap:delete', 'n_clicks'),
   prevent_initial_call=True
 )
-def selected(_):
+def selected(_: int):
   return True
+
+@callback(
+  Output('table:scrap', 'columnDefs'),
+  Input('button:scrap:header', 'n_clicks'),
+  prevent_initial_call=True
+)
+def toggle_cols(n):
+  pass
