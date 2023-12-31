@@ -106,14 +106,15 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
   if not (n_clicks and pdf_url and pages):
     return no_update
   
-  #doc_id = get_doc_id(pdf_url)
-  #pdf_path = Path(f'temp/{doc_id}.pdf')
-  temp = io.BytesIO()
-  response = httpx.get(url=pdf_url, headers=HEADERS)
-  temp.write(response.content)
+  doc_id = get_doc_id(pdf_url)
+  pdf_src = Path(f'temp/{doc_id}.pdf')
+  if not pdf_src.exists():
+    pdf_src = io.BytesIO()
+    response = httpx.get(url=pdf_url, headers=HEADERS)
+    pdf_src.write(response.content)
 
   pages = [int(p) - 1 for p in pages.split(',')]
-  pdf = PDF(src=temp, pages=pages)
+  pdf = PDF(src=pdf_src, pages=pages)
   
   ocr = TesseractOCR(lang='eng')
 
