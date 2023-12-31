@@ -15,6 +15,7 @@ fathon
 #geobuf
 geopandas
 glom
+hishel
 httpx
 img2table
 #jpype1
