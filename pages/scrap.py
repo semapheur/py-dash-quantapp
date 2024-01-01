@@ -317,3 +317,28 @@ def update_dropdown(doc: str, options: list[dict[str,str]]):
   period = 'FY' if scope == 'annual' else ''
   
   return (scope, period)
+
+@callback(
+  Output('button:scrap:export', 'id'),
+  Input('button:scrap:export', 'n_clicks'),
+  State('table:scrap', 'rowData'),
+  State(InputAIO._id('scrap:id'), 'value'),
+  State(InputAIO._id('scrap:date'), 'value'),
+  State('dropdown:scrap:scope', 'value'),
+  State('dropdown:scrap:period', 'value'),
+  prevent_initial_call=True
+)
+def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: str):
+  if not n:
+    return no_update
+  
+  meta = {
+    'date': date,
+    'scope': scope,
+    'period': period
+  }
+
+  df = pd.DataFrame.from_records(rows)
+
+
+  return 'button:scrap:export'
