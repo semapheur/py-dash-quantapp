@@ -212,13 +212,14 @@ def selected(_: int):
   prevent_initial_call=True
 )
 def update_form(cols: list[dict]):
+  
   return [dcc.Input(
     id={'type': 'input:scrap:headers', 'index': i}, 
     className='px-1 rounded border border-text/10 hover:border-text/50 focus:border-secondary', 
     placeholder=f'Field {i}',
     value=col['field'],
     type='text'
-  ) for (i, col) in enumerate(cols)]
+  ) for (i, col) in enumerate(cols[2:])]
 
 @callback(
   Output('table:scrap', 'columnDefs'),
@@ -234,12 +235,14 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
     return no_update
   
   df = pd.DataFrame.from_records(rows)
-  col_map = {col: name for (col, name) in zip(df.columns, new_names)}
+  df = df[[col['field'] for col in cols]]
+
+  col_map = {col: name for (col, name) in zip(df.columns[2:], new_names)}
   df.rename(columns=col_map, inplace=True)
   
 
   for (i, name) in enumerate(new_names):
-    cols[i]['field'] = name
+    cols[i+2]['field'] = name
 
   return cols, df.to_dict('records')
 
