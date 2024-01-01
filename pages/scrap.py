@@ -38,7 +38,7 @@ group_button_style = 'px-2 rounded-r bg-secondary/50 text-text'
 layout = html.Main(className=main_style, children=[
   html.Aside(className='flex flex-col gap-2 p-2', children=[
     TickerSelectAIO(aio_id='scrap'),
-    dcc.Dropdown(id='dropdown:scrap:pdf', placeholder='Document'),
+    dcc.Dropdown(id='dropdown:scrap:document', placeholder='Document'),
     html.Form(className='flex', action='', children=[
       dcc.Input(
         id='input:scrap:pages',
@@ -84,7 +84,31 @@ layout = html.Main(className=main_style, children=[
       id=ModalAIO.open_id('scrap:export'), 
       className=button_style,
       type='button', 
-      n_clicks=0)
+      n_clicks=0),
+    InputAIO('scrap:id', '100%', {
+      'type': 'text',
+      'placeholder': 'Ticker ID'
+    }),
+    InputAIO('scrap:date', '100%', {
+      'type': 'text',
+      'placeholder': 'Date'
+    }),
+    dcc.Dropdown(
+      id='dropdown:scrap:scope', 
+      placeholder='Scope',
+      options=[
+        {'label': 'Annual', 'value': 'annual'},
+        {'label': 'Quarterly', 'value': 'quarterly'}]
+    ),
+    dcc.Dropdown(
+      id='dropdown:scrap:period', 
+      placeholder='Period',
+      options=['FY', 'Q1', 'Q2', 'Q3', 'Q4']
+    ),
+    InputAIO('scrap:date', '100%', {
+      'scope': 'text',
+      'placeholder': 'Date'
+    })
   ]
   ),
   html.Div(id='div:scrap:pdf', className='h-full w-full'),
@@ -104,7 +128,7 @@ layout = html.Main(className=main_style, children=[
 ])
 
 @callback(
-  Output('dropdown:scrap:pdf', 'options'),
+  Output('dropdown:scrap:document', 'options'),
   Input(TickerSelectAIO._id('scrap'), 'value')
 )
 def update_dropdown(ticker: str):
@@ -119,7 +143,7 @@ def update_dropdown(ticker: str):
 
 @callback(
   Output('div:scrap:pdf', 'children'),
-  Input('dropdown:scrap:pdf', 'value')
+  Input('dropdown:scrap:document', 'value')
 )
 def update_object(url: str):
   if not url:
@@ -138,7 +162,7 @@ def update_object(url: str):
 @callback(
   Output('div:scrap:table', 'children'),
   Input('button:scrap:extract', 'n_clicks'),
-  State('dropdown:scrap:pdf', 'value'),
+  State('dropdown:scrap:document', 'value'),
   State('input:scrap:pages', 'value'),
   State('checklist:scrap:options', 'value'),
   State(InputAIO._id('scrap:factor'), 'value'),
@@ -246,3 +270,63 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
 
   return cols, df.to_dict('records')
 
+@callback(
+  Output(InputAIO._id('scrap:date'), 'value'),
+  Input(TickerSelectAIO._id('scrap'), 'value')
+)
+def update_input(ticker: str):
+  if not ticker:
+    return no_update
+ 
+  return ticker
+
+@callback(
+  Output(InputAIO._id('scrap:date'), 'value'),
+  Input('dropdown:scrap:document', 'label')
+)
+def update_dropdown(doc: str):
+  if not doc:
+    return no_update
+  
+  pattern = r'\d{4}-\d{2}-\d{2}'
+  match = re.search(pattern, doc)
+  
+  if not match:
+    return ''
+
+  return match.group()
+
+@callback(
+  Output('dropdown:scrap:scope', 'value'),
+  Input('dropdown:scrap:document', 'label')
+)
+def update_dropdown(doc: str):
+  if not doc:
+    return no_update
+  
+  pattern = r'(annual|quarterly)'
+  match = re.search(pattern, doc)
+  
+  if not match:
+    return ''
+
+  return match.group().lower()
+
+@callback(
+  Output('dropdown:scrap:period', 'value'),
+  Input('dropdown:scrap:document', 'label')
+)
+def update_dropdown(doc: str):
+  if not doc:
+    return no_update
+  
+  pattern = r'(annual|quarterly)'
+  match = re.search(pattern, doc)
+  
+  if not match:
+    return ''
+
+  if match.group().lower() == 'annual':
+    return 'FY'
+  
+  return ''
