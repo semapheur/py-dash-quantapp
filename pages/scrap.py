@@ -9,8 +9,10 @@ import dash_ag_grid as dag
 import httpx
 from img2table.document import PDF
 from img2table.ocr import TesseractOCR
+import pandas as pd
 
 from components.ticker_select import TickerSelectAIO
+from components.input import InputAIO
 from components.modal import ModalAIO
 
 from lib.const import HEADERS
@@ -29,7 +31,7 @@ def get_doc_id(url: str) -> str:
 
   return match.group()
 
-main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full'
+main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full bg-primary'
 input_style = 'p-1 rounded-l border-l border-t border-b border-text/10'
 button_style = 'px-2 rounded bg-secondary/50 text-text'
 group_button_style = 'px-2 rounded-r bg-secondary/50 text-text'
@@ -52,12 +54,22 @@ layout = html.Main(className=main_style, children=[
     dcc.Checklist(
       id='checklist:scrap:options',
       className='flex gap-4',
-      labelClassName='gap-1',
+      labelClassName='gap-1 text-text',
       labelStyle={'display': 'flex'},
       options=[
         {'label': 'Borderless', 'value': 'borderless'},
         {'label': 'Implicit rows', 'value': 'implicit'}], 
       value=[]),
+    InputAIO('scrap:factor', '100%', {
+      'value': 1e6,
+      'placeholder': 'Factor',
+      'type': 'number'
+    }),
+    InputAIO('scrap:currency', '100%', {
+      'value': 'NOK',
+      'placeholder': 'Currency',
+      'type': 'text'
+    }),
     html.Button('Delete rows', 
         id='button:scrap:delete', 
         className=button_style,
@@ -128,9 +140,18 @@ def update_object(url: str):
   Input('button:scrap:extract', 'n_clicks'),
   State('dropdown:scrap:pdf', 'value'),
   State('input:scrap:pages', 'value'),
-  State('checklist:scrap:options', 'value')
+  State('checklist:scrap:options', 'value'),
+  State(InputAIO._id('scrap:factor'), 'value'),
+  State(InputAIO._id('scrap:currency'), 'value'),
 )
-def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
+def update_table(
+  n_clicks: int, 
+  pdf_url: str, 
+  pages: str, 
+  options: list[str],
+  factor: int,
+  currency: str
+):
   if not (n_clicks and pdf_url and pages):
     return no_update
   
@@ -154,13 +175,20 @@ def update_table(n_clicks: int, pdf_url: str, pages: str, options: list[str]):
     borderless_tables=True if 'borderless' in options else False,
     implicit_rows=True if 'implicit' in options else False)
   
-  columnDefs = [{'field': str(c)} for c in tables[pages[0]][0].df.columns]
+  # TODO: merge tables
+  df = tables[pages[0]][0].df
+  df['factor'] = factor
+  df['unit'] = currency
+  diff = ['factor', 'unit']
+  df = df[diff + list(df.columns.difference(diff))]
+  
+  columnDefs = [{'field': str(c)} for c in df.columns]
   columnDefs[0].update({'checkboxSelection': True, 'headerCheckboxSelection': True})
 
   return dag.AgGrid(
     id='table:scrap',
     columnDefs=columnDefs,
-    rowData=tables[pages[0]][0].df.to_dict('records'),
+    rowData=df.to_dict('records'),
     columnSize='autoSize',
     defaultColDef = {'editable': True},
     dashGridOptions={
@@ -179,23 +207,6 @@ def selected(_: int):
   return True
 
 @callback(
-  Output('table:scrap', 'columnDefs'),
-  Input('button:scrap:headers:update', 'n_clicks'),
-  State({'type': 'input:scrap:headers', 'index': ALL}, 'value'),
-  prevent_initial_call=True
-)
-def toggle_cols(n: int, new_names: list[str]):
-  if not n:
-    return no_update
-
-  patched_grid = Patch()
-
-  for (i, name) in enumerate(new_names):
-    patched_grid[i]['headerName'] = name
-
-  return patched_grid
-
-@callback(
   Output('form:scrap:headers', 'children'),
   Input('table:scrap', 'columnDefs'),
   prevent_initial_call=True
@@ -208,3 +219,27 @@ def update_form(cols: list[dict]):
     value=col['field'],
     type='text'
   ) for (i, col) in enumerate(cols)]
+
+@callback(
+  Output('table:scrap', 'columnDefs'),
+  Output('table:scrap', 'rowData'),
+  Input('button:scrap:headers:update', 'n_clicks'),
+  State({'type': 'input:scrap:headers', 'index': ALL}, 'value'),
+  State('table:scrap', 'columnDefs'),
+  State('table:scrap', 'rowData'),
+  prevent_initial_call=True
+)
+def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]):
+  if not n:
+    return no_update
+  
+  df = pd.DataFrame.from_records(rows)
+  col_map = {col: name for (col, name) in zip(df.columns, new_names)}
+  df.rename(columns=col_map, inplace=True)
+  
+
+  for (i, name) in enumerate(new_names):
+    cols[i]['field'] = name
+
+  return cols, df.to_dict('records')
+

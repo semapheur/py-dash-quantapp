@@ -1152,6 +1152,10 @@ pre[data-language]::before {
   color: rgb(var(--color-text) / var(--tw-text-opacity));
 }
 
+.text-text\/50 {
+  color: rgb(var(--color-text) / 0.5);
+}
+
 .placeholder-transparent::-moz-placeholder {
   color: transparent;
 }

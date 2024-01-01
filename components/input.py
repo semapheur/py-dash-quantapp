@@ -7,7 +7,7 @@ input_style = (
   'placeholder-transparent'
 )
 label_style = (
-  'absolute left-1 -top-2 px-1 bg-primary text-text/500 text-xs '
+  'absolute left-1 -top-2 px-1 bg-primary text-text/50 text-xs '
   'peer-placeholder-shown:text-base peer-placeholder-shown:text-text/50 '
   'peer-placeholder-shown:top-1 peer-focus:-top-2 peer-focus:text-secondary '
   'peer-focus:text-xs transition-all'
@@ -35,7 +35,7 @@ class InputAIO(html.Form):
       'width': width or 'auto'
     }
 
-    super().__init__(className='peer', style=form_style, children=[
+    super().__init__(className='peer relative', style=form_style, children=[
       dcc.Input(
         id=self.__class__._id(aio_id), 
         **input_props
