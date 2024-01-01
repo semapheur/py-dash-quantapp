@@ -113,12 +113,17 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     handle_modal: function(open_stamp, close_stamp, dialog_id) {
       dialog_id = check_id(dialog_id)
 
-      if (open_stamp === -1 && close_stamp === -1) {
+      if (open_stamp === undefined && close_stamp === undefined) {
         return dialog_id
       }
-      if (open_stamp > close_stamp) {
+
+      if (close_stamp === undefined) {
         open_dialog(dialog_id)
-      } else {
+      } else if (open_stamp === undefined) {
+        close_dialog(dialog_id)
+      } else if (open_stamp > close_stamp) {
+        open_dialog(dialog_id)
+      } else if (close_stamp > open_stamp) {
         close_dialog(dialog_id)
       }
       return dialog_id

@@ -7,6 +7,8 @@ from lib.edgar.company import Company
 from lib.morningstar.ticker import Ticker
 from lib.ticker.fetch import find_cik, get_fundamentals, search_tickers
 
+from components.input import InputAIO
+
 input_style = (
   'peer min-w-[20vw] h-full p-1 bg-primary text-text '
   'rounded border border-text/10 hover:border-text/50 focus:border-secondary '

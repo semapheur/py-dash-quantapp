@@ -11,6 +11,7 @@ from img2table.document import PDF
 from img2table.ocr import TesseractOCR
 
 from components.ticker_select import TickerSelectAIO
+from components.modal import ModalAIO
 
 from lib.const import HEADERS
 from lib.morningstar.ticker import Ticker
@@ -65,35 +66,25 @@ layout = html.Main(className=main_style, children=[
         type='button', 
         n_clicks=0),
       html.Button('Rename headers', 
-        id='button:scrap:headers:open-modal', 
+        id=ModalAIO.open_id('scrap:headers'), 
         className=button_style,
         type='button', 
         n_clicks=0)
     ]),
     html.Div(className='h-full', id='div:scrap:table')]
   ),
-  html.Dialog(
-    id='dialog:scrap:headers', 
-    className='m-auto max-h-[75%] max-w-[75%] rounded-md shadow-md dark:shadow-black/50', 
-    children=[
-      html.Div(className='flex flex-col h-full px-2 pb-2', children=[
-        html.Button('X', 
-          id='button:scrap:headers:close-modal',
-          className='self-end text-secondary hover:text-red-600'
-        ),
-        html.Div(className='flex flex-col', children=[
-          html.H2('Rename headers'),
-          html.Form(
-            id='form:scrap:headers',
-            className='flex flex-col gap-1'
-          ),
-          html.Button('Update', 
-            id='button:scrap:headers:update',
-            className=button_style
-          ),
-        ])
-      ])
+  ModalAIO('scrap:headers', 'Rename headers', children=[
+    html.Div(className='flex flex-col', children=[
+      html.Form(
+        id='form:scrap:headers',
+        className='flex flex-col gap-1'
+      ),
+      html.Button('Update', 
+        id='button:scrap:headers:update',
+        className=button_style
+      ),
     ])
+  ])
 ])
 
 @callback(
@@ -213,14 +204,3 @@ def update_form(cols: list[dict]):
     value=col['field'],
     type='text'
   ) for (i, col) in enumerate(cols)]
-
-clientside_callback(
-  ClientsideFunction(
-    namespace='clientside',
-    function_name='handle_modal'
-  ),
-  Output('dialog:scrap:headers', 'id'),
-  Input('button:scrap:headers:open-modal', 'n_clicks'),
-  Input('button:scrap:headers:close-modal', 'n_clicks'),
-  State('dialog:scrap:headers', 'id')
-)
