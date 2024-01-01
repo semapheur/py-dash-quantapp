@@ -25,7 +25,7 @@ class Ticker():
   def __init__(self, 
     id: str, 
     security: Literal['stock', 'etf', 'fund'], 
-    currency: Optional[str] = ''
+    currency: Optional[str] = None
   ):
     self._id = id # Morningstar ID
     self._security = security

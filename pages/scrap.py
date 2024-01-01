@@ -104,11 +104,7 @@ layout = html.Main(className=main_style, children=[
       id='dropdown:scrap:period', 
       placeholder='Period',
       options=['FY', 'Q1', 'Q2', 'Q3', 'Q4']
-    ),
-    InputAIO('scrap:date', '100%', {
-      'scope': 'text',
-      'placeholder': 'Date'
-    })
+    )
   ]
   ),
   html.Div(id='div:scrap:pdf', className='h-full w-full'),
@@ -135,7 +131,7 @@ def update_dropdown(ticker: str):
   if not ticker:
     return no_update
   
-  docs = Ticker(ticker, 'stock').documents()
+  docs = Ticker(*ticker.split('|'), 'stock').documents()
   docs.rename(columns={'link': 'value'}, inplace=True)
   docs['label'] = docs['date'] + ' - ' + docs['type'] + ' (' + docs['language'] + ')'
   
@@ -271,25 +267,28 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
   return cols, df.to_dict('records')
 
 @callback(
-  Output(InputAIO._id('scrap:date'), 'value'),
+  Output(InputAIO._id('scrap:id'), 'value'),
   Input(TickerSelectAIO._id('scrap'), 'value')
 )
 def update_input(ticker: str):
   if not ticker:
     return no_update
  
-  return ticker
+  return ticker.split('|')[0]
 
 @callback(
   Output(InputAIO._id('scrap:date'), 'value'),
-  Input('dropdown:scrap:document', 'label')
+  Input('dropdown:scrap:document', 'value'),
+  State('dropdown:scrap:document', 'options')
 )
-def update_dropdown(doc: str):
+def update_dropdown(doc: str, options: list[dict[str,str]]):
   if not doc:
     return no_update
   
+  label = [x['label'] for x in options if x['value'] == doc][0]
+  
   pattern = r'\d{4}-\d{2}-\d{2}'
-  match = re.search(pattern, doc)
+  match = re.search(pattern, label)
   
   if not match:
     return ''
@@ -298,35 +297,23 @@ def update_dropdown(doc: str):
 
 @callback(
   Output('dropdown:scrap:scope', 'value'),
-  Input('dropdown:scrap:document', 'label')
-)
-def update_dropdown(doc: str):
-  if not doc:
-    return no_update
-  
-  pattern = r'(annual|quarterly)'
-  match = re.search(pattern, doc)
-  
-  if not match:
-    return ''
-
-  return match.group().lower()
-
-@callback(
   Output('dropdown:scrap:period', 'value'),
-  Input('dropdown:scrap:document', 'label')
+  Input('dropdown:scrap:document', 'value'),
+  State('dropdown:scrap:document', 'options')
 )
-def update_dropdown(doc: str):
+def update_dropdown(doc: str, options: list[dict[str,str]]):
   if not doc:
     return no_update
   
+  label = [x['label'] for x in options if x['value'] == doc][0]
+
   pattern = r'(annual|quarterly)'
-  match = re.search(pattern, doc)
+  match = re.search(pattern, label, flags=re.I)
   
   if not match:
-    return ''
-
-  if match.group().lower() == 'annual':
-    return 'FY'
+    return '', ''
   
-  return ''
+  scope = match.group().lower()
+  period = 'FY' if scope == 'annual' else ''
+  
+  return (scope, period)
