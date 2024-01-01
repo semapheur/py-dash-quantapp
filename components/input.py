@@ -2,7 +2,7 @@ from dash import dcc, html
 import uuid
 
 input_style = (
-  'peer h-full p-1 bg-primary text-text '
+  'peer h-full w-full p-1 bg-primary text-text '
   'rounded border border-text/10 hover:border-text/50 focus:border-secondary '
   'placeholder-transparent'
 )
@@ -21,7 +21,7 @@ class InputAIO(html.Form):
       'aio_id': aio_id
     }
   
-  def __init__(self, aio_id:str=None, input_props:dict=None):
+  def __init__(self, aio_id:str=None, width:str=None, input_props:dict=None):
     if aio_id is None:
       aio_id = str(uuid.uuid4())
 
@@ -31,7 +31,11 @@ class InputAIO(html.Form):
     input_props.setdefault('placeholder', '')
     input_props.setdefault('type', 'text')
 
-    super().__init__(children=[
+    form_style = {
+      'width': width or 'auto'
+    }
+
+    super().__init__(className='peer', style=form_style, children=[
       dcc.Input(
         id=self.__class__._id(aio_id), 
         **input_props

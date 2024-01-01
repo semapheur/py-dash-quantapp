@@ -3,8 +3,8 @@ import re
 from pathlib import Path
 
 from dash import (
-  ALL, callback, clientside_callback, ClientsideFunction, 
-  dcc, html, no_update, register_page, Input, Output, State, Patch)
+  ALL, callback,  dcc, html, no_update, register_page, 
+  Input, Output, State, Patch)
 import dash_ag_grid as dag
 import httpx
 from img2table.document import PDF
@@ -51,28 +51,32 @@ layout = html.Main(className=main_style, children=[
     ]),
     dcc.Checklist(
       id='checklist:scrap:options',
+      className='flex gap-4',
+      labelClassName='gap-1',
+      labelStyle={'display': 'flex'},
       options=[
         {'label': 'Borderless', 'value': 'borderless'},
         {'label': 'Implicit rows', 'value': 'implicit'}], 
-      value=[])
-  ]
-  ),
-  html.Div(id='div:scrap:pdf', className='h-full w-full'),
-  html.Div(className='flex flex-col', children=[
-    html.Form(action='', className='p-1 flex gap-2', children=[
-      html.Button('Delete rows', 
+      value=[]),
+    html.Button('Delete rows', 
         id='button:scrap:delete', 
         className=button_style,
         type='button', 
         n_clicks=0),
-      html.Button('Rename headers', 
-        id=ModalAIO.open_id('scrap:headers'), 
-        className=button_style,
-        type='button', 
-        n_clicks=0)
-    ]),
-    html.Div(className='h-full', id='div:scrap:table')]
+    html.Button('Rename headers', 
+      id=ModalAIO.open_id('scrap:headers'), 
+      className=button_style,
+      type='button', 
+      n_clicks=0),
+    html.Button('Export to JSON', 
+      id=ModalAIO.open_id('scrap:export'), 
+      className=button_style,
+      type='button', 
+      n_clicks=0)
+  ]
   ),
+  html.Div(id='div:scrap:pdf', className='h-full w-full'),
+  html.Div(className='h-full', id='div:scrap:table'),
   ModalAIO('scrap:headers', 'Rename headers', children=[
     html.Div(className='flex flex-col', children=[
       html.Form(
@@ -199,7 +203,7 @@ def toggle_cols(n: int, new_names: list[str]):
 def update_form(cols: list[dict]):
   return [dcc.Input(
     id={'type': 'input:scrap:headers', 'index': i}, 
-    className='', 
+    className='px-1 rounded border border-text/10 hover:border-text/50 focus:border-secondary', 
     placeholder=f'Field {i}',
     value=col['field'],
     type='text'
