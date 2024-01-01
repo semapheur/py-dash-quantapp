@@ -1,4 +1,5 @@
 import io
+import json
 import re
 from pathlib import Path
 
@@ -338,7 +339,26 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
     'period': period
   }
 
-  df = pd.DataFrame.from_records(rows)
+  data = {}
 
+  df = pd.DataFrame.from_records(rows)
+  if 'items' not in set(df.columns):
+    return 'button:scrap:export'
+
+  dates = list(df.columns.difference(['factor', 'unit', 'item']))
+
+  for _, r in df.iterrows():
+    data[r['item']] = [{
+      'period': p,
+      'value': float(r[p]) * r['factor'],
+      'unit': r['unit']
+    } for p in dates]
+
+  result = {
+    'meta': meta,
+    'data': data
+  }
+  with open(f'{_id}.json') as f:
+    json.dump(result, f)
 
   return 'button:scrap:export'
