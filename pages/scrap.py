@@ -82,7 +82,7 @@ layout = html.Main(className=main_style, children=[
       type='button', 
       n_clicks=0),
     html.Button('Export to JSON', 
-      id=ModalAIO.open_id('scrap:export'), 
+      id='button:scrap:export', 
       className=button_style,
       type='button', 
       n_clicks=0),
@@ -342,15 +342,17 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
   data = {}
 
   df = pd.DataFrame.from_records(rows)
-  if 'items' not in set(df.columns):
+  if 'item' not in set(df.columns):
     return 'button:scrap:export'
 
   dates = list(df.columns.difference(['factor', 'unit', 'item']))
 
+  df.loc[:,dates] = df[dates].apply(lambda x: pd.to_numeric(x.str.replace(',', ''), errors='coerce')) * df['factor']
+  
   for _, r in df.iterrows():
     data[r['item']] = [{
       'period': p,
-      'value': float(r[p]) * r['factor'],
+      'value': r[p],
       'unit': r['unit']
     } for p in dates]
 
@@ -358,7 +360,7 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
     'meta': meta,
     'data': data
   }
-  with open(f'{_id}.json') as f:
-    json.dump(result, f)
+  with open(f'{_id}.json', 'w') as f:
+    json.dump(result, f, indent=2)
 
   return 'button:scrap:export'
