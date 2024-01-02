@@ -100,13 +100,19 @@ async def parse_statement(url: str) -> Financials:
       name = re.sub(r'(Segment)?Member', '', name)
       return name.split(':')[-1]
     
-    return {
+    unit = parse_unit(item.attrib['unitRef'])
+    if unit != 'shares':
+      currency.add(unit)
+
+    member_data =  {
       parse_name(segment.text): {
         'dim': segment.attrib['dimension'].split(':')[-1],
         'value': float(item.text),
-        'unit': parse_unit(item.attrib['unitRef'])
+        'unit': unit
       }
     }
+
+    return member_data
   
   async def fetch(url: str) -> et.Element:
     async with httpx.AsyncClient() as client:
@@ -141,13 +147,14 @@ async def parse_statement(url: str) -> Financials:
     day = int(match.group(2))
 
     fiscal_period = fiscal_quarter(dt.strptime(date, '%Y-%m-%d'), month, day)
-
+  
+  currency = set()
   meta: Meta = {
     'id': url.split('/')[-2],
     'date': date,
     'scope': scope,
     'period': fiscal_period,
-    'fiscal_end': fiscal_end
+    'fiscal_end': fiscal_end,
   }
   data: Financials = {
     'meta': meta,
@@ -173,7 +180,11 @@ async def parse_statement(url: str) -> Financials:
       scrap['member'] = parse_member(item, segment)
     else:    
       scrap['value'] = float(item.text)
-      scrap['unit'] = parse_unit(item.attrib['unitRef'])
+      unit = parse_unit(item.attrib['unitRef'])
+      if unit != 'shares':
+        currency.add(unit)
+
+      scrap['unit'] = unit
     
     item_name = item.tag.split('}')[-1]
     if item_name not in data['data']:
@@ -190,6 +201,8 @@ async def parse_statement(url: str) -> Financials:
         entry.update(scrap)
     except Exception:
       data['data'][item_name].append(scrap)    
+
+  data['meta']['currency'] = list(currency)
 
   # Sort items
   data['data'] = {

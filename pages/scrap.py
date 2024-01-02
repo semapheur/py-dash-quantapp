@@ -1,3 +1,5 @@
+from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta
 import io
 import json
 import re
@@ -198,13 +200,19 @@ def update_table(
   
   # TODO: merge tables
   df = tables[pages[0]][0].df
+  df['period'] = 'instant'
   df['factor'] = factor
   df['unit'] = currency
-  diff = ['factor', 'unit']
+  diff = ['period', 'factor', 'unit']
   df = df[diff + list(df.columns.difference(diff))]
   
   columnDefs = [{'field': str(c)} for c in df.columns]
-  columnDefs[0].update({'checkboxSelection': True, 'headerCheckboxSelection': True})
+  columnDefs[0].update({
+    'checkboxSelection': True,
+    'cellEditor': 'agSelectCellEditor',
+    'cellEditorParams': {
+      'values': ['instant', 'duration']}
+  })
 
   return dag.AgGrid(
     id='table:scrap',
@@ -240,7 +248,7 @@ def update_form(cols: list[dict]):
     placeholder=f'Field {i}',
     value=col['field'],
     type='text'
-  ) for (i, col) in enumerate(cols[2:])]
+  ) for (i, col) in enumerate(cols[3:])]
 
 @callback(
   Output('table:scrap', 'columnDefs'),
@@ -258,12 +266,12 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
   df = pd.DataFrame.from_records(rows)
   df = df[[col['field'] for col in cols]]
 
-  col_map = {col: name for (col, name) in zip(df.columns[2:], new_names)}
+  col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
   df.rename(columns=col_map, inplace=True)
   
 
   for (i, name) in enumerate(new_names):
-    cols[i+2]['field'] = name
+    cols[i+3]['field'] = name
 
   return cols, df.to_dict('records')
 
@@ -330,15 +338,28 @@ def update_dropdown(doc: str, options: list[dict[str,str]]):
   prevent_initial_call=True
 )
 def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: str):
+
+  def parse_period(scope: str, date: str, row: dict):
+    if row['period'] == 'instant':
+      return {
+        'instant': date
+      }
+    
+    start_date = dt.strptime(period, '%Y-%m-%d')
+    if scope == 'annual':
+      start_date -= relativedelta(years=1)
+
+    elif scope == 'quarterly':
+      start_date -= relativedelta(months=3)
+
+    return {
+      'start_date': dt.strftime(start_date, '%Y-%m-%d'),
+      'end_date': date
+    }
+
   if not n:
     return no_update
   
-  meta = {
-    'date': date,
-    'scope': scope,
-    'period': period
-  }
-
   data = {}
 
   df = pd.DataFrame.from_records(rows)
@@ -346,15 +367,26 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
     return 'button:scrap:export'
 
   dates = list(df.columns.difference(['factor', 'unit', 'item']))
+  df.loc[:,dates] = df[dates].replace(r'[^\d.]', '', regex=True).astype(float)
 
-  df.loc[:,dates] = df[dates].apply(lambda x: pd.to_numeric(x.str.replace(',', ''), errors='coerce')) * df['factor']
+  currencies = set()
   
   for _, r in df.iterrows():
+    if r['unit'] != 'shares':
+      currencies.add(r['unit'])
+
     data[r['item']] = [{
-      'period': p,
-      'value': r[p],
+      'period': parse_period(scope, d, r),
+      'value': r[d] * r['factor'],
       'unit': r['unit']
-    } for p in dates]
+    } for d in dates]
+
+  meta = {
+    'date': date,
+    'scope': scope,
+    'period': period,
+    'currency': list(currencies)
+  }
 
   result = {
     'meta': meta,

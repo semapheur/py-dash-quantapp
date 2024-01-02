@@ -7,6 +7,7 @@ class Meta(TypedDict):
   scope: Literal['annual', 'quarterly']
   date: datetime
   fiscal_end: str
+  currency: list[str]
 
 class Value(TypedDict):
   value: float|int
