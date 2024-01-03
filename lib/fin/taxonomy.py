@@ -162,7 +162,7 @@ class Taxonomy:
     query = f'''INSERT INTO items 
       ({columns}) VALUES (?,?,?,?,?,?)
     '''
-    cur.executemany(query,values)
+    cur.executemany(query, values)
     con.commit()
     con.close()
 

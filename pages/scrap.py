@@ -4,10 +4,11 @@ import io
 import json
 import re
 from pathlib import Path
+import sqlite3
 
 from dash import (
   ALL, callback,  dcc, html, no_update, register_page, 
-  Input, Output, State, Patch)
+  Input, Output, State )
 import dash_ag_grid as dag
 import httpx
 from img2table.document import PDF
@@ -33,6 +34,30 @@ def get_doc_id(url: str) -> str:
     return ''
 
   return match.group()
+
+def upsert(db: str|Path, table: str, records: list[tuple]):
+  con = sqlite3.connect('data/test.db')
+  cur = con.cursor()
+  
+  cur.execute(f'''CREATE TABLE IF NOT EXISTS 
+    "{table}"(
+      date TEXT, 
+      scope TEXT, 
+      period TEXT, 
+      currency TEXT, 
+      data TEXT
+  )''')
+  cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
+    ON "{table}" (date, scope, period)''')
+
+  query = f'''INSERT INTO "{table}"
+    (date, scope, period, currency, data) VALUES (?,?,?,?,?)
+      ON CONFLICT (date, scope, period) DO UPDATE SET
+        data=JSON_PATCH(data, EXCLUDED.data)
+  '''
+  cur.executemany(query, records)
+  con.commit()
+  con.close()
 
 main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full bg-primary'
 input_style = 'p-1 rounded-l border-l border-t border-b border-text/10'
@@ -213,6 +238,9 @@ def update_table(
     'cellEditorParams': {
       'values': ['instant', 'duration']}
   })
+  columnDefs[1].update({
+    'type': 'numericColumn'
+  })
 
   return dag.AgGrid(
     id='table:scrap',
@@ -366,7 +394,7 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
   if 'item' not in set(df.columns):
     return 'button:scrap:export'
 
-  dates = list(df.columns.difference(['factor', 'unit', 'item']))
+  dates = list(df.columns.difference(['period', 'factor', 'unit', 'item']))
   df.loc[:,dates] = df[dates].replace(r'[^\d.]', '', regex=True).astype(float)
 
   currencies = set()
@@ -377,22 +405,24 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
 
     data[r['item']] = [{
       'period': parse_period(scope, d, r),
-      'value': r[d] * r['factor'],
+      'value': r[d] * float(r['factor']),
       'unit': r['unit']
     } for d in dates]
 
-  meta = {
-    'date': date,
-    'scope': scope,
-    'period': period,
-    'currency': list(currencies)
-  }
+  #meta = {
+  #  'date': date,
+  #  'scope': scope,
+  #  'period': period,
+  #  'currency': list(currencies)
+  #}
 
-  result = {
-    'meta': meta,
-    'data': data
-  }
-  with open(f'{_id}.json', 'w') as f:
-    json.dump(result, f, indent=2)
+  record = [(date, scope, period, 
+    json.dumps(list(currencies)), json.dumps(data)
+  )]
+
+  upsert('data/financials_raw.db')
+
+  #with open(f'{_id}.json', 'w') as f:
+  #  json.dump(record, f, indent=2)
 
   return 'button:scrap:export'
