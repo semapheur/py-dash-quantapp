@@ -416,11 +416,11 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
   #  'currency': list(currencies)
   #}
 
-  record = [(date, scope, period, 
+  records = [(date, scope, period, 
     json.dumps(list(currencies)), json.dumps(data)
   )]
 
-  upsert('data/financials_raw.db')
+  upsert('data/financials_raw.db', _id, records)
 
   #with open(f'{_id}.json', 'w') as f:
   #  json.dump(record, f, indent=2)
