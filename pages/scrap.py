@@ -36,7 +36,7 @@ def get_doc_id(url: str) -> str:
   return match.group()
 
 def upsert(db: str|Path, table: str, records: list[tuple]):
-  con = sqlite3.connect('data/test.db')
+  con = sqlite3.connect(db)
   cur = con.cursor()
   
   cur.execute(f'''CREATE TABLE IF NOT EXISTS 

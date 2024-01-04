@@ -28,5 +28,9 @@ class Item(Value):
   members: Optional[dict[str, Member]]
 
 class Financials:
-  meta: Meta
+  id: Optional[str]
+  scope: Literal['annual', 'quarterly']
+  date: datetime
+  fiscal_end: str
+  currency: list[str]
   data: dict[str, list[Item]]

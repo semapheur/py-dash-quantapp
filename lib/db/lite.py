@@ -1,3 +1,4 @@
+import sqlite3
 from typing import Literal, Optional
 
 import pandas as pd
@@ -171,3 +172,38 @@ def replace_sqlite(col: str, replacements: dict[str, str]) -> str:
     query = f'REPLACE({query}, "{old}", "{new}")'
 
   return query
+
+def upsert_json(
+  db_name: str, 
+  table: str, 
+  fields: dict[str, str], 
+  records: list[tuple], 
+  ix: list[str]|None = None
+):
+  db_path = DB_DIR / sqlite_name(db_name)
+
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
+
+  fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
+
+  cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"({fields_text})''')
+
+  if ix:
+    ix_text = ','.join(ix)
+    cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
+      ON "{table}"({ix_text})''')
+
+  columns = ','.join(tuple(fields.keys()))
+  values = ','.join(['?'] * len(columns))
+
+  json_column = set(fields.keys()).difference(set(ix))
+  upsert_text = '\n'.join([f'{json_column}=JSON_PATH({json_column}, EXCLUDED.{json_column}'])
+
+  query = f'''INSERT INTO "{table}"({columns}) VALUES ({values})
+    ON CONFLICT ({ix_text}) DO UPDATE
+      SET {upsert_text}
+  '''
+  cur.executemany(query, records)
+  con.commit()
+  con.close()
