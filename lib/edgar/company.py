@@ -12,8 +12,7 @@ from tinydb import where
 
 # Local
 from lib.const import HEADERS
-from lib.db.lite import read_sqlite
-from lib.db.tiny import insert_tinydb, read_tinydb
+from lib.db.lite import upsert_sqlite, read_sqlite
 from lib.edgar.models import Financials
 from lib.edgar.parse import (
   fix_financials_df,
@@ -128,8 +127,8 @@ class Company():
   def stock_splits(self) -> pd.Series:
 
     field = 'StockholdersEquityNoteStockSplitConversionRatio1'
-    query = where('data')[field].exists()
-    financials = read_tinydb('data/edgar.json', query, str(self._cik))
+    query = f'SELECT * FROM {self._cik} WHERE JSON_EXTRACT(data, "$.{field}") IS NOT NULL'
+    financials = read_sqlite('financials_scrap', query)
 
     if not financials:
       return
@@ -157,16 +156,14 @@ class Company():
       return urls
     
     # Load financials
-    query = None
+    query = f'SELECT * FROM {self._cik} ORDER BY date ASC'
     if date:
-      query = where('meta')['date'] >= dt.strptime(date, '%Y-%m-%d')
+      query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
 
-    financials = read_tinydb('data/edgar.json', query, str(self._cik), True)
+    financials = read_sqlite('financials_raw', query, parse_dates=True)
 
     if financials:
-      dates = [glom(f, 'meta.date') for f in financials]
-      dates = pd.to_datetime(dates, format='%Y-%m-%d')
-      last_date = dates.max()
+      last_date = financials['date'].max()
       
       if relativedelta(dt.now(), last_date).days < delta:
         return financials
@@ -176,7 +173,7 @@ class Company():
       if not new_filings:
         return financials
 
-      old_filings = {glom(f, 'meta.id') for f in financials}
+      old_filings = set(financials['id'])
       new_filings = set(new_filings.index).difference(old_filings)
 
       if not new_filings:
@@ -186,7 +183,7 @@ class Company():
 
     new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
-      insert_tinydb(new_financials, 'data/edgar.json', str(self._cik), True)
+      insert_sqlite(new_financials, 'data/edgar.json', str(self._cik), True)
     
     return [*financials, *new_financials]
 

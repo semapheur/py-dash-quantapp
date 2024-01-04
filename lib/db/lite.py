@@ -176,9 +176,9 @@ def replace_sqlite(col: str, replacements: dict[str, str]) -> str:
 def upsert_json(
   db_name: str, 
   table: str, 
-  fields: dict[str, str], 
-  records: list[tuple], 
-  ix: list[str]|None = None
+  fields: dict[str, str],
+  ix: list[str],
+  records: list[tuple],
 ):
   db_path = DB_DIR / sqlite_name(db_name)
 
@@ -189,10 +189,9 @@ def upsert_json(
 
   cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"({fields_text})''')
 
-  if ix:
-    ix_text = ','.join(ix)
-    cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
-      ON "{table}"({ix_text})''')
+  ix_text = ','.join(ix)
+  cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
+    ON "{table}"({ix_text})''')
 
   columns = ','.join(tuple(fields.keys()))
   values = ','.join(['?'] * len(columns))
