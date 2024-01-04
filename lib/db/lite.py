@@ -173,11 +173,29 @@ def replace_sqlite(col: str, replacements: dict[str, str]) -> str:
 
   return query
 
+def json_query(schema: dict[str, Literal['patch', 'unique']]) -> str:
+  query: list[str] = []
+  for (col, fn) in schema.items():
+    if fn == 'patch':
+      query.append(f'"{col}"=json_patch("{col}", excluded."{col}")')
+    elif fn == 'unique':
+      query.append(f'''"{col}"=(
+        SELECT json_group_array(value)
+        FROM (
+          SELECT json_each.value
+          FROM json_each("{col}")
+          WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded."{col}"))
+        )
+      )''')
+
+  return '\n'.join(query)
+
 def upsert_json(
   db_name: str, 
   table: str, 
   fields: dict[str, str],
   ix: list[str],
+  json_cols: dict[str, Literal['patch', 'unique']],
   records: list[tuple],
 ):
   db_path = DB_DIR / sqlite_name(db_name)
@@ -196,12 +214,11 @@ def upsert_json(
   columns = ','.join(tuple(fields.keys()))
   values = ','.join(['?'] * len(columns))
 
-  json_column = set(fields.keys()).difference(set(ix))
-  upsert_text = '\n'.join([f'{json_column}=JSON_PATH({json_column}, EXCLUDED.{json_column}'])
+  upsert_text = json_query(json_cols)
 
   query = f'''INSERT INTO "{table}"({columns}) VALUES ({values})
-    ON CONFLICT ({ix_text}) DO UPDATE
-      SET {upsert_text}
+    ON CONFLICT ({ix_text}) DO UPDATE SET 
+      {upsert_text}
   '''
   cur.executemany(query, records)
   con.commit()

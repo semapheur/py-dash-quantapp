@@ -12,7 +12,7 @@ from tinydb import where
 
 # Local
 from lib.const import HEADERS
-from lib.db.lite import upsert_sqlite, read_sqlite
+from lib.db.lite import upsert_json, read_sqlite
 from lib.edgar.models import Financials
 from lib.edgar.parse import (
   fix_financials_df,
@@ -25,6 +25,16 @@ from lib.edgar.parse import (
 )
 from lib.fin.calculation import stock_split_adjust
 from lib.utils import camel_split, snake_abbreviate
+
+FIELDS = {
+  'id': 'TEXT',
+  'date': 'TEXT',
+  'scope': 'TEXT',
+  'period': 'TEXT',
+  'fiscal_end': 'TEXT',
+  'currency': 'JSON',
+  'data': 'JSON'
+}
 
 class Company():
   __slots__ = ('_cik')
@@ -183,7 +193,7 @@ class Company():
 
     new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
-      insert_sqlite(new_financials, 'data/edgar.json', str(self._cik), True)
+      upsert_json('financials_scrap.db', self._cik, FIELDS, new_financials)
     
     return [*financials, *new_financials]
 

@@ -53,7 +53,15 @@ def upsert(db: str|Path, table: str, records: list[tuple]):
   query = f'''INSERT INTO "{table}"
     (date, scope, period, currency, data) VALUES (?,?,?,?,?)
       ON CONFLICT (date, scope, period) DO UPDATE SET
-        data=JSON_PATCH(data, EXCLUDED.data)
+        currency=(
+          SELECT json_group_array(value)
+          FROM (
+            SELECT json_each.value
+            FROM json_each(currency)
+            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
+          )
+        )
+        data=json_patch(data, excluded.data)
   '''
   cur.executemany(query, records)
   con.commit()

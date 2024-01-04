@@ -6,6 +6,7 @@ class Meta(TypedDict):
   id: str
   scope: Literal['annual', 'quarterly']
   date: datetime
+  period: Literal['FY', 'Q1', 'Q2', 'Q3', 'Q4']
   fiscal_end: str
   currency: list[str]
 
@@ -31,6 +32,7 @@ class Financials:
   id: Optional[str]
   scope: Literal['annual', 'quarterly']
   date: datetime
+  period: Literal['FY', 'Q1', 'Q2', 'Q3', 'Q4']
   fiscal_end: str
   currency: list[str]
   data: dict[str, list[Item]]
