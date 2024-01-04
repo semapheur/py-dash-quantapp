@@ -2,6 +2,8 @@
 from datetime import datetime
 from typing import Literal, Optional, TypedDict
 
+from attrs import define
+
 class Meta(TypedDict):
   id: str
   scope: Literal['annual', 'quarterly']
@@ -28,6 +30,7 @@ class Item(Value):
   period: Interval|Instant
   members: Optional[dict[str, Member]]
 
+@define
 class Financials:
   id: Optional[str]
   scope: Literal['annual', 'quarterly']

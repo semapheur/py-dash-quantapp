@@ -1,5 +1,6 @@
 aiometer
 asyncio
+attrs
 branca
 bs4
 #camelot-py[base]

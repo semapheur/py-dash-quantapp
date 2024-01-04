@@ -3,9 +3,11 @@ from datetime import datetime as dt
 from enum import Enum
 from functools import partial
 import re
+import sqlite3
 import xml.etree.ElementTree as et
 
 import aiometer
+from attrs import astuple
 import httpx
 import bs4 as bs
 from glom import glom
@@ -14,14 +16,13 @@ from tinydb import TinyDB
 
 # Local
 from lib.const import DB_DIR, HEADERS
-from lib.db.lite import read_sqlite
+from lib.db.lite import read_sqlite, sqlite_name
 from lib.edgar.models import (
   Financials, 
   Instant, 
   Interval, 
   Item, 
-  Member, 
-  Meta
+  Member
 )
 from lib.utils import (
   combine_duplicate_columns,
@@ -148,18 +149,9 @@ async def parse_statement(url: str) -> Financials:
 
     fiscal_period = fiscal_quarter(dt.strptime(date, '%Y-%m-%d'), month, day)
   
+  doc_id = url.split('/')[-2]
   currency = set()
-  meta: Meta = {
-    'id': url.split('/')[-2],
-    'date': date,
-    'scope': scope,
-    'period': fiscal_period,
-    'fiscal_end': fiscal_end,
-  }
-  data: Financials = {
-    'meta': meta,
-    'data': {}
-  }
+  data: dict[str, list[Item]] = {}
 
   for item in root.findall('.//*[@unitRef]'):
     if item.text is None:
@@ -187,12 +179,12 @@ async def parse_statement(url: str) -> Financials:
       scrap['unit'] = unit
     
     item_name = item.tag.split('}')[-1]
-    if item_name not in data['data']:
-      data['data'][item_name] = [scrap]
+    if item_name not in data:
+      data[item_name] = [scrap]
       continue
 
     try:
-      entry: dict = next(i for i in data['data'][item_name]
+      entry: dict = next(i for i in data[item_name]
         if i['period'] == scrap['period']
       )
       if 'member' in scrap:
@@ -200,16 +192,16 @@ async def parse_statement(url: str) -> Financials:
       else:
         entry.update(scrap)
     except Exception:
-      data['data'][item_name].append(scrap)    
+      data[item_name].append(scrap)    
 
   data['meta']['currency'] = list(currency)
 
   # Sort items
-  data['data'] = {
-    k: data['data'][k] 
-    for k in sorted(data['data'].keys())
+  data = {
+    k: data[k] 
+    for k in sorted(data.keys())
   }
-  return data
+  return Financials(doc_id, date, scope, fiscal_period, fiscal_end, list(currency), data)
 
 async def parse_taxonomy(url: str) -> pd.DataFrame:
   namespace = {
@@ -401,6 +393,43 @@ def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
   df = df.loc[mask, :]
   
   return df.copy()
+
+def upsert_financials(
+  db_name: str, 
+  table: str, 
+  financials: list[Financials],
+):
+  db_path = DB_DIR / sqlite_name(db_name)
+
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
+
+  cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"(
+    id TEXT PRIMARY KEY,
+    scope TEXT,
+    date TEXT,
+    period TEXT,
+    fiscal_end TEXT,
+    currency JSON,
+    data JSON
+  )''')
+
+  query = f'''INSERT INTO 
+    "{table}"(id, scope, date, period, fiscal_end, currency, data) VALUES (?,?,?,?,?,?,?)
+    ON CONFLICT (id) DO UPDATE SET  
+      data=json_patch(data, excluded.data))
+      currency=(
+        SELECT json_group_array(value)
+        FROM (
+          SELECT json_each.value
+          FROM json_each(currency)
+          WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
+        )
+      )
+  '''
+  cur.executemany(query, [astuple(f) for f in financials])
+  con.commit()
+  con.close()
 
 def get_ciks():
   rnm = {'cik_str': 'cik', 'title': 'name'}
