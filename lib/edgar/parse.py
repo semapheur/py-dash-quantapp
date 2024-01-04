@@ -2,12 +2,12 @@ import asyncio
 from datetime import datetime as dt
 from enum import Enum
 from functools import partial
+import json
 import re
 import sqlite3
 import xml.etree.ElementTree as et
 
 import aiometer
-from attrs import astuple
 import httpx
 import bs4 as bs
 from glom import glom
@@ -78,17 +78,16 @@ async def parse_statement(url: str) -> Financials:
 
   def parse_period(period: et.Element) -> Instant|Interval:
     if (el := period.find('./{*}instant')) is not None:
-      return {'instant': dt.strptime(el.text, '%Y-%m-%d')}
+      return Instant(instant=dt.strptime(el.text, '%Y-%m-%d'))
 
     start_date = dt.strptime(period.find('./{*}startDate').text, '%Y-%m-%d')
     end_date = dt.strptime(period.find('./{*}endDate').text, '%Y-%m-%d')
     months = month_difference(start_date, end_date)
 
-    return {
-      'start_date': start_date ,
-      'end_date': end_date,
-      'months': months
-    }
+    return Interval(
+      start_date=start_date,
+      end_date=end_date, 
+      months=months)
 
   def parse_unit(unit: str) -> str:
     if '_' not in unit:
@@ -96,8 +95,8 @@ async def parse_statement(url: str) -> Financials:
     
     return unit.split('_')[-1].lower()
 
-  def parse_member(item: et.Element, segment: et.Element) -> Member:
-    def parse_name(name: str) -> str|None:
+  def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
+    def parse_name(name: str) -> str:
       name = re.sub(r'(Segment)?Member', '', name)
       return name.split(':')[-1]
     
@@ -105,15 +104,13 @@ async def parse_statement(url: str) -> Financials:
     if unit != 'shares':
       currency.add(unit)
 
-    member_data =  {
-      parse_name(segment.text): {
-        'dim': segment.attrib['dimension'].split(':')[-1],
-        'value': float(item.text),
-        'unit': unit
-      }
+    return {
+      parse_name(segment.text): Member(
+        dim=segment.attrib['dimension'].split(':')[-1],
+        value=float(item.text),
+        unit=unit
+      )
     }
-
-    return member_data
   
   async def fetch(url: str) -> et.Element:
     async with httpx.AsyncClient() as client:
@@ -194,14 +191,19 @@ async def parse_statement(url: str) -> Financials:
     except Exception:
       data[item_name].append(scrap)    
 
-  data['meta']['currency'] = list(currency)
-
   # Sort items
   data = {
     k: data[k] 
     for k in sorted(data.keys())
   }
-  return Financials(doc_id, date, scope, fiscal_period, fiscal_end, list(currency), data)
+  return Financials(
+    id=doc_id, 
+    date=date,
+    scope=scope,
+    period=fiscal_period,
+    fiscal_end=fiscal_end,
+    currency=json.dumps(list(currency)),
+    data=json.dumps(data))
 
 async def parse_taxonomy(url: str) -> pd.DataFrame:
   namespace = {
@@ -247,15 +249,18 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
 def statement_to_df(financials: Financials) -> pd.DataFrame:
     
-  def parse_date(period: dict[str, str]) -> tuple[int, dt]:
+  def parse_date(period: Instant|Interval) -> tuple[int, dt]:
     date = period.get('instant', period.get('end_date'))
     return dt.strptime(date, '%Y-%m-%d')
         
-  fin_date = dt.strptime(glom(financials, 'meta.date'), '%Y-%m-%d')
-  fin_scope = glom(financials, 'meta.scope')
-  fin_period = glom(financials, 'meta.period')
+  fin_date = dt.strptime(financials['date'], '%Y-%m-%d')
+  fin_scope = financials['scope']
+  fin_period = financials['period']
   
   df_data: dict[tuple(dt, str), dict[str, int]] = {}
+
+  if isinstance(financials['data'], str):
+    financials['data'] = json.loads(financials['data'])
 
   for item, entries in financials['data'].items():
     for entry in entries:
@@ -401,21 +406,21 @@ def upsert_financials(
 ):
   db_path = DB_DIR / sqlite_name(db_name)
 
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
+  with sqlite3.connect(db_path) as conn:
+    cur = conn.cursor()
 
-  cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"(
-    id TEXT PRIMARY KEY,
-    scope TEXT,
-    date TEXT,
-    period TEXT,
-    fiscal_end TEXT,
-    currency JSON,
-    data JSON
-  )''')
+    cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"(
+      id TEXT PRIMARY KEY,
+      scope TEXT,
+      date TEXT,
+      period TEXT,
+      fiscal_end TEXT,
+      currency JSON,
+      data JSON
+    )''')
 
   query = f'''INSERT INTO 
-    "{table}"(id, scope, date, period, fiscal_end, currency, data) VALUES (?,?,?,?,?,?,?)
+    "{table}" VALUES (:id, :scope, :date, :period, :fiscal_end, :currency, :data)
     ON CONFLICT (id) DO UPDATE SET  
       data=json_patch(data, excluded.data))
       currency=(
@@ -427,9 +432,18 @@ def upsert_financials(
         )
       )
   '''
-  cur.executemany(query, [astuple(f) for f in financials])
-  con.commit()
-  con.close()
+  cur.executemany(query, financials)
+
+def select_financials(db_name: str, table: str) -> list[Financials]:
+  db_path = DB_DIR / sqlite_name(db_name)
+
+  with sqlite3.connect(db_path) as conn:
+    cur = conn.cursor()
+    cur.row_factory = lambda cursor, row: Financials(*row)
+
+    financials: list[Financials] = cur.execute(f'SELECT * FROM "{table}"').fetchall()
+
+  return financials   
 
 def get_ciks():
   rnm = {'cik_str': 'cik', 'title': 'name'}

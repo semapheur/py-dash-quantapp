@@ -200,26 +200,24 @@ def upsert_json(
 ):
   db_path = DB_DIR / sqlite_name(db_name)
 
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
+  with sqlite3.connect(db_path) as conn:
+    cur = conn.cursor()
 
-  fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
+    fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
 
-  cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"({fields_text})''')
+    cur.execute(f'''CREATE TABLE IF NOT EXISTS "{table}"({fields_text})''')
 
-  ix_text = ','.join(ix)
-  cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
-    ON "{table}"({ix_text})''')
+    ix_text = ','.join(ix)
+    cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
+      ON "{table}"({ix_text})''')
 
-  columns = ','.join(tuple(fields.keys()))
-  values = ','.join(['?'] * len(columns))
+    columns = ','.join(tuple(fields.keys()))
+    values = ','.join(['?'] * len(columns))
 
-  upsert_text = json_query(json_cols)
+    upsert_text = json_query(json_cols)
 
-  query = f'''INSERT INTO "{table}"({columns}) VALUES ({values})
-    ON CONFLICT ({ix_text}) DO UPDATE SET 
-      {upsert_text}
-  '''
-  cur.executemany(query, records)
-  con.commit()
-  con.close()
+    query = f'''INSERT INTO "{table}"({columns}) VALUES ({values})
+      ON CONFLICT ({ix_text}) DO UPDATE SET 
+        {upsert_text}
+    '''
+    cur.executemany(query, records)

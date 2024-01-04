@@ -5,18 +5,17 @@ import re
 from typing import Optional
 import xml.etree.ElementTree as et
 
-from glom import glom
 import pandas as pd
 import httpx
-from tinydb import where
 
 # Local
 from lib.const import HEADERS
-from lib.db.lite import upsert_json, read_sqlite
+from lib.db.lite import read_sqlite
 from lib.edgar.models import Financials
 from lib.edgar.parse import (
   fix_financials_df,
   get_stock_splits,
+  upsert_financials,
   xbrl_url,
   xbrl_urls, 
   parse_statements, 
@@ -166,41 +165,40 @@ class Company():
       return urls
     
     # Load financials
-    query = f'SELECT * FROM {self._cik} ORDER BY date ASC'
+    query = f'SELECT * FROM "{self._cik}" ORDER BY date ASC'
     if date:
       query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
 
-    financials = read_sqlite('financials_raw', query, parse_dates=True)
+    financials = read_sqlite('financials_scrap.db', query, parse_dates=True)
 
     if financials:
       last_date = financials['date'].max()
       
       if relativedelta(dt.now(), last_date).days < delta:
-        return financials
+        return financials.to_dict('records', Financials)
 
       new_filings = await fetch_urls(last_date)
 
       if not new_filings:
-        return financials
+        return financials.to_dict('records', Financials)
 
       old_filings = set(financials['id'])
       new_filings = set(new_filings.index).difference(old_filings)
 
       if not new_filings:
-        return financials
+        return financials.to_dict('records', Financials)
     else:
       new_filings = await fetch_urls()
 
     new_financials = await parse_statements(new_filings.tolist())
     if new_financials:
-      upsert_json('financials_scrap.db', self._cik, FIELDS, new_financials)
+      upsert_financials('financials_scrap.db', self._cik, new_financials)
     
-    return [*financials, *new_financials]
+    return [*financials.to_dict('records', Financials), *new_financials]
 
   async def financials_to_df(self) -> pd.DataFrame:
     
     financials = await self.financials()
-    financials = sorted(financials, key=lambda x: glom(x, 'meta.date'), reverse=True)
 
     dfs = []
 

@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 import sqlite3
+from typing import Literal, TypeAlias
 
 from dash import (
   ALL, callback,  dcc, html, no_update, register_page, 
@@ -20,8 +21,12 @@ from components.input import InputAIO
 from components.modal import ModalAIO
 
 from lib.const import HEADERS
+from lib.edgar.models import Financials, Item, Instant, Interval
 from lib.morningstar.ticker import Ticker
 from lib.utils import download_file
+
+Scope: TypeAlias = Literal['annual','quarterly']
+FiscalPeriod: TypeAlias = Literal['FY', 'Q1', 'Q2', 'Q3', 'Q4']
 
 register_page(__name__, path='/scrap')
 
@@ -35,37 +40,34 @@ def get_doc_id(url: str) -> str:
 
   return match.group()
 
-def upsert(db: str|Path, table: str, records: list[tuple]):
-  con = sqlite3.connect(db)
-  cur = con.cursor()
+def upsert(db: str|Path, table: str, records: list[Financials]):
+  with sqlite3.connect(db) as conn:
+    cur = conn.cursor()
   
-  cur.execute(f'''CREATE TABLE IF NOT EXISTS 
-    "{table}"(
-      date TEXT, 
-      scope TEXT, 
-      period TEXT, 
-      currency TEXT, 
-      data TEXT
-  )''')
-  cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
-    ON "{table}" (date, scope, period)''')
+    cur.execute(f'''CREATE TABLE IF NOT EXISTS 
+      "{table}"(
+        date TEXT, 
+        scope TEXT, 
+        period TEXT, 
+        currency TEXT, 
+        data TEXT
+    )''')
+    cur.execute(f'''CREATE UNIQUE INDEX IF NOT EXISTS ix 
+      ON "{table}" (date, scope, period)''')
 
-  query = f'''INSERT INTO "{table}"
-    (date, scope, period, currency, data) VALUES (?,?,?,?,?)
-      ON CONFLICT (date, scope, period) DO UPDATE SET
-        currency=(
-          SELECT json_group_array(value)
-          FROM (
-            SELECT json_each.value
-            FROM json_each(currency)
-            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
+    query = f'''INSERT INTO "{table}" VALUES (:date, :scope, :period, :currency, :data)
+        ON CONFLICT (date, scope, period) DO UPDATE SET
+          currency=(
+            SELECT json_group_array(value)
+            FROM (
+              SELECT json_each.value
+              FROM json_each(currency)
+              WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
+            )
           )
-        )
-        data=json_patch(data, excluded.data)
-  '''
-  cur.executemany(query, records)
-  con.commit()
-  con.close()
+          data=json_patch(data, excluded.data)
+    '''
+    cur.executemany(query, records)
 
 main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full bg-primary'
 input_style = 'p-1 rounded-l border-l border-t border-b border-text/10'
@@ -373,30 +375,32 @@ def update_dropdown(doc: str, options: list[dict[str,str]]):
   State('dropdown:scrap:period', 'value'),
   prevent_initial_call=True
 )
-def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: str):
+def export(n: int, rows: list[dict], _id: str, date: str, 
+  scope: Scope, period: FiscalPeriod):
 
-  def parse_period(scope: str, date: str, row: dict):
+  def parse_period(scope: Scope, date: str, row: dict) -> Instant|Interval:
     if row['period'] == 'instant':
-      return {
-        'instant': date
-      }
+      return Instant(instant=date)
     
     start_date = dt.strptime(period, '%Y-%m-%d')
+    
     if scope == 'annual':
       start_date -= relativedelta(years=1)
+      months=12
 
     elif scope == 'quarterly':
       start_date -= relativedelta(months=3)
+      months=3
 
-    return {
-      'start_date': dt.strftime(start_date, '%Y-%m-%d'),
-      'end_date': date
-    }
+    return Interval(
+      start_date=dt.strftime(start_date, '%Y-%m-%d'), 
+      end_date=date,
+      months=months)
 
   if not n:
     return no_update
   
-  data = {}
+  data: dict[str, list[Item]] = {}
 
   df = pd.DataFrame.from_records(rows)
   if 'item' not in set(df.columns):
@@ -411,21 +415,18 @@ def export(n: int, rows: list[dict], _id: str, date: str, scope: str, period: st
     if r['unit'] != 'shares':
       currencies.add(r['unit'])
 
-    data[r['item']] = [{
-      'period': parse_period(scope, d, r),
-      'value': r[d] * float(r['factor']),
-      'unit': r['unit']
-    } for d in dates]
+    data[r['item']] = [Item(
+      value=r[d] * float(r['factor']),
+      unit=r['unit'],
+      period=parse_period(scope, d, r),
+    ) for d in dates]
 
-  #meta = {
-  #  'date': date,
-  #  'scope': scope,
-  #  'period': period,
-  #  'currency': list(currencies)
-  #}
-
-  records = [(date, scope, period, 
-    json.dumps(list(currencies)), json.dumps(data)
+  records = [Financials(
+    date=date, 
+    scope=scope,
+    period=period, 
+    currency=json.dumps(list(currencies)), 
+    data=json.dumps(data)
   )]
 
   upsert('data/financials_raw.db', _id, records)
