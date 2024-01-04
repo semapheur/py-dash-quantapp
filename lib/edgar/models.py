@@ -1,6 +1,6 @@
 #from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal, Optional, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 class Meta(TypedDict):
   id: str
@@ -17,7 +17,7 @@ class Value(TypedDict):
 class Interval(TypedDict):
   start_date: datetime
   end_date: datetime
-  months: Optional[int]
+  months: NotRequired[int]
 
 class Instant(TypedDict):
   instant: datetime
@@ -27,13 +27,13 @@ class Member(Value):
 
 class Item(Value):
   period: Interval|Instant
-  members: Optional[dict[str, Member]]
+  members: NotRequired[dict[str, Member]]
 
 class Financials(TypedDict):
-  id: Optional[str]
+  id: NotRequired[str]
   scope: Literal['annual', 'quarterly']
   date: datetime
   period: Literal['FY', 'Q1', 'Q2', 'Q3', 'Q4']
-  fiscal_end: Optional[str]
+  fiscal_end: NotRequired[str]
   currency: list[str]
   data: dict[str, list[Item]]

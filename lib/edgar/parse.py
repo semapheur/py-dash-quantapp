@@ -5,6 +5,7 @@ from functools import partial
 import json
 import re
 import sqlite3
+from typing import Literal
 import xml.etree.ElementTree as et
 
 import aiometer
@@ -45,7 +46,7 @@ async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> pd.Series:
 
   return result 
 
-async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str:
+async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str|None:
   url = (
     'https://www.sec.gov/Archives/edgar/data/'
     f"{cik}/{doc_id.replace('-', '')}/{doc_id}-index.htm"
@@ -129,7 +130,7 @@ async def parse_statement(url: str) -> Financials:
     '10-Q': 'quarterly'
   }
 
-  scope = form[root.find('.{*}DocumentType').text]
+  scope: Literal['annual', 'quarterly'] = form[root.find('.{*}DocumentType').text]
   date = dt.strptime(root.find('.{*}DocumentPeriodEndDate').text, '%Y-%m-%d')
   fiscal_end = root.find('.{*}CurrentFiscalYearEndDate').text[1:]
 
@@ -166,7 +167,7 @@ async def parse_statement(url: str) -> Financials:
       .find('.//{*}segment/{*}explicitMember')
     
     if segment is not None:
-      scrap['member'] = parse_member(item, segment)
+      scrap['members'] = parse_member(item, segment)
     else:    
       scrap['value'] = float(item.text)
       unit = parse_unit(item.attrib['unitRef'])
@@ -185,7 +186,7 @@ async def parse_statement(url: str) -> Financials:
         if i['period'] == scrap['period']
       )
       if 'member' in scrap:
-        entry.setdefault('member', {}).update(scrap['member'])
+        entry.setdefault('member', {}).update(scrap['members'])
       else:
         entry.update(scrap)
     except Exception:

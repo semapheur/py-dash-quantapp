@@ -169,7 +169,8 @@ def update_dropdown(ticker: str):
   if not ticker:
     return no_update
   
-  docs = Ticker(*ticker.split('|'), 'stock').documents()
+
+  docs = Ticker(ticker.split('|')[0], 'stock').documents()
   docs.rename(columns={'link': 'value'}, inplace=True)
   docs['label'] = docs['date'] + ' - ' + docs['type'] + ' (' + docs['language'] + ')'
   
@@ -205,12 +206,12 @@ def update_object(url: str):
 def update_table(
   n_clicks: int, 
   pdf_url: str, 
-  pages: str, 
+  pages_text: str, 
   options: list[str],
   factor: int,
   currency: str
 ):
-  if not (n_clicks and pdf_url and pages):
+  if not (n_clicks and pdf_url and pages_text):
     return no_update
   
   doc_id = get_doc_id(pdf_url)
@@ -223,7 +224,7 @@ def update_table(
     response = httpx.get(url=pdf_url, headers=HEADERS)
     pdf_src.write(response.content)
 
-  pages = [int(p) - 1 for p in pages.split(',')]
+  pages = [int(p) - 1 for p in pages_text.split(',')]
   pdf = PDF(src=pdf_src, pages=pages)
   
   ocr = TesseractOCR(lang='eng')
@@ -241,7 +242,7 @@ def update_table(
   diff = ['period', 'factor', 'unit']
   df = df[diff + list(df.columns.difference(diff))]
   
-  columnDefs = [{'field': str(c)} for c in df.columns]
+  columnDefs: list[dict[str, str|bool|dict]] = [{'field': str(c)} for c in df.columns]
   columnDefs[0].update({
     'checkboxSelection': True,
     'cellEditor': 'agSelectCellEditor',
@@ -328,7 +329,7 @@ def update_input(ticker: str):
   Input('dropdown:scrap:document', 'value'),
   State('dropdown:scrap:document', 'options')
 )
-def update_dropdown(doc: str, options: list[dict[str,str]]):
+def update_document_dropdown(doc: str, options: list[dict[str,str]]):
   if not doc:
     return no_update
   
@@ -348,7 +349,7 @@ def update_dropdown(doc: str, options: list[dict[str,str]]):
   Input('dropdown:scrap:document', 'value'),
   State('dropdown:scrap:document', 'options')
 )
-def update_dropdown(doc: str, options: list[dict[str,str]]):
+def update_scope_dropdown(doc: str, options: list[dict[str,str]]):
   if not doc:
     return no_update
   
@@ -378,7 +379,9 @@ def update_dropdown(doc: str, options: list[dict[str,str]]):
 def export(n: int, rows: list[dict], _id: str, date: str, 
   scope: Scope, period: FiscalPeriod):
 
-  def parse_period(scope: Scope, date: str, row: dict) -> Instant|Interval:
+  def parse_period(scope: Scope, date_text: str, row: dict) -> Instant|Interval:
+    date: dt = dt.strptime(date_text, '%Y-%m-%d')
+
     if row['period'] == 'instant':
       return Instant(instant=date)
     
@@ -393,7 +396,7 @@ def export(n: int, rows: list[dict], _id: str, date: str,
       months=3
 
     return Interval(
-      start_date=dt.strftime(start_date, '%Y-%m-%d'), 
+      start_date=start_date, 
       end_date=date,
       months=months)
 
