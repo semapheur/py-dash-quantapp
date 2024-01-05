@@ -15,6 +15,7 @@ quote-style = "single"
 [project.optional-dependencies]
 dev = [
   "bandit",
+  "datamodel-code-generator",
   "icecream",
   "ipykernel",
   "mypy",

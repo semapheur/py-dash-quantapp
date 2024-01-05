@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime as dt
+from datetime import date as Date, datetime as dt
 from enum import Enum
 from functools import partial
 import re
@@ -35,6 +35,27 @@ from lib.utils import (
   month_difference,
   fiscal_quarter,
 )
+
+
+UNIT_BLACKLIST = {
+  'contract',
+  'country',
+  'county',
+  'customer',
+  'day',
+  'item',
+  'number',
+  'obligation',
+  'performanceobligation',
+  'pure',
+  'shares',
+  'store',
+  'subsidiary',
+  'vendor',
+  'usdpershare',
+  'usdpershareitemtype',
+  'year',
+}
 
 
 class ScopeEnum(Enum):
@@ -86,7 +107,7 @@ async def parse_statements(urls: list[str]) -> list[Financials]:
 async def parse_statement(url: str) -> Financials:
   def parse_period(period: et.Element) -> Instant | Interval:
     if (el := period.find('./{*}instant')) is not None:
-      return Instant(instant=dt.strptime(cast(str, el.text), '%Y-%m-%d'))
+      return Instant(instant=dt.strptime(cast(str, el.text), '%Y-%m-%d').date())
 
     start_date = dt.strptime(
       cast(str, cast(et.Element, period.find('./{*}startDate')).text), '%Y-%m-%d'
@@ -97,7 +118,9 @@ async def parse_statement(url: str) -> Financials:
 
     months = month_difference(start_date, end_date)
 
-    return Interval(start_date=start_date, end_date=end_date, months=months)
+    return Interval(
+      start_date=start_date.date(), end_date=end_date.date(), months=months
+    )
 
   def parse_unit(unit: str) -> str:
     if '_' not in unit:
@@ -111,7 +134,7 @@ async def parse_statement(url: str) -> Financials:
       return name.split(':')[-1]
 
     unit = parse_unit(item.attrib['unitRef'])
-    if unit != 'shares':
+    if unit.lower() not in UNIT_BLACKLIST:
       currency.add(unit)
 
     return {
@@ -186,7 +209,7 @@ async def parse_statement(url: str) -> Financials:
     else:
       scrap['value'] = float(item.text)
       unit = parse_unit(item.attrib['unitRef'])
-      if unit != 'shares':
+      if unit.lower() not in UNIT_BLACKLIST:
         currency.add(unit)
 
       scrap['unit'] = unit
@@ -211,7 +234,7 @@ async def parse_statement(url: str) -> Financials:
   data = {k: data[k] for k in sorted(data.keys())}
   return Financials(
     id=doc_id,
-    date=date,
+    date=date.date(),
     scope=scope,
     period=fiscal_period,
     fiscal_end=fiscal_end,
@@ -268,7 +291,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
 
 def statement_to_df(financials: Financials) -> pd.DataFrame:
-  def parse_date(period: Instant | Interval) -> dt:
+  def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
       return period.end_date
 
@@ -278,7 +301,7 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   fin_scope = financials.scope
   fin_period = financials.period
 
-  df_data: dict[tuple[dt, FiscalPeriod, int], dict[str, int | float]] = {}
+  df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
 
   for item, entries in financials.data.items():
     for entry in entries:
@@ -334,7 +357,7 @@ def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
     return data
 
   for entry in splits:
-    value = cast(float | int, entry.get('value'))
+    value = cast(float, entry.get('value'))
 
     data.append(
       StockSplit(
@@ -416,25 +439,25 @@ def upsert_financials(
 ):
   db_path = DB_DIR / sqlite_name(db_name)
 
-  with sqlite3.connect(db_path) as conn:
-    cur = conn.cursor()
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
 
-    cur.execute(
-      f"""CREATE TABLE IF NOT EXISTS "{table}"(
-      id TEXT PRIMARY KEY,
-      scope TEXT,
-      date TEXT,
-      period TEXT,
-      fiscal_end TEXT,
-      currency JSON,
-      data JSON
-    )"""
-    )
+  cur.execute(
+    f"""CREATE TABLE IF NOT EXISTS "{table}"(
+    id TEXT PRIMARY KEY,
+    scope TEXT,
+    date TEXT,
+    period TEXT,
+    fiscal_end TEXT,
+    currency JSON,
+    data JSON
+  )"""
+  )
 
   query = f"""INSERT INTO 
     "{table}" VALUES (:id, :scope, :date, :period, :fiscal_end, :currency, :data)
     ON CONFLICT (id) DO UPDATE SET  
-      data=json_patch(data, excluded.data))
+      data=json_patch(data, excluded.data),
       currency=(
         SELECT json_group_array(value)
         FROM (
@@ -444,7 +467,10 @@ def upsert_financials(
         )
       )
   """
-  cur.executemany(query, financials)
+  cur.executemany(query, [f.model_dump() for f in financials])
+
+  con.commit()
+  con.close()
 
 
 def select_financials(db_name: str, table: str) -> list[Financials]:

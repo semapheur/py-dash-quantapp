@@ -3,16 +3,20 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import json
 import re
-from typing import Optional
+from typing import cast, Literal, Optional, TypedDict
 import xml.etree.ElementTree as et
 
 import pandas as pd
+import pandera as pa
+from pandera.engines import pandas_engine
+from pandera.typing import DataFrame, Index, Series, DateTime
+from pydantic import BaseModel
 import httpx
 
 # Local
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
-from lib.edgar.models import Financials
+from lib.edgar.models import Financials, Filings, Recent, StockSplit, FinData
 from lib.edgar.parse import (
   fix_financials_df,
   get_stock_splits,
@@ -37,6 +41,31 @@ FIELDS = {
 }
 
 
+class FilingsJSON(BaseModel):
+  accessionNumber: list[str]
+  filingDate: list[str]
+  reportDate: list[str]
+  acceptanceDateTime: list[str]
+  act: list[str]
+  form: list[str]
+  fileNumber: list[str]
+  filmNumber: list[str]
+  items: list[str]
+  size: list[int]
+  isXBRL: list[Literal[0, 1]]
+  isInlineXBRL: list[Literal[0, 1]]
+  primaryDocument: list[str]
+  primaryDocDescription: list[str]
+
+
+class FilingsFrame(pa.DataFrameModel):
+  id: Index[str]
+  date: Series[DateTime]
+  form: Series[str]
+  primary_document: Series[str]
+  is_XBRL: Series[Literal[0, 1]]
+
+
 class Company:
   __slots__ = '_cik'
 
@@ -49,65 +78,65 @@ class Company:
   def filings(
     self,
     forms: Optional[list[str]] = None,
-    date: Optional[dt | str] = None,
+    date: Optional[dt] = None,
     filter_xbrl: bool = False,
-  ) -> pd.DataFrame:
-    def fetch(url: str):
+  ) -> DataFrame[FilingsFrame]:
+    def fetch(url: str) -> dict:
       with httpx.Client() as client:
         rs = client.get(url, headers=HEADERS)
-        parse = rs.json()
+        parse: dict = rs.json()
 
       return parse
 
-    def json_to_df(filings: dict[str, list[str]]):
+    def json_to_df(filings: Recent) -> DataFrame[FilingsFrame]:
       data = {
-        'id': filings['accessionNumber'],
-        'date': filings['reportDate'],
-        'form': filings['form'],
-        'primary_document': filings['primaryDocument'],
-        'is_XBRL': filings['isXBRL'],
+        'id': filings.get('accessionNumber'),
+        'date': filings.get('reportDate'),
+        'form': filings.get('form'),
+        'primary_document': filings.get('primaryDocument'),
+        'is_XBRL': filings.get('isXBRL'),
       }
       df = pd.DataFrame(data)
       df.set_index('id', inplace=True)
       df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d', errors='coerce')
-      return df
+      return cast(DataFrame[FilingsFrame], df)
 
-    dfs = []
+    dfs: list[DataFrame[FilingsFrame]] = []
 
     url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
     parse = fetch(url)
-    filings = parse['filings']['recent']
-    dfs.append(json_to_df(filings))
+    if (filings := cast(Filings | None, parse.get('filings'))) is None:
+      raise ValueError(f'JSON has no filings: {parse}')
 
-    if files := parse['filings'].get('files'):
+    recent = filings['recent']
+    dfs.append(json_to_df(recent))
+
+    if (files := filings.get('files')) is not None:
       for f in files:
-        url = f"https://data.sec.gov/submissions/{f['name']}"
-        filings = fetch(url)
-        dfs.append(json_to_df(filings))
+        url = f'https://data.sec.gov/submissions/{f.get("name")}'
+        recent = cast(Recent, fetch(url))
+        dfs.append(json_to_df(recent))
 
     if len(dfs) == 1:
       df = dfs.pop()
 
     else:
-      df = pd.concat(dfs)
+      df = cast(DataFrame[FilingsFrame], pd.concat(dfs))
       df.drop_duplicates(inplace=True)
       df.sort_values('date', ascending=True, inplace=True)
 
     if forms:
-      df = df.loc[df['form'].isin(forms)]
+      df = cast(DataFrame[FilingsFrame], df.loc[df['form'].isin(forms)])
 
     if date:
-      if isinstance(date, str):
-        date = dt.strptime(date, '%Y-%m-%d')
-
-      df = df.loc[df['date'] > date]
+      df = cast(DataFrame[FilingsFrame], df.loc[df['date'] > date])
 
     if filter_xbrl:
-      df = df.loc[df['is_XBRL'].astype(bool)]
+      df = cast(DataFrame[FilingsFrame], df.loc[df['is_XBRL'].astype(bool)])
 
     return df
 
-  def xbrls(self, date: Optional[dt | str] = None) -> pd.Series:
+  def xbrls(self, date: Optional[dt] = None) -> Series[str]:
     filings = self.filings(['10-K', '10-Q'], date, True)
 
     if filings['date'].max() < dt(2020, 7, 1):
@@ -132,28 +161,30 @@ class Company:
       '.htm', '_htm.xml'
     )
     filings.set_index('id', inplace=True)
-    return filings['xbrl']
+    return cast(Series[str], filings['xbrl'])
 
-  def stock_splits(self) -> pd.Series:
+  def stock_splits(self) -> Series[float]:
     field = 'StockholdersEquityNoteStockSplitConversionRatio1'
     query = (
-      f'SELECT data FROM {self._cik} WHERE JSON_EXTRACT(data, "$.{field}") IS NOT NULL'
+      f'SELECT data FROM {self._cik} WHERE json_extract(data, "$.{field}") IS NOT NULL'
     )
-    financials = read_sqlite('financials_scrap', query)
-    financials.loc[:, 'data'] = financials['data'].apply(json.loads)
+    df_parse = cast(
+      DataFrame[str], read_sqlite('financials_scrap', query, dtype={'data': str})
+    )
+    fin_data = cast(list[FinData], df_parse['data'].apply(json.loads).to_list())
 
-    df_data: list[dict] = []
-    for data in financials['data']:
+    df_data: list[StockSplit] = []
+    for data in fin_data:
       df_data.extend(get_stock_splits(data))
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(df_data)
     df.drop_duplicates(inplace=True)
     df.set_index('date', inplace=True)
 
-    return df['stock_split_ratio']
+    return cast(Series[float], df['stock_split_ratio'])
 
-  async def financials(self, delta=120, date: Optional[str] = None) -> list[Financials]:
-    async def fetch_urls(date: Optional[str | dt] = None) -> pd.Series:
+  async def financials(self, delta=120, date: Optional[str] = None):
+    async def fetch_urls(date: Optional[dt] = None) -> pd.Series:
       try:
         urls = self.xbrls(date)
 
@@ -163,6 +194,12 @@ class Company:
 
       return urls
 
+    # def df_to_financials(df: DataFrame) -> list[Financials]:
+    #  df.loc['date'] = df.loc[:, 'date'].apply(pd.to_datetime)
+    #  df.loc['currency'] = df.loc[:, 'currency'].apply(json.loads)
+    #  df.loc['data'] = df.loc[:, 'data'].apply(json.loads)
+    #  return [Financials(**row) for row in df.to_dict('records')]
+
     # Load financials
     query = f'SELECT * FROM "{self._cik}" ORDER BY date ASC'
     if date:
@@ -170,22 +207,22 @@ class Company:
 
     financials = read_sqlite('financials_scrap.db', query, parse_dates=True)
 
-    if financials:
+    if not financials.empty:
       last_date = financials['date'].max()
 
       if relativedelta(dt.now(), last_date).days < delta:
-        return financials.to_dict('records', Financials)
+        return financials
 
       new_filings = await fetch_urls(last_date)
 
       if not new_filings:
-        return financials.to_dict('records', Financials)
+        return financials
 
       old_filings = set(financials['id'])
       filings_diff = set(new_filings.index).difference(old_filings)
 
       if not filings_diff:
-        return financials.to_dict('records', Financials)
+        return financials
     else:
       new_filings = await fetch_urls()
 
@@ -193,7 +230,7 @@ class Company:
     if new_financials:
       upsert_financials('financials_scrap.db', str(self._cik), new_financials)
 
-    return [*financials.to_dict('records', Financials), *new_financials]
+    return new_financials
 
   async def financials_to_df(self) -> pd.DataFrame:
     financials = await self.financials()

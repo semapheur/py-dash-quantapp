@@ -4,13 +4,13 @@ import json
 import math
 import re
 from pathlib import Path
-from typing import cast, Literal, Optional, TypeAlias
+from typing import cast, Any, Literal, Optional, TypeAlias
 
 import httpx
 import numpy as np
 import pandas as pd
+from pandera.typing import DataFrame, Series
 from tqdm import tqdm
-
 from lib.const import HEADERS
 
 
@@ -111,7 +111,6 @@ def insert_characters(string: str, inserts: dict[str, list[int]]):
 
   return result
 
-
 def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
   duplicated = df.columns.duplicated()
 
@@ -138,7 +137,7 @@ def df_time_difference(dates: pd.DatetimeIndex, periods: int = 30, freq: str = '
   )
 
 
-def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> pd.Series:
+def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> Series[int]:
   dates_ = dates.to_numpy().astype('datetime64[D]')
 
   values = np.concatenate((np.array([fill]), np.busday_count(dates_[:-1], dates_[1:])))
