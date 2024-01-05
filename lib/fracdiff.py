@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.fft import fft, ifft
+from scipy.special import binom
 
 def _frac_diff(x: np.ndarray, order: float, step: float) -> np.ndarray:
 
@@ -7,7 +8,7 @@ def _frac_diff(x: np.ndarray, order: float, step: float) -> np.ndarray:
   max_j = min(n - 1, int(np.ceil(order)))
 
   j_values = np.arange(max_j + 1)
-  binom_coef = np.array([np.math.comb(order, j) for j in j_values])
+  binom_coef = np.array([binom(order, j) for j in j_values])
 
   diff_sum = np.zeros_like(x, dtype=float)
   for k in range(max_j, n):

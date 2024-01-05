@@ -5,13 +5,12 @@ from functools import partial
 import json
 import re
 import sqlite3
-from typing import Literal
+from typing import cast, Literal, TypeAlias
 import xml.etree.ElementTree as et
 
 import aiometer
 import httpx
 import bs4 as bs
-from glom import glom
 import pandas as pd
 from tinydb import TinyDB
 
@@ -23,7 +22,8 @@ from lib.edgar.models import (
   Instant, 
   Interval, 
   Item, 
-  Member
+  Member,
+  Scope, FiscalPeriod
 )
 from lib.utils import (
   combine_duplicate_columns,
@@ -33,11 +33,12 @@ from lib.utils import (
   fiscal_quarter
 )
 
-class Scope(Enum):
+class ScopeEnum(Enum):
   QUARTERLY = 3
   ANNUAL = 12
 
-async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> pd.Series:
+Docs: TypeAlias = Literal['cal', 'def', 'htm', 'lab', 'pre']
+async def xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> pd.Series:
   tasks = [asyncio.create_task(xbrl_url(cik, doc_id, doc_type)) for doc_id in doc_ids]
   urls = await asyncio.gather(*tasks)
 
@@ -46,7 +47,8 @@ async def xbrl_urls(cik: int, doc_ids: list[str], doc_type:str) -> pd.Series:
 
   return result 
 
-async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str|None:
+
+async def xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
   url = (
     'https://www.sec.gov/Archives/edgar/data/'
     f"{cik}/{doc_id.replace('-', '')}/{doc_id}-index.htm"
@@ -57,16 +59,13 @@ async def xbrl_url(cik: int, doc_id: str, doc_type: str = 'htm') -> str|None:
 
   if doc_type == 'htm':
     pattern = r'(?<!_(cal|def|lab|pre)).xml$'
-  elif doc_type in ['cal', 'def', 'lab', 'pre']:
-    pattern = rf'_{doc_type}.xml$'
   else:
-    raise Exception('Invalid document type!')
+    pattern = rf'_{doc_type}.xml$'
 
   a_node = parse.find('a', href=re.compile(pattern))
-  if a_node is None:
-    return None
+  assert a_node is not None, 'a tag containing XBRL href not found'
   
-  href = a_node.get('href')
+  href = cast(bs.Tag, a_node).get('href')
   return f'https://www.sec.gov{href}'
 
 async def parse_statements(urls: list[str]) -> list[Financials]:
@@ -79,10 +78,12 @@ async def parse_statement(url: str) -> Financials:
 
   def parse_period(period: et.Element) -> Instant|Interval:
     if (el := period.find('./{*}instant')) is not None:
-      return Instant(instant=dt.strptime(el.text, '%Y-%m-%d'))
+      return Instant(instant=dt.strptime(cast(str, el.text), '%Y-%m-%d'))
 
-    start_date = dt.strptime(period.find('./{*}startDate').text, '%Y-%m-%d')
-    end_date = dt.strptime(period.find('./{*}endDate').text, '%Y-%m-%d')
+    start_date = dt.strptime(
+      cast(str, cast(et.Element, period.find('./{*}startDate')).text), '%Y-%m-%d')
+    end_date = dt.strptime(
+      cast(str, cast(et.Element, period.find('./{*}endDate')).text), '%Y-%m-%d')
     months = month_difference(start_date, end_date)
 
     return Interval(
@@ -106,9 +107,9 @@ async def parse_statement(url: str) -> Financials:
       currency.add(unit)
 
     return {
-      parse_name(segment.text): Member(
+      parse_name(cast(str, segment.text)): Member(
         dim=segment.attrib['dimension'].split(':')[-1],
-        value=float(item.text),
+        value=float(cast(str, item.text)),
         unit=unit
       )
     }
@@ -122,7 +123,7 @@ async def parse_statement(url: str) -> Financials:
   if root.tag == 'Error':
     cik, doc_id = url.split('/')[6:8]
     doc_id = insert_characters(doc_id, {'-': [10, 12]})
-    url = await xbrl_url(cik, doc_id)
+    url = await xbrl_url(int(cik), doc_id)
     root = await fetch(url)
 
   form = {
@@ -130,22 +131,22 @@ async def parse_statement(url: str) -> Financials:
     '10-Q': 'quarterly'
   }
 
-  scope: Literal['annual', 'quarterly'] = form[root.find('.{*}DocumentType').text]
-  date = dt.strptime(root.find('.{*}DocumentPeriodEndDate').text, '%Y-%m-%d')
-  fiscal_end = root.find('.{*}CurrentFiscalYearEndDate').text[1:]
+  scope = cast(Scope, form[cast(str, cast(et.Element, root.find('.{*}DocumentType')).text)])
+  date = dt.strptime(cast(str, cast(et.Element, root.find('.{*}DocumentPeriodEndDate')).text), '%Y-%m-%d')
+  fiscal_end = cast(str, cast(et.Element, root.find('.{*}CurrentFiscalYearEndDate')).text)[1:]
 
   if (el := root.find('.{*}DocumentFiscalPeriodFocus')) is not None:
-    fiscal_period = el.text
+    fiscal_period = cast(FiscalPeriod, el.text)
   elif scope == 'annual':
     fiscal_period = 'FY'
   else:
     pattern = r'(\d{2})-(\d{2})'
 
     match = re.search(pattern, fiscal_end)
-    month = int(match.group(1))
-    day = int(match.group(2))
+    month = int(cast(re.Match[str], match).group(1))
+    day = int(cast(re.Match[str], match).group(2))
 
-    fiscal_period = fiscal_quarter(dt.strptime(date, '%Y-%m-%d'), month, day)
+    fiscal_period = fiscal_quarter(date, month, day)
   
   doc_id = url.split('/')[-2]
   currency = set()
@@ -158,13 +159,12 @@ async def parse_statement(url: str) -> Financials:
     scrap: Item = {}
     
     ctx = item.attrib['contextRef']
-    period_el = root.find(f'./{{*}}context[@id="{ctx}"]').find('./{*}period')
+    period_el = cast(et.Element, 
+      cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find('./{*}period'))
     
     scrap['period'] = parse_period(period_el)
    
-    segment = root \
-      .find(f'./{{*}}context[@id="{ctx}"]') \
-      .find('.//{*}segment/{*}explicitMember')
+    segment = cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find('.//{*}segment/{*}explicitMember')
     
     if segment is not None:
       scrap['members'] = parse_member(item, segment)
@@ -182,11 +182,11 @@ async def parse_statement(url: str) -> Financials:
       continue
 
     try:
-      entry: dict = next(i for i in data[item_name]
+      entry: Item = next(i for i in data[item_name]
         if i['period'] == scrap['period']
       )
       if 'member' in scrap:
-        entry.setdefault('member', {}).update(scrap['members'])
+        entry.setdefault('members', {}).update(scrap['members'])
       else:
         entry.update(scrap)
     except Exception:
@@ -258,7 +258,7 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   fin_scope = financials['scope']
   fin_period = financials['period']
   
-  df_data: dict[tuple(dt, str), dict[str, int]] = {}
+  df_data: dict[tuple[dt, str], dict[str, int]] = {}
 
   if isinstance(financials['data'], str):
     financials['data'] = json.loads(financials['data'])
@@ -269,7 +269,7 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
       if date != fin_date:
         continue
 
-      months = entry['period'].get('months', Scope[fin_scope.upper()].value)
+      months = entry['period'].get('months', ScopeEnum[fin_scope.upper()].value)
       period = fin_period
       if fin_period == 'FY' and months < 12:
         period = 'Q4'
@@ -309,20 +309,18 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
 
 def get_stock_splits(financials: Financials) -> list[dict]:
 
-  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
-  splits = glom(financials, f'data.{name}')
-  if splits is None:
-    return
-  
   data: list[dict] = []
+  
+  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
+  splits = financials['data'].get(name)
+  if splits is None:
+    return data
+  
   for entry in splits:
     value = entry.get('value')
-    if value is None:
-      continue
     
     data.append({
-      'date': dt.strptime(
-        glom(entry, 'period.start_date'), '%Y-%m-%d'),
+      'date': dt.strptime(cast(str, entry['period'].get('start_date')), '%Y-%m-%d'),
       'stock_split_ratio': value
     })
   

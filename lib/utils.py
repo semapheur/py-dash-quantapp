@@ -4,8 +4,7 @@ import json
 import math
 import re
 from pathlib import Path
-import tempfile
-from typing import Optional
+from typing import cast, Literal, Optional, TypeAlias
 
 import httpx
 import numpy as np
@@ -14,23 +13,26 @@ from tqdm import tqdm
 
 from lib.const import HEADERS
 
+
 def int_parser(value):
   try:
     return int(value)
   except (ValueError, TypeError):
     return value
 
-def load_json(path: str|Path) -> dict:
+
+def load_json(path: str | Path) -> dict:
   with open(path, 'r') as f:
     return json.load(f)
 
-def update_json(path: str|Path, data: dict):
+
+def update_json(path: str | Path, data: dict):
   if isinstance(path, str):
-    path = Path(str)
+    path = Path(path)
 
   if path.suffix != '.json':
     path = path.with_suffix('.json')
-  
+
   try:
     with open(path, 'r') as f:
       file_data = json.load(f)
@@ -39,11 +41,12 @@ def update_json(path: str|Path, data: dict):
     file_data = {}
 
   file_data.update(data)
-  
+
   with open(path, 'w') as f:
     json.dump(file_data, f)
 
-def minify_json(path: str|Path, new_name: Optional[str] = None):
+
+def minify_json(path: str | Path, new_name: Optional[str] = None):
   if isinstance(path, str):
     path = Path(path)
 
@@ -54,32 +57,37 @@ def minify_json(path: str|Path, new_name: Optional[str] = None):
     new_path = path.with_name(f'{path.stem}_mini.json')
   else:
     new_path = path.with_name(new_name).with_suffix('.json')
-  
+
   with open(new_path, 'w') as f:
     json.dump(data, f, separators=(',', ':'))
+
 
 def replace_all(text, dic):
   for i, j in dic.items():
     text = text.replace(i, j)
   return text
 
+
 def camel_split(txt: str) -> list[str]:
   pattern = r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))'
   return re.findall(pattern, txt)
 
-def camel_abbreviate(txt: str, chars: int=2):
+
+def camel_abbreviate(txt: str, chars: int = 2):
   words = camel_split(txt)
   words[0] = words[0].lower()
   words = [word[:chars] for word in words]
   return ''.join(words)
 
-def snake_abbreviate(txt: str, chars: int=2):
+
+def snake_abbreviate(txt: str, chars: int = 2):
   words = camel_split(txt)
   words = [word[:chars].lower() for word in words]
   return '_'.join(words)
 
+
 # Rename DataFrame columns
-class renamer():
+class renamer:
   def __init__(self):
     self.d = dict()
 
@@ -90,20 +98,21 @@ class renamer():
     else:
       self.d[x] += 1
       return '%s_%d' % (x, self.d[x])
-    
+
+
 def insert_characters(string: str, inserts: dict[str, list[int]]):
   result = string
   offset = 0
 
   for char in inserts.keys():
     for pos in inserts[char]:
-      result = result[:pos + offset] + char + result[pos + offset:]
+      result = result[: pos + offset] + char + result[pos + offset :]
       offset += len(char)
 
   return result
 
+
 def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
-    
   duplicated = df.columns.duplicated()
 
   if not duplicated.any():
@@ -117,32 +126,29 @@ def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
 
   return df
 
+
 def month_difference(date1: dt, date2: dt) -> int:
   delta = relativedelta(max(date1, date2), min(date1, date2))
   return delta.years * 12 + delta.months + round(delta.days / 30)
 
-def df_time_difference(
-  dates: pd.DatetimeIndex, 
-  periods: int = 30, 
-  freq: str = 'D'
-) -> pd.Series:
+
+def df_time_difference(dates: pd.DatetimeIndex, periods: int = 30, freq: str = 'D'):
   return np.round(
-    dates.to_series().diff() / np.timedelta64(periods, freq)
+    np.diff(dates.to_numpy(dtype=np.datetime64)) / np.timedelta64(periods, freq)
   )
 
-def df_business_days(
-  dates: pd.DatetimeIndex, 
-  fill: float = np.nan
-) -> pd.Series:
-  dates = dates.to_series().values.astype('datetime64[D]')
 
-  values = np.concatenate(
-    ([fill], np.busday_count(dates[:-1], dates[1:]))
-  )
+def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> pd.Series:
+  dates_ = dates.to_numpy().astype('datetime64[D]')
+
+  values = np.concatenate((np.array([fill]), np.busday_count(dates_[:-1], dates_[1:])))
   return pd.Series(values)
-  
-def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:
 
+
+Quarter: TypeAlias = Literal['Q1', 'Q2', 'Q3', 'Q4']
+
+
+def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> Quarter:
   condition = date.month < fiscal_month or (
     date.month == fiscal_month and date.day <= fiscal_day
   )
@@ -150,9 +156,10 @@ def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> str:
   fiscal_start = dt(fiscal_year, fiscal_month, fiscal_day)
   months = month_difference(date, fiscal_start)
 
-  return f'Q{math.ceil(months/3)}'
+  return cast(Quarter, f'Q{math.ceil(months/3)}')
 
-def download_file(url: str, file_path: str|Path):
+
+def download_file(url: str, file_path: str | Path):
   with open(file_path, 'wb') as file:
     with httpx.stream('GET', url=url, headers=HEADERS) as response:
       total = int(response.headers.get('content-length', 0))

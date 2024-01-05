@@ -47,14 +47,13 @@ def read_sqlite(
   params: Optional[dict[str, str]] = None,
   index_col: Optional[str | list[str]] = None,
   parse_dates=False,
-) -> pd.DataFrame | None:
+) -> pd.DataFrame:
   
   db_path = DB_DIR / sqlite_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
-  if not insp.get_table_names():
-    return None
+  assert insp.get_table_names() != [], f'Database has no tables: {db_path}'
   
   parser = None
   if parse_dates:

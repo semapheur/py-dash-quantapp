@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
+import json
 import re
 from typing import Optional
 import xml.etree.ElementTree as et
@@ -136,12 +137,10 @@ class Company():
   def stock_splits(self) -> pd.Series:
 
     field = 'StockholdersEquityNoteStockSplitConversionRatio1'
-    query = f'SELECT * FROM {self._cik} WHERE JSON_EXTRACT(data, "$.{field}") IS NOT NULL'
+    query = f'SELECT data FROM {self._cik} WHERE JSON_EXTRACT(data, "$.{field}") IS NOT NULL'
     financials = read_sqlite('financials_scrap', query)
+    financials.loc[:, 'data'] = financials['data'].apply(json.loads) 
 
-    if not financials:
-      return
-    
     data: list[dict] = []
     for f in financials:
       data.extend(get_stock_splits(f))

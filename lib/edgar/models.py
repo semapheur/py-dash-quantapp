@@ -1,39 +1,50 @@
-#from dataclasses import dataclass
+# from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal, NotRequired, TypedDict
+from typing import Literal, NotRequired, TypedDict, TypeAlias
+
+Scope: TypeAlias = Literal['annual', 'quarterly']
+Quarter: TypeAlias = Literal['Q1', 'Q2', 'Q3', 'Q4']
+FiscalPeriod: TypeAlias = Literal['FY'] | Quarter
+
 
 class Meta(TypedDict):
   id: str
-  scope: Literal['annual', 'quarterly']
+  scope: Scope
   date: datetime
-  period: Literal['FY', 'Q1', 'Q2', 'Q3', 'Q4']
+  period: FiscalPeriod
   fiscal_end: str
   currency: list[str]
 
+
 class Value(TypedDict):
-  value: float|int
+  value: float | int
   unit: str
 
+
 class Interval(TypedDict):
-  start_date: datetime
-  end_date: datetime
+  start_date: datetime | str
+  end_date: datetime | str
   months: NotRequired[int]
 
+
 class Instant(TypedDict):
-  instant: datetime
+  instant: datetime | str
+
 
 class Member(Value):
   dim: str
 
+
 class Item(Value):
-  period: Interval|Instant
+  period: Interval | Instant
   members: NotRequired[dict[str, Member]]
+
 
 class Financials(TypedDict):
   id: NotRequired[str]
-  scope: Literal['annual', 'quarterly']
+  scope: Scope
   date: datetime
-  period: Literal['FY', 'Q1', 'Q2', 'Q3', 'Q4']
+  period: FiscalPeriod
   fiscal_end: NotRequired[str]
   currency: list[str]
   data: dict[str, list[Item]]
