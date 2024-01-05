@@ -1,5 +1,8 @@
 [mypy]
-plugins = "numpy.typing.mypy_plugin"
+plugins = [
+  "numpy.typing.mypy_plugin",
+  "pydantic.mypy"
+]
 explicit_package_bases = true
 #namespace_packages = false
 
@@ -11,10 +14,10 @@ quote-style = "single"
 
 [project.optional-dependencies]
 dev = [
-  bandit,
-  icecream,
-  ipykernel,
-  mypy,
-  pipreqs,
-  ruff
+  "bandit",
+  "icecream",
+  "ipykernel",
+  "mypy",
+  "pipreqs",
+  "ruff"
 ]
