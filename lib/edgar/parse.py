@@ -46,6 +46,7 @@ UNIT_BLACKLIST = {
   'customer',
   'day',
   'item',
+  'month',
   'number',
   'obligation',
   'performanceobligation',
@@ -114,18 +115,32 @@ async def parse_statement(url: str) -> Financials:
       temp: list[Item] = []
 
       for item in data[k]:
-        if not ('value' not in item and len(cast(dict, item.get('members', {}))) == 1):
+        if 'value' in item or (members := item.get('members')) is None:
           temp.append(item)
           continue
 
-        member = next(iter(cast(dict[str, Member], item['members']).values()))
-        temp.append(
-          Item(
-            period=item['period'],
-            value=cast(float | int, member.get('value')),
-            unit=cast(str, member.get('unit')),
+        if len(members) == 1:
+          member = next(iter(members.values()))
+          temp.append(
+            Item(
+              period=item['period'],
+              value=cast(float | int, member.get('value')),
+              unit=cast(str, member.get('unit')),
+            )
           )
-        )
+          continue
+
+        value = 0.0
+        units = set()
+        for m in members.values():
+          value += m.get('value', 0)
+          if (unit := m.get('unit')) is not None:
+            units.add(unit)
+
+        if len(units) == 1:
+          temp.append(
+            Item(period=item['period'], value=value, unit=units.pop(), members=members)
+          )
 
       fixed[k] = temp
 
@@ -150,7 +165,7 @@ async def parse_statement(url: str) -> Financials:
 
   def parse_unit(unit: str) -> str:
     if '_' not in unit:
-      return unit
+      return unit.lower()
 
     return unit.split('_')[-1].lower()
 
@@ -160,7 +175,7 @@ async def parse_statement(url: str) -> Financials:
       return name.split(':')[-1]
 
     unit = parse_unit(item.attrib['unitRef'])
-    if unit.lower() not in UNIT_BLACKLIST:
+    if unit not in UNIT_BLACKLIST:
       currency.add(unit)
 
     return {
@@ -235,7 +250,7 @@ async def parse_statement(url: str) -> Financials:
     else:
       scrap['value'] = float(item.text)
       unit = parse_unit(item.attrib['unitRef'])
-      if unit.lower() not in UNIT_BLACKLIST:
+      if unit not in UNIT_BLACKLIST:
         currency.add(unit)
 
       scrap['unit'] = unit

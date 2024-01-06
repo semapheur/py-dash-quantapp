@@ -40,6 +40,7 @@ requests
 scikit-learn
 scipy
 sqlalchemy
+sqlmodel
 statsmodels
 #tabula-py
 tinydb
