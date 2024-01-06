@@ -48,7 +48,9 @@ async def load_financials(
 
   df = cast(
     DataFrame[RawFinancialsFrame],
-    read_sqlite('financials_scrap.db', query, parse_dates=True),
+    read_sqlite(
+      'financials_scrap.db', query, date_parser={'date': {'format': '%Y-%m-%d'}}
+    ),
   )
 
   if not df.empty:

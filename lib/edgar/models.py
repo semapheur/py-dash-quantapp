@@ -96,6 +96,18 @@ class RawFinancials(BaseModel):
 
     return value
 
+  @field_validator('data', mode='before')
+  @classmethod
+  def validate_data(cls, value, info: ValidationInfo):
+    if isinstance(value, str):
+      try:
+        parsed_value = json.loads(value)
+      except json.JSONDecodeError:
+        raise ValueError(f'{info.field_name} must be a valid JSON dictionary string')
+      return parsed_value
+
+    return value
+
   @field_serializer('date')
   def serialize_date(self, date: Date):
     return date.strftime('%Y-%m-%d')

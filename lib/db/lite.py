@@ -63,7 +63,7 @@ def read_sqlite(
   params: Optional[dict[str, str]] = None,
   index_col: Optional[str | list[str]] = None,
   dtype: Optional[DtypeArg] = None,
-  parse_dates=False,
+  date_parser: Optional[dict[str, dict[str, str]]] = None,
 ) -> pd.DataFrame:
   db_path = DB_DIR / sqlite_name(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -75,10 +75,6 @@ def read_sqlite(
   if tables == [] or table not in set(tables):
     return pd.DataFrame()
 
-  parser = None
-  if parse_dates:
-    parser = {'date': {'format': '%Y-%m-%d %H:%M:%S.%f'}}
-
   if isinstance(query, str):
     query = text(query)
 
@@ -87,7 +83,7 @@ def read_sqlite(
 
   with engine.connect().execution_options(autocommit=True) as con:
     df = pd.read_sql(
-      query, con=con, parse_dates=parser, index_col=index_col, dtype=dtype
+      query, con=con, parse_dates=date_parser, index_col=index_col, dtype=dtype
     )
 
   return df
