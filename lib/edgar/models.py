@@ -75,7 +75,7 @@ SerializedItem = Annotated[Item, PlainSerializer(item_serializer)]
 FinData: TypeAlias = dict[str, list[Item]]
 
 
-class Financials(BaseModel):
+class RawFinancials(BaseModel):
   id: Optional[str] = None
   scope: Scope
   date: Date
@@ -125,7 +125,7 @@ class Financials(BaseModel):
     return json.dumps(obj)
 
 
-class FinancialsParse(DataFrameModel):
+class RawFinancialsFrame(DataFrameModel):
   id: Optional[str] = Field(unique=True)
   scope: str = Field(isin={'annual', 'quarterly'})
   date: Timestamp

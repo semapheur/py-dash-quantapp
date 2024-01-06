@@ -1,14 +1,14 @@
 import asyncio
+from dataclasses import dataclass
 from datetime import datetime as dt
-from dateutil.relativedelta import relativedelta
-import json
 import re
 from typing import cast, Literal, Optional
 import xml.etree.ElementTree as et
 
 import pandas as pd
 import pandera as pa
-from pandera.typing import DataFrame, Index, Series, DateTime
+from pandera.typing import DataFrame, Index, Series
+from pandera.dtypes import Timestamp
 from pydantic import BaseModel
 import httpx
 
@@ -16,24 +16,17 @@ import httpx
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
 from lib.edgar.models import (
-  Financials,
+  RawFinancials,
   Filings,
-  FinancialsParse,
   Recent,
-  StockSplit,
-  FinData,
 )
 from lib.edgar.parse import (
-  fix_financials_df,
-  get_stock_splits,
-  upsert_financials,
   xbrl_url,
   xbrl_urls,
   parse_statements,
   parse_taxonomy,
-  statement_to_df,
 )
-from lib.fin.calculation import stock_split_adjust
+
 from lib.utils import camel_split, snake_abbreviate
 
 FIELDS = {
@@ -66,20 +59,18 @@ class FilingsJSON(BaseModel):
 
 class FilingsFrame(pa.DataFrameModel):
   id: Index[str]
-  date: Series[DateTime]
+  date: Series[Timestamp]
   form: Series[str]
   primary_document: Series[str]
   is_XBRL: Series[Literal[0, 1]]
 
 
+@dataclass(slots=True)
 class Company:
-  __slots__ = '_cik'
-
-  def __init__(self, cik: int):
-    self._cik = cik
+  cik: int
 
   def padded_cik(self):
-    return str(self._cik).zfill(10)
+    return str(self.cik).zfill(10)
 
   def filings(
     self,
@@ -157,7 +148,7 @@ class Company:
     ticker = ticker.split('-')[0]
 
     filings['xbrl'] = (
-      prefix + str(self._cik) + '/' + filings['id'].str.replace('-', '') + '/'
+      prefix + str(self.cik) + '/' + filings['id'].str.replace('-', '') + '/'
     )
     mask = filings['date'] >= dt(2020, 7, 1)
     filings.loc[~mask, 'xbrl'] += (
@@ -169,108 +160,24 @@ class Company:
     filings.set_index('id', inplace=True)
     return cast(Series[str], filings['xbrl'])
 
-  def stock_splits(self) -> Series[float]:
-    field = 'StockholdersEquityNoteStockSplitConversionRatio1'
-    query = (
-      f'SELECT data FROM {self._cik} WHERE json_extract(data, "$.{field}") IS NOT NULL'
-    )
-    df_parse = cast(
-      DataFrame[str], read_sqlite('financials_scrap', query, dtype={'data': str})
-    )
-    fin_data = cast(list[FinData], df_parse['data'].apply(json.loads).to_list())
+  async def xbrl_urls(self, date: Optional[dt] = None) -> Series[str]:
+    try:
+      urls = self.xbrls(date)
 
-    df_data: list[StockSplit] = []
-    for data in fin_data:
-      df_data.extend(get_stock_splits(data))
+    except Exception:
+      filings = self.filings(['10-Q', '10-K'], date, True)
+      urls = await xbrl_urls(self.cik, filings.index.to_list(), 'htm')
 
-    df = pd.DataFrame(df_data)
-    df.drop_duplicates(inplace=True)
-    df.set_index('date', inplace=True)
+    return urls
 
-    return cast(Series[float], df['stock_split_ratio'])
-
-  async def financials(self, delta=120, date: Optional[str] = None):
-    async def fetch_urls(date: Optional[dt] = None) -> pd.Series:
-      try:
-        urls = self.xbrls(date)
-
-      except Exception:
-        filings = self.filings(['10-Q', '10-K'], date, True)
-        urls = await xbrl_urls(self._cik, filings.index.to_list(), 'htm')
-
-      return urls
-
-    def df_to_financials(df: DataFrame[FinancialsParse]) -> list[Financials]:
-      return [
-        Financials(
-          id=row['id'],
-          scope=row['scope'],
-          date=row['date'],
-          period=row['period'],
-          fiscal_end=row['fiscal_end'],
-          currency=row['currency'],
-          data=row['data'],
-        )
-        for row in df.to_dict('records')
-      ]
-
-    # Load financials
-    query = f'SELECT * FROM "{self._cik}" ORDER BY date ASC'
-    if date:
-      query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
-
-    df = cast(
-      DataFrame[FinancialsParse],
-      read_sqlite('financials_scrap.db', query, parse_dates=True),
-    )
-
-    if not df.empty:
-      last_date = df['date'].max()
-
-      if relativedelta(dt.now(), last_date).days < delta:
-        return df_to_financials(df)
-
-      new_filings = await fetch_urls(last_date)
-
-      if not new_filings:
-        return df_to_financials(df)
-
-      old_filings = set(df['id'])
-      filings_diff = set(new_filings.index).difference(old_filings)
-
-      if not filings_diff:
-        return df_to_financials(df)
-    else:
-      new_filings = await fetch_urls()
-
-    new_fin = await parse_statements(new_filings.tolist())
-    if new_fin:
-      upsert_financials('financials_scrap.db', str(self._cik), new_fin)
-
-    return [*new_fin, *df_to_financials(df)]
-
-  async def financials_to_df(self) -> pd.DataFrame:
-    financials = await self.financials()
-
-    dfs = []
-
-    for f in financials:
-      dfs.append(statement_to_df(f))
-
-    df = pd.concat(dfs, join='outer')
-    df.sort_index(level=0, ascending=True, inplace=True)
-    df = fix_financials_df(df)
-
-    ratios = self.stock_splits()
-    if ratios is not None:
-      df = stock_split_adjust(df, ratios)
-
-    return df
+  async def get_financials(self, date: Optional[dt] = None) -> list[RawFinancials]:
+    xbrls = await self.xbrl_urls(date)
+    return await parse_statements(xbrls.tolist())
 
   def get_calc_template(self, doc_id):
     ns = 'http://www.w3.org/1999/xlink'
 
-    url = xbrl_url(self._cik, doc_id)
+    url = xbrl_url(self.cik, doc_id)
     with httpx.Client() as client:
       rs = client.get(url, headers=HEADERS)
       root = et.fromstring(rs.content)
@@ -300,7 +207,7 @@ class Company:
       docs = self.filings(['10-K', '10-Q']).index
       tasks = []
       for doc in docs:
-        url = await xbrl_url(self._cik, doc, 'cal')
+        url = await xbrl_url(self.cik, doc, 'cal')
         if not url:
           continue
         tasks.append(asyncio.create_task(parse_taxonomy(url)))

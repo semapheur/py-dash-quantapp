@@ -3,7 +3,6 @@ from datetime import date as Date, datetime as dt
 from enum import Enum
 from functools import partial
 import re
-import sqlite3
 from typing import cast, Literal, TypeAlias
 import xml.etree.ElementTree as et
 
@@ -16,11 +15,10 @@ from tinydb import TinyDB
 
 # Local
 from lib.const import DB_DIR, HEADERS
-from lib.db.lite import read_sqlite, sqlite_name
 from lib.edgar.models import (
   CikEntry,
   CikFrame,
-  Financials,
+  RawFinancials,
   Instant,
   Interval,
   Item,
@@ -31,8 +29,6 @@ from lib.edgar.models import (
   StockSplit,
 )
 from lib.utils import (
-  combine_duplicate_columns,
-  df_time_difference,
   insert_characters,
   month_difference,
   fiscal_quarter,
@@ -100,14 +96,14 @@ async def xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
   return f'https://www.sec.gov{href}'
 
 
-async def parse_statements(urls: list[str]) -> list[Financials]:
+async def parse_statements(urls: list[str]) -> list[RawFinancials]:
   tasks = [partial(parse_statement, url) for url in urls]
   financials = await aiometer.run_all(tasks, max_per_second=10)
 
   return financials
 
 
-async def parse_statement(url: str) -> Financials:
+async def parse_statement(url: str) -> RawFinancials:
   def fix_data(data: FinData) -> FinData:
     fixed: FinData = {}
 
@@ -274,7 +270,7 @@ async def parse_statement(url: str) -> Financials:
 
   # Sort items
   data = fix_data(data)
-  return Financials(
+  return RawFinancials(
     id=doc_id,
     date=date.date(),
     scope=scope,
@@ -332,7 +328,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 
-def statement_to_df(financials: Financials) -> pd.DataFrame:
+def statement_to_df(financials: RawFinancials) -> pd.DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
       return period.end_date
@@ -388,143 +384,6 @@ def statement_to_df(financials: Financials) -> pd.DataFrame:
   df.index = pd.MultiIndex.from_tuples(df.index)
   df.index.names = ['date', 'period', 'months']
   return df
-
-
-def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
-  data: list[StockSplit] = []
-
-  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
-  splits = fin_data.get(name)
-  if splits is None:
-    return data
-
-  for entry in splits:
-    value = cast(float, entry.get('value'))
-
-    data.append(
-      StockSplit(
-        date=cast(Interval, entry['period']).start_date,
-        stock_split_ratio=value,
-      )
-    )
-  return data
-
-
-def fix_financials_df(df: pd.DataFrame) -> pd.DataFrame:
-  query = """
-    SELECT json_each.value AS gaap, item FROM items 
-    JOIN JSON_EACH(gaap) ON 1=1
-    WHERE gaap IS NOT NULL
-  """
-  items = read_sqlite('taxonomy.db', query)
-
-  df = df[list(set(df.columns).intersection(set(items['gaap'])))]
-
-  rename = {k: v for k, v in zip(items['gaap'], items['item'])}
-  df.rename(columns=rename, inplace=True)
-  df = combine_duplicate_columns(df)
-
-  query = 'SELECT item FROM items WHERE period = "duration"'
-  items = read_sqlite('taxonomy.db', query)
-  diff_items = list(set(items['item']).intersection(set(df.columns)))
-
-  conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
-
-  period = df.index.get_level_values('period')
-  months = df.index.get_level_values('months')
-  for i in range(1, len(conditions)):
-    mask = (period == conditions[i - 1][0]) & (months == conditions[i - 1][1]) | (
-      period == conditions[i][0]
-    ) & (months == conditions[i][1])
-    _df = df.loc[mask, diff_items]
-    _df.sort_index(level='date', inplace=True)
-
-    _df.loc[:, 'month_diff'] = df_time_difference(
-      cast(pd.DatetimeIndex, _df.index.get_level_values('date')), 30, 'D'
-    ).array
-
-    _df.loc[:, diff_items] = _df[diff_items].diff()
-    _df = _df.loc[_df['month_diff'] == 3, diff_items]
-
-    _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
-    _df.reset_index(level='months', inplace=True)
-    _df.loc[:, 'months'] = 3
-    _df.set_index('months', append=True, inplace=True)
-
-    if conditions[i][0] == 'FY':
-      _df.reset_index(level='period', inplace=True)
-      _df.loc[:, 'period'] = 'Q4'
-      _df.set_index('period', append=True, inplace=True)
-      _df = _df.reorder_levels(['date', 'period', 'months'])
-
-    df = df.combine_first(_df)
-
-  mask = (months == 3) & (period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) | (months == 12) & (
-    period == 'FY'
-  )
-
-  # df.reset_index(level='months', inplace=True)
-  # df.loc[df['months'] == 12,'months'] = 'a'
-  # df.loc[df['months'] == 3,'months'] = 'q'
-  # df.rename(columns={'months': 'scope'}, inplace=True)
-  # df.set_index('scope', append=True, inplace=True)
-
-  df = df.loc[mask, :]
-
-  return df.copy()
-
-
-def upsert_financials(
-  db_name: str,
-  table: str,
-  financials: list[Financials],
-):
-  db_path = DB_DIR / sqlite_name(db_name)
-
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
-
-  cur.execute(
-    f"""CREATE TABLE IF NOT EXISTS "{table}"(
-    id TEXT PRIMARY KEY,
-    scope TEXT,
-    date TEXT,
-    period TEXT,
-    fiscal_end TEXT,
-    currency JSON,
-    data JSON
-  )"""
-  )
-
-  query = f"""INSERT INTO 
-    "{table}" VALUES (:id, :scope, :date, :period, :fiscal_end, :currency, :data)
-    ON CONFLICT (id) DO UPDATE SET  
-      data=json_patch(data, excluded.data),
-      currency=(
-        SELECT json_group_array(value)
-        FROM (
-          SELECT json_each.value
-          FROM json_each(currency)
-          WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
-        )
-      )
-  """
-  cur.executemany(query, [f.model_dump() for f in financials])
-
-  con.commit()
-  con.close()
-
-
-def select_financials(db_name: str, table: str) -> list[Financials]:
-  db_path = DB_DIR / sqlite_name(db_name)
-
-  with sqlite3.connect(db_path) as conn:
-    cur = conn.cursor()
-    cur.row_factory = lambda cursor, row: Financials(**row)
-
-    financials: list[Financials] = cur.execute(f'SELECT * FROM "{table}"').fetchall()
-
-  return financials
 
 
 def get_ciks() -> DataFrame[CikFrame]:
