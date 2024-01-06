@@ -139,14 +139,14 @@ async def parse_statement(url: str) -> RawFinancials:
     )
 
   def parse_unit(unit: str) -> str:
-    if '_' not in unit:
-      return unit.lower()
+    unit_ = unit.split('_')[-1].lower()
 
-    return unit.split('_')[-1].lower()
-
-  def check_currency(unit: str) -> bool:
     pattern = r'(?<=^iso4217)?[a-z]{3}$'
-    return re.match(pattern, unit) is not None
+    m = re.search(pattern, unit_, flags=re.I)
+    if m is not None:
+      currency.add(m.group())
+
+    return unit_
 
   def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
     def parse_name(name: str) -> str:
@@ -154,8 +154,6 @@ async def parse_statement(url: str) -> RawFinancials:
       return name.split(':')[-1]
 
     unit = parse_unit(item.attrib['unitRef'])
-    if check_currency(unit):
-      currency.add(unit)
 
     return {
       parse_name(cast(str, segment.text)): Member(
@@ -203,7 +201,7 @@ async def parse_statement(url: str) -> RawFinancials:
     fiscal_period = cast(FiscalPeriod, fiscal_quarter(date, month, day))
 
   doc_id = url.split('/')[-2]
-  currency = set()
+  currency: set[str] = set()
   data: FinData = {}
 
   for item in root.findall('.//*[@unitRef]'):
@@ -229,9 +227,6 @@ async def parse_statement(url: str) -> RawFinancials:
     else:
       scrap['value'] = float(item.text)
       unit = parse_unit(item.attrib['unitRef'])
-      if check_currency(unit):
-        currency.add(unit)
-
       scrap['unit'] = unit
 
     item_name = item.tag.split('}')[-1]
