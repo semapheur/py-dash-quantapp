@@ -173,6 +173,7 @@
     }
   },
   "tangible_common_equity": {
+    "value": "monetary",
     "label": {
       "long": "Tangible Common Equity"
     },
@@ -1004,8 +1005,7 @@
     "value": "monetary",
     "period": "instant",
     "label": {
-      "long": "",
-      "short": "Work-in-process"
+      "long": "Work-in-process"
     }
   },
   "work_in_progress_raw_materials": {

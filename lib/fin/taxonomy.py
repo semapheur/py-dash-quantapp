@@ -1,121 +1,108 @@
-from typing import Optional, TypedDict
+from typing import Literal, Optional, TypedDict
 import json
 import sqlite3
 
 from glom import glom
 import pandas as pd
+from pydantic import BaseModel
 from sqlalchemy import create_engine, TEXT
+
 
 class Template(TypedDict):
   income: dict[str, int]
   balance: dict[str, int]
   cashflow: dict[str, int]
 
-class TaxonomyLabel(TypedDict):
-  long: str
-  short: str
 
-class TaxononmyCalculation(TypedDict):
+class TaxonomyLabel(BaseModel):
+  long: str
+  short: Optional[str] = None
+
+
+class TaxononmyCalculation(BaseModel):
   order: int
   all: Optional[dict[str, int]]
   any: Optional[dict[str, int]]
 
-class TaxonomyItem(TypedDict):
+
+class TaxonomyItem(BaseModel):
+  unit: Literal['monetary', 'fundamental', 'price_fundamental', 'shares']
+  period: Literal['instant', 'duration', 'average']
   gaap: list[str]
   label: TaxonomyLabel
-  calculation: Optional[TaxononmyCalculation]
+  calculation: Optional[TaxononmyCalculation] = None
 
-class Taxonomy:
-  _data: dict[str, TaxonomyItem]
 
-  def __init__(self, 
-    path: str = 'lex/fin_taxonomy.json', 
-    _filter: Optional[set[str]] = None
-  ):
-    with open(path, 'r') as file:
-      self._data = json.load(file)
+class Taxonomy(BaseModel):
+  data: dict[str, TaxonomyItem]
 
-    if _filter:
-      new_keys = set(self._data.keys()).intersection(_filter)
+  def filter_items(self, filter_: set[str]):
+    new_keys = set(self.data.keys()).intersection(filter_)
+    self.data = {key: value for key, value in self.data.items() if key in new_keys}
 
-      self._data = {
-        key: value for key, value in self._data.items() 
-        if key in new_keys
-      }
-
-  @property
-  def data(self):
-    return self._data
-  
-  def select_items(self, query: dict[str, str]) -> set[str]:
-    target_key, target_value = query.popitem()
-
+  def select_items(self, target_key, target_value: tuple[str, str]) -> set[str]:
     result = {
-      k for k, v in self._data.items()
-      if glom(v, target_key) == target_value
+      k
+      for k, v in self.data.items()
+      if glom(v.model_dump(), target_key) == target_value
     }
     return result
 
-  def rename_schema(self, source: str) -> dict[str, str]:
+  def rename_schema(self) -> dict[str, str]:
     schema = {
-      name: key for key, values in self._data.items()
-      if (names := values.get(source)) for name in names
+      name: k for k, v in self.data.items() if (names := v.gaap) for name in names
     }
     return schema
-  
-  def item_names(self, source: str) -> set[str]:
-    names = {
-      name for values in self._data.values()
-      if (names := values.get(source)) for name in names
-    }
-    return names
-  
-  def labels(self) -> pd.DataFrame:
-    df_data = [
-      (key, value['label'].get('long', ''), value['label'].get('short', '')) 
-      for key, value in self._data.items()
-    ]
-    return pd.DataFrame(df_data, columns=['item', 'long', 'short'])
-    
-  def calculation_schema(
-    self, 
-    select: Optional[set[str]] = None
-  ) -> dict[str, TaxononmyCalculation]:
 
-    keys = set(self._data.keys())
+  def item_names(self) -> set[str]:
+    names = {name for v in self.data.values() if (names := v.gaap) for name in names}
+    return names
+
+  def labels(self) -> pd.DataFrame:
+    df_data = [(k, v.label.long) for k, v in self.data.items()]
+    return pd.DataFrame(df_data, columns=['item', 'long', 'short'])
+
+  def calculation_schema(
+    self, select: Optional[set[str]] = None
+  ) -> dict[str, TaxononmyCalculation]:
+    keys = set(self.data.keys())
     if select:
       keys = keys.intersection(select)
+      if not keys:
+        return {}
 
     schema = {
-      key: calc for key in keys if (calc := self._data[key].get('calculation'))
+      key: calc for key in keys if (calc := self.data[key].calculation) is not None
     }
     return schema
 
-  def extra_calculation_schema(self, source: str) -> dict[str, TaxononmyCalculation]:
-    schema =  {
-      key: calc for key, value in self._data.items() 
-      if not value.get(source) and (calc := value.get('calculation'))
+  def extra_calculation_schema(self) -> dict[str, TaxononmyCalculation]:
+    schema = {
+      k: calc
+      for k, v in self.data.items()
+      if v.gaap is not None and (calc := v.calculation)
     }
     return schema
-  
-  def to_records(self) -> list[tuple[str|None]]:
-    result: list[tuple[str|None]] = []
-    for k, v in self._data.items():
-      if (gaap := v.get('gaap')) is not None:
-        gaap = json.dumps(gaap)
 
-      if (calc := v.get('calculation')) is not None:
-        calc = json.dumps(calc)
+  def to_records(
+    self,
+  ):
+    result = []
+    for k, v in self.data.items():
+      gaap = json.dumps(v.gaap) if v.gaap is not None else None
+      calc = json.dumps(v.calculation) if v.calculation is not None else None
 
-      result.append((
-        k,
-        v.get('value'),
-        v.get('period'), 
-        v['label'].get('long'),
-        v['label'].get('short'),
-        gaap,
-        calc
-      ))
+      result.append(
+        (
+          k,
+          v.unit,
+          v.period,
+          v.label.long,
+          v.label.short,
+          gaap,
+          calc,
+        )
+      )
 
     return result
 
@@ -127,14 +114,12 @@ class Taxonomy:
     df = pd.DataFrame(data, columns=columns)
 
     with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql('items', 
-        con=con, 
-        if_exists='replace', 
+      df.to_sql(
+        'items',
+        con=con,
+        if_exists='replace',
         index=False,
-        dtype={
-          'gaap': TEXT,
-          'calculation': TEXT
-        }
+        dtype={'gaap': TEXT, 'calculation': TEXT},
       )
 
   def to_sqlite(self, db_path: str):
@@ -154,17 +139,30 @@ class Taxonomy:
     fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
 
     values = self.to_records()
-    #with engine.connect() as con:
     cur.execute('DROP TABLE IF EXISTS items')
     cur.execute(f'CREATE TABLE IF NOT EXISTS items ({fields_text})')
     con.commit()
 
-    query = f'''INSERT INTO items 
+    query = f"""INSERT INTO items 
       ({columns}) VALUES (?,?,?,?,?,?)
-    '''
+    """
     cur.executemany(query, values)
     con.commit()
     con.close()
+
+
+def load_taxonomy(
+  path: str = 'lex/fin_taxonomy.json', filter_: Optional[set[str]] = None
+) -> Taxonomy:
+  with open(path, 'r') as file:
+    data = json.load(file)
+
+  taxonomy = Taxonomy(data=data)
+  if filter_ is not None:
+    taxonomy.filter_items(filter_)
+
+  return taxonomy
+
 
 def load_template(cat: str) -> pd.DataFrame:
   with open('lex/fin_template.json', 'r') as file:
@@ -173,23 +171,21 @@ def load_template(cat: str) -> pd.DataFrame:
   template = template[cat]
 
   if cat == 'statement':
-    data = [
-      (sheet, item, level) for sheet, values in template.items() 
+    data: list = [
+      (sheet, item, level)
+      for sheet, values in template.items()
       for item, level in values.items()
     ]
-    cols = ('sheet', 'item', 'level')
+    cols: tuple = ('sheet', 'item', 'level')
 
   elif cat == 'fundamentals':
-    data = [
-      (sheet, item) for sheet, values in template.items()
-      for item in values
-    ]
+    data = [(sheet, item) for sheet, values in template.items() for item in values]
     cols = ('sheet', 'item')
 
   elif cat == 'sankey':
     data = [
-      (sheet, item, entry.get('color', ''), entry.get('links')) 
-      for sheet, values in template.items() 
+      (sheet, item, entry.get('color', ''), entry.get('links'))
+      for sheet, values in template.items()
       for item, entry in values.items()
     ]
     cols = ('sheet', 'item', 'color', 'links')
@@ -200,16 +196,15 @@ def load_template(cat: str) -> pd.DataFrame:
 
   return pd.DataFrame(data, columns=cols)
 
+
 def template_to_sql(db_path: str):
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
   dtypes = {
     'statement': {},
     'fundamentals': {},
-    'sankey': {
-      'links': TEXT
-    },
-    'dupont': {}
+    'sankey': {'links': TEXT},
+    'dupont': {},
   }
 
   for template in ('statement', 'fundamentals', 'sankey', 'dupont'):
@@ -220,13 +215,9 @@ def template_to_sql(db_path: str):
       df.loc[mask, 'links'] = df.loc[mask, 'links'].apply(lambda x: json.dumps(x))
 
     with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(template, 
-        con=con, 
-        if_exists='replace', 
-        index=False, 
-        dtype=dtypes[template]
-      )
-  
+      df.to_sql(template, con=con, if_exists='replace', index=False)
+
+
 def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
   template = template.merge(taxonomy.labels(), on='item', how='left')
   mask = template['short'] == ''
