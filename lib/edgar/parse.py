@@ -11,13 +11,15 @@ import aiometer
 import httpx
 import bs4 as bs
 import pandas as pd
-from pandera.typing import Series
+from pandera.typing import DataFrame, Series
 from tinydb import TinyDB
 
 # Local
 from lib.const import DB_DIR, HEADERS
 from lib.db.lite import read_sqlite, sqlite_name
 from lib.edgar.models import (
+  CikEntry,
+  CikFrame,
   Financials,
   Instant,
   Interval,
@@ -105,6 +107,30 @@ async def parse_statements(urls: list[str]) -> list[Financials]:
 
 
 async def parse_statement(url: str) -> Financials:
+  def fix_data(data: FinData) -> FinData:
+    fixed: FinData = {}
+
+    for k in sorted(data.keys()):
+      temp: list[Item] = []
+
+      for item in data[k]:
+        if not ('value' not in item and len(cast(dict, item.get('members', {}))) == 1):
+          temp.append(item)
+          continue
+
+        member = next(iter(cast(dict[str, Member], item['members']).values()))
+        temp.append(
+          Item(
+            period=item['period'],
+            value=cast(float | int, member.get('value')),
+            unit=cast(str, member.get('unit')),
+          )
+        )
+
+      fixed[k] = temp
+
+    return fixed
+
   def parse_period(period: et.Element) -> Instant | Interval:
     if (el := period.find('./{*}instant')) is not None:
       return Instant(instant=dt.strptime(cast(str, el.text), '%Y-%m-%d').date())
@@ -184,7 +210,7 @@ async def parse_statement(url: str) -> Financials:
 
   doc_id = url.split('/')[-2]
   currency = set()
-  data: dict[str, list[Item]] = {}
+  data: FinData = {}
 
   for item in root.findall('.//*[@unitRef]'):
     if item.text is None:
@@ -221,6 +247,7 @@ async def parse_statement(url: str) -> Financials:
 
     try:
       entry = next(i for i in data[item_name] if i['period'] == scrap['period'])
+
       if 'members' in scrap:
         cast(dict[str, Member], entry.setdefault('members', {})).update(
           cast(dict[str, Member], scrap['members'])
@@ -231,7 +258,7 @@ async def parse_statement(url: str) -> Financials:
       data[item_name].append(scrap)
 
   # Sort items
-  data = {k: data[k] for k in sorted(data.keys())}
+  data = fix_data(data)
   return Financials(
     id=doc_id,
     date=date.date(),
@@ -485,20 +512,20 @@ def select_financials(db_name: str, table: str) -> list[Financials]:
   return financials
 
 
-def get_ciks():
+def get_ciks() -> DataFrame[CikFrame]:
   rnm = {'cik_str': 'cik', 'title': 'name'}
 
   url = 'https://www.sec.gov/files/company_tickers.json'
 
   with httpx.Client() as s:
     rs = s.get(url, headers=HEADERS)
-    parse = rs.json()
+    parse: dict[str, CikEntry] = rs.json()
 
   df = pd.DataFrame.from_dict(parse, orient='index')
   df.rename(columns=rnm, inplace=True)
   df.set_index('cik', inplace=True)
 
-  return df
+  return cast(DataFrame[CikFrame], df)
 
 
 def all_gaap_items() -> set[str]:

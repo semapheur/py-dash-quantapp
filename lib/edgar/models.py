@@ -10,12 +10,11 @@ from pydantic import (
   ValidationInfo,
   field_serializer,
   field_validator,
-  model_serializer,
 )
 from pandas import DatetimeIndex
 from pandera import DataFrameModel, Field
 from pandera.dtypes import Timestamp
-from pandera.typing import Index
+from pandera.typing import Index, Object
 
 Scope: TypeAlias = Literal['annual', 'quarterly']
 Quarter: TypeAlias = Literal['Q1', 'Q2', 'Q3', 'Q4']
@@ -126,14 +125,14 @@ class Financials(BaseModel):
     return json.dumps(obj)
 
 
-class FinancialsFrame(DataFrameModel):
+class FinancialsParse(DataFrameModel):
   id: Optional[str] = Field(unique=True)
-  scope: Scope
+  scope: str = Field(isin={'annual', 'quarterly'})
   date: Timestamp
-  period: FiscalPeriod
+  period: str = Field(isin={'FY', 'Q1'})
   fiscal_end: Optional[str]
-  currency: set[str]
-  data: FinData
+  currency: Object
+  data: Object
 
 
 class StockSplit(BaseModel):
@@ -180,26 +179,13 @@ class Filings(TypedDict):
   files: Optional[list[File]]
 
 
-"""
-<Schema DataFrameSchema(
-    columns={
-        'id': <Schema Column(name=id, type=DataType(object))>
-        'scope': <Schema Column(name=scope, type=DataType(object))>
-        'date': <Schema Column(name=date, type=DataType(datetime64[ns]))>
-        'period': <Schema Column(name=period, type=DataType(object))>
-        'fiscal_end': <Schema Column(name=fiscal_end, type=DataType(object))>
-        'currency': <Schema Column(name=currency, type=DataType(object))>
-        'data': <Schema Column(name=data, type=DataType(object))>
-    },
-    checks=[],
-    coerce=True,
-    dtype=None,
-    index=<Schema Index(name=None, type=DataType(int64))>,
-    strict=False,
-    name=None,
-    ordered=False,
-    unique_column_names=False,
-    metadata=None, 
-    add_missing_columns=False
-)>
-"""
+class CikEntry(TypedDict):
+  cik_str: int
+  ticker: str
+  title: str
+
+
+class CikFrame(DataFrameModel):
+  cik_str: Index[int]
+  ticker: str
+  title: str

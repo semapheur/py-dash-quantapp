@@ -3,12 +3,11 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import json
 import re
-from typing import cast, Literal, Optional, TypedDict
+from typing import cast, Literal, Optional
 import xml.etree.ElementTree as et
 
 import pandas as pd
 import pandera as pa
-from pandera.engines import pandas_engine
 from pandera.typing import DataFrame, Index, Series, DateTime
 from pydantic import BaseModel
 import httpx
@@ -16,7 +15,14 @@ import httpx
 # Local
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
-from lib.edgar.models import Financials, Filings, Recent, StockSplit, FinData
+from lib.edgar.models import (
+  Financials,
+  Filings,
+  FinancialsParse,
+  Recent,
+  StockSplit,
+  FinData,
+)
 from lib.edgar.parse import (
   fix_financials_df,
   get_stock_splits,
@@ -194,43 +200,54 @@ class Company:
 
       return urls
 
-    # def df_to_financials(df: DataFrame) -> list[Financials]:
-    #  df.loc['date'] = df.loc[:, 'date'].apply(pd.to_datetime)
-    #  df.loc['currency'] = df.loc[:, 'currency'].apply(json.loads)
-    #  df.loc['data'] = df.loc[:, 'data'].apply(json.loads)
-    #  return [Financials(**row) for row in df.to_dict('records')]
+    def df_to_financials(df: DataFrame[FinancialsParse]) -> list[Financials]:
+      return [
+        Financials(
+          id=row['id'],
+          scope=row['scope'],
+          date=row['date'],
+          period=row['period'],
+          fiscal_end=row['fiscal_end'],
+          currency=row['currency'],
+          data=row['data'],
+        )
+        for row in df.to_dict('records')
+      ]
 
     # Load financials
     query = f'SELECT * FROM "{self._cik}" ORDER BY date ASC'
     if date:
       query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
 
-    financials = read_sqlite('financials_scrap.db', query, parse_dates=True)
+    df = cast(
+      DataFrame[FinancialsParse],
+      read_sqlite('financials_scrap.db', query, parse_dates=True),
+    )
 
-    if not financials.empty:
-      last_date = financials['date'].max()
+    if not df.empty:
+      last_date = df['date'].max()
 
       if relativedelta(dt.now(), last_date).days < delta:
-        return financials
+        return df_to_financials(df)
 
       new_filings = await fetch_urls(last_date)
 
       if not new_filings:
-        return financials
+        return df_to_financials(df)
 
-      old_filings = set(financials['id'])
+      old_filings = set(df['id'])
       filings_diff = set(new_filings.index).difference(old_filings)
 
       if not filings_diff:
-        return financials
+        return df_to_financials(df)
     else:
       new_filings = await fetch_urls()
 
-    new_financials = await parse_statements(new_filings.tolist())
-    if new_financials:
-      upsert_financials('financials_scrap.db', str(self._cik), new_financials)
+    new_fin = await parse_statements(new_filings.tolist())
+    if new_fin:
+      upsert_financials('financials_scrap.db', str(self._cik), new_fin)
 
-    return new_financials
+    return [*new_fin, *df_to_financials(df)]
 
   async def financials_to_df(self) -> pd.DataFrame:
     financials = await self.financials()
@@ -278,7 +295,7 @@ class Company:
 
     return calc
 
-  async def get_taxonomy(self):
+  async def get_taxonomy(self) -> DataFrame:
     async def fetch():
       docs = self.filings(['10-K', '10-Q']).index
       tasks = []
