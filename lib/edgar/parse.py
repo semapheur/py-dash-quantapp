@@ -26,35 +26,12 @@ from lib.edgar.models import (
   Scope,
   FiscalPeriod,
   FinData,
-  StockSplit,
 )
 from lib.utils import (
   insert_characters,
   month_difference,
   fiscal_quarter,
 )
-
-
-UNIT_BLACKLIST = {
-  'contract',
-  'country',
-  'county',
-  'customer',
-  'day',
-  'item',
-  'month',
-  'number',
-  'obligation',
-  'performanceobligation',
-  'pure',
-  'shares',
-  'store',
-  'subsidiary',
-  'vendor',
-  'usdpershare',
-  'usdpershareitemtype',
-  'year',
-}
 
 
 class ScopeEnum(Enum):
@@ -65,8 +42,10 @@ class ScopeEnum(Enum):
 Docs: TypeAlias = Literal['cal', 'def', 'htm', 'lab', 'pre']
 
 
-async def xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Series[str]:
-  tasks = [asyncio.create_task(xbrl_url(cik, doc_id, doc_type)) for doc_id in doc_ids]
+async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Series[str]:
+  tasks = [
+    asyncio.create_task(parse_xbrl_url(cik, doc_id, doc_type)) for doc_id in doc_ids
+  ]
   urls = await asyncio.gather(*tasks)
 
   result = pd.Series(urls, index=doc_ids)
@@ -75,22 +54,22 @@ async def xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Series[str]
   return result
 
 
-async def xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
-  url = (
-    'https://www.sec.gov/Archives/edgar/data/'
-    f"{cik}/{doc_id.replace('-', '')}/{doc_id}-index.htm"
-  )
+async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
+  url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{doc_id.replace('-', '')}/{doc_id}-index.html"
   async with httpx.AsyncClient() as client:
     rs = await client.get(url, headers=HEADERS)
+    if rs.status_code != 200:
+      raise httpx.RequestError(f'Error: {rs.text}')
     parse = bs.BeautifulSoup(rs.text, 'lxml')
 
+  data_files = cast(bs.Tag, parse.find('table', {'summary': 'Data Files'}))
   if doc_type == 'htm':
     pattern = r'(?<!_(cal|def|lab|pre)).xml$'
   else:
     pattern = rf'_{doc_type}.xml$'
 
-  a_node = parse.find('a', href=re.compile(pattern))
-  assert a_node is not None, 'a tag containing XBRL href not found'
+  a_node = data_files.find('a', href=re.compile(pattern))
+  assert a_node is not None, f'a tag containing XBRL href not found from {url}'
 
   href = cast(bs.Tag, a_node).get('href')
   return f'https://www.sec.gov{href}'
@@ -165,13 +144,17 @@ async def parse_statement(url: str) -> RawFinancials:
 
     return unit.split('_')[-1].lower()
 
+  def check_currency(unit: str) -> bool:
+    pattern = r'(?<=^iso4217)?[a-z]{3}$'
+    return re.match(pattern, unit) is not None
+
   def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
     def parse_name(name: str) -> str:
       name = re.sub(r'(Segment)?Member', '', name)
       return name.split(':')[-1]
 
     unit = parse_unit(item.attrib['unitRef'])
-    if unit not in UNIT_BLACKLIST:
+    if check_currency(unit):
       currency.add(unit)
 
     return {
@@ -191,7 +174,7 @@ async def parse_statement(url: str) -> RawFinancials:
   if root.tag == 'Error':
     cik, doc_id = url.split('/')[6:8]
     doc_id = insert_characters(doc_id, {'-': [10, 12]})
-    url = await xbrl_url(int(cik), doc_id)
+    url = await parse_xbrl_url(int(cik), doc_id)
     root = await fetch(url)
 
   form = {'10-K': 'annual', '10-Q': 'quarterly'}
@@ -246,7 +229,7 @@ async def parse_statement(url: str) -> RawFinancials:
     else:
       scrap['value'] = float(item.text)
       unit = parse_unit(item.attrib['unitRef'])
-      if unit not in UNIT_BLACKLIST:
+      if check_currency(unit):
         currency.add(unit)
 
       scrap['unit'] = unit

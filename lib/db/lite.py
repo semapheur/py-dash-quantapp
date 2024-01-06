@@ -1,3 +1,4 @@
+import re
 import sqlite3
 from typing import Literal, Optional
 
@@ -6,6 +7,15 @@ from pandas._typing import DtypeArg
 from sqlalchemy import create_engine, inspect, text, Engine, TextClause  # event
 
 from lib.const import DB_DIR
+
+
+def sql_table(query: str):
+  pattern = r'\bFROM (\'|")?(\w+?)(\'|")?\b'
+  m = re.search(pattern, query)
+  if m is None:
+    raise ValueError(f'Could not parse table name from the query: {query}')
+
+  return m.group(2)
 
 
 def check_table(tables: str | set[str], engine: Engine) -> bool:
@@ -59,7 +69,10 @@ def read_sqlite(
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
-  if insp.get_table_names() == []:
+  table = sql_table(str(query))
+  tables = insp.get_table_names()
+
+  if tables == [] or table not in set(tables):
     return pd.DataFrame()
 
   parser = None

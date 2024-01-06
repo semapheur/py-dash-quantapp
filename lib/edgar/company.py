@@ -21,8 +21,8 @@ from lib.edgar.models import (
   Recent,
 )
 from lib.edgar.parse import (
-  xbrl_url,
-  xbrl_urls,
+  parse_xbrl_url,
+  parse_xbrl_urls,
   parse_statements,
   parse_taxonomy,
 )
@@ -166,7 +166,7 @@ class Company:
 
     except Exception:
       filings = self.filings(['10-Q', '10-K'], date, True)
-      urls = await xbrl_urls(self.cik, filings.index.to_list(), 'htm')
+      urls = await parse_xbrl_urls(self.cik, filings.index.to_list(), 'htm')
 
     return urls
 
@@ -177,7 +177,7 @@ class Company:
   def get_calc_template(self, doc_id):
     ns = 'http://www.w3.org/1999/xlink'
 
-    url = xbrl_url(self.cik, doc_id)
+    url = parse_xbrl_url(self.cik, doc_id)
     with httpx.Client() as client:
       rs = client.get(url, headers=HEADERS)
       root = et.fromstring(rs.content)
@@ -207,7 +207,7 @@ class Company:
       docs = self.filings(['10-K', '10-Q']).index
       tasks = []
       for doc in docs:
-        url = await xbrl_url(self.cik, doc, 'cal')
+        url = await parse_xbrl_url(self.cik, doc, 'cal')
         if not url:
           continue
         tasks.append(asyncio.create_task(parse_taxonomy(url)))
@@ -248,38 +248,3 @@ def process_taxonomy():
 
   df = df[['sheet', 'item', 'parent_', 'parent', 'label', 'gaap']]
   df.to_csv('fin_taxonomy.csv', index=False)
-
-
-"""
-# Convert multi-quarterly figures to quarterly ones
-excl = ['sh', 'shDil', 'taxRate']
-for p in range(2,5):
-    
-  # Extract multi-quarterly figures
-  dfMq = df.loc[(slice(None), f'{p}q'), :].dropna(axis=1, how='all')
-  dfMq = dfMq[dfMq.columns.difference(excl)]
-  dfMq.reset_index('period', inplace=True)
-  dfMq['period'] = 'q'
-  dfMq.set_index('period', append=True, inplace=True)
-
-  # Extract quarterly figures
-  dates = dfMq.index.get_level_values('date')
-
-  if p == 2:
-      dfQ = df.loc[(slice(None), 'q'), dfMq.columns].shift(1)
-  
-  else:
-    dfQ = df.loc[(slice(None), 'q'), dfMq.columns]\
-      .rolling(p-1, min_periods=p-1).sum().shift(1)
-  
-  dfQ = dfQ.loc[(dates, slice(None)), :]
-
-  # Calculate quarterly figures
-  dfMq = dfMq - dfQ
-
-  df.update(dfMq, overwrite=False) # Upsert
-
-if {'2q', '3q', '4q'}.intersection(set(df.index.get_level_values('period'))):
-  df = df.loc[(slice(None), ['a', 'q']), :]
-
-"""
