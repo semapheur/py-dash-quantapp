@@ -200,13 +200,6 @@ def load_template(cat: str) -> pd.DataFrame:
 def template_to_sql(db_path: str):
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
-  dtypes = {
-    'statement': {},
-    'fundamentals': {},
-    'sankey': {'links': TEXT},
-    'dupont': {},
-  }
-
   for template in ('statement', 'fundamentals', 'sankey', 'dupont'):
     df = load_template(template)
 
