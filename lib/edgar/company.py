@@ -15,11 +15,7 @@ import httpx
 # Local
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
-from lib.edgar.models import (
-  RawFinancials,
-  Filings,
-  Recent,
-)
+from lib.edgar.models import RawFinancials, Recent, CompanyInfo
 from lib.edgar.parse import (
   parse_xbrl_url,
   parse_xbrl_urls,
@@ -72,26 +68,35 @@ class Company:
   def padded_cik(self):
     return str(self.cik).zfill(10)
 
+  def info(self) -> CompanyInfo:
+    url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
+    with httpx.Client() as client:
+      rs = client.get(url, headers=HEADERS)
+      parse = CompanyInfo(**rs.json())
+
+    return parse
+
   def filings(
     self,
     forms: Optional[list[str]] = None,
     date: Optional[dt] = None,
     filter_xbrl: bool = False,
   ) -> DataFrame[FilingsFrame]:
-    def fetch(url: str) -> dict:
+    def fetch_files(file_name: str) -> Recent:
+      url = f'https://data.sec.gov/submissions/{file_name}'
       with httpx.Client() as client:
         rs = client.get(url, headers=HEADERS)
-        parse: dict = rs.json()
+        parse = Recent(**rs.json())
 
       return parse
 
     def json_to_df(filings: Recent) -> DataFrame[FilingsFrame]:
       data = {
-        'id': filings.get('accessionNumber'),
-        'date': filings.get('reportDate'),
-        'form': filings.get('form'),
-        'primary_document': filings.get('primaryDocument'),
-        'is_XBRL': filings.get('isXBRL'),
+        'id': filings.accessionNumber,
+        'date': filings.reportDate,
+        'form': filings.form,
+        'primary_document': filings.primaryDocument,
+        'is_xbrl': filings.isXBRL,
       }
       df = pd.DataFrame(data)
       df.set_index('id', inplace=True)
@@ -100,19 +105,14 @@ class Company:
 
     dfs: list[DataFrame[FilingsFrame]] = []
 
-    url = f'https://data.sec.gov/submissions/CIK{self.padded_cik()}.json'
-    parse = fetch(url)
-    if (filings := cast(Filings | None, parse.get('filings'))) is None:
-      raise ValueError(f'JSON has no filings: {parse}')
+    info = self.info()
 
-    recent = filings['recent']
+    recent = info.filings.recent
     dfs.append(json_to_df(recent))
 
-    if (files := filings.get('files')) is not None:
-      for f in files:
-        url = f'https://data.sec.gov/submissions/{f.get("name")}'
-        recent = cast(Recent, fetch(url))
-        dfs.append(json_to_df(recent))
+    for f in info.filings.files:
+      recent = fetch_files(f.name)
+      dfs.append(json_to_df(recent))
 
     if len(dfs) == 1:
       df = dfs.pop()
