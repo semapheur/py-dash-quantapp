@@ -9,6 +9,29 @@ from sqlalchemy import create_engine, inspect, text, Engine, TextClause  # event
 from lib.const import DB_DIR
 
 
+def empty_tables(db_name: str) -> list[str]:
+  db_path = DB_DIR / sqlite_name(db_name)
+
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
+
+  cur.execute('SELECT name FROM sqlite_master WHERE type="table"')
+  tables = cur.fetchall()
+
+  result: list[str] = []
+  for table in tables:
+    table_name = table[0]
+    cur.execute(f'SELECT COUNT(*) FROM "{table_name}"')
+    row_count = cur.fetchone()[0]
+
+    if row_count == 0:
+      result.append(table[0])
+
+  con.close()
+
+  return result
+
+
 def sql_table(query: str):
   pattern = r'\bFROM (\'|")?(\w+?)(\'|")?\b'
   m = re.search(pattern, query)

@@ -33,6 +33,7 @@ from lib.utils import (
   month_difference,
   fiscal_quarter,
   validate_currency,
+  replace_all,
 )
 
 
@@ -174,7 +175,9 @@ async def parse_statement(url: str) -> RawFinancials:
       else:
         unit_ = unit.split('_')[-1].lower()
 
-    pattern = r'(?<=^iso4217)?[a-z]{3}$'
+    unit_ = replace_all(unit_, {'iso4217': '', 'dollar': 'd'})
+
+    pattern = r'^[a-z]{3}$'
     m = re.search(pattern, unit_, flags=re.I)
     if m is not None:
       if validate_currency(m.group()):
@@ -210,7 +213,7 @@ async def parse_statement(url: str) -> RawFinancials:
     url = await parse_xbrl_url(int(cik), doc_id)
     root = await fetch(url)
 
-  form = {'10-K': 'annual', '10-Q': 'quarterly'}
+  form = {'10-K': 'annual', '20-F': 'annual', '10-Q': 'quarterly'}
 
   scope = cast(
     Scope, form[cast(str, cast(et.Element, root.find('.{*}DocumentType')).text)]

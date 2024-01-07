@@ -58,7 +58,7 @@ class FilingsFrame(pa.DataFrameModel):
   date: Series[Timestamp]
   form: Series[str]
   primary_document: Series[str]
-  is_XBRL: Series[Literal[0, 1]]
+  is_xbrl: Series[Literal[0, 1]]
 
 
 @dataclass(slots=True)
@@ -129,12 +129,12 @@ class Company:
       df = cast(DataFrame[FilingsFrame], df.loc[df['date'] > date])
 
     if filter_xbrl:
-      df = cast(DataFrame[FilingsFrame], df.loc[df['is_XBRL'].astype(bool)])
+      df = cast(DataFrame[FilingsFrame], df.loc[df['is_xbrl'].astype(bool)])
 
     return df
 
   def xbrls(self, date: Optional[dt] = None) -> Series[str]:
-    filings = self.filings(['10-K', '10-Q'], date, True)
+    filings = self.filings(['10-K', '10-Q', '20-F'], date, True)
 
     if filings['date'].max() < dt(2020, 7, 1):
       raise Exception('Not possible to find XBRL names')

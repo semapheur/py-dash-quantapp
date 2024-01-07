@@ -63,9 +63,9 @@ def minify_json(path: str | Path, new_name: Optional[str] = None):
     json.dump(data, f, separators=(',', ':'))
 
 
-def replace_all(text, dic):
-  for i, j in dic.items():
-    text = text.replace(i, j)
+def replace_all(text: str, replacements: dict[str, str]) -> str:
+  for k, v in replacements.items():
+    text = text.replace(k, v)
   return text
 
 

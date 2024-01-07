@@ -8,3 +8,5 @@ query = """
   """
 
 df = read_sqlite('ticker.db', query)
+
+faulty = ['0P0000BV6H', '0P0001691U', '0P0000BRJU', '0P0000C80Q']
