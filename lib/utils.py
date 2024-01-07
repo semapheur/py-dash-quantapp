@@ -1,4 +1,4 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, date as Date
 from dateutil.relativedelta import relativedelta
 import json
 import math
@@ -10,7 +10,7 @@ import httpx
 from iso4217 import Currency
 import numpy as np
 import pandas as pd
-from pandera.typing import DataFrame, Series
+from pandera.typing import Series
 from tqdm import tqdm
 from lib.const import HEADERS
 
@@ -128,7 +128,7 @@ def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-def month_difference(date1: dt, date2: dt) -> int:
+def month_difference(date1: dt | Date, date2: dt | Date) -> int:
   delta = relativedelta(max(date1, date2), min(date1, date2))
   return delta.years * 12 + delta.months + round(delta.days / 30)
 

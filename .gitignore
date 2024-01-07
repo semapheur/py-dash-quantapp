@@ -24,8 +24,6 @@
 .pnp.js
 pnpm-lock.yaml
 
-
-
 # python virtual environment
 /.venv
 /venv

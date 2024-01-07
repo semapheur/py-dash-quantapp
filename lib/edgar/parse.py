@@ -142,12 +142,10 @@ async def parse_statement(url: str) -> RawFinancials:
 
     months = month_difference(start_date, end_date)
 
-    return Interval(
-      start_date=start_date.date(), end_date=end_date.date(), months=months
-    )
+    return Interval(start_date=start_date, end_date=end_date, months=months)
 
   def parse_unit(unit: str) -> str:
-    if re.match(r'^Unit\d+$', unit) is not None:
+    if re.match(r'^U(nit)?\d+$', unit) is not None:
       unit_el = cast(et.Element, root.find(f'.{{*}}unit[@id="{unit}"]'))
 
       if unit_el is None:
