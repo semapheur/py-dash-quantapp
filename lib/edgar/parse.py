@@ -124,15 +124,21 @@ async def parse_statement(url: str) -> RawFinancials:
     return fixed
 
   def parse_period(period: et.Element) -> Instant | Interval:
-    if (el := period.find('./{*}instant')) is not None:
-      return Instant(instant=dt.strptime(cast(str, el.text), '%Y-%m-%d').date())
+    def parse_date(date_text: str):
+      m = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
+      if m is None:
+        raise ValueError(f'"{date_text}" does not match format "%Y-%m-%d"')
 
-    start_date = dt.strptime(
-      cast(str, cast(et.Element, period.find('./{*}startDate')).text), '%Y-%m-%d'
+      return dt.strptime(m.group(), '%Y-%m-%d').date()
+
+    if (el := period.find('./{*}instant')) is not None:
+      instant_date = parse_date(cast(str, el.text))
+      return Instant(instant=instant_date)
+
+    start_date = parse_date(
+      cast(str, cast(et.Element, period.find('./{*}startDate')).text)
     )
-    end_date = dt.strptime(
-      cast(str, cast(et.Element, period.find('./{*}endDate')).text), '%Y-%m-%d'
-    )
+    end_date = parse_date(cast(str, cast(et.Element, period.find('./{*}endDate')).text))
 
     months = month_difference(start_date, end_date)
 
