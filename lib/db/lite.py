@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 import sqlite3
 from typing import Literal, Optional
@@ -9,8 +10,17 @@ from sqlalchemy import create_engine, inspect, text, Engine, TextClause  # event
 from lib.const import DB_DIR
 
 
+def sqlite_path(db_name: str) -> Path:
+  if not db_name.endswith('.db'):
+    db_name += '.db'
+
+  db_path: Path = DB_DIR / db_name
+
+  return db_path
+
+
 def empty_tables(db_name: str) -> list[str]:
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
 
   con = sqlite3.connect(db_path)
   cur = con.cursor()
@@ -53,15 +63,8 @@ def check_table(tables: str | set[str], engine: Engine) -> bool:
   return tables.issubset(set(db_tables))
 
 
-def sqlite_name(db_name: str) -> str:
-  if not db_name.endswith('.db'):
-    return db_name + '.db'
-
-  return db_name
-
-
 def sqlite_vacuum(db_name: str):
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
   with engine.connect().execution_options(autocommit=True) as con:
@@ -88,7 +91,7 @@ def read_sqlite(
   dtype: Optional[DtypeArg] = None,
   date_parser: Optional[dict[str, dict[str, str]]] = None,
 ) -> pd.DataFrame:
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
@@ -119,7 +122,7 @@ def insert_sqlite(
   action: Literal['merge', 'replace'] = 'merge',
   index: bool = True,
 ) -> None:
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
@@ -150,7 +153,7 @@ def insert_sqlite(
 
 
 def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
 
@@ -242,7 +245,7 @@ def upsert_json(
   json_cols: dict[str, Literal['patch', 'unique']],
   records: list[tuple],
 ):
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
 
   with sqlite3.connect(db_path) as conn:
     cur = conn.cursor()

@@ -21,8 +21,8 @@ class TaxonomyLabel(BaseModel):
 
 class TaxononmyCalculation(BaseModel):
   order: int
-  all: Optional[dict[str, int]]
-  any: Optional[dict[str, int]]
+  all: Optional[str] = None
+  any: Optional[str] = None
 
 
 class TaxonomyItem(BaseModel):
@@ -44,7 +44,7 @@ class Taxonomy(BaseModel):
     result = {
       k
       for k, v in self.data.items()
-      if glom(v.model_dump(), target_key) == target_value
+      if glom(v.model_dump(exclude_none=True), target_key) == target_value
     }
     return result
 
