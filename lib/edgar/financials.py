@@ -22,13 +22,21 @@ from lib.edgar.parse import parse_statements, statement_to_df
 from lib.utils import combine_duplicate_columns, df_time_difference
 
 
+async def scrap_financials(cik: int, id_: str):
+  company = Company(cik)
+  filings = await company.xbrl_urls()
+
+  financials = await parse_statements(filings.tolist())
+  upsert_financials('financials_scrap.db', id_, financials)
+
+
 async def load_financials(
   cik: int, id_: str, delta=120, date: Optional[str] = None
 ) -> list[RawFinancials]:
   def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
     return [
       RawFinancials(
-        id=row['id'],
+        url=row['url'],
         scope=row['scope'],
         date=row['date'],
         period=row['period'],
@@ -213,7 +221,7 @@ def upsert_financials(
 
   cur.execute(
     f"""CREATE TABLE IF NOT EXISTS "{table}"(
-    id TEXT PRIMARY KEY,
+    url TEXT PRIMARY KEY,
     scope TEXT,
     date TEXT,
     period TEXT,
@@ -224,8 +232,8 @@ def upsert_financials(
   )
 
   query = f"""INSERT INTO 
-    "{table}" VALUES (:id, :scope, :date, :period, :fiscal_end, :currency, :data)
-    ON CONFLICT (id) DO UPDATE SET  
+    "{table}" VALUES (:url, :scope, :date, :period, :fiscal_end, :currency, :data)
+    ON CONFLICT (url) DO UPDATE SET  
       data=json_patch(data, excluded.data),
       currency=(
         SELECT json_group_array(value)

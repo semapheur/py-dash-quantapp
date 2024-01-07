@@ -7,6 +7,7 @@ from typing import cast, Literal, TypeAlias
 import xml.etree.ElementTree as et
 
 import aiometer
+import hishel
 import httpx
 import bs4 as bs
 import pandas as pd
@@ -31,6 +32,7 @@ from lib.utils import (
   insert_characters,
   month_difference,
   fiscal_quarter,
+  validate_currency,
 )
 
 
@@ -77,7 +79,7 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
 
 async def parse_statements(urls: list[str]) -> list[RawFinancials]:
   tasks = [partial(parse_statement, url) for url in urls]
-  financials = await aiometer.run_all(tasks, max_per_second=10)
+  financials = await aiometer.run_all(tasks, max_per_second=5)
 
   return financials
 
@@ -139,12 +141,40 @@ async def parse_statement(url: str) -> RawFinancials:
     )
 
   def parse_unit(unit: str) -> str:
-    unit_ = unit.split('_')[-1].lower()
+    if re.match(r'^Unit\d+$', unit) is not None:
+      unit_el = cast(et.Element, root.find(f'.{{*}}unit[@id="{unit}"]'))
+
+      if unit_el is None:
+        print(url)
+
+      if (measure_el := unit_el.find('.//{*}measure')) is not None:
+        unit_ = cast(str, measure_el.text).split(':')[-1].lower()
+
+      elif (divide := unit_el.find('.//{*}divide')) is not None:
+        numerator = (
+          cast(str, cast(et.Element, divide.find('.//{*}unitNumerator/measure')).text)
+          .split(':')[-1]
+          .lower()
+        )
+        denominator = (
+          cast(str, cast(et.Element, divide.find('.//{*}unitDenominator/measure')).text)
+          .split(':')[-1]
+          .lower()
+        )
+        unit_ = f'{numerator}/{denominator}'
+
+    else:
+      pattern = r'^Unit_(Standard|Divide)_(\w+)_[A-Za-z0-9_-]{22}$'
+      if (m := re.search(pattern, unit)) is not None:
+        unit_ = m.group(2).lower()
+      else:
+        unit_ = unit.split('_')[-1].lower()
 
     pattern = r'(?<=^iso4217)?[a-z]{3}$'
     m = re.search(pattern, unit_, flags=re.I)
     if m is not None:
-      currency.add(m.group())
+      if validate_currency(m.group()):
+        currency.add(m.group())
 
     return unit_
 
@@ -164,7 +194,8 @@ async def parse_statement(url: str) -> RawFinancials:
     }
 
   async def fetch(url: str) -> et.Element:
-    async with httpx.AsyncClient() as client:
+    # cache_transport = hishel.AsyncCacheTransport(transport=httpx.AsyncHTTPTransport())
+    async with hishel.AsyncCacheClient() as client:
       rs = await client.get(url, headers=HEADERS)
       return et.fromstring(rs.content)
 
@@ -249,7 +280,7 @@ async def parse_statement(url: str) -> RawFinancials:
   # Sort items
   data = fix_data(data)
   return RawFinancials(
-    id=doc_id,
+    url=url,
     date=date.date(),
     scope=scope,
     period=fiscal_period,

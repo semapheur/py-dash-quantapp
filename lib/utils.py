@@ -4,9 +4,10 @@ import json
 import math
 import re
 from pathlib import Path
-from typing import cast, Any, Literal, Optional, TypeAlias
+from typing import cast, Literal, Optional, TypeAlias
 
 import httpx
+from iso4217 import Currency
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
@@ -111,6 +112,7 @@ def insert_characters(string: str, inserts: dict[str, list[int]]):
 
   return result
 
+
 def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
   duplicated = df.columns.duplicated()
 
@@ -172,3 +174,11 @@ def download_file(url: str, file_path: str | Path):
           file.write(chunk)
           progress.update(response.num_bytes_downloaded - bytes_downloaded)
           bytes_downloaded = response.num_bytes_downloaded
+
+
+def validate_currency(code: str) -> bool:
+  try:
+    _ = Currency(code.upper())
+    return True
+  except Exception:
+    return False

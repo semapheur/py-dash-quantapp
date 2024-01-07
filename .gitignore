@@ -7,8 +7,12 @@
 # json assets
 /assets/**/*.json
 
-# pycache
+# caches
 **/__pycache__/
+/.cache
+/.mypy_cache
+/.ruff_cache
+/temp
 
 # jupyter notebooks
 *.ipynb
@@ -20,18 +24,11 @@
 .pnp.js
 pnpm-lock.yaml
 
-# temporary files
-/temp
+
 
 # python virtual environment
 /.venv
 /venv
-
-# mypy
-/.mypy_cache
-
-# ruff
-/.ruff_cache
 
 # libre office lock
 .~lock.*

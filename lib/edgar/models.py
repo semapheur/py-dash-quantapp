@@ -76,7 +76,7 @@ FinData: TypeAlias = dict[str, list[Item]]
 
 
 class RawFinancials(BaseModel):
-  id: Optional[str] = None
+  url: Optional[str] = None
   scope: Scope
   date: Date
   period: FiscalPeriod
@@ -138,7 +138,7 @@ class RawFinancials(BaseModel):
 
 
 class RawFinancialsFrame(DataFrameModel):
-  id: Optional[str] = Field(unique=True)
+  url: Optional[str] = Field(unique=True)
   scope: str = Field(isin={'annual', 'quarterly'})
   date: Timestamp
   period: str = Field(isin={'FY', 'Q1'})

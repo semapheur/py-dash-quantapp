@@ -47,10 +47,10 @@ async def check_proxies(proxies: list[str]) -> list[str]:
 
   async def fetch(proxy: str) -> bool:
     proxies = {'http://': f'http://{proxy}', 'https://': f'https://{proxy}'}
-    client = httpx.AsyncClient()
+    client = httpx.AsyncClient(proxies=proxies)
 
     try:
-      rs = await client.get(url, headers=HEADERS, proxies=proxies)
+      rs = await client.get(url, headers=HEADERS)
       return rs.status_code == 200
     except Exception:
       return False

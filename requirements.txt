@@ -19,6 +19,7 @@ glom
 hishel
 httpx
 img2table
+iso4217
 #jpype1
 lxml
 matplotlib
