@@ -251,7 +251,7 @@ def get_tickers() -> pd.DataFrame:
     (r'&amp;', '&'),
   )
   for old, new in replacements:
-    df['name'] = df['name'].str.replace(old, new, regex=True)
+    df.loc[:, 'name'] = df['name'].str.replace(old, new, regex=True)
 
   # Trim tickers
   df['ticker_trim'] = df['ticker'].str.lower().split('.')[0]

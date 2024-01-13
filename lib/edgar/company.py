@@ -205,7 +205,7 @@ class Company:
   async def get_taxonomy(self) -> DataFrame:
     async def fetch():
       docs = self.filings(['10-K', '10-Q']).index
-      tasks = []
+      tasks: list[asyncio.Task] = []
       for doc in docs:
         url = await parse_xbrl_url(self.cik, doc, 'cal')
         if not url:

@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from datetime import datetime as dt
 from datetime import timezone as tz
@@ -6,6 +7,7 @@ import time
 from typing import cast, Optional
 
 import bs4 as bs
+import hishel
 import httpx
 import numpy as np
 import pandas as pd
@@ -26,14 +28,15 @@ from lib.yahoo.models import (
 class Ticker:
   ticker: str
 
-  def ohlcv(
+  async def ohlcv(
     self,
     start_date: Optional[dt] = None,
     end_date: Optional[dt] = None,
     period: Optional[QuotePeriod] = None,
     interval: QuoteInterval = '1d',
+    multicolumn=False,
   ) -> pd.DataFrame:
-    def parse_json(
+    async def parse_json(
       start_stamp: int, end_stamp: int, interval: QuoteInterval
     ) -> QuoteData:
       params = {
@@ -50,8 +53,8 @@ class Ticker:
       }
       url = f'https://query2.finance.yahoo.com/v8/finance/chart/{self.ticker}'
 
-      with httpx.Client() as client:
-        rs = client.get(url, headers=HEADERS, params=params)
+      async with hishel.AsyncCacheClient() as client:
+        rs = await client.get(url, headers=HEADERS, params=params)
         data: dict = rs.json()
 
       return data['chart']['result'][0]
@@ -72,11 +75,11 @@ class Ticker:
       end_stamp = int(dt.now().replace(tzinfo=tz.utc).timestamp())
       end_stamp += 3600 * 24
 
-    parse = parse_json(start_stamp, end_stamp, interval)
+    parse = await parse_json(start_stamp, end_stamp, interval)
 
     if period == 'max':
       start_stamp = parse['meta']['firstTradeDate']
-      parse = parse_json(start_stamp, end_stamp, interval)
+      parse = await parse_json(start_stamp, end_stamp, interval)
 
     # Index
     ix = parse['timestamp']
@@ -98,6 +101,10 @@ class Ticker:
     df = pd.DataFrame.from_dict(data, orient='columns')
     df.index = pd.to_datetime(ix, unit='s').floor('D')
     df.index.rename('date', inplace=True)
+
+    if multicolumn:
+      cols = pd.MultiIndex.from_product([[self.ticker], [c for c in df.columns]])
+      df.columns = cols
 
     return df
 
@@ -279,23 +286,21 @@ class Ticker:
     return df
 
 
-def batchOhlcv(tickers, startDate='', period=None):
-  if isinstance(tickers, str):
-    ticker = Ticker(tickers)
-    return Ticker.ohlcv(startDate, period)
+async def batchOhlcv(
+  tickers: list[str],
+  start_date: Optional[dt] = None,
+  end_date: Optional[dt] = None,
+  period: Optional[QuotePeriod] = None,
+  interval: QuoteInterval = '1d',
+):
+  tasks: list[asyncio.Task] = []
 
-  elif isinstance(tickers, list):
-    dfs = []
-    for t in tickers:
-      ticker = Ticker(t)
+  for t in tickers:
+    ticker = Ticker(t)
 
-      df = ticker.ohlcv(startDate, period)
+    tasks.append(
+      asyncio.create_task(ticker.ohlcv(start_date, end_date, period, interval, True))
+    )
 
-      cols = pd.MultiIndex.from_product([[t], [c for c in df.columns]])
-      df.columns = cols
-
-      dfs.append(df)
-
-    return pd.concat(dfs, axis=1)
-  else:
-    return None
+  dfs = await asyncio.gather(*tasks)
+  return pd.concat(dfs, axis=1)
