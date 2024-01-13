@@ -6,7 +6,7 @@ from typing import cast, Optional
 
 import pandas as pd
 from pandera.typing import DataFrame, Series
-from lib.db.lite import read_sqlite, sqlite_name
+from lib.db.lite import read_sqlite, sqlite_path
 from lib.const import DB_DIR
 
 from lib.fin.calculation import stock_split_adjust
@@ -30,26 +30,22 @@ async def scrap_financials(cik: int, id_: str):
   upsert_financials('financials_scrap.db', id_, financials)
 
 
-async def load_financials(
-  cik: int, id_: str, delta=120, date: Optional[str] = None
-) -> list[RawFinancials]:
-  def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
-    return [
-      RawFinancials(
-        url=row['url'],
-        scope=row['scope'],
-        date=row['date'],
-        period=row['period'],
-        fiscal_end=row['fiscal_end'],
-        currency=row['currency'],
-        data=row['data'],
-      )
-      for row in df.to_dict('records')
-    ]
+def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
+  return [
+    RawFinancials(
+      url=row['url'],
+      scope=row['scope'],
+      date=row['date'],
+      period=row['period'],
+      fiscal_end=row['fiscal_end'],
+      currency=row['currency'],
+      data=row['data'],
+    )
+    for row in df.to_dict('records')
+  ]
 
-  company = Company(cik)
 
-  # Load financials
+def load_financials(id_: str, date: Optional[str] = None):
   query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
   if date:
     query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
@@ -61,7 +57,19 @@ async def load_financials(
     ),
   )
 
-  if not df.empty:
+  return df
+
+
+async def update_financials(
+  cik: int, id_: str, delta=120, date: Optional[str] = None
+) -> list[RawFinancials]:
+  company = Company(cik)
+  df = load_financials(id_, date)
+
+  if df.empty:
+    new_filings = await company.xbrl_urls()
+
+  else:
     last_date = df['date'].max()
 
     if relativedelta(dt.now(), last_date).days < delta:
@@ -77,8 +85,6 @@ async def load_financials(
 
     if not filings_diff:
       return df_to_financials(df)
-  else:
-    new_filings = await company.xbrl_urls()
 
   new_fin = await parse_statements(new_filings.tolist())
   if new_fin:
@@ -87,8 +93,8 @@ async def load_financials(
   return [*new_fin, *df_to_financials(df)]
 
 
-async def financials_table(cik: int, id_: str) -> pd.DataFrame:
-  financials = await load_financials(cik, id_)
+def financials_table(int, id_: str) -> pd.DataFrame:
+  financials = load_financials(id_)
 
   dfs = []
 
@@ -214,7 +220,7 @@ def upsert_financials(
   table: str,
   financials: list[RawFinancials],
 ):
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
 
   con = sqlite3.connect(db_path)
   cur = con.cursor()
@@ -251,7 +257,7 @@ def upsert_financials(
 
 
 def select_financials(db_name: str, table: str) -> list[RawFinancials]:
-  db_path = DB_DIR / sqlite_name(db_name)
+  db_path = sqlite_path(db_name)
 
   with sqlite3.connect(db_path) as conn:
     cur = conn.cursor()

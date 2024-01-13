@@ -3,7 +3,7 @@ from datetime import date as Date, datetime as dt
 from enum import Enum
 from functools import partial
 import re
-from typing import cast, Literal, TypeAlias
+from typing import cast, Literal, Optional, TypeAlias
 import xml.etree.ElementTree as et
 
 import aiometer
@@ -344,7 +344,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 
-def statement_to_df(financials: RawFinancials) -> pd.DataFrame:
+def statement_to_df(financials: RawFinancials, currency: Optional[str]) -> pd.DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
       return period.end_date
@@ -354,6 +354,7 @@ def statement_to_df(financials: RawFinancials) -> pd.DataFrame:
   fin_date = financials.date
   fin_scope = financials.scope
   fin_period = financials.period
+  currencies = financials.currency
 
   df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
 
@@ -373,6 +374,9 @@ def statement_to_df(financials: RawFinancials) -> pd.DataFrame:
         period = 'Q4'
 
       if value := entry.get('value'):
+        if entry.get('unit', '') in currencies:
+          value *= rate
+
         df_data.setdefault((fin_date, period, months), {})[item] = value
 
         if fin_period == 'FY' and (

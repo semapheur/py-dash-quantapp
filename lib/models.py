@@ -12,6 +12,7 @@ class OHLCV(TypedDict, total=False):
   high: Optional[float]
   low: Optional[float]
   close: float
+  adjusted_close: Optional[float]
   volume: Optional[float]
 
 
