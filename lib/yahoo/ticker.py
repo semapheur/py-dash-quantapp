@@ -12,7 +12,14 @@ import pandas as pd
 
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
-from lib.yahoo.models import QuoteInterval, QuotePeriod, Item, ItemMeta, ItemRecord
+from lib.yahoo.models import (
+  QuoteInterval,
+  QuotePeriod,
+  Item,
+  ItemMeta,
+  ItemRecord,
+  QuoteData,
+)
 
 
 @dataclass(slots=True)
@@ -21,11 +28,14 @@ class Ticker:
 
   def ohlcv(
     self,
-    start_date: Optional[str | dt] = None,
+    start_date: Optional[dt] = None,
+    end_date: Optional[dt] = None,
     period: Optional[QuotePeriod] = None,
     interval: QuoteInterval = '1d',
   ) -> pd.DataFrame:
-    def parse_json(start_stamp: int, end_stamp: int, interval: QuoteInterval) -> dict:
+    def parse_json(
+      start_stamp: int, end_stamp: int, interval: QuoteInterval
+    ) -> QuoteData:
       params = {
         'formatted': 'true',
         #'crumb': '0/sHE2JwnVF',
@@ -42,15 +52,12 @@ class Ticker:
 
       with httpx.Client() as client:
         rs = client.get(url, headers=HEADERS, params=params)
-        data = rs.json()
+        data: dict = rs.json()
 
       return data['chart']['result'][0]
 
-    if start_date and (period is None):
-      if isinstance(start_date, str):
-        startDate = dt.strptime(start_date, '%Y-%m-%d')
-
-      start_stamp = int(startDate.replace(tzinfo=tz.utc).timestamp())
+    if (start_date is not None) and (period is None):
+      start_stamp = int(start_date.replace(tzinfo=tz.utc).timestamp())
 
     elif period == 'max':
       start_stamp = int(dt.today().timestamp())
@@ -59,8 +66,11 @@ class Ticker:
     else:
       start_stamp = int(dt(2000, 1, 1).replace(tzinfo=tz.utc).timestamp())
 
-    end_stamp = int(dt.now().replace(tzinfo=tz.utc).timestamp())
-    end_stamp += 3600 * 24
+    if end_date is not None:
+      end_stamp = int(end_date.replace(tzinfo=tz.utc).timestamp())
+    else:
+      end_stamp = int(dt.now().replace(tzinfo=tz.utc).timestamp())
+      end_stamp += 3600 * 24
 
     parse = parse_json(start_stamp, end_stamp, interval)
 
@@ -86,9 +96,7 @@ class Ticker:
 
     # Parse to DataFrame
     df = pd.DataFrame.from_dict(data, orient='columns')
-    df.index = pd.to_datetime(ix, unit='s').floor(
-      'D'
-    )  # Convert index from unix to date
+    df.index = pd.to_datetime(ix, unit='s').floor('D')
     df.index.rename('date', inplace=True)
 
     return df
