@@ -212,7 +212,7 @@ class Company:
           continue
         tasks.append(asyncio.create_task(parse_taxonomy(url)))
 
-      dfs = await asyncio.gather(*tasks)
+      dfs: list[pd.DataFrame] = await asyncio.gather(*tasks)
       df = pd.concat(dfs)
       df = df.loc[~df.index.duplicated()]
       return df

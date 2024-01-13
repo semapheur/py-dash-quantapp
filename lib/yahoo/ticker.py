@@ -302,5 +302,5 @@ async def batchOhlcv(
       asyncio.create_task(ticker.ohlcv(start_date, end_date, period, interval, True))
     )
 
-  dfs = await asyncio.gather(*tasks)
+  dfs: list[pd.DataFrame] = await asyncio.gather(*tasks)
   return pd.concat(dfs, axis=1)
