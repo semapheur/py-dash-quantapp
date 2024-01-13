@@ -346,7 +346,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
 
 async def statement_to_df(
-  financials: RawFinancials, currency: Optional[str]
+  financials: RawFinancials, currency: Optional[str] = None
 ) -> pd.DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):

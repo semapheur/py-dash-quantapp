@@ -93,13 +93,13 @@ async def update_financials(
   return [*new_fin, *df_to_financials(df)]
 
 
-def financials_table(int, id_: str) -> pd.DataFrame:
+async def financials_table(id_: str, currency: Optional[str] = None) -> pd.DataFrame:
   financials = load_financials(id_)
 
-  dfs = []
+  dfs: list[pd.DataFrame] = []
 
   for f in financials:
-    dfs.append(statement_to_df(f))
+    dfs.append(await statement_to_df(f, currency))
 
   df = pd.concat(dfs, join='outer')
   df.sort_index(level=0, ascending=True, inplace=True)
