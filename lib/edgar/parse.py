@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date as Date, datetime as dt
+from datetime import date as Date, datetime as dt, timedelta
 from enum import Enum
 from functools import partial
 import re
@@ -35,6 +35,7 @@ from lib.utils import (
   validate_currency,
   replace_all,
 )
+from lib.yahoo.ticker import exchange_rate
 
 
 class ScopeEnum(Enum):
@@ -344,12 +345,31 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 
-def statement_to_df(financials: RawFinancials, currency: Optional[str]) -> pd.DataFrame:
+async def statement_to_df(
+  financials: RawFinancials, currency: Optional[str]
+) -> pd.DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
       return period.end_date
 
     return period.instant
+
+  async def get_exchange_rate(
+    currency: str, unit: str, period: Instant | Interval
+  ) -> float:
+    ticker = f'{unit}{currency}'
+
+    if isinstance(period, Instant):
+      start_date = period.instant
+      end_date = start_date + timedelta(days=1)
+      interval = '1d'
+    elif isinstance(period, Interval):
+      start_date = period.start_date
+      end_date = period.end_date
+      interval = '3mo'
+
+    rate = await exchange_rate(ticker, start_date, end_date, interval)
+    return rate
 
   fin_date = financials.date
   fin_scope = financials.scope
@@ -357,6 +377,8 @@ def statement_to_df(financials: RawFinancials, currency: Optional[str]) -> pd.Da
   currencies = financials.currency
 
   df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
+
+  rate = 1.0
 
   for item, entries in financials.data.items():
     for entry in entries:
@@ -374,10 +396,10 @@ def statement_to_df(financials: RawFinancials, currency: Optional[str]) -> pd.Da
         period = 'Q4'
 
       if value := entry.get('value'):
-        if entry.get('unit', '') in currencies:
-          value *= rate
+        if (currency is not None) and (unit := entry.get('unit', '')) in currencies:
+          rate = await get_exchange_rate(currency, unit, entry['period'])
 
-        df_data.setdefault((fin_date, period, months), {})[item] = value
+        df_data.setdefault((fin_date, period, months), {})[item] = value * rate
 
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or entry.get('unit') == 'shares'
@@ -391,9 +413,12 @@ def statement_to_df(financials: RawFinancials, currency: Optional[str]) -> pd.Da
         if (m_value := m_entry.get('value')) is None:
           continue
 
+        if (currency is not None) and (unit := m_entry.get('unit', '')) in currencies:
+          rate = await get_exchange_rate(currency, unit, entry['period'])
+
         dim = '.' + d if (d := m_entry.get('dim')) else ''
         key = f'{item}{dim}.{member}'
-        df_data.setdefault((fin_date, period, months), {})[key] = m_value
+        df_data.setdefault((fin_date, period, months), {})[key] = m_value * rate
 
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or m_entry.get('unit') == 'shares'

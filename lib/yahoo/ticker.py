@@ -2,6 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime as dt
 from datetime import timezone as tz
+from functools import cache
 import re
 import time
 from typing import cast, Optional
@@ -53,8 +54,9 @@ class Ticker:
       }
       url = f'https://query2.finance.yahoo.com/v8/finance/chart/{self.ticker}'
 
-      async with hishel.AsyncCacheClient() as client:
+      async with httpx.AsyncClient() as client:
         rs = await client.get(url, headers=HEADERS, params=params)
+        print(rs.headers)
         data: dict = rs.json()
 
       return data['chart']['result'][0]
@@ -304,3 +306,14 @@ async def batchOhlcv(
 
   dfs: list[pd.DataFrame] = await asyncio.gather(*tasks)
   return pd.concat(dfs, axis=1)
+
+
+@cache
+async def exchange_rate(
+  ticker: str, start_date: dt, end_date: dt, interval: QuoteInterval
+):
+  if not ticker.endswith('=X'):
+    ticker += '=X'
+
+  quotes = await Ticker(ticker).ohlcv(start_date, end_date, None, interval)
+  return quotes['close'].mean()

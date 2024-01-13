@@ -202,8 +202,8 @@ class Company:
 
     return calc
 
-  async def get_taxonomy(self) -> DataFrame:
-    async def fetch():
+  async def get_taxonomy(self) -> pd.DataFrame:
+    async def fetch() -> pd.DataFrame:
       docs = self.filings(['10-K', '10-Q']).index
       tasks: list[asyncio.Task] = []
       for doc in docs:
