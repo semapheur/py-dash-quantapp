@@ -3,6 +3,7 @@ from datetime import date as Date, datetime as dt, timedelta
 from enum import Enum
 from functools import partial
 import re
+import sqlite3
 from typing import cast, Literal, Optional, TypeAlias
 import xml.etree.ElementTree as et
 
@@ -12,7 +13,6 @@ import httpx
 import bs4 as bs
 import pandas as pd
 from pandera.typing import DataFrame, Series
-from tinydb import TinyDB
 
 # Local
 from lib.const import DB_DIR, HEADERS
@@ -361,7 +361,7 @@ async def statement_to_df(
 
     if isinstance(period, Instant):
       start_date = period.instant
-      end_date = start_date + timedelta(days=1)
+      end_date = start_date + timedelta(days=2)
       interval = '1d'
     elif isinstance(period, Interval):
       start_date = period.start_date
@@ -447,14 +447,24 @@ def get_ciks() -> DataFrame[CikFrame]:
   return cast(DataFrame[CikFrame], df)
 
 
-def all_gaap_items() -> set[str]:
-  db_path = DB_DIR / 'edgar.json'
-  db = TinyDB(db_path)
+def all_gaap_items(sort=False) -> set[str]:
+  db_path = DB_DIR / 'financials_scrap.db'
+
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
+
+  cur.execute('SELECT name FROM sqlite_master WHERE type="table"')
+  tables = cur.fetchall()
 
   items: set[str] = set()
-  for t in db.tables():
-    data = db.table(t).all()
-    for i in data:
-      items.update(i['data'].keys())
+  for t in tables:
+    cur.execute(f'SELECT DISTINCT key FROM "{t[0]}", json_each(data)')
+    result = cur.fetchall()
+    items = items.union({x[0] for x in result})
+
+  if sort:
+    items = set(sorted(items))
+
+  con.close()
 
   return items

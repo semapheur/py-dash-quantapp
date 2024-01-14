@@ -12,6 +12,49 @@ indent-width = 2
 [tool.ruff.format]
 quote-style = "single"
 
+[project]
+dependencies = [
+  "aiocache",
+  "aiometer",
+  "branca",
+  "bs4",
+  "dash",
+  "dash-ag-grid",
+  "dash-extensions",
+  "dash-leaflet",
+  "fathon",
+  "geopandas",
+  "glom",
+  "hishel",
+  "httpx",
+  "img2table",
+  "iso4217",
+  "lxml",
+  "matplotlib",
+  "numba",
+  "numpy",
+  "openturns",
+  "ordered-set",
+  "pandas",
+  "protobuf==3.20",
+  "pycountry",
+  "pydantic",
+  "pypika",
+  "python-dotenv",
+  "requests",
+  "scikit-learn",
+  "scipy",
+  "sqlalchemy",
+  "sqlmodel",
+  "statsmodels",
+  "tabula-py[jpype]",
+  "tinydb",
+  "tinydb-serialization",
+  "topojson",
+  "tqdm",
+  "wbgapi"
+]
+
 [project.optional-dependencies]
 dev = [
   "bandit",

@@ -1,4 +1,4 @@
-from datetime import datetime as dt, date as Date
+from datetime import datetime as dt, date as Date, time
 from dateutil.relativedelta import relativedelta
 import json
 import math
@@ -126,6 +126,13 @@ def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[:, col] = df[col].combine_first(df_duplicated[col])
 
   return df
+
+
+def handle_date(date: dt | Date) -> dt:
+  if isinstance(date, Date):
+    date = dt.combine(date, time())
+
+  return date
 
 
 def month_difference(date1: dt | Date, date2: dt | Date) -> int:

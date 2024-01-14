@@ -272,6 +272,9 @@
     "label": {
       "long": "Effective Interest Rate"
     },
+    "gaap": [
+      "DebtWeightedAverageInterestRate"
+    ],
     "calculation": {
       "order": 2,
       "all": "interest_expense / average_debt"
@@ -404,7 +407,9 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "DebtInstrumentCarryingAmount"
+      "DebtInstrumentCarryingAmount",
+      "LongTermDebts",
+      "LongTermDebtFairValue"
     ],
     "label": {
       "long": "Long-term Debt"
@@ -539,10 +544,10 @@
     },
     "calculation": {
       "order": 1,
-      "all": "average_trade_payables / revenue_cost_per_day"
+      "all": "average_current_trade_payables / revenue_cost_per_day"
     }
   },
-  "average_trade_payables": {
+  "average_current_trade_payables": {
     "value": "monetary",
     "period": "instant",
     "label": {
@@ -550,7 +555,7 @@
     },
     "calculation": {
       "order": 0,
-      "avg": "trade_payables"
+      "avg": "current_trade_payables"
     }
   },
   "average_inventory": {
@@ -680,6 +685,7 @@
   },
   "tax_burden": {
     "value": "fundamental",
+    "duration": "duration",
     "label": {
       "long": "Tax Burden"
     },
@@ -690,6 +696,7 @@
   },
   "interest_coverage_ratio": {
     "value": "fundamental",
+    "duration": "duration",
     "label": {
       "long": "Interest Coverage Ratio",
       "short": "ICR"
@@ -701,6 +708,7 @@
   },
   "interest_burden": {
     "value": "fundamental",
+    "duration": "duration",
     "label": {
       "long": "Interest Burden"
     },
@@ -772,7 +780,8 @@
     "value": "fundamental",
     "period": "duration",
     "gaap": [
-      "EarningsPerShareBasic"
+      "EarningsPerShareBasic",
+      "BasicEarningsLossPerShare"
     ],
     "label": {
       "long": "Earnings Per Share Basic",
@@ -814,7 +823,7 @@
     "period": "instant",
     "calculation": {
       "order": 2,
-      "any": "current_trade_receivables + inventory + current_prepaid_expenses - trade_payables - current_deferred_revenue - current_accrued_expenses"
+      "any": "current_trade_receivables + inventory + current_prepaid_expenses - current_trade_payables - current_deferred_revenue - current_accrued_expenses"
     },
     "label": {
       "long": "Operating Working Capital"
@@ -871,7 +880,9 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "AssetsCurrent"
+      "AssetsCurrent",
+      "CurrentAssets",
+      "CurrentAssets1"
     ],
     "label": {
       "long": "Total Current Assets",
@@ -886,6 +897,7 @@
       "all": "cash + cash_equivalents"
     },
     "gaap": [
+      "CashAndCashEquivalents",
       "CashAndCashEquivalentsAtCarryingValue"
     ],
     "label": {
@@ -912,6 +924,7 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
+      "CashEquivalents",
       "CashEquivalentsAtCarryingValue"
     ],
     "label": {
@@ -942,7 +955,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "RestrictedCashAndCashEquivalentsAtCarryingValue"
+      "RestrictedCashAndCashEquivalentsAtCarryingValue",
+      "CurrentRestrictedCashAndCashEquivalents"
     ],
     "label": {
       "long": "Restricted Cash and Cash Equivalents"
@@ -952,10 +966,22 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "DeferredTaxAssetsNetCurrent"
+      "CurrentTaxAssets",
+      "DeferredTaxAssetsNetCurrent",
+      "DeferredIncomeTaxAssetsCurrent"
     ],
     "label": {
       "long": "Current Deferred Tax Assets"
+    }
+  },
+  "noncurrent_tax_assets": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "DeferredIncomeTaxAssetsNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Deferred Tax Assets"
     }
   },
   "inventory": {
@@ -1032,7 +1058,8 @@
     },
     "gaap": [
       "CashCashEquivalentsAndMarketableSecurities",
-      "CashCashEquivalentsAndShortTermInvestments"
+      "CashCashEquivalentsAndShortTermInvestments",
+      "CashAndCashEquivalentsAndAvailableForSaleInvestments"
     ],
     "label": {
       "long": "Cash, Cash Equivalents and Marketable Securities",
@@ -1043,7 +1070,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "OtherAssetsCurrent"
+      "OtherAssetsCurrent",
+      "OtherCurrentAssets"
     ],
     "label": {
       "long": "Other Current Assets"
@@ -1053,21 +1081,11 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "OtherPrepaidExpenseCurrent"
+      "OtherPrepaidExpenseCurrent",
+      "CurrentPrepaidExpenses"
     ],
     "label": {
       "long": "Current Prepaid Expense"
-    }
-  },
-  "current_trade_receivables": {
-    "value": "monetary",
-    "period": "instant",
-    "gaap": [
-      "AccountsReceivableNetCurrent"
-    ],
-    "label": {
-      "long": "Net Accounts Receivable",
-      "short": "Trade Receivables"
     }
   },
   "current_receivables": {
@@ -1075,22 +1093,92 @@
     "period": "instant",
     "calculation": {
       "order": 0,
-      "any": "current_trade_receivables + current_nontrade_receivables + note_receivables + other_receivables"
+      "all": "current_gross_receivables - current_loss_allowance_receivables"
     },
+    "gaap": [
+      "AccountsReceivableNetCurrent",
+      "AccountsReceivableNet",
+      "AccountsReceivable"
+    ],
     "label": {
-      "long": "Current Total Receivables",
-      "short": "Receivables"
+      "long": "Current Net Total Receivables",
+      "short": "Current Net Receivables"
     }
   },
-  "current_bad_trade_receivables": {
+  "current_gross_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "calculation": {
+      "order": 0,
+      "any": "current_gross_trade_receivables + current_gross_nontrade_receivables"
+    },
+    "gaap": [
+      "AccountsReceivableGrossCurrent"
+    ],
+    "label": {
+      "long": "Current Gross Total Receivables",
+      "short": "Current Gross Receivables"
+    }
+  },
+  "current_loss_allowance_receivables": {
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "AllowanceForDoubtfulAccountsReceivableCurrent"
+      "AllowanceForDoubtfulAccountsReceivableCurrent",
+      "AllowanceForDoubtfulAccountsReceivable",
+      "AllowanceForDoubtfulAccountsTradeReceivables",
+      "AccountsReceivableAllowanceForCreditLoss",
+      "AllowanceForCreditLoss",
+      "AllowanceForExpectedCreditLosses",
+      "AllowancesAccountsReceivableCurrent"
     ],
     "label": {
-      "long": "Allowance for Doubtfull Accounts",
-      "short": "Bad Debt Provision"
+      "long": "Current Loss Allowance for Total Receivables",
+      "short": "Credit Loss Provision"
+    }
+  },
+  "current_trade_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "TradeReceivables",
+      "AccountsReceivableSale",
+      "CurrentTradeReceivables",
+      "TradeAndFinancialReceivable",
+      "TradeAndOtherCurrentReceivables",
+      "TradeAndOtherReceivables",
+      "TradeAccountsReceivablesIncludedLeaseReceivables"
+    ],
+    "label": {
+      "long": "Current Net Trade Receivables",
+      "short": "Current Trade Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_gross_trade_receivables - current_loss_allowance_trade_receivables",
+      "fill": "trade_receivables"
+    }
+  },
+  "current_gross_trade_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "CurrentTradeReceivablesGross"
+    ],
+    "label": {
+      "long": "Current Gross Trade Receivables",
+      "short": "Gross Trade Receivables"
+    }
+  },
+  "current_loss_allowance_trade_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "AllowanceForDoubtfulAccountsTradeReceivables"
+    ],
+    "label": {
+      "long": "Current Loss Allowance for Trade Receivables",
+      "short": "Trade Receivables"
     }
   },
   "current_nontrade_receivables": {
@@ -1100,27 +1188,243 @@
       "NontradeReceivablesCurrent"
     ],
     "label": {
-      "long": "Non-trade Receivables"
+      "long": "Current Net Non-Trade Receivables",
+      "short": "Non-Trade Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_gross_nontrade_receivables - current_loss_allowance_nontrade_receivables",
+      "any": "current_notes_receivable + current_receivables_related_parties + current_receivables_joint_operation + current_other_receivables"
     }
   },
-  "notes_receivable": {
+  "current_gross_nontrade_receivables": {
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "NotesReceivableNet"
+      "CurrentTradeReceivablesGross"
     ],
     "label": {
-      "long": "Notes Receivable"
+      "long": "Gross Trade Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "current_gross_notes_receivable + current_gross_receivables_related_parties + current_gross_receivables_joint_operation + current_gross_other_receivables"
     }
   },
-  "other_receivables": {
+  "current_notes_receivable": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "NotesReceivable",
+      "NotesReceviable",
+      "NotesReceviableCurrent",
+      "NotesReceivableNet",
+      "NotesReceivableNetOfCurrentPortion"
+    ],
+    "label": {
+      "long": "Current Net Notes Receivable",
+      "short": "Notes Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_gross_notes_receivable - current_loss_allowance_notes_receivable",
+      "fill": "notes_receivable"
+    }
+  },
+  "current_notes_receivable_related_parties": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "NotesReceivableRelatedPartiesCurrent",
+      "NotesReceivableRelatedParties"
+    ],
+    "label": {
+      "long": "Current Notes Receivable from Related Parties",
+      "short": "Related Parties"
+    }
+  },
+  "current_gross_notes_receivable": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "NotesReceivableGross"
+    ],
+    "label": {
+      "long": "Current Gross Notes Receivable",
+      "short": "Gross Notes Receivable"
+    }
+  },
+  "current_loss_allowance_notes_receivable": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "NotesReceivableBadDebtReserve",
+      "AllowanceForNotesAndLoansReceivableCurrent",
+      "AllowanceForDoubtfulAccountsNotesAndLoansReceivableCurrent"
+    ],
+    "label": {
+      "long": "Current Loss Allowance for Notes Receivable",
+      "short": "Notes Receivable"
+    }
+  },
+  "current_receivables_related_parties": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "AccountsReceivableRelatedParties",
+      "AccountsReceivableRelatedPartiesCurrent"
+    ],
+    "label": {
+      "long": "Current Net Receivables from Related Parties",
+      "short": "Receivables Related Parties"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_gross_receivables_related_parties - current_loss_allowance_receivables_related_parties"
+    }
+  },
+  "current_gross_receivables_related_parties": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "CurrentTradeReceivablesGross"
+    ],
+    "label": {
+      "long": "Gross Receivables from Related Parties"
+    }
+  },
+  "current_loss_allowance_receivables_related_parties": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "AllowanceForDoubtfulAccountsReceivableFromRelatedPartiesCurrent"
+    ],
+    "label": {
+      "long": "Loss Allowance for Receivables from Related Parties",
+      "short": "Receivables from Related Parties"
+    }
+  },
+  "current_receivables_joint_operation": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "CurrentOtherReceivablesFromJointOperation"
+    ],
+    "label": {
+      "long": "Current Net Receivables from Joint Operation",
+      "short": "Receivables from Joint Operation"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_gross_receivables_joint_operation - current_loss_allowance_receivables_joint_operation"
+    }
+  },
+  "noncurrent_loss_allowance_notes_receivable": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "AllowanceForNotesAndLoansReceivableNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Doubtful Allowance for Notes Receivable",
+      "short": "Notes Receivable"
+    }
+  },
+  "premiums_receivable": {
     "value": "monetary",
     "period": "instant",
     "gaap": [
       "PremiumsAndOtherReceivablesNet"
     ],
     "label": {
-      "long": "Other Receivables"
+      "long": "Premiums Receivable"
+    }
+  },
+  "current_other_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "OtherReceivables",
+      "OtherReceivablesOther",
+      "CurrentOtherReceivables",
+      "OtherReceivablesNetCurrent"
+    ],
+    "label": {
+      "long": "Net Other Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_gross_other_receivables - current_loss_allowance_other_receivables"
+    }
+  },
+  "current_gross_other_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "OtherReceivablesGrossCurrent"
+    ],
+    "label": {
+      "long": "Gross Other Receivables"
+    }
+  },
+  "current_loss_allowance_other_receivables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "AllowanceForCreditLossesOtherReceivableCurrent",
+      "AllowanceForDoubtfulOtherReceivablesCurrent"
+    ],
+    "label": {
+      "long": "Loss Allowance for Other Receivables",
+      "short": "Other Receivables"
+    }
+  },
+  "current_allowance_sales_returns": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "AllowanceforSalesReturnsCurrent"
+    ],
+    "label": {
+      "long": "Current Allowance for Sales Returns",
+      "short": "Sales Returns"
+    }
+  },
+  "noncurrent_notes_receivable": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "NotesReceivableNonCurrent",
+      "NotesReceviableNonCurrent"
+    ],
+    "label": {
+      "long": "Non-current Net Notes Receivable",
+      "short": "Net Notes Receivable"
+    }
+  },
+  "noncurrent_notes_receivable_related_parties": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "NotesReceivableRelatedPartiesNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Net Notes Receivable",
+      "short": "Net Notes Receivable"
+    }
+  },
+  "securities": {
+    "value": "monetary",
+    "period": "instant",
+    "calculation": {
+      "order": 0,
+      "any": "current_securities + noncurrent_securities"
+    },
+    "gaap": [
+      "DebtSecurities"
+    ],
+    "label": {
+      "long": "Marketable Securities"
     }
   },
   "current_securities": {
@@ -1161,11 +1465,24 @@
       "short": "T-bills"
     }
   },
+  "current_loss_allowance_debt_securities": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAllowanceForCreditLoss",
+      "DebtSecuritiesAvailableForSaleAllowanceForCreditLossCurrent"
+    ],
+    "label": {
+      "long": "Loss Allowance for Marketable Debt Securities",
+      "short": "Debt Securities"
+    }
+  },
   "current_equity_securities": {
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "EquitySecuritiesFvNi"
+      "EquitySecuritiesFvNi",
+      "AvailableForSaleSecuritiesEquitySecuritiesCurrent"
     ],
     "label": {
       "long": "Marketable Equity Securities",
@@ -1379,7 +1696,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "OtherAssetsNoncurrent"
+      "OtherAssetsNoncurrent",
+      "OtherNoncurrentAssets"
     ],
     "label": {
       "long": "Other Non-current Assets"
@@ -1401,6 +1719,7 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
+      "DebtSecuritiesNoncurrent",
       "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
     ],
     "label": {
@@ -1415,7 +1734,8 @@
       "all": "current_assets + noncurrent_assets"
     },
     "gaap": [
-      "Assets"
+      "Assets",
+      "AssetsNet"
     ],
     "label": {
       "long": "Total Assets",
@@ -1952,7 +2272,7 @@
     "period": "duration",
     "calculation": {
       "order": 2,
-      "any": "change_current_tax_assets + change_inventories + change_current_trade_receivables + change_current_prepaid_expenses + change_other_current_assets - change_current_accrued_expenses - change_current_deferred_revenue - change_current_tax_liabilities - change_trade_payables - change_other_current_liabilities"
+      "any": "change_current_tax_assets + change_inventories + change_current_trade_receivables + change_current_prepaid_expenses + change_other_current_assets - change_current_accrued_expenses - change_current_deferred_revenue - change_current_tax_liabilities - change_current_trade_payables - change_other_current_liabilities"
     },
     "label": {
       "long": "Change in Net Working Capital"
@@ -2145,6 +2465,20 @@
       "diff": "current_deferred_revenue"
     }
   },
+  "current_tax_liabilities": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "CurrentTaxLiabilities",
+      "CurrentTaxLiabilitiesCurrent",
+      "DeferredIncomeTaxLiabilitiesCurrent",
+      "DeferredTaxLiabilitiesCurrent"
+    ],
+    "label": {
+      "long": "Current Deferred Tax Liabilities",
+      "short": "Current Tax Liabilities"
+    }
+  },
   "change_current_tax_liabilities": {
     "value": "monetary",
     "period": "duration",
@@ -2153,7 +2487,7 @@
     },
     "calculation": {
       "order": 1,
-      "diff": "deferred_tax_liabilities"
+      "diff": "current_tax_liabilities"
     }
   },
   "change_other_current_liabilities": {
@@ -2171,7 +2505,7 @@
       "diff": "other_current_liabilities"
     }
   },
-  "change_trade_payables": {
+  "change_current_trade_payables": {
     "value": "monetary",
     "period": "duration",
     "gaap": [
@@ -2183,7 +2517,21 @@
     },
     "calculation": {
       "order": 1,
-      "diff": "trade_payables"
+      "diff": "current_trade_payables"
+    }
+  },
+  "comprehensive_pretax_income_loss": {
+    "value": "monetary",
+    "period": "duration",
+    "calculation": {
+      "order": 2,
+      "all": "comprehensive_income_net_minority_interest - comprehensive_income_minority_interest"
+    },
+    "gaap": [
+      "ComprehensiveIncomeBeforeTax"
+    ],
+    "label": {
+      "long": "Comprehensive Pretax Income (Loss)"
     }
   },
   "comprehensive_income_loss": {
@@ -2194,17 +2542,20 @@
       "all": "comprehensive_income_net_minority_interest - comprehensive_income_minority_interest"
     },
     "gaap": [
-      "ComprehensiveIncomeNetOfTax"
+      "ComprehensiveIncomeNetOfTax",
+      "ComprehensiveIncome"
     ],
     "label": {
-      "long": "Comprehensive Income"
+      "long": "Comprehensive Income (Loss)"
     }
   },
   "comprehensive_income_minority_interest": {
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "ComprehensiveIncomeNetOfTaxAttributableToNoncontrollingInterest"
+      "ComprehensiveIncomeAttributableToNoncontrollingInterests",
+      "ComprehensiveIncomeNetOfTaxAttributableToNoncontrollingInterest",
+      "ComprehensiveIncomeLossNetofTaxAttributabletoRedeemableNoncontrollingInterest"
     ],
     "label": {
       "long": "Comprehensive Income Attributable To Minority Interest"
@@ -2214,7 +2565,9 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest"
+      "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
+      "ComprehensiveIncomeLossNetOfTaxIncludingPortionAttributableToNonredeemableNoncontrollingInterest",
+      "ComprehensiveIncomeLossNetOfTaxIncludingPortionAttributableToNoncontrollingInterestExcludingPortionAttributableToRedeemableNoncontrollingInterest"
     ],
     "label": {
       "long": "Comprehensive Income Including Portion Attributable To Minority Interest"
@@ -2228,6 +2581,7 @@
       "any": "foreign_deferred_tax + national_deferred_tax + local_deferred_tax"
     },
     "gaap": [
+      "DeferredIncomeTaxes",
       "DeferredIncomeTaxExpenseBenefit"
     ],
     "label": {
@@ -2314,7 +2668,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "CommonStockValue"
+      "CommonStockValue",
+      "CommonSharesValue"
     ],
     "label": {
       "long": "Common Stock Value"
@@ -2411,7 +2766,10 @@
       "all": "net_income_loss_including_minority_interest - net_income_loss_to_minority_interest"
     },
     "gaap": [
-      "NetIncomeLoss"
+      "NetIncomeLoss",
+      "NetIncomeLoss1",
+      "NetIncomeLoss2",
+      "NetIncome"
     ],
     "label": {
       "long": "Net Income (Loss) Available to Common Stockholders",
@@ -2427,7 +2785,8 @@
     },
     "gaap": [
       "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
-      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+      "NetIncomeLossBeforeTaxes"
     ],
     "label": {
       "long": "Income (Loss) from Continuing Operations Before Income Taxes, Extraordinary Items and Minority Interest",
@@ -2437,6 +2796,9 @@
   "net_income_loss_continuing_operations": {
     "value": "monetary",
     "period": "duration",
+    "gaap": [
+      "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersBasic"
+    ],
     "label": {
       "long": "Net Income (Loss) from Continuing Operations"
     }
@@ -2444,6 +2806,9 @@
   "income_loss_discontinued_operations": {
     "value": "monetary",
     "period": "duration",
+    "gaap": [
+      "NetIncomeLossFromDiscontinuedOperationsAvailableToCommonShareholdersBasic"
+    ],
     "label": {
       "long": "Income (Loss) from Discontinued Operations"
     }
@@ -2452,7 +2817,8 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "NetIncomeLossAttributableToNoncontrollingInterest"
+      "NetIncomeLossAttributableToNoncontrollingInterest",
+      "NetIncomeLossesAttributableToNoncontrollingInterest"
     ],
     "label": {
       "long": "Net Income (Loss) Attributable To Minority Interest"
@@ -2486,7 +2852,9 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "LiabilitiesCurrent"
+      "LiabilitiesCurrent",
+      "CurrentLiabilities",
+      "CurrentLiabilities1"
     ],
     "label": {
       "long": "Total Current Liabilities",
@@ -2564,6 +2932,9 @@
   "current_debt": {
     "value": "monetary",
     "period": "instant",
+    "gaap": [
+      "DebtCurrent"
+    ],
     "calculation": {
       "order": 0,
       "any": "commercial_paper + current_portion_longterm_debt + other_shortterm_debt"
@@ -2606,21 +2977,34 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "OtherLiabilitiesCurrent"
+      "OtherLiabilitiesCurrent",
+      "OtherCurrentLiabilities"
     ],
     "label": {
       "long": "Other Current Liabilities"
     }
   },
-  "trade_payables": {
+  "current_trade_payables": {
     "value": "monetary",
     "period": "instant",
     "gaap": [
       "AccountsPayable",
-      "AccountsPayableCurrent"
+      "AccountsPayable1",
+      "AccountsPayableCurrent",
+      "AccountsPayableTradeCurrent"
     ],
     "label": {
-      "long": "Accounts Payable"
+      "long": "Current Accounts Payable"
+    }
+  },
+  "noncurrent_trade_payables": {
+    "value": "monetary",
+    "period": "instant",
+    "gaap": [
+
+    ],
+    "label": {
+      "long": "Noncurrent Accounts Payable"
     }
   },
   "noncurrent_liabilities": {
@@ -2683,7 +3067,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "DeferredTaxLiabilitiesNoncurrent"
+      "DeferredTaxLiabilitiesNoncurrent",
+      "DeferredIncomeTaxLiabilitiesNoncurrent"
     ],
     "label": {
       "long": "Non-current Deferred Tax Liabilities"
@@ -2693,7 +3078,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "LongTermDebtNoncurrent"
+      "LongTermDebtNoncurrent",
+      "LongTermDebtNetOfCurrentPortion"
     ],
     "label": {
       "long": "Long-term Debt"
@@ -2703,7 +3089,8 @@
     "value": "monetary",
     "period": "instant",
     "gaap": [
-      "OtherLiabilitiesNoncurrent"
+      "OtherLiabilitiesNoncurrent",
+      "OtherNoncurrentLiabilities"
     ],
     "label": {
       "long": "Other Non-current Liabilities"
@@ -3123,6 +3510,29 @@
       "diff": "accumulated_depreciation_productive_assets"
     }
   },
+  "accretion": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "AccretionExpense"
+    ],
+    "label": {
+      "long": "Accretion"
+    }
+  },
+  "amortization": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "AmortisedCost",
+      "AmortisationExpense",
+      "AmortisationIntangibleAssetsOtherThanGoodwill",
+      "AmortisationIntangibleAssetsOtherThanGoodwillOnDisposalOfIntangibleAssets"
+    ],
+    "label": {
+      "long": "Amortization"
+    }
+  },
   "research_development_expense": {
     "value": "monetary",
     "period": "duration",
@@ -3153,7 +3563,9 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "GeneralAndAdministrativeExpense"
+      "GeneralAndAdministrativeExpense",
+      "AdministrativeExpense",
+      "AdministrativeExpenses"
     ],
     "label": {
       "long": "General and Administrative Expense",
@@ -3229,7 +3641,9 @@
     "period": "duration",
     "gaap": [
       "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "RevenueFromContractsWithCustomers",
       "Revenues",
+      "Revenue",
       "SalesRevenueNet",
       "SalesAndServiceRevenue"
     ],
@@ -3253,10 +3667,30 @@
     "period": "duration",
     "calculation": {
       "order": 0,
-      "any": "premiums_revenue"
+      "any": "premiums_revenue + interest_revenue + dividends_revenue"
     },
     "label": {
       "long": "Finance Revenue"
+    }
+  },
+  "dividends_revenue": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "RevenueFromDividends"
+    ],
+    "label": {
+      "long": "Dividends Revenue"
+    }
+  },
+  "interest_revenue": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "RevenueFromInterest"
+    ],
+    "label": {
+      "long": "Interest Revenue"
     }
   },
   "premiums_revenue": {
@@ -3272,6 +3706,12 @@
   "other_revenue": {
     "value": "monetary",
     "period": "duration",
+    "gaap": [
+      "OtherSales",
+      "OtherRevenue",
+      "OtherRevenues",
+      "RevenueNotFromContractWithCustomer"
+    ],
     "label": {
       "long": "Other Revenue"
     }
@@ -3280,10 +3720,21 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Product"
+      "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Product",
+      "SalesRevenueGoodsGross"
     ],
     "label": {
       "long": "Product Revenue"
+    }
+  },
+  "petroleum_revenue": {
+    "value": "monetary",
+    "period": "duration",
+    "gaap": [
+      "RevenueFromSaleOfOilAndGasProducts"
+    ],
+    "label": {
+      "long": "Petroleum Products Revenue"
     }
   },
   "service_revenue": {
@@ -3295,7 +3746,9 @@
     },
     "gaap": [
       "Revenues.ProductOrServiceAxis.Service",
-      "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Service"
+      "RevenueFromContractWithCustomerExcludingAssessedTax.ProductOrServiceAxis.Service",
+      "RevenueFromRenderingOfServices",
+      "SalesRevenueServicesGross"
     ],
     "label": {
       "long": "Service Revenue"
@@ -3335,8 +3788,10 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
-      "CostOfGoodsAndServicesSold",
-      "CostOfRevenue"
+      "CostOfSales",
+      "CostOfRevenue",
+      "CostsOfRevenue",
+      "CostOfGoodsAndServicesSold"
     ],
     "label": {
       "long": "Cost of Goods and Services Sold",
@@ -3372,6 +3827,7 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
+      "CostOfGoodsSold",
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Product"
     ],
     "label": {
@@ -3382,6 +3838,7 @@
     "value": "monetary",
     "period": "duration",
     "gaap": [
+      "CostOfServices",
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Service"
     ],
     "label": {
@@ -3392,6 +3849,8 @@
     "value": "shares",
     "period": "instant",
     "gaap": [
+      "CommonSharesOutstanding",
+      "CommonStockShareOutstanding",
       "CommonStockSharesOutstanding"
     ],
     "label": {

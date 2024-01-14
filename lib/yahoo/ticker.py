@@ -1,14 +1,12 @@
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime as dt
-from datetime import timezone as tz
-from functools import cache
+from datetime import date as Date, datetime as dt, timezone as tz
 import re
-import time
 from typing import cast, Optional
+import time
 
+from aiocache import cached
 import bs4 as bs
-import hishel
 import httpx
 import numpy as np
 import pandas as pd
@@ -23,6 +21,7 @@ from lib.yahoo.models import (
   ItemRecord,
   QuoteData,
 )
+from lib.utils import handle_date
 
 
 @dataclass(slots=True)
@@ -31,8 +30,8 @@ class Ticker:
 
   async def ohlcv(
     self,
-    start_date: Optional[dt] = None,
-    end_date: Optional[dt] = None,
+    start_date: Optional[dt | Date] = None,
+    end_date: Optional[dt | Date] = None,
     period: Optional[QuotePeriod] = None,
     interval: QuoteInterval = '1d',
     multicolumn=False,
@@ -56,12 +55,12 @@ class Ticker:
 
       async with httpx.AsyncClient() as client:
         rs = await client.get(url, headers=HEADERS, params=params)
-        print(rs.headers)
         data: dict = rs.json()
 
       return data['chart']['result'][0]
 
     if (start_date is not None) and (period is None):
+      start_date = handle_date(start_date)
       start_stamp = int(start_date.replace(tzinfo=tz.utc).timestamp())
 
     elif period == 'max':
@@ -72,6 +71,7 @@ class Ticker:
       start_stamp = int(dt(2000, 1, 1).replace(tzinfo=tz.utc).timestamp())
 
     if end_date is not None:
+      end_date = handle_date(end_date)
       end_stamp = int(end_date.replace(tzinfo=tz.utc).timestamp())
     else:
       end_stamp = int(dt.now().replace(tzinfo=tz.utc).timestamp())
@@ -308,7 +308,7 @@ async def batchOhlcv(
   return pd.concat(dfs, axis=1)
 
 
-@cache
+@cached()
 async def exchange_rate(
   ticker: str, start_date: dt, end_date: dt, interval: QuoteInterval
 ):

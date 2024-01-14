@@ -7,6 +7,8 @@ import pandas as pd
 from pydantic import BaseModel
 from sqlalchemy import create_engine, TEXT
 
+from lib.const import DB_DIR
+
 
 class Template(TypedDict):
   income: dict[str, int]
@@ -216,3 +218,27 @@ def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
   mask = template['short'] == ''
   template.loc[mask, 'short'] = template.loc[mask, 'long']
   return template
+
+
+def gaap_items(sort=False) -> set[str]:
+  db_path = DB_DIR / 'taxonomy.db'
+
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
+
+  query = """
+    SELECT json_each.value AS gaap FROM items 
+    JOIN json_each(gaap) ON 1=1
+    WHERE gaap IS NOT NULL
+  """
+
+  cur.execute(query)
+  result = cur.fetchall()
+  con.close()
+
+  items = {x[0] for x in result}
+
+  if sort:
+    items = set(sorted(items))
+
+  return items

@@ -7,7 +7,6 @@ from typing import cast, Optional
 import pandas as pd
 from pandera.typing import DataFrame, Series
 from lib.db.lite import read_sqlite, sqlite_path
-from lib.const import DB_DIR
 
 from lib.fin.calculation import stock_split_adjust
 from lib.edgar.company import Company
@@ -45,7 +44,9 @@ def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
   ]
 
 
-def load_financials(id_: str, date: Optional[str] = None):
+def load_financials(
+  id_: str, date: Optional[str] = None
+) -> DataFrame[RawFinancialsFrame]:
   query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
   if date:
     query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
@@ -94,7 +95,7 @@ async def update_financials(
 
 
 async def financials_table(id_: str, currency: Optional[str] = None) -> pd.DataFrame:
-  financials = load_financials(id_)
+  financials = df_to_financials(load_financials(id_))
 
   dfs: list[pd.DataFrame] = []
 
@@ -103,7 +104,10 @@ async def financials_table(id_: str, currency: Optional[str] = None) -> pd.DataF
 
   df = pd.concat(dfs, join='outer')
   df.sort_index(level=0, ascending=True, inplace=True)
-  df = fix_financials_table(df)
+  df = df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
+
+  if {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(set(df.index.get_level_values('period'))):
+    df = fix_financials_table(df)
 
   ratios = stock_splits(id_)
   if ratios is not None:
@@ -112,30 +116,10 @@ async def financials_table(id_: str, currency: Optional[str] = None) -> pd.DataF
   return df
 
 
-def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
-  data: list[StockSplit] = []
-
-  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
-  splits = fin_data.get(name)
-  if splits is None:
-    return data
-
-  for entry in splits:
-    value = cast(float, entry.get('value'))
-
-    data.append(
-      StockSplit(
-        date=cast(Interval, entry['period']).start_date,
-        stock_split_ratio=value,
-      )
-    )
-  return data
-
-
 def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
   query = """
     SELECT json_each.value AS gaap, item FROM items 
-    JOIN JSON_EACH(gaap) ON 1=1
+    JOIN json_each(gaap) ON 1=1
     WHERE gaap IS NOT NULL
   """
   items = read_sqlite('taxonomy.db', query)
@@ -163,7 +147,7 @@ def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
 
     _df.loc[:, 'month_diff'] = df_time_difference(
       cast(pd.DatetimeIndex, _df.index.get_level_values('date')), 30, 'D'
-    ).array
+    )
 
     _df.loc[:, diff_items] = _df[diff_items].diff()
     _df = _df.loc[_df['month_diff'] == 3, diff_items]
@@ -196,12 +180,35 @@ def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
   return df.copy()
 
 
-def stock_splits(id_: str) -> Series[float]:
+def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
+  data: list[StockSplit] = []
+
+  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
+  splits = fin_data.get(name)
+  if splits is None:
+    return data
+
+  for entry in splits:
+    value = cast(float, entry.get('value'))
+
+    data.append(
+      StockSplit(
+        date=cast(Interval, entry['period']).start_date,
+        stock_split_ratio=value,
+      )
+    )
+  return data
+
+
+def stock_splits(id_: str):
   field = 'StockholdersEquityNoteStockSplitConversionRatio1'
-  query = f'SELECT data FROM {id_} WHERE json_extract(data, "$.{field}") IS NOT NULL'
+  query = f'SELECT data FROM "{id_}" WHERE json_extract(data, "$.{field}") IS NOT NULL'
   df_parse = cast(
     DataFrame[str], read_sqlite('financials_scrap', query, dtype={'data': str})
   )
+  if df_parse.empty:
+    return None
+
   fin_data = cast(list[FinData], df_parse['data'].apply(json.loads).to_list())
 
   df_data: list[StockSplit] = []
