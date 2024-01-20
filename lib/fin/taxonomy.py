@@ -4,7 +4,7 @@ import sqlite3
 
 from glom import glom
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, TEXT
 
 from lib.const import DB_DIR
@@ -22,14 +22,25 @@ class TaxonomyLabel(BaseModel):
 
 
 class TaxononmyCalculation(BaseModel):
-  order: int
+  order: int = Field(ge=0)
   all: Optional[str] = None
   any: Optional[str] = None
+  avg: Optional[str] = None
+  diff: Optional[str] = None
 
 
 class TaxonomyItem(BaseModel):
-  unit: Literal['monetary', 'fundamental', 'price_fundamental', 'shares']
-  period: Literal['instant', 'duration', 'average']
+  unit: Literal[
+    'days',
+    'monetary',
+    'monetary_ratio',
+    'percent',
+    'per_day',
+    'per_share',
+    'price_ratio',
+    'shares',
+  ]
+  aggregate: Literal['average', 'recalc', 'sum', 'tail']
   gaap: list[str]
   label: TaxonomyLabel
   calculation: Optional[TaxononmyCalculation] = None
@@ -41,6 +52,15 @@ class Taxonomy(BaseModel):
   def filter_items(self, filter_: set[str]):
     new_keys = set(self.data.keys()).intersection(filter_)
     self.data = {key: value for key, value in self.data.items() if key in new_keys}
+
+  def average_items(self):
+    return
+
+  def change_items(self):
+    return
+
+  def calculation_order(self):
+    ...
 
   def select_items(self, target_key, target_value: tuple[str, str]) -> set[str]:
     result = {

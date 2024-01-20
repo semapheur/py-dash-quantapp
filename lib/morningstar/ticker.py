@@ -15,7 +15,7 @@ from lib.models import OHLCV
 from lib.utils import replace_all
 
 SCREENER_API = (
-  'https://tools.morningstar.co.uk/api/rest.svc' '/dr6pz9spfi/security/screener'
+  'https://tools.morningstar.co.uk/api/rest.svc/dr6pz9spfi/security/screener'
 )
 #'https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener'
 
@@ -82,10 +82,10 @@ class Ticker:
     if self._security == 'stock':
       params['performanceType'] = ''
       params['id'] = f'{self._id}]3]0]'  # E0WWE$$ALL
-      url = 'https://tools.morningstar.no/api/rest.svc/' 'timeseries_ohlcv/dr6pz9spfi'
+      url = 'https://tools.morningstar.no/api/rest.svc/timeseries_ohlcv/dr6pz9spfi'
     else:
       params['priceType'] = ''
-      url = 'https://tools.morningstar.no/api/rest.svc/' 'timeseries_price/dr6pz9spfi'
+      url = 'https://tools.morningstar.no/api/rest.svc/timeseries_price/dr6pz9spfi'
       if self._security == 'etf':
         params['performanceType'] = ''
         params['id'] = f'{self._id}]22]1]'
