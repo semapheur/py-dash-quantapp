@@ -1,3 +1,4 @@
+import ast
 from typing import Literal, Optional, TypedDict
 import json
 import sqlite3
@@ -8,6 +9,20 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, TEXT
 
 from lib.const import DB_DIR
+
+
+class CalcItems(ast.NodeVisitor):
+  def __init__(self):
+    self.items: set[str] = set()
+
+  def reset_names(self):
+    self.items = set()
+
+  def visit_Name(self, node):
+    if node.id.startswith(('average_', 'change_')):
+      self.items.add(node.id)
+
+    self.generic_visit(node)
 
 
 class Template(TypedDict):
@@ -41,7 +56,7 @@ class TaxonomyItem(BaseModel):
     'shares',
   ]
   aggregate: Literal['average', 'recalc', 'sum', 'tail']
-  gaap: list[str]
+  gaap: list[str] = []
   label: TaxonomyLabel
   calculation: Optional[TaxononmyCalculation] = None
 
@@ -53,11 +68,51 @@ class Taxonomy(BaseModel):
     new_keys = set(self.data.keys()).intersection(filter_)
     self.data = {key: value for key, value in self.data.items() if key in new_keys}
 
-  def average_items(self):
-    return
+  def add_missing_items(self):
+    visitor = CalcItems()
 
-  def change_items(self):
-    return
+    for v in self.data.values():
+      if (calc := v.calculation) is not None:
+        if calc.all is not None:
+          visitor.visit(calc.all)
+
+        elif calc.any is not None:
+          visitor.visit(calc.any)
+
+    present_items = set(self.data.keys())
+    missing_items = visitor.items.difference(present_items)
+
+    for i in missing_items:
+      prefix, base_item = i.split('_', 1)
+
+      if base_item not in present_items:
+        print(f'{base_item} is missing in the taxonomy!')
+        continue
+
+      short = self.data[base_item].label.short
+      base_item_calc = self.data[base_item].calculation
+      order = 0 if base_item_calc is None else max(0, base_item_calc.order - 1)
+
+      if prefix == 'average':
+        calc = TaxononmyCalculation(order=order, avg=base_item)
+        label = TaxonomyLabel(
+          long=f'Average {self.data[base_item].label.long}',
+          short=None if short is None else f'Average {short}',
+        )
+      elif prefix == 'change':
+        calc = TaxononmyCalculation(order=order, diff=base_item)
+        label = TaxonomyLabel(
+          long=f'Change in {self.data[base_item].label.long}',
+          short=None if short is None else f'Change in {short}',
+        )
+
+      self.data[i] = TaxonomyItem(
+        unit=self.data[base_item].unit,
+        aggregate='average' if prefix == 'average' else 'sum',
+        gaap=[],
+        label=label,
+        calculation=calc,
+      )
 
   def calculation_order(self):
     ...

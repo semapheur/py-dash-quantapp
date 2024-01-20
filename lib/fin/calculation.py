@@ -1,5 +1,5 @@
 import ast
-from typing import cast, Any, Iterable
+from typing import cast, Any
 
 import numpy as np
 import pandas as pd
@@ -114,7 +114,9 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   return df
 
 
-def day_difference(df: pd.DataFrame, slices=SLICES):
+def day_difference(
+  df: pd.DataFrame, slices: tuple[tuple[slice | Any, ...], ...] = SLICES
+):
   for ix in slices:
     _df: pd.DataFrame = df.loc[ix, :]
     _df.sort_index(level='date', inplace=True)
@@ -173,7 +175,7 @@ def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
 
 
 def applier(
-  s: pd.Series, fn: str, slices: Iterable[Iterable[slice | Any]] = SLICES
+  s: pd.Series, fn: str, slices: tuple[tuple[slice | Any, ...], ...] = SLICES
 ) -> pd.Series:
   result = s.copy()
   update = [pd.Series()] * len(slices)
