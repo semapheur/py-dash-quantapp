@@ -2534,23 +2534,23 @@
     "calculation": {
       "order": 2,
       "any": {
-        "i/l": {
+        "net_income_loss": {
           "weight": 1,
           "sign": -1
         },
-        "d-tx": {
+        "deferred_tax": {
           "weight": 1,
           "sign": -1
         },
-        "cf.op.sh_cp": {
+        "sharebased_compensation": {
           "weight": 1,
           "sign": -1
         },
-        "cf.op.WC": {
+        "operating_working_capital": {
           "weight": 1,
           "sign": -1
         },
-        "cf.op.ot_n-ch": {
+        "other_noncash_income_expense": {
           "weight": 1,
           "sign": 1
         } 
@@ -2950,10 +2950,7 @@
     },
     "calculation": {
       "order": 0,
-      "all": {
-        "eq.cm_st": 1,
-        "eq.APIC": 1
-      }
+      "all": "common_stock + additional_paid_in_capital"
     }
   },
   "minority_interest_stock": {
@@ -3073,10 +3070,7 @@
     "aggregrate": "sum",
     "calculation": {
       "order": 4,
-      "all": {
-        "i/l.b-tx": 1,
-        "tx": -1
-      }
+      "all": "pretax_income_loss - tax"
     },
     "gaap": [
       "ProfitLoss"

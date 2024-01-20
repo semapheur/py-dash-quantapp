@@ -37,10 +37,15 @@ class TaxonomyLabel(BaseModel):
   short: Optional[str] = None
 
 
+class TaxononmyCalculationItem(BaseModel):
+  weight: int | float
+  sign: Literal[-1, 1]
+
+
 class TaxononmyCalculation(BaseModel):
   order: int = Field(ge=0)
-  all: Optional[str] = None
-  any: Optional[str] = None
+  all: Optional[str | dict[str, TaxononmyCalculationItem]] = None
+  any: Optional[str | dict[str, TaxononmyCalculationItem]] = None
   avg: Optional[str] = None
   diff: Optional[str] = None
 
@@ -69,23 +74,29 @@ class Taxonomy(BaseModel):
     new_keys = set(self.data.keys()).intersection(filter_)
     self.data = {key: value for key, value in self.data.items() if key in new_keys}
 
-  def add_missing_items(self):
+  def add_missing_items(self) -> None:
     visitor = AggregateItems()
+
+    calc_items: set[str] = set()
 
     for v in self.data.values():
       if (calc := v.calculation) is None:
         continue
 
-      calc_text = calc.all or calc.any
+      calc_value = calc.all or calc.any
 
-      if isinstance(calc_text, str):
-        visitor.visit(ast.parse(calc_text))
+      if isinstance(calc_value, str):
+        visitor.visit(ast.parse(calc_value))
 
-    if not visitor.items:
+      elif isinstance(calc_value, dict):
+        calc_items.union(calc_value.keys())
+
+    calc_items.union(visitor.items)
+    if not calc_items:
       return
 
     present_items = set(self.data.keys())
-    missing_items = visitor.items.difference(present_items)
+    missing_items = calc_items.difference(present_items)
 
     for i in missing_items:
       prefix, base_item = i.split('_', 1)
@@ -130,6 +141,9 @@ class Taxonomy(BaseModel):
 
       if isinstance(calc_value, str):
         order_dict[k] = extract_items(calc_value)
+
+      elif isinstance(calc_value, dict):
+        order_dict[k] = set(calc_value.keys())
 
     visited: set[str] = set()
     result: list[str] = []
@@ -267,7 +281,7 @@ def extract_items(calc_text: str) -> set[str]:
       self.items: set[str] = set()
 
     def visit_Name(self, node):
-      self.names.add(node.id)
+      self.items.add(node.id)
       self.generic_visit(node)
 
   tree = ast.parse(calc_text)
