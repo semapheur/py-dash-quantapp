@@ -1,7 +1,8 @@
 import ast
-from typing import Literal, Optional, TypedDict
+from collections import defaultdict
 import json
 import sqlite3
+from typing import cast, Literal, Optional, TypedDict
 
 from glom import glom
 import pandas as pd
@@ -11,8 +12,8 @@ from sqlalchemy import create_engine, TEXT
 from lib.const import DB_DIR
 
 
-class CalcItems(ast.NodeVisitor):
-  def __init__(self):
+class AggregateItems(ast.NodeVisitor):
+  def __init__(self) -> None:
     self.items: set[str] = set()
 
   def reset_names(self):
@@ -69,15 +70,19 @@ class Taxonomy(BaseModel):
     self.data = {key: value for key, value in self.data.items() if key in new_keys}
 
   def add_missing_items(self):
-    visitor = CalcItems()
+    visitor = AggregateItems()
 
     for v in self.data.values():
-      if (calc := v.calculation) is not None:
-        if calc.all is not None:
-          visitor.visit(calc.all)
+      if (calc := v.calculation) is None:
+        continue
 
-        elif calc.any is not None:
-          visitor.visit(calc.any)
+      calc_text = calc.all or calc.any
+
+      if isinstance(calc_text, str):
+        visitor.visit(ast.parse(calc_text))
+
+    if not visitor.items:
+      return
 
     present_items = set(self.data.keys())
     missing_items = visitor.items.difference(present_items)
@@ -114,8 +119,36 @@ class Taxonomy(BaseModel):
         calculation=calc,
       )
 
-  def calculation_order(self):
-    ...
+  def resolve_calculation_order(self) -> None:
+    order_dict = defaultdict(set)
+
+    for k, v in self.data.items():
+      if (calc := v.calculation) is None:
+        continue
+
+      calc_value = cast(str | dict, calc.all or calc.any or calc.avg or calc.diff)
+
+      if isinstance(calc_value, str):
+        order_dict[k] = extract_items(calc_value)
+
+    visited: set[str] = set()
+    result: list[str] = []
+
+    def topological_sort(node: str):
+      if node in visited:
+        return
+
+      visited.add(node)
+      for neighbor in order_dict[node]:
+        topological_sort(neighbor)
+      result.append(node)
+
+    for k in self.data:
+      topological_sort(k)
+
+    for k, v in self.data.items():
+      if (calc := v.calculation) is not None:
+        calc.order = result.index(k)
 
   def select_items(self, target_key, target_value: tuple[str, str]) -> set[str]:
     result = {
@@ -226,6 +259,21 @@ class Taxonomy(BaseModel):
     cur.executemany(query, values)
     con.commit()
     con.close()
+
+
+def extract_items(calc_text: str) -> set[str]:
+  class CalcItems(ast.NodeVisitor):
+    def __init__(self) -> None:
+      self.items: set[str] = set()
+
+    def visit_Name(self, node):
+      self.names.add(node.id)
+      self.generic_visit(node)
+
+  tree = ast.parse(calc_text)
+  visitor = CalcItems()
+  visitor.visit(tree)
+  return visitor.items
 
 
 def load_taxonomy(
