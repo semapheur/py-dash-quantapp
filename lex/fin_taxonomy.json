@@ -724,11 +724,29 @@
     "unit": "percent",
     "aggregate": "recalc",
     "gaap": [
+      "EffectiveTaxRate",
+      "EffectiveIncomeTaxRate",
+      "EffectiveIncomeTaxBenefitRate",
       "EffectiveIncomeTaxRateContinuingOperations"
     ],
     "label": {
       "long": "Effective Tax Rate",
       "short": "Tax Rate"
+    },
+    "calculation": {
+      "order": 4,
+      "all": "tax_expense_benefit / pretax_income_loss"
+    }
+  },
+  "tax_rate_discontinued_operations": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "gaap": [
+      "EffectiveIncomeTaxRateDiscontinuedOperations"
+    ],
+    "label": {
+      "long": "Effective Tax Rate for Discontinued Operations",
+      "short": "Tax Rate for Discontinued Operations"
     },
     "calculation": {
       "order": 4,
@@ -2815,7 +2833,8 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "StockholdersEquity"
+      "StockholdersEquity",
+      "Equity"
     ],
     "label": {
       "long": "Stockholder's Equity"
@@ -3554,6 +3573,7 @@
       "all": "equity + liabilities"
     },
     "gaap": [
+      "EquityAndLiabilities",
       "LiabilitiesAndStockholdersEquity"
     ],
     "label": {
@@ -3949,23 +3969,425 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "AccretionExpense"
+      "AccretionExpense",
+      "AccretionExpenseIncludingAssetRetirementObligations"
     ],
     "label": {
       "long": "Accretion"
     }
   },
-  "amortization": {
+  "accretion_amortization_discounts_premiums_investements": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AccretionAmortizationofDiscountsandPremiumsInvestmentsTrading",
+      "AccretionAmortizationofDiscountsandPremiumsInvestmentsTrading",
+      "AccretionAmortizationofDiscountsandPremiumsInvestmentsAvailableforSale",
+      "AccretionAmortizationOfDiscountsAndPremiumsInvestmentsAvailableForSale"
+    ],
+    "label": {
+      "long": "Accretion of Discounts"
+    },
+    "calculation": {
+      "order": 1,
+      "any": ""
+    }
+  },
+  "accretion_discounts_investements": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AccretionOfDiscountAmount",
+      "AccretionOfDiscountsOnShortTermInvestments",
+      "AccretionOfDiscountsOnSecuritiesAvailableForSale"
+    ],
+    "label": {
+      "long": "Accretion of Discounts on Trade Securities"
+    }
+  },
+  "accretion_discounts_debt": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "DebtDiscountAccretion"
+    ],
+    "label": {
+      "long": "Accretion of Discounts"
+    }
+  },
+  "amortization_discounts_premiums_investments": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfPremiumAndDiscountOnShortTermInvestments"
+    ],
+    "label": {
+      "long": "Accretion of Discounts and Premiums on Trade Securities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_discounts_premiums_debt"
+    }
+  },
+  "amortization_discounts_premiums_debt": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfDebtDiscountPremium"
+    ],
+    "label": {
+      "long": "Accretion of Discounts and Premiums on Debt Securities"
+    }
+  },
+  "amortization_income": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationIncome"
+    ],
+    "label": {
+      "long": "Amortization Income"
+    }
+  },
+  "amortization_expense": {
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
       "AmortisedCost",
       "AmortisationExpense",
+      "AmortizationOfIntangibleAssetsAndLiabilitiesNet"
+    ],
+    "label": {
+      "long": "Amortization Expense"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_acquisition_costs + amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_advance_royalty + amortization_lease_incentives_benefit + amortization_intangible_assets + amortization_lease_assets + amortization_other_assets + amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss"
+    }
+  },
+  "amortization_unrecognized_pension_loss": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfUnrecognizedPensionLoss"
+    ],
+    "label": {
+      "long": "Amortization of Unrecognized Pension Loss"
+    }
+  },
+  "amortization_interest_expense_beneficial_conversion_feature": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfInterestExpenseRelatedToBeneficialConversionFeature"
+    ],
+    "label": {
+      "long": "Amortization of Interest Expense Related to Beneficial Conversion Feature"
+    }
+  },
+  "amortization_acquisition_other_fairvalue_adjustments": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfOtherFairValueAdjustmentsNetArisingOnTheMerger"
+    ],
+    "label": {
+      "long": "Amortization of Other Fair Value Adjustments Related to Acquisition"
+    }
+  },
+  "amortization_acquisition_price_adjustment": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfPurchasePriceAdjustment"
+    ],
+    "label": {
+      "long": "Amortization of Acquisition Price Adjusment"
+    }
+  },
+  "amortization_advance_royalty": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfAdvanceRoyalty"
+    ],
+    "label": {
+      "long": "Amortization of Advance Royalty"
+    }
+  },
+  "amortization_discount_investment_account_receivable": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfDiscountOnInvestmentInAccountReceivable"
+    ],
+    "label": {
+      "long": "Amortization of Discount on Investment in Account Receivable"
+    }
+  },
+  "amortization_intangible_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
       "AmortisationIntangibleAssetsOtherThanGoodwill",
       "AmortisationIntangibleAssetsOtherThanGoodwillOnDisposalOfIntangibleAssets"
     ],
     "label": {
-      "long": "Amortization"
+      "long": "Amortization of Intangible Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_acquired_intangible_assets + amortization_deferred_costs"
+    }
+  },
+  "amortization_acquired_intangible_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfAcquiredIntangibleAssets"
+    ],
+    "label": {
+      "long": "Amortization of Acquired Intangible Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_acquired_contract_backlog + amortization_favorable_unfavorable_contracts"
+    }
+  },
+  "amortization_acquired_contract_backlog": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationAcquiredContractBacklog"
+    ],
+    "label": {
+      "long": "Amortization of Acquired Contract Backlog"
+    }
+  },
+  "amortization_favorable_unfavorable_contracts": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationofFavorableUnfavorableContracts"
+    ],
+    "label": {
+      "long": "Amortization of Favorable/Unfavorable Contracts"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_favorable_contracts + amortization_unfavorable_contracts"
+    }
+  },
+  "amortization_favorable_contracts": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfFavorableContracts"
+    ],
+    "label": {
+      "long": "Amortization of Favorable Contracts"
+    }
+  },
+  "amortization_unfavorable_contracts": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfUnfavorableContracts"
+    ],
+    "label": {
+      "long": "Amortization of Unfavorable Contracts"
+    }
+  },
+  "amortization_deferred_costs": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfDeferredCosts",
+      "AmortizationOfDeferredCharges"
+    ],
+    "label": {
+      "long": "Amortization of Deferred Costs"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_of_acquisition_costs_amortization_financing_costs + amortization_deferred_warrant_costs"
+    }
+  },
+  "amortization_acquisition_costs": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfAcquisitionCosts"
+    ],
+    "label": {
+      "long": "Amortization of Acquisition Costs"
+    }
+  },
+  "amortization_financing_costs": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationofDebtFee",
+      "AmortizationOfIssuanceCosts",
+      "AmortizationsOfFinancingCost",
+      "AmortizationOfFinancingCosts",
+      "AmortizationOfDebtIssuanceCost",
+      "AmortizationOfFinancingCostsAndDiscounts",
+      "AmortizationOfFinancingCostsAndDebtGuarantee"
+    ],
+    "label": {
+      "long": "Amortization of Financing Costs"
+    }
+  },
+  "amortization_deferred_warrant_costs": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfDeferredWarrantCosts"
+    ],
+    "label": {
+      "long": "Amortization of Deferred Warrant Costs"
+    }
+  },
+  "amortization_other_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfOtherAssets"
+    ],
+    "label": {
+      "long": "Amortization of Other Assets"
+    }
+  },
+  "amortization_lease_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfLeaseAssets"
+    ],
+    "label": {
+      "long": "Amortization of Lease Assets"
+    }
+  },
+  "amortization_lease_incentives_benefit": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfLeaseIncentivesBenefit"
+    ],
+    "label": {
+      "long": "Amortization of Lease Incentives Benefit"
+    }
+  },
+  "amortization_lease_expense": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationExpenseComponentOfLeaseExpense"
+    ],
+    "label": {
+      "long": "Amortization of Lease Expense"
+    }
+  },
+  "amortization_deferred_loss_reinsurance": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfDeferredLossOnReinsurance"
+    ],
+    "label": {
+      "long": "Amortization of Deferred Loss on Reinsurance"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_financing_costs"
+    }
+  },
+  "amortization_prepaid_insurance": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfPrepaidInsurance"
+    ],
+    "label": {
+      "long": "Amortization of Prepaid Insurance"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_financing_costs"
+    }
+  },
+  "amortization_revenue_contract_asset_liability": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfSalesContractAssetLiability",
+      "AmortizationOfSalesContracts"
+    ],
+    "label": {
+      "long": "Amortization of Sales Contract Asset/Liability"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_revenue_contract_asset + amortization_deferred_revenue"
+    }
+  },
+  "amortization_revenue_contract_asset": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfSalesContractAsset",
+      "AmortizationOfRevenueContractAsset",
+      "AmortisationAssetsRecognisedFromCostsIncurredToObtainOrFulfilContractsWithCustomers"
+    ],
+    "label": {
+      "long": "Amortization of Sales Contract Asset"
+    }
+  },
+  "amortization_fairvalue_adjustment_assumed_debt": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfFairValueAdjustmentsOfAssumedDebt"
+    ],
+    "label": {
+      "long": "Amortization of Fair Value Adjustment of Assumed Debt"
+    }
+  },
+  "amortization_intangible_liabilities": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationofIntangibleLiabilities"
+    ],
+    "label": {
+      "long": "Amortization of Intangible Liabilities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "amortization_deferred_revenue"
+    }
+  },
+  "amortization_deferred_revenue": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationOfDeferredRevenue",
+      "AmortizationOfRevenueContractLiability"
+    ],
+    "label": {
+      "long": "Amortization of Deferred Revenue"
+    }
+  },
+  "amortization_instore_displays": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AmortizationExpenseRelatedToInStoreDisplays",
+      "AmortizationExpenseRelatedToInstoreDisplays"
+    ],
+    "label": {
+      "long": "Amortization Expense Related to In-Store Displays"
     }
   },
   "research_development_expense": {
@@ -3998,13 +4420,38 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "GeneralAndAdministrativeExpense",
-      "AdministrativeExpense",
-      "AdministrativeExpenses"
+      "GeneralAndAdministrativeExpense"
     ],
     "label": {
       "long": "General and Administrative Expense",
       "short": "GA Expense"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "general_expense + administrative_expense"
+    }
+  },
+  "administrative_expense": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "GeneralAndAdministrativeExpense",
+      "AdministrativeExpense",
+      "AdministrativeExpenses",
+      "AdministrativeFeesExpense"
+    ],
+    "label": {
+      "long": "Administrative Expense"
+    }
+  },
+  "general_expense": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "GeneralCorporateExpenseNet"
+    ],
+    "label": {
+      "long": "General Expense"
     }
   },
   "selling_marketing_expense": {
@@ -4022,7 +4469,9 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "AdvertisingExpense"
+      "AdvertisingExpense",
+      "AdvertisingAndPromotionCosts",
+      "AdvertisingAndMarketingExpenses"
     ],
     "label": {
       "long": "Advertising Expense"

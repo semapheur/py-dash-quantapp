@@ -51,6 +51,15 @@ def sql_table(query: str):
   return m.group(2)
 
 
+def get_tables(db_name: str) -> list[str]:
+  db_path = sqlite_path(db_name)
+
+  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+  insp = inspect(engine)
+
+  return insp.get_table_names()
+
+
 def check_table(tables: str | set[str], engine: Engine) -> bool:
   db_tables = inspect(engine).get_table_names()
 
