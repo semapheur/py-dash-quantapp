@@ -1262,21 +1262,103 @@
       "short": "Current Gross Receivables"
     }
   },
-  "current_loss_allowance_receivables": {
+  "credit_loss_allowance": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "AllowanceForDoubtfulAccountsReceivableCurrent",
-      "AllowanceForDoubtfulAccountsReceivable",
-      "AllowanceForDoubtfulAccountsTradeReceivables",
-      "AccountsReceivableAllowanceForCreditLoss",
+      "BadDebtAllowance",
+      "ExpectedCreditLosses",
       "AllowanceForCreditLoss",
+      "ExpectedCreditLossAllowance",
+      "ExpectedCreditLossAllowances",
       "AllowanceForExpectedCreditLosses",
-      "AllowancesAccountsReceivableCurrent"
+      "AllowanceAccountForCreditLossesOfFinancialAssets"
     ],
     "label": {
-      "long": "Current Loss Allowance for Total Receivables",
+      "long": "Allowance for Expected Credit Losses of Financial Assets",
       "short": "Credit Loss Provision"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "current_loss_allowance + noncurrent_loss_allowance"
+    }
+  },
+  "current_credit_loss_allowance": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "AllowanceAccountForCreditLossesOfFinancialAssetsCurrent"
+    ],
+    "label": {
+      "long": "Current Allowance for Expected Credit Losses of Financial Assets",
+      "short": "Current Credit Loss Provision"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "current_credit_loss_allowance_receivables + current_credit_loss_allowance_trade_securities"
+    }
+  },
+  "current_credit_loss_allowance_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "AllowancesAccountsReceivableCurrent",
+      "AllowanceForDoubtfulAccountsReceivable",
+      "AccountsReceivableAllowanceForCreditLoss",
+      "AllowanceForDoubtfulAccountsReceivableCurrent",
+      "AccountsAndFinancingReceivableAllowanceForCreditLoss"
+    ],
+    "label": {
+      "long": "Current Credit Loss Allowance for Receivables",
+      "short": "Current Loss Provision for Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "current_credit_loss_allowance_trade_receivables  + current_credit_loss_allowance_financing_receivables"
+    }
+  },
+  "current_credit_loss_allowance_trade_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "AllowanceForDoubtfulAccountsTradeReceivables"
+    ],
+    "label": {
+      "long": "Current Credit Loss Allowance for Trade Receivables",
+      "short": "Trade Receivables"
+    }
+  },
+  "current_credit_loss_allowance_financing_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "FinancingReceivableAllowanceForCreditLossess"
+    ],
+    "label": {
+      "long": "Current Credit Loss Allowance for Financing Receivables",
+      "short": "Financing Receivables"
+    }
+  },
+  "current_credit_loss_allowance_trade_securities": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "AvailableForSaleSecuritiesAllowanceForCreditLoss"
+    ],
+    "label": {
+      "long": "Current Credit Loss Allowance for Trade Securities",
+      "short": "Credit Loss Provision"
+    }
+  },
+  "noncurrent_credit_loss_allowance": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "AllowanceAccountForCreditLossesOfFinancialAssetsNonCurrent"
+    ],
+    "label": {
+      "long": "Non-current Allowance for Expected Credit Losses of Financial Assets",
+      "short": "Non-current Credit Loss Provision"
     }
   },
   "current_trade_receivables": {
@@ -3044,9 +3126,17 @@
       "all": "operating_income_loss - nonoperating_income_expenses"
     },
     "gaap": [
+      "IncomeBeforeTaxes",
+      "IncomeBeforeTaxes1",
+      "IncomeBeforeTaxes2",
+      "IncomeBeforeTaxes3",
+      "IncomeBeforeIncomeTaxes",
+      "IncomeBeforeIncomeTaxes1",
+      "NetIncomeLossBeforeTaxes",
+      "IncomeLossBeforeIncomeTax",
+      "IncomeLossBeforeIncomeTaxesAndNoncontrollingInterest",
       "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
       "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
-      "NetIncomeLossBeforeTaxes"
     ],
     "label": {
       "long": "Income (Loss) from Continuing Operations Before Income Taxes, Extraordinary Items and Minority Interest",
@@ -3077,6 +3167,7 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
+      "IncomeLossAttributableToNoncontrollingInterest",
       "NetIncomeLossAttributableToNoncontrollingInterest",
       "NetIncomeLossesAttributableToNoncontrollingInterest"
     ],
@@ -3594,30 +3685,121 @@
   "impairment": {
     "unit": "monetary",
     "aggregrate": "sum",
+    "gaap": [
+      "Impairment",
+      "ImpairmentLoss",
+      "ImpairmentAdjustments",
+      "ImpairmentLossRecognisedInProfitOrLoss"
+    ],
     "calculation": {
       "order": 0,
-      "any": "goodwill_impairment + intangible_assets_impairment"
+      "any": "impairment_goodwill_intangible_assets"
     },
     "label": {
       "long": "Impairment Loss"
     }
   },
-  "goodwill_impairment": {
+  "impairment_financial_assets": {
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "GoodwillImpairmentLoss"
+      "ImpairmentOfInvestments",
+      "ImpairmentOfInvestments1",
+      "ImpairmentOfInvestments2",
+      "ImpairmentOfInvestmentsNetOfTax",
+      "ImpairmentOfFinancialInvestmentNetOfTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_cryptocurrency"
+    },
+    "label": {
+      "long": "Impairment Loss of Financial Assets"
+    }
+  },
+  "impairment_productive_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "ImpairmentOfPropertyAndEquipment",
+      "ImpairmentLossRecognisedInProfitOrLossPropertyPlantAndEquipment",
+      "ImpairmentLossRecognisedInProfitOrLossInvestmentPropertyAndOtherNonFinancialAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_buildings + impairment_construction_in_progess"
+    },
+    "label": {
+      "long": "Impairment Loss of Productive Assets"
+    }
+  },
+  "impairment_goodwill_intangible_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "Impairment",
+      "ImpairmentLoss",
+      "ImpairmentAdjustments",
+      "ImpairmentOfGoodwillAndOtherIntangibleAssets",
+      "ImpairmentChargesGoodwillAndOtherIntangibleAssets",
+      "ImpairmentChargesForGoodWillAndOtherIntangibleAssets",
+      "ImpairmentChargesForGoodwillAndOtherIntangibleAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "goodwill_impairment + intangible_assets_impairment"
+    },
+    "label": {
+      "long": "Impairment Loss of Goodwill and Other Intangible Assets"
+    }
+  },
+  "impairment_goodwill": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "GoodwillImpairmentLoss",
+      "ImpairmentChargesForGoodwill",
+      "ImpairmentLossRecognisedInProfitOrLossGoodwill"
     ],
     "label": {
       "long": "Impairment of Goodwill"
     }
   },
-  "intangible_assets_impairment": {
+  "impairment_intangible_assets": {
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
+      "ImpairmentLossOfIntangibleAssets",
       "ImpairmentOfIntangibleAssetsExcludingGoodwill",
-      "ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill"
+      "ImpairmentLossRecognisedInProfitOrLossIntangibleAssetsOtherThanGoodwill",
+      "ImpairmentOfIntangibleAssetsExcludingGoodwillNetOfTax"
+    ],
+    "label": {
+      "long": "Impairment of Intangible Assets Excluding Goodwill",
+      "short": "Impairment of Intangible Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "impairment_indefinitelived_intangible_assets + impairment_finitelived_intangible_assets"
+    }
+  },
+  "impairment_indefinitelived_intangible_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill",
+      "ImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwillAfterTax"
+    ],
+    "label": {
+      "long": "Impairment of Indefinite Lived Intangible Assets Excluding Goodwill",
+      "short": "Impairment of Intangible Assets"
+    }
+  },
+  "impairment_finitelived_intangible_assets": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "ImpairmentOfIntangibleAssetsFinitelived"
     ],
     "label": {
       "long": "Impairment of Indefinite Lived Intangible Assets Excluding Goodwill",
@@ -4012,7 +4194,18 @@
       "DebtDiscountAccretion"
     ],
     "label": {
-      "long": "Accretion of Discounts"
+      "long": "Accretion of Discounts on Debt Securities"
+    }
+  },
+  "accretion_convertible_preferred_stock": {
+    "unit": "monetary",
+    "aggregrate": "sum",
+    "gaap": [
+      "AccretionOfConvertiblePreferredStock",
+      "AccretionOfConvertiblePreferredShares"
+    ],
+    "label": {
+      "long": "Accretion of Convertible Preferred Stock"
     }
   },
   "amortization_discounts_premiums_investments": {
