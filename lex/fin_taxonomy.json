@@ -3136,7 +3136,7 @@
       "IncomeLossBeforeIncomeTax",
       "IncomeLossBeforeIncomeTaxesAndNoncontrollingInterest",
       "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
-      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
     ],
     "label": {
       "long": "Income (Loss) from Continuing Operations Before Income Taxes, Extraordinary Items and Minority Interest",
