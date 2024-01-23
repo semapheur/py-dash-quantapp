@@ -189,6 +189,7 @@ async def parse_statement(url: str) -> RawFinancials:
   def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
     def parse_name(name: str) -> str:
       name = re.sub(r'(Segment)?Member', '', name)
+      name = re.sub(r'Zero\w+', '', name)
       return name.split(':')[-1]
 
     unit = parse_unit(item.attrib['unitRef'])
@@ -269,6 +270,7 @@ async def parse_statement(url: str) -> RawFinancials:
       scrap['unit'] = unit
 
     item_name = item.tag.split('}')[-1]
+    item_name = re.sub(r'Zero\w+$', '', item_name)
     if item_name not in data:
       data[item_name] = [scrap]
       continue

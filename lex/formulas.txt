@@ -1,0 +1,3 @@
+"change_working_capital": {
+  "any": "change_current_tax_assets + change_inventories + change_current_trade_receivables + change_current_prepaid_expenses + change_other_current_assets - change_current_accrued_expenses - change_current_deferred_revenue - change_current_tax_liabilities - change_current_trade_payables - change_other_current_liabilities"
+}

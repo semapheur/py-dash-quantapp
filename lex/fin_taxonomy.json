@@ -75,7 +75,10 @@
     "unit": "ratio",
     "aggregrate": "tail",
     "gaap": [
-      "StockholdersEquityNoteStockSplitConversionRatio1"
+      "StockSplitRatio",
+      "StockholdersEquityNoteStockSplitConversionRatio",
+      "StockholdersEquityNoteStockSplitConversionRatio1",
+      "ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares"
     ],
     "label": {
       "long": "stock_split_ratio"
@@ -89,7 +92,7 @@
     },
     "calculation": {
       "order": 1,
-      "all": "market_capitalization + debt + minority_interest - liquid_assets"
+      "all": "market_capitalization + debt + minority_interest_stock - liquid_assets"
     }
   },
   "net_operating_assets": {
@@ -429,7 +432,7 @@
       "all": "average_debt / average_equity"
     }
   },
-  "debt_to_asset": {
+  "debt_to_assets": {
     "unit": "monetary_ratio",
     "aggregrate": "average",
     "label": {
@@ -459,6 +462,9 @@
   "debt": {
     "unit": "monetary",
     "aggregrate": "tail",
+    "gaap": [
+      "NetDebt"
+    ],
     "label": {
       "long": "Total Debt"
     },
@@ -880,6 +886,11 @@
   "working_capital": {
     "unit": "monetary",
     "aggregrate": "tail",
+    "gaap": [
+      "WorkingCapital",
+      "WorkingsCapital",
+      "NetWorkingCapital"
+    ],
     "calculation": {
       "order": 0,
       "all": "average_current_assets - average_current_liabilities"
@@ -1059,15 +1070,27 @@
     "aggregrate": "tail",
     "calculation": {
       "order": 1,
-      "any": "finished_goods + parts_components + work_in_progress_raw_materials"
+      "any": "finished_goods + parts_components + work_in_progress_raw_materials + other_inventory"
     },
     "gaap": [
       "InventoryNet",
       "Inventories",
-      "InventoryNetCurrentAndNonCurrent"
+      "InventoryNetCurrentAndNonCurrent",
+      "InventoryCurrentAndNoncurrent"
     ],
     "label": {
       "long": "Net Inventory"
+    }
+  },
+  "other_inventory": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "OtherInventories",
+      "OtherInventorySupplies"
+    ],
+    "label": {
+      "long": "Other Inventory"
     }
   },
   "gross_inventory": {
@@ -1196,12 +1219,14 @@
       "any": "cash_cash_equivalents + current_securities"
     },
     "gaap": [
+      "CashCashEquivalentsAndInvestments",
       "CashCashEquivalentsAndMarketableSecurities",
       "CashCashEquivalentsAndShortTermInvestments",
-      "CashAndCashEquivalentsAndAvailableForSaleInvestments"
+      "CashAndCashEquivalentsAndAvailableForSaleInvestments",
+      "CashCashEquivalentMarketableSecuritiesAndRestrictedCash"
     ],
     "label": {
-      "long": "Cash, Cash Equivalents and Marketable Securities",
+      "long": "Cash, Cash Equivalents and Trading Securities",
       "short": "Liquid Assets"
     }
   },
@@ -1359,6 +1384,21 @@
     "label": {
       "long": "Non-current Allowance for Expected Credit Losses of Financial Assets",
       "short": "Non-current Credit Loss Provision"
+    }
+  },
+  "trade_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      
+    ],
+    "label": {
+      "long": "Net Trade Receivables",
+      "short": "Trade Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_trade_receivables + noncurrent_trade_receivables"
     }
   },
   "current_trade_receivables": {
@@ -1587,22 +1627,46 @@
       "long": "Premiums Receivable"
     }
   },
-  "current_other_receivables": {
+  "other_receivables": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
       "OtherReceivables",
-      "OtherReceivablesOther",
-      "CurrentOtherReceivables",
-      "OtherReceivablesNetCurrent",
-      "AccountsAndOtherReceivablesNetCurrent"
+      "OtherReceivablesOther"
     ],
     "label": {
       "long": "Net Other Receivables"
     },
     "calculation": {
       "order": 0,
+      "all": "current_other_receivables - noncurrent_other_receivables"
+    }
+  },
+  "current_other_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "CurrentOtherReceivables",
+      "OtherCurrentReceivables",
+      "OtherReceivablesNetCurrent",
+      "AccountsAndOtherReceivablesNetCurrent"
+    ],
+    "label": {
+      "long": "Current Net Other Receivables"
+    },
+    "calculation": {
+      "order": 0,
       "all": "current_gross_other_receivables - current_loss_allowance_other_receivables"
+    }
+  },
+  "noncurrent_other_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "OtherNoncurrentReceivables"
+    ],
+    "label": {
+      "long": "Non-Current Net Other Receivables"
     }
   },
   "current_gross_other_receivables": {
@@ -2024,7 +2088,12 @@
     },
     "gaap": [
       "Assets",
-      "AssetsNet"
+      "AssetsNet",
+      "TotalAssets",
+      "TotalAssets1",
+      "TotalAssets2",
+      "TotalAssets3",
+      "TotalAssets4"
     ],
     "label": {
       "long": "Total Assets",
@@ -2553,7 +2622,7 @@
     },
     "calculation": {
       "order": 6,
-      "any": "net_income_loss - deferred_tax + depreciation_depletion_amortization_accretion + sharebased_compensation+ change_working_capital + other_noncash_income_expense"
+      "any": "net_income_loss - deferred_tax + depreciation_depletion_amortization_accretion + sharebased_compensation + change_working_capital + other_noncash_income_expense"
     }
   },
   "change_working_capital": {
@@ -2561,7 +2630,7 @@
     "aggregrate": "sum",
     "calculation": {
       "order": 2,
-      "any": "change_current_tax_assets + change_inventories + change_current_trade_receivables + change_current_prepaid_expenses + change_other_current_assets - change_current_accrued_expenses - change_current_deferred_revenue - change_current_tax_liabilities - change_current_trade_payables - change_other_current_liabilities"
+      "diff": "working_capital"
     },
     "label": {
       "long": "Change in Net Working Capital"
@@ -2915,8 +2984,9 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "StockholdersEquity",
-      "Equity"
+      "Equity",
+      "NetEquity",
+      "StockholdersEquity"
     ],
     "label": {
       "long": "Stockholder's Equity"
@@ -3058,11 +3128,24 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "NoncontrollingInterest"
+      "MinorityInterest",
+      "NoncontrollingInterest",
+      "NoncontrollingInterests"
     ],
     "label": {
       "long": "Non-controlling Interest",
       "short": "Minority Interest"
+    }
+  },
+  "shares_outstanding_minority_interest": {
+    "unit": "shares",
+    "aggregrate": "tail",
+    "gaap": [
+      "NoncontrollingInterestNumberOfShares"
+    ],
+    "label": {
+      "long": "Non-controlling Interest Shares Outstanding",
+      "short": "Minority Interest Shares Outstanding"
     }
   },
   "retained_earnings_accumulated_deficit": {
@@ -3371,6 +3454,16 @@
       "long": "Current Debt"
     }
   },
+  "current_portion_longterm_debt": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "CurrentPortionOfLongtermBorrowings"
+    ],
+    "label": {
+      "long": "Current Debt"
+    }
+  },
   "commercial_paper": {
     "unit": "monetary",
     "aggregrate": "tail",
@@ -3419,11 +3512,25 @@
       "AccountsPayableCurrentAndNoncurrent"
     ],
     "label": {
-      "long": "Accounts Payable"
+      "long": "Net Total Payables"
     },
     "calculation": {
       "order": 0,
       "all": "current_payables + noncurrent_payables"
+    }
+  },
+  "current_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      
+    ],
+    "label": {
+      "long": "Current Net Total Payables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_trade_payables + current_dividend_payables + current_tax_payables"
     }
   },
   "trade_payables": {
@@ -3447,10 +3554,108 @@
       "AccountsPayable",
       "AccountsPayable1",
       "AccountsPayableCurrent",
-      "AccountsPayableTradeCurrent"
+      "AccountsPayableTradeCurrent",
+      "CurrentPayablesToCustomers"
     ],
     "label": {
       "long": "Current Trade Payables"
+    }
+  },
+  "warrant_liabilities": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "WarrantLiability",
+      "WarrantLiabilities"
+    ],
+    "label": {
+      "long": "Warrant Liabilities"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_warrant_liabilities + noncurrent_warrant_liabilities"
+    }
+  },
+  "current_warrant_liabilities": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "WarrantLiabilitiesCurrent"
+    ],
+    "label": {
+      "long": "Current Warrant Liabilities"
+    }
+  },
+  "noncurrent_warrant_liabilities": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "WarrantLiabilityNoncurrent",
+      "WarrantLiabilitiesNoncurrent"
+    ],
+    "label": {
+      "long": "Non-Current Warrant Liabilities"
+    }
+  },
+  "notes_payables_warrant_liabilities": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "TotalNotesPayableAndWarrantLiability"
+    ],
+    "label": {
+      "long": "Notes Payables and Warrant Liability"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "notes_payable + warrant_liability"
+    }
+  },
+  "notes_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "NotesPayable",
+      "TotalNotesPayable"
+    ],
+    "label": {
+      "long": "Net Total Notes Payables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_notes_payable + noncurrent_notes_payable"
+    }
+  },
+  "current_notes_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "NotesPayableCurrent",
+      "NotesPayableCurrentNet"
+    ],
+    "label": {
+      "long": "Net Current Notes Payables"
+    }
+  },
+  "noncurrent_notes_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "LongTermNotesPayable",
+      "NotesPayableNoncurrentNet"
+    ],
+    "label": {
+      "long": "Net Non-current Notes Payables"
+    }
+  },
+  "current_dividend_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "CurrentDividendPayables"
+    ],
+    "label": {
+      "long": "Current Dividend Payables"
     }
   },
   "current_payables_production_supplies": {
@@ -3526,17 +3731,39 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
+      "OtherCurrentPayables",
       "AccountsPayableOtherCurrent"
     ],
     "label": {
       "long": "Current Other Payables"
     }
   },
+  "noncurrent_other_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "OtherNoncurrentPayables"
+    ],
+    "label": {
+      "long": "Non-Current Other Payables"
+    }
+  },
+  "noncurrent_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "NoncurrentPayables"
+    ],
+    "label": {
+      "long": "Non-current Payables"
+    }
+  },
   "noncurrent_payables_related_parties": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "AccountsPayableRelatedPartiesNoncurrent"
+      "AccountsPayableRelatedPartiesNoncurrent",
+      "NoncurrentPayablesToRelatedParties"
     ],
     "label": {
       "long": "Non-current Payables to Related Parties"
@@ -3546,7 +3773,8 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "AccountsPayableTradeNoncurrent"
+      "AccountsPayableTradeNoncurrent",
+      "NoncurrentPayablesToTradeSuppliers"
     ],
     "label": {
       "long": "Non-current Trade Payables"
@@ -3556,7 +3784,8 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "LiabilitiesNoncurrent"
+      "LiabilitiesNoncurrent",
+      "NoncurrentLiabilities"
     ],
     "label": {
       "long": "Total Non-current Liabilities",
@@ -3641,6 +3870,16 @@
       "long": "Other Non-current Liabilities"
     }
   },
+  "noncurrent_trade_receivables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "NoncurrentTradeReceivables"
+    ],
+    "label": {
+      "long": "Non-current Trade Receivables"
+    }
+  },
   "liabilities": {
     "unit": "monetary",
     "aggregrate": "tail",
@@ -3665,6 +3904,7 @@
     },
     "gaap": [
       "EquityAndLiabilities",
+      "TotalLiabilitiesAndEquity",
       "LiabilitiesAndStockholdersEquity"
     ],
     "label": {
@@ -3693,7 +3933,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "impairment_goodwill_intangible_assets"
+      "any": "impairment_financial_assets + impairment_productive_assets + impairment_goodwill_intangible_assets"
     },
     "label": {
       "long": "Impairment Loss"
@@ -3737,9 +3977,7 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "Impairment",
-      "ImpairmentLoss",
-      "ImpairmentAdjustments",
+      "GoodwillAndIntangibleAssetImpairment",
       "ImpairmentOfGoodwillAndOtherIntangibleAssets",
       "ImpairmentChargesGoodwillAndOtherIntangibleAssets",
       "ImpairmentChargesForGoodWillAndOtherIntangibleAssets",
@@ -4717,12 +4955,19 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "RevenueFromContractWithCustomerExcludingAssessedTax",
-      "RevenueFromContractsWithCustomers",
       "Revenues",
       "Revenue",
+      "NetSales",
+      "NetSales1",
+      "NetSales2",
+      "NetSales3",
+      "NetSales4",
+      "NetRevenue",
+      "TotalRevenue",
       "SalesRevenueNet",
-      "SalesAndServiceRevenue"
+      "SalesAndServiceRevenue",
+      "RevenueFromContractsWithCustomers",
+      "RevenueFromContractWithCustomerExcludingAssessedTax"
     ],
     "label": {
       "long": "Revenue"
