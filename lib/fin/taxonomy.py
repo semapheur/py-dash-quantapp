@@ -9,6 +9,7 @@ import pandas as pd
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, TEXT
 
+from lib.db.lite import get_tables, read_sqlite
 from lib.const import DB_DIR
 
 
@@ -379,3 +380,19 @@ def gaap_items(sort=False) -> set[str]:
     items = set(sorted(items))
 
   return items
+
+
+def scraped_items() -> set[str]:
+  tables = get_tables('financials_scrap.db')
+
+  scraped_items: set[str] = set()
+
+  for t in tables:
+    query = f'SELECT data FROM "{t}"'
+    df = read_sqlite('financials_scrap.db', query)
+    df.loc[:, 'data'] = df['data'].apply(lambda x: json.loads(x))
+
+    for d in df['data']:
+      scraped_items.update(cast(dict, d).keys())
+
+  return scraped_items

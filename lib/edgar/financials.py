@@ -239,8 +239,8 @@ def upsert_financials(
     date TEXT,
     period TEXT,
     fiscal_end TEXT,
-    currency JSON,
-    data JSON
+    currency TEXT,
+    data TEXT
   )"""
   )
 

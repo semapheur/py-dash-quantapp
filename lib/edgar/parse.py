@@ -189,7 +189,7 @@ async def parse_statement(url: str) -> RawFinancials:
   def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
     def parse_name(name: str) -> str:
       name = re.sub(r'(Segment)?Member', '', name)
-      name = re.sub(r'Zero\w+', '', name)
+      name = re.sub(name_pattern, '', name)
       return name.split(':')[-1]
 
     unit = parse_unit(item.attrib['unitRef'])
@@ -232,9 +232,9 @@ async def parse_statement(url: str) -> RawFinancials:
   elif scope == 'annual':
     fiscal_period = 'FY'
   else:
-    pattern = r'(\d{2})-(\d{2})'
+    fiscal_pattern = r'(\d{2})-(\d{2})'
 
-    match = re.search(pattern, fiscal_end)
+    match = re.search(fiscal_pattern, fiscal_end)
     month = int(cast(re.Match[str], match).group(1))
     day = int(cast(re.Match[str], match).group(2))
 
@@ -243,6 +243,8 @@ async def parse_statement(url: str) -> RawFinancials:
   doc_id = url.split('/')[-2]
   currency: set[str] = set()
   data: FinData = {}
+
+  name_pattern = r'((?<!Level)(Zero|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$'
 
   for item in root.findall('.//*[@unitRef]'):
     if item.text is None:
@@ -270,7 +272,7 @@ async def parse_statement(url: str) -> RawFinancials:
       scrap['unit'] = unit
 
     item_name = item.tag.split('}')[-1]
-    item_name = re.sub(r'Zero\w+$', '', item_name)
+    item_name = re.sub(name_pattern, '', item_name)
     if item_name not in data:
       data[item_name] = [scrap]
       continue

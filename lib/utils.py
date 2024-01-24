@@ -101,6 +101,15 @@ class renamer:
       return '%s_%d' % (x, self.d[x])
 
 
+def replace_dict_keys(pattern: str, replacement: str, data: dict) -> dict:
+  new_data = {}
+  for k, v in data.items():
+    new_key = re.sub(pattern, '', k)
+    new_data[new_key] = v
+
+  return new_data
+
+
 def insert_characters(string: str, inserts: dict[str, list[int]]):
   result = string
   offset = 0
