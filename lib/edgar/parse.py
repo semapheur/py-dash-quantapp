@@ -244,7 +244,9 @@ async def parse_statement(url: str) -> RawFinancials:
   currency: set[str] = set()
   data: FinData = {}
 
-  name_pattern = r'((?<!Level)(Zero|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$'
+  name_pattern = (
+    r'((?<!Level)(Zero(?!Coupon)|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$'
+  )
 
   for item in root.findall('.//*[@unitRef]'):
     if item.text is None:

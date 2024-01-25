@@ -55,3 +55,6 @@ Run the application with
 ```
 python app.py
 ```
+
+# XBRL taxonomy
+https://xbrl.us/home/filers/sec-reporting/taxonomies/
