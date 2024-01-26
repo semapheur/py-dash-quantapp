@@ -4,12 +4,14 @@ import xml.etree.ElementTree as et
 
 import bs4 as bs
 import httpx
+import numpy as np
 import pandas as pd
 
 from lib.db.lite import insert_sqlite
 
 NAMESPACE = {
   'link': 'http://www.xbrl.org/2003/linkbase',
+  'xbrli': 'http://www.xbrl.org/2003/instance',
   'xlink': 'http://www.w3.org/1999/xlink',
 }
 
@@ -24,9 +26,9 @@ def xbrl_namespaces(dom: bs.BeautifulSoup) -> dict:
   return namespaces
 
 
-def gaap_items(year: int = 2023) -> pd.DataFrame:
+def gaap_items(year: int) -> pd.DataFrame:
   def parse_type(text: str) -> str:
-    return text.replace('ItemType', '').split(':')[1]
+    return text.replace('ItemType', '').split(':')[-1]
 
   url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-{year}.xsd'
 
@@ -34,15 +36,35 @@ def gaap_items(year: int = 2023) -> pd.DataFrame:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  data: list[dict[str, str]] = []
+  data: list[dict[str, str | None]] = []
 
   for item in root.findall('.//xs:element', namespaces=NAMESPACE):
     data.append(
       {
-        'name': item.get('name', ''),
-        'type': parse_type(item.get('type', '')),
-        'period': item.get(f'{{{NAMESPACE["xbrli"]}}}periodType', ''),
-        'balance': item.get(f'{{{NAMESPACE["xbrli"]}}}balance', ''),
+        'name': item.attrib['name'],
+        'type': parse_type(item.attrib['type']),
+        'period': item.attrib[f'{{{NAMESPACE["xbrli"]}}}periodType'],
+        'balance': item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}balance'),
+      }
+    )
+
+  df = pd.DataFrame(data)
+  return df
+
+
+def gaap_labels(year: int) -> pd.DataFrame:
+  url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-lab-{year}.xml'
+
+  with httpx.Client() as client:
+    rs = client.get(url)
+    root = et.fromstring(rs.content)
+
+  data: list[dict[str, str]] = []
+  for item in root.findall('.//link:label', namespaces=NAMESPACE):
+    data.append(
+      {
+        'name': item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
+        'label': cast(str, item.text),
       }
     )
 
@@ -51,9 +73,6 @@ def gaap_items(year: int = 2023) -> pd.DataFrame:
 
 
 def gaap_description(year: int) -> pd.DataFrame:
-  def parse_name(text: str) -> str:
-    return text.replace('lab_', '')
-
   url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-doc-{year}.xml'
 
   with httpx.Client() as client:
@@ -65,7 +84,7 @@ def gaap_description(year: int) -> pd.DataFrame:
   for item in root.findall('.//link:label', namespaces=NAMESPACE):
     data.append(
       {
-        'name': parse_name(item.get(f'{{{NAMESPACE["xlink"]}}}label', '')),
+        'name': item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
         'description': cast(str, item.text),
       }
     )
@@ -74,23 +93,14 @@ def gaap_description(year: int) -> pd.DataFrame:
   return df
 
 
-def gaap_taxonomy(year: int):
-  items = gaap_items(year)
-  description = gaap_description(year)
-
-  result = items.merge(description, how='left', on='name')
-  result.sort_values('name', inplace=True)
-  insert_sqlite(result, 'taxonomy', 'gaap', 'replace', False)
-
-
-def gaap_calculation_url(year: int = 2023) -> list[str]:
+def gaap_calculation_url(year: int) -> list[str]:
   url = f'https://xbrl.fasb.org/us-gaap/{year}/stm/'
 
   with httpx.Client() as client:
     rs = client.get(url)
     dom = bs.BeautifulSoup(rs.text, 'lxml')
 
-  pattern = rf'^.+-cal-{year}.xml$'
+  pattern = rf'-cal-{year}.xml$'
 
   urls: list[str] = []
   for a in dom.find_all('a', href=True):
@@ -101,25 +111,61 @@ def gaap_calculation_url(year: int = 2023) -> list[str]:
   return urls
 
 
-def gaap_calculation(url: str) -> pd.DataFrame:
+def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
   with httpx.Client() as client:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  sheet = (
-    root.find('.//link:calculationLink', namespaces=NAMESPACE)
-    .get(f'{{{NAMESPACE["xlink"]}}}role')
-    .split('/')[-1]
-  )
-
-  data = {}
+  schema: dict[str, dict[str, dict[str, float]]] = {}
   for calc in root.findall('.//link:calculationArc', namespaces=NAMESPACE):
-    parent = calc.get(f'{{{NAMESPACE["xlink"]}}}from')
+    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from']
 
-    item = calc.get(f'{{{NAMESPACE["xlink"]}}}to')
-    schema = {
-      item: {'order': float(calc.get('order')), 'weight': float(calc.get('weight'))}
+    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to']
+    schema.setdefault(parent, {})[item] = {
+      'order': float(calc.attrib['order']),
+      'weight': float(calc.attrib['weight']),
     }
-    data.setdefault(parent, {}).update(schema)
 
-  return data
+  return schema
+
+
+def gaap_calculation(year: int) -> pd.DataFrame:
+  def calculation_text(calc: dict[str, dict[str, float]]) -> str:
+    def parse_weight(weight: float) -> str:
+      result = '- ' if weight < 0 else '+ '
+      result += '' if (norm := np.abs(weight)) == 1.0 else f'{norm}*'
+
+      return result
+
+    text: list[str] = []
+
+    for k, v in calc.items():
+      text.append(f'{parse_weight(v["weight"])}{k}')
+
+    text[0] = text[0].replace('+', '')
+
+    return ' '.join(text)
+
+  urls = gaap_calculation_url(year)
+
+  schema: dict[str, dict[str, dict[str, float]]] = {}
+  for url in urls:
+    schema.update(parse_gaap_calculation(url))
+
+  data = [{'name': k, 'calculation': calculation_text(v)} for k, v in schema.items()]
+
+  df = pd.DataFrame(data)
+  return df
+
+
+def gaap_taxonomy(year: int):
+  items = gaap_items(year)
+  labels = gaap_labels(year)
+  description = gaap_description(year)
+  calculation = gaap_calculation(year)
+
+  items = items.merge(labels, how='left', on='name')
+  items = items.merge(description, how='left', on='name')
+  items = items.merge(calculation, how='left', on='name')
+  items.sort_values('name', inplace=True)
+  insert_sqlite(items, 'taxonomy', 'gaap', 'replace', False)
