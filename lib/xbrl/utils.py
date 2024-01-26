@@ -13,6 +13,7 @@ NAMESPACE = {
   'link': 'http://www.xbrl.org/2003/linkbase',
   'xbrli': 'http://www.xbrl.org/2003/instance',
   'xlink': 'http://www.w3.org/1999/xlink',
+  'xs': 'http://www.w3.org/2001/XMLSchema',
 }
 
 
@@ -43,7 +44,7 @@ def gaap_items(year: int) -> pd.DataFrame:
       {
         'name': item.attrib['name'],
         'type': parse_type(item.attrib['type']),
-        'period': item.attrib[f'{{{NAMESPACE["xbrli"]}}}periodType'],
+        'period': item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}periodType'),
         'balance': item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}balance'),
       }
     )
@@ -104,9 +105,9 @@ def gaap_calculation_url(year: int) -> list[str]:
 
   urls: list[str] = []
   for a in dom.find_all('a', href=True):
-    match = re.search(pattern, a.get('href'))
-    if match:
-      urls.append(match.group())
+    slug = a.get('href')
+    if re.search(pattern, slug):
+      urls.append(f'https://xbrl.fasb.org/us-gaap/{year}/stm/{slug}')
 
   return urls
 
@@ -118,9 +119,9 @@ def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
 
   schema: dict[str, dict[str, dict[str, float]]] = {}
   for calc in root.findall('.//link:calculationArc', namespaces=NAMESPACE):
-    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from']
+    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from'].split('_')[-1]
 
-    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to']
+    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to'].split('_')[-1]
     schema.setdefault(parent, {})[item] = {
       'order': float(calc.attrib['order']),
       'weight': float(calc.attrib['weight']),
@@ -168,4 +169,5 @@ def gaap_taxonomy(year: int):
   items = items.merge(description, how='left', on='name')
   items = items.merge(calculation, how='left', on='name')
   items.sort_values('name', inplace=True)
-  insert_sqlite(items, 'taxonomy', 'gaap', 'replace', False)
+  insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
+  return items
