@@ -168,6 +168,7 @@ def gaap_taxonomy(year: int):
   items = items.merge(labels, how='left', on='name')
   items = items.merge(description, how='left', on='name')
   items = items.merge(calculation, how='left', on='name')
+  items.drop_duplicates(inplace=True)
   items.sort_values('name', inplace=True)
   insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
   return items

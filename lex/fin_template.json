@@ -180,6 +180,17 @@
       "exchange_rate_effect": 1,
       "cashflow": 0
     },
+    "securities": {
+      "trade_securities": 0,
+      "trade_debt_securities": 1,
+      "trade_debt_securities_amortized_cost": 2,
+      "trade_asset_securities": 2,
+      "trade_asset_securities_amortized_cost": 3,
+      "trade_mortgage_securities": 2,
+      "trade_mortgage_securities_amortized_cost": 3,
+      "trade_equity_securities": 1,
+      "trade_equity_securities_amortized_cost": 2
+    },
     "credit_loss": {
       "allowance_credit_loss": 0,
       "current_allowance_credit_loss": 1,
