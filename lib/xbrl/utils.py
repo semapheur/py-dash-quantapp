@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 
 from lib.db.lite import insert_sqlite, read_sqlite
-from lib.fin.taxonomy import extract_items
 
 NAMESPACE = {
   'link': 'http://www.xbrl.org/2003/linkbase',
