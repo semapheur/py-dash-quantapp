@@ -1,4 +1,60 @@
 { 
+  "trade_debt_security_maturities_single_date": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDate"
+    ],
+    "label": {
+      "long": "Current Trade Debt Security Maturities with Single Date"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_remainder_fiscal_year"
+    }
+  },
+  "trade_debt_security_maturities_single_date_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateAmortizedCost"
+    ],
+    "label": {
+      "long": "Current Trade Debt Security Maturities with Single Maturity Date Amortized Cost"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_remainder_fiscal_year"
+    }
+  },
+  "trade_debt_security_maturities_multiple_dates": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateFairValue"
+    ],
+    "label": {
+      "long": "Current Trade Debt Security Maturities with Multiple Maturity Dates"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_remainder_fiscal_year"
+    }
+  },
+  "trade_debt_security_maturities_multiple_dates_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateAmortizedCost"
+    ],
+    "label": {
+      "long": "Current Trade Debt Security Maturities with Multiple Maturity Dates Amortized Cost"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_remainder_fiscal_year"
+    }
+  },
   "current_trade_debt_security_maturities": {
     "unit": "monetary",
     "aggregate": "sum",
@@ -67,6 +123,7 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingAfterYearFiveFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveFairValue"
     ],
     "label": {
@@ -81,6 +138,7 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis"
     ],
     "label": {
@@ -163,6 +221,7 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanOneYearThroughThreeYearsFairValue"
     ],
@@ -174,6 +233,7 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearOneThroughYearThreeAmortizedCostBasis"
     ],
     "label": {
@@ -184,8 +244,8 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue"
-      
     ],
     "label": {
       "long": "Trade Debt Security Maturities After 3 Through 5 Years"
@@ -195,6 +255,7 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanThreeYearsThroughYearFiveAmortizedCostBasis"
     ],

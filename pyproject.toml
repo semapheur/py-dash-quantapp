@@ -22,6 +22,7 @@ dependencies = [
   "dash-ag-grid",
   "dash-extensions",
   "dash-leaflet",
+  "dashvis",
   "fathon",
   "geopandas",
   "glom",

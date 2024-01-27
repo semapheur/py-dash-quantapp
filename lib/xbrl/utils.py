@@ -7,7 +7,8 @@ import httpx
 import numpy as np
 import pandas as pd
 
-from lib.db.lite import insert_sqlite
+from lib.db.lite import insert_sqlite, read_sqlite
+from lib.fin.taxonomy import extract_items
 
 NAMESPACE = {
   'link': 'http://www.xbrl.org/2003/linkbase',
@@ -145,7 +146,7 @@ def gaap_calculation(year: int) -> pd.DataFrame:
 
     text[0] = text[0].replace('+', '')
 
-    return ' '.join(text)
+    return ' '.join(text).strip()
 
   urls = gaap_calculation_url(year)
 
@@ -172,3 +173,18 @@ def gaap_taxonomy(year: int):
   items.sort_values('name', inplace=True)
   insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
   return items
+
+
+def gaap_network() -> list[dict[str, str]]:
+  query = 'SELECT DISTINCT name, calculation FROM gaap WHERE type = "monetary" AND calculation IS NOT NULL'
+  df = read_sqlite('taxonomy.db', query)
+
+  data: list[dict[str, str]] = []
+
+  for node, link_text in zip(df['name'], df['calculation']):
+    links = extract_items(link_text)
+
+    for link in links:
+      data.append({'from': node, 'to': link})
+
+  return data

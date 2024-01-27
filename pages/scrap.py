@@ -5,7 +5,6 @@ import json
 import re
 from pathlib import Path
 import sqlite3
-from typing import Literal, TypeAlias
 
 from dash import (
   ALL,
@@ -30,13 +29,12 @@ from components.modal import ModalAIO
 
 from lib.const import HEADERS
 from lib.edgar.models import (
-  Financials,
+  RawFinancials,
   Item,
   Instant,
   Interval,
   Scope,
   FiscalPeriod,
-  FinData,
 )
 from lib.morningstar.ticker import Ticker
 from lib.utils import download_file
@@ -54,7 +52,7 @@ def get_doc_id(url: str) -> str:
   return match.group()
 
 
-def upsert(db: str | Path, table: str, records: list[Financials]):
+def upsert(db: str | Path, table: str, records: list[RawFinancials]):
   with sqlite3.connect(db) as conn:
     cur = conn.cursor()
 
@@ -470,7 +468,7 @@ def export(
     ]
 
   records = [
-    Financials(
+    RawFinancials(
       date=date,
       scope=scope,
       period=period,
