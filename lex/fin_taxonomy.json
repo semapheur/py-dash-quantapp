@@ -1,4 +1,247 @@
 { 
+  "current_trade_debt_security_maturities": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearFairValue",
+      "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsFairValue"
+    ],
+    "label": {
+      "long": "Current Trade Debt Security Maturities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_remainder_fiscal_year"
+    }
+  },
+  "trade_debt_security_maturities_remainder_fiscal_year": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRemainderOfFiscalYearFairValue"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities Remainder of Fiscal Year"
+    }
+  },
+  "trade_debt_security_maturities_remainder_fiscal_year_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRemainderOfFiscalYearAmortizedCostBasis"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities Remainder of Fiscal Year Amortized Cost Basis"
+    }
+  },
+  "current_trade_debt_security_maturities_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearAmortizedCost",
+      "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsAmortizedCostBasis"
+    ],
+    "label": {
+      "long": "Current Trade Debt Security Maturities Amortized Cost Basis"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_remainder_fiscal_year_amortized_cost"
+    }
+  },
+  "noncurrent_trade_debt_security_maturities": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterNextRollingTwelveMonthsFairValue"
+    ],
+    "label": {
+      "long": "Non-current Trade Debt Security Maturities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_after_1_to_5_years + trade_debt_security_maturities_after_5_years"
+    }
+  },
+  "trade_debt_security_maturities_after_5_years": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveFairValue"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 5 Years Amortized Cost"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_after_5_to_10_years + trade_debt_security_maturities_after_10_years"
+    }
+  },
+  "trade_debt_security_maturities_after_5_years_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 5 Years Amortized Cost"
+    }
+  },
+  "trade_debt_security_maturities_after_10_years": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsFairValue"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 10 Years"
+    }
+  },
+  "trade_debt_security_maturities_after_10_years_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsAmortizedCost"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 10 Years Amortized Cost"
+    }
+  },
+  "trade_debt_security_maturities_after_5_to_10_years": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsFairValue"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 5 Through 10 Years"
+    }
+  },
+  "trade_debt_security_maturities_after_5_to_10_years_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsAmortizedCost"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 5 Through 10 Years Amortized Cost"
+    }
+  },
+  "trade_debt_security_maturities_after_1_to_5_years": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsFairValue",
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue",
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearThreeThroughFiveYearsFairValue"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 1 Through 5 Years"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_after_1_to_3_years + trade_debt_security_maturities_after_3_to_5_years"
+    }
+  },
+  "trade_debt_security_maturities_after_1_to_5_years_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsAmortizedCost",
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveAmortizedCostBasis"
+     
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 1 Through 5 Years Amortized Cost Basis"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_security_maturities_after_1_to_3_years_amortized_cost + trade_debt_security_maturities_after_3_to_5_years_amortized_cost"
+    }
+  },
+  "trade_debt_security_maturities_after_1_to_3_years": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeFairValue",
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanOneYearThroughThreeYearsFairValue"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 1 Through 3 Years"
+    }
+  },
+  "trade_debt_security_maturities_after_1_to_3_years_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearOneThroughYearThreeAmortizedCostBasis"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 1 Through 3 Years Amortized Cost Basis"
+    }
+  },
+  "trade_debt_security_maturities_after_3_to_5_years": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue"
+      
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 3 Through 5 Years"
+    }
+  },
+  "trade_debt_security_maturities_after_3_to_5_years_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveAmortizedCostBasis",
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanThreeYearsThroughYearFiveAmortizedCostBasis"
+    ],
+    "label": {
+      "long": "Trade Debt Security Maturities After 3 Through 5 Years Amortized Cost Basis"
+    }
+  },
+  "noncurrent_contract_liabilities": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "NoncurrentContractLiabilities"
+    ],
+    "label": {
+      "long": "Noncurrent Contract Liabilities"
+    }
+  },
+  "noncurrent_financial_liabilities": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "NoncurrentFinancialLiabilities"
+    ],
+    "label": {
+      "long": "Noncurrent Financial Liabilities"
+    }
+  },
+  "noncurrent_financial_assets_amortized_cost": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "NoncurrentFinancialAssetsAtAmortisedCost"
+    ],
+    "label": {
+      "long": "Noncurrent Financial Assets Amortized Cost Basis"
+    }
+  },
+  "noncurrent_financial_assets": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "NoncurrentFinancialAssets"
+    ],
+    "label": {
+      "long": "Noncurrent Financial Assets"
+    }
+  },
   "restricted_trade_securities": {
     "unit": "monetary",
     "aggregate": "sum",
@@ -422,6 +665,7 @@
     "unit": "personnel",
     "aggregate": "tail",
     "gaap": [
+      "NumberOfEmployees",
       "AverageNumberOfEmployees"
     ],
     "label": {
@@ -4223,7 +4467,7 @@
     },
     "calculation": {
       "order": 0,
-      "all": ""
+      "all": "current_payables + current_accrued_expenses"
     }
   },
   "noncurrent_payables_accrued_expenses": {
@@ -4237,7 +4481,7 @@
     },
     "calculation": {
       "order": 0,
-      "all": ""
+      "all": "noncurrent_payables + noncurrent_accrued_expenses"
     }
   },
   "payables": {
