@@ -1,7 +1,224 @@
 { 
-  "trade_debt_security_maturities_single_date": {
+  "debt_unsecured": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "UnsecuredDebt"
+    ],
+    "label": {
+      "long": "Unsecured Debt"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "debt_unsecured_current + debt_unsecured_noncurrent"
+    }
+  },
+  "debt_unsecured_current": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "UnsecuredDebtCurrent"
+    ],
+    "label": {
+      "long": "Unsecured Debt Current"
+    }
+  },
+  "debt_unsecured_noncurrent": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "UnsecuredLongTermDebt"
+    ],
+    "label": {
+      "long": "Unsecured Debt Non-current"
+    }
+  },
+  "debt_secured": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "SecuredDebt"
+    ],
+    "label": {
+      "long": "Secured Debt"
+    }
+  },
+  "debt_secured_current": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "SecuredDebtCurrent"
+    ],
+    "label": {
+      "long": "Current Secured Debt"
+    }
+  },
+  "debt_secured_noncurrent": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "SecuredLongTermDebt"
+    ],
+    "label": {
+      "long": "Long-term Secured Debt"
+    }
+  },
+  "other_debt_securities": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "OtherDebtSecurities"
+    ],
+    "label": {
+      "long": "Other Debt Securities"
+    }
+  },
+  "equity_security_gain_loss": {
     "unit": "monetary",
     "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiGainLoss"
+    ],
+    "label": {
+      "long": "Equity Securities Gain (Loss)"
+    }
+  },
+  "equity_security_unrealized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiUnrealizedGainLoss"
+    ],
+    "label": {
+      "long": "Equity Securities Unrealized Gain (Loss)"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "equity_security_realized_gain - equity_security_realized_loss"
+    }
+  },
+  "equity_security_unrealized_gain": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiUnrealizedGain"
+    ],
+    "label": {
+      "long": "Equity Securities Realized Gain"
+    }
+  },
+  "equity_security_unrealized_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiUnrealizedLoss"
+    ],
+    "label": {
+      "long": "Equity Securities Realized Loss"
+    }
+  },
+  "equity_security_realized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiRealizedGainLoss"
+    ],
+    "label": {
+      "long": "Equity Securities Realized Gain (Loss)"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "equity_security_realized_gain - equity_security_realized_loss"
+    }
+  },
+  "equity_security_realized_gain": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiRealizedGain"
+    ],
+    "label": {
+      "long": "Equity Securities Realized Gain"
+    }
+  },
+  "equity_security_realized_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "EquitySecuritiesFvNiRealizedLoss"
+    ],
+    "label": {
+      "long": "Equity Securities Realized Loss"
+    }
+  },
+  "debt_security_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesGainLoss"
+    ],
+    "label": {
+      "long": "Debt Securities Gain (Loss)"
+    }
+  },
+  "debt_security_realized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesRealizedGainLoss"
+    ],
+    "label": {
+      "long": "Debt Securities Realized Gain (Loss)"
+    }
+  },
+  "debt_security_unrealized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesUnrealizedGainLoss"
+    ],
+    "label": {
+      "long": "Debt Securities Unrealized Gain (Loss)"
+    }
+  },
+  "convertible_debt": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "ConvertibleDebt",
+      "ConvertibleDebtFairValueDisclosures"
+    ],
+    "label": {
+      "long": "Convertible Debt"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "current_convertible_debt + noncurrent_convertible_debt"
+    }
+  },
+  "current_convertible_debt": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "ConvertibleDebtCurrent"
+    ],
+    "label": {
+      "long": "Current_Convertible Debt"
+    }
+  },
+  "noncurrent_convertible_debt": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "ConvertibleDebtNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current_Convertible Debt"
+    }
+  },
+  "trade_debt_security_maturities_single_date": {
+    "unit": "monetary",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDate"
     ],
@@ -15,7 +232,7 @@
   },
   "trade_debt_security_maturities_single_date_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateAmortizedCost"
     ],
@@ -29,7 +246,7 @@
   },
   "trade_debt_security_maturities_multiple_dates": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateFairValue"
     ],
@@ -43,7 +260,7 @@
   },
   "trade_debt_security_maturities_multiple_dates_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateAmortizedCost"
     ],
@@ -57,7 +274,7 @@
   },
   "current_trade_debt_security_maturities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsFairValue"
@@ -72,7 +289,7 @@
   },
   "trade_debt_security_maturities_remainder_fiscal_year": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesRemainderOfFiscalYearFairValue"
     ],
@@ -82,7 +299,7 @@
   },
   "trade_debt_security_maturities_remainder_fiscal_year_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesRemainderOfFiscalYearAmortizedCostBasis"
     ],
@@ -92,7 +309,7 @@
   },
   "current_trade_debt_security_maturities_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearAmortizedCost",
       "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsAmortizedCostBasis"
@@ -107,7 +324,7 @@
   },
   "noncurrent_trade_debt_security_maturities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterNextRollingTwelveMonthsFairValue"
     ],
@@ -121,7 +338,7 @@
   },
   "trade_debt_security_maturities_after_5_years": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingAfterYearFiveFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveFairValue"
@@ -136,7 +353,7 @@
   },
   "trade_debt_security_maturities_after_5_years_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis"
@@ -147,7 +364,7 @@
   },
   "trade_debt_security_maturities_after_10_years": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsFairValue"
     ],
@@ -157,7 +374,7 @@
   },
   "trade_debt_security_maturities_after_10_years_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsAmortizedCost"
     ],
@@ -167,7 +384,7 @@
   },
   "trade_debt_security_maturities_after_5_to_10_years": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsFairValue"
     ],
@@ -177,7 +394,7 @@
   },
   "trade_debt_security_maturities_after_5_to_10_years_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsAmortizedCost"
     ],
@@ -187,7 +404,7 @@
   },
   "trade_debt_security_maturities_after_1_to_5_years": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue",
@@ -203,7 +420,7 @@
   },
   "trade_debt_security_maturities_after_1_to_5_years_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsAmortizedCost",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveAmortizedCostBasis"
@@ -219,7 +436,7 @@
   },
   "trade_debt_security_maturities_after_1_to_3_years": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeFairValue",
@@ -231,7 +448,7 @@
   },
   "trade_debt_security_maturities_after_1_to_3_years_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearOneThroughYearThreeAmortizedCostBasis"
@@ -242,7 +459,7 @@
   },
   "trade_debt_security_maturities_after_3_to_5_years": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue"
@@ -253,7 +470,7 @@
   },
   "trade_debt_security_maturities_after_3_to_5_years_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveAmortizedCostBasis",
@@ -265,7 +482,7 @@
   },
   "noncurrent_contract_liabilities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "NoncurrentContractLiabilities"
     ],
@@ -275,7 +492,7 @@
   },
   "noncurrent_financial_liabilities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "NoncurrentFinancialLiabilities"
     ],
@@ -285,7 +502,7 @@
   },
   "noncurrent_financial_assets_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "NoncurrentFinancialAssetsAtAmortisedCost"
     ],
@@ -295,7 +512,7 @@
   },
   "noncurrent_financial_assets": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "NoncurrentFinancialAssets"
     ],
@@ -303,9 +520,20 @@
       "long": "Noncurrent Financial Assets"
     }
   },
+  "restricted_trade_debt_securities": {
+    "unit": "monetary",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesTradingRestricted",
+      "DebtSecuritiesAvailableForSaleRestricted"
+    ],
+    "label": {
+      "long": "Restricted Trade Debt Securities"
+    }
+  },
   "restricted_trade_securities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "MarketableSecuritiesRestricted"
     ],
@@ -319,7 +547,7 @@
   },
   "current_restricted_trade_securities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "MarketableSecuritiesRestrictedCurrent"
     ],
@@ -329,7 +557,7 @@
   },
   "noncurrent_restricted_trade_securities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "MarketableSecuritiesRestrictedNoncurrent"
     ],
@@ -339,7 +567,7 @@
   },
   "debt_securities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "DebtSecurities",
       "DebtSecuritiesAtFairValue"
@@ -350,7 +578,7 @@
   },
   "trade_debt_securities_maturities_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAmortizedCost"
     ],
@@ -358,60 +586,60 @@
       "long": "Trade Debt Securities Maturities Amortized Costs"
     }
   },
-  "trade_securities_accumulated_gross_unrealized_pretax_gain": {
+  "trade_securities_accumulated_unrealized_pretax_gain": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedGainBeforeTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Gain"
+      "long": "Trade Securities Accumulated Pretax Unrealized Gain"
     }
   },
-  "trade_securities_accumulated_gross_unrealized_pretax_loss": {
+  "trade_securities_accumulated_unrealized_pretax_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedLossBeforeTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Loss"
+      "long": "Trade Securities Accumulated Pretax Unrealized Loss"
     }
   },
-  "trade_securities_accumulated_gross_unrealized_loss": {
+  "trade_securities_accumulated_unrealized_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedLossNetOfTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Loss Net of Tax"
+      "long": "Trade Securities Accumulated Pretax Unrealized Loss Net of Tax"
     }
   },
-  "trade_securities_accumulated_gross_unrealized_pretax_gain_loss": {
+  "trade_securities_accumulated_unrealized_pretax_gain_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedGainLossBeforeTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Gain (Loss)"
+      "long": "Trade Securities Accumulated Pretax Unrealized Gain (Loss)"
     }
   },
-  "trade_securities_accumulated_gross_unrealized_gain_loss": {
+  "trade_securities_accumulated_unrealized_gain_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "MarketableSecuritiesAccumulatedUnrealizedGainLoss",
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedGainLossNetOfTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Gross Unrealized Gain (Loss) Net of Tax"
+      "long": "Trade Securities Accumulated Unrealized Gain (Loss) Net of Tax"
     }
   },
   "trade_securities_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAmortizedCost"
     ],
@@ -419,10 +647,11 @@
       "long": "Trade Securities Amortized Cost Basis"
     }
   },
-  "trade_debt_securities_amortized_cost": {
+  "securities_trade_debt_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
+      "TradingSecuritiesDebtAmortizedCost",
       "AvailableForSaleDebtSecuritiesAmortizedCostBasis",
       "AvailableForSaleDebtSecuritiesExcludingMoneyMarketFundsAmortizedCostBasis"
     ],
@@ -430,9 +659,9 @@
       "long": "Trade Debt Securities Amortized Cost Basis"
     }
   },
-  "trade_equity_securities_amortized_cost": {
+  "securities_trade_equity_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleEquitySecuritiesAmortizedCostBasis"
     ],
@@ -442,7 +671,7 @@
   },
   "trade_asset_securities_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAbsAmortizedCost"
     ],
@@ -452,7 +681,7 @@
   },
   "trade_asset_securities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesAbsFairValue"
     ],
@@ -462,7 +691,7 @@
   },
   "trade_mortgage_securities_amortized_cost": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesMbsAmortizedCost"
     ],
@@ -472,7 +701,7 @@
   },
   "trade_mortgage_securities": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleSecuritiesMbsFairValue"
     ],
@@ -480,69 +709,71 @@
       "long": "Trade Mortgage-Backed Securities Fair Value"
     }
   },
-  "trade_debt_securities_accumulated_net_unrealized_pretax_gain_loss": {
+  "trade_debt_securities_accumulated_unrealized_pretax_gain_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleDebtSecuritiesAccumulatedNetUnrealizedGainLossbeforeTax"
     ],
     "label": {
-      "long": "Trade Debt Securities Accumulated Pretax Net Unrealized Gain"
+      "long": "Trade Debt Securities Accumulated Unrealized Pretax Gain (Loss)"
     }
   },
-  "trade_debt_securities_accumulated_gross_unrealized_pretax_gain": {
+  "trade_debt_securities_accumulated_unrealized_pretax_gain": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
+      "DebtSecuritiesTradingAccumulatedGrossUnrealizedGainBeforeTax",
       "AvailableForSaleDebtSecuritiesAccumulatedGrossUnrealizedGainBeforeTax"
     ],
     "label": {
       "long": "Trade Debt Securities Accumulated Pretax Gross Unrealized Gain"
     }
   },
-  "trade_debt_securities_accumulated_gross_unrealized_pretax_loss": {
+  "trade_debt_securities_accumulated_unrealized_pretax_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
+      "DebtSecuritiesTradingAccumulatedGrossUnrealizedLossBeforeTax",
       "AvailableForSaleDebtSecuritiesAccumulatedGrossUnrealizedLossBeforeTax"
     ],
     "label": {
       "long": "Trade Debt Securities Accumulated Pretax Gross Unrealized Loss"
     }
   },
-  "trade_equity_securities_accumulated_net_unrealized_pretax_gain_loss": {
+  "trade_equity_securities_accumulated_unrealized_pretax_gain_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforsaleEquitySecuritiesAccumulatedNetUnrealizedGainLossbeforeTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Gain"
+      "long": "Trade Securities Accumulated Pretax Unrealized Gain"
     }
   },
-  "trade_equity_securities_accumulated_gross_unrealized_pretax_gain": {
+  "trade_equity_securities_accumulated_unrealized_pretax_gain": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleEquitySecuritiesAccumulatedGrossUnrealizedGainBeforeTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Gain"
+      "long": "Trade Securities Accumulated Pretax Unrealized Gain"
     }
   },
-  "trade_equity_securities_accumulated_gross_unrealized_pretax_loss": {
+  "trade_equity_securities_accumulated_unrealized_pretax_loss": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableForSaleEquitySecuritiesAccumulatedGrossUnrealizedLossBeforeTax"
     ],
     "label": {
-      "long": "Trade Securities Accumulated Pretax Gross Unrealized Loss"
+      "long": "Trade Securities Accumulated Pretax Unrealized Loss"
     }
   },
   "trade_securities_coupon_rate": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "aggregate": "tail",
     "gaap": [
       "AvailableforSaleSecuritiesInterestRate",
       "AvailableForSaleSecuritiesWeightedAverageCouponRate"
@@ -551,7 +782,7 @@
       "long": "Trade Securities Coupon Rate"
     }
   },
-  "trade_securities_in_unrealized_loss_position": {
+  "trade_securities_unrealized_loss_position": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -559,31 +790,39 @@
     ],
     "label": {
       "long": "Trade Securities in Unrealized Loss Position"
-    },
-    "calculation": {
-      "order": 0,
-      "all": "trade_securities_gross_unrealized_loss - trade_securities_gross_unrealized_gain"
     }
   },
-  "trade_debt_securities_in_unrealized_loss_position": {
+  "trade_debt_securities_unrealized_loss_position": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "DebtSecuritiesAvailableForSaleUnrealizedLossPosition",
       "AvailableForSaleDebtSecuritiesInvestmentsInUnrealizedLoss"
     ],
     "label": {
       "long": "Trade Debt Securities in Unrealized Loss Position"
+    }
+  },
+  "trade_debt_securities_unrealized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesTradingUnrealizedGainLoss"
+    ],
+    "label": {
+      "long": "Trade Debt Securities Unrealized Gain (Loss)"
     },
     "calculation": {
       "order": 0,
-      "all": "trade_debt_securities_gross_unrealized_loss - trade_debt_securities_gross_unrealized_gain"
+      "all": "trade_debt_securities_unrealized_loss - trade_debt_securities_unrealized_gain"
     }
   },
-  "trade_securities_gross_unrealized_gain_loss": {
+  "trade_securities_unrealized_gain_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
       "MarketableSecuritiesUnrealizedGainLoss",
+      "DebtSecuritiesAvailableForSaleUnrealizedGainLoss",
       "AvailableForSaleSecuritiesGrossUnrealizedGainLoss",
       "AvailableforsaleSecuritiesGrossUnrealizedGainLoss1"
     ],
@@ -592,10 +831,10 @@
     },
     "calculation": {
       "order": 0,
-      "all": "trade_securities_gross_unrealized_gain - trade_securities_gross_unrealized_loss"
+      "all": "trade_securitie_unrealized_gain - trade_securities_unrealized_loss"
     }
   },
-  "trade_securities_gross_unrealized_gain": {
+  "trade_securities_unrealized_gain": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -607,27 +846,71 @@
       "long": "Trade Securities Gross Unrealized Gain"
     }
   },
-  "trade_debt_securities_gross_unrealized_gain": {
+  "trade_debt_securities_unrealized_gain": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "DebtSecuritiesTradingUnrealizedGain",
       "AvailableForSaleDebtSecuritiesGrossUnrealizedGain"
     ],
     "label": {
-      "long": "Trade Debt Securities Gross Unrealized Gain"
+      "long": "Trade Debt Securities Unrealized Gain"
     }
   },
-  "trade_equity_securities_gross_unrealized_gain": {
+  "trade_debt_securities_realized_gain": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesTradingRealizedGain",
+      "DebtSecuritiesAvailableForSaleRealizedGain"
+    ],
+    "label": {
+      "long": "Trade Debt Securities Realized Gain"
+    }
+  },
+  "trade_debt_securities_realized_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesTradingRealizedLoss",
+      "DebtSecuritiesAvailableForSaleRealizedLoss"
+    ],
+    "label": {
+      "long": "Trade Debt Securities Realized Loss"
+    }
+  },
+  "trade_debt_securities_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesTradingGainLoss"
+    ],
+    "label": {
+      "long": "Trade Debt Securities Gain (Loss)"
+    }
+  },
+  "trade_debt_securities_realized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesTradingRealizedGainLoss",
+      "DebtSecuritiesAvailableForSaleRealizedGainLoss"
+    ],
+    "label": {
+      "long": "Trade Debt Securities Realized Gain (Loss)"
+    }
+  },
+  "trade_equity_securities_unrealized_gain": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
       "AvailableForSaleEquitySecuritiesGrossUnrealizedGain"
     ],
     "label": {
-      "long": "Trade Equity Securities Gross Unrealized Gain"
+      "long": "Trade Equity Securities Unrealized Gain"
     }
   },
-  "trade_securities_gross_unrealized_loss": {
+  "trade_securities_unrealized_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -636,30 +919,35 @@
       "AvailableForSaleSecuritiesGrossUnrealizedLosses1"
     ],
     "label": {
-      "long": "Trade Securities Gross Unrealized Loss"
+      "long": "Trade Securities Unrealized Loss"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "trade_debt_securities_unrealized_loss + trade_equity_securities_unrealized_loss"
     }
   },
-  "trade_debt_securities_gross_unrealized_loss": {
+  "trade_debt_securities_unrealized_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
+      "DebtSecuritiesTradingUnrealizedLoss",
       "AvailableForSaleDebtSecuritiesGrossUnrealizedLoss"
     ],
     "label": {
-      "long": "Trade Debt Securities Gross Unrealized Loss"
+      "long": "Trade Debt Securities Unrealized Loss"
     }
   },
-  "trade_equity_securities_gross_unrealized_loss": {
+  "trade_equity_securities_unrealized_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
       "AvailableForSaleEquitySecuritiesGrossUnrealizedLoss"
     ],
     "label": {
-      "long": "Trade Equity Securities Gross Unrealized Loss"
+      "long": "Trade Equity Securities Unrealized Loss"
     }
   },
-  "trade_securities_gross_realized_gain_loss": {
+  "trade_securities_realized_gain_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -667,14 +955,28 @@
       "AvailableForSaleSecuritiesGrossRealizedGainLossNet"
     ],
     "label": {
-      "long": "Trade Securities Gross Realized Gain (Loss) Net of Tax"
+      "long": "Trade Securities Realized Gain (Loss)"
     },
     "calculation": {
       "order": 0,
-      "all": "trade_securities_gross_realized_gain_net - trade_securities_gross_realized_loss_net"
+      "all": "trade_securities_realized_gain_net - trade_securities_realized_loss_net"
     }
   },
-  "trade_securities_gross_realized_pretax_gain_loss": {
+  "trade_debt_equity_securities_realized_gain_loss": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtAndEquitySecuritiesRealizedGainLoss"
+    ],
+    "label": {
+      "long": "Trade Securities Realized Gain (Loss) Net of Tax"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "trade_debt_securities_realized_gain_loss + trade_equity_securities_realized_gain_loss"
+    }
+  },
+  "trade_securities_realized_pretax_gain_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -684,7 +986,7 @@
       "long": "Trade Securities Gross Realized Pretax Gain (Loss)"
     }
   },
-  "trade_securities_gross_realized_gain": {
+  "trade_securities_realized_gain": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -693,10 +995,10 @@
       "AvailableForSaleSecuritiesGrossRealizedGains"
     ],
     "label": {
-      "long": "Trade Securities Gross Realized Gain"
+      "long": "Trade Securities Realized Gain"
     }
   },
-  "trade_securities_gross_realized_loss": {
+  "trade_securities_realized_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -705,21 +1007,21 @@
       "AvailableForSaleSecuritiesGrossRealizedLosses"
     ],
     "label": {
-      "long": "Trade Securities Gross Realized Loss"
+      "long": "Trade Securities Realized Loss"
     }
   },
-  "trade_derivative_securities_gross_gain_loss": {
+  "trade_derivative_securities_gain_loss": {
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
       "AvailableForSaleSecuritiesGrossGainsLossesNetDerivatives"
     ],
     "label": {
-      "long": "Trade Derivative Securities Gross Gain (Loss)"
+      "long": "Trade Derivative Securities Gain (Loss)"
     },
     "calculation": {
       "order": 0,
-      "all": "trade_derivatives_gross_realized_gains_losses + trade_derivatives_gross_unrealized_gains_losses"
+      "all": "trade_derivatives_realized_gain_loss + trade_derivatives_gross_unrealized_gain_loss"
     }
   },
   "employees": {
@@ -1214,12 +1516,14 @@
       "all": "average_debt / average_assets"
     }
   },
-  "longterm_debt": {
+  "debt_longterm": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "DebtInstrumentCarryingAmount",
+      "LongTermDebt",
+      "LongTermDebt1",
       "LongTermDebts",
+      "TotalLongTermDebt",
       "LongTermDebtFairValue"
     ],
     "label": {
@@ -1235,7 +1539,10 @@
     "aggregrate": "tail",
     "gaap": [
       "NetDebt",
-      "DebtNet"
+      "DebtNet",
+      "CurrentAndLongTermDebt",
+      "DebtInstrumentFairValue",
+      "DebtInstrumentCarryingAmount"
     ],
     "label": {
       "long": "Total Debt"
@@ -2282,6 +2589,41 @@
       "fill": "notes_receivable"
     }
   },
+  "convertible_notes_receivable": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "ConvertibleNoteReceivable",
+      "ConvertibleNoteReceivable1",
+      "ConvertibleNoteReceivable2",
+      "ConvertibleNotesReceivable"
+    ],
+    "label": {
+      "long": "Current Net Notes Receivable",
+      "short": "Notes Receivable"
+    }
+  },
+  "current_convertible_notes_receivable": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "ConvertibleNoteReceivableCurrentPortion",
+      "ConvertibleNotesReceivableCurrentPortion"
+    ],
+    "label": {
+      "long": "Current Convertible Notes Receivable"
+    }
+  },
+  "noncurrent_convertible_notes_receivable": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "ConvertibleNotesReceivableNetOfCurrentPortion"
+    ],
+    "label": {
+      "long": "Current Convertible Notes Receivable"
+    }
+  },
   "current_notes_receivable_related_parties": {
     "unit": "monetary",
     "aggregrate": "tail",
@@ -2475,10 +2817,11 @@
       "short": "Sales Returns"
     }
   },
-  "trade_securities": {
+  "securities_trade": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
+      "TradingSecurities",
       "MarketableSecurities",
       "AvailableForSaleSecurities",
       "MarketableSecuritiesFairValueDisclosure",
@@ -2489,10 +2832,10 @@
     },
     "calculation": {
       "order": 0,
-      "any": "current_trade_securities + noncurrent_trade_securities"
+      "any": "securities_trade_current + securities_trade_noncurrent"
     }
   },
-  "current_contract_assets": {
+  "contract_assets_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2502,7 +2845,7 @@
       "long": "Current Contract Assets"
     }
   },
-  "current_contract_liabilities": {
+  "contract_liabilities_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2512,7 +2855,7 @@
       "long": "Current Contract Assets"
     }
   },
-  "current_financial_assets": {
+  "financial_assets_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2522,7 +2865,7 @@
       "long": "Current Financial Assets"
     }
   },
-  "current_derivative_financial_assets": {
+  "financial_assets_derivative_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2573,12 +2916,12 @@
       "long": "Current Investments"
     }
   },
-  "current_trade_securities": {
+  "securities_trade_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "calculation": {
       "order": 0,
-      "any": "current_trade_debt_securities + current_trade_equity_securities"
+      "any": "securities_debt_trade_current + securities_debt_trade_noncurrent"
     },
     "gaap": [
       "MarketableSecuritiesCurrent",
@@ -2589,10 +2932,11 @@
       "long": "Current Trade Securities"
     }
   },
-  "trade_debt_securities": {
+  "securities_trade_debt": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
+      "TradingSecuritiesDebt",
       "AvailableForSaleSecuritiesDebtSecurities"
     ],
     "label": {
@@ -2600,10 +2944,10 @@
     },
     "calculation": {
       "order": 0,
-      "all": "current_trade_debt_securities + noncurrent_trade_debt_securities"
+      "all": "securities_trade_debt_current + securities_trade_debt_noncurrent"
     }
   },
-  "current_trade_debt_securities_excluding_money_market_funds": {
+  "securities_trade_debt_excluding_money_market_funds": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2614,10 +2958,10 @@
     },
     "calculation": {
       "order": 0,
-      "all": "current_trade_debt_securities + noncurrent_trade_debt_securities"
+      "all": "securities_trade_debt_current + securities_trade_debt_noncurrent"
     }
   },
-  "current_debt_securities": {
+  "securities_trade_debt_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2662,13 +3006,25 @@
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "EquitySecuritiesFvNi"
+      "EquitySecuritiesFVNI",
+      "EquitySecuritiesFvNi",
+      "EquitySecuritiesFvNiCurrentAndNoncurrent"
     ],
     "label": {
       "long": "Equity Securities Fair Value"
     }
   },
-  "trade_debt_equity_securities": {
+  "noncurrent_equity_securities": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "EquitySecuritiesFVNINoncurrent"
+    ],
+    "label": {
+      "long": "Equity Securities Fair Value"
+    }
+  },
+  "securities_trade_debt_equity": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -2679,13 +3035,14 @@
     },
     "calculation": {
       "order": 0,
-      "all": "trade_debt_securities + trade_equity_securities"
+      "all": "securities_trade_debt + securities_trade_equity"
     }
   },
-  "trade_equity_securities": {
+  "securities_trade_equity": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
+      "TradingSecuritiesEquity",
       "MarketableEquitySecurities",
       "MarketableSecuritiesEquitySecurities",
       "AvailableForSaleSecuritiesEquitySecurities"
@@ -3332,6 +3689,9 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
+      "DividendsNet",
+      "DividendPaid",
+      "DividendsPaid",
       "PaymentsOfDividends"
     ],
     "label": {
@@ -3342,6 +3702,7 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
+      "DividendsCommonStock",
       "PaymentsOfDividendsCommonStock",
       "PaymentsOfDividendsAndDividendEquivalentsOnCommonStockAndRestrictedStockUnits"
     ],
@@ -3353,7 +3714,8 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
-      "PaymentsOfDividendsPreferredStockAndPreferenceStock"
+      "PaymentsOfDividendsPreferredStockAndPreferenceStock",
+      "DividendsPreferredStock"
     ],
     "label": {
       "long": "Payments of Dividends on Preferred Stock"
@@ -4437,28 +4799,62 @@
       "long": "Current Deferred Revenue"
     }
   },
-  "current_debt": {
+  "debt_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "DebtCurrent"
+      "DebtCurrent",
+      "ShortTermDebtAndCurrentPortionOfLongTermDebt"
     ],
     "calculation": {
       "order": 0,
-      "any": "commercial_paper + current_portion_longterm_debt + other_shortterm_debt"
+      "all": "debt_shortterm + debt_longterm_current"
     },
     "label": {
       "long": "Current Debt"
     }
   },
-  "current_portion_longterm_debt": {
+  "debt_shortterm": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "CurrentPortionOfLongtermBorrowings"
+      "ShortTermDebtGross",
+      "ShortTermBorrowings",
+      "ShorttermBorrowings",
+      "ShorttermDebtFairValue"
     ],
     "label": {
-      "long": "Current Debt"
+      "long": "Short-term Debt"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "commercial_paper + debt_shortterm_other"
+    }
+  },
+  "debt_longterm_current": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "LongTermDebtCurrent",
+      "CurrentPortionOfLongtermBorrowings",
+      "DebtInstrumentCurrentPortionOfLongTermGross",
+      "DebtInstrumentCurrentPortionOfLongTermDebtGross"
+    ],
+    "label": {
+      "long": "Current Portion of Long-term Debt"
+    },
+    "components": [
+      "debt_longterm_current_due_next_fiscal_year"
+    ]
+  },
+  "debt_longterm_current_due_next_fiscal_year": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "CurrentPortionOfLongTermDebtDueNextFiscalYear"
+    ],
+    "label": {
+      "long": "Current Portion of Long-term Debt Due Next Fiscal Year"
     }
   },
   "commercial_paper": {
@@ -4471,17 +4867,7 @@
       "long": "Commercial Paper"
     }
   },
-  "current_longterm_debt": {
-    "unit": "monetary",
-    "aggregrate": "tail",
-    "gaap": [
-      "LongTermDebtCurrent"
-    ],
-    "label": {
-      "long": "Current Portion of Long-term Debt"
-    }
-  },
-  "other_shortterm_debt": {
+  "debt_shortterm_other": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -4491,7 +4877,7 @@
       "long": "Other Short-term Debt"
     }
   },
-  "other_current_liabilities": {
+  "liabilities_other_current": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
@@ -4679,7 +5065,7 @@
       "TotalNotesPayable"
     ],
     "label": {
-      "long": "Net Total Notes Payables"
+      "long": "Total Notes Payables"
     },
     "calculation": {
       "order": 0,
@@ -4694,7 +5080,11 @@
       "NotesPayableCurrentNet"
     ],
     "label": {
-      "long": "Net Current Notes Payables"
+      "long": "Current Notes Payables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "current_convertible_notes_payable"
     }
   },
   "noncurrent_notes_payables": {
@@ -4705,17 +5095,79 @@
       "NotesPayableNoncurrentNet"
     ],
     "label": {
-      "long": "Net Non-current Notes Payables"
+      "long": "Non-current Notes Payables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "noncurrent_convertible_notes_payable"
+    }
+  },
+  "convertible_notes_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "ConvertibleNotesPayable"
+    ],
+    "label": {
+      "long": "Convertible Notes Payables"
+    }
+  },
+  "current_convertible_notes_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "ConvertibleNotesPayableCurrent",
+      "ConvertibleNotesPayableCurrentNet"
+    ],
+    "label": {
+      "long": "Current Convertible Notes Payables"
+    }
+  },
+  "noncurrent_convertible_notes_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "ConvertibleNotesPayableNoncurrentNet"
+    ],
+    "label": {
+      "long": "Non-Current Convertible Notes Payables"
+    }
+  },
+  "dividend_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "DividendPayables",
+      "DividendsAccruedButNotYetPaid",
+      "DividendsPayableCurrentAndNoncurrent"
+    ],
+    "label": {
+      "long": "Dividend Payables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "current_dividend_payables + noncurrent_dividend_payables"
     }
   },
   "current_dividend_payables": {
     "unit": "monetary",
     "aggregrate": "tail",
     "gaap": [
-      "CurrentDividendPayables"
+      "CurrentDividendPayables",
+      "DividendsPayableCurrent"
     ],
     "label": {
       "long": "Current Dividend Payables"
+    }
+  },
+  "noncurrent_dividend_payables": {
+    "unit": "monetary",
+    "aggregrate": "tail",
+    "gaap": [
+      "DividendsPayableNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Dividend Payables"
     }
   },
   "current_payables_production_supplies": {
@@ -5303,7 +5755,7 @@
       "long": "Adjustment for Unrealized Gain (Loss) on Securities"
     }
   },
-  "securities_unrealized_gain_loss_arised": {
+  "securities_unrealized_gain_loss": {
     "unit": "monetary",
     "aggregrate": "sum",
     "calculation": {
@@ -6066,6 +6518,7 @@
     "unit": "monetary",
     "aggregrate": "sum",
     "gaap": [
+      "DividendIncome",
       "RevenueFromDividends"
     ],
     "label": {
