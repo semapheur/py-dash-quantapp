@@ -1,5 +1,6 @@
+import ast
 import re
-from typing import cast
+from typing import cast, Literal
 import xml.etree.ElementTree as et
 
 import bs4 as bs
@@ -175,6 +176,33 @@ def gaap_taxonomy(year: int):
   return items
 
 
+class CalcVisitor(ast.NodeVisitor):
+  def __init__(self) -> None:
+    self.links: dict[str, Literal['#FF0000', '#008000']] = {}
+
+  def reset_links(self):
+    self.links = {}
+
+  def visit_UnaryOp(self, node):
+    sign = '#FF0000' if isinstance(node.op, ast.USub) else '#008000'
+
+    if isinstance(node.operand, ast.Name):
+      self.links[node.operand.id] = sign
+
+    self.generic_visit(node)
+
+  def visit_BinOp(self, node):
+    sign = '#FF0000' if isinstance(node.op, ast.Sub) else '#008000'
+
+    if isinstance(node.left, ast.Name):
+      self.links[node.left.id] = '#008000'
+
+    if isinstance(node.right, ast.Name):
+      self.links[node.right.id] = sign
+
+    self.generic_visit(node)
+
+
 def gaap_network() -> tuple[list[dict[str, int | str]], list[dict[str, str]]]:
   query = 'SELECT DISTINCT name, calculation FROM gaap WHERE type = "monetary"'
   df = read_sqlite('taxonomy.db', query)
@@ -186,12 +214,15 @@ def gaap_network() -> tuple[list[dict[str, int | str]], list[dict[str, str]]]:
     if link_text is None:
       continue
 
-    links = extract_items(link_text)
+    visitor = CalcVisitor()
+    visitor.visit(ast.parse(link_text))
+    links = visitor.links
     node_id.add(node)
 
-    for link in links:
+    for link, color in links.items():
       node_id.add(link)
-      edges.append({'from': node, 'to': link})
+
+      edges.append({'from': node, 'to': link, 'color': color})
 
   nodes: list[dict[str, int | str]] = [{'id': i, 'label': i} for i in node_id]
 
