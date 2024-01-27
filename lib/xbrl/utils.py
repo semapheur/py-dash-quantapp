@@ -175,16 +175,24 @@ def gaap_taxonomy(year: int):
   return items
 
 
-def gaap_network() -> list[dict[str, str]]:
-  query = 'SELECT DISTINCT name, calculation FROM gaap WHERE type = "monetary" AND calculation IS NOT NULL'
+def gaap_network() -> tuple[list[dict[str, int | str]], list[dict[str, str]]]:
+  query = 'SELECT DISTINCT name, calculation FROM gaap WHERE type = "monetary"'
   df = read_sqlite('taxonomy.db', query)
 
-  data: list[dict[str, str]] = []
+  node_id: set[str] = set()
+  edges: list[dict[str, str]] = []
 
   for node, link_text in zip(df['name'], df['calculation']):
+    if link_text is None:
+      continue
+
     links = extract_items(link_text)
+    node_id.add(node)
 
     for link in links:
-      data.append({'from': node, 'to': link})
+      node_id.add(link)
+      edges.append({'from': node, 'to': link})
 
-  return data
+  nodes: list[dict[str, int | str]] = [{'id': i, 'label': i} for i in node_id]
+
+  return nodes, edges
