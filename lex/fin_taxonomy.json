@@ -1207,6 +1207,7 @@
     }
   },
   "loss_unrealized_securities_afs": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1217,6 +1218,7 @@
     }
   },
   "loss_unrealized_securities_afs_equity": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1227,6 +1229,7 @@
     }
   },
   "gain_loss_realized_securities_marketable": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1241,6 +1244,7 @@
     }
   },
   "gain_loss_realized_securities_afs": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1256,6 +1260,7 @@
     }
   },
   "gain_loss_realized_securities_debt_equity": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1270,6 +1275,7 @@
     }
   },
   "gain_loss_realized_pretax_securities_afs": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1284,6 +1290,7 @@
     }
   },
   "gain_realized_securities_marketable": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1295,6 +1302,7 @@
     }
   },
   "gain_realized_securities_afs": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1305,6 +1313,7 @@
     }
   },
   "loss_realized_securities_marketable": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1316,6 +1325,7 @@
     }
   },
   "loss_realized_securities_afs": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1326,6 +1336,7 @@
     }
   },
   "gain_loss_securities_afs_derivatives": {
+    "balance": "credit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
