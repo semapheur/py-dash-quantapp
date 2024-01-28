@@ -62,6 +62,7 @@ class TaxonomyItem(BaseModel):
     'price_ratio',
     'shares',
   ]
+  balance: Optional[Literal['credit', 'debit']] = None
   aggregate: Literal['average', 'recalc', 'sum', 'tail']
   gaap: list[str] = []
   label: TaxonomyLabel
