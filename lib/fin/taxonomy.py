@@ -2,11 +2,12 @@ import ast
 from collections import defaultdict
 import json
 import sqlite3
-from typing import cast, Literal, Optional, TypedDict
+from typing import cast, Literal, Optional
+from typing_extensions import TypedDict
 
 from glom import glom
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_serializer
 from sqlalchemy import create_engine, TEXT
 
 from lib.db.lite import get_tables, read_sqlite
@@ -33,12 +34,12 @@ class Template(TypedDict):
   cashflow: dict[str, int]
 
 
-class TaxonomyLabel(BaseModel):
+class TaxonomyLabel(TypedDict, total=False):
   long: str
-  short: Optional[str] = None
+  short: Optional[str]
 
 
-class TaxononmyCalculationItem(BaseModel):
+class TaxononmyCalculationItem(TypedDict, total=False):
   weight: int | float
   sign: Literal[-1, 1]
 
@@ -56,21 +57,28 @@ class TaxonomyItem(BaseModel):
     'days',
     'monetary',
     'monetary_ratio',
+    'numeric_score',
     'percent',
     'per_day',
     'per_share',
+    'personnel',
     'price_ratio',
+    'ratio',
     'shares',
   ]
   balance: Optional[Literal['credit', 'debit']] = None
   aggregate: Literal['average', 'recalc', 'sum', 'tail']
   gaap: list[str] = []
-  label: TaxonomyLabel
+  label: Optional[TaxonomyLabel] = None
   calculation: Optional[TaxononmyCalculation] = None
 
 
 class Taxonomy(BaseModel):
   data: dict[str, TaxonomyItem]
+
+  @model_serializer
+  def ser_model(self) -> dict[str, TaxonomyItem]:
+    return dict(sorted(self.data.items()))
 
   def filter_items(self, filter_: set[str]):
     new_keys = set(self.data.keys()).intersection(filter_)
@@ -107,20 +115,23 @@ class Taxonomy(BaseModel):
         print(f'{base_item} is missing in the taxonomy!')
         continue
 
-      short = self.data[base_item].label.short
+      if (label := self.data[base_item].label) is None:
+        continue
+
+      short = label.get('short')
       base_item_calc = self.data[base_item].calculation
       order = 0 if base_item_calc is None else max(0, base_item_calc.order - 1)
 
       if prefix == 'average':
         calc = TaxononmyCalculation(order=order, avg=base_item)
         label = TaxonomyLabel(
-          long=f'Average {self.data[base_item].label.long}',
+          long=f'Average {label.get("long")}',
           short=None if short is None else f'Average {short}',
         )
       elif prefix == 'change':
         calc = TaxononmyCalculation(order=order, diff=base_item)
         label = TaxonomyLabel(
-          long=f'Change in {self.data[base_item].label.long}',
+          long=f'Change in {label.get("long")}',
           short=None if short is None else f'Change in {short}',
         )
 
@@ -185,7 +196,11 @@ class Taxonomy(BaseModel):
     return names
 
   def labels(self) -> pd.DataFrame:
-    df_data = [(k, v.label.long) for k, v in self.data.items()]
+    df_data = [
+      (k, v.label.get('long', ''), v.label.get('short', ''))
+      for k, v in self.data.items()
+      if v.label is not None
+    ]
     return pd.DataFrame(df_data, columns=['item', 'long', 'short'])
 
   def calculation_schema(
