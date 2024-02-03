@@ -71,6 +71,7 @@ class TaxonomyItem(BaseModel):
   gaap: list[str] = []
   label: Optional[TaxonomyLabel] = None
   calculation: Optional[TaxononmyCalculation] = None
+  components: Optional[list[str]] = None
 
 
 class Taxonomy(BaseModel):

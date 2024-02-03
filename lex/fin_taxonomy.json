@@ -1,4 +1,31 @@
 {
+  "receivable_tax_income":  {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "IncomeTaxReceivable",
+      "IncomeTaxesReceivable"
+    ],
+    "label": {
+      "long": "Income Taxes Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_tax_income_current + receivable_tax_income_noncurrent"
+    }
+  },
+  "receivable_tax_income_noncurrent":  {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "IncomeTaxesReceivableNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Income Taxes Receivable"
+    }
+  },
   "accretion": {
     "unit": "monetary",
     "balance": "debit",
@@ -706,6 +733,21 @@
     ],
     "label": {
       "long": "Amortization of Intangible Assets"
+    },
+    "calculation": {
+      "order": 684,
+      "any": "amortization_intangible_assets_finitelived + amortization_intangible_assets_indefinitelived"
+    }
+  },
+  "amortization_goodwill": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "GoodwillAmortizationExpense"
+    ],
+    "label": {
+      "long": "Amortization of Goodwill"
     }
   },
   "amortization_intangible_assets_excluding_goodwill": {
@@ -713,15 +755,21 @@
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
-      "AmortisationIntangibleAssetsOtherThanGoodwill",
-      "AmortisationIntangibleAssetsOtherThanGoodwillOnDisposalOfIntangibleAssets"
+      "AmortisationIntangibleAssetsOtherThanGoodwill"
     ],
     "label": {
       "long": "Amortization of Intangible Assets Excluding Goodwill"
-    },
-    "calculation": {
-      "order": 684,
-      "any": "amortization_acquired_intangible_assets + amortization_deferred_costs"
+    }
+  },
+  "amortization_intangible_assets_excluding_goodwill_disposal": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "AmortisationIntangibleAssetsOtherThanGoodwillOnDisposalOfIntangibleAssets"
+    ],
+    "label": {
+      "long": "Amortization on Disposal of Intangible Assets Excluding Goodwill"
     }
   },
   "amortization_intangible_assets_finitelived": {
@@ -1370,7 +1418,7 @@
       "all": "financing_cashflow + investing_cashflow + operating_cashflow + exchange_rate_effect"
     }
   },
-  "cashflow_acquisition_divestitures": {
+  "cashflow_acquisition_divestiture_businesses": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1380,23 +1428,47 @@
     },
     "calculation": {
       "order": 485,
-      "any": "proceed_acquisition_divestitures - payment_acquisition_divestitures"
+      "any": "proceed_divestiture_businesses - payment_acquisition_businesses"
+    }
+  },
+  "cashflow_sharebased_compensation": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromPaymentsForShareBasedCompensationNet"
+    ],
+    "label": {
+      "long": "Net Cash from Proceeds from and Payments for Share-based Compensation",
+      "short": "Net Cash from Share-based Compensation"
+    }
+  },
+  "cashflow_securities_trade": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromPaymentsForTradingSecurities"
+    ],
+    "label": {
+      "long": "Net Cash from Proceeds from and Payments for Trading Securities",
+      "short": "Net Cash from Trading Securities"
     }
   },
   "cashflow_debt": {
     "unit": "monetary",
     "aggregate": "sum",
-    "gaap": [],
+    "gaap": [
+      "ProceedsFromRepaymentsOfDebt"
+    ],
     "label": {
       "long": "Net Cash from Issuance and Repayments of Debt",
       "short": "Net Borrowing"
     },
     "calculation": {
       "order": 222,
-      "all": "cashflow_debt_shortterm + cashflow_debt_longterm"
+      "all": "cashflow_debt_shortterm + cashflow_debt_longterm + cashflow_debt_other"
     }
   },
-  "cashflow_debt_annual": {
+  "cashflow_debt_shortterm_maturing_after_3_months": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1409,7 +1481,23 @@
     },
     "calculation": {
       "order": 220,
-      "any": "proceed_debt_annual - repayment_debt_annual"
+      "any": "proceed_debt_shortterm_maturing_after_3_months - repayment_debt_shortterm_maturing_after_3_months"
+    }
+  },
+  "cashflow_debt_secured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromRepaymentsOfSecuredDebt"
+    ],
+    "label": {
+      "long": "Net Cash from Issuance and Repayments of Secured Debt",
+      "short": "Change in Long-term Debt"
+    },
+    "calculation": {
+      "order": 211,
+      "any": "proceed_issuance_debt_secured - repayment_debt_secured"
     }
   },
   "cashflow_debt_longterm": {
@@ -1423,10 +1511,42 @@
     },
     "calculation": {
       "order": 211,
-      "any": "proceed_debt_longterm - repayment_debt_longterm"
+      "any": "proceed_issuance_debt_longterm - repayment_debt_longterm"
     }
   },
-  "cashflow_debt_quarterly": {
+  "cashflow_debt_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromRepaymentsOfOtherDebt"
+    ],
+    "label": {
+      "long": "Net Cash from Issuance and Repayments of Other Debt",
+      "short": "Change in Other Debt"
+    },
+    "calculation": {
+      "order": 211,
+      "any": "proceed_issuance_debt_other - repayment_debt_other"
+    }
+  },
+  "cashflow_debt_longterm_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromRepaymentsOfOtherLongTermDebt"
+    ],
+    "label": {
+      "long": "Net Cash from Issuance and Repayments of Other Long-term Debt",
+      "short": "Change in Other Long-term Debt"
+    },
+    "calculation": {
+      "order": 211,
+      "any": "proceed_issuance_debt_longterm_other - repayment_debt_longterm_other"
+    }
+  },
+  "cashflow_debt_shortterm_maturing_before_3_months": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1439,7 +1559,7 @@
     },
     "calculation": {
       "order": 214,
-      "any": "proceed_debt_quarterly - repayment_debt_quarterly"
+      "any": "proceed_debt_shortterm_maturing_before_3_months - repayment_debt_shortterm_maturing_before_3_months"
     }
   },
   "cashflow_debt_shortterm": {
@@ -1456,14 +1576,15 @@
     },
     "calculation": {
       "order": 221,
-      "any": "cashflow_debt_quarterly + cashflow_debt_annual + cashflow_debt_shortterm_other"
+      "any": "cashflow_debt_shortterm_maturing_before_3_months + cashflow_debt_shortterm_maturing_after_3_months + cashflow_debt_shortterm_other"
     }
   },
   "cashflow_debt_shortterm_other": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
-    "gaap": [],
+    "gaap": [
+    ],
     "label": {
       "long": "Proceeds from (Repayments of) Other Short-term Debt"
     },
@@ -1588,18 +1709,36 @@
       "any": "proceed_securities_debt + proceed_securities_equity + proceed_maturities_prepayments_calls"
     }
   },
-  "cashflow_stock": {
+  "cashflow_equity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
-    "gaap": [],
+    "gaap": [
+      "ProceedsFromRepurchaseOfEquity"
+    ],
     "label": {
-      "long": "Net Cash from Issuance and Repurchase of Common Stock",
-      "short": "Change in Common Stock"
+      "long": "Net Cash from Issuance and Repurchase of Equity",
+      "short": "Change in Equity"
     },
     "calculation": {
       "order": 467,
-      "any": "proceeds_stock + payments_stock"
+      "any": "proceed_issuance_stock - repurchase_stock"
+    }
+  },
+  "cashflow_payable_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromRepaymentsOfNotesPayable"
+    ],
+    "label": {
+      "long": "Net Cash from Proceeds from and Repayments of Notes Payable",
+      "short": "Change in Equity"
+    },
+    "calculation": {
+      "order": 467,
+      "any": "proceed_payable_notes - repayment_payable_notes"
     }
   },
   "change_accrued_expenses_current": {
@@ -2187,6 +2326,29 @@
       "short": "Current Credit Loss Allowance for AFS Debt Securities"
     }
   },
+  "discount_premium_securities_htm_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityDiscountPremium"
+    ],
+    "label": {
+      "long": "Discount (Premium) of Held-to-Maturity Debt Securities"
+    }
+  },
+  "credit_loss_allowance_securities_htm_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAllowanceForCreditLoss"
+    ],
+    "label": {
+      "long": "Allowance for Expected Credit Loss of Held-to-Maturity Debt Securities",
+      "short": "Current Credit Loss Allowance for HTM Debt Securities"
+    }
+  },
   "credit_loss_expense": {
     "unit": "monetary",
     "balance": "debit",
@@ -2616,10 +2778,10 @@
     },
     "calculation": {
       "order": 635,
-      "all": "derivatives_gain_loss_before_reclassification_after_tax + derivatives_gain_loss_reclassification_after_tax"
+      "all": "derivatives_gain_loss_before_reclassification_posttax + derivatives_gain_loss_reclassification_posttax"
     }
   },
-  "derivatives_gain_loss_before_reclassification_after_tax": {
+  "derivatives_gain_loss_before_reclassification_posttax": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -2630,7 +2792,7 @@
       "long": "Unrealized Gain (Loss) on Derivative Instruments"
     }
   },
-  "derivatives_gain_loss_reclassification_after_tax": {
+  "derivatives_gain_loss_reclassification_posttax": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -3162,6 +3324,21 @@
       "all": "gain_realized_securities_trade_debt - loss_realized_securities_trade_debt"
     }
   },
+  "gain_loss_securities_afs_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleGainLoss"
+    ],
+    "label": {
+      "long": "Available-For-Sale Debt Securities Gain (Loss)"
+    },
+    "calculation": {
+      "order": 125,
+      "all": "gain_loss_realized_securities_afs_debt + gain_loss_unrealized_securities_afs_debt"
+    }
+  },
   "gain_loss_securities_afs_derivatives": {
     "unit": "monetary",
     "balance": "credit",
@@ -3611,15 +3788,60 @@
       "long": "General Expense"
     }
   },
+  "goodwill_intangible_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "GoodwillAndIntangibleAssets",
+      "GoodwillAndOtherIntangibleAssets"
+    ],
+    "label": {
+      "long": "Goodwill and Intangible Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "goodwill + intangible_assets"
+    }
+  },
   "goodwill": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "Goodwill"
+      "Goodwill",
+      "Goodwill1",
+      "Goodwill2"
     ],
     "label": {
       "long": "Goodwill"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "goodwill_gross - accumulated_impairment_goodwill"
+    }
+  },
+  "goodwill_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "GoodwillGross",
+      "GrossGoodwill"
+    ],
+    "label": {
+      "long": "Gross Goodwill"
+    }
+  },
+  "goodwill_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "OtherGoodwill"
+    ],
+    "label": {
+      "long": "Other Goodwill"
     }
   },
   "government_bonds_current": {
@@ -3697,6 +3919,17 @@
       "any": "impairment_cryptocurrency"
     }
   },
+  "impairment_securities_afs_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleImpairmentLoss"
+    ],
+    "label": {
+      "long": "Impairment Loss of Available-For-Sale Debt Securities"
+    }
+  },
   "impairment_goodwill": {
     "unit": "monetary",
     "balance": "debit",
@@ -3708,6 +3941,77 @@
     ],
     "label": {
       "long": "Impairment of Goodwill"
+    }
+  },
+  "impairment_goodwill_discontinued_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "GoodwillImpairmentLossDiscontinuedOperation",
+      "GoodwillImpairmentLossRelatingToDiscontinuedOperations"
+    ],
+    "label": {
+      "long": "Impairment of Goodwill from Discontinued Operations"
+    }
+  },
+  "impairment_goodwill_posttax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "GoodwillImpairmentLossNetOfTax"
+    ],
+    "label": {
+      "long": "Net Impairment of Goodwill"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "impairment_goodwill - tax_expense_benefit_impairment_goodwill"
+    }
+  },
+  "accumulated_impairment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "AccumulatedImpairmentLosses"
+    ],
+    "label": {
+      "long": "Accumulated Impairment Loss"
+    }
+  },
+  "accumulated_impairment_goodwill": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "GoodwillImpairedAccumulatedImpairmentLoss"
+    ],
+    "label": {
+      "long": "Accumulated Impairment of Goodwill"
+    }
+  },
+  "accumulated_impairment_intangible_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "AccumulatedImpairmentLossOfIntangibleAssets"
+    ],
+    "label": {
+      "long": "Accumulated Impairment of Intangible Assets"
+    }
+  },
+  "accumulated_impairment_intangible_assets_indefinitelived": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "AccumulatedImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwill"
+    ],
+    "label": {
+      "long": "Accumulated Impairment of Indefinite-lived Intangible Assets"
     }
   },
   "impairment_goodwill_intangible_assets": {
@@ -3731,6 +4035,18 @@
       "any": "impairment_goodwill + impairment_intangible_assets"
     }
   },
+  "impairment_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ImpairmentOfNonCurrentAssets",
+      "ImpairmentOfLongLivedAndIntangibleAssets"
+    ],
+    "label": {
+      "long": "Impairment of Non-current Assets"
+    }
+  },
   "impairment_intangible_assets": {
     "unit": "monetary",
     "balance": "debit",
@@ -3750,12 +4066,25 @@
       "any": "impairment_intangible_assets_indefinitelived + impairment_intangible_assets_finitelived"
     }
   },
+  "impairment_intangible_assets_discontinued_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ImpairmentOfIntangibleAssetsExcludingGoodwillDiscontinuedOperation"
+    ],
+    "label": {
+      "long": "Impairment of Intangible Assets Excluding Goodwill from Discontinued Operations",
+      "short": "Impairment of Intangible Assets"
+    }
+  },
   "impairment_intangible_assets_finitelived": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
-      "ImpairmentOfIntangibleAssetsFinitelived"
+      "ImpairmentOfIntangibleAssetsFinitelived",
+      "FiniteLivedIntangibleAssetsImpairmentLoss"
     ],
     "label": {
       "long": "Impairment of Indefinite Lived Intangible Assets Excluding Goodwill",
@@ -3767,12 +4096,30 @@
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
-      "ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill",
-      "ImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwillAfterTax"
+      "IndefiniteLivedIntangibleAssetsImpairmentLosses",
+      "IndefiniteLivedIntangibleAssetsAmortizationExpense",
+      "Indefinite-LivedIntangibleAssetsAmortizationExpense",
+      "ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill"
     ],
     "label": {
       "long": "Impairment of Indefinite Lived Intangible Assets Excluding Goodwill",
       "short": "Impairment of Intangible Assets"
+    }
+  },
+  "impairment_intangible_assets_indefinitelived_posttax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwillAfterTax"
+    ],
+    "label": {
+      "long": "Net Impairment of Indefinite Lived Intangible Assets Excluding Goodwill",
+      "short": "Net Impairment of Intangible Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "impairment_intangible_assets_indefinitelived - tax_expense_benefit_impairment_intangible_assets_indefinitelived"
     }
   },
   "impairment_productive_assets": {
@@ -3816,7 +4163,7 @@
     },
     "calculation": {
       "order": 191,
-      "any": "finitelived_intangible_assets + infinitelived_intangible_assets"
+      "any": "intangible_assets_finitelived + intangible_assets_infinitelived"
     }
   },
   "intangible_assets_finitelived": {
@@ -3824,7 +4171,9 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "FiniteLivedIntangibleAssetsNet"
+      "FiniteLivedIntangibleAssetNet",
+      "FiniteLivedIntangibleAssetsNet",
+      "FiniteLivedIntangibleAssetsFairValueDisclosure"
     ],
     "label": {
       "long": "Net Finite-lived Intangible Assets",
@@ -3832,7 +4181,23 @@
     },
     "calculation": {
       "order": 437,
-      "all": "intangible_assets_finitelived_gross - intangible_assets_finitelived_accumulated_amortization"
+      "all": "intangible_assets_finitelived_gross - intangible_assets_finitelived_accumulated_amortization_impairment"
+    }
+  },
+  "intangible_assets_finitelived_accumulated_amortization_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "gaap": [
+      "FiniteLivedIntangibleAssetsAccumulatedAmortizationImpairment"
+    ],
+    "label": {
+      "long": "Accumulated Amortization and Impairment of Finite-lived Intangible Assets",
+      "short": "Accumulated Amortization and Impairment"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "intangible_assets_finitelived_accumulated_amortization + intangible_assets_finitelived_accumulated_impairment"
     }
   },
   "intangible_assets_finitelived_accumulated_amortization": {
@@ -3844,6 +4209,18 @@
     ],
     "label": {
       "long": "Accumulated Amortization of Finite-lived Intangible Assets",
+      "short": "Accumulated Amortization"
+    }
+  },
+  "intangible_assets_finitelived_accumulated_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "gaap": [
+      "FiniteLivedIntangibleAssetsAccumulatedImpairmentLoss"
+    ],
+    "label": {
+      "long": "Accumulated Impairment of Finite-lived Intangible Assets",
       "short": "Accumulated Amortization"
     }
   },
@@ -3880,27 +4257,31 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "IndefiniteLivedIntangibleAssetsExcludingGoodwill"
+      "IndefiniteLivedIntangibleAssets",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwill",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwillFairValueDisclosure"
     ],
     "label": {
-      "long": "Net Indefinite-lived Intangible Assets Excluding Goodwill",
+      "long": "Net Indefinite-lived Intangible Assets",
       "short": "Indefinite-lived"
     },
     "calculation": {
       "order": 443,
-      "all": "intangible_assets_indefinitelived_gross - intangible_assets_indefinitelived_accumulated_amortization"
+      "all": "intangible_assets_indefinitelived_gross - intangible_assets_indefinitelived_accumulated_impairment"
     }
   },
-  "intangible_assets_indefinitelived_accumulated_amortization": {
+  "intangible_assets_indefinitelived_accumulated_impairment": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "gaap": [
-      "IndefiniteLivedIntangibleAssetsAccumulatedAmortization"
+      "IndefiniteLivedIntangibleAssetsAccumulatedAmortization",
+      "IndefiniteLivedIntangibleAssetsAccumulatedImpairmentLoss",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwillAccumulatedImpairmentCharges"
     ],
     "label": {
-      "long": "Accumulated Amortization of Indefinite Lived Intangible Assets",
-      "short": "Accumulated Amortization"
+      "long": "Accumulated Impairment of Indefinite-lived Intangible Assets",
+      "short": "Accumulated Impairment"
     }
   },
   "intangible_assets_indefinitelived_gross": {
@@ -3908,10 +4289,63 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "IndefiniteLivedIntangibleAssetsGross"
+      "IndefiniteLivedIntangibleAssetsGross",
+      "GrossIndefiniteLivedIntangibleAssetsExcludingGoodwill",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodWillGross",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwillGross"
     ],
     "label": {
       "long": "Gross Indefinite-lived Intangible Assets"
+    },
+    "components": [
+      "indefinitelived_franchise_rights",
+      "indefinitelived_license_agreements",
+      "indefinitelived_trademarks",
+      "indefinitelived_tradenames"
+    ]
+  },
+  "indefinitelived_franchise_rights": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "IndefiniteLivedFranchiseRights"
+    ],
+    "label": {
+      "long": "Indefinite-lived Franchise Rights"
+    }
+  },
+  "indefinitelived_license_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "IndefiniteLivedLicenseAgreements"
+    ],
+    "label": {
+      "long": "Indefinite-lived License Agreements"
+    }
+  },
+  "indefinitelived_tradenames": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "IndefiniteLivedTradeNames"
+    ],
+    "label": {
+      "long": "Indefinite-lived Trade Names"
+    }
+  },
+  "indefinitelived_trademarks": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "IndefiniteLivedTrademarks"
+    ],
+    "label": {
+      "long": "Indefinite-lived Trademarks"
     }
   },
   "interest_burden": {
@@ -4048,7 +4482,7 @@
     },
     "calculation": {
       "order": 492,
-      "any": "proceed_productive_assets + proceed_intangible_assets + proceed_securities + proceed_acquisition_divestitures"
+      "any": "proceed_productive_assets + proceed_intangible_assets + proceed_securities + proceed_acquisition_divestitures_businesses"
     }
   },
   "investing_cash_outflow": {
@@ -4462,6 +4896,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "gaap": [
+      "ProfitLossFromContinuingOperations",
       "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersBasic"
     ],
     "label": {
@@ -4472,7 +4907,8 @@
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
-      "ProfitLoss"
+      "ProfitLoss",
+      "ProfitLossIncludingPortionAttributableToNoncontrollingInterest"
     ],
     "label": {
       "long": "Net Income (Loss) Including Portion Attributable to Minority Interest"
@@ -4489,6 +4925,7 @@
     "gaap": [
       "NetLossAttributableToControllingInterest",
       "IncomeLossAttributableToNoncontrollingInterest",
+      "ProfitLossAttributableToNoncontrollingInterests",
       "NetIncomeLossAttributableToNoncontrollingInterest",
       "NetIncomeLossesAttributableToNoncontrollingInterest"
     ],
@@ -4520,7 +4957,7 @@
       "all": "assets - liquid_assets - liabilities + debt"
     }
   },
-  "net_operating_profit_after_tax": {
+  "net_operating_profit_posttax": {
     "unit": "monetary",
     "aggregate": "recalc",
     "gaap": [],
@@ -4701,7 +5138,8 @@
     "balance": "credit",
     "aggregate": "sum",
     "gaap": [
-      "OperatingIncomeLoss"
+      "OperatingIncomeLoss",
+      "ProfitLossFromOperatingActivities"
     ],
     "label": {
       "long": "Operating Income (Loss)"
@@ -5075,6 +5513,32 @@
     ],
     "label": {
       "long": "Non-current Notes Payables"
+    }
+  },
+  "payable_notes_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "gaap": [
+      "OtherNotesPayable"
+    ],
+    "label": {
+      "long": "Other Notes Payables"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "payable_notes_other_current + payable_notes_other_noncurrent"
+    }
+  },
+  "payable_notes_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "gaap": [
+      "OtherNotesPayableCurrent"
+    ],
+    "label": {
+      "long": "Current Other Notes Payables"
     }
   },
   "payable_other": {
@@ -5451,6 +5915,7 @@
       "IncomeBeforeTaxes1",
       "IncomeBeforeTaxes2",
       "IncomeBeforeTaxes3",
+      "ProfitLossBeforeTax",
       "IncomeBeforeIncomeTaxes",
       "IncomeBeforeIncomeTaxes1",
       "NetIncomeLossBeforeTaxes",
@@ -5546,18 +6011,222 @@
       "all": "market_capitalization / tangible_common_equity"
     }
   },
-  "proceed_acquisition_divestitures": {
+  "proceed_collection_receivable_finance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
+      "ProceedsFromCollectionOfFinanceReceivables"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Finance Receivables"
+    }
+  },
+  "proceed_collection_receivable_trade": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromCollectionOfTradeAccountsReceivable"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Trade Receivables"
+    }
+  },
+  "proceed_collection_sale_receivable_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromNotesReceivable",
+      "ProceedsFromNotesReceivableNet"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Notes Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "proceed_collection_receivable_notes + proceed_sale_receivable_notes"
+    }
+  },
+  "proceed_collection_receivable_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromCollectionOfNotesReceivable"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Notes Receivables"
+    }
+  },
+  "proceed_collection_receivable_notes_related_parties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromNoteReceivableRelatedParty"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Notes Receivables from Related Parties"
+    }
+  },
+  "proceed_collection_receivable_lease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromCollectionOfLeaseReceivables"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Lease Receivables"
+    }
+  },
+  "proceed_collection_receivable_loan": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromLoansReceived",
+      "ProceedsFromCollectionOfLoansReceivable"
+    ],
+    "label": {
+      "long": "Proceeds from Collection of Loan Receivables"
+    }
+  },
+  "proceed_divestiture_business": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromDivestitureOfBusinesses",
+      "ProceedsFromDivestitureOfBusinessesNetOfCashDivested",
       "ProceedsFromDivestitureOfBusinessesAndInterestsInAffiliates"
     ],
     "label": {
       "long": "Proceeds from Divestiture of Businesses"
     }
   },
-  "proceed_debt_annual": {
+  "proceed_divestiture_business_financial": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromDivestitureOfBusinessesFinancingActivities"
+    ],
+    "label": {
+      "long": "Proceeds from Divestiture of Businesses Classified as Financial Activity"
+    }
+  },
+  "proceed_divestiture_discontinued_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromDivestitureOfDiscontinuedOperationsNet"
+    ],
+    "label": {
+      "long": "Proceeds from Divestiture of Discontinued Operations"
+    }
+  },
+  "proceed_issuance_debt_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromOtherDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Other Debt"
+    }
+  },
+  "proceed_interest_dividends_received": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromInterestAndDividendsReceived"
+    ],
+    "label": {
+      "long": "Proceeds from Received Interest"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "proceed_interest_dividends_received"
+    }
+  },
+  "proceed_interest_received": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromInterestReceived"
+    ],
+    "label": {
+      "long": "Proceeds from Received Interest"
+    }
+  },
+  "proceed_issuance_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfDebt",
+      "ProceedsFromDebtNetOfIssuanceCosts"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Debt"
+    },
+    "components": [
+      "proceed_debt_commercial_paper"
+    ]
+  },
+  "proceed_issuance_debt_secured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfSecuredDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Secured Debt"
+    }
+  },
+  "proceed_issuance_debt_unsecured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfUnsecuredDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Unsecured Debt"
+    }
+  },
+  "proceed_issuance_warrants": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfWarrants",
+      "ProceedsFromIssuanceOfWarrantsNet"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Warrants"
+    }
+  },
+  "proceed_issuance_debt_commercial_paper": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfCommercialPaper"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Commercial Paper"
+    }
+  },
+  "proceed_debt_shortterm_maturing_after_3_months": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5568,18 +6237,52 @@
       "long": "Proceeds from Short-term Debt Maturing In Three Months Or Less"
     }
   },
-  "proceed_debt_longterm": {
+  "proceed_issuance_debt_longterm": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
+      "ProceedsFromNoncurrentBorrowings",
       "ProceedsFromIssuanceOfLongTermDebt"
     ],
     "label": {
       "long": "Proceeds from Issuance of Long-term Debt"
     }
   },
-  "proceed_debt_quarterly": {
+  "proceed_issuance_debt_longterm_senior": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfSeniorLongTermDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Senior Long-term Debt"
+    }
+  },
+  "proceed_issuance_warrants_debt_longterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfLongTermDebtAndWarrants"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Warrants and Long-term Debt"
+    }
+  },
+  "proceed_issuance_debt_longterm_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfOtherLongTermDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Other Long-term Debt"
+    }
+  },
+  "proceed_debt_shortterm_maturing_before_3_months": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5602,7 +6305,43 @@
       "long": "Proceeds from Other Short-term Debt"
     }
   },
-  "proceed_intangible_assets": {
+  "proceed_maturity_securities_marketable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromMaturitiesOfMarketableSecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Maturities of Marketable Securities"
+    }
+  },
+  "proceed_dividend_received": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromDividendsReceived",
+      "ProceedsFromDividendsReceivedFromAffiliates",
+      "ProceedsFromDividendsReceivedFromAssociatedCompanies"
+    ],
+    "label": {
+      "long": "Proceeds from Dividends Received"
+    }
+  },
+  "proceed_payable_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromNotesPayable",
+      "ProceedsFromNotesPayable1"
+    ],
+    "label": {
+      "long": "Proceeds from Notes Payable"
+    }
+  },
+  "proceed_sale_intangible_assets": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5613,7 +6352,7 @@
       "long": "Proceeds from Sale of Intangible Assets"
     }
   },
-  "proceed_maturities_prepayments_calls": {
+  "proceed_sale_maturities_prepayments_calls": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5624,19 +6363,169 @@
       "long": "Proceeds from Maturities of Trade Securities"
     }
   },
-  "proceed_productive_assets": {
+  "proceed_sale_productive_assets": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
+      "ProceedsFromSaleOfPropertyPlantAndEquipment",
       "ProcceedsFromSaleOfPropertyPlantAndEquipment"
     ],
     "label": {
-      "long": "Payments to Acquire Property Plant and Equipment",
-      "short": "Payments to Acquire Fixed Assets"
+      "long": "Proceeds from Sale of Property Plant and Equipment",
+      "short": "Proceeds from Sale of Fixed Assets"
     }
   },
-  "proceed_securities_debt": {
+  "proceed_sale_property": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfProperty",
+      "ProceedsFromSaleOfRealEstate"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Property"
+    }
+  },
+  "proceed_sale_machiner_equipment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfMachineryAndEquipment"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Machinery and Equipment"
+    }
+  },
+  "proceed_sale_property_equipment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfPropertyAndEquipment"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Property and Equipment"
+    }
+  },
+  "proceed_issuance_sale_equity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOrSaleOfEquity"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance or Sale of Equity"
+    }
+  },
+  "proceed_issuance_sale_equity_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOrSaleOfEquityAndDebt"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance or Sale of Equity and Debt"
+    }
+  },
+  "proceed_sale_maturity_securities_marketable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleAndMaturityOfMarketableSecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Sale and Maturity of Marketable Securities"
+    }
+  },
+  "proceed_sale_maturity_securities_afs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleAndMaturityOfAvailableForSaleSecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Sale and Maturity of Available-for-Sale Securities"
+    }
+  },
+  "proceed_sale_securities_marketable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfMarketableSecurities",
+      "ProceedsFromSalesOfMarketableSecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Marketable Securities"
+    }
+  },
+  "proceed_sale_securities_htm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfHeldToMaturitySecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Held-to-Maturity Securities"
+    }
+  },
+  "proceed_sale_securities_trade_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsfromSaleofDebtSecuritiesTrading"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Trading Debt Securities"
+    }
+  },
+  "proceed_sale_securities_fvni_equity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfEquitySecuritiesFvNi"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of FVNI Equity Securities"
+    }
+  },
+  "proceed_sale_securities_equity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfEquitySecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Equity Securities"
+    }
+  },
+  "proceed_sale_securities_afs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfAvailableForSaleSecurities"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Available-for-Sale Securities"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_securities_afs_debt + proceed_sale_securities_afs_equity"
+    }
+  },
+  "proceed_sale_securities_afs_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5644,27 +6533,190 @@
       "ProceedsFromSaleOfAvailableForSaleSecuritiesDebt"
     ],
     "label": {
-      "long": "Proceeds from Sale of Trade Debt Securities"
+      "long": "Proceeds from Sale of Available-for-Sale Debt Securities"
     }
   },
-  "proceed_securities_equity": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "gaap": [],
-    "label": {
-      "long": "Proceeds from Sale of Trade Equity Securities"
-    }
-  },
-  "proceed_stock_issuance": {
+  "proceed_sale_securities_afs_equity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
-      "ProceedsFromIssuanceOfCommonStock"
+      "ProceedsFromSaleOfAvailableForSaleSecuritiesEquity"
     ],
     "label": {
-      "long": "Proceeds From Issuance of Common Stock"
+      "long": "Proceeds from Sale of Available-for-Sale Equity Securities"
+    }
+  },
+  "proceed_issuance_shares": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuingShares"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Stock"
+    }
+  },
+  "proceed_issuance_atm_offering": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceAtTheMarketOffering"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Shares in At-the-Market Offering"
+    }
+  },
+  "proceed_followon_public_offering_stock_common": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfCommonStockSecondaryOfferingValue"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Common Stock in Follow-on Public Offering"
+    }
+  },
+  "proceed_followon_public_offering": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromFollowOnOffering",
+      "ProceedsFromIssuanceFollowOnPublicOffering"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Shares in Follow-on Public Offering"
+    }
+  },
+  "proceed_initial_public_offering": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceInitialPublicOffering",
+      "ProceedsFromIssuanceInitialPublicOfferingNet",
+      "ProceedsFromIssuanceInitialPublicOfferingNetOfOfferingCostsPaid"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Shares in Initial Public Offering"
+    }
+  },
+  "proceed_initial_public_offering_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceInitialPublicOfferingGross"
+    ],
+    "label": {
+      "long": "Gross Proceeds from Issuance of Share in Initial Public Offering"
+    }
+  },
+  "proceed_issuance_shares_warrants": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfSharesAndWarrant"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Shares and Warrants"
+    }
+  },
+  "proceed_issuance_stock_common": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfCommonStock",
+      "ProceedsFromIssuanceOfCommonStockNet"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Common Stock"
+    }
+  },
+  "proceed_issuance_stock_common_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfCommonStockGross"
+    ],
+    "label": {
+      "long": "Gross Proceeds from Issuance of Common Stock"
+    }
+  },
+  "proceed_issuance_stock_preferred": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfPreferredStockAndPreferenceStock",
+      "ProceedsFromIssuanceOfPreferredStockAndPreferenceStockNetOfIssuanceCosts"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Preferred Stock"
+    }
+  },
+  "proceed_issuance_stock_preferred_convertible_redeemable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfRedeemableConvertiblePreferredStock",
+      "ProceedsFromIssuanceOfRedeemablePreferredStockNetOfUnderwritingFees"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Preferred Convertible and Redeemable Stock"
+    }
+  },
+  "proceed_issuance_stock_preferred_convertible": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfConvertiblePreferredStock",
+      "ProceedsFromIssuanceOfConvertiblePreferredStockNetOfIssuanceCosts"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Preferred Convertible Stock"
+    }
+  },
+  "proceed_issuance_stock_preferred_redeemable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromIssuanceOfRedeemablePreferredStock"
+    ],
+    "label": {
+      "long": "Proceeds from Issuance of Preferred Stock"
+    }
+  },
+  "proceed_sale_inventory": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfInventory"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Inventory"
+    }
+  },
+  "proceed_sale_receivable_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfNotesReceivable"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Notes Receivable"
     }
   },
   "productive_assets": {
@@ -5672,8 +6724,12 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet",
-      "PropertyPlantAndEquipmentNet"
+      "PropertyPlantAndEquipment",
+      "PropertyPlantAndEquipmentNet",
+      "PropertyPlantAndEquipmentNetTotal",
+      "PropertyPlantAndEquipmentAfterDepreciation",
+      "PropertyPlantAndEquipmentFairValueDisclosure",
+      "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet"
     ],
     "label": {
       "long": "Property, Plant and Equipment",
@@ -6160,7 +7216,7 @@
     },
     "calculation": {
       "order": 184,
-      "all": "(capital_expenditure - depreciation_depletion_amortization_accretion + change_working_capital) / net_operating_profit_after_tax"
+      "all": "(capital_expenditure - depreciation_depletion_amortization_accretion + change_working_capital) / net_operating_profit_posttax"
     }
   },
   "repayment_debt": {
@@ -6254,7 +7310,7 @@
     },
     "calculation": {
       "order": 268,
-      "all": "net_operating_profit_after_tax / average_capital_employed"
+      "all": "net_operating_profit_posttax / average_capital_employed"
     }
   },
   "return_on_equity": {
@@ -6293,7 +7349,7 @@
     },
     "calculation": {
       "order": 258,
-      "all": "net_operating_profit_after_tax / average_invested_capital"
+      "all": "net_operating_profit_posttax / average_invested_capital"
     }
   },
   "revenue": {
@@ -6590,7 +7646,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAmortizedCost"
     ],
     "label": {
-      "long": "Trade Debt Securities Amortized Cost Basis"
+      "long": "Available-for-Sale Debt Securities Amortized Cost Basis"
     }
   },
   "securities_afs_debt_current": {
@@ -6602,6 +7658,54 @@
     ],
     "label": {
       "long": "Current Available-For-Sale Debt Securities"
+    }
+  },
+  "securities_afs_debt_excluding_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleExcludingAccruedInterest"
+    ],
+    "label": {
+      "long": "Available-For-Sale Debt Securities Excluding Accrued Interests"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "securities_afs_debt_excluding_accrued_interest_current + securities_afs_debt_excluding_accrued_interest_noncurrent"
+    }
+  },
+  "securities_afs_debt_excluding_accrued_interest_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleExcludingAccruedInterestCurrent"
+    ],
+    "label": {
+      "long": "Current Available-For-Sale Debt Securities Excluding Accrued Interests"
+    }
+  },
+  "securities_afs_debt_excluding_accrued_interest_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleExcludingAccruedInterestNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Available-For-Sale Debt Securities Excluding Accrued Interests"
+    }
+  },
+  "securities_afs_debt_current_amortized_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostCurrent"
+    ],
+    "label": {
+      "long": "Current Available-for-Sale Debt Securities Amortized Cost Basis"
     }
   },
   "securities_afs_debt_excluding_money_market_funds_amortized_cost": {
@@ -6864,6 +7968,18 @@
       "long": "Restricted Available-For-Sale Debt Securities"
     }
   },
+  "securities_afs_debt_yield": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesAvailableforSaleInterestRate",
+      "DebtSecuritiesAvailableForSaleWeightedAverageYield"
+    ],
+    "label": {
+      "long": "Available-For-Sale Debt Securities Weighted Average Yield"
+    }
+  },
   "securities_afs_debt_unrealized_loss_position": {
     "unit": "monetary",
     "balance": "debit",
@@ -7032,6 +8148,17 @@
       "long": "Debt Securities"
     }
   },
+  "securities_afs_debt_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAccruedInterest"
+    ],
+    "label": {
+      "long": "Accrued Interest of Available-for-Sale Debt Securities"
+    }
+  },
   "securities_debt_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
@@ -7084,6 +8211,28 @@
       "long": "Equity Securities Fair Value"
     }
   },
+  "securities_htm_debt_amortized_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAmortizedCost"
+    ],
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Amortized Cost Basis"
+    }
+  },
+  "securities_htm_debt_excluding_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityExcludingAccruedInterestBeforeAllowanceForCreditLoss"
+    ],
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Excluding Accrued Interest"
+    }
+  },
   "securities_marketable": {
     "unit": "monetary",
     "balance": "debit",
@@ -7097,8 +8246,23 @@
     },
     "calculation": {
       "order": 335,
-      "all": "securities_marketable_current + securities_marketable_noncurrent",
-      "any": "securities_afs + securities_trade"
+      "all": "securities_marketable_current + securities_marketable_noncurrent"
+    },
+    "components": [
+      "securities_afs",
+      "securities_trade",
+      "securities_htm"
+    ]
+  },
+  "securities_htm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "HeldToMaturitySecurities"
+    ],
+    "label": {
+      "long": "Held-to-Maturity Securities Fair Value"
     }
   },
   "securities_marketable_current": {
@@ -7256,7 +8420,8 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "TradingSecuritiesDebt"
+      "TradingSecuritiesDebt",
+      "DebtSecuritiesAtFairValueThroughProfitAndLoss"
     ],
     "label": {
       "long": "Trading Debt Securities Fair Value"
@@ -7484,15 +8649,86 @@
       "all": "net_income_loss / pretax_income_loss"
     }
   },
+  "tax_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "IncomeTaxExpense",
+      "IncomeTaxProvision"
+    ],
+    "label": {
+      "long": "Income Tax Expense"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "tax_expense - tax_benefit"
+    }
+  },
   "tax_expense_benefit": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
-      "IncomeTaxExpenseBenefit"
+      "IncomeTaxes",
+      "IncomeTaxesNet",
+      "IncomeTaxExpenseBenefit",
+      "IncomeTaxExpenseBenefits"
     ],
     "label": {
       "long": "Income Tax Expense (Benefit)"
+    }
+  },
+  "tax_expense_continuing_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "IncomeTaxExpenseContinuingOperations"
+    ],
+    "label": {
+      "long": "Income Tax Expense for Continuing Operations"
+    }
+  },
+  "tax_expense_benefit_continuing_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "IncomeTaxExpenseContinuingOperations"
+    ],
+    "label": {
+      "long": "Income Tax Expense (Benefit) for Continuing Operations"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "tax_expense_continuing_operations - tax_benefit_continuing_operations"
+    }
+  },
+  "tax_expense_benefit_impairment_goodwill": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "IncomeTaxExpenseBenefitGoodwillImpairment"
+    ],
+    "label": {
+      "long": "Income Tax Expense (Benefit) for Impairment of Goodwill"
+    },
+    "calculation": {
+      "order": 1,
+      "any": "tax_expense_impairment_goodwill - tax_benefit_impairment_goodwill"
+    }
+  },
+  "tax_benefit_impairment_goodwill": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "GoodwillImpairmentLossTaxBenefit"
+    ],
+    "label": {
+      "long": "Tax Benefit for Impairment of Goodwill"
     }
   },
   "tax_income_deferred": {
