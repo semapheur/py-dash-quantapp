@@ -1,4 +1,105 @@
 {
+  "impairment_lease_operational": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "OperatingLeaseImpairmentLoss"
+    ],
+    "label": {
+      "long": "Impairment of Operating Lease"
+    }
+  },
+  "receivable_notes_loans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "NotesAndLoansReceivableNet"
+    ],
+    "label": {
+      "long": "Notes and Loans Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_notes_loans_current + receivable_notes_loans_noncurrent"
+    }
+  },
+  "receivable_notes_loans_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "NotesAndLoansReceivableNetCurrent"
+    ],
+    "label": {
+      "long": "Current Notes and Loans Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_notes_current + receivable_loans_current"
+    }
+  },
+  "receivable_notes_loans_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "NotesAndLoansReceivableNetNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Notes and Loans Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_notes_noncurrent + receivable_loans_noncurrent"
+    }
+  },
+  "receivable_notes_loans_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "NotesAndLoansReceivableGross"
+    ],
+    "label": {
+      "long": "Gross Notes and Loans Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_notes_loans_current_gross + receivable_notes_loans_noncurrent_gross"
+    }
+  },
+  "receivable_notes_loans_current_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "NotesAndLoansReceivableGrossCurrent"
+    ],
+    "label": {
+      "long": "Current Gross Notes and Loans Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_notes_current_gross + receivable_loans_current_gross"
+    }
+  },
+  "receivable_notes_loans_noncurrent_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "gaap": [
+      "NotesAndLoansReceivableGrossNoncurrent"
+    ],
+    "label": {
+      "long": "Non-current Gross Notes and Loans Receivable"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "receivable_notes_noncurrent_gross + receivable_loans_noncurrent_gross"
+    }
+  },
   "impairment_buildings": {
     "unit": "monetary",
     "balance": "debit",
@@ -1563,6 +1664,17 @@
     "label": {
       "long": "Net Cash from Proceeds from and Payments for Share-based Compensation",
       "short": "Net Cash from Share-based Compensation"
+    }
+  },
+  "cashflow_securities": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToProceedsFromInvestmentSecurities"
+    ],
+    "label": {
+      "long": "Net Cash from Proceeds from and Payments for Securities",
+      "short": "Net Cash from Securities"
     }
   },
   "cashflow_securities_trade": {
@@ -5384,7 +5496,11 @@
     "balance": "debit",
     "aggregate": "sum",
     "gaap": [
-      "OperatingExpenses"
+      "OperatingExpense",
+      "OperatingExpenses",
+      "OperatingExpensesTotal",
+      "OperatingCostsAndExpenses",
+      "OperatingExpenseExcludingCostOfSales"
     ],
     "label": {
       "long": "Operating Expenses"
@@ -5400,6 +5516,10 @@
     "aggregate": "sum",
     "gaap": [
       "OperatingIncomeLoss",
+      "OperatingIncomeLoss1",
+      "OperatingIncomeLoss2",
+      "OperatingIncomeLoss3",
+      "OperatingIncomeLoss4",
       "ProfitLossFromOperatingActivities"
     ],
     "label": {
@@ -5504,7 +5624,8 @@
     "aggregate": "tail",
     "gaap": [
       "OtherLiabilitiesCurrent",
-      "OtherCurrentLiabilities"
+      "OtherCurrentLiabilities",
+      "OtherCurrentLiabilitiesFairValueDisclosure"
     ],
     "label": {
       "long": "Other Current Liabilities"
@@ -5700,7 +5821,8 @@
     "aggregate": "tail",
     "gaap": [
       "NotesPayable",
-      "TotalNotesPayable"
+      "TotalNotesPayable",
+      "NotesPayableFairValueDisclosure"
     ],
     "label": {
       "long": "Total Notes Payables"
@@ -5985,12 +6107,93 @@
       "all": "payable_noncurrent + accrued_expenses_noncurrent"
     }
   },
-  "payment_acquisition_divestitures": {
+  "payment_repurchase_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "gaap": [
-      "PaymentsToAcquireBusinessesNetOfCashAcquired"
+      "PaymentsForRepurchaseOfDebt"
+    ],
+    "label": {
+      "long": "Payments for Repurchase of Debt"
+    }
+  },
+  "payment_acquisition_investments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireInvestments"
+    ],
+    "label": {
+      "long": "Payments to Acquire Investments"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_investments_shortterm + payment_acquisition_investments_longterm + payment_acquisition_investments_other"
+    }
+  },
+  "payment_acquisition_investments_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireLongtermInvestments"
+    ],
+    "label": {
+      "long": "Payments to Acquire Long-term Investments"
+    }
+  },
+  "payment_acquisition_investments_shortterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireShortTermInvestments"
+    ],
+    "label": {
+      "long": "Payments to Acquire Short-term Investments"
+    }
+  },
+  "payment_acquisition_investments_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireOtherInvestments"
+    ],
+    "label": {
+      "long": "Payments to Acquire Other Investments"
+    }
+  },
+  "payment_acquisition_business": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireBusinessesNetOfCashAcquired",
+      "PaymentsToAcquireBusinessesAndInterestInAffiliates",
+      "PaymentsToAcquireBusinessesNetOfPostClosingAdjustments",
+      "PaymentsToAcquireBusinessesNetOfPostclosingAdjustments",
+      "PaymentsToAcquireBusinessesNetOfCashAcquiredAdjustment",
+      "PaymentstoAcquireBusinessesNetofCashAcquiredandRestrictedCash",
+      "PaymentsToAcquireBusinessNetOfCashAcquiredSubsequentDivestureOfBusiness",
+      "PaymentsToAcquireBusinessesNetofCashAcquiredIncludingBusinessesacquiredaftertheperiodenddatebutpriortotheissuanceofthefinancialstatements"
+    ],
+    "label": {
+      "long": "Payments to Acquire Businesses"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_affiliates_subsidiaries + payment_acquisition_joint_venture"
+    }
+  },
+  "payment_acquisition_business_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireBusinessesGross"
     ],
     "label": {
       "long": "Payments to Acquire Businesses"
@@ -6020,6 +6223,7 @@
     "aggregate": "sum",
     "gaap": [
       "DividendsCommonStock",
+      "PaymentsOfOrdinaryDividends",
       "PaymentsOfDividendsCommonStock",
       "PaymentsOfDividendsAndDividendEquivalentsOnCommonStockAndRestrictedStockUnits"
     ],
@@ -6039,7 +6243,7 @@
       "long": "Payments of Dividends on Preferred Stock"
     }
   },
-  "payment_intangible_assets": {
+  "payment_acquisition_intangible_assets": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6050,20 +6254,285 @@
       "long": "Payments to Acquire Intangible Assets"
     }
   },
-  "payment_productive_assets": {
+  "payment_acquisition_securities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireInvetmentInSecurities"
+    ],
+    "label": {
+      "long": "Payments to Acquire Securities"
+    }
+  },
+  "payment_acquisition_property_plant_equipment": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "gaap": [
       "PaymentsToAcquirePropertyPlantAndEquipment",
+      "PaymentsToAcquirePropertyPlantAndEquipmentExcludingRealEstate",
+      "PaymentstoAcquirePropertyPlantandEquipmentExcludingRealEstate"
+    ],
+    "label": {
+      "long": "Payments to Acquire Property, Plant and Equipment"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_buildings_vessels_equipment + payment_acquisition_property_plant_equipment_other"
+    }
+  },
+  "payment_acquisition_receivable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireReceivables"
+    ],
+    "label": {
+      "long": "Payments to Acquire Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_receivable_notes + payment_acquisition_receivable_lease + payment_acquisition_receivable_other"
+    }
+  },
+  "payment_acquisition_receivable_lease": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireLeaseReceivables"
+    ],
+    "label": {
+      "long": "Payments to Acquire Lease Receivables"
+    }
+  },
+  "payment_acquisition_receivable_notes": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireNotesReceivable"
+    ],
+    "label": {
+      "long": "Payments to Acquire Notes Receivables"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_receivable_notes_mortgage"
+    }
+  },
+  "payment_acquisition_receivable_notes_mortgage": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireMortgageNotesReceivable"
+    ],
+    "label": {
+      "long": "Payments to Acquire Mortgage Notes Receivables"
+    }
+  },
+  "payment_acquisition_receivable_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireOtherReceivables"
+    ],
+    "label": {
+      "long": "Payments to Acquire Other Receivables"
+    }
+  },
+  "payment_acquisition_buildings_vessels": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireVesselsAndNewbuildings"
+    ],
+    "label": {
+      "long": "Payments to Acquire Vessels"
+    }
+  },
+  "payment_acquisition_buildings_vessels_equipment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireNewbuildingsVesselsAndEquipment"
+    ],
+    "label": {
+      "long": "Payments to Acquire Vessels"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_buildings_vessels + payment_acquisition_machinery_equipment"
+    }
+  },
+  "payment_acquisition_vessels": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireVessel",
+      "PaymentsToAcquireVessels"
+    ],
+    "label": {
+      "long": "Payments to Acquire Vessels"
+    }
+  },
+  "payment_acquisition_property_plant_equipment_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireOtherPropertyPlantAndEquipment"
+    ],
+    "label": {
+      "long": "Payments to Acquire Other Property, Plant and Equipment"
+    }
+  },
+  "payment_acquisition_productive_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
       "PaymentsToAcquireProductiveAssets"
     ],
     "label": {
-      "long": "Payments to Acquire Property, Plant and Equipment",
-      "short": "Payments to Acquire Fixed Assets"
+      "long": "Payments to Acquire Productive Assets"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_productive_other" 
     }
   },
-  "payment_securities": {
+  "payment_acquisition_productive_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireOtherProductiveAssets"
+    ],
+    "label": {
+      "long": "Payments to Acquire Other Productive Assets"
+    }
+  },
+  "payment_acquisition_interest_joint_venture": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireInterestInJointVenture"
+    ],
+    "label": {
+      "long": "Payments to Acquire Interest in Joint Venture"
+    }
+  },
+  "payment_acquisition_interest_subsidiaries": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireInterestInSubsidiaries"
+    ],
+    "label": {
+      "long": "Payments to Acquire Interest in Subsidiaries"
+    }
+  },
+  "payment_acquisition_interest_affiliates_subsidiaries": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireInterestInSubsidiariesAndAffiliates"
+    ],
+    "label": {
+      "long": "Payments to Acquire Interest in Affiliates and Subsidiaries"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_interest_affiliates + payment_acquisition_interest_subsidiaries"
+    }
+  },
+  "payment_acquisition_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireAssetsInvestingActivities"
+    ],
+    "label": {
+      "long": "Payments to Acquire Assets"
+    }
+  },
+  "payment_acquisition_real_estate": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireRealEstate",
+      "PaymentsToAcquireAndDevelopRealEstate",
+      "PaymentsToAcquirePreviouslyLeasedRealEstate",
+      "PaymentstoAcquirePreviouslyLeasedRealEstate"
+    ],
+    "label": {
+      "long": "Payments to Acquire Real Estate"
+    }
+  },
+  "payment_acquisition_buildings": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireBuildings",
+      "PaymentsToAcquireNewbuildings",
+      "PaymentsToAcquireNewBuildingAgreedExtras"
+    ],
+    "label": {
+      "long": "Payments to Acquire Buildings"
+    }
+  },
+  "payment_acquisition_machinery_equipment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireMachineryAndEquipment"
+    ],
+    "label": {
+      "long": "Payments to Acquire Machinery and Equipment"
+    }
+  },
+  "payment_acquisition_securities_trade": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireTradingSecuritiesHeldforinvestment"
+    ],
+    "label": {
+      "long": "Payments to Acquire Trading Securities"
+    }
+  },
+  "payment_acquisition_securities_marketable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireMarketableSecurities"
+    ],
+    "label": {
+      "long": "Payments to Acquire Marketable Securities"
+    },
+    "calculation": {
+      "order": 500,
+      "any": "payment_acquisition_securities_afs + payment_acquisition_securities_htm + payment_acquisition_securities_trade"
+    }
+  },
+  "payment_acquisition_securities_afs": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6071,14 +6540,14 @@
       "PaymentsToAcquireAvailableForSaleSecurities"
     ],
     "label": {
-      "long": "Payments to Acquire Trade Securities"
+      "long": "Payments to Acquire Available-for-Sale Securities"
     },
     "calculation": {
       "order": 500,
-      "any": "payment_securities_debt + payment_securities_equity"
+      "any": "payment_acquisition_securities_afs_debt + payment_acquisition_securities_afs_equity"
     }
   },
-  "payment_securities_debt": {
+  "payment_acquisition_securities_afs_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6086,19 +6555,47 @@
       "PaymentsToAcquireAvailableForSaleSecuritiesDebt"
     ],
     "label": {
-      "long": "Payments To Acquire Trade Debt Securities"
+      "long": "Payments To Acquire Available-for-Sale Debt Securities"
     }
   },
-  "payment_securities_equity": {
+  "payment_acquisition_securities_afs_equity": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
-    "gaap": [],
+    "gaap": [
+      "PaymentsToAcquireAvailableForSaleSecuritiesEquity"
+    ],
     "label": {
-      "long": "Payments to Acquire Trade Equity Securities"
+      "long": "Payments to Acquire Available-for-Sale Equity Securities"
     }
   },
-  "payment_stock_repurchase": {
+  "payment_acquisition_securities_fvni_equity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToAcquireEquitySecuritiesFvNi"
+    ],
+    "label": {
+      "long": "Payments to Acquire FVNI Equity Securities"
+    }
+  },
+  "payment_repurchase_equity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsForRepurchaseOfEquity"
+    ],
+    "label": {
+      "long": "Payments for Repurchase of Equity"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "payment_repurchase_stock_common + payment_repurchase_stock_preferred"
+    }
+  },
+  "payment_repurchase_stock_common": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6107,6 +6604,50 @@
     ],
     "label": {
       "long": "Payments for Repurchase of Common Stock"
+    }
+  },
+  "payment_repurchase_stock_preferred": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsForRepurchaseOfPreferredStockAndPreferenceStock"
+    ],
+    "label": {
+      "long": "Payments for Repurchase of Preferred Stock"
+    }
+  },
+  "payment_repurchase_warrants": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsForRepurchaseOfWarrants"
+    ],
+    "label": {
+      "long": "Payments for Repurchase of Warrants"
+    }
+  },
+  "payment_issuance_warrants": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsOfWarrantIssuanceCosts"
+    ],
+    "label": {
+      "long": "Payments for Issuance of Warrants"
+    }
+  },
+  "payment_issuance_equity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsOfStockIssuanceCosts"
+    ],
+    "label": {
+      "long": "Payments for Issuance of Equity"
     }
   },
   "pension_postretirement_benefit_plans_adjustment": {
@@ -7464,7 +8005,10 @@
     "gaap": [
       "NotesReceivable",
       "NotesReceviable",
-      "NotesReceivableNet"
+      "NotesReceivableNet",
+      "NotesReceivableFaceValue",
+      "NotesReceivableFaceAmount",
+      "NotesReceivableFairValueDisclosure"
     ],
     "label": {
       "long": "Net Notes Receivable",
@@ -7775,6 +8319,8 @@
     "balance": "credit",
     "aggregate": "sum",
     "gaap": [
+      "PaymentsOfLongTermDebt",
+      "PaymentsOnLongtermDebt",
       "RepaymentsOfLongTermDebt",
       "RepaymentsOfNoncurrentBorrowings"
     ],
@@ -7965,6 +8511,17 @@
     "calculation": {
       "order": 0,
       "all": "repayment_debt + repayment_accrued_interest"
+    }
+  },
+  "repayment_payable_notes_convertible": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsOnConvertibleNotesPayable"
+    ],
+    "label": {
+      "long": "Repayments of Convertible Notes Payable"
     }
   },
   "research_development_expense": {
