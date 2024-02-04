@@ -8077,7 +8077,134 @@
       "long": "Proceeds from Sale and Maturity of Marketable Securities"
     }
   },
+  "proceed_sale_investments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Investments"
+    },
+    "calculation": {
+      "order": 0,
+      "all": "proceed_sale_investments_longterm + proceed_sale_investments_shortterm" 
+    }
+  },
+  "proceed_sale_property_plant_equipment_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfPropertyPlantAndEquipmentGross",
+      "ProceedsFromSaleOfPropertyPlantAndEquipmentIncludingNonCashPortion"
+    ],
+    "label": {
+      "long": "Gross Proceeds from Sale of Property, Plant and Equipment"
+    }
+  },
+  "proceed_sale_productive_assets_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfOtherProductiveAssets"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Other Property, Plant and Equipment"
+    }
+  },
+  "proceed_sale_property_plant_equipment_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfOtherPropertyPlantAndEquipment"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Other Property, Plant and Equipment"
+    }
+  },
+  "proceed_sale_equity_method_investments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfEquityMethodInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Equity Method Investments"
+    }
+  },
+  "proceed_sale_royalties_future": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfFutureRoyalties",
+      "ProceedsFromSaleOfFutureRoyaltiesNetOfIssuanceCosts"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Finance Receivables"
+    }
+  },
+  "proceed_sale_receivable_finance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfFinanceReceivables"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Finance Receivables"
+    }
+  },
+  "proceed_sale_investments_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfOtherInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Other Investments"
+    }
+  },
+  "proceed_sale_investments_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfShorttermInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Short-term Investments"
+    }
+  },
+  "proceed_sale_investments_longterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfLongtermInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Long-term Investments"
+    }
+  },
   "proceed_sale_productive_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfProductiveAssets"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Productive Assets"
+    }
+  },
+  "proceed_sale_property_plant_equipment": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -8087,7 +8214,7 @@
     ],
     "label": {
       "long": "Proceeds from Sale of Property Plant and Equipment",
-      "short": "Proceeds from Sale of Fixed Assets"
+      "short": "Proceeds from Sale of PP&E"
     }
   },
   "proceed_sale_property": {
