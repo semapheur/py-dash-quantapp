@@ -1810,6 +1810,7 @@
     }
   },
   "cashflow_securities": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1820,7 +1821,20 @@
       "short": "Net Cash from Securities"
     }
   },
+  "cashflow_securities_afs": {
+    "balance": "debit",
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "PaymentsToProceedsFromAcquireAvailableForSaleSecurities"
+    ],
+    "label": {
+      "long": "Net Cash from Proceeds from and Payments for Available-for-Sale Securities",
+      "short": "Net Cash from AFS Securities"
+    }
+  },
   "cashflow_securities_trade": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
@@ -1832,6 +1846,7 @@
     }
   },
   "cashflow_sharebased_compensation": {
+    "balance": "debit",
     "unit": "monetary",
     "aggregate": "sum",
     "gaap": [
