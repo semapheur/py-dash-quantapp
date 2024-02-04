@@ -1513,7 +1513,7 @@
       "all": "financing_cashflow + investing_cashflow + operating_cashflow + exchange_rate_effect"
     }
   },
-  "cashflow_acquisition_divestiture_businesses": {
+  "cashflow_acquisition_divestiture_business": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1524,6 +1524,21 @@
     "calculation": {
       "order": 243,
       "any": "proceed_divestiture_business - payment_acquisition_business"
+    }
+  },
+  "cashflow_credit_line": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromRepaymentsOfLinesOfCredit"
+    ],
+    "label": {
+      "long": "Net Cash from Proceeds from and Repayments of Lines of Credit",
+      "short": "Net Borrowing"
+    },
+    "calculation": {
+      "order": 263,
+      "all": "proceed_credit_line + repayment_credit_line"
     }
   },
   "cashflow_debt": {
@@ -8092,6 +8107,17 @@
       "all": "proceed_sale_investments_longterm + proceed_sale_investments_shortterm" 
     }
   },
+  "proceed_sale_receivable_lease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfLeaseReceivables"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Lease Receivables"
+    }
+  },
   "proceed_sale_property_plant_equipment_gross": {
     "unit": "monetary",
     "balance": "debit",
@@ -8331,6 +8357,39 @@
     ],
     "label": {
       "long": "Proceeds from Sale of Marketable Securities"
+    }
+  },
+  "proceed_credit_line": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromLinesOfCredit"
+    ],
+    "label": {
+      "long": "Proceeds from Lines of Credit"
+    }
+  },
+  "proceed_maturity_investments_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromMaturityOfShortTermInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Maturity of Short-term Investments"
+    }
+  },
+  "proceed_credit_line_longterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromLongTermLinesOfCredit"
+    ],
+    "label": {
+      "long": "Proceeds from Long-term Lines of Credit"
     }
   },
   "proceed_sale_securities_trade_debt": {
