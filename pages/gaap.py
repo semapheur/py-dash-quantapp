@@ -15,7 +15,7 @@ import pandas as pd
 
 from lib.xbrl.utils import gaap_network
 
-register_page(__name__, path='/gaap')
+register_page(__name__, path='/accounting')
 
 nodes, edges = gaap_network()
 data = {'nodes': nodes, 'edges': edges}
@@ -30,9 +30,8 @@ network = DashNetwork(
   },
 )
 
-main_style = 'h-full grid grid-cols-[1fr_4fr]'
 layout = html.Main(
-  className=main_style,
+  className='h-full grid grid-cols-[1fr_4fr]',
   children=[
     html.Aside(
       className='h-full',

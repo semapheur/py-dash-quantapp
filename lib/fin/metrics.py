@@ -11,7 +11,7 @@ from lib.fin.calculation import applier
 
 
 def f_score(df: pd.DataFrame) -> pd.DataFrame:
-  ocf = df['operating_cashflow']
+  ocf = df['cashflow_operating']
 
   df['piotroski_f_score'] = (
     np.heaviside(df['return_on_equity'], 0)
@@ -34,7 +34,7 @@ def z_score(df: pd.DataFrame) -> pd.DataFrame:
   df['altman_z_score'] = (
     1.2 * applier(df['operating_working_capital'], 'avg') / assets
     + 1.4 * df['retained_earnings_accumulated_deficit'] / assets
-    + 3.3 * df['operating_cashflow'] / assets
+    + 3.3 * df['cashflow_operating'] / assets
     + 0.6 * df['market_capitalization'] / liabilities
     + assets / liabilities
   )
@@ -44,7 +44,7 @@ def z_score(df: pd.DataFrame) -> pd.DataFrame:
 
 def m_score(df: pd.DataFrame) -> pd.DataFrame:
   # Days Sales in Receivables Index
-  dsri = df['average_current_trade_receivables'] / df['revenue']
+  dsri = df['average_receivable_trade_current'] / df['revenue']
   dsri /= applier(dsri, 'shift')
 
   # Gross Margin Index
@@ -56,7 +56,7 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
     - (
       df['operating_working_capital']
       + df['productive_assets']
-      + df['noncurrent_securities']
+      + df['securities_noncurrent']
     )
     / df['assets']
   )
@@ -79,7 +79,7 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
   li /= applier(li, 'shift')
 
   # Total Accruals to Total Assets
-  ocf = df['operating_cashflow']
+  ocf = df['cashflow_operating']
   tata = (df['operating_income_loss'] - ocf) / df['average_assets']
 
   # Beneish M-score
@@ -421,7 +421,11 @@ def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
     maint_capex = df['depreciation_depletion_amortization_accretion'] / sust_rev
 
   else:
-    capex = df['capital_expenditure'].ewm(span=len(df['capital_expenditure'])).mean()
+    capex = (
+      df['payment_acquisition_productive_assets']
+      .ewm(span=len(df['payment_acquisition_productive_assets']))
+      .mean()
+    )
     capex_margin = capex / sust_rev
     rev_growth = rev_growth.ewm(span=len(rev_growth.dropna())).mean()
     maint_capex = capex_margin * (1 - rev_growth)
@@ -441,6 +445,6 @@ def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
   epv += df['liquid_assets'] - df['debt']
 
   # Fair value
-  df['earnings_power_value'] = epv / df['shDil']
+  df['earnings_power_value'] = epv / df['weighted_average_shares_outstanding_diluted']
 
   return df

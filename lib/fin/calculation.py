@@ -72,7 +72,7 @@ def trailing_twelve_months(df: pd.DataFrame) -> pd.DataFrame:
     ttm = df.loc[(slice(None), 'FY', 12), :].tail(2)
   else:
     query = f"""SELECT item FROM items
-      WHERE aggregate = "sum" AND item IN {str(tuple(df.columns))}
+      WHERE aggregate = 'sum' AND item IN {str(tuple(df.columns))}
     """
     tax = read_sqlite('taxonomy.db', query)
     sum_cols = tax['item']
@@ -102,10 +102,10 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
 
   query = f"""
     SELECT item FROM items WHERE 
-      value = "price_fundamental" AND 
+      value = 'price_fundamental' AND 
       item IN {str(tuple(df.columns))}
     UNION ALL
-    SELECT "market_capitalization" AS item
+    SELECT 'market_capitalization' AS item
   """
   items = read_sqlite('taxonomy.db', query)
 

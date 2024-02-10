@@ -21,12 +21,13 @@ from lib.edgar.parse import parse_statements, statement_to_df
 from lib.utils import combine_duplicate_columns, df_time_difference
 
 
-async def scrap_financials(cik: int, id_: str):
+async def scrap_financials(cik: int, id_: str) -> list[RawFinancials]:
   company = Company(cik)
   filings = await company.xbrl_urls()
 
   financials = await parse_statements(filings.tolist())
   upsert_financials('financials_scrap.db', id_, financials)
+  return financials
 
 
 def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
@@ -68,24 +69,23 @@ async def update_financials(
   df = load_financials(id_, date)
 
   if df.empty:
-    new_filings = await company.xbrl_urls()
+    return await scrap_financials(cik, id_)
 
-  else:
-    last_date = df['date'].max()
+  last_date = df['date'].max()
 
-    if relativedelta(dt.now(), last_date).days < delta:
-      return df_to_financials(df)
+  if relativedelta(dt.now(), last_date).days < delta:
+    return df_to_financials(df)
 
-    new_filings = await company.xbrl_urls(last_date)
+  new_filings = await company.xbrl_urls(last_date)
 
-    if not new_filings:
-      return df_to_financials(df)
+  if not new_filings:
+    return df_to_financials(df)
 
-    old_filings = set(df['id'])
-    filings_diff = set(new_filings.index).difference(old_filings)
+  old_filings = set(df['id'])
+  filings_diff = set(new_filings.index).difference(old_filings)
 
-    if not filings_diff:
-      return df_to_financials(df)
+  if not filings_diff:
+    return df_to_financials(df)
 
   new_fin = await parse_statements(new_filings.tolist())
   if new_fin:
@@ -175,18 +175,23 @@ def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
   # df.rename(columns={'months': 'scope'}, inplace=True)
   # df.set_index('scope', append=True, inplace=True)
 
-  df = df.loc[mask, :]
-
-  return df.copy()
+  return df.loc[mask, :]
 
 
 def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
   data: list[StockSplit] = []
 
-  name = 'StockholdersEquityNoteStockSplitConversionRatio1'
-  splits = fin_data.get(name)
-  if splits is None:
+  split_item = {
+    'StockSplitRatio',
+    'StockholdersEquityNoteStockSplitConversionRatio',
+    'StockholdersEquityNoteStockSplitConversionRatio1',
+    'ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares',
+  }.intersection(fin_data.keys())
+
+  if not split_item:
     return data
+
+  splits = fin_data[split_item.pop()]
 
   for entry in splits:
     value = cast(float, entry.get('value'))

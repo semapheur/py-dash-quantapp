@@ -14,16 +14,19 @@ nav_style = (
   'hidden peer-focus-within:flex hover:flex flex-col gap-1 '
   'absolute top-full left-1 p-1 bg-primary/50 backdrop-blur-sm shadow z-[1]'
 )
+
+
 def TickerSearch():
-  return html.Div(className='relative h-full', children=[
-    InputAIO('ticker-search', '20vw', {'placeholder': 'Ticker', 'type': 'text'}),
-    html.Nav(
-      id='nav:ticker-search',
-      className=nav_style
-    ),
-    dcc.Store(id='store:ticker-search:financials'),
-    dcc.Store(id='store:ticker-search:id', data={})
-  ])
+  return html.Div(
+    className='relative h-full',
+    children=[
+      InputAIO('ticker-search', '20vw', {'placeholder': 'Ticker', 'type': 'text'}),
+      html.Nav(id='nav:ticker-search', className=nav_style),
+      dcc.Store(id='store:ticker-search:financials'),
+      dcc.Store(id='store:ticker-search:id', data={}),
+    ],
+  )
+
 
 @callback(
   Output('nav:ticker-search', 'children'),
@@ -35,22 +38,23 @@ def ticker_results(search: str) -> list[dict[str, str]]:
 
   df = search_tickers('stock', search)
   links = [
-    dcc.Link(label, href=href + '/overview', className=link_style) 
+    dcc.Link(label, href=href + '/overview', className=link_style)
     for label, href in zip(df['label'], df['href'])
   ]
   return links
 
+
 @callback(
   Output('store:ticker-search:id', 'data'),
   Input('location:app', 'pathname'),
-  State('store:ticker-search:id', 'data')
+  State('store:ticker-search:id', 'data'),
 )
-def update_store(path: str, id_store: dict[str,str]):
+def id_store(path: str, id_store: dict[str, str]):
   path_split = path.split('/')
 
   if path_split[1] != 'stock':
     return no_update
-  
+
   new_id = path_split[2]
   old_id = id_store.get('id', '')
 
@@ -59,12 +63,12 @@ def update_store(path: str, id_store: dict[str,str]):
 
   return {'id': new_id}
 
+
 @callback(
   Output('store:ticker-search:financials', 'data'),
   Input('store:ticker-search:id', 'data'),
 )
-def update_store(id_store: dict[str, str]):
-  
+def fincials_store(id_store: dict[str, str]):
   _id = id_store.get('id')
   if _id is None:
     return no_update
@@ -77,13 +81,11 @@ def update_store(id_store: dict[str, str]):
   financials_fetcher = partial(Company(cik).financials_to_df)
   ohlcv_fetcher = partial(Ticker(_id, 'stock', 'USD').ohlcv)
 
-  fundamentals = asyncio.run(get_fundamentals(
-    _id, financials_fetcher, ohlcv_fetcher))
-  
+  fundamentals = asyncio.run(get_fundamentals(_id, financials_fetcher, ohlcv_fetcher))
+
   fundamentals.index = fundamentals.index.set_levels(
-    fundamentals.index.levels[0].strftime('%Y-%m-%d'),
-    level='date'
+    fundamentals.index.levels[0].strftime('%Y-%m-%d'), level='date'
   )
   fundamentals.reset_index(inplace=True)
-  
+
   return fundamentals.to_dict('records')

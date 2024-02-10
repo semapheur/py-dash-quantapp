@@ -1,23 +1,17 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-import json
-from typing import Awaitable, Optional, TypedDict
+from typing import cast, Optional, TypedDict
 
-from ordered_set import OrderedSet
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, Row
 
 from lib.const import DB_DIR
 from lib.db.lite import check_table, read_sqlite, upsert_sqlite
-from lib.fin.calculation import calculate_items, trailing_twelve_months
-from lib.fin.metrics import (
-  f_score, m_score, z_score, beta, weighted_average_cost_of_capital)
-
-from lib.yahoo.ticker import Ticker
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
+
 
 class Stock(TypedDict, total=False):
   id: str
@@ -28,27 +22,34 @@ class Stock(TypedDict, total=False):
   sector: str
   industry: str
 
-def stock_label(_id: str) -> str:
+
+def stock_label(_id: str) -> str | None:
   if not check_table('stock', ENGINE):
     return None
 
-  query = text('''
+  query = text(
+    """
     SELECT name || " (" || ticker || ":" || mic || ")" AS label 
     FROM stock WHERE id = :id
-  ''').bindparams(id=_id)
+  """
+  ).bindparams(id=_id)
 
   with ENGINE.begin() as con:
     fetch = con.execute(query)
 
-  return fetch.first()[0]
+  if (label := fetch.first()) is None:
+    return None
 
-def fetch_stock(id: str, cols: Optional[set] = None) -> Optional[Stock]:
-  
+  return label[0]
+
+
+def fetch_stock(id: str, cols: Optional[set[str]] = None) -> Stock | None:
   if not check_table('stock', ENGINE):
     return None
 
   cols = (
-    set(Stock.__optional_keys__) if cols is None 
+    set(Stock.__optional_keys__)
+    if cols is None
     else set(Stock.__optional_keys__).intersection(cols)
   )
   if not cols:
@@ -57,75 +58,81 @@ def fetch_stock(id: str, cols: Optional[set] = None) -> Optional[Stock]:
   query = text(f'SELECT {",".join(cols)} FROM stock WHERE id = ":id"').bindparams(id=id)
 
   with ENGINE.begin() as con:
-    cursor = con.execute(query)
-    fetch = cursor.first()
-  
-  if fetch:
-    return {c: f for c, f in zip(cols, fetch)}
+    fetch = con.execute(query)
+
+  if (stock := fetch.first()) is not None:
+    return cast(Stock, {c: f for c, f in zip(cols, stock)})
+
+  return None
+
 
 def find_cik(id: str) -> Optional[int]:
   if not check_table({'stock', 'edgar'}, ENGINE):
     return None
 
-  query = text('''
+  query = text(
+    """
     SELECT  
       edgar.cik AS cik FROM stock, edgar
     WHERE 
       stock.id = :id AND 
       REPLACE(edgar.ticker, "-", "") = REPLACE(stock.ticker, ".", "")
-  ''').bindparams(id=id)
+  """
+  ).bindparams(id=id)
 
   with ENGINE.begin() as con:
-    cursor = con.execute(query)
-    fetch = cursor.first()
+    fetch = con.execute(query)
 
-  if fetch:
-    return fetch[0]
+  if (cik := fetch.first()) is not None:
+    return cik[0]
+
+  return None
+
 
 def search_tickers(
-  security: str, 
-  search: str, 
-  href: bool = True, 
-  limit: int = 10
+  security: str, search: str, href: bool = True, limit: int = 10
 ) -> pd.DataFrame:
-  
   if security == 'stock':
-    value = (f'"/{security}/" || id AS href' if href 
-      else 'id || "|" || currency AS value'
+    value = (
+      f'"/{security}/" || id AS href' if href else 'id || "|" || currency AS value'
     )
-    query = text(f'''
+    query = text(
+      f"""
       SELECT 
         name || " (" || ticker || ") - "  || mic AS label,
         {value}
       FROM {security} WHERE label LIKE :search
       LIMIT {limit}
-    ''').bindparams(search=f'%{search}%')
+    """
+    ).bindparams(search=f'%{search}%')
 
   with ENGINE.connect().execution_options(autocommit=True) as con:
     df = pd.read_sql(query, con=con)
-    
+
   return df
 
+
 def get_ohlcv(
-  _id: str, 
+  _id: str,
   security: str,
   ohlcv_fetcher: partial[pd.DataFrame],
   delta: int = 1,
-  cols: Optional[set[str]] = None
+  cols: Optional[set[str]] = None,
 ) -> pd.DataFrame:
-  
   col_text = '*'
   if cols is not None:
     col_text = ', '.join(cols.union({'date'}))
-  
+
   query = f'SELECT {col_text} FROM "{_id}"'
 
   if date := ohlcv_fetcher.args:
     query += f' WHERE DATE(date) >= DATE({date[0]})'
-  
-  ohlcv = read_sqlite(f'{security}_quote.db', query, 
-    index_col='date', 
-    parse_dates=True
+
+  ohlcv = read_sqlite(
+    f'{security}_quote.db',
+    query,
+    index_col='date',
+    date_parser={'date': {'format': '%Y-%m-%d'}},
   )
 
   if ohlcv is None:
@@ -133,7 +140,7 @@ def get_ohlcv(
     upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
 
     return ohlcv[list(cols)]
-  
+
   last_date: dt = ohlcv.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
     return ohlcv
@@ -144,140 +151,11 @@ def get_ohlcv(
     return ohlcv
 
   upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
-  ohlcv = read_sqlite(f'{security}_quote.db', query, 
-    index_col='date', 
-    parse_dates=True
+  ohlcv = read_sqlite(
+    f'{security}_quote.db',
+    query,
+    index_col='date',
+    date_parser={'date': {'format': '%Y-%m-%d'}},
   )
 
   return ohlcv
-
-def load_schema(query: Optional[str] = None) -> dict[str, dict]:
-  if query is None:
-    query = '''
-      SELECT item, calculation FROM items
-      WHERE calculation IS NOT NULL
-    '''
-  
-  df = read_sqlite('taxonomy.db', query)
-  df.loc[:,'calculation'] = (
-    df['calculation'].apply(lambda x: json.loads(x))
-  )
-  schema = {k: v for k, v in zip(df['item'], df['calculation'])}
-  return schema
-
-def calculate_fundamentals(
-  _id: str,
-  fin_data: pd.DataFrame,
-  ohlcv_fetcher: partial[pd.DataFrame],
-  update: bool = False
-) -> pd.DataFrame:
-  
-  price = get_ohlcv(_id, 'stock', ohlcv_fetcher, cols={'date', 'close'})
-  price.rename(columns={'close': 'share_price'}, inplace=True)
-  price = price.resample('D').ffill()
-
-  fin_data = trailing_twelve_months(fin_data)
-  if update and (3 in fin_data.index.levels[2]):
-    fin_data = pd.concat(
-      (fin_data.loc[(slice(None), slice(None), 3),:].tail(2),
-      fin_data.loc[(slice(None), slice(None), 12),:]), 
-      axis=0)
-
-  fin_data.reset_index(inplace=True)
-  fin_data = (fin_data
-    .reset_index()
-    .merge(price, how='left', on='date')
-    .set_index(['date', 'period', 'months'])
-    .drop('index', axis=1)
-  )
-  schema = load_schema()
-  fin_data = calculate_items(fin_data, schema)
-
-  market_fetcher = partial(Ticker('^GSPC').ohlcv)
-  riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
-  price.rename(columns={'share_price': 'equity_return'}, inplace=True)
-  fin_data = beta(_id, fin_data, price, market_fetcher, riskfree_fetcher)
-
-  fin_data = weighted_average_cost_of_capital(fin_data)
-  fin_data = f_score(fin_data)
-  fin_data = m_score(fin_data)
-
-  if 'altman_z_score' not in set(fin_data.columns):
-    fin_data = z_score(fin_data)
-
-  return fin_data
-
-def handle_ttm(df: pd.DataFrame) -> pd.DataFrame:
-  if 'TTM' not in df.index.get_level_values('period').unique():
-    return df
-
-  df.sort_index(level='date', inplace=True)
-  mask = (slice(None), slice('TTM'), 12)
-  drop_index = df.loc[mask,:].tail(-2).index[0]
-  ttm_index = df.loc[mask,:].tail(1).index[0]
-
-  df.drop(drop_index, inplace=True)
-  df.rename(index={ttm_index: (dt(1900,1,1))}, inplace=True)
-
-  return df
-
-def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
-  ttm_date = df.index.get_level_values('date').max()
-
-  renamer = {
-    (dt(1900,1,1),'TTM', 12): (ttm_date,'TTM', 12)
-  }
-  df.rename(index=renamer, inplace=True)
-  return df
-
-async def get_fundamentals(
-  _id: str,
-  financials_fetcher: partial[Awaitable[pd.DataFrame]],
-  ohlcv_fetcher: partial[pd.DataFrame],
-  cols: Optional[set[str]] = None,
-  delta: int = 120
-) -> pd.DataFrame:
-
-  col_text = '*'
-  index_col = OrderedSet(('date', 'period', 'months'))
-  if cols is not None:
-    col_text = ', '.join(cols.union(index_col))
-
-  query = f'SELECT {col_text} FROM "{_id}"'
-  df = read_sqlite('fundamentals.db', query, 
-    index_col=list(index_col), 
-    parse_dates=True
-  )
-
-  if df is None:
-    df = await financials_fetcher()
-    df = calculate_fundamentals(_id, df, ohlcv_fetcher)
-    upsert_sqlite(handle_ttm(df), 'fundamentals.db', _id)
-
-  last_date: dt = df.index.get_level_values('date').max()
-  if relativedelta(dt.now(), last_date).days <= delta:
-    return df
-
-  _df = await financials_fetcher(last_date.strftime('%Y-%m-%d'))
-  if _df is None:
-    return df
-  
-  df.sort_index(level='date', inplace=True)
-  props = {
-    3: (None, 8),
-    12: ('FY', 1)
-  }
-  for m in _df.index.get_level_values('months').unique():
-    mask = (slice(None), slice(props[m][0]), m)
-    _df = pd.concat((df.loc[mask,:].tail(props[m][1]), _df), axis=0)
-  
-  _df = calculate_fundamentals(_df, ohlcv_fetcher)
-  _df: pd.DataFrame = _df.loc[_df.index.difference(df.index),:]
-  upsert_sqlite(handle_ttm(_df), 'fundamentals.db', _id)
-  df = pd.concat((df, _df), axis=0)
-
-  #df = read_sqlite('fundamentals.db', query, 
-  #  index_col=index_col, 
-  #  parse_dates=True
-  #)
-  return df
