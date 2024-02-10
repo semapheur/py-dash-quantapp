@@ -2,12 +2,13 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
 import json
-from typing import cast, Awaitable, Optional
+from typing import cast, Any, Coroutine, Optional
 
 from ordered_set import OrderedSet
 import pandas as pd
+from pandera.typing import DataFrame
 
-from lib.db.lite import read_sqlite
+from lib.db.lite import read_sqlite, upsert_sqlite
 from lib.fin.calculation import calculate_items, trailing_twelve_months
 from lib.fin.metrics import (
   f_score,
@@ -16,8 +17,9 @@ from lib.fin.metrics import (
   beta,
   weighted_average_cost_of_capital,
 )
+from lib.fin.quote import get_ohlcv
+from lib.fin.models import Quote
 from lib.yahoo.ticker import Ticker
-from lib.ticker.fetch import get_ohlcv
 
 
 def load_schema(query: Optional[str] = None) -> dict[str, dict]:
@@ -34,15 +36,14 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
 
 
 async def calculate_fundamentals(
-  _id: str,
+  id_: str,
   fin_table: pd.DataFrame,
-  ohlcv_fetcher: partial[Awaitable[pd.DataFrame]],
+  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_period: int = 5,
   update: bool = False,
 ) -> pd.DataFrame:
-  price = get_ohlcv(_id, 'stock', ohlcv_fetcher, cols={'date', 'close'})
-  price.rename(columns={'close': 'share_price'}, inplace=True)
-  price = price.resample('D').ffill()
+  price = await get_ohlcv(id_, 'stock', ohlcv_fetcher, cols={'close'})
+  price = cast(DataFrame[Quote], price.resample('D').ffill())
 
   fin_table = trailing_twelve_months(fin_table)
   if update and (3 in cast(pd.MultiIndex, fin_table.index).levels[2]):
@@ -57,7 +58,7 @@ async def calculate_fundamentals(
   fin_table.reset_index(inplace=True)
   fin_table = (
     fin_table.reset_index()
-    .merge(price, how='left', on='date')
+    .merge(price.rename(columns={'close': 'share_price'}), how='left', on='date')
     .set_index(['date', 'period', 'months'])
     .drop('index', axis=1)
   )
@@ -67,13 +68,15 @@ async def calculate_fundamentals(
   start_date: dt = fin_table.index.get_level_values('date').min() - relativedelta(
     years=beta_period
   )
-
   market_close = await Ticker('^GSPC').ohlcv(start_date)
+  riskfree_rate = await Ticker('^TNX').ohlcv(start_date)
 
-  partial(Ticker('^GSPC').ohlcv)
-  riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
-  price.rename(columns={'share_price': 'equity_return'}, inplace=True)
-  fin_table = beta(_id, fin_table, price, market_fetcher, riskfree_fetcher)
+  fin_table = beta(
+    fin_table,
+    price['close'].rename('equity_return').pct_change(),
+    market_close['close'].rename('market_return').pct_change(),
+    riskfree_rate['close'].rename('riskfree_rate') / 100,
+  )
 
   fin_table = weighted_average_cost_of_capital(fin_table)
   fin_table = f_score(fin_table)
@@ -109,9 +112,9 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
 
 
 async def get_fundamentals(
-  _id: str,
-  financials_fetcher: partial[Awaitable[pd.DataFrame]],
-  ohlcv_fetcher: partial[pd.DataFrame],
+  id_: str,
+  financials_fetcher: partial[Coroutine[Any, Any, pd.DataFrame]],
+  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   cols: Optional[set[str]] = None,
   delta: int = 120,
 ) -> pd.DataFrame:
@@ -120,34 +123,37 @@ async def get_fundamentals(
   if cols is not None:
     col_text = ', '.join(cols.union(index_col))
 
-  query = f'SELECT {col_text} FROM "{_id}"'
+  query = f'SELECT {col_text} FROM "{id_}"'
   df = read_sqlite(
-    'fundamentals.db', query, index_col=list(index_col), parse_dates=True
+    'fundamentals.db',
+    query,
+    index_col=list(index_col),
+    date_parser={'date': {'format': '%Y-%m-%d'}},
   )
 
   if df is None:
     df = await financials_fetcher()
-    df = calculate_fundamentals(_id, df, ohlcv_fetcher)
-    upsert_sqlite(handle_ttm(df), 'fundamentals.db', _id)
+    df = await calculate_fundamentals(id_, df, ohlcv_fetcher)
+    upsert_sqlite(handle_ttm(df), 'fundamentals.db', id_)
 
   last_date: dt = df.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
     return df
 
-  _df = await financials_fetcher(last_date.strftime('%Y-%m-%d'))
-  if _df is None:
+  df_ = await financials_fetcher(last_date.strftime('%Y-%m-%d'))
+  if df_ is None:
     return df
 
   df.sort_index(level='date', inplace=True)
   props = {3: (None, 8), 12: ('FY', 1)}
-  for m in _df.index.get_level_values('months').unique():
+  for m in df_.index.get_level_values('months').unique():
     mask = (slice(None), slice(props[m][0]), m)
-    _df = pd.concat((df.loc[mask, :].tail(props[m][1]), _df), axis=0)
+    df_ = pd.concat((df.loc[mask, :].tail(props[m][1]), df_), axis=0)
 
-  _df = calculate_fundamentals(_df, ohlcv_fetcher)
-  _df: pd.DataFrame = _df.loc[_df.index.difference(df.index), :]
-  upsert_sqlite(handle_ttm(_df), 'fundamentals.db', _id)
-  df = pd.concat((df, _df), axis=0)
+  df_ = await calculate_fundamentals(id_, df_, ohlcv_fetcher)
+  df_ = df_.loc[df_.index.difference(df.index), :]
+  upsert_sqlite(handle_ttm(df_), 'fundamentals.db', id_)
+  df = pd.concat((df, df_), axis=0)
 
   # df = read_sqlite('fundamentals.db', query,
   #  index_col=index_col,

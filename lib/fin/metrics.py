@@ -1,13 +1,20 @@
-from datetime import datetime as dt
-from dateutil.relativedelta import relativedelta
-from functools import partial
-from typing import Awaitable, Literal
+from typing import cast, Literal
 
 import numpy as np
 import pandas as pd
+from pandera import DataFrameModel
+from pandera.dtypes import Timestamp
+from pandera.typing import DataFrame, Index
 import statsmodels.api as sm
 
 from lib.fin.calculation import applier
+
+
+class BetaParams(DataFrameModel):
+  date: Index[Timestamp]
+  equity_return: float
+  market_return: float
+  riskfree_rate: float
 
 
 def f_score(df: pd.DataFrame) -> pd.DataFrame:
@@ -97,24 +104,21 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-async def beta(
-  _id: str,
+def beta(
   fin: pd.DataFrame,
-  quote: pd.Series | partial[pd.DataFrame],
-  market_fetcher: partial[Awaitable[pd.DataFrame]],
-  riskefree_fetcher: partial[Awaitable[pd.DataFrame]],  # yahoo: ^TNX/'^TYX; fred: DSG10
+  equity_return: pd.Series,
+  market_return: pd.Series,
+  riskfree_rate: pd.Series,  # yahoo: ^TNX/'^TYX; fred: DSG10
   period: int = 1,
 ) -> pd.DataFrame:
-  from lib.ticker.fetch import get_ohlcv
-
   def calculate_beta(
-    dates: pd.DatetimeIndex, returns: pd.DataFrame, months: int
+    dates: pd.DatetimeIndex, returns: DataFrame[BetaParams], months: int
   ) -> pd.DataFrame:
     days = {3: 63.0, 12: 252.0}
 
     beta = np.full(len(dates), np.nan)
     market_return = np.full(len(dates), np.nan)
-    risk_free_rate = np.full(len(dates), np.nan)
+    riskfree_rate = np.full(len(dates), np.nan)
 
     if returns.index.min() > dates.min():
       dates = dates[dates.values > returns.index.min()]
@@ -137,14 +141,14 @@ async def beta(
       beta[i] = ols_result.params.iloc[-1]
 
       market_return[i] = temp['market_return'].mean() * period
-      risk_free_rate[i] = temp['risk_free_rate'].mean()
+      riskfree_rate[i] = temp['riskfree_rate'].mean()
 
     result = pd.DataFrame(
       data={
         'date': dates,
         'beta': beta,
         'market_return': market_return,
-        'risk_free_rate': risk_free_rate,
+        'riskfree_rate': riskfree_rate,
       }
     )
     result['months'] = months
@@ -152,30 +156,15 @@ async def beta(
     result.loc[:, 'market_return'] *= days[period]
 
     if months == 3:
-      result.loc[:, 'risk_free_rate'] = result['risk_free_rate'] / 4
+      result.loc[:, 'riskfree_rate'] = result['riskfree_rate'] / 4
 
     return result
 
-  start_date = fin.index.get_level_values('date').min() - relativedelta(years=period)
-  start_date = dt.strftime(start_date, '%Y-%m-%d')
+  returns = cast(
+    DataFrame[BetaParams],
+    pd.concat([equity_return, market_return, riskfree_rate], axis=1).ffill(),
+  )
 
-  if isinstance(quote, partial):
-    quote: pd.DataFrame = get_ohlcv(_id, 'stock', quote, cols={'date', 'close'})
-    quote.rename(columns={'close': 'equity_return'}, inplace=True)
-    quote.set_index('date', inplace=True)
-
-  market = await market_fetcher(start_date)
-  market = market['close'].rename('market_return')
-
-  riskfree = await riskefree_fetcher(start_date)
-  riskfree = riskfree['close'].rename('risk_free_rate')
-  riskfree /= 100
-
-  returns: pd.DataFrame = pd.concat([quote, market, riskfree], axis=1).ffill()
-
-  cols = ['equity_return', 'market_return']
-  returns.loc[:, cols] = returns[cols].pct_change()
-  # returns.loc[:, cols] = returns[cols].diff() / returns[cols].abs().shift(1)
   returns.dropna(inplace=True)
 
   betas: list[pd.DataFrame] = []
@@ -185,7 +174,10 @@ async def beta(
     (slice(None), slice('TTM'), 12),
   )
   for s in slices:
-    dates = fin.loc[s, :].sort_index(level='date').index.get_level_values('date')
+    dates = cast(
+      pd.DatetimeIndex,
+      fin.loc[s, :].sort_index(level='date').index.get_level_values('date'),
+    )
     betas.append(calculate_beta(dates, returns, s[2]))
 
   beta = pd.concat(betas)

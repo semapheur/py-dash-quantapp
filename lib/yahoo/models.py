@@ -61,8 +61,8 @@ class Quote(TypedDict):
   high: list[float]
   open: list[float]
   low: list[float]
-  volume: list[int]
   close: list[float]
+  volume: list[int]
 
 
 class QuoteAdjustedClose(TypedDict):

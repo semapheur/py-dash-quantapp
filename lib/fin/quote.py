@@ -1,24 +1,26 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-from typing import cast, Any, Coroutine, Optional
+from typing import cast, Any, Coroutine, Literal, Optional
 
 from pandera.typing import DataFrame
 
 from lib.db.lite import read_sqlite, upsert_sqlite
-from lib.fin.models import OhlcvQuote
+from lib.fin.models import Quote
 
 
 async def get_ohlcv(
   _id: str,
   security: str,
-  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[OhlcvQuote]]],
+  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: int = 1,
-  cols: Optional[set[str]] = None,
-) -> DataFrame[OhlcvQuote]:
+  cols: Optional[
+    set[Literal['open', 'high', 'low', 'close', 'adjusted_close', 'volume']]
+  ] = None,
+) -> DataFrame[Quote]:
   col_text = '*'
   if cols is not None:
-    col_text = ', '.join(cols.union({'date'}))
+    col_text = ', '.join({'date'}.union(cols))
 
   query = f'SELECT {col_text} FROM "{_id}"'
 
@@ -40,7 +42,7 @@ async def get_ohlcv(
 
   last_date: dt = ohlcv.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
-    return cast(DataFrame[OhlcvQuote], ohlcv)
+    return cast(DataFrame[Quote], ohlcv)
 
   new_ohlcv = await ohlcv_fetcher(last_date.strftime('%Y-%m-%d'))
 
@@ -55,4 +57,4 @@ async def get_ohlcv(
     date_parser={'date': {'format': '%Y-%m-%d'}},
   )
 
-  return cast(DataFrame[OhlcvQuote], ohlcv)
+  return cast(DataFrame[Quote], ohlcv)

@@ -23,7 +23,7 @@ from lib.yahoo.models import (
   QuoteData,
 )
 from lib.utils import handle_date
-from lib.fin.models import OhlcvQuote
+from lib.fin.models import Quote
 
 
 @dataclass(slots=True)
@@ -36,8 +36,8 @@ class Ticker:
     end_date: Optional[dt | Date] = None,
     period: Optional[QuotePeriod] = None,
     interval: QuoteInterval = '1d',
-    multicolumn=False,
-  ) -> DataFrame[OhlcvQuote]:
+    adjusted_close=False,
+  ) -> DataFrame[Quote]:
     async def parse_json(
       start_stamp: int, end_stamp: int, interval: QuoteInterval
     ) -> QuoteData:
@@ -90,14 +90,18 @@ class Ticker:
 
     # OHLCV
     ohlcv = parse['indicators']['quote'][0]
-    adj_close = parse['indicators']['adjclose'][0]['adjclose']
+
+    close = (
+      parse['indicators']['adjclose'][0]['adjclose']
+      if adjusted_close
+      else ohlcv['close']
+    )
 
     data = {
       'open': ohlcv['open'],
       'high': ohlcv['high'],
       'low': ohlcv['low'],
-      'close': ohlcv['close'],
-      'adjusted_close': adj_close,
+      'close': close,
       'volume': ohlcv['volume'],
     }
 
@@ -106,11 +110,11 @@ class Ticker:
     df.index = pd.to_datetime(ix, unit='s').floor('D')
     df.index.rename('date', inplace=True)
 
-    if multicolumn:
-      cols = pd.MultiIndex.from_product([[self.ticker], [c for c in df.columns]])
-      df.columns = cols
+    # if multicolumn:
+    #  cols = pd.MultiIndex.from_product([[self.ticker], [c for c in df.columns]])
+    #  df.columns = cols
 
-    return cast(DataFrame[OhlcvQuote], df)
+    return cast(DataFrame[Quote], df)
 
   def price_targets(self) -> pd.DataFrame:
     url = f'https://finance.yahoo.com/quote/{self.ticker}/analysis'
@@ -290,7 +294,7 @@ class Ticker:
     return df
 
 
-async def batchOhlcv(
+async def batch_ohlcv(
   tickers: list[str],
   start_date: Optional[dt] = None,
   end_date: Optional[dt] = None,

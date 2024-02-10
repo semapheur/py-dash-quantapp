@@ -7,7 +7,7 @@ from pandera.typing import Index
 
 class FinancialsIndex(DataFrameModel):
   date: Index[Timestamp]
-  period: Index[Literal['Q1', 'Q2', 'Q3', 'Q4', 'FY']]
+  period: Index[Literal['Q1', 'Q2', 'Q3', 'Q4', 'FY', 'TTM']]
   months: Index[int] = Field(ge=1, coerce=True)
 
   class Config:
@@ -15,14 +15,11 @@ class FinancialsIndex(DataFrameModel):
     multiindex_unique = True
 
 
-class CloseQuote(DataFrameModel):
+class Quote(DataFrameModel):
   date: Index[Timestamp]
-  close: float
-
-
-class OhlcvQuote(CloseQuote):
-  open: float
-  high: float
-  low: float
-  adjusted_close: Optional[str]
-  volume: int = Field(ge=0.0)
+  open: Optional[float]
+  high: Optional[float]
+  low: Optional[float]
+  adjusted_close: Optional[float]
+  close: Optional[float]
+  volume: Optional[int] = Field(ge=0)

@@ -12,7 +12,7 @@ from pandera.typing import DataFrame
 
 from lib.const import HEADERS
 from lib.utils import replace_all
-from lib.fin.models import CloseQuote, OhlcvQuote
+from lib.fin.models import Quote
 from lib.morningstar.models import Ohlcv, Close, Document, StockDocuments
 
 
@@ -33,7 +33,7 @@ class Security:
 class Stock(Security):
   async def ohlcv(
     self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
-  ) -> DataFrame[OhlcvQuote]:
+  ) -> DataFrame[Quote]:
     params = {
       'id': f'{self.id}]3]0]',
       'currencyId': self.currency,
@@ -69,7 +69,7 @@ class Stock(Security):
     df = pd.DataFrame.from_records(scrap)
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
-    return cast(DataFrame[OhlcvQuote], df)
+    return cast(DataFrame[Quote], df)
 
   def financials(self) -> pd.DataFrame | None:
     def parse_sheet(sheet: Literal['is', 'bs', 'cf']):
@@ -193,7 +193,7 @@ class Stock(Security):
 class Fund(Security):
   def price(
     self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
-  ) -> DataFrame[CloseQuote]:
+  ) -> DataFrame[Quote]:
     params = {
       'id': f'{self.id}]2]1]',
       'currencyId': self.currency,
@@ -220,7 +220,7 @@ class Fund(Security):
     df = pd.DataFrame.from_records(scrap)
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
-    return cast(DataFrame[CloseQuote], df)
+    return cast(DataFrame[Quote], df)
 
   def fund_details(self) -> pd.DataFrame:
     scrap = []
@@ -360,7 +360,7 @@ class Fund(Security):
 class Etf(Security):
   def price(
     self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
-  ) -> DataFrame[CloseQuote]:
+  ) -> DataFrame[Quote]:
     params = {
       'id': f'{self.id}]22]1]',
       'currencyId': self.currency,
@@ -387,4 +387,4 @@ class Etf(Security):
     df = pd.DataFrame.from_records(scrap)
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
-    return cast(DataFrame[CloseQuote], df)
+    return cast(DataFrame[Quote], df)
