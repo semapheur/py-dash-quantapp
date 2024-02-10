@@ -24,14 +24,14 @@ SCREENER_API = (
 FACTOR = {'tusener': 1e3, 'millioner': 1e6, 'milliarder': 1e9}
 
 
-@dataclass
+@dataclass(slots=True)
 class Security:
   id: str
-  currency: str = 'USD'
+  currency: Optional[str] = 'USD'
 
 
 class Stock(Security):
-  def ohlcv(
+  async def ohlcv(
     self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
   ) -> DataFrame[OhlcvQuote]:
     params = {
@@ -47,10 +47,10 @@ class Stock(Security):
     }
     url = 'https://tools.morningstar.no/api/rest.svc/timeseries_ohlcv/dr6pz9spfi'
 
-    with httpx.Client() as client:
-      rs = client.get(url, headers=HEADERS, params=params)
+    async with httpx.AsyncClient() as client:
+      rs = await client.get(url, headers=HEADERS, params=params)
       if rs.status_code != 200:
-        raise httpx.RequestError('Could not parse json!')
+        raise httpx.RequestError(f'Error fetching OHLCV for {self.id}: {rs}')
       parse: list[list[float | int]] = rs.json()
 
     scrap: list[Ohlcv] = []
