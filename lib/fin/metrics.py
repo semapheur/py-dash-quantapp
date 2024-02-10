@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-from typing import Literal
+from typing import Awaitable, Literal
 
 import numpy as np
 import pandas as pd
@@ -97,12 +97,12 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-def beta(
+async def beta(
   _id: str,
   fin: pd.DataFrame,
   quote: pd.Series | partial[pd.DataFrame],
-  market_fetcher: partial[pd.DataFrame],
-  riskefree_fetcher: partial[pd.DataFrame],  # yahoo: ^TNX/'^TYX; fred: DSG10
+  market_fetcher: partial[Awaitable[pd.DataFrame]],
+  riskefree_fetcher: partial[Awaitable[pd.DataFrame]],  # yahoo: ^TNX/'^TYX; fred: DSG10
   period: int = 1,
 ) -> pd.DataFrame:
   from lib.ticker.fetch import get_ohlcv
@@ -164,10 +164,10 @@ def beta(
     quote.rename(columns={'close': 'equity_return'}, inplace=True)
     quote.set_index('date', inplace=True)
 
-  market = market_fetcher(start_date)
+  market = await market_fetcher(start_date)
   market = market['close'].rename('market_return')
 
-  riskfree = riskefree_fetcher(start_date)
+  riskfree = await riskefree_fetcher(start_date)
   riskfree = riskfree['close'].rename('risk_free_rate')
   riskfree /= 100
 

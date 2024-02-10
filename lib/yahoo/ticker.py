@@ -10,6 +10,7 @@ import bs4 as bs
 import httpx
 import numpy as np
 import pandas as pd
+from pandera.typing import DataFrame
 
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
@@ -22,6 +23,7 @@ from lib.yahoo.models import (
   QuoteData,
 )
 from lib.utils import handle_date
+from lib.fin.models import OhlcvQuote
 
 
 @dataclass(slots=True)
@@ -35,7 +37,7 @@ class Ticker:
     period: Optional[QuotePeriod] = None,
     interval: QuoteInterval = '1d',
     multicolumn=False,
-  ) -> pd.DataFrame:
+  ) -> DataFrame[OhlcvQuote]:
     async def parse_json(
       start_stamp: int, end_stamp: int, interval: QuoteInterval
     ) -> QuoteData:
@@ -108,7 +110,7 @@ class Ticker:
       cols = pd.MultiIndex.from_product([[self.ticker], [c for c in df.columns]])
       df.columns = cols
 
-    return df
+    return cast(DataFrame[OhlcvQuote], df)
 
   def price_targets(self) -> pd.DataFrame:
     url = f'https://finance.yahoo.com/quote/{self.ticker}/analysis'

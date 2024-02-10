@@ -152,16 +152,6 @@ class StockSplit(BaseModel):
   stock_split_ratio: float
 
 
-class FinancialsIndex(DataFrameModel):
-  date: DatetimeIndex
-  period: Index[FiscalPeriod]
-  months: Index[int]
-
-  class Config:
-    multiindex_strict = True
-    multiindex_unique = 'date'
-
-
 class Recent(BaseModel):
   accessionNumber: list[str]
   filingDate: list[str]

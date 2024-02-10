@@ -4,7 +4,7 @@ from functools import partial
 from dash import callback, dcc, html, no_update, Input, Output, State
 
 from lib.edgar.company import Company
-from lib.morningstar.ticker import Ticker
+from lib.morningstar.ticker import Stock
 from lib.ticker.fetch import find_cik, get_fundamentals, search_tickers
 
 from components.input import InputAIO

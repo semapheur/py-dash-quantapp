@@ -1,6 +1,7 @@
 [mypy]
 plugins = [
   "numpy.typing.mypy_plugin",
+  "pandara.mypy",
   "pydantic.mypy"
 ]
 explicit_package_bases = true

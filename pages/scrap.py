@@ -36,7 +36,7 @@ from lib.edgar.models import (
   Scope,
   FiscalPeriod,
 )
-from lib.morningstar.ticker import Ticker
+from lib.morningstar.ticker import Stock
 from lib.utils import download_file
 
 register_page(__name__, path='/scrap')
@@ -205,7 +205,7 @@ def update_dropdown(ticker: str):
   if not ticker:
     return no_update
 
-  docs = Ticker(ticker.split('|')[0], 'stock').documents()
+  docs = Stock(ticker.split('|')[0]).documents()
   docs.rename(columns={'link': 'value'}, inplace=True)
   docs['label'] = docs['date'] + ' - ' + docs['type'] + ' (' + docs['language'] + ')'
 
