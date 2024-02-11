@@ -111,8 +111,9 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-async def get_fundamentals(
+async def update_fundamentals(
   id_: str,
+  currency: str,
   financials_fetcher: partial[Coroutine[Any, Any, pd.DataFrame]],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   cols: Optional[set[str]] = None,

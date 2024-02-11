@@ -47,18 +47,16 @@ def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
 
 def load_financials(
   id_: str, date: Optional[str] = None
-) -> DataFrame[RawFinancialsFrame]:
+) -> DataFrame[RawFinancialsFrame] | None:
   query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
   if date:
     query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
 
-  df = cast(
-    DataFrame[RawFinancialsFrame],
-    read_sqlite(
-      'financials_scrap.db', query, date_parser={'date': {'format': '%Y-%m-%d'}}
-    ),
+  df = read_sqlite(
+    'financials_scrap.db',
+    query,
+    date_parser={'date': {'format': '%Y-%m-%d'}},
   )
-
   return df
 
 
@@ -68,7 +66,7 @@ async def update_financials(
   company = Company(cik)
   df = load_financials(id_, date)
 
-  if df.empty:
+  if df is None:
     return await scrap_financials(cik, id_)
 
   last_date = df['date'].max()
@@ -94,10 +92,16 @@ async def update_financials(
   return [*new_fin, *df_to_financials(df)]
 
 
-async def financials_table(id_: str, currency: Optional[str] = None) -> pd.DataFrame:
-  financials = df_to_financials(load_financials(id_))
+async def financials_table(
+  id_: str, currency: Optional[str] = None
+) -> DataFrame | None:
+  df_scrap = load_financials(id_)
+  if df_scrap is None:
+    return None
 
-  dfs: list[pd.DataFrame] = []
+  financials = df_to_financials(df_scrap)
+
+  dfs: list[DataFrame] = []
 
   for f in financials:
     dfs.append(await statement_to_df(f, currency))
@@ -113,7 +117,7 @@ async def financials_table(id_: str, currency: Optional[str] = None) -> pd.DataF
   if ratios is not None:
     df = stock_split_adjust(df, ratios)
 
-  return df
+  return cast(DataFrame, df)
 
 
 def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
@@ -123,6 +127,8 @@ def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
     WHERE gaap IS NOT NULL
   """
   items = read_sqlite('taxonomy.db', query)
+  if items is None:
+    raise ValueError('Taxonomy could not be loaded!')
 
   df = df[list(set(df.columns).intersection(set(items['gaap'])))]
 
@@ -130,9 +136,12 @@ def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
   df.rename(columns=rename, inplace=True)
   df = combine_duplicate_columns(df)
 
-  query = 'SELECT item FROM items WHERE period = "duration"'
-  items = read_sqlite('taxonomy.db', query)
-  diff_items = list(set(items['item']).intersection(set(df.columns)))
+  query = 'SELECT item FROM items WHERE aggretate = "sum"'
+  sum_items = read_sqlite('taxonomy.db', query)
+  if sum_items is None:
+    raise ValueError('Taxonomy could not be loaded!')
+
+  diff_items = list(set(sum_items['item']).intersection(set(df.columns)))
 
   conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
 
@@ -142,28 +151,28 @@ def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
     mask = (period == conditions[i - 1][0]) & (months == conditions[i - 1][1]) | (
       period == conditions[i][0]
     ) & (months == conditions[i][1])
-    _df = df.loc[mask, diff_items]
-    _df.sort_index(level='date', inplace=True)
+    df_ = df.loc[mask, diff_items]
+    df_.sort_index(level='date', inplace=True)
 
-    _df.loc[:, 'month_diff'] = df_time_difference(
-      cast(pd.DatetimeIndex, _df.index.get_level_values('date')), 30, 'D'
+    df_.loc[:, 'month_diff'] = df_time_difference(
+      cast(pd.DatetimeIndex, df_.index.get_level_values('date')), 30, 'D'
     )
 
-    _df.loc[:, diff_items] = _df[diff_items].diff()
-    _df = _df.loc[_df['month_diff'] == 3, diff_items]
+    df_.loc[:, diff_items] = df_[diff_items].diff()
+    df_ = df_.loc[df_['month_diff'] == 3, diff_items]
 
-    _df = _df.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
-    _df.reset_index(level='months', inplace=True)
-    _df.loc[:, 'months'] = 3
-    _df.set_index('months', append=True, inplace=True)
+    df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
+    df_.reset_index(level='months', inplace=True)
+    df_.loc[:, 'months'] = 3
+    df_.set_index('months', append=True, inplace=True)
 
     if conditions[i][0] == 'FY':
-      _df.reset_index(level='period', inplace=True)
-      _df.loc[:, 'period'] = 'Q4'
-      _df.set_index('period', append=True, inplace=True)
-      _df = _df.reorder_levels(['date', 'period', 'months'])
+      df_.reset_index(level='period', inplace=True)
+      df_.loc[:, 'period'] = 'Q4'
+      df_.set_index('period', append=True, inplace=True)
+      df_ = df_.reorder_levels(['date', 'period', 'months'])
 
-    df = df.combine_first(_df)
+    df = df.combine_first(df_)
 
   mask = (months == 3) & (period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) | (months == 12) & (
     period == 'FY'

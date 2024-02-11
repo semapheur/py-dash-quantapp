@@ -1,11 +1,18 @@
 from pathlib import Path
 import re
 import sqlite3
-from typing import Literal, Optional
+from typing import cast, Literal, Optional
 
 import pandas as pd
 from pandas._typing import DtypeArg
-from sqlalchemy import create_engine, inspect, text, Engine, TextClause  # event
+from pandera.typing import DataFrame
+from sqlalchemy import (
+  create_engine,
+  inspect,
+  text,
+  Engine,
+  TextClause,
+)  # event
 
 from lib.const import DB_DIR
 
@@ -99,7 +106,7 @@ def read_sqlite(
   index_col: Optional[str | list[str]] = None,
   dtype: Optional[DtypeArg] = None,
   date_parser: Optional[dict[str, dict[str, str]]] = None,
-) -> pd.DataFrame:
+) -> DataFrame | DataFrame[T] | None:
   db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
@@ -108,7 +115,7 @@ def read_sqlite(
   tables = insp.get_table_names()
 
   if tables == [] or table not in set(tables):
-    return pd.DataFrame()
+    return None
 
   if isinstance(query, str):
     query = text(query)
@@ -121,7 +128,7 @@ def read_sqlite(
       query, con=con, parse_dates=date_parser, index_col=index_col, dtype=dtype
     )
 
-  return df
+  return None if df.empty else cast(DataFrame, df)
 
 
 def insert_sqlite(

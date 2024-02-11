@@ -1,7 +1,6 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import io
-import json
 import re
 from pathlib import Path
 import sqlite3
@@ -423,12 +422,12 @@ def export(
   n: int, rows: list[dict], _id: str, date: str, scope: Scope, period: FiscalPeriod
 ):
   def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
-    date: dt = dt.strptime(date_text, '%Y-%m-%d')
+    date = dt.strptime(date_text, '%Y-%m-%d').date()
 
     if row['period'] == 'instant':
       return Instant(instant=date)
 
-    start_date = dt.strptime(period, '%Y-%m-%d')
+    start_date = dt.strptime(period, '%Y-%m-%d').date()
 
     if scope == 'annual':
       start_date -= relativedelta(years=1)
@@ -469,11 +468,11 @@ def export(
 
   records = [
     RawFinancials(
-      date=date,
+      date=dt.strptime(date, '%Y-%m-%d').date(),
       scope=scope,
       period=period,
-      currency=json.dumps(list(currencies)),
-      data=json.dumps(data),
+      currency=currencies,
+      data=data,
     )
   ]
 

@@ -5,7 +5,7 @@ from dash import callback, dcc, html, no_update, Input, Output, State
 
 from lib.edgar.company import Company
 from lib.morningstar.ticker import Stock
-from lib.ticker.fetch import find_cik, get_fundamentals, search_tickers
+from lib.ticker.fetch import find_cik, search_tickers
 
 from components.input import InputAIO
 
@@ -79,7 +79,7 @@ def fincials_store(id_store: dict[str, str]):
     return no_update
 
   financials_fetcher = partial(Company(cik).financials_to_df)
-  ohlcv_fetcher = partial(Ticker(_id, 'stock', 'USD').ohlcv)
+  ohlcv_fetcher = partial(Stock(_id, 'USD').ohlcv)
 
   fundamentals = asyncio.run(get_fundamentals(_id, financials_fetcher, ohlcv_fetcher))
 

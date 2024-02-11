@@ -353,7 +353,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
 async def statement_to_df(
   financials: RawFinancials, currency: Optional[str] = None
-) -> pd.DataFrame:
+) -> DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
       return period.end_date
@@ -434,7 +434,7 @@ async def statement_to_df(
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
   df.index.names = ['date', 'period', 'months']
-  return df
+  return cast(DataFrame, df)
 
 
 def get_ciks() -> DataFrame[CikFrame]:
