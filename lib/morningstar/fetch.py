@@ -212,7 +212,7 @@ async def fund_data():
     'GBRReturnM36': 'return:3y',
     'GBRReturnM60': 'return:5y',
     'GBRReturnM120': 'return:10',
-    'InitialPurchase': 'init_purch',
+    'InitialPurchase': 'initial_purchase',
     'AlphaM36': 'alpha:3y',
     'BetaM36': 'beta:3y',
     'R2M36': 'r2:3y',

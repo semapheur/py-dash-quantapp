@@ -5,7 +5,7 @@ import pandas as pd
 
 from lib.db.lite import read_sqlite, insert_sqlite, get_tables
 from lib.edgar.financials import update_financials, financials_table
-from lib.ticker.fetch import get_fundamentals
+from lib.fin.fundamentals import update_fundamentals
 
 faulty = ['0P0000BV6H', '0P0001691U', '0P0000BRJU', '0P0000C80Q']
 empty = [
@@ -29,6 +29,9 @@ async def seed_edgar_financials(exchange: str) -> None:
     """
 
   df = read_sqlite('ticker.db', query)
+  if df is None:
+    raise ValueError(f'No tickers found for {exchange}')
+
   df.set_index('id', inplace=True)
 
   tables = get_tables('financials_scrap.db')

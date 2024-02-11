@@ -192,52 +192,54 @@ def beta(
 
 # Weighted average cost of capital
 def weighted_average_cost_of_capital(
-  fin: DataFrame, debt_maturity: int = 10
+  fin_data: DataFrame, debt_maturity: int = 10
 ) -> DataFrame:
-  if 'beta' not in set(fin.columns):
-    return fin
+  if 'beta' not in set(fin_data.columns):
+    raise ValueError('Beta values missing in dataframe!')
 
-  fin.loc[:, 'capitalization_class'] = fin['market_capitalization'].apply(
+  fin_data.loc[:, 'capitalization_class'] = fin_data['market_capitalization'].apply(
     lambda x: 'small' if x < 2e9 else 'large'
   )
 
-  fin.loc[:, 'yield_spread'] = fin.apply(
+  fin_data.loc[:, 'yield_spread'] = fin_data.apply(
     lambda r: yield_spread(r['interest_coverage_ratio'], r['capitalization_class']),
     axis=1,
   )
 
-  fin.loc[(slice(None), slice(None), 3), 'yield_spread'] /= 4
+  fin_data.loc[(slice(None), slice(None), 3), 'yield_spread'] /= 4
 
-  fin['beta_levered'] = fin['beta'] * (
-    1 + (1 - fin['tax_rate']) * fin['debt'] / fin['equity']
+  fin_data['beta_levered'] = fin_data['beta'] * (
+    1 + (1 - fin_data['tax_rate']) * fin_data['debt'] / fin_data['equity']
   )
 
   # Cost of equity
-  fin['equity_risk_premium'] = fin['beta_levered'] * (
-    fin['market_return'] - fin['risk_free_rate']
+  fin_data['equity_risk_premium'] = fin_data['beta_levered'] * (
+    fin_data['market_return'] - fin_data['risk_free_rate']
   )
-  fin['cost_equity'] = fin['risk_free_rate'] + fin['equity_risk_premium']
+  fin_data['cost_equity'] = fin_data['risk_free_rate'] + fin_data['equity_risk_premium']
 
   # Cost of debt
-  fin['cost_debt'] = fin['risk_free_rate'] + fin['yield_spread']
+  fin_data['cost_debt'] = fin_data['risk_free_rate'] + fin_data['yield_spread']
 
   # Market value of debt
-  fin['market_value_debt'] = (fin['interest_expense'] / fin['cost_debt']) * (
-    1 - (1 / (1 + fin['cost_debt']) ** debt_maturity)
-  ) + (fin['debt'] / (1 + fin['cost_debt']) ** debt_maturity)
-
-  fin['equity_to_capital'] = fin['market_capitalization'] / (
-    fin['market_capitalization'] + fin['market_value_debt']
+  fin_data['market_value_debt'] = (
+    fin_data['interest_expense'] / fin_data['cost_debt']
+  ) * (1 - (1 / (1 + fin_data['cost_debt']) ** debt_maturity)) + (
+    fin_data['debt'] / (1 + fin_data['cost_debt']) ** debt_maturity
   )
 
-  fin['weighted_average_cost_of_capital'] = fin['cost_equity'] * fin[
+  fin_data['equity_to_capital'] = fin_data['market_capitalization'] / (
+    fin_data['market_capitalization'] + fin_data['market_value_debt']
+  )
+
+  fin_data['weighted_average_cost_of_capital'] = fin_data['cost_equity'] * fin_data[
     'equity_to_capital'
-  ] + fin['cost_debt'] * (1 - fin['tax_rate']) * (
-    fin['market_value_debt'] / (fin['market_capitalization'] + fin['market_value_debt'])
+  ] + fin_data['cost_debt'] * (1 - fin_data['tax_rate']) * (
+    fin_data['market_value_debt']
+    / (fin_data['market_capitalization'] + fin_data['market_value_debt'])
   )
   excl = ['market_return', 'capitalization_class']
-  fin = fin[fin.columns.difference(excl)]
-  return fin
+  return cast(DataFrame, fin_data[fin_data.columns.difference(excl)])
 
 
 def yield_spread(icr: float, cap: Literal['small', 'large']):

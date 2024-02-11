@@ -44,7 +44,7 @@ async def calculate_fundamentals(
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_period: int = 5,
   update: bool = False,
-) -> pd.DataFrame:
+) -> DataFrame:
   price = await get_ohlcv(id_, 'stock', ohlcv_fetcher, cols={'close'})
   price = cast(DataFrame[Quote], price.resample('D').ffill())
 
@@ -95,7 +95,7 @@ async def calculate_fundamentals(
   return fin_table
 
 
-def handle_ttm(df: pd.DataFrame) -> pd.DataFrame:
+def handle_ttm(df: DataFrame) -> DataFrame:
   if 'TTM' not in df.index.get_level_values('period').unique():
     return df
 
@@ -143,6 +143,7 @@ async def update_fundamentals(
     df = await financials_fetcher()
     df = await calculate_fundamentals(id_, df, ohlcv_fetcher)
     upsert_sqlite(handle_ttm(df), 'fundamentals.db', f'{id_}_{currency}')
+    return df
 
   last_date: dt = df.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:
@@ -156,12 +157,12 @@ async def update_fundamentals(
   props = {3: (None, 8), 12: ('FY', 1)}
   for m in df_.index.get_level_values('months').unique():
     mask = (slice(None), slice(props[m][0]), m)
-    df_ = pd.concat((df.loc[mask, :].tail(props[m][1]), df_), axis=0)
+    df_ = cast(DataFrame, pd.concat((df.loc[mask, :].tail(props[m][1]), df_), axis=0))
 
   df_ = await calculate_fundamentals(id_, df_, ohlcv_fetcher)
-  df_ = df_.loc[df_.index.difference(df.index), :]
-  upsert_sqlite(handle_ttm(df_), 'fundamentals.db', id_)
-  df = pd.concat((df, df_), axis=0)
+  df_ = cast(DataFrame, df_.loc[df_.index.difference(df.index), :])
+  upsert_sqlite(handle_ttm(df_), 'fundamentals.db', f'{id_}_{currency}')
+  df = cast(DataFrame, pd.concat((df, df_), axis=0))
 
   # df = read_sqlite('fundamentals.db', query,
   #  index_col=index_col,
