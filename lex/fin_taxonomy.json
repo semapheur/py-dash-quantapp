@@ -1,4 +1,15 @@
 {
+  "lease_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tai",
+    "gaap": [
+      "CurrentLeaseLiabilities"
+    ],
+    "label": {
+      "long": "Current Lease Liabilities"
+    }
+  },
   "accretion": {
     "unit": "monetary",
     "balance": "debit",
@@ -2631,10 +2642,11 @@
     }
   },
   "debt_interest_rate": {
-    "unit": "monetary_ratio",
+    "unit": "percent",
     "aggregate": "recalc",
     "gaap": [
-      "DebtWeightedAverageInterestRate"
+      "DebtWeightedAverageInterestRate",
+      "DebtInstrumentAnnualInterestRatePercentage"
     ],
     "label": {
       "long": "Effective Interest Rate"
@@ -2642,6 +2654,16 @@
     "calculation": {
       "order": 380,
       "all": "interest_expense / average_debt"
+    }
+  },
+  "debt_principal_payment": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "gaap": [
+      "DebtInstrumentAnnualPrincipalPayment"
+    ],
+    "label": {
+      "long": "Annual Principal Payment of Debt"
     }
   },
   "debt_longterm": {
@@ -8026,6 +8048,76 @@
       "long": "Proceeds from Redemption of Available-for-Sale Assets"
     }
   },
+  "proceed_sale_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSalesOfInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Investments"
+    },
+    "calculation": {
+      "order": 0,
+      "any": "proceeds_sale_investments_shortterm + proceeds_sale_investments_longterm"
+    }
+  },
+  "proceed_sale_investment_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfShortTermInvestments"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Investments"
+    }
+  },
+  "proceed_sale_subsidiary": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfSubsidiary"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Subsidiary"
+    }
+  },
+  "proceed_sale_subsidiary_share": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfSharesInSubsidiary"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Shares in Subsidiary"
+    }
+  },
+  "proceed_sale_interest_affiliates": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSalesOfInterestsInAssociates"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Interest in Associates"
+    }
+  },
+  "proceed_sale_stock_treasury": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "gaap": [
+      "ProceedsFromSaleOfTreasuryStock"
+    ],
+    "label": {
+      "long": "Proceeds from Sale of Treasury Stock"
+    }
+  },
   "proceed_sale_intangible_assets": {
     "unit": "monetary",
     "balance": "debit",
@@ -9846,6 +9938,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearOneThroughYearThreeAmortizedCostBasis"
     ],
@@ -9903,8 +9996,8 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveAmortizedCostBasis",
+      "AvailableforsaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanThreeYearsThroughYearFiveAmortizedCostBasis"
     ],
     "label": {
@@ -10070,7 +10163,8 @@
     "balance": "debit",
     "aggregate": "tail",
     "gaap": [
-      "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDateAmortizedCost"
+      "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDateAmortizedCost",
+      "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDateAmortizedCostBasis"
     ],
     "label": {
       "long": "Available-For-Sale Debt Security with Single Maturity Date Amortized Cost Basis"

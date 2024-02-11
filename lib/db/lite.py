@@ -106,7 +106,7 @@ def read_sqlite(
   index_col: Optional[str | list[str]] = None,
   dtype: Optional[DtypeArg] = None,
   date_parser: Optional[dict[str, dict[str, str]]] = None,
-) -> DataFrame | DataFrame[T] | None:
+) -> DataFrame | None:
   db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)

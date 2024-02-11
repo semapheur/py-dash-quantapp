@@ -3,6 +3,7 @@ from typing import cast, Any
 
 import numpy as np
 import pandas as pd
+from pandera.typing import DataFrame
 
 from lib.db.lite import read_sqlite
 from lib.utils import df_time_difference
@@ -61,7 +62,7 @@ class AnyTransformer(ast.NodeTransformer):
     return call
 
 
-def trailing_twelve_months(df: pd.DataFrame) -> pd.DataFrame:
+def trailing_twelve_months(df: DataFrame) -> DataFrame:
   df.sort_index(level='date', inplace=True)
 
   last_date = df.index.get_level_values('date').max()
@@ -74,8 +75,11 @@ def trailing_twelve_months(df: pd.DataFrame) -> pd.DataFrame:
     query = f"""SELECT item FROM items
       WHERE aggregate = 'sum' AND item IN {str(tuple(df.columns))}
     """
-    tax = read_sqlite('taxonomy.db', query)
-    sum_cols = tax['item']
+    items = read_sqlite('taxonomy.db', query)
+    if items is None:
+      raise ValueError('Could not load taxonomy!')
+
+    sum_cols = items['item']
 
     mask = (slice(None), slice(None), 3)
     trail = df.loc[mask, sum_cols.to_list()].tail(8)
@@ -88,8 +92,7 @@ def trailing_twelve_months(df: pd.DataFrame) -> pd.DataFrame:
     sums.index = rest.index
     ttm = pd.concat((sums, rest), axis=1)
 
-  df = pd.concat((df, ttm), axis=0)
-  return df
+  return cast(DataFrame, pd.concat((df, ttm), axis=0))
 
 
 def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.DataFrame:
@@ -108,6 +111,8 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
     SELECT 'market_capitalization' AS item
   """
   items = read_sqlite('taxonomy.db', query)
+  if items is None:
+    raise ValueError('Could not load taxonomy!')
 
   df.loc[:, items['item'].to_list()] *= old_price / new_price
 
@@ -152,26 +157,26 @@ def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
     'weighted_average_shares_outstanding_basic_shift',
   ]
 
-  _df = cast(pd.DataFrame, df.xs(3, level='months'))
-  _df.reset_index(level='period', drop=True, inplace=True)
-  _df.sort_index(level='date', inplace=True)
+  df_ = cast(pd.DataFrame, df.xs(3, level='months'))
+  df_.reset_index(level='period', drop=True, inplace=True)
+  df_.sort_index(level='date', inplace=True)
 
-  _df.loc[:, cols[1]] = _df[cols[0]].shift()
-  _df = _df[cols]
+  df_.loc[:, cols[1]] = df_[cols[0]].shift()
+  df_ = df_[cols]
 
-  _df.loc[:, 'action'] = 'split'
-  mask = _df[cols[0]] >= _df[cols[1]]
-  _df.loc[:, 'action'] = _df.where(mask, 'reverse')
+  df_.loc[:, 'action'] = 'split'
+  mask = df_[cols[0]] >= df_[cols[1]]
+  df_.loc[:, 'action'] = df_.where(mask, 'reverse')
 
-  _df.loc[:, 'stock_split_ratio'] = np.round(
-    _df[cols].max(axis=1) / _df[cols].min(axis=1)
+  df_.loc[:, 'stock_split_ratio'] = np.round(
+    df_[cols].max(axis=1) / df_[cols].min(axis=1)
   )
-  _df = _df.loc[_df['stock_split_ratio'] > 1]
+  df_ = df_.loc[df_['stock_split_ratio'] > 1]
 
-  mask = _df['action'] == 'reverse'
-  _df.loc[mask, 'stock_split_ratio'] = 1 / _df.loc[mask, 'split_ratio']
+  mask = df_['action'] == 'reverse'
+  df_.loc[mask, 'stock_split_ratio'] = 1 / df_.loc[mask, 'split_ratio']
 
-  return _df['stock_split_ratio']
+  return df_['stock_split_ratio']
 
 
 def applier(
@@ -207,8 +212,8 @@ def applier(
 
 
 def calculate_items(
-  financials: pd.DataFrame, schemas: dict[str, dict], recalc: bool = False
-) -> pd.DataFrame:
+  financials: DataFrame, schemas: dict[str, dict], recalc: bool = False
+) -> DataFrame:
   def get_formula(schema: dict[str, dict], key: str):
     formula = schema.get(key)
     if isinstance(formula, list):
@@ -217,24 +222,24 @@ def calculate_items(
     return formula
 
   def insert_to_df(
-    df: pd.DataFrame, df_cols: set[str], insert_data: pd.Series, insert_name: str
-  ) -> pd.DataFrame:
+    df: DataFrame, df_cols: set[str], insert_data: pd.Series, insert_name: str
+  ) -> DataFrame:
     if insert_name in df_cols:
       df.loc[:, insert_name] = (
         insert_data if recalc else df[insert_name].combine_first(insert_data)
       )
     else:
       new_column = pd.DataFrame({insert_name: insert_data})
-      df = pd.concat([df, new_column], axis=1)
+      df = cast(DataFrame, pd.concat([df, new_column], axis=1))
 
     return df
 
   def calculate(
-    df: pd.DataFrame,
+    df: DataFrame,
     df_cols: set[str],
     col_name: str,
     expression: ast.Expression | dict[str, int | dict[str, int]],
-  ) -> pd.DataFrame:
+  ) -> DataFrame:
     if isinstance(expression, ast.Expression):
       code = compile(expression, '<string>', 'eval')
       result = eval(code)

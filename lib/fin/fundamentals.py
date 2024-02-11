@@ -30,6 +30,9 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
     """
 
   df = read_sqlite('taxonomy.db', query)
+  if df is None:
+    raise ValueError('Could not load taxonomy!')
+
   df.loc[:, 'calculation'] = df['calculation'].apply(lambda x: json.loads(x))
   schema = {k: v for k, v in zip(df['item'], df['calculation'])}
   return schema
@@ -37,7 +40,7 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
 
 async def calculate_fundamentals(
   id_: str,
-  fin_table: pd.DataFrame,
+  fin_table: DataFrame,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_period: int = 5,
   update: bool = False,
@@ -47,20 +50,24 @@ async def calculate_fundamentals(
 
   fin_table = trailing_twelve_months(fin_table)
   if update and (3 in cast(pd.MultiIndex, fin_table.index).levels[2]):
-    fin_table = pd.concat(
-      (
-        fin_table.loc[(slice(None), slice(None), 3), :].tail(2),
-        fin_table.loc[(slice(None), slice(None), 12), :],
+    fin_table = cast(
+      DataFrame,
+      pd.concat(
+        (
+          fin_table.loc[(slice(None), slice(None), 3), :].tail(2),
+          fin_table.loc[(slice(None), slice(None), 12), :],
+        ),
+        axis=0,
       ),
-      axis=0,
     )
 
   fin_table.reset_index(inplace=True)
-  fin_table = (
+  fin_table = cast(
+    DataFrame,
     fin_table.reset_index()
     .merge(price.rename(columns={'close': 'share_price'}), how='left', on='date')
     .set_index(['date', 'period', 'months'])
-    .drop('index', axis=1)
+    .drop('index', axis=1),
   )
   schema = load_schema()
   fin_table = calculate_items(fin_table, schema)
@@ -114,7 +121,7 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
 async def update_fundamentals(
   id_: str,
   currency: str,
-  financials_fetcher: partial[Coroutine[Any, Any, pd.DataFrame]],
+  financials_fetcher: partial[Coroutine[Any, Any, DataFrame]],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   cols: Optional[set[str]] = None,
   delta: int = 120,
@@ -135,7 +142,7 @@ async def update_fundamentals(
   if df is None:
     df = await financials_fetcher()
     df = await calculate_fundamentals(id_, df, ohlcv_fetcher)
-    upsert_sqlite(handle_ttm(df), 'fundamentals.db', id_)
+    upsert_sqlite(handle_ttm(df), 'fundamentals.db', f'{id_}_{currency}')
 
   last_date: dt = df.index.get_level_values('date').max()
   if relativedelta(dt.now(), last_date).days <= delta:

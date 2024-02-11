@@ -17,7 +17,7 @@ class BetaParams(DataFrameModel):
   riskfree_rate: float
 
 
-def f_score(df: pd.DataFrame) -> pd.DataFrame:
+def f_score(df: DataFrame) -> DataFrame:
   ocf = df['cashflow_operating']
 
   df['piotroski_f_score'] = (
@@ -34,7 +34,7 @@ def f_score(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-def z_score(df: pd.DataFrame) -> pd.DataFrame:
+def z_score(df: DataFrame) -> DataFrame:
   assets = applier(df['assets'], 'avg')
   liabilities = applier(df['liabilities'], 'avg')
 
@@ -49,7 +49,7 @@ def z_score(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-def m_score(df: pd.DataFrame) -> pd.DataFrame:
+def m_score(df: DataFrame) -> DataFrame:
   # Days Sales in Receivables Index
   dsri = df['average_receivable_trade_current'] / df['revenue']
   dsri /= applier(dsri, 'shift')
@@ -105,12 +105,12 @@ def m_score(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def beta(
-  fin: pd.DataFrame,
+  fin_data: DataFrame,
   equity_return: pd.Series,
   market_return: pd.Series,
   riskfree_rate: pd.Series,  # yahoo: ^TNX/'^TYX; fred: DSG10
   period: int = 1,
-) -> pd.DataFrame:
+) -> DataFrame:
   def calculate_beta(
     dates: pd.DatetimeIndex, returns: DataFrame[BetaParams], months: int
   ) -> pd.DataFrame:
@@ -176,23 +176,24 @@ def beta(
   for s in slices:
     dates = cast(
       pd.DatetimeIndex,
-      fin.loc[s, :].sort_index(level='date').index.get_level_values('date'),
+      fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date'),
     )
     betas.append(calculate_beta(dates, returns, s[2]))
 
   beta = pd.concat(betas)
-  fin = (
-    fin.reset_index()
+  fin_data = cast(
+    DataFrame,
+    fin_data.reset_index()
     .merge(beta, on=['date', 'months'], how='left')
-    .set_index(['date', 'period', 'months'])
+    .set_index(['date', 'period', 'months']),
   )
-  return fin
+  return fin_data
 
 
 # Weighted average cost of capital
 def weighted_average_cost_of_capital(
-  fin: pd.DataFrame, debt_maturity: int = 10
-) -> pd.DataFrame:
+  fin: DataFrame, debt_maturity: int = 10
+) -> DataFrame:
   if 'beta' not in set(fin.columns):
     return fin
 
