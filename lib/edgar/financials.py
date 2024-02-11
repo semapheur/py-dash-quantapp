@@ -26,7 +26,7 @@ async def scrap_financials(cik: int, id_: str) -> list[RawFinancials]:
   filings = await company.xbrl_urls()
 
   financials = await parse_statements(filings.tolist())
-  upsert_financials('financials_scrap.db', id_, financials)
+  upsert_financials('financials.db', id_, financials)
   return financials
 
 
@@ -53,7 +53,7 @@ def load_financials(
     query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
 
   df = read_sqlite(
-    'financials_scrap.db',
+    'financials.db',
     query,
     date_parser={'date': {'format': '%Y-%m-%d'}},
   )
@@ -87,7 +87,7 @@ async def update_financials(
 
   new_fin = await parse_statements(new_filings.tolist())
   if new_fin:
-    upsert_financials('financials_scrap.db', id_, new_fin)
+    upsert_financials('financials.db', id_, new_fin)
 
   return [*new_fin, *df_to_financials(df)]
 

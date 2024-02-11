@@ -26,6 +26,7 @@ from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
 from components.modal import ModalAIO
 
+from lib.db.lite import sqlite_path
 from lib.const import HEADERS
 from lib.edgar.models import (
   RawFinancials,
@@ -51,38 +52,43 @@ def get_doc_id(url: str) -> str:
   return match.group()
 
 
-def upsert(db: str | Path, table: str, records: list[RawFinancials]):
-  with sqlite3.connect(db) as conn:
-    cur = conn.cursor()
+def upsert(db_name: str, table: str, records: list[RawFinancials]):
+  db_path = sqlite_path(db_name)
 
-    cur.execute(
-      f"""CREATE TABLE IF NOT EXISTS 
-      "{table}"(
-        date TEXT, 
-        scope TEXT, 
-        period TEXT, 
-        currency TEXT, 
-        data TEXT
-    )"""
-    )
-    cur.execute(
-      f"""CREATE UNIQUE INDEX IF NOT EXISTS ix 
-      ON "{table}" (date, scope, period)"""
-    )
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
 
-    query = f"""INSERT INTO "{table}" VALUES (:date, :scope, :period, :currency, :data)
-        ON CONFLICT (date, scope, period) DO UPDATE SET
-          currency=(
-            SELECT json_group_array(value)
-            FROM (
-              SELECT json_each.value
-              FROM json_each(currency)
-              WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
-            )
+  cur.execute(
+    f"""CREATE TABLE IF NOT EXISTS 
+    "{table}"(
+      date TEXT, 
+      scope TEXT, 
+      period TEXT, 
+      currency TEXT, 
+      data TEXT
+  )"""
+  )
+  cur.execute(
+    f"""CREATE UNIQUE INDEX IF NOT EXISTS ix 
+    ON "{table}" (date, scope, period)"""
+  )
+
+  query = f"""INSERT INTO "{table}" VALUES (:date, :scope, :period, :currency, :data)
+      ON CONFLICT (date, scope, period) DO UPDATE SET
+        currency=(
+          SELECT json_group_array(value)
+          FROM (
+            SELECT json_each.value
+            FROM json_each(currency)
+            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
           )
-          data=json_patch(data, excluded.data)
-    """
-    cur.executemany(query, records)
+        )
+        data=json_patch(data, excluded.data)
+  """
+  cur.executemany(query, [r.model_dump() for r in records])
+
+  con.commit()
+  con.close()
 
 
 main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full bg-primary'

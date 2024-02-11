@@ -1,3 +1,4 @@
+import logging
 from typing import cast, Optional, TypedDict
 
 import pandas as pd
@@ -8,6 +9,8 @@ from lib.db.lite import check_table
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
+
+logger = logging.getLogger(__name__)
 
 
 class Stock(TypedDict, total=False):
@@ -20,7 +23,7 @@ class Stock(TypedDict, total=False):
   industry: str
 
 
-def stock_currency(id: str) -> str | None:
+def stock_currency(id: str) -> str:
   query = text(
     """
     SELECT currency FROM stock WHERE id = :id
@@ -30,12 +33,17 @@ def stock_currency(id: str) -> str | None:
   with ENGINE.begin() as con:
     fetch = con.execute(query)
 
-  return 'USD' if (label := fetch.first()) is None else label[0]
+  if (currency := fetch.first()) is None:
+    logger.warning(f'Could not retrieve currency for security {id}', extra={'id': id})
+    return 'USD'
+
+  return currency[0]
 
 
 def stock_label(id: str) -> str:
   if not check_table('stock', ENGINE):
-    return None
+    logger.warning('Stock tickers have not been seeded!')
+    return ''
 
   query = text(
     """
@@ -47,7 +55,11 @@ def stock_label(id: str) -> str:
   with ENGINE.begin() as con:
     fetch = con.execute(query)
 
-  return '' if (label := fetch.first()) is None else label[0]
+  if (label := fetch.first()) is None:
+    logger.warning(f'Could not retrieve stock label for {id}', extra={'id': id})
+    return ''
+
+  return label[0]
 
 
 def fetch_stock(id: str, cols: Optional[set[str]] = None) -> Stock | None:

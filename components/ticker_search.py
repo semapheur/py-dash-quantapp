@@ -3,7 +3,7 @@ from typing import cast
 from dash import callback, dcc, html, no_update, Input, Output, State
 from pandas import MultiIndex, DatetimeIndex
 
-from lib.ticker.fetch import find_cik, search_tickers
+from lib.ticker.fetch import find_cik, search_tickers, stock_currency
 from lib.fin.fundamentals import load_fundamentals
 
 from components.input import InputAIO
@@ -51,7 +51,7 @@ def ticker_results(search: str) -> list[dict[str, str]]:
 def id_store(path: str, id_store: dict[str, str]):
   path_split = path.split('/')
 
-  if path_split[1] != 'stock':
+  if len(path_split) < 3 or path_split[1] != 'stock':
     return no_update
 
   new_id = path_split[2]
@@ -60,7 +60,7 @@ def id_store(path: str, id_store: dict[str, str]):
   if old_id == new_id:
     return no_update
 
-  return {'id': new_id}
+  return {'id': new_id, 'currency': stock_currency(new_id)}
 
 
 @callback(

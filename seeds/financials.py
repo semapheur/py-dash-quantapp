@@ -22,7 +22,7 @@ SCREENER_CURRENCIES = {'XOSL': 'NOK'}
 
 async def seed_edgar_financials(exchange: str) -> None:
   query = f"""
-    SELECT stock.id, edgar.cik FROM stock
+    SELECT stock.id AS id, edgar.cik AS cik FROM stock
     INNER JOIN edgar ON
       edgar.ticker = stock.ticker
     WHERE stock.mic = "{exchange}" AND stock.ticker IN (SELECT ticker FROM edgar)
@@ -32,16 +32,8 @@ async def seed_edgar_financials(exchange: str) -> None:
   if df is None:
     raise ValueError(f'No tickers found for {exchange}')
 
-  df.set_index('id', inplace=True)
-
-  tables = get_tables('financials_scrap.db')
-  new_ids = set(df.index).difference(tables)
-
   faulty: list[str] = []
-
-  for id in new_ids:
-    cik = df.at[id, 'cik']
-
+  for id, cik in zip(df['id'], df['cik']):
     try:
       _ = await update_financials(int(cik), id)
       time.sleep(60)
@@ -53,46 +45,40 @@ async def seed_edgar_financials(exchange: str) -> None:
   if not faulty:
     return
 
-  with open('seed_fail.json', 'r+') as f:
+  with open('logs/seed_fail.json', 'r+') as f:
     content: dict = json.load(f)
     content[f'{exchange}_financials'] = faulty
     json.dump(content, f)
 
 
 async def seed_fundamentals(exchange: str):
-  query = 'SELECT id, name FROM stock WHERE mic=:=exchange'
-  stocks = read_sqlite('ticker.db', query, params={'exchange': exchange})
+  query = 'SELECT id, name FROM stock WHERE mic = :=exchange'
+  tickers = read_sqlite('ticker.db', query, params={'exchange': exchange})
 
-  stock_ids = set(stocks['id']).intersection(get_tables('financials.db'))
-  currency = SCREENER_CURRENCIES.get(exchange)
+  if tickers is None:
+    raise ValueError(f'No tickers found for {exchange}')
 
-  seeded_ids = set(get_tables('fundamentals.db'))
+  seeded_ids = set(tickers['id']).intersection(get_tables('financials.db'))
+  if not seeded_ids:
+    raise ValueError(f'No financials found for {exchange}')
 
-  tables: dict[str, pd.DataFrame] = {}
-  for i in stock_ids:
-    if (table := f'{i}_{currency}') in seeded_ids:
-      query = f'SELECT * FROM "{table}"'
-      df = read_sqlite('fundamentals.db', query)
-      if df.empty:
-        continue
+  currency = SCREENER_CURRENCIES['XOSL']
 
-      tables[i] = df
-    else:
-      df = await financials_table(i, currency)
+  for id in seeded_ids:
+    try:
+      _ = await update_fundamentals(id, currency)
+      time.sleep(60)
 
-      insert_sqlite(df.reset_index(), 'financials.db', table, '')
-      tables.append(df)
+    except Exception as _:
+      faulty.append(id)
+      print(f'{id} failed')
 
-      financials_fetcher = partial(Company(cik).financials_to_df)
-      ohlcv_fetcher = partial(Ticker(_id, 'stock', 'USD').ohlcv)
+  if not faulty:
+    return
 
-      fundamentals = asyncio.run(
-        get_fundamentals(_id, financials_fetcher, ohlcv_fetcher)
-      )
-
-      fundamentals.index = fundamentals.index.set_levels(
-        fundamentals.index.levels[0].strftime('%Y-%m-%d'), level='date'
-      )
-      fundamentals.reset_index(inplace=True)
+  with open('logs/seed_fail.json', 'r+') as f:
+    content: dict = json.load(f)
+    content[f'{exchange}_financials'] = faulty
+    json.dump(content, f)
 
   return fundamentals.to_dict('records')
