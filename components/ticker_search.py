@@ -1,11 +1,10 @@
-import asyncio
-from functools import partial
+from typing import cast
 
 from dash import callback, dcc, html, no_update, Input, Output, State
+from pandas import MultiIndex, DatetimeIndex
 
-from lib.edgar.company import Company
-from lib.morningstar.ticker import Stock
 from lib.ticker.fetch import find_cik, search_tickers
+from lib.fin.fundamentals import load_fundamentals
 
 from components.input import InputAIO
 
@@ -78,13 +77,15 @@ def fincials_store(id_store: dict[str, str]):
   if cik is None:
     return no_update
 
-  financials_fetcher = partial(Company(cik).financials_to_df)
-  ohlcv_fetcher = partial(Stock(_id, 'USD').ohlcv)
+  fundamentals = load_fundamentals(_id, 'USD')
+  if fundamentals is None:
+    return {}
 
-  fundamentals = asyncio.run(get_fundamentals(_id, financials_fetcher, ohlcv_fetcher))
-
-  fundamentals.index = fundamentals.index.set_levels(
-    fundamentals.index.levels[0].strftime('%Y-%m-%d'), level='date'
+  fundamentals.index = cast(MultiIndex, fundamentals.index).set_levels(
+    cast(DatetimeIndex, cast(MultiIndex, fundamentals.index).levels[0]).strftime(
+      '%Y-%m-%d'
+    ),
+    level='date',
   )
   fundamentals.reset_index(inplace=True)
 

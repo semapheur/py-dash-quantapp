@@ -118,6 +118,25 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
+def load_fundamentals(
+  id_: str, currency: str, cols: Optional[set[str]] = None
+) -> DataFrame | None:
+  col_text = '*'
+  index_col = OrderedSet(('date', 'period', 'months'))
+  if cols is not None:
+    col_text = ', '.join(cols.union(index_col))
+
+  table = f'{id_}_{currency}'
+  query = f'SELECT {col_text} FROM "{table}"'
+  df = read_sqlite(
+    'fundamentals.db',
+    query,
+    index_col=list(index_col),
+    date_parser={'date': {'format': '%Y-%m-%d'}},
+  )
+  return df
+
+
 async def update_fundamentals(
   id_: str,
   currency: str,
@@ -126,23 +145,13 @@ async def update_fundamentals(
   cols: Optional[set[str]] = None,
   delta: int = 120,
 ) -> pd.DataFrame:
-  col_text = '*'
-  index_col = OrderedSet(('date', 'period', 'months'))
-  if cols is not None:
-    col_text = ', '.join(cols.union(index_col))
-
-  query = f'SELECT {col_text} FROM "{id_}"'
-  df = read_sqlite(
-    'fundamentals.db',
-    query,
-    index_col=list(index_col),
-    date_parser={'date': {'format': '%Y-%m-%d'}},
-  )
+  table = f'{id_}_{currency}'
+  df = load_fundamentals(id_, currency, cols)
 
   if df is None:
     df = await financials_fetcher()
     df = await calculate_fundamentals(id_, df, ohlcv_fetcher)
-    upsert_sqlite(handle_ttm(df), 'fundamentals.db', f'{id_}_{currency}')
+    upsert_sqlite(handle_ttm(df), 'fundamentals.db', table)
     return df
 
   last_date: dt = df.index.get_level_values('date').max()
@@ -161,11 +170,7 @@ async def update_fundamentals(
 
   df_ = await calculate_fundamentals(id_, df_, ohlcv_fetcher)
   df_ = cast(DataFrame, df_.loc[df_.index.difference(df.index), :])
-  upsert_sqlite(handle_ttm(df_), 'fundamentals.db', f'{id_}_{currency}')
+  upsert_sqlite(handle_ttm(df_), 'fundamentals.db', table)
   df = cast(DataFrame, pd.concat((df, df_), axis=0))
 
-  # df = read_sqlite('fundamentals.db', query,
-  #  index_col=index_col,
-  #  parse_dates=True
-  # )
   return df
