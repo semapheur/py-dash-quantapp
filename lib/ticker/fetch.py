@@ -1,13 +1,10 @@
-from datetime import datetime as dt
-from dateutil.relativedelta import relativedelta
-from functools import partial
 from typing import cast, Optional, TypedDict
 
 import pandas as pd
 from sqlalchemy import create_engine, text
 
 from lib.const import DB_DIR
-from lib.db.lite import check_table, read_sqlite, upsert_sqlite
+from lib.db.lite import check_table
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -23,7 +20,20 @@ class Stock(TypedDict, total=False):
   industry: str
 
 
-def stock_label(_id: str) -> str | None:
+def stock_currency(id: str) -> str | None:
+  query = text(
+    """
+    SELECT currency FROM stock WHERE id = :id
+  """
+  ).bindparams(id=id)
+
+  with ENGINE.begin() as con:
+    fetch = con.execute(query)
+
+  return 'USD' if (label := fetch.first()) is None else label[0]
+
+
+def stock_label(id: str) -> str:
   if not check_table('stock', ENGINE):
     return None
 
@@ -32,15 +42,12 @@ def stock_label(_id: str) -> str | None:
     SELECT name || " (" || ticker || ":" || mic || ")" AS label 
     FROM stock WHERE id = :id
   """
-  ).bindparams(id=_id)
+  ).bindparams(id=id)
 
   with ENGINE.begin() as con:
     fetch = con.execute(query)
 
-  if (label := fetch.first()) is None:
-    return None
-
-  return label[0]
+  return '' if (label := fetch.first()) is None else label[0]
 
 
 def fetch_stock(id: str, cols: Optional[set[str]] = None) -> Stock | None:
