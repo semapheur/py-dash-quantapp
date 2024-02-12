@@ -23,12 +23,14 @@ class QuoteGraphAIO(dcc.Graph):
     super().__init__(id=self.__class__.id(aio_id), **graph_props)
 
 
-def quote_rangeselector(selector: list[str]) -> dict[str, list[dict[str, int | str]]]:
+def quote_rangeselector(
+  selectors: tuple[str, ...],
+) -> dict[str, list[dict[str, int | str]]]:
   pattern = r'^(?P<count>\d+)(?P<step>\w)$'
   step_code = dict(d='day', m='month', w='week', y='year')
 
   buttons: list[dict[str, int | str]] = []
-  for s in selector:
+  for s in selectors:
     m = re.match(pattern, s)
     if m is not None:
       details = m.groupdict()
@@ -68,7 +70,7 @@ def quote_line(data: dict) -> go.Scatter:
 def quote_graph(
   data: dict[str, list[str | float | int]],
   plot='line',
-  rangeselector: list[str] = [],
+  rangeselector: Optional[tuple[str, ...]] = None,
   rangeslider=False,
 ) -> go.Figure:
   xaxis = dict(type='date', rangeslider=dict(visible=False))
