@@ -1,3 +1,4 @@
+from typing import cast, Optional
 import uuid
 
 import pandas as pd
@@ -5,18 +6,14 @@ from dash import callback, dcc, Input, Output, MATCH
 
 from components.quote_store import QuoteStoreAIO
 
+
 class QuoteDatePickerAIO(dcc.DatePickerRange):
   @staticmethod
-  def _id(aio_id: str): 
-    return {
-      'component': 'QuoteDatePickerAIO',
-      'aio_id': aio_id
-    }
-  
+  def id(aio_id: str):
+    return {'component': 'QuoteDatePickerAIO', 'aio_id': aio_id}
+
   def __init__(
-    self, 
-    aio_id: str|None = None, 
-    datepicker_props: dict|None = None
+    self, aio_id: Optional[str] = None, datepicker_props: Optional[dict] = None
   ):
     if aio_id is None:
       aio_id = str(uuid.uuid4())
@@ -26,17 +23,17 @@ class QuoteDatePickerAIO(dcc.DatePickerRange):
     datepicker_props['clearable'] = True
     datepicker_props['updatemode'] = 'bothdates'
 
-    if not 'display_format' in datepicker_props:
+    if 'display_format' not in datepicker_props:
       datepicker_props['display_format'] = 'YYYY-M-D'
 
-    super().__init__(id=self.__class__._id(aio_id), **datepicker_props)
+    super().__init__(id=self.__class__.id(aio_id), **datepicker_props)
 
   @callback(
-    Output(_id(MATCH), 'min_date_allowed'),
-    Output(_id(MATCH), 'max_date_allowed'),
-    Input(QuoteStoreAIO._id(MATCH), 'data')
+    Output(id(MATCH), 'min_date_allowed'),
+    Output(id(MATCH), 'max_date_allowed'),
+    Input(QuoteStoreAIO.id(MATCH), 'data'),
   )
   def update_datepicker(data):
-    dates = pd.to_datetime(data['date'], format='%Y-%m-%d')
+    dates = cast(pd.DatetimeIndex, pd.to_datetime(data['date'], format='%Y-%m-%d'))
 
     return dates.min(), dates.max()

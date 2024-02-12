@@ -11,7 +11,7 @@ from components.ticker_select import TickerSelectAIO
 
 class QuoteStoreAIO(dcc.Store):
   @staticmethod
-  def _id(aio_id):
+  def id(aio_id):
     return {'component': 'QuoteStoreAIO', 'aio_id': aio_id}
 
   def __init__(self, aio_id: Optional[str] = None, store_props: Optional[dict] = None):
@@ -22,9 +22,9 @@ class QuoteStoreAIO(dcc.Store):
     if 'storage_type' not in store_props:
       store_props['storage_type'] = 'memory'
 
-    super().__init__(id=self.__class__._id(aio_id), **store_props)
+    super().__init__(id=self.__class__.id(aio_id), **store_props)
 
-  @callback(Output(_id(MATCH), 'data'), Input(TickerSelectAIO._id(MATCH), 'value'))
+  @callback(Output(id(MATCH), 'data'), Input(TickerSelectAIO.id(MATCH), 'value'))
   async def update_store(query: str):
     if not query:
       return no_update

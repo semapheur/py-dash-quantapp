@@ -14,9 +14,7 @@ async def get_ohlcv(
   security: str,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: int = 1,
-  cols: Optional[
-    set[Literal['open', 'high', 'low', 'close', 'adjusted_close', 'volume']]
-  ] = None,
+  cols: Optional[set[Literal['open', 'high', 'low', 'close', 'volume']]] = None,
 ) -> DataFrame[Quote]:
   col_text = '*'
   if cols is not None:
