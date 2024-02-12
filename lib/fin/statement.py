@@ -128,7 +128,7 @@ async def statement_to_df(
   return cast(DataFrame, df)
 
 
-async def financials_df(id_: str, currency: Optional[str] = None) -> DataFrame | None:
+async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame | None:
   df_scrap = load_statements(id_)
   if df_scrap is None:
     return None

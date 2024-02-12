@@ -17,8 +17,9 @@ from lib.fin.metrics import (
   beta,
   weighted_average_cost_of_capital,
 )
-from lib.fin.quote import get_ohlcv
 from lib.fin.models import Quote
+from lib.fin.statement import load_financials
+from lib.fin.quote import get_ohlcv
 from lib.yahoo.ticker import Ticker
 
 
@@ -39,13 +40,13 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
 
 
 async def calculate_fundamentals(
-  id_: str,
+  id: str,
   fin_table: DataFrame,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_period: int = 5,
   update: bool = False,
 ) -> DataFrame:
-  price = await get_ohlcv(id_, 'stock', ohlcv_fetcher, cols={'close'})
+  price = await get_ohlcv(id, 'stock', ohlcv_fetcher, cols={'close'})
   price = cast(DataFrame[Quote], price.resample('D').ffill())
 
   fin_table = trailing_twelve_months(fin_table)
@@ -119,14 +120,14 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_fundamentals(
-  id_: str, currency: str, cols: Optional[set[str]] = None
+  id: str, currency: str, cols: Optional[set[str]] = None
 ) -> DataFrame | None:
   col_text = '*'
   index_col = OrderedSet(('date', 'period', 'months'))
   if cols is not None:
     col_text = ', '.join(cols.union(index_col))
 
-  table = f'{id_}_{currency}'
+  table = f'{id}_{currency}'
   query = f'SELECT {col_text} FROM "{table}"'
   df = read_sqlite(
     'fundamentals.db',
@@ -138,39 +139,47 @@ def load_fundamentals(
 
 
 async def update_fundamentals(
-  id_: str,
+  id: str,
   currency: str,
-  financials_fetcher: partial[Coroutine[Any, Any, DataFrame]],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   cols: Optional[set[str]] = None,
   delta: int = 120,
 ) -> pd.DataFrame:
-  table = f'{id_}_{currency}'
-  df = load_fundamentals(id_, currency, cols)
+  table = f'{id}_{currency}'
 
-  if df is None:
-    df = await financials_fetcher(currency)
-    df = await calculate_fundamentals(id_, df, ohlcv_fetcher)
-    upsert_sqlite(handle_ttm(df), 'fundamentals.db', table)
-    return df
+  financials = await load_financials(id, currency)
+  if financials is None:
+    raise ValueError(f'Statements have not been seeded for {id}')
 
-  last_date: dt = df.index.get_level_values('date').max()
-  if relativedelta(dt.now(), last_date).days <= delta:
-    return df
+  fundamentals = load_fundamentals(id, currency, cols)
 
-  df_ = await financials_fetcher(last_date.strftime('%Y-%m-%d'))
-  if df_ is None:
-    return df
+  if fundamentals is None:
+    fundamentals = await calculate_fundamentals(id, financials, ohlcv_fetcher)
+    upsert_sqlite(handle_ttm(fundamentals), 'fundamentals.db', table)
+    return fundamentals
 
-  df.sort_index(level='date', inplace=True)
+  last_financials: dt = fundamentals.index.get_level_values('date').max()
+  last_fundamentals: dt = fundamentals.index.get_level_values('date').max()
+  if last_fundamentals >= last_financials:
+    return fundamentals
+
+  financials = cast(
+    DataFrame,
+    financials.loc[financials.index.get_level_values('date') > last_fundamentals],
+  )
+
+  fundamentals.sort_index(level='date', inplace=True)
   props = {3: (None, 8), 12: ('FY', 1)}
-  for m in df_.index.get_level_values('months').unique():
+  for m in financials.index.get_level_values('months').unique():
     mask = (slice(None), slice(props[m][0]), m)
-    df_ = cast(DataFrame, pd.concat((df.loc[mask, :].tail(props[m][1]), df_), axis=0))
+    fundamentals_ = cast(
+      DataFrame,
+      pd.concat((fundamentals.loc[mask, :].tail(props[m][1]), financials), axis=0),
+    )
 
-  df_ = await calculate_fundamentals(id_, df_, ohlcv_fetcher)
-  df_ = cast(DataFrame, df_.loc[df_.index.difference(df.index), :])
-  upsert_sqlite(handle_ttm(df_), 'fundamentals.db', table)
-  df = cast(DataFrame, pd.concat((df, df_), axis=0))
-
-  return df
+  fundamentals_ = await calculate_fundamentals(id, fundamentals_, ohlcv_fetcher)
+  fundamentals_ = cast(
+    DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
+  )
+  upsert_sqlite(handle_ttm(fundamentals_), 'fundamentals.db', table)
+  return cast(DataFrame, pd.concat((fundamentals, fundamentals_), axis=0))
