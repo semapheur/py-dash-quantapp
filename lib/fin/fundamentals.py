@@ -143,7 +143,6 @@ async def update_fundamentals(
   currency: str,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   cols: Optional[set[str]] = None,
-  delta: int = 120,
 ) -> pd.DataFrame:
   table = f'{id}_{currency}'
 

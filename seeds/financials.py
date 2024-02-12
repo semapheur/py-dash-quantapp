@@ -1,11 +1,11 @@
+from functools import partial
 import json
 import time
 
-import pandas as pd
-
-from lib.db.lite import read_sqlite, insert_sqlite, get_tables
-from lib.edgar.financials import update_financials, financials_table
+from lib.db.lite import read_sqlite, get_tables
+from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
+from lib.morningstar.ticker import Stock
 
 faulty = ['0P0000BV6H', '0P0001691U', '0P0000BRJU', '0P0000C80Q']
 empty = [
@@ -35,7 +35,7 @@ async def seed_edgar_financials(exchange: str) -> None:
   faulty: list[str] = []
   for id, cik in zip(df['id'], df['cik']):
     try:
-      _ = await update_financials(int(cik), id)
+      _ = await update_statements(int(cik), id)
       time.sleep(60)
 
     except Exception as _:
@@ -66,8 +66,8 @@ async def seed_fundamentals(exchange: str):
 
   for id in seeded_ids:
     try:
-      _ = await update_fundamentals(id, currency)
-      time.sleep(60)
+      ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
+      _ = await update_fundamentals(id, currency, ohlcv_fetcher)
 
     except Exception as _:
       faulty.append(id)
@@ -80,5 +80,3 @@ async def seed_fundamentals(exchange: str):
     content: dict = json.load(f)
     content[f'{exchange}_financials'] = faulty
     json.dump(content, f)
-
-  return fundamentals.to_dict('records')
