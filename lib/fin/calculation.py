@@ -11,7 +11,9 @@ from lib.utils import df_time_difference
 
 SLICES = (
   (slice(None), slice('FY'), slice(12)),
-  (slice(None), slice('TTM'), slice(12)),
+  (slice(None), slice('TTM1'), slice(12)),
+  (slice(None), slice('TTM2'), slice(12)),
+  (slice(None), slice('TTM3'), slice(12)),
   (slice(None), slice(None), slice(3)),
 )
 
@@ -85,8 +87,9 @@ def trailing_twelve_months(financials: DataFrame) -> DataFrame:
   ttm = ttm.loc[ttm.loc[:, 'month_difference'] == 9]
 
   ttm.reset_index(level=('period', 'months'), inplace=True)
-  ttm.loc[ttm.loc['period'] != 'Q4', 'period'] = 'TTM'
-  ttm = ttm.loc[ttm.loc['period'] == 'TTM']
+  ttm = ttm.loc[ttm.loc['period'] != 'Q4']
+
+  ttm.loc[:, 'period'] = ttm['period'].str.replace('Q', 'TTM')
 
   ttm.loc[:, 'months'] = 12
   ttm.set_index(['period', 'months'], append=True, inplace=True)

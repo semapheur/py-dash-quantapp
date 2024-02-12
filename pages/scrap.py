@@ -28,14 +28,15 @@ from components.modal import ModalAIO
 
 from lib.db.lite import sqlite_path
 from lib.const import HEADERS
-from lib.edgar.models import (
-  RawFinancials,
+from lib.fin.models import (
+  FinStatement,
   Item,
   Instant,
   Interval,
   Scope,
   FiscalPeriod,
 )
+from lib.fin.statement import upsert_statements
 from lib.morningstar.ticker import Stock
 from lib.utils import download_file
 
@@ -50,45 +51,6 @@ def get_doc_id(url: str) -> str:
     return ''
 
   return match.group()
-
-
-def upsert(db_name: str, table: str, records: list[RawFinancials]):
-  db_path = sqlite_path(db_name)
-
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
-
-  cur.execute(
-    f"""CREATE TABLE IF NOT EXISTS 
-    "{table}"(
-      date TEXT, 
-      scope TEXT, 
-      period TEXT, 
-      currency TEXT, 
-      data TEXT
-  )"""
-  )
-  cur.execute(
-    f"""CREATE UNIQUE INDEX IF NOT EXISTS ix 
-    ON "{table}" (date, scope, period)"""
-  )
-
-  query = f"""INSERT INTO "{table}" VALUES (:date, :scope, :period, :currency, :data)
-      ON CONFLICT (date, scope, period) DO UPDATE SET
-        currency=(
-          SELECT json_group_array(value)
-          FROM (
-            SELECT json_each.value
-            FROM json_each(currency)
-            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
-          )
-        )
-        data=json_patch(data, excluded.data)
-  """
-  cur.executemany(query, [r.model_dump() for r in records])
-
-  con.commit()
-  con.close()
 
 
 main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full bg-primary'
@@ -166,6 +128,11 @@ layout = html.Main(
         ),
         InputAIO('scrap:id', '100%', {'type': 'text', 'placeholder': 'Ticker ID'}),
         InputAIO('scrap:date', '100%', {'type': 'text', 'placeholder': 'Date'}),
+        InputAIO(
+          'scrap:fiscal-end',
+          '100%',
+          {'type': 'text', 'placeholder': 'Date', 'value': '12-31'},
+        ),
         dcc.Dropdown(
           id='dropdown:scrap:scope',
           placeholder='Scope',
@@ -204,13 +171,13 @@ layout = html.Main(
 
 @callback(
   Output('dropdown:scrap:document', 'options'),
-  Input(TickerSelectAIO._id('scrap'), 'value'),
+  Input(TickerSelectAIO.id('scrap'), 'value'),
 )
 def update_dropdown(ticker: str):
   if not ticker:
     return no_update
 
-  docs = Stock(ticker.split('|')[0]).documents()
+  docs = Stock(*ticker.split('|')).documents()
   docs.rename(columns={'link': 'value'}, inplace=True)
   docs['label'] = docs['date'] + ' - ' + docs['type'] + ' (' + docs['language'] + ')'
 
@@ -241,8 +208,8 @@ def update_object(url: str):
   State('dropdown:scrap:document', 'value'),
   State('input:scrap:pages', 'value'),
   State('checklist:scrap:options', 'value'),
-  State(InputAIO._id('scrap:factor'), 'value'),
-  State(InputAIO._id('scrap:currency'), 'value'),
+  State(InputAIO.id('scrap:factor'), 'value'),
+  State(InputAIO.id('scrap:currency'), 'value'),
 )
 def update_table(
   n_clicks: int,
@@ -360,8 +327,8 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
 
 
 @callback(
-  Output(InputAIO._id('scrap:id'), 'value'),
-  Input(TickerSelectAIO._id('scrap'), 'value'),
+  Output(InputAIO.id('scrap:id'), 'value'),
+  Input(TickerSelectAIO.id('scrap'), 'value'),
 )
 def update_input(ticker: str):
   if not ticker:
@@ -371,7 +338,7 @@ def update_input(ticker: str):
 
 
 @callback(
-  Output(InputAIO._id('scrap:date'), 'value'),
+  Output(InputAIO.id('scrap:date'), 'value'),
   Input('dropdown:scrap:document', 'value'),
   State('dropdown:scrap:document', 'options'),
 )
@@ -415,17 +382,42 @@ def update_scope_dropdown(doc: str, options: list[dict[str, str]]):
 
 
 @callback(
+  Output('button:scrap:export', 'disabled'),
+  Input(InputAIO.id('scrap:fiscal-end'), 'value'),
+)
+def validate_fiscal_end(fiscal_end: str) -> bool:
+  pattern = re.compile(
+    r'^(0[1-9]|1[0-2])-(0[1-9]|1\d|2[0-8])|(0[13-9]|'
+    r'1[0-2])-29|0[13-9]|1[0-2]-(29|30)|(0[13578]|1[02])-31$'
+  )
+
+  if pattern.match(fiscal_end):
+    return False
+  else:
+    return True
+
+
+@callback(
   Output('button:scrap:export', 'id'),
   Input('button:scrap:export', 'n_clicks'),
   State('table:scrap', 'rowData'),
-  State(InputAIO._id('scrap:id'), 'value'),
-  State(InputAIO._id('scrap:date'), 'value'),
+  State('dropdown:scrap:document', 'value'),
+  State(InputAIO.id('scrap:id'), 'value'),
+  State(InputAIO.id('scrap:date'), 'value'),
   State('dropdown:scrap:scope', 'value'),
   State('dropdown:scrap:period', 'value'),
+  State(InputAIO.id('scrap:fiscal-end'), 'value'),
   prevent_initial_call=True,
 )
 def export(
-  n: int, rows: list[dict], _id: str, date: str, scope: Scope, period: FiscalPeriod
+  n: int,
+  rows: list[dict],
+  url: str,
+  id: str,
+  date: str,
+  scope: Scope,
+  period: FiscalPeriod,
+  fiscal_end: str,
 ):
   def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
     date = dt.strptime(date_text, '%Y-%m-%d').date()
@@ -473,18 +465,17 @@ def export(
     ]
 
   records = [
-    RawFinancials(
+    FinStatement(
+      url=url,
       date=dt.strptime(date, '%Y-%m-%d').date(),
       scope=scope,
       period=period,
+      fiscal_end=fiscal_end,
       currency=currencies,
       data=data,
     )
   ]
 
-  upsert('data/financials_raw.db', _id, records)
-
-  # with open(f'{_id}.json', 'w') as f:
-  #  json.dump(record, f, indent=2)
+  upsert_statements('financials.db', id, records)
 
   return 'button:scrap:export'

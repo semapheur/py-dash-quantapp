@@ -29,7 +29,7 @@ def TickerSearch():
 
 @callback(
   Output('nav:ticker-search', 'children'),
-  Input(InputAIO._id('ticker-search'), 'value'),
+  Input(InputAIO.id('ticker-search'), 'value'),
 )
 def ticker_results(search: str) -> list[dict[str, str]]:
   if search is None or len(search) < 2:
@@ -68,16 +68,16 @@ def id_store(path: str, id_store: dict[str, str]):
   Input('store:ticker-search:id', 'data'),
 )
 def fincials_store(id_store: dict[str, str]):
-  _id = id_store.get('id')
-  if _id is None:
+  id = id_store.get('id')
+  if id is None:
     return no_update
 
-  cik = find_cik(_id)
+  cik = find_cik(id)
 
   if cik is None:
     return no_update
 
-  fundamentals = load_fundamentals(_id, 'USD')
+  fundamentals = load_fundamentals(id, id_store['currency'])
   if fundamentals is None:
     return {}
 

@@ -8,7 +8,7 @@ from lib.ticker.fetch import search_tickers
 
 class TickerSelectAIO(dcc.Dropdown):
   @staticmethod
-  def _id(aio_id: str):
+  def id(aio_id: str):
     return {'component': 'TickerSelectAIO', 'aio_id': aio_id}
 
   def __init__(
@@ -20,9 +20,9 @@ class TickerSelectAIO(dcc.Dropdown):
     dropdown_props = dropdown_props.copy() if dropdown_props else {}
     dropdown_props.setdefault('placeholder', 'Ticker')
 
-    super().__init__(id=self.__class__._id(aio_id), **dropdown_props)
+    super().__init__(id=self.__class__.id(aio_id), **dropdown_props)
 
-  @callback(Output(_id(MATCH), 'options'), Input(_id(MATCH), 'search_value'))
+  @callback(Output(id(MATCH), 'options'), Input(id(MATCH), 'search_value'))
   def update_dropdown(search: str):
     if search is None or len(search) < 2:
       return no_update
