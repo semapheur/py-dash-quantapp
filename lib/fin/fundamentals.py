@@ -149,7 +149,7 @@ async def update_fundamentals(
   df = load_fundamentals(id_, currency, cols)
 
   if df is None:
-    df = await financials_fetcher()
+    df = await financials_fetcher(currency)
     df = await calculate_fundamentals(id_, df, ohlcv_fetcher)
     upsert_sqlite(handle_ttm(df), 'fundamentals.db', table)
     return df

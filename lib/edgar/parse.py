@@ -1,9 +1,8 @@
 import asyncio
-from datetime import date as Date, datetime as dt, timedelta
-from enum import Enum
+from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta
 from functools import partial
 import re
-import sqlite3
 from typing import cast, Literal, Optional, TypeAlias
 import xml.etree.ElementTree as et
 
@@ -15,11 +14,11 @@ import pandas as pd
 from pandera.typing import DataFrame, Series
 
 # Local
-from lib.const import DB_DIR, HEADERS
-from lib.edgar.models import (
-  CikEntry,
-  CikFrame,
-  RawFinancials,
+from lib.const import HEADERS
+from lib.edgar.company import Company
+from lib.edgar.models import CikEntry, CikFrame
+from lib.fin.models import (
+  FinStatement,
   Instant,
   Interval,
   Item,
@@ -28,6 +27,7 @@ from lib.edgar.models import (
   FiscalPeriod,
   FinData,
 )
+from lib.fin.statement import df_to_statements, load_statements, upsert_statements
 from lib.utils import (
   insert_characters,
   month_difference,
@@ -35,15 +35,50 @@ from lib.utils import (
   validate_currency,
   replace_all,
 )
-from lib.yahoo.ticker import exchange_rate
-
-
-class ScopeEnum(Enum):
-  quarterly = 3
-  annual = 12
 
 
 Docs: TypeAlias = Literal['cal', 'def', 'htm', 'lab', 'pre']
+
+
+async def scrap_statements(cik: int, id_: str) -> list[FinStatement]:
+  company = Company(cik)
+  filings = await company.xbrl_urls()
+
+  financials = await parse_statements(filings.tolist())
+  upsert_statements('financials.db', id_, financials)
+  return financials
+
+
+async def update_statements(
+  cik: int, id_: str, delta=120, date: Optional[str] = None
+) -> list[FinStatement]:
+  company = Company(cik)
+  df = load_statements(id_, date)
+
+  if df is None:
+    return await scrap_statements(cik, id_)
+
+  last_date = df['date'].max()
+
+  if relativedelta(dt.now(), last_date).days < delta:
+    return df_to_statements(df)
+
+  new_filings = await company.xbrl_urls(last_date)
+
+  if not new_filings:
+    return df_to_statements(df)
+
+  old_filings = set(df['id'])
+  filings_diff = set(new_filings.index).difference(old_filings)
+
+  if not filings_diff:
+    return df_to_statements(df)
+
+  new_fin = await parse_statements(new_filings.tolist())
+  if new_fin:
+    upsert_statements('financials.db', id_, new_fin)
+
+  return [*new_fin, *df_to_statements(df)]
 
 
 async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Series[str]:
@@ -79,14 +114,14 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
   return f'https://www.sec.gov{href}'
 
 
-async def parse_statements(urls: list[str]) -> list[RawFinancials]:
+async def parse_statements(urls: list[str]) -> list[FinStatement]:
   tasks = [partial(parse_statement, url) for url in urls]
   financials = await aiometer.run_all(tasks, max_per_second=5)
 
   return financials
 
 
-async def parse_statement(url: str) -> RawFinancials:
+async def parse_statement(url: str) -> FinStatement:
   def fix_data(data: FinData) -> FinData:
     fixed: FinData = {}
 
@@ -293,7 +328,7 @@ async def parse_statement(url: str) -> RawFinancials:
 
   # Sort items
   data = fix_data(data)
-  return RawFinancials(
+  return FinStatement(
     url=url,
     date=date.date(),
     scope=scope,
@@ -351,92 +386,6 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 
-async def statement_to_df(
-  financials: RawFinancials, currency: Optional[str] = None
-) -> DataFrame:
-  def parse_date(period: Instant | Interval) -> Date:
-    if isinstance(period, Interval):
-      return period.end_date
-
-    return period.instant
-
-  async def get_exchange_rate(
-    currency: str, unit: str, period: Instant | Interval
-  ) -> float:
-    ticker = f'{unit}{currency}'
-
-    if isinstance(period, Instant):
-      start_date = period.instant
-      end_date = start_date + timedelta(days=2)
-      interval = '1d'
-    elif isinstance(period, Interval):
-      start_date = period.start_date
-      end_date = period.end_date
-      interval = '3mo'
-
-    rate = await exchange_rate(ticker, start_date, end_date, interval)
-    return rate
-
-  fin_date = financials.date
-  fin_scope = financials.scope
-  fin_period = financials.period
-  currencies = financials.currency
-
-  df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
-
-  rate = 1.0
-
-  for item, entries in financials.data.items():
-    for entry in entries:
-      date = parse_date(entry['period'])
-      if date != fin_date:
-        continue
-
-      if isinstance(entry['period'], Interval):
-        months = entry['period'].months
-      else:
-        months = ScopeEnum[fin_scope].value
-
-      period = fin_period
-      if fin_period == 'FY' and months < 12:
-        period = 'Q4'
-
-      if value := entry.get('value'):
-        if (currency is not None) and (unit := entry.get('unit', '')) in currencies:
-          rate = await get_exchange_rate(currency, unit, entry['period'])
-
-        df_data.setdefault((fin_date, period, months), {})[item] = value * rate
-
-        if fin_period == 'FY' and (
-          isinstance(entry['period'], Instant) or entry.get('unit') == 'shares'
-        ):
-          df_data.setdefault((fin_date, 'Q4', 3), {})[item] = value
-
-      if (members := entry.get('members')) is None:
-        continue
-
-      for member, m_entry in members.items():
-        if (m_value := m_entry.get('value')) is None:
-          continue
-
-        if (currency is not None) and (unit := m_entry.get('unit', '')) in currencies:
-          rate = await get_exchange_rate(currency, unit, entry['period'])
-
-        dim = '.' + d if (d := m_entry.get('dim')) else ''
-        key = f'{item}{dim}.{member}'
-        df_data.setdefault((fin_date, period, months), {})[key] = m_value * rate
-
-        if fin_period == 'FY' and (
-          isinstance(entry['period'], Instant) or m_entry.get('unit') == 'shares'
-        ):
-          df_data.setdefault((fin_date, 'Q4', 3), {})[key] = m_value
-
-  df = pd.DataFrame.from_dict(df_data, orient='index')
-  df.index = pd.MultiIndex.from_tuples(df.index)
-  df.index.names = ['date', 'period', 'months']
-  return cast(DataFrame, df)
-
-
 def get_ciks() -> DataFrame[CikFrame]:
   rnm = {'cik_str': 'cik', 'title': 'name'}
 
@@ -451,26 +400,3 @@ def get_ciks() -> DataFrame[CikFrame]:
   df.set_index('cik', inplace=True)
 
   return cast(DataFrame[CikFrame], df)
-
-
-def all_gaap_items(sort=False) -> set[str]:
-  db_path = DB_DIR / 'financials_scrap.db'
-
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
-
-  cur.execute('SELECT name FROM sqlite_master WHERE type="table"')
-  tables = cur.fetchall()
-
-  items: set[str] = set()
-  for t in tables:
-    cur.execute(f'SELECT DISTINCT key FROM "{t[0]}", json_each(data)')
-    result = cur.fetchall()
-    items = items.union({x[0] for x in result})
-
-  if sort:
-    items = set(sorted(items))
-
-  con.close()
-
-  return items

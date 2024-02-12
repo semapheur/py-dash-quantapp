@@ -10,7 +10,7 @@ import pandas as pd
 from pydantic import BaseModel, Field, model_serializer
 from sqlalchemy import create_engine, TEXT
 
-from lib.db.lite import get_tables, read_sqlite
+from lib.db.lite import get_tables
 from lib.const import DB_DIR
 
 
@@ -399,17 +399,22 @@ def gaap_items(sort=False) -> set[str]:
   return items
 
 
-def scraped_items() -> set[str]:
-  tables = get_tables('financials_scrap.db')
+def scraped_items(sort=False) -> set[str]:
+  tables = get_tables('financials.db')
 
-  scraped_items: set[str] = set()
+  db_path = DB_DIR / 'financials.db'
+  con = sqlite3.connect(db_path)
+  cur = con.cursor()
 
+  items: set[str] = set()
   for t in tables:
-    query = f'SELECT data FROM "{t}"'
-    df = read_sqlite('financials_scrap.db', query)
-    df.loc[:, 'data'] = df['data'].apply(lambda x: json.loads(x))
+    cur.execute(f'SELECT DISTINCT key FROM "{t[0]}", json_each(data)')
+    result = cur.fetchall()
+    items = items.union({x[0] for x in result})
 
-    for d in df['data']:
-      scraped_items.update(cast(dict, d).keys())
+  con.close()
 
-  return scraped_items
+  if sort:
+    items = set(sorted(items))
+
+  return items

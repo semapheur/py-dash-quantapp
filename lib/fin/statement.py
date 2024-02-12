@@ -1,38 +1,35 @@
-from datetime import datetime as dt
-from dateutil.relativedelta import relativedelta
+from datetime import datetime as dt, date as Date, timedelta
+from enum import Enum
 import json
 import sqlite3
 from typing import cast, Optional
 
 import pandas as pd
 from pandera.typing import DataFrame, Series
-from lib.db.lite import read_sqlite, sqlite_path
 
+from lib.db.lite import read_sqlite, sqlite_path
 from lib.fin.calculation import stock_split_adjust
-from lib.edgar.company import Company
-from lib.edgar.models import (
+from lib.fin.models import (
+  FinStatement,
+  FinStatementFrame,
+  Instant,
   Interval,
-  RawFinancials,
-  RawFinancialsFrame,
   StockSplit,
+  FiscalPeriod,
   FinData,
 )
-from lib.edgar.parse import parse_statements, statement_to_df
 from lib.utils import combine_duplicate_columns, df_time_difference
+from lib.yahoo.ticker import exchange_rate
 
 
-async def scrap_financials(cik: int, id_: str) -> list[RawFinancials]:
-  company = Company(cik)
-  filings = await company.xbrl_urls()
-
-  financials = await parse_statements(filings.tolist())
-  upsert_financials('financials.db', id_, financials)
-  return financials
+class ScopeEnum(Enum):
+  quarterly = 3
+  annual = 12
 
 
-def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
+def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
   return [
-    RawFinancials(
+    FinStatement(
       url=row['url'],
       scope=row['scope'],
       date=row['date'],
@@ -45,61 +42,98 @@ def df_to_financials(df: DataFrame[RawFinancialsFrame]) -> list[RawFinancials]:
   ]
 
 
-def load_financials(
-  id_: str, date: Optional[str] = None
-) -> DataFrame[RawFinancialsFrame] | None:
-  query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
-  if date:
-    query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
+async def statement_to_df(
+  financials: FinStatement, currency: Optional[str] = None
+) -> DataFrame:
+  def parse_date(period: Instant | Interval) -> Date:
+    if isinstance(period, Interval):
+      return period.end_date
 
-  df = read_sqlite(
-    'financials.db',
-    query,
-    date_parser={'date': {'format': '%Y-%m-%d'}},
-  )
-  return df
+    return period.instant
+
+  async def get_exchange_rate(
+    currency: str, unit: str, period: Instant | Interval
+  ) -> float:
+    ticker = f'{unit}{currency}'
+
+    if isinstance(period, Instant):
+      start_date = period.instant
+      end_date = start_date + timedelta(days=2)
+      interval = '1d'
+    elif isinstance(period, Interval):
+      start_date = period.start_date
+      end_date = period.end_date
+      interval = '3mo'
+
+    rate = await exchange_rate(ticker, start_date, end_date, interval)
+    return rate
+
+  fin_date = financials.date
+  fin_scope = financials.scope
+  fin_period = financials.period
+  currencies = financials.currency
+
+  df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
+
+  rate = 1.0
+
+  for item, entries in financials.data.items():
+    for entry in entries:
+      date = parse_date(entry['period'])
+      if date != fin_date:
+        continue
+
+      if isinstance(entry['period'], Interval):
+        months = entry['period'].months
+      else:
+        months = ScopeEnum[fin_scope].value
+
+      period = fin_period
+      if fin_period == 'FY' and months < 12:
+        period = 'Q4'
+
+      if value := entry.get('value'):
+        if (currency is not None) and (unit := entry.get('unit', '')) in currencies:
+          rate = await get_exchange_rate(currency, unit, entry['period'])
+
+        df_data.setdefault((fin_date, period, months), {})[item] = value * rate
+
+        if fin_period == 'FY' and (
+          isinstance(entry['period'], Instant) or entry.get('unit') == 'shares'
+        ):
+          df_data.setdefault((fin_date, 'Q4', 3), {})[item] = value
+
+      if (members := entry.get('members')) is None:
+        continue
+
+      for member, m_entry in members.items():
+        if (m_value := m_entry.get('value')) is None:
+          continue
+
+        if (currency is not None) and (unit := m_entry.get('unit', '')) in currencies:
+          rate = await get_exchange_rate(currency, unit, entry['period'])
+
+        dim = '.' + d if (d := m_entry.get('dim')) else ''
+        key = f'{item}{dim}.{member}'
+        df_data.setdefault((fin_date, period, months), {})[key] = m_value * rate
+
+        if fin_period == 'FY' and (
+          isinstance(entry['period'], Instant) or m_entry.get('unit') == 'shares'
+        ):
+          df_data.setdefault((fin_date, 'Q4', 3), {})[key] = m_value
+
+  df = pd.DataFrame.from_dict(df_data, orient='index')
+  df.index = pd.MultiIndex.from_tuples(df.index)
+  df.index.names = ['date', 'period', 'months']
+  return cast(DataFrame, df)
 
 
-async def update_financials(
-  cik: int, id_: str, delta=120, date: Optional[str] = None
-) -> list[RawFinancials]:
-  company = Company(cik)
-  df = load_financials(id_, date)
-
-  if df is None:
-    return await scrap_financials(cik, id_)
-
-  last_date = df['date'].max()
-
-  if relativedelta(dt.now(), last_date).days < delta:
-    return df_to_financials(df)
-
-  new_filings = await company.xbrl_urls(last_date)
-
-  if not new_filings:
-    return df_to_financials(df)
-
-  old_filings = set(df['id'])
-  filings_diff = set(new_filings.index).difference(old_filings)
-
-  if not filings_diff:
-    return df_to_financials(df)
-
-  new_fin = await parse_statements(new_filings.tolist())
-  if new_fin:
-    upsert_financials('financials.db', id_, new_fin)
-
-  return [*new_fin, *df_to_financials(df)]
-
-
-async def financials_table(
-  id_: str, currency: Optional[str] = None
-) -> DataFrame | None:
-  df_scrap = load_financials(id_)
+async def financials_df(id_: str, currency: Optional[str] = None) -> DataFrame | None:
+  df_scrap = load_statements(id_)
   if df_scrap is None:
     return None
 
-  financials = df_to_financials(df_scrap)
+  financials = df_to_statements(df_scrap)
 
   dfs: list[DataFrame] = []
 
@@ -111,7 +145,7 @@ async def financials_table(
   df = df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
 
   if {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(set(df.index.get_level_values('period'))):
-    df = fix_financials_table(df)
+    df = fix_financials(df)
 
   ratios = stock_splits(id_)
   if ratios is not None:
@@ -120,7 +154,7 @@ async def financials_table(
   return cast(DataFrame, df)
 
 
-def fix_financials_table(df: pd.DataFrame) -> pd.DataFrame:
+def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
   query = """
     SELECT json_each.value AS gaap, item FROM items 
     JOIN json_each(gaap) ON 1=1
@@ -236,10 +270,25 @@ def stock_splits(id_: str):
   return cast(Series[float], df['stock_split_ratio'])
 
 
-def upsert_financials(
+def load_statements(
+  id_: str, date: Optional[str] = None
+) -> DataFrame[FinStatementFrame] | None:
+  query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
+  if date:
+    query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
+
+  df = read_sqlite(
+    'financials.db',
+    query,
+    date_parser={'date': {'format': '%Y-%m-%d'}},
+  )
+  return df
+
+
+def upsert_statements(
   db_name: str,
   table: str,
-  financials: list[RawFinancials],
+  statements: list[FinStatement],
 ):
   db_path = sqlite_path(db_name)
 
@@ -271,19 +320,19 @@ def upsert_financials(
         )
       )
   """
-  cur.executemany(query, [f.model_dump() for f in financials])
+  cur.executemany(query, [s.model_dump() for s in statements])
 
   con.commit()
   con.close()
 
 
-def select_financials(db_name: str, table: str) -> list[RawFinancials]:
+def select_statements(db_name: str, table: str) -> list[FinStatement]:
   db_path = sqlite_path(db_name)
 
   with sqlite3.connect(db_path) as conn:
     cur = conn.cursor()
-    cur.row_factory = lambda _, row: RawFinancials(**row)
+    cur.row_factory = lambda _, row: FinStatement(**row)
 
-    financials: list[RawFinancials] = cur.execute(f'SELECT * FROM "{table}"').fetchall()
+    financials: list[FinStatement] = cur.execute(f'SELECT * FROM "{table}"').fetchall()
 
   return financials
