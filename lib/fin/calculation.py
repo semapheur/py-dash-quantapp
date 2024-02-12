@@ -1,4 +1,5 @@
 import ast
+from datetime import datetime as dt
 from typing import cast, Any
 
 import numpy as np
@@ -62,12 +63,46 @@ class AnyTransformer(ast.NodeTransformer):
     return call
 
 
-def trailing_twelve_months(df: DataFrame) -> DataFrame:
+def trailing_twelve_months(financials: DataFrame) -> DataFrame:
+  financials.sort_index(level='date', inplace=True)
+
+  mask = (slice(None), slice(None), 3)
+  ttm = financials.loc[mask, :]
+
+  ttm.loc[:, 'month_difference'] = df_time_difference(
+    cast(pd.DatetimeIndex, ttm.index.get_level_values('date')), 30, 'D'
+  )
+  ttm.loc[:, 'month_difference'] = ttm['month_difference'].rolling(3, 3).sum()
+
+  query = f"""SELECT item FROM items
+    WHERE aggregate = 'sum' AND item IN {str(tuple(financials.columns))}
+  """
+  sum_items = read_sqlite('taxonomy.db', query)
+  if sum_items is None:
+    raise ValueError('Could not load taxonomy!')
+
+  ttm.loc[:, sum_items['items']] = ttm.loc[:, sum_items['items']].rolling(4, 4).sum()
+  ttm = ttm.loc[ttm.loc[:, 'month_difference'] == 9]
+
+  ttm.reset_index(level=('period', 'months'), inplace=True)
+  ttm.loc[ttm.loc['period'] != 'Q4', 'period'] = 'TTM'
+  ttm = ttm.loc[ttm.loc['period'] == 'TTM']
+
+  ttm.loc[:, 'months'] = 12
+  ttm.set_index(['period', 'months'], append=True, inplace=True)
+  ttm = ttm.reorder_levels(['date', 'period', 'months'])
+
+  ttm.drop('month_difference', axis=1, inplace=True)
+
+  return cast(DataFrame, pd.concat((financials, ttm), axis=0))
+
+
+def tail_trailing_twelve_months(df: DataFrame) -> DataFrame:
   df.sort_index(level='date', inplace=True)
 
-  last_date = df.index.get_level_values('date').max()
+  last_date = cast(pd.MultiIndex, df.index).levels[0].max()
   mask = (slice(None), slice('FY'), 12)
-  last_annual = df.loc[mask, :].index.get_level_values('date')[-1]
+  last_annual: dt = cast(pd.MultiIndex, df.loc[mask, :].index).levels[0].max()
 
   if last_annual == last_date:
     ttm = df.loc[(slice(None), 'FY', 12), :].tail(2)
@@ -84,7 +119,7 @@ def trailing_twelve_months(df: DataFrame) -> DataFrame:
     mask = (slice(None), slice(None), 3)
     trail = df.loc[mask, sum_cols.to_list()].tail(8)
     sums = pd.concat((trail.head(4).sum(), trail.tail(4).sum()), axis=1).T
-    rest_cols = list(set(df.columns).difference(set(sum_cols)))
+    rest_cols = list(set(df.columns).difference(sum_cols))
     rest = pd.concat(
       (df.loc[mask, rest_cols].iloc[-5], df.loc[mask, rest_cols].iloc[-1]), axis=1
     ).T

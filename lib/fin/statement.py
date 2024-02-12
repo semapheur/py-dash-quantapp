@@ -144,7 +144,7 @@ async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame
   df.sort_index(level=0, ascending=True, inplace=True)
   df = df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
 
-  if {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(set(df.index.get_level_values('period'))):
+  if {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(cast(pd.MultiIndex, df.index).levels[1]):
     df = fix_financials(df)
 
   ratios = stock_splits(id_)

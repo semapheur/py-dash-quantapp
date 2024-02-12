@@ -6,7 +6,7 @@ from typing import cast, Any, Coroutine, Optional
 
 from ordered_set import OrderedSet
 import pandas as pd
-from pandera.typing import DataFrame
+from pandera.typing import DataFrame, Index
 
 from lib.db.lite import read_sqlite, upsert_sqlite
 from lib.fin.calculation import calculate_items, trailing_twelve_months
@@ -41,7 +41,7 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
 
 async def calculate_fundamentals(
   id: str,
-  fin_table: DataFrame,
+  financials: DataFrame,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_period: int = 5,
   update: bool = False,
@@ -49,55 +49,55 @@ async def calculate_fundamentals(
   price = await get_ohlcv(id, 'stock', ohlcv_fetcher, cols={'close'})
   price = cast(DataFrame[Quote], price.resample('D').ffill())
 
-  fin_table = trailing_twelve_months(fin_table)
-  if update and (3 in cast(pd.MultiIndex, fin_table.index).levels[2]):
-    fin_table = cast(
+  financials = trailing_twelve_months(financials)
+  if update and (3 in cast(pd.MultiIndex, financials.index).levels[2]):
+    financials = cast(
       DataFrame,
       pd.concat(
         (
-          fin_table.loc[(slice(None), slice(None), 3), :].tail(2),
-          fin_table.loc[(slice(None), slice(None), 12), :],
+          financials.loc[(slice(None), slice(None), 3), :].tail(2),
+          financials.loc[(slice(None), slice(None), 12), :],
         ),
         axis=0,
       ),
     )
 
-  fin_table.reset_index(inplace=True)
-  fin_table = cast(
+  financials.reset_index(inplace=True)
+  financials = cast(
     DataFrame,
-    fin_table.reset_index()
+    financials.reset_index()
     .merge(price.rename(columns={'close': 'share_price'}), how='left', on='date')
     .set_index(['date', 'period', 'months'])
     .drop('index', axis=1),
   )
   schema = load_schema()
-  fin_table = calculate_items(fin_table, schema)
+  financials = calculate_items(financials, schema)
 
-  start_date: dt = fin_table.index.get_level_values('date').min() - relativedelta(
-    years=beta_period
-  )
+  start_date: dt = cast(pd.MultiIndex, financials.index).levels[
+    0
+  ].min() - relativedelta(years=beta_period)
   market_close = await Ticker('^GSPC').ohlcv(start_date)
   riskfree_rate = await Ticker('^TNX').ohlcv(start_date)
 
-  fin_table = beta(
-    fin_table,
+  financials = beta(
+    financials,
     price['close'].rename('equity_return').pct_change(),
     market_close['close'].rename('market_return').pct_change(),
     riskfree_rate['close'].rename('riskfree_rate') / 100,
   )
 
-  fin_table = weighted_average_cost_of_capital(fin_table)
-  fin_table = f_score(fin_table)
-  fin_table = m_score(fin_table)
+  financials = weighted_average_cost_of_capital(financials)
+  financials = f_score(financials)
+  financials = m_score(financials)
 
-  if 'altman_z_score' not in set(fin_table.columns):
-    fin_table = z_score(fin_table)
+  if 'altman_z_score' not in set(financials.columns):
+    financials = z_score(financials)
 
-  return fin_table
+  return financials
 
 
 def handle_ttm(df: DataFrame) -> DataFrame:
-  if 'TTM' not in df.index.get_level_values('period').unique():
+  if 'TTM' not in cast(pd.MultiIndex, df.index).levels[1].unique():
     return df
 
   df.sort_index(level='date', inplace=True)
@@ -112,7 +112,7 @@ def handle_ttm(df: DataFrame) -> DataFrame:
 
 
 def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
-  ttm_date = df.index.get_level_values('date').max()
+  ttm_date = cast(pd.MultiIndex, df.index).levels[0].max()
 
   renamer = {(dt(1900, 1, 1), 'TTM', 12): (ttm_date, 'TTM', 12)}
   df.rename(index=renamer, inplace=True)
@@ -157,8 +157,8 @@ async def update_fundamentals(
     upsert_sqlite(handle_ttm(fundamentals), 'fundamentals.db', table)
     return fundamentals
 
-  last_financials: dt = fundamentals.index.get_level_values('date').max()
-  last_fundamentals: dt = fundamentals.index.get_level_values('date').max()
+  last_financials: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
+  last_fundamentals: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
   if last_fundamentals >= last_financials:
     return fundamentals
 
@@ -169,14 +169,17 @@ async def update_fundamentals(
 
   fundamentals.sort_index(level='date', inplace=True)
   props = {3: (None, 8), 12: ('FY', 1)}
-  for m in financials.index.get_level_values('months').unique():
+  months = cast(Index[int], cast(pd.MultiIndex, financials.index).levels[2].unique())
+  for m in months:
     mask = (slice(None), slice(props[m][0]), m)
     fundamentals_ = cast(
       DataFrame,
       pd.concat((fundamentals.loc[mask, :].tail(props[m][1]), financials), axis=0),
     )
 
-  fundamentals_ = await calculate_fundamentals(id, fundamentals_, ohlcv_fetcher)
+  fundamentals_ = await calculate_fundamentals(
+    id, fundamentals_, ohlcv_fetcher, update=True
+  )
   fundamentals_ = cast(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
   )

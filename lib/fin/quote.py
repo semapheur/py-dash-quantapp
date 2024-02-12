@@ -37,10 +37,9 @@ async def get_ohlcv(
   if ohlcv is None:
     ohlcv = await ohlcv_fetcher()
     upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
+    return cast(DataFrame[Quote], ohlcv)
 
-    return ohlcv[list(cols)]
-
-  last_date: dt = ohlcv.index.get_level_values('date').max()
+  last_date: dt = ohlcv.index.max()
   if relativedelta(dt.now(), last_date).days <= delta:
     return cast(DataFrame[Quote], ohlcv)
 
