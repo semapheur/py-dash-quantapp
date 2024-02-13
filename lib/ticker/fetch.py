@@ -142,7 +142,9 @@ def search_tickers(
 
 @lru_cache
 def get_stored_fundamentals() -> tuple[str, ...]:
-  return tuple(get_tables('fundamentals.db'))
+  stored_tickers = get_tables('fundamentals.db')
+
+  return tuple([t.split('_')[0] for t in stored_tickers])
 
 
 def search_fundamentals(search: str, limit=10) -> DataFrame[TickerOptions] | None:
