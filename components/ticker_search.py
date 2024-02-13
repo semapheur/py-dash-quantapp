@@ -3,7 +3,7 @@ from typing import cast
 from dash import callback, dcc, html, no_update, Input, Output, State
 from pandas import MultiIndex, DatetimeIndex
 
-from lib.ticker.fetch import find_cik, search_tickers, stock_currency
+from lib.ticker.fetch import find_cik, search_fundamentals, stock_currency
 from lib.fin.fundamentals import load_fundamentals
 
 from components.input import InputAIO
@@ -35,10 +35,13 @@ def ticker_results(search: str) -> list[dict[str, str]]:
   if search is None or len(search) < 2:
     return no_update
 
-  df = search_tickers('stock', search)
+  df = search_fundamentals('stock', search)
+  if df is None:
+    return []
+
   links = [
-    dcc.Link(label, href=href + '/overview', className=link_style)
-    for label, href in zip(df['label'], df['href'])
+    dcc.Link(label, href=value + '/overview', className=link_style)
+    for label, value in zip(df['label'], df['value'])
   ]
   return links
 

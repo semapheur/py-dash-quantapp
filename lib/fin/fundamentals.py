@@ -79,7 +79,6 @@ async def calculate_fundamentals(
   price = await get_ohlcv(
     id, 'stock', ohlcv_fetcher, start_date=start_date, cols={'close'}
   )
-  price = cast(DataFrame[Quote], price.resample('D').ffill())
 
   financials = trailing_twelve_months(financials)
   if update and (3 in cast(pd.MultiIndex, financials.index).levels[2]):
@@ -95,13 +94,7 @@ async def calculate_fundamentals(
     )
 
   financials.reset_index(inplace=True)
-  financials = cast(
-    DataFrame,
-    financials.reset_index()
-    .merge(price.rename(columns={'close': 'share_price'}), how='left', on='date')
-    .set_index(['date', 'period', 'months'])
-    .drop('index', axis=1),
-  )
+  financials = merge_share_price(financials, price)
   schema = load_schema()
   financials = calculate_items(financials, schema)
 
@@ -183,7 +176,7 @@ async def update_fundamentals(
 
   if fundamentals is None:
     fundamentals = await calculate_fundamentals(id, financials, ohlcv_fetcher)
-    upsert_sqlite(handle_ttm(fundamentals), 'fundamentals.db', table)
+    upsert_sqlite(fundamentals, 'fundamentals.db', table)
     return fundamentals
 
   last_financials: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
@@ -212,5 +205,5 @@ async def update_fundamentals(
   fundamentals_ = cast(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
   )
-  upsert_sqlite(handle_ttm(fundamentals_), 'fundamentals.db', table)
+  upsert_sqlite(fundamentals_, 'fundamentals.db', table)
   return cast(DataFrame, pd.concat((fundamentals, fundamentals_), axis=0))

@@ -1,16 +1,23 @@
 import logging
+from functools import lru_cache
 from typing import cast, Optional, TypedDict
 
-import pandas as pd
+from pandera import DataFrameModel
+from pandera.typing import DataFrame
 from sqlalchemy import create_engine, text
 
 from lib.const import DB_DIR
-from lib.db.lite import check_table
+from lib.db.lite import check_table, get_tables, read_sqlite
 
 db_path = DB_DIR / 'ticker.db'
 ENGINE = create_engine(f'sqlite+pysqlite:///{db_path}')
 
 logger = logging.getLogger(__name__)
+
+
+class TickerOptions(DataFrameModel):
+  label: str
+  value: str
 
 
 class Stock(TypedDict, total=False):
@@ -109,23 +116,50 @@ def find_cik(id: str) -> Optional[int]:
 
 
 def search_tickers(
-  security: str, search: str, href: bool = True, limit: int = 10
-) -> pd.DataFrame:
+  security: str,
+  search: str,
+  href: bool = True,
+  limit: int = 10,
+  restriction: Optional[tuple[str, ...]] = None,
+) -> DataFrame[TickerOptions]:
+  membership = ''
+  if restriction is not None:
+    membership = f'AND id IN {str(restriction)}'
+
   if security == 'stock':
-    value = (
-      f'"/{security}/" || id AS href' if href else 'id || "|" || currency AS value'
-    )
-    query = text(
-      f"""
+    value = f'"/{security}/" || id' if href else 'id || "|" || currency'
+    query = f"""
       SELECT 
         name || " (" || ticker || ") - "  || mic AS label,
-        {value}
-      FROM {security} WHERE label LIKE :search
+        {value} AS value
+      FROM {security} WHERE label LIKE :search {membership}
       LIMIT {limit}
     """
-    ).bindparams(search=f'%{search}%')
 
-  with ENGINE.connect().execution_options(autocommit=True) as con:
-    df = pd.read_sql(query, con=con)
+  df = read_sqlite('ticker.db', query, {'search': f'%{search}%'})
+  return cast(DataFrame[TickerOptions], df)
 
-  return df
+
+@lru_cache
+def get_stored_fundamentals() -> tuple[str, ...]:
+  return tuple(get_tables('fundamentals.db'))
+
+
+def search_fundamentals(search: str, limit=10) -> DataFrame[TickerOptions] | None:
+  stored_tickers = get_stored_fundamentals()
+  if not stored_tickers:
+    return None
+
+  query = f"""
+  WITH fundamentals AS (
+    SELECT
+      name || " (" || ticker || ") - "  || mic AS label,
+      id || "|" || currency AS value
+    FROM stock WHERE id IN {str(stored_tickers)}
+  )
+  SELECT label, value FROM fundamentals WHERE label LIKE :search
+
+  """
+
+  df = read_sqlite('ticker.db', query, {'search': f'%{search}%'})
+  return cast(DataFrame[TickerOptions], df)
