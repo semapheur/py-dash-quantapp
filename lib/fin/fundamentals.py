@@ -5,8 +5,9 @@ import json
 from typing import cast, Any, Coroutine, Optional
 
 from ordered_set import OrderedSet
+from numpy import nan
 import pandas as pd
-from pandera.typing import DataFrame, Index
+from pandera.typing import DataFrame, Index, Series
 
 from lib.db.lite import read_sqlite, upsert_sqlite
 from lib.fin.calculation import calculate_items, trailing_twelve_months
@@ -17,7 +18,7 @@ from lib.fin.metrics import (
   beta,
   weighted_average_cost_of_capital,
 )
-from lib.fin.models import Quote
+from lib.fin.models import Quote, CloseQuote
 from lib.fin.statement import load_financials
 from lib.fin.quote import get_ohlcv
 from lib.yahoo.ticker import Ticker
@@ -39,6 +40,32 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
   return schema
 
 
+def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> DataFrame:
+  price_records = [
+    {
+      'share_price_close': nan,
+      'share_price_open': nan,
+      'share_price_high': nan,
+      'share_price_low': nan,
+      'share_price_average': nan,
+    }
+  ] * len(financials)
+
+  for i, ix in enumerate(cast(pd.MultiIndex, financials.index)):
+    end_date = cast(dt, ix[0])
+    start_date = end_date - relativedelta(months=cast(int, ix[2]))
+
+    price_ = cast(Series[float], price.loc[start_date:end_date, 'close']).sort_index()
+    price_records[i]['share_price_close'] = price_.iloc[-1]
+    price_records[i]['share_price_open'] = price_.iloc[0]
+    price_records[i]['share_price_high'] = price_.max()
+    price_records[i]['share_price_low'] = price_.min()
+    price_records[i]['share_price_average'] = price_.mean()
+
+  price_data = pd.DataFrame.from_records(price_records, index=financials.index)
+  return cast(DataFrame, pd.concat((financials, price_data), axis=1))
+
+
 async def calculate_fundamentals(
   id: str,
   financials: DataFrame,
@@ -46,7 +73,12 @@ async def calculate_fundamentals(
   beta_period: int = 5,
   update: bool = False,
 ) -> DataFrame:
-  price = await get_ohlcv(id, 'stock', ohlcv_fetcher, cols={'close'})
+  start_date: dt = cast(pd.MultiIndex, financials.index).levels[
+    0
+  ].min() - relativedelta(years=beta_period)
+  price = await get_ohlcv(
+    id, 'stock', ohlcv_fetcher, start_date=start_date, cols={'close'}
+  )
   price = cast(DataFrame[Quote], price.resample('D').ffill())
 
   financials = trailing_twelve_months(financials)
@@ -73,9 +105,6 @@ async def calculate_fundamentals(
   schema = load_schema()
   financials = calculate_items(financials, schema)
 
-  start_date: dt = cast(pd.MultiIndex, financials.index).levels[
-    0
-  ].min() - relativedelta(years=beta_period)
   market_close = await Ticker('^GSPC').ohlcv(start_date)
   riskfree_rate = await Ticker('^TNX').ohlcv(start_date)
 

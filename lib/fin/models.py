@@ -155,12 +155,15 @@ class FinancialsIndex(DataFrameModel):
     multiindex_unique = True
 
 
-class Quote(DataFrameModel):
+class CloseQuote(DataFrameModel):
   date: Index[Timestamp]
+  close: float
+
+
+class Quote(CloseQuote):
   open: Optional[float]
   high: Optional[float]
   low: Optional[float]
-  close: Optional[float]
   volume: Optional[int] = Field(ge=0)
 
 

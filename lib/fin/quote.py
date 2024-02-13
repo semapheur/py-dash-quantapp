@@ -14,16 +14,18 @@ async def get_ohlcv(
   security: str,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: int = 1,
+  start_date: Optional[dt] = None,
   cols: Optional[set[Literal['open', 'high', 'low', 'close', 'volume']]] = None,
 ) -> DataFrame[Quote]:
   col_text = '*'
   if cols is not None:
-    col_text = ', '.join({'date'}.union(cols))
+    cols_ = list({'date'}.union(cols))
+    col_text = ', '.join(cols_)
 
   query = f'SELECT {col_text} FROM "{_id}"'
 
-  if date := ohlcv_fetcher.args:
-    query += f' WHERE DATE(date) >= DATE({date[0]})'
+  if start_date is not None:
+    query += f' WHERE DATE(date) >= DATE({start_date.strftime("%Y-%m-%d")})'
 
   ohlcv = read_sqlite(
     f'{security}_quote.db',
@@ -35,13 +37,16 @@ async def get_ohlcv(
   if ohlcv is None:
     ohlcv = await ohlcv_fetcher()
     upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
+    if cols is not None:
+      ohlcv = cast(DataFrame[Quote], ohlcv.loc[:, cols_])
+
     return cast(DataFrame[Quote], ohlcv)
 
   last_date: dt = ohlcv.index.max()
   if relativedelta(dt.now(), last_date).days <= delta:
     return cast(DataFrame[Quote], ohlcv)
 
-  new_ohlcv = await ohlcv_fetcher(last_date.strftime('%Y-%m-%d'))
+  new_ohlcv = await ohlcv_fetcher(last_date)
 
   if new_ohlcv is None:
     return ohlcv

@@ -138,8 +138,8 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   ttm_date = cast(pd.MultiIndex, df.loc[mask, :].tail(1).index).levels[0]
   ttm_mask = (ttm_date, 'TTM', 12)
 
-  old_price = df.at[ttm_mask, 'share_price']
-  df.loc[ttm_mask, 'share_price'] = new_price
+  old_price = df.at[ttm_mask, 'share_price_close']
+  df.loc[ttm_mask, 'share_price_close'] = new_price
 
   query = f"""
     SELECT item FROM items WHERE 

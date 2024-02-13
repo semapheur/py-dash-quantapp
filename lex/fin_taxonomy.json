@@ -5132,7 +5132,7 @@
     },
     "calculation": {
       "order": 66,
-      "all": "adjusted_weighted_average_shares_outstanding_basic * share_price"
+      "all": "adjusted_weighted_average_shares_outstanding_basic * share_price_average"
     }
   },
   "net_current_asset_value": {
