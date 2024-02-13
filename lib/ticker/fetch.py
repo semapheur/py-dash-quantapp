@@ -143,7 +143,6 @@ def search_tickers(
 @lru_cache
 def get_stored_fundamentals() -> tuple[str, ...]:
   stored_tickers = get_tables('fundamentals.db')
-
   return tuple([t.split('_')[0] for t in stored_tickers])
 
 
