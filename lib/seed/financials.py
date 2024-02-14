@@ -2,7 +2,9 @@ from functools import partial
 import json
 import time
 
-from lib.db.lite import read_sqlite, get_tables
+import pandas as pd
+
+from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
 from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
 from lib.morningstar.ticker import Stock
@@ -63,15 +65,22 @@ async def seed_fundamentals(exchange: str):
     raise ValueError(f'No financials found for {exchange}')
 
   currency = SCREENER_CURRENCIES['XOSL']
-
+  faulty: list[str] = []
+  stored: list[dict[str, str]] = []
   for id in seeded_ids:
     try:
       ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
       _ = await update_fundamentals(id, currency, ohlcv_fetcher)
+      stored.append({'id': id, 'currency': currency})
 
     except Exception as _:
       faulty.append(id)
       print(f'{id} failed')
+
+  if stored:
+    df = pd.DataFrame.from_records(stored)
+    df.set_index(('id', 'currency'), inplace=True)
+    upsert_sqlite(df, 'tickers.db', 'fundamentals')
 
   if not faulty:
     return

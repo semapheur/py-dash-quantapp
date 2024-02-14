@@ -10,7 +10,6 @@ from sqlalchemy import (
   create_engine,
   inspect,
   text,
-  Engine,
   TextClause,
 )  # event
 
@@ -67,14 +66,13 @@ def get_tables(db_name: str) -> list[str]:
   return insp.get_table_names()
 
 
-def check_table(tables: str | set[str], engine: Engine) -> bool:
+def check_table(tables: set[str], db_name: str) -> bool:
+  db_path = sqlite_path(db_name)
+  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   db_tables = inspect(engine).get_table_names()
 
   if not db_tables:
     return False
-
-  if isinstance(tables, str):
-    tables = {tables}
 
   return tables.issubset(set(db_tables))
 

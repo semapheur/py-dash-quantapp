@@ -48,7 +48,7 @@ def stock_currency(id: str) -> str:
 
 
 def stock_label(id: str) -> str:
-  if not check_table('stock', ENGINE):
+  if not check_table('stock', 'ticker.db'):
     logger.warning('Stock tickers have not been seeded!')
     return ''
 
@@ -70,9 +70,6 @@ def stock_label(id: str) -> str:
 
 
 def fetch_stock(id: str, cols: Optional[set[str]] = None) -> Stock | None:
-  if not check_table('stock', ENGINE):
-    return None
-
   cols = (
     set(Stock.__optional_keys__)
     if cols is None
@@ -92,10 +89,7 @@ def fetch_stock(id: str, cols: Optional[set[str]] = None) -> Stock | None:
   return None
 
 
-def find_cik(id: str) -> Optional[int]:
-  if not check_table({'stock', 'edgar'}, ENGINE):
-    return None
-
+def find_cik(id: str) -> int | None:
   query = text(
     """
     SELECT  
@@ -147,19 +141,16 @@ def get_stored_fundamentals() -> tuple[str, ...]:
 
 
 def search_fundamentals(search: str, limit=10) -> DataFrame[TickerOptions] | None:
-  stored_tickers = get_stored_fundamentals()
-  if not stored_tickers:
-    return None
-
   query = f"""
-  WITH fundamentals AS (
+  WITH temp AS (
     SELECT
-      name || " (" || ticker || ") - "  || mic AS label,
-      id || "|" || currency AS value
-    FROM stock WHERE id IN {str(stored_tickers)}
+      stock.name || " (" || stock.ticker || ") - "  || stock.mic AS label,
+      fundamentals.id || "|" || fundamentals.currency AS value
+    FROM fundamentals
+    JOIN stock ON fundamentals.id = stock.id
   )
-  SELECT label, value FROM fundamentals WHERE label LIKE :search
-
+  SELECT label, value FROM temp WHERE label LIKE :search
+  LIMIT {limit}
   """
 
   df = read_sqlite('ticker.db', query, {'search': f'%{search}%'})
