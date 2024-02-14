@@ -68,10 +68,33 @@ class TaxonomyItem(BaseModel):
   ]
   balance: Optional[Literal['credit', 'debit']] = None
   aggregate: Literal['average', 'recalc', 'sum', 'tail']
-  gaap: list[str] = []
-  label: Optional[TaxonomyLabel] = None
+  label: TaxonomyLabel
+  gaap: Optional[list[str]] = None
   calculation: Optional[TaxononmyCalculation] = None
   components: Optional[list[str]] = None
+
+
+class TaxonomyRecord(TypedDict):
+  item: str
+  unit: Literal[
+    'days',
+    'monetary',
+    'monetary_ratio',
+    'numeric_score',
+    'percent',
+    'per_day',
+    'per_share',
+    'personnel',
+    'price_ratio',
+    'ratio',
+    'shares',
+  ]
+  balance: Optional[Literal['credit', 'debit']]
+  aggregate: Literal['average', 'recalc', 'sum', 'tail']
+  long: str
+  short: Optional[str]
+  gaap: Optional[str]
+  calculation: Optional[str]
 
 
 class Taxonomy(BaseModel):
@@ -228,30 +251,25 @@ class Taxonomy(BaseModel):
 
   def to_records(
     self,
-  ):
-    result = []
-    for k, v in self.data.items():
-      gaap = json.dumps(v.gaap) if v.gaap is not None else None
-      calc = json.dumps(v.calculation) if v.calculation is not None else None
-
-      result.append(
-        (
-          k,
-          v.unit,
-          v.period,
-          v.label.long,
-          v.label.short,
-          gaap,
-          calc,
-        )
+  ) -> list[TaxonomyRecord]:
+    return [
+      TaxonomyRecord(
+        item=k,
+        unit=v.unit,
+        balance=v.balance,
+        aggregate=v.aggregate,
+        long=v.label['long'],
+        short=v.label.get('short'),
+        gaap=None if v.gaap is None else json.dumps(v.gaap),
+        calculation=None if v.calculation is None else json.dumps(v.calculation),
       )
-
-    return result
+      for k, v in self.data.items()
+    ]
 
   def to_sql(self, db_path: str):
     engine = create_engine(f'sqlite+pysqlite:///{db_path}')
 
-    columns = ('item', 'value', 'period', 'long', 'short', 'gaap', 'calculation')
+    columns = ('item', 'unit', 'balance', 'long', 'short', 'gaap', 'calculation')
     data = self.to_records()
     df = pd.DataFrame(data, columns=columns)
 
@@ -270,25 +288,36 @@ class Taxonomy(BaseModel):
 
     fields = {
       'item': 'TEXT PRIMARY KEY',
-      'value': 'TEXT',
-      'period': 'TEXT',
+      'unit': 'TEXT',
+      'balance': 'TEXT',
+      'aggregate': 'TEXT',
       'long': 'TEXT',
       'short': 'TEXT',
-      'gaap': 'JSON',
-      'calculation': 'JSON',
+      'gaap': 'TEXT',
+      'calculation': 'TEXT',
     }
-    columns = ','.join(tuple(fields.keys()))
     fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
 
-    values = self.to_records()
+    records = self.to_records()
     cur.execute('DROP TABLE IF EXISTS items')
-    cur.execute(f'CREATE TABLE IF NOT EXISTS items ({fields_text})')
+    cur.execute(
+      """CREATE TABLE IF NOT EXISTS items (
+      item TEXT PRIMARY KEY',
+      unit TEXT',
+      balance TEXT',
+      aggregate TEXT',
+      long TEXT',
+      short TEXT',
+      gaap TEXT',
+      calculation TEXT'       
+    )"""
+    )
     con.commit()
 
-    query = f"""INSERT INTO items 
-      ({columns}) VALUES (?,?,?,?,?,?)
+    query = """INSERT INTO items
+    VALUES (:item, :unit, :balance, :aggregate, :long, :short, :gaap, :calculation)
     """
-    cur.executemany(query, values)
+    cur.executemany(query, records)
     con.commit()
     con.close()
 

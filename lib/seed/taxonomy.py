@@ -23,5 +23,5 @@ def fix_taxonomy():
 
 def seed_taxonomy(db_path='data/taxonomy.db'):
   taxonomy_raw = load_taxonomy()
-  taxonomy = Taxonomy(taxonomy_raw)
+  taxonomy = Taxonomy(data=taxonomy_raw)
   taxonomy.to_sql(db_path)
