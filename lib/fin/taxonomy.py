@@ -261,7 +261,9 @@ class Taxonomy(BaseModel):
         long=v.label['long'],
         short=v.label.get('short'),
         gaap=None if v.gaap is None else json.dumps(v.gaap),
-        calculation=None if v.calculation is None else json.dumps(v.calculation),
+        calculation=None
+        if v.calculation is None
+        else v.calculation.model_dump_json(exclude_none=True),
       )
       for k, v in self.data.items()
     ]
