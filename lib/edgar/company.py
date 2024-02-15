@@ -15,14 +15,14 @@ import httpx
 # Local
 from lib.const import HEADERS
 from lib.db.lite import read_sqlite
-from lib.edgar.models import RawFinancials, Recent, CompanyInfo
+from lib.edgar.models import Recent, CompanyInfo
 from lib.edgar.parse import (
   parse_xbrl_url,
   parse_xbrl_urls,
   parse_statements,
   parse_taxonomy,
 )
-
+from lib.fin.models import FinStatement
 from lib.utils import camel_split, snake_abbreviate
 
 FIELDS = {
@@ -170,14 +170,14 @@ class Company:
 
     return urls
 
-  async def get_financials(self, date: Optional[dt] = None) -> list[RawFinancials]:
+  async def get_financials(self, date: Optional[dt] = None) -> list[FinStatement]:
     xbrls = await self.xbrl_urls(date)
     return await parse_statements(xbrls.tolist())
 
-  def get_calc_template(self, doc_id):
+  async def get_calc_template(self, doc_id):
     ns = 'http://www.w3.org/1999/xlink'
 
-    url = parse_xbrl_url(self.cik, doc_id)
+    url = await parse_xbrl_url(self.cik, doc_id)
     with httpx.Client() as client:
       rs = client.get(url, headers=HEADERS)
       root = et.fromstring(rs.content)

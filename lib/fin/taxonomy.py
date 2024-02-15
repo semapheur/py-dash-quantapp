@@ -8,9 +8,9 @@ from typing_extensions import TypedDict
 from glom import glom
 import pandas as pd
 from pydantic import BaseModel, Field, model_serializer
-from sqlalchemy import create_engine, TEXT
+from sqlalchemy import create_engine
 
-from lib.db.lite import get_tables
+from lib.db.lite import get_tables, insert_sqlite
 from lib.const import DB_DIR
 
 
@@ -268,21 +268,11 @@ class Taxonomy(BaseModel):
       for k, v in self.data.items()
     ]
 
-  def to_sql(self, db_path: str):
-    engine = create_engine(f'sqlite+pysqlite:///{db_path}')
-
-    columns = ('item', 'unit', 'balance', 'long', 'short', 'gaap', 'calculation')
+  def to_sql(self, db_name: str):
     data = self.to_records()
-    df = pd.DataFrame(data, columns=columns)
+    df = pd.DataFrame(data)
 
-    with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(
-        'items',
-        con=con,
-        if_exists='replace',
-        index=False,
-        dtype={'gaap': TEXT, 'calculation': TEXT},
-      )
+    insert_sqlite(df, 'taxonomy.db', 'items', 'replace', False)
 
   def to_sqlite(self, db_path: str):
     con = sqlite3.connect(db_path)

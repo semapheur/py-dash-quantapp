@@ -1,6 +1,11 @@
+import atexit
 import datetime as dt
 import json
 import logging
+import logging.config
+import logging.handlers
+from pathlib import Path
+from queue import SimpleQueue
 from typing_extensions import override
 
 LOG_RECORD_BUILTIN_ATTRS = {
@@ -28,6 +33,34 @@ LOG_RECORD_BUILTIN_ATTRS = {
   'threadName',
   'taskName',
 }
+
+
+def setup_queue_handler():
+  queue = SimpleQueue()
+  queue_handler = logging.handlers.QueueHandler(queue)
+  listener = logging.handlers.QueueListener(
+    queue,
+    logging.StreamHandler(),
+    logging.handlers.RotatingFileHandler(
+      'logs/app.log.jsonl', maxBytes=10000, backupCount=3
+    ),
+  )
+  listener.start()
+  atexit.register(listener.stop)
+
+  return queue_handler
+
+
+def setup_logging():
+  config_file = Path('lib/log/logging_config.json')
+
+  with open(config_file, 'r') as f:
+    config = json.load(f)
+  logging.config.dictConfig(config)
+  queue_handler = logging.getHandlerByName('queue_handler')
+  if queue_handler is not None:
+    queue_handler.listener.start()
+    atexit.register(queue_handler.listener.stop)
 
 
 class LogJSONFormatter(logging.Formatter):

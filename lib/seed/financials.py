@@ -3,6 +3,7 @@ import json
 import time
 
 import pandas as pd
+from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
 from lib.edgar.parse import update_statements
@@ -40,21 +41,22 @@ async def seed_edgar_financials(exchange: str) -> None:
       _ = await update_statements(int(cik), id)
       time.sleep(60)
 
-    except Exception as _:
+    except Exception as e:
+      print(e)
       faulty.append(id)
       print(f'{id} failed')
 
   if not faulty:
     return
 
-  with open('logs/seed_fail.json', 'r+') as f:
+  with open('logs/seed_fail.json', 'w+') as f:
     content: dict = json.load(f)
     content[f'{exchange}_financials'] = faulty
     json.dump(content, f)
 
 
 async def seed_fundamentals(exchange: str):
-  query = 'SELECT id, name FROM stock WHERE mic = :=exchange'
+  query = 'SELECT id, name FROM stock WHERE mic = :exchange'
   tickers = read_sqlite('ticker.db', query, params={'exchange': exchange})
 
   if tickers is None:
@@ -67,15 +69,16 @@ async def seed_fundamentals(exchange: str):
   currency = SCREENER_CURRENCIES['XOSL']
   faulty: list[str] = []
   stored: list[dict[str, str]] = []
-  for id in seeded_ids:
+  for id in tqdm(seeded_ids):
     try:
       ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
       _ = await update_fundamentals(id, currency, ohlcv_fetcher)
       stored.append({'id': id, 'currency': currency})
 
-    except Exception as _:
+    except Exception as e:
       faulty.append(id)
       print(f'{id} failed')
+      print(e)
 
   if stored:
     df = pd.DataFrame.from_records(stored)

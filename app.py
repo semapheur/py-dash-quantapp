@@ -1,28 +1,14 @@
 # -*- coding: utf-8 -*-
-import atexit
-import json
-import logging.config
-import logging.handlers
+import logging
 from pathlib import Path
 
-from dash import Dash, dcc, html, page_container
-from dash.dependencies import Input, Output
+from dash import Dash, dcc, html, page_container, Input, Output
+
+from lib.log.logger import setup_queue_handler
 
 from components.header import Header
 
 # https://utxo.live/oracle/
-
-
-def setup_logging():
-  config_file = Path('lib/log/logging_config.json')
-
-  with open(config_file, 'r') as f:
-    config = json.load(f)
-  logging.config.dictConfig(config)
-  queue_handler = logging.getHandlerByName('queue_handler')
-  if queue_handler is not None:
-    queue_handler.listener.start()
-    atexit.register(queue_handler.listener.stop)
 
 
 def cleanup():
@@ -34,11 +20,14 @@ def cleanup():
 
 # atexit.register(cleanup)
 
+external_stylesheets = ['https://cdn.tailwindcss.com']
+
 app = Dash(
   __name__,
   use_pages=True,
   title='Gelter',
   suppress_callback_exceptions=True,
+  external_stylesheets=external_stylesheets,
   # prevent_initial_callbacks='initial_duplicate'
 )  # run with 'python app.py'
 
@@ -63,7 +52,10 @@ app.clientside_callback(
 if __name__ == '__main__':
   # cleanup()
 
-  setup_logging()
+  queue_handler = setup_queue_handler()
+  logger = logging.getLogger(__name__)
+  logger.addHandler(queue_handler)
+
   app.run_server(
     debug=True,
     dev_tools_hot_reload=False,

@@ -21,7 +21,7 @@ def fix_taxonomy():
     json.dump(taxonomy_dict, f, indent=2)
 
 
-def seed_taxonomy(db_path='data/taxonomy.db'):
+def seed_taxonomy(db_name='taxonomy.db'):
   taxonomy_raw = load_taxonomy()
   taxonomy = Taxonomy(data=taxonomy_raw)
-  taxonomy.to_sql(db_path)
+  taxonomy.to_sql(db_name)

@@ -15,7 +15,6 @@ from pandera.typing import DataFrame, Series
 
 # Local
 from lib.const import HEADERS
-from lib.edgar.company import Company
 from lib.edgar.models import CikEntry, CikFrame
 from lib.fin.models import (
   FinStatement,
@@ -41,6 +40,8 @@ Docs: TypeAlias = Literal['cal', 'def', 'htm', 'lab', 'pre']
 
 
 async def scrap_statements(cik: int, id_: str) -> list[FinStatement]:
+  from lib.edgar.company import Company
+
   company = Company(cik)
   filings = await company.xbrl_urls()
 
@@ -52,6 +53,8 @@ async def scrap_statements(cik: int, id_: str) -> list[FinStatement]:
 async def update_statements(
   cik: int, id_: str, delta=120, date: Optional[str] = None
 ) -> list[FinStatement]:
+  from lib.edgar.company import Company
+
   company = Company(cik)
   df = load_statements(id_, date)
 

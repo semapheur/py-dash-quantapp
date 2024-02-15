@@ -170,7 +170,7 @@ def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
   df.rename(columns=rename, inplace=True)
   df = combine_duplicate_columns(df)
 
-  query = 'SELECT item FROM items WHERE aggretate = "sum"'
+  query = 'SELECT item FROM items WHERE aggregate = "sum"'
   sum_items = read_sqlite('taxonomy.db', query)
   if sum_items is None:
     raise ValueError('Taxonomy could not be loaded!')
@@ -252,7 +252,7 @@ def stock_splits(id_: str):
   field = 'StockholdersEquityNoteStockSplitConversionRatio1'
   query = f'SELECT data FROM "{id_}" WHERE json_extract(data, "$.{field}") IS NOT NULL'
   df_parse = cast(
-    DataFrame[str], read_sqlite('financials_scrap', query, dtype={'data': str})
+    DataFrame[str], read_sqlite('financials.db', query, dtype={'data': str})
   )
   if df_parse.empty:
     return None

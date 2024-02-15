@@ -43,7 +43,7 @@ async def update_table(exchange: str):
   query = 'SELECT id, name FROM stock WHERE mic=:=exchange'
   stocks = read_sqlite('ticker.db', query, params={'exchange': exchange})
 
-  stock_ids = set(stocks['id']).intersection(get_tables('financials_scrap.db'))
+  stock_ids = set(stocks['id']).intersection(get_tables('financials.db'))
   currency = CURRENCIES.get(exchange)
 
   table_ids = set(get_tables('financials.db'))
