@@ -288,18 +288,6 @@ class Taxonomy(BaseModel):
     con = sqlite3.connect(db_path)
     cur = con.cursor()
 
-    fields = {
-      'item': 'TEXT PRIMARY KEY',
-      'unit': 'TEXT',
-      'balance': 'TEXT',
-      'aggregate': 'TEXT',
-      'long': 'TEXT',
-      'short': 'TEXT',
-      'gaap': 'TEXT',
-      'calculation': 'TEXT',
-    }
-    fields_text = ','.join([' '.join((k, v)) for k, v in fields.items()])
-
     records = self.to_records()
     cur.execute('DROP TABLE IF EXISTS items')
     cur.execute(
