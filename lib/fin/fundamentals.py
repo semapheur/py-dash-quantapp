@@ -78,7 +78,7 @@ async def calculate_fundamentals(
   ].min() - relativedelta(years=beta_period)
   price = cast(
     DataFrame[CloseQuote],
-    await get_ohlcv(id, 'stock', ohlcv_fetcher, start_date=start_date, cols={'close'}),
+    await get_ohlcv(id, 'stock', ohlcv_fetcher, start_date=start_date, cols=['close']),
   )
 
   financials = trailing_twelve_months(financials)

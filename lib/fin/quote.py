@@ -11,20 +11,19 @@ from lib.utils import slice_df_by_date
 
 
 async def get_ohlcv(
-  _id: str,
+  id: str,
   security: str,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: Optional[int] = 1,
   start_date: Optional[dt | Date] = None,
   end_date: Optional[dt | Date] = None,
-  cols: Optional[set[Literal['open', 'high', 'low', 'close', 'volume']]] = None,
+  cols: Optional[list[Literal['open', 'high', 'low', 'close', 'volume']]] = None,
 ) -> DataFrame[Quote]:
   col_text = '*'
   if cols is not None:
-    cols_ = list({'date'}.union(cols))
-    col_text = ', '.join(cols_)
+    col_text = 'date, ' + ', '.join(cols)
 
-  query = f'SELECT {col_text} FROM "{_id}"'
+  query = f'SELECT {col_text} FROM "{id}"'
 
   if start_date is not None:
     query += f' WHERE DATE(date) >= DATE({start_date:%Y-%m-%d})'
@@ -41,9 +40,9 @@ async def get_ohlcv(
 
   if ohlcv is None:
     ohlcv = await ohlcv_fetcher()
-    upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
+    upsert_sqlite(ohlcv, f'{security}_quote.db', id)
     if cols is not None:
-      ohlcv = cast(DataFrame[Quote], ohlcv.loc[:, cols_])
+      ohlcv = cast(DataFrame[Quote], ohlcv.loc[:, list(cols)])
 
     return cast(DataFrame[Quote], slice_df_by_date(ohlcv, start_date, end_date))
 
@@ -59,7 +58,7 @@ async def get_ohlcv(
   if new_ohlcv is None:
     return ohlcv
 
-  upsert_sqlite(ohlcv, f'{security}_quote.db', _id)
+  upsert_sqlite(ohlcv, f'{security}_quote.db', id)
   ohlcv = read_sqlite(
     f'{security}_quote.db',
     query,
