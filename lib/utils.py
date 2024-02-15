@@ -144,6 +144,23 @@ def handle_date(date: dt | Date) -> dt:
   return date
 
 
+def slice_df_by_date(
+  df: pd.DataFrame,
+  start_date: Optional[dt | Date] = None,
+  end_date: Optional[dt | Date] = None,
+) -> pd.DataFrame:
+  if not isinstance(df.index, pd.DatetimeIndex):
+    raise ValueError('Data frame must have a datetime index!')
+
+  if start_date is not None:
+    df = df.loc[df.index >= start_date]
+
+  if end_date is not None:
+    df = df.loc[df.index <= end_date]
+
+  return df
+
+
 def month_difference(date1: dt | Date, date2: dt | Date) -> int:
   delta = relativedelta(max(date1, date2), min(date1, date2))
   return delta.years * 12 + delta.months + round(delta.days / 30)

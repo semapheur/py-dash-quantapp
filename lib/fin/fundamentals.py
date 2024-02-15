@@ -76,8 +76,9 @@ async def calculate_fundamentals(
   start_date: dt = cast(pd.MultiIndex, financials.index).levels[
     0
   ].min() - relativedelta(years=beta_period)
-  price = await get_ohlcv(
-    id, 'stock', ohlcv_fetcher, start_date=start_date, cols={'close'}
+  price = cast(
+    DataFrame[CloseQuote],
+    await get_ohlcv(id, 'stock', ohlcv_fetcher, start_date=start_date, cols={'close'}),
   )
 
   financials = trailing_twelve_months(financials)
@@ -93,7 +94,6 @@ async def calculate_fundamentals(
       ),
     )
 
-  financials.reset_index(inplace=True)
   financials = merge_share_price(financials, price)
   schema = load_schema()
   financials = calculate_items(financials, schema)

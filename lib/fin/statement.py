@@ -1,5 +1,6 @@
 from datetime import datetime as dt, date as Date, timedelta
 from enum import Enum
+from functools import partial
 import json
 import sqlite3
 from typing import cast, Optional
@@ -18,8 +19,9 @@ from lib.fin.models import (
   FiscalPeriod,
   FinData,
 )
+from lib.fin.quote import get_ohlcv
 from lib.utils import combine_duplicate_columns, df_time_difference
-from lib.yahoo.ticker import exchange_rate
+from lib.yahoo.ticker import Ticker
 
 
 class ScopeEnum(Enum):
@@ -59,14 +61,16 @@ async def statement_to_df(
     if isinstance(period, Instant):
       start_date = period.instant
       end_date = start_date + timedelta(days=2)
-      interval = '1d'
     elif isinstance(period, Interval):
       start_date = period.start_date
       end_date = period.end_date
-      interval = '3mo'
 
-    rate = await exchange_rate(ticker, start_date, end_date, interval)
-    return rate
+    exchange_fetcher = partial(Ticker(ticker + '=X').ohlcv)
+    rate = await get_ohlcv(
+      ticker, 'exchange', exchange_fetcher, None, start_date, end_date, {'close'}
+    )
+
+    return rate['close'].mean()
 
   fin_date = financials.date
   fin_scope = financials.scope
@@ -254,7 +258,7 @@ def stock_splits(id_: str):
   df_parse = cast(
     DataFrame[str], read_sqlite('financials.db', query, dtype={'data': str})
   )
-  if df_parse.empty:
+  if df_parse is None:
     return None
 
   fin_data = cast(list[FinData], df_parse['data'].apply(json.loads).to_list())

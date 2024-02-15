@@ -143,7 +143,7 @@ class Ticker:
         'region': 'US',
         'symbol': self.ticker,
         'padTimeSeries': 'true',
-        'type': ','.join([period + i for i in items['yahoo']]),
+        'type': ','.join([period + i for i in cast(DataFrame, items)['yahoo']]),
         'merge': 'false',
         'period1': '493590046',
         'period2': str(end_stamp),
@@ -189,6 +189,8 @@ class Ticker:
       WHERE yahoo IS NOT NULL
     """
     items = read_sqlite('taxonomy.db', query)
+    if items is None:
+      raise ValueError('Yahoo financial items not seeded!')
 
     dfs = []
     for p in ('annual', 'quarterly'):

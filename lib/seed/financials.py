@@ -1,5 +1,6 @@
 from functools import partial
 import json
+import logging
 import time
 
 import pandas as pd
@@ -76,9 +77,8 @@ async def seed_fundamentals(exchange: str):
       stored.append({'id': id, 'currency': currency})
 
     except Exception as e:
-      faulty.append(id)
+      logging.error(e, exc_info=True)
       print(f'{id} failed')
-      print(e)
 
   if stored:
     df = pd.DataFrame.from_records(stored)

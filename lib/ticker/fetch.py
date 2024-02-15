@@ -48,7 +48,7 @@ def stock_currency(id: str) -> str:
 
 
 def stock_label(id: str) -> str:
-  if not check_table('stock', 'ticker.db'):
+  if not check_table({'stock'}, 'ticker.db'):
     logger.warning('Stock tickers have not been seeded!')
     return ''
 
