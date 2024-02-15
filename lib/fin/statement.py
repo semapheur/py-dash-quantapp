@@ -29,6 +29,14 @@ class ScopeEnum(Enum):
   annual = 12
 
 
+stock_split_items = {
+  'StockSplitRatio',
+  'StockholdersEquityNoteStockSplitConversionRatio',
+  'StockholdersEquityNoteStockSplitConversionRatio1',
+  'ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares',
+}
+
+
 def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
   return [
     FinStatement(
@@ -69,7 +77,6 @@ async def statement_to_df(
     rate = await get_ohlcv(
       ticker, 'exchange', exchange_fetcher, None, start_date, end_date, {'close'}
     )
-
     return rate['close'].mean()
 
   fin_date = financials.date
@@ -228,12 +235,7 @@ def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
 def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
   data: list[StockSplit] = []
 
-  split_item = {
-    'StockSplitRatio',
-    'StockholdersEquityNoteStockSplitConversionRatio',
-    'StockholdersEquityNoteStockSplitConversionRatio1',
-    'ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares',
-  }.intersection(fin_data.keys())
+  split_item = stock_split_items.intersection(fin_data.keys())
 
   if not split_item:
     return data
@@ -252,9 +254,12 @@ def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
   return data
 
 
-def stock_splits(id_: str):
-  field = 'StockholdersEquityNoteStockSplitConversionRatio1'
-  query = f'SELECT data FROM "{id_}" WHERE json_extract(data, "$.{field}") IS NOT NULL'
+def stock_splits(id_: str) -> Series[float]:
+  where_text = ' AND '.join(
+    [f'json_extract(data, "$.{item}") IS NOT NULL' for item in stock_split_items]
+  )
+
+  query = f'SELECT data FROM "{id_}" WHERE {where_text}'
   df_parse = cast(
     DataFrame[str], read_sqlite('financials.db', query, dtype={'data': str})
   )
