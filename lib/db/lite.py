@@ -97,6 +97,31 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
   cursor.close()
 
 
+def sqlite_dtypes(df: pd.DataFrame) -> dict[str, str]:
+  dtype_mapping = {
+    'int64': 'INTEGER',
+    'float64': 'REAL',
+    'bool': 'TEXT',
+    'datetime64': 'TEXT',
+    'timdelta[ns]': 'INTEGER',
+    'object': 'TEXT',
+  }
+
+  result: dict[str, str] = {}
+
+  if isinstance(df.index, pd.MultiIndex):
+    for ix, dtype in zip(df.index.names, df.index.dtypes):
+      result[ix] = dtype_mapping[str(dtype)]
+  else:
+    index_name = df.index.name if df.index.name is not None else 'index'
+    result[index_name] = dtype_mapping[str(df.index.dtype)] + ' PRIMARY KEY'
+
+  for col, dtype in zip(df.columns, df.dtypes):
+    result[col] = dtype_mapping[str(dtype)]
+
+  return result
+
+
 def read_sqlite(
   db_name: str,
   query: str | TextClause,
@@ -167,6 +192,9 @@ def insert_sqlite(
 
 
 def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
+  if not df.index.is_unique:
+    raise ValueError('DataFrame index is not unique. Failed to upsert into SQLite!')
+
   db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
   insp = inspect(engine)
@@ -180,7 +208,9 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
 
     # Create index
     with engine.begin() as con:
-      con.execute(text(f'CREATE UNIQUE INDEX ix ON "{tbl_name}" ({ix_cols_text})'))
+      con.execute(
+        text(f'CREATE UNIQUE INDEX {tbl_name} ON "{tbl_name}" ({ix_cols_text})')
+      )
 
     return
 
@@ -215,7 +245,9 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     )
 
     con.execute(
-      text(f'CREATE UNIQUE INDEX IF NOT EXISTS ix ON "{tbl_name}" ({ix_cols_text})')
+      text(
+        f'CREATE UNIQUE INDEX IF NOT EXISTS {tbl_name} ON "{tbl_name}" ({ix_cols_text})'
+      )
     )
     con.execute(query)
     # con.execute(text('DROP TABLE temp')) # Delete temporary table

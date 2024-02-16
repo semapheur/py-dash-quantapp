@@ -64,7 +64,7 @@ async def statement_to_df(
   async def get_exchange_rate(
     currency: str, unit: str, period: Instant | Interval
   ) -> float:
-    ticker = f'{unit}{currency}'
+    ticker = f'{unit}{currency}'.upper()
 
     if isinstance(period, Instant):
       start_date = period.instant
