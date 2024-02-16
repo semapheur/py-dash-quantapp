@@ -15,7 +15,7 @@ from lib.morningstar.ticker import Stock
 
 
 setup_logging()
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 faulty = ['0P0000BV6H', '0P0001691U', '0P0000BRJU', '0P0000C80Q']
 empty = [
@@ -83,7 +83,7 @@ async def seed_fundamentals(exchange: str):
       stored.append({'id': id, 'currency': currency})
 
     except Exception as e:
-      logging.error(e, exc_info=True)
+      logger.error(e, exc_info=True)
       print(f'{id} failed')
 
   if stored:

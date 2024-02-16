@@ -1,5 +1,6 @@
 from datetime import datetime as dt, date as Date, time
 from dateutil.relativedelta import relativedelta
+import inspect
 import json
 import math
 import re
@@ -217,3 +218,9 @@ def validate_currency(code: str) -> bool:
     return True
   except Exception:
     return False
+
+
+def get_constructor_args(class_obj) -> set[str]:
+  # Get the constructor signature
+  signature = inspect.signature(class_obj.__init__)
+  return set(signature.parameters.keys())

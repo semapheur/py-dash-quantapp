@@ -31,7 +31,7 @@
     }
   },
   "handlers": {
-    "stderr": {
+    "console": {
       "class": "logging.StreamHandler",
       "level": "WARNING",
       "formatter": "simple",
@@ -48,7 +48,7 @@
     "queue_listener": {
       "class": "lib.log.setup.QueueListenerHandler",
       "handlers": [
-        "cfg://handlers.stderr",
+        "cfg://handlers.console",
         "cfg://handlers.file_json"
       ],
       "queue": "cfg://objects.queue",

@@ -9,6 +9,8 @@ from queue import Queue
 from typing import cast
 from typing_extensions import override
 
+from lib.utils import get_constructor_args
+
 LOG_RECORD_BUILTIN_ATTRS = {
   'args',
   'asctime',
@@ -62,26 +64,31 @@ def setup_logging():
   #  atexit.register(queue_handler.listener.stop)
 
 
-def resolve_handlers(configs: ConvertingList) -> list[logging.Handler]:
-  return [configs[i] for i in range(len(configs))]
-
-
-def resolve_queue(queue_config: ConvertingDict) -> Queue:
-  if (resolved := queue_config.get('__resolved_value')) is not None:
+def resolve_object(config: ConvertingDict):
+  if (resolved := config.get('__resolved_value')) is not None:
     return resolved
 
-  queue_class_ = queue_config.configurator.resolve(queue_config.pop('class'))
-  props = queue_config.pop('.', None)
-  kwargs = {k: queue_config[k] for k in queue_config if valid_ident(k)}
-  queue: Queue = queue_class_(**kwargs)
+  constructor = config.configurator.resolve(config.pop('class', config.pop('()')))
+  constructor_args = get_constructor_args(constructor.__init__)
+  props: set[str] = set(config.keys())
+  kwargs = {k: config[k] for k in constructor_args.intersection(props)}
 
-  if props:
-    for name, value in props.items():
-      setattr(queue, name, value)
+  # kwargs = {k: config[k] for k in config if valid_ident(k)}
+  obj = constructor(**kwargs)
 
-  queue_config['__resolved_value__'] = queue
+  for k in props.difference(constructor_args):
+    setattr(obj, k, config[k])
 
-  return queue
+  config['__resolved_value__'] = obj
+
+  return obj
+
+
+def resolve_objects(configs: ConvertingList) -> list[logging.Handler]:
+  return [
+    resolve_object(configs[i]) if isinstance(configs[i], ConvertingDict) else configs[i]
+    for i in range(len(configs))
+  ]
 
 
 class QueueListenerHandler(logging.handlers.QueueHandler):
@@ -93,11 +100,11 @@ class QueueListenerHandler(logging.handlers.QueueHandler):
     auto_run=True,
   ):
     if isinstance(queue, ConvertingDict):
-      queue = cast(Queue, resolve_queue(queue))
+      queue = cast(Queue, resolve_object(queue))
     super().__init__(queue)
 
     if isinstance(handlers, ConvertingList):
-      handlers = cast(list[logging.Handler], resolve_handlers(handlers))
+      handlers = cast(list[logging.Handler], resolve_objects(handlers))
 
     self.listener = logging.handlers.QueueListener(
       self.queue, *handlers, respect_handler_level=respect_handler_level
