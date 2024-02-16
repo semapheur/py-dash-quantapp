@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 import sqlite3
-from typing import cast, Literal, Optional
+from typing import cast, Any, Literal, Optional
 
 import pandas as pd
 from pandas._typing import DtypeArg
@@ -11,7 +11,8 @@ from sqlalchemy import (
   inspect,
   text,
   TextClause,
-)  # event
+)
+from sqlalchemy.types import Integer, Text, Float
 
 from lib.const import DB_DIR
 
@@ -97,17 +98,17 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
   cursor.close()
 
 
-def sqlite_dtypes(df: pd.DataFrame) -> dict[str, str]:
+def sqlite_dtypes(df: pd.DataFrame) -> dict[str, Any]:
   dtype_mapping = {
-    'int64': 'INTEGER',
-    'float64': 'REAL',
-    'bool': 'TEXT',
-    'datetime64[ns]': 'TEXT',
-    'timdelta64[ns]': 'INTEGER',
-    'object': 'TEXT',
+    'int64': Integer,
+    'float64': Float,
+    'bool': Text,
+    'datetime64[ns]': Text,
+    'timdelta64[ns]': Integer,
+    'object': Text,
   }
 
-  result: dict[str, str] = {}
+  result: dict[str, Any] = {}
 
   if isinstance(df.index, pd.MultiIndex):
     for ix, dtype in zip(df.index.names, df.index.dtypes):
@@ -115,8 +116,8 @@ def sqlite_dtypes(df: pd.DataFrame) -> dict[str, str]:
   else:
     index_name = df.index.name if df.index.name is not None else 'index'
     sqlite_dtype = dtype_mapping[str(df.index.dtype)]
-    if df.index.is_unique:
-      sqlite_dtype += ' PRIMARY KEY'
+    # if df.index.is_unique:
+    #  sqlite_dtype += ' PRIMARY KEY'
 
     result[index_name] = sqlite_dtype
 
@@ -211,11 +212,10 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     df.to_sql(tbl_name, con=engine, index=True, dtype=sqlite_dtypes(df))
 
     # Create index
-    if isinstance(df.index, pd.MultiIndex):
-      with engine.begin() as con:
-        con.execute(
-          text(f'CREATE UNIQUE INDEX {tbl_name} ON "{tbl_name}" ({ix_cols_text})')
-        )
+    with engine.begin() as con:
+      con.execute(
+        text(f'CREATE UNIQUE INDEX {tbl_name} ON "{tbl_name}" ({ix_cols_text})')
+      )
 
     return
 
@@ -248,13 +248,11 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
       SET {update_text}
     """
     )
-
-    if isinstance(df.index, pd.MultiIndex):
-      con.execute(
-        text(
-          f'CREATE UNIQUE INDEX IF NOT EXISTS {tbl_name} ON "{tbl_name}" ({ix_cols_text})'
-        )
+    con.execute(
+      text(
+        f'CREATE UNIQUE INDEX IF NOT EXISTS {tbl_name} ON "{tbl_name}" ({ix_cols_text})'
       )
+    )
     con.execute(query)
     # con.execute(text('DROP TABLE temp')) # Delete temporary table
 

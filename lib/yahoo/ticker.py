@@ -110,6 +110,9 @@ class Ticker:
     df.index = pd.to_datetime(ix, unit='s').floor('D')
     df.index.rename('date', inplace=True)
 
+    zero_columns = df.columns[(df == 0).all()]
+    df.drop(zero_columns, axis=1, inplace=True)
+
     # if multicolumn:
     #  cols = pd.MultiIndex.from_product([[self.ticker], [c for c in df.columns]])
     #  df.columns = cols

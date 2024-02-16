@@ -153,10 +153,10 @@ def slice_df_by_date(
     raise ValueError('Data frame must have a datetime index!')
 
   if start_date is not None:
-    df = df.loc[df.index >= start_date]
+    df = df.loc[df.index >= pd.Timestamp(start_date)]
 
   if end_date is not None:
-    df = df.loc[df.index <= end_date]
+    df = df.loc[df.index <= pd.Timestamp(end_date)]
 
   return df
 

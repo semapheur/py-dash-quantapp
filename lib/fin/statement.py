@@ -75,7 +75,7 @@ async def statement_to_df(
 
     exchange_fetcher = partial(Ticker(ticker + '=X').ohlcv)
     rate = await get_ohlcv(
-      ticker, 'exchange', exchange_fetcher, None, start_date, end_date, ['close']
+      ticker, 'forex', exchange_fetcher, None, start_date, end_date, ['close']
     )
     return rate['close'].mean()
 

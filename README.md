@@ -58,3 +58,10 @@ python app.py
 
 # XBRL taxonomy
 https://xbrl.us/home/filers/sec-reporting/taxonomies/
+
+# Jupyter
+
+DataFrame to HTML table
+```python
+from IPython.display import display
+```
