@@ -214,7 +214,7 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     # Create index
     with engine.begin() as con:
       con.execute(
-        text(f'CREATE UNIQUE INDEX {tbl_name} ON "{tbl_name}" ({ix_cols_text})')
+        text(f'CREATE UNIQUE INDEX "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_text})')
       )
 
     return
@@ -250,7 +250,7 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     )
     con.execute(
       text(
-        f'CREATE UNIQUE INDEX IF NOT EXISTS {tbl_name} ON "{tbl_name}" ({ix_cols_text})'
+        f'CREATE UNIQUE INDEX IF NOT EXISTS "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_text})'
       )
     )
     con.execute(query)
@@ -306,7 +306,7 @@ def upsert_json(
 
     ix_text = ','.join(ix)
     cur.execute(
-      f"""CREATE UNIQUE INDEX IF NOT EXISTS ix 
+      f"""CREATE UNIQUE INDEX IF NOT EXISTS "ix_{table}" 
       ON "{table}"({ix_text})"""
     )
 

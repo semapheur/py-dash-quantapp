@@ -98,8 +98,20 @@ async def calculate_fundamentals(
   schema = load_schema()
   financials = calculate_items(financials, schema)
 
-  market_close = await Ticker('^GSPC').ohlcv(start_date)
-  riskfree_rate = await Ticker('^TNX').ohlcv(start_date)
+  market_fetcher = partial(Ticker('^GSPC').ohlcv)
+  market_close = cast(
+    DataFrame[CloseQuote],
+    await get_ohlcv(
+      'GSPC', 'index', market_fetcher, start_date=start_date, cols=['close']
+    ),
+  )
+  riskfree_fetcher = partial(Ticker('^TNX').ohlcv)
+  riskfree_rate = cast(
+    DataFrame[CloseQuote],
+    await get_ohlcv(
+      'GSPC', 'index', riskfree_fetcher, start_date=start_date, cols=['close']
+    ),
+  )
 
   financials = beta(
     financials,

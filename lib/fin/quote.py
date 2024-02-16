@@ -50,6 +50,7 @@ async def get_ohlcv(
     return cast(DataFrame[Quote], ohlcv)
 
   last_date: dt = ohlcv.index.max()
+  print(last_date)
   if relativedelta(dt.now(), last_date).days <= delta:
     return cast(DataFrame[Quote], ohlcv)
 

@@ -167,9 +167,11 @@ def month_difference(date1: dt | Date, date2: dt | Date) -> int:
 
 
 def df_time_difference(dates: pd.DatetimeIndex, periods: int = 30, freq: str = 'D'):
-  return np.round(
+  time_diff = np.full_like(dates, fill_value=np.nan)
+  time_diff[1:] = np.round(
     np.diff(dates.to_numpy(dtype=np.datetime64)) / np.timedelta64(periods, freq)
   )
+  return time_diff
 
 
 def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> Series[int]:

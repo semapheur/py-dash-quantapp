@@ -83,7 +83,7 @@ def trailing_twelve_months(financials: DataFrame) -> DataFrame:
   if sum_items is None:
     raise ValueError('Could not load taxonomy!')
 
-  ttm.loc[:, sum_items['items']] = ttm.loc[:, sum_items['items']].rolling(4, 4).sum()
+  ttm.loc[:, sum_items['item']] = ttm.loc[:, sum_items['item']].rolling(4, 4).sum()
   ttm = ttm.loc[ttm.loc[:, 'month_difference'] == 9]
 
   ttm.reset_index(level=('period', 'months'), inplace=True)
@@ -141,14 +141,14 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   old_price = df.at[ttm_mask, 'share_price_close']
   df.loc[ttm_mask, 'share_price_close'] = new_price
 
-  query = f"""
+  query = """
     SELECT item FROM items WHERE 
       value = 'price_fundamental' AND 
-      item IN {str(tuple(df.columns))}
+      item IN :columns
     UNION ALL
     SELECT 'market_capitalization' AS item
   """
-  items = read_sqlite('taxonomy.db', query)
+  items = read_sqlite('taxonomy.db', query, {'columns': str(tuple(df.columns))})
   if items is None:
     raise ValueError('Could not load taxonomy!')
 

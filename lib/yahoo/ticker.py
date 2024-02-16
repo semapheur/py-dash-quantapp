@@ -110,7 +110,7 @@ class Ticker:
     df.index = pd.to_datetime(ix, unit='s').floor('D')
     df.index.rename('date', inplace=True)
 
-    zero_columns = df.columns[(df == 0).all()]
+    zero_columns = df.columns[(df.isin((0, np.nan))).all()]
     df.drop(zero_columns, axis=1, inplace=True)
 
     # if multicolumn:
