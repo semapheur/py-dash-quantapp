@@ -1,4 +1,4 @@
-from datetime import datetime as dt, date as Date, timedelta
+from datetime import date as Date, timedelta
 from enum import Enum
 from functools import partial
 import json
@@ -280,11 +280,11 @@ def stock_splits(id_: str) -> Series[float]:
 
 
 def load_statements(
-  id_: str, date: Optional[str] = None
+  id_: str, date: Optional[Date] = None
 ) -> DataFrame[FinStatementFrame] | None:
   query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
   if date:
-    query += f' WHERE date >= {dt.strptime(date, "%Y-%m-%d")}'
+    query += f' WHERE DATE(date) >= DATE({date:%Y-%m-%d})'
 
   df = read_sqlite(
     'financials.db',
@@ -308,7 +308,7 @@ def upsert_statements(
     f"""CREATE TABLE IF NOT EXISTS "{table}"(
     url TEXT PRIMARY KEY,
     scope TEXT,
-    date TEXT,
+    date DATE,
     period TEXT,
     fiscal_end TEXT,
     currency TEXT,

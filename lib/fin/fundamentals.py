@@ -3,6 +3,7 @@ from dateutil.relativedelta import relativedelta
 from functools import partial
 import json
 from typing import cast, Any, Coroutine, Optional
+from sqlalchemy.types import Date
 
 from ordered_set import OrderedSet
 from numpy import nan
@@ -70,6 +71,7 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
 
 async def calculate_fundamentals(
   id: str,
+  currency: str,
   financials: DataFrame,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_period: int = 5,
@@ -80,7 +82,9 @@ async def calculate_fundamentals(
   ].min() - relativedelta(years=beta_period)
   price = cast(
     DataFrame[CloseQuote],
-    await get_ohlcv(id, 'stock', ohlcv_fetcher, start_date=start_date, cols=['close']),
+    await get_ohlcv(
+      f'{id}_{currency}', 'stock', ohlcv_fetcher, start_date=start_date, cols=['close']
+    ),
   )
 
   financials = trailing_twelve_months(financials)
@@ -189,8 +193,8 @@ async def update_fundamentals(
   fundamentals = load_fundamentals(id, currency, cols)
 
   if fundamentals is None:
-    fundamentals = await calculate_fundamentals(id, financials, ohlcv_fetcher)
-    upsert_sqlite(fundamentals, 'fundamentals.db', table)
+    fundamentals = await calculate_fundamentals(id, currency, financials, ohlcv_fetcher)
+    upsert_sqlite(fundamentals, 'fundamentals.db', table, {'date': Date})
     return fundamentals
 
   last_financials: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
@@ -214,7 +218,7 @@ async def update_fundamentals(
     )
 
   fundamentals_ = await calculate_fundamentals(
-    id, fundamentals_, ohlcv_fetcher, update=True
+    id, currency, fundamentals_, ohlcv_fetcher, update=True
   )
   fundamentals_ = cast(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]

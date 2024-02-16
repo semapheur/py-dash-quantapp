@@ -41,14 +41,18 @@ def setup_queue_handler():
   listener = logging.handlers.QueueListener(
     queue,
     logging.StreamHandler(),
-    logging.handlers.RotatingFileHandler(
-      'logs/app.log.jsonl', maxBytes=10000, backupCount=3
-    ),
+    logging.handlers.RotatingFileHandler('logs/app.log', maxBytes=10000, backupCount=3),
   )
   listener.start()
   atexit.register(listener.stop)
 
   return queue_handler
+
+
+def setup_logging_old():
+  logging.config.fileConfig(
+    fname='lib/log/logging_config.ini', disable_existing_loggers=False
+  )
 
 
 def setup_logging():

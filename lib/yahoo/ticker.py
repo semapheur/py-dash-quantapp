@@ -59,9 +59,6 @@ class Ticker:
         rs = await client.get(url, headers=HEADERS, params=params)
         data: dict = rs.json()
 
-      if data is None:
-        print(self.ticker)
-
       return data['chart']['result'][0]
 
     if (start_date is not None) and (period is None):
@@ -86,7 +83,10 @@ class Ticker:
 
     if period == 'max':
       start_stamp = parse['meta']['firstTradeDate']
-      parse = await parse_json(start_stamp, end_stamp, interval)
+      try:
+        parse = await parse_json(start_stamp, end_stamp, interval)
+      except Exception as _:
+        print(f'Could not retrieve OHLC for {self.ticker} from Yahoo')
 
     # Index
     ix = parse['timestamp']

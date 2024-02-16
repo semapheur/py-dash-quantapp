@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime as dt
+from datetime import date as Date, datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
 import re
@@ -51,7 +51,7 @@ async def scrap_statements(cik: int, id_: str) -> list[FinStatement]:
 
 
 async def update_statements(
-  cik: int, id_: str, delta=120, date: Optional[str] = None
+  cik: int, id_: str, delta=120, date: Optional[Date] = None
 ) -> list[FinStatement]:
   from lib.edgar.company import Company
 

@@ -1,5 +1,6 @@
 import ast
 from datetime import datetime as dt
+import json
 from typing import cast, Any
 
 import numpy as np
@@ -150,7 +151,9 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   """
   items = read_sqlite('taxonomy.db', query, {'columns': str(tuple(df.columns))})
   if items is None:
-    raise ValueError('Could not load taxonomy!')
+    raise ValueError(
+      f'Could not load taxonomy items: {json.dumps(list[df.columns], indent=2)}'
+    )
 
   df.loc[:, items['item'].to_list()] *= old_price / new_price
 
@@ -165,7 +168,7 @@ def day_difference(
     _df.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_df.index.get_level_values('date'))
-    df.loc[ix, 'days'] = df_time_difference(dates, 1, 'D').array
+    df.loc[ix, 'days'] = df_time_difference(dates, 1, 'D')
 
   return df
 
@@ -228,7 +231,7 @@ def applier(
     _s.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_s.index.get_level_values('date'))
-    month_diff = pd.Series(df_time_difference(dates, 30, 'D').array, index=_s.index)
+    month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=_s.index)
 
     if fn == 'diff':
       _s = _s.diff()
