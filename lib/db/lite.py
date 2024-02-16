@@ -102,8 +102,8 @@ def sqlite_dtypes(df: pd.DataFrame) -> dict[str, str]:
     'int64': 'INTEGER',
     'float64': 'REAL',
     'bool': 'TEXT',
-    'datetime64': 'TEXT',
-    'timdelta[ns]': 'INTEGER',
+    'datetime64[ns]': 'TEXT',
+    'timdelta64[ns]': 'INTEGER',
     'object': 'TEXT',
   }
 
@@ -114,7 +114,11 @@ def sqlite_dtypes(df: pd.DataFrame) -> dict[str, str]:
       result[ix] = dtype_mapping[str(dtype)]
   else:
     index_name = df.index.name if df.index.name is not None else 'index'
-    result[index_name] = dtype_mapping[str(df.index.dtype)] + ' PRIMARY KEY'
+    sqlite_dtype = dtype_mapping[str(df.index.dtype)]
+    if df.index.is_unique:
+      sqlite_dtype += ' PRIMARY KEY'
+
+    result[index_name] = sqlite_dtype
 
   for col, dtype in zip(df.columns, df.dtypes):
     result[col] = dtype_mapping[str(dtype)]
@@ -204,13 +208,14 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
   ix_cols_text = ', '.join(f'"{i}"' for i in ix_cols)
 
   if not insp.has_table(tbl_name):
-    df.to_sql(tbl_name, con=engine, index=True)
+    df.to_sql(tbl_name, con=engine, index=True, dtype=sqlite_dtypes(df))
 
     # Create index
-    with engine.begin() as con:
-      con.execute(
-        text(f'CREATE UNIQUE INDEX {tbl_name} ON "{tbl_name}" ({ix_cols_text})')
-      )
+    if isinstance(df.index, pd.MultiIndex):
+      with engine.begin() as con:
+        con.execute(
+          text(f'CREATE UNIQUE INDEX {tbl_name} ON "{tbl_name}" ({ix_cols_text})')
+        )
 
     return
 
@@ -244,11 +249,12 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     """
     )
 
-    con.execute(
-      text(
-        f'CREATE UNIQUE INDEX IF NOT EXISTS {tbl_name} ON "{tbl_name}" ({ix_cols_text})'
+    if isinstance(df.index, pd.MultiIndex):
+      con.execute(
+        text(
+          f'CREATE UNIQUE INDEX IF NOT EXISTS {tbl_name} ON "{tbl_name}" ({ix_cols_text})'
+        )
       )
-    )
     con.execute(query)
     # con.execute(text('DROP TABLE temp')) # Delete temporary table
 
