@@ -1,7 +1,7 @@
 import ast
 from datetime import datetime as dt
 import json
-from typing import cast, Any
+from typing import cast, Literal
 
 import numpy as np
 import pandas as pd
@@ -9,14 +9,6 @@ from pandera.typing import DataFrame
 
 from lib.db.lite import read_sqlite
 from lib.utils import df_time_difference
-
-SLICES = (
-  (slice(None), 'FY', 12),
-  (slice(None), 'TTM1', 12),
-  (slice(None), 'TTM2', 12),
-  (slice(None), 'TTM3', 12),
-  (slice(None), slice(None), 3),
-)
 
 
 class AllTransformer(ast.NodeTransformer):
@@ -66,6 +58,18 @@ class AnyTransformer(ast.NodeTransformer):
     return call
 
 
+def fin_slices(ix: pd.MultiIndex) -> list[tuple[slice, slice | str, Literal[3, 12]]]:
+  slices: list[tuple[slice, slice | str, Literal[3, 12]]] = []
+  periods = {'FY', 'TTM1', 'TTM2', 'TTM3'}.intersection(ix.levels[1])
+  for p in periods:
+    slices.append((slice(None), p, 12))
+
+  if 3 in ix.levels[2]:
+    slices.append((slice(None), slice(None), 3))
+
+  return slices
+
+
 def trailing_twelve_months(financials: DataFrame) -> DataFrame:
   financials.sort_index(level='date', inplace=True)
 
@@ -82,7 +86,9 @@ def trailing_twelve_months(financials: DataFrame) -> DataFrame:
   """
   sum_items = read_sqlite('taxonomy.db', query)
   if sum_items is None:
-    raise ValueError('Could not load taxonomy!')
+    raise ValueError(
+      f'Could not load taxonomy for the following items: {json.dumps(list(financials.columns), indent=2)}'
+    )
 
   ttm.loc[:, sum_items['item']] = ttm.loc[:, sum_items['item']].rolling(4, 4).sum()
   ttm = ttm.loc[ttm.loc[:, 'month_difference'] == 9]
@@ -160,8 +166,10 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   return df
 
 
-def day_difference(df: pd.DataFrame):
-  for ix in SLICES:
+def day_difference(
+  df: pd.DataFrame, slices: list[tuple[slice, slice | str, Literal[3, 12]]]
+):
+  for ix in slices:
     _df = df.loc[ix, :]
     _df.sort_index(level='date', inplace=True)
 
@@ -219,13 +227,12 @@ def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
 
 
 def applier(
-  s: pd.Series,
-  fn: str,
+  s: pd.Series, fn: str, slices: list[tuple[slice, slice | str, Literal[3, 12]]]
 ) -> pd.Series:
   result = s.copy()
-  update = [pd.Series()] * len(SLICES)
+  update = [pd.Series()] * len(slices)
 
-  for i, ix in enumerate(SLICES):
+  for i, ix in enumerate(slices):
     _s: pd.Series = result.loc[ix]
     _s.sort_index(level='date', inplace=True)
 
@@ -282,10 +289,12 @@ def calculate_items(
   ) -> DataFrame:
     if isinstance(expression, ast.Expression):
       code = compile(expression, '<string>', 'eval')
-      result = eval(code)
-
-      if isinstance(result, int):
-        return df
+      try:
+        result = eval(code)
+        if isinstance(result, int):
+          return df
+      except Exception as _:
+        print(f'Error expression: {ast.unparse(expression)}')
 
     elif isinstance(expression, dict):
       result = pd.Series(0, index=df.index, dtype=float)
@@ -311,7 +320,8 @@ def calculate_items(
     return df
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
-  financials = day_difference(financials)
+  slices = fin_slices(cast(pd.MultiIndex, financials.index))
+  financials = day_difference(financials, slices)
 
   all_visitor = AllTransformer('df')
   any_visitor = AnyTransformer('df')
@@ -356,7 +366,7 @@ def calculate_items(
       if calculer not in col_set:
         continue
 
-      result = applier(financials[calculer], 'diff')
+      result = applier(financials[calculer], 'diff', slices)
       financials = insert_to_df(financials, col_set, result, calculee)
 
     elif 'avg':
@@ -364,7 +374,7 @@ def calculate_items(
       if calculer not in col_set:
         continue
 
-      result = applier(financials[calculer], 'avg')
+      result = applier(financials[calculer], 'avg', slices)
       financials = insert_to_df(financials, col_set, result, calculee)
 
   return financials
