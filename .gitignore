@@ -1,6 +1,9 @@
 # local env files
 .env
 
+# logs
+/logs
+
 # data
 /data
 
