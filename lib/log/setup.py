@@ -5,7 +5,7 @@ import logging
 import logging.config
 import logging.handlers
 from pathlib import Path
-from queue import SimpleQueue
+from queue import Queue
 from typing_extensions import override
 
 LOG_RECORD_BUILTIN_ATTRS = {
@@ -36,7 +36,7 @@ LOG_RECORD_BUILTIN_ATTRS = {
 
 
 def setup_queue_handler():
-  queue = SimpleQueue()
+  queue = Queue(-1)
   queue_handler = logging.handlers.QueueHandler(queue)
   listener = logging.handlers.QueueListener(
     queue,
@@ -49,22 +49,72 @@ def setup_queue_handler():
   return queue_handler
 
 
-def setup_logging_old():
-  logging.config.fileConfig(
-    fname='lib/log/logging_config.ini', disable_existing_loggers=False
-  )
-
-
 def setup_logging():
   config_file = Path('lib/log/logging_config.json')
 
   with open(config_file, 'r') as f:
     config = json.load(f)
   logging.config.dictConfig(config)
-  queue_handler = logging.getHandlerByName('queue_handler')
-  if queue_handler is not None:
-    queue_handler.listener.start()
-    atexit.register(queue_handler.listener.stop)
+  # queue_handler = logging.getHandlerByName('queue_handler')
+  # if queue_handler is not None:
+  #  queue_handler.listener.start()
+  #  atexit.register(queue_handler.listener.stop)
+
+
+def resolve_handlers(h):
+  if not isinstance(h, logging.config.ConvertingList):
+    return h
+
+  return [h[i] for i in range(len(h))]
+
+
+def resolve_queue(q):
+  if not isinstance(q, logging.config.ConvertingDict):
+    return q
+
+  if '__resolved_value__' in q:
+    return q['__resolved_value__']
+
+  class_name = q.pop('class')
+  class_ = q.configurator.resolve(class_name)
+  props = q.pop('.', None)
+  kwargs = {k: q[k] for k in q if logging.config.valid_ident(k)}
+  result = class_(**kwargs)
+
+  if props:
+    for name, value in props.items():
+      setattr(result, name, value)
+
+  q['__resolved_value__'] = result
+  return result
+
+
+class QueueListenerHandler(logging.handlers.QueueHandler):
+  def __init__(
+    self,
+    handlers,
+    respect_handler_level=False,
+    auto_run=True,
+    queue=Queue(-1),
+  ):
+    super().__init__(queue)
+    handlers = resolve_handlers(handlers)
+
+    self.listener = logging.handlers.QueueListener(
+      self.queue, *handlers, respect_handler_level=respect_handler_level
+    )
+    if auto_run:
+      self.start()
+      atexit.register(self.stop)
+
+  def start(self):
+    self.listener.start()
+
+  def stop(self):
+    self.listener.stop()
+
+  def emit(self, record: logging.handlers.LogRecord):
+    return super().emit(record)
 
 
 class LogJSONFormatter(logging.Formatter):

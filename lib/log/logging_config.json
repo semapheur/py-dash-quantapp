@@ -7,7 +7,7 @@
       "datefmt": "%Y-%m-%dT%H:%M:%S%z"
     },
     "json": {
-      "()": "lib.log.logger.LogJSONFormatter",
+      "()": "lib.log.setup.LogJSONFormatter",
       "fmt_keys": {
         "level": "levelname",
         "message": "message",
@@ -42,13 +42,20 @@
         "file_json"
       ],
       "respect_handler_level": true
+    },
+    "queue_listener": {
+      "class": "lib.log.setup.QueueListenerHandler",
+      "handlers": [
+        "cfg://handlers.stderr",
+        "cfg://handlers.file_json"
+      ]
     }
   },
   "loggers": {
     "root": {
       "level": "DEBUG",
       "handlers": [
-        "queue_handler"
+        "queue_listener"
       ]
     }
   }

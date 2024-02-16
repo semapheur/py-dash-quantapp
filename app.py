@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dash import Dash, dcc, html, page_container, Input, Output
 
-from lib.log.logger import setup_queue_handler
+from lib.log.setup import setup_queue_handler
 
 from components.header import Header
 
