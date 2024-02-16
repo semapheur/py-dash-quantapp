@@ -12,7 +12,7 @@ from sqlalchemy import (
   text,
   TextClause,
 )
-from sqlalchemy.types import Integer, Text, Float
+from sqlalchemy.types import Integer, Text, Float, DateTime
 
 from lib.const import DB_DIR
 
@@ -103,8 +103,8 @@ def sqlite_dtypes(df: pd.DataFrame) -> dict[str, Any]:
     'int64': Integer,
     'float64': Float,
     'bool': Text,
-    'datetime64[ns]': Text,
-    'timdelta64[ns]': Integer,
+    'datetime64[ns]': DateTime,
+    'timedelta64[ns]': Integer,
     'object': Text,
   }
 
@@ -165,6 +165,7 @@ def insert_sqlite(
   tbl_name: str,
   action: Literal['merge', 'replace'] = 'merge',
   index: bool = True,
+  dtype: Optional[DtypeArg] = None,
 ) -> None:
   db_path = sqlite_path(db_name)
   engine = create_engine(f'sqlite+pysqlite:///{db_path}')
@@ -172,11 +173,11 @@ def insert_sqlite(
 
   if not insp.has_table(tbl_name):
     with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(tbl_name, con=con, index=index)
+      df.to_sql(tbl_name, con=con, index=index, dtype=dtype)
     return
 
   if action == 'replace':
-    df.to_sql(tbl_name, con=engine, if_exists='replace', index=index)
+    df.to_sql(tbl_name, con=engine, if_exists='replace', index=index, dtype=dtype)
     return
 
   query = text(f'SELECT * FROM "{tbl_name}"')
@@ -196,7 +197,9 @@ def insert_sqlite(
   df_old.to_sql(tbl_name, con=engine, if_exists='replace', index=index)
 
 
-def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
+def upsert_sqlite(
+  df: pd.DataFrame, db_name: str, tbl_name: str, dtype: Optional[DtypeArg] = None
+):
   if not df.index.is_unique:
     raise ValueError('DataFrame index is not unique. Failed to upsert into SQLite!')
 
@@ -209,7 +212,7 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
   ix_cols_text = ', '.join(f'"{i}"' for i in ix_cols)
 
   if not insp.has_table(tbl_name):
-    df.to_sql(tbl_name, con=engine, index=True, dtype=sqlite_dtypes(df))
+    df.to_sql(tbl_name, con=engine, index=True, dtype=dtype)
 
     # Create index
     with engine.begin() as con:
@@ -229,10 +232,10 @@ def upsert_sqlite(df: pd.DataFrame, db_name: str, tbl_name: str):
     # Store data in temporary table
     # con.execute(text(f'CREATE TEMP TABLE temp({headers_text})'))
 
-    df.to_sql('temp', con=con, if_exists='replace', index=True)
+    df.to_sql('temp', con=con, if_exists='replace', index=True, dtype=dtype)
 
     # Check if new columns must be inserted
-    result = con.execute(text(f'SELECT * FROM "{tbl_name}"'))
+    result = con.execute(text(f'SELECT * FROM "{tbl_name}" LIMIT 1'))
     old_cols = set([c for c in result.keys()]).difference(set(ix_cols))
     new_cols = list(set(cols).difference(old_cols))
     if new_cols:

@@ -10,11 +10,11 @@ from lib.db.lite import read_sqlite
 from lib.utils import df_time_difference
 
 SLICES = (
-  (slice(None), slice('FY'), slice(12)),
-  (slice(None), slice('TTM1'), slice(12)),
-  (slice(None), slice('TTM2'), slice(12)),
-  (slice(None), slice('TTM3'), slice(12)),
-  (slice(None), slice(None), slice(3)),
+  (slice(None), 'FY', 12),
+  (slice(None), 'TTM1', 12),
+  (slice(None), 'TTM2', 12),
+  (slice(None), 'TTM3', 12),
+  (slice(None), slice(None), 3),
 )
 
 
@@ -87,7 +87,7 @@ def trailing_twelve_months(financials: DataFrame) -> DataFrame:
   ttm = ttm.loc[ttm.loc[:, 'month_difference'] == 9]
 
   ttm.reset_index(level=('period', 'months'), inplace=True)
-  ttm = ttm.loc[ttm.loc['period'] != 'Q4']
+  ttm = ttm.loc[ttm['period'] != 'Q4']
 
   ttm.loc[:, 'period'] = ttm['period'].str.replace('Q', 'TTM')
 
@@ -161,7 +161,7 @@ def day_difference(
   df: pd.DataFrame, slices: tuple[tuple[slice | Any, ...], ...] = SLICES
 ):
   for ix in slices:
-    _df: pd.DataFrame = df.loc[ix, :]
+    _df = df.loc[ix, :]
     _df.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_df.index.get_level_values('date'))

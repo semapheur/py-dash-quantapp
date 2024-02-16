@@ -59,6 +59,9 @@ class Ticker:
         rs = await client.get(url, headers=HEADERS, params=params)
         data: dict = rs.json()
 
+      if data is None:
+        print(self.ticker)
+
       return data['chart']['result'][0]
 
     if (start_date is not None) and (period is None):
