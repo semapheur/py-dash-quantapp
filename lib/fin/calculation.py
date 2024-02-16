@@ -152,7 +152,7 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   items = read_sqlite('taxonomy.db', query, {'columns': str(tuple(df.columns))})
   if items is None:
     raise ValueError(
-      f'Could not load taxonomy items: {json.dumps(list[df.columns], indent=2)}'
+      f'Could not load taxonomy items: {json.dumps(list(df.columns), indent=2)}'
     )
 
   df.loc[:, items['item'].to_list()] *= old_price / new_price
@@ -160,10 +160,8 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   return df
 
 
-def day_difference(
-  df: pd.DataFrame, slices: tuple[tuple[slice | Any, ...], ...] = SLICES
-):
-  for ix in slices:
+def day_difference(df: pd.DataFrame):
+  for ix in SLICES:
     _df = df.loc[ix, :]
     _df.sort_index(level='date', inplace=True)
 
@@ -221,12 +219,13 @@ def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
 
 
 def applier(
-  s: pd.Series, fn: str, slices: tuple[tuple[slice | Any, ...], ...] = SLICES
+  s: pd.Series,
+  fn: str,
 ) -> pd.Series:
   result = s.copy()
-  update = [pd.Series()] * len(slices)
+  update = [pd.Series()] * len(SLICES)
 
-  for i, ix in enumerate(slices):
+  for i, ix in enumerate(SLICES):
     _s: pd.Series = result.loc[ix]
     _s.sort_index(level='date', inplace=True)
 
@@ -240,7 +239,7 @@ def applier(
     elif fn == 'shift':
       _s = _s.shift()
 
-    _s = _s.loc[month_diff == ix[2].stop]
+    _s = _s.loc[month_diff == ix[2]]
     update[i] = _s
 
   update_ = pd.concat(update, axis=0)

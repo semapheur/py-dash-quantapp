@@ -72,7 +72,7 @@ class Stock(Security):
         f'Could not retrive quotes in {self.currency} for {self.id} from Morningstar!'
       )
 
-    df.loc[:, 'date'] = pd.to_datetime(df['date'], unit='ms')
+    df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
     return cast(DataFrame[Quote], df)
 

@@ -98,6 +98,7 @@ class QueueListenerHandler(logging.handlers.QueueHandler):
     queue=Queue(-1),
   ):
     super().__init__(queue)
+    queue = resolve_queue(queue)
     handlers = resolve_handlers(handlers)
 
     self.listener = logging.handlers.QueueListener(

@@ -58,7 +58,8 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
 
     price_ = cast(Series[float], price.loc[start_date:end_date, 'close']).sort_index()
     if price_.empty:
-      print(price)
+      continue
+
     price_records[i]['share_price_close'] = price_.iloc[-1]
     price_records[i]['share_price_open'] = price_.iloc[0]
     price_records[i]['share_price_high'] = price_.max()
