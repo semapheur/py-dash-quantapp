@@ -2,10 +2,11 @@ import atexit
 import datetime as dt
 import json
 import logging
-import logging.config
+from logging.config import dictConfig, valid_ident, ConvertingList, ConvertingDict
 import logging.handlers
 from pathlib import Path
 from queue import Queue
+from typing import cast
 from typing_extensions import override
 
 LOG_RECORD_BUILTIN_ATTRS = {
@@ -54,52 +55,49 @@ def setup_logging():
 
   with open(config_file, 'r') as f:
     config = json.load(f)
-  logging.config.dictConfig(config)
+  dictConfig(config)
   # queue_handler = logging.getHandlerByName('queue_handler')
   # if queue_handler is not None:
   #  queue_handler.listener.start()
   #  atexit.register(queue_handler.listener.stop)
 
 
-def resolve_handlers(h):
-  if not isinstance(h, logging.config.ConvertingList):
-    return h
-
-  return [h[i] for i in range(len(h))]
+def resolve_handlers(configs: ConvertingList) -> list[logging.Handler]:
+  return [configs[i] for i in range(len(configs))]
 
 
-def resolve_queue(q):
-  if not isinstance(q, logging.config.ConvertingDict):
-    return q
+def resolve_queue(queue_config: ConvertingDict) -> Queue:
+  if (resolved := queue_config.get('__resolved_value')) is not None:
+    return resolved
 
-  if '__resolved_value__' in q:
-    return q['__resolved_value__']
-
-  class_name = q.pop('class')
-  class_ = q.configurator.resolve(class_name)
-  props = q.pop('.', None)
-  kwargs = {k: q[k] for k in q if logging.config.valid_ident(k)}
-  result = class_(**kwargs)
+  queue_class_ = queue_config.configurator.resolve(queue_config.pop('class'))
+  props = queue_config.pop('.', None)
+  kwargs = {k: queue_config[k] for k in queue_config if valid_ident(k)}
+  queue: Queue = queue_class_(**kwargs)
 
   if props:
     for name, value in props.items():
-      setattr(result, name, value)
+      setattr(queue, name, value)
 
-  q['__resolved_value__'] = result
-  return result
+  queue_config['__resolved_value__'] = queue
+
+  return queue
 
 
 class QueueListenerHandler(logging.handlers.QueueHandler):
   def __init__(
     self,
-    handlers,
+    handlers: ConvertingList | list[logging.Handler],
+    queue: ConvertingDict | Queue = Queue(-1),
     respect_handler_level=False,
     auto_run=True,
-    queue=Queue(-1),
   ):
+    if isinstance(queue, ConvertingDict):
+      queue = cast(Queue, resolve_queue(queue))
     super().__init__(queue)
-    queue = resolve_queue(queue)
-    handlers = resolve_handlers(handlers)
+
+    if isinstance(handlers, ConvertingList):
+      handlers = cast(list[logging.Handler], resolve_handlers(handlers))
 
     self.listener = logging.handlers.QueueListener(
       self.queue, *handlers, respect_handler_level=respect_handler_level

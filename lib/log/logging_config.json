@@ -51,7 +51,9 @@
         "cfg://handlers.stderr",
         "cfg://handlers.file_json"
       ],
-      "queue": "cfg://objects.queue"
+      "queue": "cfg://objects.queue",
+      "respect_handler_level": true,
+      "auto_run": true
     }
   },
   "loggers": {
