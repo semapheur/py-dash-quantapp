@@ -113,7 +113,7 @@ class QueueListenerHandler(logging.handlers.QueueHandler):
   def stop(self):
     self.listener.stop()
 
-  def emit(self, record: logging.handlers.LogRecord):
+  def emit(self, record: logging.LogRecord):
     return super().emit(record)
 
 

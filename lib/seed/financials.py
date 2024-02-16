@@ -9,7 +9,12 @@ from tqdm import tqdm
 from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
 from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
+from lib.log.setup import setup_logging
 from lib.morningstar.ticker import Stock
+
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 faulty = ['0P0000BV6H', '0P0001691U', '0P0000BRJU', '0P0000C80Q']
 empty = [
