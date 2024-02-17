@@ -1,4 +1,26 @@
 {
+  "weighted_average_shares_outstanding_basic_adjusted": {
+    "unit": "shares",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjusted Weighted Average Basic Shares Outstanding"
+    },
+    "calculation": {
+      "order": 0,
+      "fill": "weighted_average_shares_outstanding_basic"
+    }
+  },
+  "weighted_average_shares_outstanding_diluted_adjusted": {
+    "unit": "shares",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjusted Weighted Average Diluted Shares Outstanding"
+    },
+    "calculation": {
+      "order": 0,
+      "fill": "weighted_average_shares_outstanding_diluted"
+    }
+  },
   "accretion": {
     "unit": "monetary",
     "balance": "debit",
@@ -5071,7 +5093,7 @@
     ],
     "calculation": {
       "order": 100,
-      "all": "adjusted_weighted_average_shares_outstanding_basic * share_price_average"
+      "all": "weighted_average_shares_outstanding_basic_adjusted * share_price_average"
     }
   },
   "net_current_asset_value": {
@@ -10598,6 +10620,22 @@
     "gaap": [
       "ShareBasedCompensation"
     ]
+  },
+  "shares_outstanding_adjusted": {
+    "unit": "shares",
+    "aggregate": "tail",
+    "label": {
+      "long": "Split-adjusted Shares Outstanding"
+    },
+    "gaap": [
+      "CommonSharesOutstanding",
+      "CommonStockShareOutstanding",
+      "CommonStockSharesOutstanding"
+    ],
+    "calculation": {
+      "order": 0,
+      "fill": "shares_outstanding"
+    }
   },
   "shares_outstanding": {
     "unit": "shares",

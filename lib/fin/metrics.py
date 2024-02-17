@@ -166,8 +166,9 @@ def beta(
   betas: list[pd.DataFrame] = []
   slices = fin_slices(cast(pd.MultiIndex, fin_data.index))
   for s in slices:
-    dates = pd.to_datetime(
-      fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date')
+    dates = cast(
+      pd.DatetimeIndex,
+      fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date'),
     )
     betas.append(calculate_beta(dates, returns, s[2], years))
 

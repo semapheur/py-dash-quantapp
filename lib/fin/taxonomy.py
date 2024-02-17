@@ -7,7 +7,7 @@ from typing_extensions import TypedDict
 
 from glom import glom
 import pandas as pd
-from pydantic import BaseModel, Field, model_serializer
+from pydantic import BaseModel, model_serializer
 from sqlalchemy import create_engine
 
 from lib.db.lite import get_tables, insert_sqlite
@@ -39,17 +39,19 @@ class TaxonomyLabel(TypedDict, total=False):
   short: Optional[str]
 
 
-class TaxononmyCalculationItem(TypedDict, total=False):
+class TaxononmyCalculationItem(TypedDict):
   weight: int | float
   sign: Literal[-1, 1]
 
 
-class TaxononmyCalculation(BaseModel):
-  order: int = Field(ge=0)
-  all: Optional[str | dict[str, TaxononmyCalculationItem]] = None
-  any: Optional[str | dict[str, TaxononmyCalculationItem]] = None
-  avg: Optional[str] = None
-  diff: Optional[str] = None
+class TaxononmyCalculation(TypedDict, total=False):
+  order: int
+  all: Optional[str | dict[str, TaxononmyCalculationItem]]
+  any: Optional[str | dict[str, TaxononmyCalculationItem]]
+  avg: Optional[str]
+  diff: Optional[str]
+  fill: Optional[str]
+  shift: Optional[str]
 
 
 class TaxonomyItem(BaseModel):
@@ -117,7 +119,7 @@ class Taxonomy(BaseModel):
       if (calc := v.calculation) is None:
         continue
 
-      calc_value = calc.all or calc.any
+      calc_value = calc.get('all', calc.get('any'))
 
       if isinstance(calc_value, str):
         visitor.visit(ast.parse(calc_value))
@@ -144,7 +146,7 @@ class Taxonomy(BaseModel):
 
       short = label.get('short')
       base_item_calc = self.data[base_item].calculation
-      order = 0 if base_item_calc is None else max(0, base_item_calc.order - 1)
+      order = 0 if base_item_calc is None else max(0, base_item_calc['order'] - 1)
 
       if prefix == 'average':
         calc = TaxononmyCalculation(order=order, avg=base_item)
@@ -174,7 +176,15 @@ class Taxonomy(BaseModel):
       if (calc := v.calculation) is None:
         continue
 
-      calc_value = cast(str | dict, calc.all or calc.any or calc.avg or calc.diff)
+      calc_value = cast(
+        str | dict[str, TaxononmyCalculationItem],
+        calc.get('all')
+        or calc.get('any')
+        or calc.get('avg')
+        or calc.get('diff')
+        or calc.get('fill')
+        or calc.get('shift'),
+      )
 
       if isinstance(calc_value, str):
         order_dict[k] = extract_items(calc_value)
@@ -199,7 +209,7 @@ class Taxonomy(BaseModel):
 
     for k, v in self.data.items():
       if (calc := v.calculation) is not None:
-        calc.order = result.index(k)
+        calc['order'] = result.index(k)
 
   def select_items(self, target_key, target_value: tuple[str, str]) -> set[str]:
     result = {
@@ -261,9 +271,7 @@ class Taxonomy(BaseModel):
         long=v.label['long'],
         short=v.label.get('short'),
         gaap=None if v.gaap is None else json.dumps(v.gaap),
-        calculation=None
-        if v.calculation is None
-        else v.calculation.model_dump_json(exclude_none=True),
+        calculation=None if v.calculation is None else json.dumps(v.calculation),
       )
       for k, v in self.data.items()
     ]

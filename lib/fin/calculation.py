@@ -10,6 +10,7 @@ from pandera.typing import DataFrame, Series
 
 from lib.db.lite import read_sqlite
 from lib.fin.models import FiscalPeriod
+from lib.fin.taxonomy import TaxononmyCalculation, TaxononmyCalculationItem
 from lib.utils import df_time_difference
 
 
@@ -225,8 +226,8 @@ def stock_split_adjust(df: DataFrame, ratios: Series) -> DataFrame:
   share_cols_ = list(share_cols.intersection(set(df.columns)))
 
   for i, col in enumerate(share_cols_):
-    df.loc[:, f'adjusted_{col}'] = df[col]
-    share_cols_[i] = f'adjusted_{col}'
+    df[f'{col}_adjusted'] = df[col]
+    share_cols_[i] = f'{col}_adjusted'
 
   for date, ratio in ratios.items():
     mask = df.index.get_level_values('date') < date
@@ -264,7 +265,9 @@ def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
 
 
 def applier(
-  s: pd.Series, fn: str, slices: list[tuple[slice, slice | str, Literal[3, 12]]]
+  s: pd.Series,
+  fn: Literal['avg', 'diff', 'shift'],
+  slices: list[tuple[slice, slice | str, Literal[3, 12]]],
 ) -> pd.Series:
   result = s.copy()
   update = [pd.Series()] * len(slices)
@@ -296,15 +299,8 @@ def applier(
 
 
 def calculate_items(
-  financials: DataFrame, schemas: dict[str, dict], recalc: bool = False
+  financials: DataFrame, schemas: dict[str, TaxononmyCalculation], recalc: bool = False
 ) -> DataFrame:
-  def get_formula(schema: dict[str, dict], key: str):
-    formula = schema.get(key)
-    if isinstance(formula, list):
-      formula = ''.join(formula)
-
-    return formula
-
   def insert_to_df(
     df: DataFrame, df_cols: set[str], insert_data: pd.Series, insert_name: str
   ) -> DataFrame:
@@ -322,7 +318,7 @@ def calculate_items(
     df: DataFrame,
     df_cols: set[str],
     col_name: str,
-    expression: ast.Expression | dict[str, int | dict[str, int]],
+    expression: ast.Expression | dict[str, TaxononmyCalculationItem],
   ) -> DataFrame:
     if isinstance(expression, ast.Expression):
       code = compile(expression, '<string>', 'eval')
@@ -366,53 +362,47 @@ def calculate_items(
   for calculee, schema in schemas.items():
     col_set = set(financials.columns)
 
-    if 'all' in schema:
-      formula = get_formula(schema, 'all')
-
+    if (formula := schema.get('all')) is not None:
       if isinstance(formula, str):
         all_visitor.reset_names()
-        formula = ast.parse(formula, mode='eval')
-        formula = ast.fix_missing_locations(all_visitor.visit(formula))
+        expression = ast.parse(formula, mode='eval')
+        expression = ast.fix_missing_locations(all_visitor.visit(expression))
 
-        if not all_visitor.names.issubset(col_set):
-          continue
+        if all_visitor.names.issubset(col_set):
+          financials = calculate(financials, col_set, calculee, expression)
 
       elif isinstance(formula, dict):
-        if not set(formula.keys()).issubset(col_set):
-          continue
+        if set(formula.keys()).issubset(col_set):
+          financials = calculate(financials, col_set, calculee, formula)
 
-      financials = calculate(financials, col_set, calculee, formula)
-
-    elif 'any' in schema:
-      formula = get_formula(schema, 'any')
-
+    elif (formula := schema.get('any')) is not None:
       if isinstance(formula, str):
         any_visitor.set_columns(col_set)
-        formula = ast.parse(formula, mode='eval')
-        formula = ast.fix_missing_locations(any_visitor.visit(formula))
+        expression = ast.parse(formula, mode='eval')
+        expression = cast(
+          ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
+        )
+        financials = calculate(financials, col_set, calculee, expression)
       elif isinstance(formula, dict):
         formula = {
           key: formula[key] for key in set(formula.keys()).intersection(col_set)
         }
-        if not formula:
-          continue
+        if formula:
+          financials = calculate(financials, col_set, calculee, formula)
 
-      financials = calculate(financials, col_set, calculee, formula)
+    elif (calculer := schema.get('fill')) is not None:
+      financials = insert_to_df(financials, col_set, financials[calculer], calculee)
 
-    elif 'diff' in schema:
-      calculer = schema['diff']
+    fns = cast(
+      set[Literal['avg', 'diff', 'shift']],
+      {'avg', 'diff', 'shift'}.intersection(schema.keys()),
+    )
+    for fn in fns:
+      calculer = cast(str, schema[fn])
       if calculer not in col_set:
         continue
 
-      result = applier(financials[calculer], 'diff', slices)
-      financials = insert_to_df(financials, col_set, result, calculee)
-
-    elif 'avg':
-      calculer = schema['avg']
-      if calculer not in col_set:
-        continue
-
-      result = applier(financials[calculer], 'avg', slices)
+      result = applier(financials[calculer], fn, slices)
       financials = insert_to_df(financials, col_set, result, calculee)
 
   return financials

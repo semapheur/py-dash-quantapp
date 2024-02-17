@@ -56,19 +56,20 @@ def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
 @cache
 async def fetch_exchange_rate(
   ticker: str, start_date: Date, end_date: Date, extract_date: Optional[Date] = None
-):
+) -> float:
+  from numpy import nan
+
   exchange_fetcher = partial(Ticker(ticker + '=X').ohlcv)
   rate = await get_ohlcv(
     ticker, 'forex', exchange_fetcher, None, start_date, end_date, ['close']
   )
+  if rate.empty:
+    return nan
+
   if extract_date is None:
     return rate['close'].mean()
 
-  try:
-    return rate.resample('D').ffill().at[pd.to_datetime(extract_date), 'close']
-  except Exception as _:
-    print(f'Failed to extract from {ticker} for {extract_date:%Y-%m-%d}')
-    print(rate)
+  return rate.resample('D').ffill().at[pd.to_datetime(extract_date), 'close']
 
 
 async def statement_to_df(
@@ -97,7 +98,7 @@ async def statement_to_df(
     rate = await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
     return rate
 
-  fin_date = financials.date
+  fin_date = pd.to_datetime(financials.date)
   fin_scope = financials.scope
   fin_period = financials.period
   currencies = financials.currency
@@ -108,7 +109,7 @@ async def statement_to_df(
 
   for item, entries in financials.data.items():
     for entry in entries:
-      date = parse_date(entry['period'])
+      date = pd.to_datetime(parse_date(entry['period']))
 
       if date > fin_date:
         continue
@@ -310,7 +311,7 @@ def load_statements(
 ) -> DataFrame[FinStatementFrame] | None:
   query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
   if date:
-    query += f' WHERE DATE(date) >= DATE({date:%Y-%m-%d})'
+    query += f' WHERE DATE(date) >= DATE("{date:%Y-%m-%d}")'
 
   df = read_sqlite(
     'financials.db',

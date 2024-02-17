@@ -22,10 +22,11 @@ from lib.fin.metrics import (
 from lib.fin.models import Quote, CloseQuote
 from lib.fin.statement import load_financials
 from lib.fin.quote import get_ohlcv
+from lib.fin.taxonomy import TaxononmyCalculation
 from lib.yahoo.ticker import Ticker
 
 
-def load_schema(query: Optional[str] = None) -> dict[str, dict]:
+def load_schema(query: Optional[str] = None) -> dict[str, TaxononmyCalculation]:
   if query is None:
     query = """
       SELECT item, calculation FROM items
@@ -37,7 +38,7 @@ def load_schema(query: Optional[str] = None) -> dict[str, dict]:
     raise ValueError('Could not load taxonomy!')
 
   df.loc[:, 'calculation'] = df['calculation'].apply(lambda x: json.loads(x))
-  schema = {k: v for k, v in zip(df['item'], df['calculation'])}
+  schema = {k: TaxononmyCalculation(*v) for k, v in zip(df['item'], df['calculation'])}
   return schema
 
 
