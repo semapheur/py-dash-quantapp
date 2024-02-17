@@ -178,10 +178,6 @@ async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame
 
 
 def fix_financials(df: DataFrame) -> DataFrame:
-  def check_conditions(ix: pd.MultiIndex) -> bool:
-    for c in conditions:
-
-
   query = """
     SELECT json_each.value AS gaap, item FROM items 
     JOIN json_each(gaap) ON 1=1
@@ -199,27 +195,26 @@ def fix_financials(df: DataFrame) -> DataFrame:
   df.rename(columns=rename, inplace=True)
   df = combine_duplicate_columns(df)
 
-  conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
-  combos = set(df.index.droplevel('date').tolist())
-
-  if not set(conditions).issubset(combos):
-    return df
-
   query = 'SELECT item FROM items WHERE aggregate = "sum"'
   sum_items = read_sqlite('taxonomy.db', query)
   if sum_items is None:
     raise ValueError('Taxonomy could not be loaded!')
 
   diff_items = list(set(sum_items['item']).intersection(set(df.columns)))
-  conditions = {('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12)}
-  
-  period = df.index.get_level_values('period')
-  months = df.index.get_level_values('months')
+
+  # period = df.index.get_level_values('period')
+  # months = df.index.get_level_values('months')
+  conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
+  mp = df.index.droplevel('date').tolist()
   for i in range(1, len(conditions)):
-    mask = (period == conditions[i - 1][0]) & (months == conditions[i - 1][1]) | (
-      period == conditions[i][0]
-    ) & (months == conditions[i][1])
+    mask = (mp == conditions[i - 1]) | (mp == conditions[i])
+    # mask = (period == conditions[i - 1][0]) & (months == conditions[i - 1][1]) | (
+    #  period == conditions[i][0]
+    # ) & (months == conditions[i][1])
     df_ = df.loc[mask, diff_items].copy()
+    if df_.empty:
+      continue
+
     df_.sort_index(level='date', inplace=True)
 
     df_['month_difference'] = df_time_difference(
