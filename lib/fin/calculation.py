@@ -169,42 +169,51 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
 
 
 @cache
-def fiscal_days(year: int, period: FiscalPeriod, months: int) -> int:
+def fiscal_days(year: int, period: FiscalPeriod, months: int) -> float:
   from calendar import isleap
 
   leap = isleap(year)
 
   if months == 12:
-    return 365 + leap
+    return 365.0 + leap
 
-  if months == 3:
-    quarter_days = {'Q1': 90, 'Q2': 91, 'Q3': 92, 'Q4': 92}
-    return quarter_days.get(period, 91) + leap
-
-  return months * 30
+  quarter_days = {'Q1': 90.0, 'Q2': 91.0, 'Q3': 92.0, 'Q4': 92.0}
+  return quarter_days.get(period, 91.0) + leap if months == 3 else months * 30.0
 
 
 def get_days(
   ix: pd.MultiIndex,
   slices: list[tuple[slice, slice | str, Literal[3, 12]]],
 ):
-  days = pd.Series(
-    [fiscal_days(cast(pd.Timestamp, i[0]).year, i[1], i[2]) for i in ix],
+  days = pd.DataFrame(
+    np.array(
+      [fiscal_days(cast(pd.Timestamp, i[0]).year, i[1], i[2]) for i in ix]
+    ).astype(np.float64),
     index=ix,
-    name='days',
+    columns=['days'],
   )
 
   for s in slices:
-    days_ = days[s].copy()
-    dates = cast(pd.DatetimeIndex, ix.get_level_values('date'))
-    days_['month_difference'] = df_time_difference(dates, 30, 'D')
+    days_ = days.loc[s, :].copy()
+    dates = cast(pd.DatetimeIndex, days_.index.get_level_values('date'))
+    if s[1] == 'FY':
+      mask = (dates.month == 12) & (dates.day == 31)
+      days_ = days_.loc[~mask, :]
 
-    mask = days_['month_difference'] == s[2]
-    days.loc[mask, 'days'] = df_time_difference(dates, 1, 'D')
+    days_['month_difference'] = df_time_difference(
+      cast(pd.DatetimeIndex, days_.index.get_level_values('date')), 30, 'D'
+    )
+    mask_ = days_['month_difference'] == s[2]
+    days_.loc[mask_, 'days'] = df_time_difference(
+      cast(pd.DatetimeIndex, days_.loc[mask_, 'days'].index.get_level_values('date')),
+      1,
+      'D',
+    )
+    days_.dropna(inplace=True)
 
-    days.loc[ix, 'days'] = days_.loc[ix, 'days']
+    days.loc[days_.index, 'days'] = days_.loc[days_.index, 'days']
 
-  return days
+  return days['days']
 
 
 def stock_split_adjust(df: DataFrame, ratios: Series) -> DataFrame:
@@ -261,7 +270,7 @@ def applier(
   update = [pd.Series()] * len(slices)
 
   for i, ix in enumerate(slices):
-    _s: pd.Series = result.loc[ix]
+    _s: pd.Series = result.loc[ix].copy()
     _s.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(_s.index.get_level_values('date'))

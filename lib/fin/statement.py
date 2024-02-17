@@ -64,7 +64,11 @@ async def fetch_exchange_rate(
   if extract_date is None:
     return rate['close'].mean()
 
-  return rate.resample('D').ffill().at[pd.to_datetime(extract_date), 'close']
+  try:
+    return rate.resample('D').ffill().at[pd.to_datetime(extract_date), 'close']
+  except Exception as _:
+    print(f'Failed to extract from {ticker} for {extract_date:%Y-%m-%d}')
+    print(rate)
 
 
 async def statement_to_df(
@@ -83,9 +87,9 @@ async def statement_to_df(
 
     extract_date: None | Date = None
     if isinstance(period, Instant):
-      start_date = period.instant - timedelta(days=7)
-      end_date = start_date + timedelta(days=7)
       extract_date = period.instant
+      start_date = extract_date - timedelta(days=7)
+      end_date = extract_date + timedelta(days=7)
     elif isinstance(period, Interval):
       start_date = period.start_date
       end_date = period.end_date
@@ -93,6 +97,7 @@ async def statement_to_df(
     rate = await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
     return rate
 
+  fin_date = financials.date
   fin_scope = financials.scope
   fin_period = financials.period
   currencies = financials.currency
@@ -104,6 +109,9 @@ async def statement_to_df(
   for item, entries in financials.data.items():
     for entry in entries:
       date = parse_date(entry['period'])
+
+      if date > fin_date:
+        continue
 
       if isinstance(entry['period'], Interval):
         months = entry['period'].months

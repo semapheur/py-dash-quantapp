@@ -7,7 +7,7 @@ from pandera.dtypes import Timestamp
 from pandera.typing import DataFrame, Index
 import statsmodels.api as sm
 
-from lib.fin.calculation import applier
+from lib.fin.calculation import applier, fin_slices
 
 
 class BetaParams(DataFrameModel):
@@ -19,27 +19,30 @@ class BetaParams(DataFrameModel):
 
 def f_score(df: DataFrame) -> DataFrame:
   ocf = df['cashflow_operating']
+  slices = fin_slices(cast(pd.MultiIndex, df.index))
 
   df['piotroski_f_score'] = (
     np.heaviside(df['return_on_equity'], 0)
-    + np.heaviside(applier(df['return_on_assets'], 'diff'), 0)
+    + np.heaviside(applier(df['return_on_assets'], 'diff', slices), 0)
     + np.heaviside(ocf, 0)
     + np.heaviside(ocf / df['assets'] - df['return_on_assets'], 0)
-    + np.heaviside(applier(df['debt'], 'diff'), 0)
-    + np.heaviside(applier(df['quick_ratio'], 'diff'), 0)
-    + np.heaviside(-applier(df['weighted_average_shares_outstanding_basic'], 'diff'), 1)
-    + np.heaviside(applier(df['gross_profit_margin'], 'diff'), 0)
-    + np.heaviside(applier(df['asset_turnover'], 'diff'), 0)
+    + np.heaviside(applier(df['debt'], 'diff', slices), 0)
+    + np.heaviside(applier(df['quick_ratio'], 'diff', slices), 0)
+    + np.heaviside(
+      -applier(df['weighted_average_shares_outstanding_basic'], 'diff', slices), 1
+    )
+    + np.heaviside(applier(df['gross_profit_margin'], 'diff', slices), 0)
+    + np.heaviside(applier(df['asset_turnover'], 'diff', slices), 0)
   )
   return df
 
 
 def z_score(df: DataFrame) -> DataFrame:
-  assets = applier(df['assets'], 'avg')
-  liabilities = applier(df['liabilities'], 'avg')
+  assets = df['average_assets']
+  liabilities = df['average_liabilities']
 
   df['altman_z_score'] = (
-    1.2 * applier(df['operating_working_capital'], 'avg') / assets
+    1.2 * df['average_operating_working_capital'] / assets
     + 1.4 * df['retained_earnings_accumulated_deficit'] / assets
     + 3.3 * df['cashflow_operating'] / assets
     + 0.6 * df['market_capitalization'] / liabilities
@@ -50,12 +53,13 @@ def z_score(df: DataFrame) -> DataFrame:
 
 
 def m_score(df: DataFrame) -> DataFrame:
+  slices = fin_slices(cast(pd.MultiIndex, df.index))
   # Days Sales in Receivables Index
   dsri = df['average_receivable_trade_current'] / df['revenue']
-  dsri /= applier(dsri, 'shift')
+  dsri /= applier(dsri, 'shift', slices)
 
   # Gross Margin Index
-  gmi = applier(df['gross_profit_margin'], 'shift') / df['gross_profit_margin']
+  gmi = applier(df['gross_profit_margin'], 'shift', slices) / df['gross_profit_margin']
 
   # Asset Quality Index
   aqi = (
@@ -68,22 +72,22 @@ def m_score(df: DataFrame) -> DataFrame:
     / df['assets']
   )
 
-  aqi /= applier(aqi, 'shift')
+  aqi /= applier(aqi, 'shift', slices)
 
   # Sales Growth Index
-  sgi = df['revenue'] / applier(df['revenue'], 'shift')
+  sgi = df['revenue'] / applier(df['revenue'], 'shift', slices)
 
   # Depreciation Index
   depi = df['depreciation'] / (df['productive_assets'] - df['depreciation'])
-  depi /= applier(depi, 'shift')
+  depi /= applier(depi, 'shift', slices)
 
   # Sales General and Administrative Expenses Index
   sgai = df['selling_general_administrative_expense'] / df['revenue']
-  sgai /= applier(sgai, 'shift')
+  sgai /= applier(sgai, 'shift', slices)
 
   # Leverage Index
   li = df['liabilities'] / df['assets']
-  li /= applier(li, 'shift')
+  li /= applier(li, 'shift', slices)
 
   # Total Accruals to Total Assets
   ocf = df['cashflow_operating']
@@ -109,7 +113,7 @@ def beta(
   equity_return: pd.Series,
   market_return: pd.Series,
   riskfree_rate: pd.Series,  # yahoo: ^TNX/'^TYX; fred: DSG10
-  period: int = 1,
+  years: int = 1,
 ) -> DataFrame:
   def calculate_beta(
     dates: pd.DatetimeIndex, returns: DataFrame[BetaParams], months: int
@@ -140,7 +144,7 @@ def beta(
       ols_result = model.fit()
       beta[i] = ols_result.params.iloc[-1]
 
-      market_return[i] = temp['market_return'].mean() * period
+      market_return[i] = temp['market_return'].mean() * years
       riskfree_rate[i] = temp['riskfree_rate'].mean()
 
     result = pd.DataFrame(
@@ -153,7 +157,7 @@ def beta(
     )
     result['months'] = months
 
-    result.loc[:, 'market_return'] *= days[period]
+    result.loc[:, 'market_return'] *= days[months]
 
     if months == 3:
       result.loc[:, 'riskfree_rate'] = result['riskfree_rate'] / 4
@@ -168,15 +172,10 @@ def beta(
   returns.dropna(inplace=True)
 
   betas: list[pd.DataFrame] = []
-  slices = (
-    (slice(None), slice(None), 3),
-    (slice(None), slice('FY'), 12),
-    (slice(None), slice('TTM'), 12),
-  )
+  slices = fin_slices(cast(pd.MultiIndex, fin_data.index))
   for s in slices:
-    dates = cast(
-      pd.DatetimeIndex,
-      fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date'),
+    dates = pd.to_datetime(
+      fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date')
     )
     betas.append(calculate_beta(dates, returns, s[2]))
 

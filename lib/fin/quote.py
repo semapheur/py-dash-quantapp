@@ -27,9 +27,9 @@ async def get_ohlcv(
   query = f'SELECT {col_text} FROM "{id}"'
 
   if start_date is not None:
-    query += f' WHERE DATE(date) >= DATE({start_date:%Y-%m-%d})'
+    query += f' WHERE DATE(date) >= DATE("{start_date:%Y-%m-%d}")'
 
-  elif end_date is not None:
+  if end_date is not None:
     query += f'{" AND" if "WHERE" in query else " WHERE"} DATE(date) <= DATE("{end_date:%Y-%m-%d}")'
 
   ohlcv = read_sqlite(

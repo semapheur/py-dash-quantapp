@@ -16,7 +16,7 @@ from pydantic import (
 
 Scope: TypeAlias = Literal['annual', 'quarterly']
 Quarter: TypeAlias = Literal['Q1', 'Q2', 'Q3', 'Q4']
-Ttm: TypeAlias = Literal['TTM1', 'TTM2', 'TTM3', 'TTM4']
+Ttm: TypeAlias = Literal['TTM1', 'TTM2', 'TTM3']
 FiscalPeriod: TypeAlias = Literal['FY'] | Quarter
 
 
