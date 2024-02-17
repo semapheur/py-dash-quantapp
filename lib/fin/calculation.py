@@ -5,7 +5,7 @@ from typing import cast, Literal
 
 import numpy as np
 import pandas as pd
-from pandera.typing import DataFrame
+from pandera.typing import DataFrame, Series
 
 from lib.db.lite import read_sqlite
 from lib.utils import df_time_difference
@@ -179,7 +179,7 @@ def day_difference(
   return df
 
 
-def stock_split_adjust(df: pd.DataFrame, ratios: pd.Series) -> pd.DataFrame:
+def stock_split_adjust(df: DataFrame, ratios: Series) -> DataFrame:
   share_cols = {
     'shares_outstanding',
     'weighted_average_shares_outstanding_basic',

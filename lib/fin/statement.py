@@ -5,6 +5,7 @@ import json
 import sqlite3
 from typing import cast, Optional
 
+from asyncstdlib.functools import cache
 import pandas as pd
 from pandera.typing import DataFrame, Series
 
@@ -52,6 +53,20 @@ def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
   ]
 
 
+@cache
+async def fetch_exchange_rate(
+  ticker: str, start_date: Date, end_date: Date, extract_date: Optional[Date] = None
+):
+  exchange_fetcher = partial(Ticker(ticker + '=X').ohlcv)
+  rate = await get_ohlcv(
+    ticker, 'forex', exchange_fetcher, None, start_date, end_date, ['close']
+  )
+  if extract_date is not None:
+    return rate.resample('D').ffill().at[extract_date, 'close']
+
+  return rate['close'].mean()
+
+
 async def statement_to_df(
   financials: FinStatement, currency: Optional[str] = None
 ) -> DataFrame:
@@ -61,25 +76,23 @@ async def statement_to_df(
 
     return period.instant
 
-  async def get_exchange_rate(
+  async def exchange_rate(
     currency: str, unit: str, period: Instant | Interval
   ) -> float:
     ticker = f'{unit}{currency}'.upper()
 
+    extract_date: None | Date = None
     if isinstance(period, Instant):
-      start_date = period.instant
-      end_date = start_date + timedelta(days=2)
+      start_date = period.instant - timedelta(days=7)
+      end_date = start_date + timedelta(days=7)
+      extract_date = period.instant
     elif isinstance(period, Interval):
       start_date = period.start_date
       end_date = period.end_date
 
-    exchange_fetcher = partial(Ticker(ticker + '=X').ohlcv)
-    rate = await get_ohlcv(
-      ticker, 'forex', exchange_fetcher, None, start_date, end_date, ['close']
-    )
-    return rate['close'].mean()
+    rate = await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
+    return rate
 
-  fin_date = financials.date
   fin_scope = financials.scope
   fin_period = financials.period
   currencies = financials.currency
@@ -91,8 +104,6 @@ async def statement_to_df(
   for item, entries in financials.data.items():
     for entry in entries:
       date = parse_date(entry['period'])
-      if date != fin_date:
-        continue
 
       if isinstance(entry['period'], Interval):
         months = entry['period'].months
@@ -105,14 +116,14 @@ async def statement_to_df(
 
       if value := entry.get('value'):
         if (currency is not None) and (unit := entry.get('unit', '')) in currencies:
-          rate = await get_exchange_rate(currency, unit, entry['period'])
+          rate = await exchange_rate(currency, unit, entry['period'])
 
-        df_data.setdefault((fin_date, period, months), {})[item] = value * rate
+        df_data.setdefault((date, period, months), {})[item] = value * rate
 
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or entry.get('unit') == 'shares'
         ):
-          df_data.setdefault((fin_date, 'Q4', 3), {})[item] = value
+          df_data.setdefault((date, 'Q4', 3), {})[item] = value
 
       if (members := entry.get('members')) is None:
         continue
@@ -122,16 +133,16 @@ async def statement_to_df(
           continue
 
         if (currency is not None) and (unit := m_entry.get('unit', '')) in currencies:
-          rate = await get_exchange_rate(currency, unit, entry['period'])
+          rate = await exchange_rate(currency, unit, entry['period'])
 
         dim = '.' + d if (d := m_entry.get('dim')) else ''
         key = f'{item}{dim}.{member}'
-        df_data.setdefault((fin_date, period, months), {})[key] = m_value * rate
+        df_data.setdefault((date, period, months), {})[key] = m_value * rate
 
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or m_entry.get('unit') == 'shares'
         ):
-          df_data.setdefault((fin_date, 'Q4', 3), {})[key] = m_value
+          df_data.setdefault((date, 'Q4', 3), {})[key] = m_value
 
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
@@ -140,20 +151,22 @@ async def statement_to_df(
 
 
 async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame | None:
-  df_scrap = load_statements(id_)
-  if df_scrap is None:
+  df_statements = load_statements(id_)
+  if df_statements is None:
     return None
 
-  financials = df_to_statements(df_scrap)
+  df_statements.sort_values('date', ascending=False, inplace=True)
+  statements = df_to_statements(df_statements)
 
-  dfs: list[DataFrame] = []
+  df = await statement_to_df(statements.pop(0))
 
-  for f in financials:
-    dfs.append(await statement_to_df(f, currency))
+  for s in statements:
+    df.combine_first(await statement_to_df(s))
 
-  df = pd.concat(dfs, join='outer')
   df.sort_index(level=0, ascending=True, inplace=True)
-  df = df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
+  df = cast(
+    DataFrame, df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
+  )
 
   if {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(cast(pd.MultiIndex, df.index).levels[1]):
     df = fix_financials(df)
@@ -162,10 +175,10 @@ async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame
   if ratios is not None:
     df = stock_split_adjust(df, ratios)
 
-  return cast(DataFrame, df)
+  return df
 
 
-def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
+def fix_financials(df: DataFrame) -> DataFrame:
   query = """
     SELECT json_each.value AS gaap, item FROM items 
     JOIN json_each(gaap) ON 1=1
@@ -175,7 +188,7 @@ def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
   if items is None:
     raise ValueError('Taxonomy could not be loaded!')
 
-  df = df[list(set(df.columns).intersection(set(items['gaap'])))]
+  df = cast(DataFrame, df[list(set(df.columns).intersection(set(items['gaap'])))])
 
   rename = {k: v for k, v in zip(items['gaap'], items['item'])}
   df.rename(columns=rename, inplace=True)
@@ -217,7 +230,7 @@ def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
       df_.set_index('period', append=True, inplace=True)
       df_ = df_.reorder_levels(['date', 'period', 'months'])
 
-    df = df.combine_first(df_)
+    df = cast(DataFrame, df.combine_first(df_))
 
   mask = (months == 3) & (period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) | (months == 12) & (
     period == 'FY'
@@ -229,7 +242,7 @@ def fix_financials(df: pd.DataFrame) -> pd.DataFrame:
   # df.rename(columns={'months': 'scope'}, inplace=True)
   # df.set_index('scope', append=True, inplace=True)
 
-  return df.loc[mask, :]
+  return cast(DataFrame, df.loc[mask, :])
 
 
 def get_stock_splits(fin_data: FinData) -> list[StockSplit]:

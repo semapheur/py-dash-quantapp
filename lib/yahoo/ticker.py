@@ -5,7 +5,6 @@ import re
 from typing import cast, Optional
 import time
 
-from aiocache import cached
 import bs4 as bs
 import httpx
 import numpy as np
@@ -322,7 +321,6 @@ async def batch_ohlcv(
   return pd.concat(dfs, axis=1)
 
 
-@cached()
 async def exchange_rate(
   ticker: str, start_date: dt, end_date: dt, interval: QuoteInterval
 ):

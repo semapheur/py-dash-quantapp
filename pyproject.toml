@@ -15,8 +15,8 @@ quote-style = "single"
 
 [project]
 dependencies = [
-  "aiocache",
   "aiometer",
+  "asyncstdlib",
   "branca",
   "bs4",
   "dash",

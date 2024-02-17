@@ -11,7 +11,7 @@ import httpx
 from iso4217 import Currency
 import numpy as np
 import pandas as pd
-from pandera.typing import Series
+from pandera.typing import DataFrame, Series
 from tqdm import tqdm
 from lib.const import HEADERS
 
@@ -123,14 +123,14 @@ def insert_characters(string: str, inserts: dict[str, list[int]]):
   return result
 
 
-def combine_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
+def combine_duplicate_columns(df: DataFrame) -> DataFrame:
   duplicated = df.columns.duplicated()
 
   if not duplicated.any():
     return df
 
-  df_duplicated = combine_duplicate_columns(df.loc[:, duplicated])
-  df = df.loc[:, ~duplicated]
+  df_duplicated = combine_duplicate_columns(cast(DataFrame, df.loc[:, duplicated]))
+  df = cast(DataFrame, df.loc[:, ~duplicated])
 
   for col in df_duplicated.columns:
     df.loc[:, col] = df[col].combine_first(df_duplicated[col])

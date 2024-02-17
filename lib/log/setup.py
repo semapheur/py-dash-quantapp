@@ -69,17 +69,14 @@ def resolve_object(config: ConvertingDict):
     return resolved
 
   constructor = config.configurator.resolve(config.pop('class', config.pop('()')))
-  constructor_args = get_constructor_args(constructor.__init__)
-  props: set[str] = set(config.keys())
-  kwargs = {k: config[k] for k in constructor_args.intersection(props)}
-
-  # kwargs = {k: config[k] for k in config if valid_ident(k)}
+  kwargs_set = get_constructor_args(constructor.__init__)
+  kwargs = {k: config[k] for k in config if valid_ident(k) and k in kwargs_set}
   obj = constructor(**kwargs)
 
-  for k in props.difference(constructor_args):
-    setattr(obj, k, config[k])
-
-  config['__resolved_value__'] = obj
+  props = config.get('.')
+  if props is not None:
+    for name, value in props.items():
+      setattr(obj, name, value)
 
   return obj
 
@@ -131,7 +128,7 @@ class LogJSONFormatter(logging.Formatter):
   @override
   def format(self, record: logging.LogRecord) -> str:
     message = self._prepare_log_dict(record)
-    return json.dumps(message, default=str)
+    return json.dumps(message, default=str, indent=2)
 
   def _prepare_log_dict(self, record: logging.LogRecord):
     always_fields = {

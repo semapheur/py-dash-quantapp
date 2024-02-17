@@ -116,7 +116,7 @@ async def calculate_fundamentals(
   riskfree_rate = cast(
     DataFrame[CloseQuote],
     await get_ohlcv(
-      'GSPC', 'index', riskfree_fetcher, start_date=start_date, cols=['close']
+      'TNX', 'index', riskfree_fetcher, start_date=start_date, cols=['close']
     ),
   )
 
