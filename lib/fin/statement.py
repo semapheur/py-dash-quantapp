@@ -178,6 +178,10 @@ async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame
 
 
 def fix_financials(df: DataFrame) -> DataFrame:
+  def check_conditions(ix: pd.MultiIndex) -> bool:
+    for c in conditions:
+
+
   query = """
     SELECT json_each.value AS gaap, item FROM items 
     JOIN json_each(gaap) ON 1=1
@@ -187,13 +191,18 @@ def fix_financials(df: DataFrame) -> DataFrame:
   if items is None:
     raise ValueError('Taxonomy could not be loaded!')
 
-  df = cast(DataFrame, df[list(set(df.columns).intersection(set(items['gaap'])))])
+  df = cast(
+    DataFrame, df.loc[:, list(set(df.columns).intersection(set(items['gaap'])))]
+  )
 
   rename = {k: v for k, v in zip(items['gaap'], items['item'])}
   df.rename(columns=rename, inplace=True)
   df = combine_duplicate_columns(df)
 
-  if not {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(cast(pd.MultiIndex, df.index).levels[1]):
+  conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
+  combos = set(df.index.droplevel('date').tolist())
+
+  if not set(conditions).issubset(combos):
     return df
 
   query = 'SELECT item FROM items WHERE aggregate = "sum"'
@@ -202,8 +211,8 @@ def fix_financials(df: DataFrame) -> DataFrame:
     raise ValueError('Taxonomy could not be loaded!')
 
   diff_items = list(set(sum_items['item']).intersection(set(df.columns)))
-  conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
-
+  conditions = {('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12)}
+  
   period = df.index.get_level_values('period')
   months = df.index.get_level_values('months')
   for i in range(1, len(conditions)):
