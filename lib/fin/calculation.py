@@ -314,7 +314,7 @@ def calculate_items(
 
     return df
 
-  def calculate(
+  def apply_formula(
     df: DataFrame,
     df_cols: set[str],
     col_name: str,
@@ -322,12 +322,9 @@ def calculate_items(
   ) -> DataFrame:
     if isinstance(expression, ast.Expression):
       code = compile(expression, '<string>', 'eval')
-      try:
-        result = eval(code)
-        if isinstance(result, int):
-          return df
-      except Exception as _:
-        print(f'Error expression: {ast.unparse(expression)}')
+      result = eval(code)
+      if isinstance(result, int):
+        return df
 
     elif isinstance(expression, dict):
       result = pd.Series(0, index=df.index, dtype=float)
@@ -359,21 +356,27 @@ def calculate_items(
 
   all_visitor = AllTransformer('df')
   any_visitor = AnyTransformer('df')
+  col_set = set(financials.columns)
   for calculee, schema in schemas.items():
-    col_set = set(financials.columns)
-
     if (formula := schema.get('all')) is not None:
       if isinstance(formula, str):
         all_visitor.reset_names()
         expression = ast.parse(formula, mode='eval')
-        expression = ast.fix_missing_locations(all_visitor.visit(expression))
+        expression = cast(
+          ast.Expression, ast.fix_missing_locations(all_visitor.visit(expression))
+        )
+
+        if calculee == 'market_capitalization':
+          print(f'BLYAT!: {ast.unparse(expression)}')
+          print(f'test: {all_visitor.names.issubset(col_set)}')
+          print(f'visitor: {all_visitor.names}')
 
         if all_visitor.names.issubset(col_set):
-          financials = calculate(financials, col_set, calculee, expression)
+          financials = apply_formula(financials, col_set, calculee, expression)
 
       elif isinstance(formula, dict):
         if set(formula.keys()).issubset(col_set):
-          financials = calculate(financials, col_set, calculee, formula)
+          financials = apply_formula(financials, col_set, calculee, formula)
 
     elif (formula := schema.get('any')) is not None:
       if isinstance(formula, str):
@@ -382,15 +385,18 @@ def calculate_items(
         expression = cast(
           ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
         )
-        financials = calculate(financials, col_set, calculee, expression)
+        financials = apply_formula(financials, col_set, calculee, expression)
       elif isinstance(formula, dict):
         formula = {
           key: formula[key] for key in set(formula.keys()).intersection(col_set)
         }
         if formula:
-          financials = calculate(financials, col_set, calculee, formula)
+          financials = apply_formula(financials, col_set, calculee, formula)
 
     elif (calculer := schema.get('fill')) is not None:
+      if calculer not in col_set:
+        continue
+
       financials = insert_to_df(financials, col_set, financials[calculer], calculee)
 
     fns = cast(
@@ -404,5 +410,7 @@ def calculate_items(
 
       result = applier(financials[calculer], fn, slices)
       financials = insert_to_df(financials, col_set, result, calculee)
+
+    col_set.union(financials.columns)
 
   return financials

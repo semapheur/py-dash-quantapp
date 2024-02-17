@@ -189,9 +189,13 @@ def weighted_average_cost_of_capital(
   if 'beta' not in set(fin_data.columns):
     raise ValueError('Beta values missing in fundamentals data!')
 
-  fin_data.loc[:, 'capitalization_class'] = fin_data['market_capitalization'].apply(
-    lambda x: 'small' if x < 2e9 else 'large'
-  )
+  try:
+    fin_data.loc[:, 'capitalization_class'] = fin_data['market_capitalization'].apply(
+      lambda x: 'small' if x < 2e9 else 'large'
+    )
+  except:
+    print(fin_data['weighted_average_shares_outstanding_basic_adjusted'])
+    print(fin_data['share_price_average'])
 
   fin_data.loc[:, 'yield_spread'] = fin_data.apply(
     lambda r: yield_spread(r['interest_coverage_ratio'], r['capitalization_class']),

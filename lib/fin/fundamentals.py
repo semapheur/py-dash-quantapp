@@ -38,7 +38,7 @@ def load_schema(query: Optional[str] = None) -> dict[str, TaxononmyCalculation]:
     raise ValueError('Could not load taxonomy!')
 
   df.loc[:, 'calculation'] = df['calculation'].apply(lambda x: json.loads(x))
-  schema = {k: TaxononmyCalculation(*v) for k, v in zip(df['item'], df['calculation'])}
+  schema = {k: TaxononmyCalculation(**v) for k, v in zip(df['item'], df['calculation'])}
   return schema
 
 

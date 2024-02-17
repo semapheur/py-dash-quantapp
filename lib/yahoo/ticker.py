@@ -58,10 +58,7 @@ class Ticker:
         rs = await client.get(url, headers=HEADERS, params=params)
         data: dict = rs.json()
 
-      try:
-        return data['chart']['result'][0]
-      except Exception as e:
-        print('Could not retrieve')
+      return data['chart']['result'][0]
 
     if (start_date is not None) and (period is None):
       start_date = handle_date(start_date)
@@ -72,7 +69,7 @@ class Ticker:
       start_stamp -= 3600 * 24
 
     else:
-      start_stamp = int(dt(2000, 1, 1).replace(tzinfo=tz.utc).timestamp())
+      start_stamp = int(dt(1900, 1, 1).replace(tzinfo=tz.utc).timestamp())
 
     if end_date is not None:
       end_date = handle_date(end_date)
@@ -81,10 +78,7 @@ class Ticker:
       end_stamp = int(dt.now().replace(tzinfo=tz.utc).timestamp())
       end_stamp += 3600 * 24
 
-    try:
-      parse = await parse_json(start_stamp, end_stamp, interval)
-    except Exception as _:
-      print(f'Could not get OHLCV for {self.ticker} from Yahoo')
+    parse = await parse_json(start_stamp, end_stamp, interval)
 
     if period == 'max':
       start_stamp = parse['meta']['firstTradeDate']

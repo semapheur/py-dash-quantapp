@@ -101,7 +101,7 @@ async def statement_to_df(
   fin_date = pd.to_datetime(financials.date)
   fin_scope = financials.scope
   fin_period = financials.period
-  currencies = financials.currency
+  currencies = financials.currency.difference({currency})
 
   df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
 

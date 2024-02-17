@@ -32,7 +32,9 @@ class Security:
 
 class Stock(Security):
   async def ohlcv(
-    self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
+    self,
+    start_date: Date | dt = Date(1950, 1, 1),
+    end_date: Optional[Date | dt] = None,
   ) -> DataFrame[Quote]:
     params = {
       'id': f'{self.id}]3]0]',
