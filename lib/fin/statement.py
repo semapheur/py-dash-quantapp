@@ -202,8 +202,6 @@ def fix_financials(df: DataFrame) -> DataFrame:
 
   diff_items = list(set(sum_items['item']).intersection(set(df.columns)))
 
-  # period = df.index.get_level_values('period')
-  # months = df.index.get_level_values('months')
   conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
   mp = df.index.droplevel('date').tolist()
   for i in range(1, len(conditions)):
@@ -237,15 +235,12 @@ def fix_financials(df: DataFrame) -> DataFrame:
 
     df = cast(DataFrame, df.combine_first(df_))
 
-  mask = (months == 3) & (period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) | (months == 12) & (
-    period == 'FY'
-  )
+  period = df.index.get_level_values('period')
+  months = df.index.get_level_values('months')
 
-  # df.reset_index(level='months', inplace=True)
-  # df.loc[df['months'] == 12,'months'] = 'a'
-  # df.loc[df['months'] == 3,'months'] = 'q'
-  # df.rename(columns={'months': 'scope'}, inplace=True)
-  # df.set_index('scope', append=True, inplace=True)
+  mask = ((months == 3) & period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) | (
+    (months == 12) & (period == 'FY')
+  )
 
   return cast(DataFrame, df.loc[mask, :])
 

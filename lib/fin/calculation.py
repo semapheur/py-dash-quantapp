@@ -185,7 +185,7 @@ def fiscal_days(year: int, period: FiscalPeriod, months: int) -> int:
 
 
 def get_days(
-  ix: pd.MultiIndex[pd.Timestamp, FiscalPeriod, int],
+  ix: pd.MultiIndex,
   slices: list[tuple[slice, slice | str, Literal[3, 12]]],
 ):
   days = pd.Series(
