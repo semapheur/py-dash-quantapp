@@ -75,12 +75,12 @@ async def calculate_fundamentals(
   currency: str,
   financials: DataFrame,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
-  beta_period: int = 5,
+  beta_years: Optional[int] = None,
   update: bool = False,
 ) -> DataFrame:
   start_date: dt = cast(pd.MultiIndex, financials.index).levels[
     0
-  ].min() - relativedelta(years=beta_period)
+  ].min() - relativedelta(years=beta_years or 1)
   price = cast(
     DataFrame[CloseQuote],
     await get_ohlcv(
@@ -183,6 +183,7 @@ async def update_fundamentals(
   id: str,
   currency: str,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
+  beta_years: Optional[None] = None,
   cols: Optional[set[str]] = None,
 ) -> pd.DataFrame:
   table = f'{id}_{currency}'
@@ -194,7 +195,9 @@ async def update_fundamentals(
   fundamentals = load_fundamentals(id, currency, cols)
 
   if fundamentals is None:
-    fundamentals = await calculate_fundamentals(id, currency, financials, ohlcv_fetcher)
+    fundamentals = await calculate_fundamentals(
+      id, currency, financials, ohlcv_fetcher, beta_years
+    )
     upsert_sqlite(fundamentals, 'fundamentals.db', table, {'date': Date})
     return fundamentals
 
@@ -219,7 +222,7 @@ async def update_fundamentals(
     )
 
   fundamentals_ = await calculate_fundamentals(
-    id, currency, fundamentals_, ohlcv_fetcher, update=True
+    id, currency, fundamentals_, ohlcv_fetcher, beta_years=beta_years, update=True
   )
   fundamentals_ = cast(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]

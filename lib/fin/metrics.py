@@ -1,4 +1,5 @@
-from typing import cast, Literal
+from dateutil.relativedelta import relativedelta
+from typing import cast, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -108,62 +109,53 @@ def m_score(df: DataFrame) -> DataFrame:
   return df
 
 
+def calculate_beta(
+  dates: pd.DatetimeIndex,
+  returns: DataFrame[BetaParams],
+  months: int,
+  years: Optional[int] = None,
+) -> pd.DataFrame:
+  if returns.index.min() > dates.min():
+    dates = dates[dates.values > returns.index.min()]
+
+  beta_params = np.full((len(dates), 3), np.nan)
+  delta = relativedelta(months=months) if years is None else relativedelta(years=years)
+
+  for i in range(1, len(dates)):
+    mask = (returns.index >= dates[i - 1] - delta) & (returns.index <= dates[i])
+
+    temp = returns.loc[mask, :].copy()
+    if temp.empty:
+      continue
+
+    x = sm.add_constant(temp['market_return'])
+    model = sm.OLS(temp['equity_return'], x)
+    ols_result = model.fit()
+    beta_params[i, 0] = ols_result.params.iloc[-1]
+
+    beta_params[i, 1] = temp['market_return'].mean()
+    beta_params[i, 2] = temp['riskfree_rate'].mean()
+
+  result = pd.DataFrame(
+    data={
+      'date': dates,
+      'beta': beta_params[:, 0],
+      'market_return': beta_params[:, 1] * 252.0,
+      'riskfree_rate': beta_params[:, 2],
+    }
+  )
+  result['months'] = months
+
+  return result
+
+
 def beta(
   fin_data: DataFrame,
   equity_return: pd.Series,
   market_return: pd.Series,
   riskfree_rate: pd.Series,  # yahoo: ^TNX/'^TYX; fred: DSG10
-  years: int = 1,
+  years: Optional[int] = 0,
 ) -> DataFrame:
-  def calculate_beta(
-    dates: pd.DatetimeIndex, returns: DataFrame[BetaParams], months: int
-  ) -> pd.DataFrame:
-    days = {3: 63.0, 12: 252.0}
-
-    beta = np.full(len(dates), np.nan)
-    market_return = np.full(len(dates), np.nan)
-    riskfree_rate = np.full(len(dates), np.nan)
-
-    if returns.index.min() > dates.min():
-      dates = dates[dates.values > returns.index.min()]
-
-    for i in range(len(dates)):
-      if i == 0:
-        mask = (returns.index >= min(dates[i], returns.index.min())) & (
-          returns.index <= dates[i]
-        )
-      else:
-        mask = (returns.index >= dates[i - 1]) & (returns.index <= dates[i])
-
-      temp: pd.DataFrame = returns.loc[mask]
-      if temp.empty:
-        continue
-
-      x = sm.add_constant(temp['market_return'])
-      model = sm.OLS(temp['equity_return'], x)
-      ols_result = model.fit()
-      beta[i] = ols_result.params.iloc[-1]
-
-      market_return[i] = temp['market_return'].mean() * years
-      riskfree_rate[i] = temp['riskfree_rate'].mean()
-
-    result = pd.DataFrame(
-      data={
-        'date': dates,
-        'beta': beta,
-        'market_return': market_return,
-        'riskfree_rate': riskfree_rate,
-      }
-    )
-    result['months'] = months
-
-    result.loc[:, 'market_return'] *= days[months]
-
-    if months == 3:
-      result.loc[:, 'riskfree_rate'] = result['riskfree_rate'] / 4
-
-    return result
-
   returns = cast(
     DataFrame[BetaParams],
     pd.concat([equity_return, market_return, riskfree_rate], axis=1).ffill(),
@@ -177,7 +169,7 @@ def beta(
     dates = pd.to_datetime(
       fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date')
     )
-    betas.append(calculate_beta(dates, returns, s[2]))
+    betas.append(calculate_beta(dates, returns, s[2], years))
 
   beta = pd.concat(betas)
   fin_data = cast(
@@ -194,7 +186,7 @@ def weighted_average_cost_of_capital(
   fin_data: DataFrame, debt_maturity: int = 10
 ) -> DataFrame:
   if 'beta' not in set(fin_data.columns):
-    raise ValueError('Beta values missing in dataframe!')
+    raise ValueError('Beta values missing in fundamentals data!')
 
   fin_data.loc[:, 'capitalization_class'] = fin_data['market_capitalization'].apply(
     lambda x: 'small' if x < 2e9 else 'large'
@@ -208,17 +200,18 @@ def weighted_average_cost_of_capital(
   fin_data.loc[(slice(None), slice(None), 3), 'yield_spread'] /= 4
 
   fin_data['beta_levered'] = fin_data['beta'] * (
-    1 + (1 - fin_data['tax_rate']) * fin_data['debt'] / fin_data['equity']
+    1
+    + (1 - fin_data['tax_rate']) * fin_data['average_debt'] / fin_data['average_equity']
   )
 
   # Cost of equity
   fin_data['equity_risk_premium'] = fin_data['beta_levered'] * (
-    fin_data['market_return'] - fin_data['risk_free_rate']
+    fin_data['market_return'] - fin_data['riskfree_rate']
   )
-  fin_data['cost_equity'] = fin_data['risk_free_rate'] + fin_data['equity_risk_premium']
+  fin_data['cost_equity'] = fin_data['riskfree_rate'] + fin_data['equity_risk_premium']
 
   # Cost of debt
-  fin_data['cost_debt'] = fin_data['risk_free_rate'] + fin_data['yield_spread']
+  fin_data['cost_debt'] = fin_data['riskfree_rate'] + fin_data['yield_spread']
 
   # Market value of debt
   fin_data['market_value_debt'] = (
