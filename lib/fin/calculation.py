@@ -1,5 +1,6 @@
 import ast
 from datetime import datetime as dt
+from functools import cache
 import json
 from typing import cast, Literal
 
@@ -8,6 +9,7 @@ import pandas as pd
 from pandera.typing import DataFrame, Series
 
 from lib.db.lite import read_sqlite
+from lib.fin.models import FiscalPeriod
 from lib.utils import df_time_difference
 
 
@@ -74,9 +76,9 @@ def trailing_twelve_months(financials: DataFrame) -> DataFrame:
   financials.sort_index(level='date', inplace=True)
 
   mask = (slice(None), slice(None), 3)
-  ttm = financials.loc[mask, :]
+  ttm = financials.loc[mask, :].copy()
 
-  ttm.loc[:, 'month_difference'] = df_time_difference(
+  ttm['month_difference'] = df_time_difference(
     cast(pd.DatetimeIndex, ttm.index.get_level_values('date')), 30, 'D'
   )
   ttm.loc[:, 'month_difference'] = ttm['month_difference'].rolling(3, 3).sum()
@@ -90,7 +92,7 @@ def trailing_twelve_months(financials: DataFrame) -> DataFrame:
       f'Could not load taxonomy for the following items: {json.dumps(list(financials.columns), indent=2)}'
     )
 
-  ttm.loc[:, sum_items['item']] = ttm.loc[:, sum_items['item']].rolling(4, 4).sum()
+  ttm.loc[:, sum_items['item']] = ttm[sum_items['item']].rolling(4, 4).sum()
   ttm = ttm.loc[ttm.loc[:, 'month_difference'] == 9]
 
   ttm.reset_index(level=('period', 'months'), inplace=True)
@@ -166,17 +168,39 @@ def update_trailing_twelve_months(df: pd.DataFrame, new_price: float) -> pd.Data
   return df
 
 
-def day_difference(
-  df: pd.DataFrame, slices: list[tuple[slice, slice | str, Literal[3, 12]]]
+@cache
+def fiscal_days(year: int, period: FiscalPeriod, months: int) -> int:
+  from calendar import isleap
+
+  leap = isleap(year)
+
+  if months == 12:
+    return 365 + leap
+
+  if months == 3:
+    quarter_days = {'Q1': 90, 'Q2': 91, 'Q3': 92, 'Q4': 92}
+    return quarter_days.get(period, 91) + leap
+
+  return months * 30
+
+
+def get_days(
+  ix: pd.MultiIndex,
+  slices: list[tuple[slice, slice | str, Literal[3, 12]]],
 ):
-  for ix in slices:
-    _df = df.loc[ix, :]
-    _df.sort_index(level='date', inplace=True)
+  days = pd.Series([fiscal_days(*i) for i in ix], index=ix, name='days')
 
-    dates = pd.to_datetime(_df.index.get_level_values('date'))
-    df.loc[ix, 'days'] = df_time_difference(dates, 1, 'D')
+  for s in slices:
+    days_ = days[s].copy()
+    dates = cast(pd.DatetimeIndex, ix.get_level_values('date'))
+    days_['month_difference'] = df_time_difference(dates, 30, 'D')
 
-  return df
+    mask = days_['month_difference'] == s[2]
+    days.loc[mask, 'days'] = df_time_difference(dates, 1, 'D')
+
+    days.loc[ix, 'days'] = days_.loc[ix, 'days']
+
+  return days
 
 
 def stock_split_adjust(df: DataFrame, ratios: Series) -> DataFrame:
@@ -321,7 +345,8 @@ def calculate_items(
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]['order']))
   slices = fin_slices(cast(pd.MultiIndex, financials.index))
-  financials = day_difference(financials, slices)
+  financials.sort_index(level='date', inplace=True)
+  financials['days'] = get_days(cast(pd.MultiIndex, financials.index), slices)
 
   all_visitor = AllTransformer('df')
   any_visitor = AnyTransformer('df')
