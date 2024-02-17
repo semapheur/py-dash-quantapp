@@ -61,10 +61,10 @@ async def fetch_exchange_rate(
   rate = await get_ohlcv(
     ticker, 'forex', exchange_fetcher, None, start_date, end_date, ['close']
   )
-  if extract_date is not None:
-    return rate.resample('D').ffill().at[extract_date, 'close']
+  if extract_date is None:
+    return rate['close'].mean()
 
-  return rate['close'].mean()
+  return rate.resample('D').ffill().at[pd.to_datetime(extract_date), 'close']
 
 
 async def statement_to_df(
@@ -158,18 +158,17 @@ async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame
   df_statements.sort_values('date', ascending=False, inplace=True)
   statements = df_to_statements(df_statements)
 
-  df = await statement_to_df(statements.pop(0))
+  df = await statement_to_df(statements.pop(0), currency)
 
   for s in statements:
-    df.combine_first(await statement_to_df(s))
+    df.combine_first(await statement_to_df(s, currency))
 
   df.sort_index(level=0, ascending=True, inplace=True)
   df = cast(
     DataFrame, df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
   )
 
-  if {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(cast(pd.MultiIndex, df.index).levels[1]):
-    df = fix_financials(df)
+  df = fix_financials(df)
 
   ratios = stock_splits(id_)
   if ratios is not None:
@@ -194,13 +193,15 @@ def fix_financials(df: DataFrame) -> DataFrame:
   df.rename(columns=rename, inplace=True)
   df = combine_duplicate_columns(df)
 
+  if not {'Q1', 'Q2', 'Q3', 'Q4'}.issubset(cast(pd.MultiIndex, df.index).levels[1]):
+    return df
+
   query = 'SELECT item FROM items WHERE aggregate = "sum"'
   sum_items = read_sqlite('taxonomy.db', query)
   if sum_items is None:
     raise ValueError('Taxonomy could not be loaded!')
 
   diff_items = list(set(sum_items['item']).intersection(set(df.columns)))
-
   conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
 
   period = df.index.get_level_values('period')
@@ -209,15 +210,15 @@ def fix_financials(df: DataFrame) -> DataFrame:
     mask = (period == conditions[i - 1][0]) & (months == conditions[i - 1][1]) | (
       period == conditions[i][0]
     ) & (months == conditions[i][1])
-    df_ = df.loc[mask, diff_items]
+    df_ = df.loc[mask, diff_items].copy()
     df_.sort_index(level='date', inplace=True)
 
-    df_.loc[:, 'month_diff'] = df_time_difference(
+    df_['month_difference'] = df_time_difference(
       cast(pd.DatetimeIndex, df_.index.get_level_values('date')), 30, 'D'
     )
 
     df_.loc[:, diff_items] = df_[diff_items].diff()
-    df_ = df_.loc[df_['month_diff'] == 3, diff_items]
+    df_ = df_.loc[df_['month_difference'] == 3, diff_items]
 
     df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
     df_.reset_index(level='months', inplace=True)
