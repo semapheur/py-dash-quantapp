@@ -366,11 +366,6 @@ def calculate_items(
           ast.Expression, ast.fix_missing_locations(all_visitor.visit(expression))
         )
 
-        if calculee == 'market_capitalization':
-          print(f'BLYAT!: {ast.unparse(expression)}')
-          print(f'test: {all_visitor.names.issubset(col_set)}')
-          print(f'visitor: {all_visitor.names}')
-
         if all_visitor.names.issubset(col_set):
           financials = apply_formula(financials, col_set, calculee, expression)
 

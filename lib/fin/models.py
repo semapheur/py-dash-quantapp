@@ -1,6 +1,6 @@
 from datetime import date as Date
 import json
-from typing import cast, Annotated, Literal, Optional, TypeAlias
+from typing import cast, Literal, Optional, TypeAlias
 from typing_extensions import TypedDict
 
 from pandera import DataFrameModel, Field
@@ -8,7 +8,6 @@ from pandera.dtypes import Timestamp
 from pandera.typing import Index, Object
 from pydantic import (
   BaseModel,
-  PlainSerializer,
   ValidationInfo,
   field_serializer,
   field_validator,
@@ -61,16 +60,16 @@ class Item(Value, total=False):
   members: Optional[dict[str, Member]]
 
 
-def item_serializer(v: Item):
+def item_dict(v: Item):
   obj = {'value': v['value'], 'unit': v['unit'], 'period': v['period'].model_dump()}
 
   if (members := v.get('members')) is not None:
     obj['members'] = members
 
-  json.dumps(obj)
+  return obj
 
 
-SerializedItem = Annotated[Item, PlainSerializer(item_serializer)]
+# SerializedItem = Annotated[Item, PlainSerializer(item_serializer)]
 FinData: TypeAlias = dict[str, list[Item]]
 
 
@@ -78,8 +77,9 @@ class FinStatement(BaseModel):
   url: Optional[str] = None
   scope: Scope
   date: Date
-  period: FiscalPeriod
+  fiscal_period: FiscalPeriod
   fiscal_end: Optional[str] = None
+  periods: set[Interval]
   currency: set[str]
   data: FinData  # dict[str, list[SerializedItem]]
 
@@ -134,6 +134,17 @@ class FinStatement(BaseModel):
       obj[k] = items_
 
     return json.dumps(obj)
+
+  def to_dict(self):
+    return {
+      'url': self.url,
+      'scope': self.scope,
+      'date': self.date.strftime('%Y-%m-%d'),
+      'period': self.period,
+      'fiscal_end': self.fiscal_end,
+      'currency': list(self.currency),
+      'data': {key: [item_dict(i) for i in items] for key, items in self.data.items()},
+    }
 
 
 class FinStatementFrame(DataFrameModel):

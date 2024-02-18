@@ -182,6 +182,9 @@ async def parse_statement(url: str) -> FinStatement:
 
     months = month_difference(start_date, end_date)
 
+    interval = Interval(start_date=start_date, end_date=end_date, months=months)
+    periods.add(interval)
+
     return Interval(start_date=start_date, end_date=end_date, months=months)
 
   def parse_unit(unit: str) -> str:
@@ -280,6 +283,7 @@ async def parse_statement(url: str) -> FinStatement:
 
   doc_id = url.split('/')[-2]
   currency: set[str] = set()
+  periods: set[Interval] = set()
   data: FinData = {}
 
   name_pattern = (
@@ -335,8 +339,9 @@ async def parse_statement(url: str) -> FinStatement:
     url=url,
     date=date.date(),
     scope=scope,
-    period=fiscal_period,
+    fiscal_period=fiscal_period,
     fiscal_end=fiscal_end,
+    periods=periods,
     currency=currency,
     data=data,
   )

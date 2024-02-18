@@ -159,8 +159,8 @@ async def statement_to_df(
   return cast(DataFrame, df)
 
 
-async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame | None:
-  df_statements = load_statements(id_)
+async def load_financials(id: str, currency: Optional[str] = None) -> DataFrame | None:
+  df_statements = load_statements(id)
   if df_statements is None:
     return None
 
@@ -179,7 +179,7 @@ async def load_financials(id_: str, currency: Optional[str] = None) -> DataFrame
 
   df = fix_financials(df)
 
-  ratios = stock_splits(id_)
+  ratios = stock_splits(id)
   if ratios is not None:
     df = stock_split_adjust(df, ratios)
 
@@ -281,12 +281,12 @@ def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
   return data
 
 
-def stock_splits(id_: str) -> Series[float]:
+def stock_splits(id: str) -> Series[float]:
   where_text = ' AND '.join(
     [f'json_extract(data, "$.{item}") IS NOT NULL' for item in stock_split_items]
   )
 
-  query = f'SELECT data FROM "{id_}" WHERE {where_text}'
+  query = f'SELECT data FROM "{id}" WHERE {where_text}'
   df_parse = cast(
     DataFrame[str], read_sqlite('financials.db', query, dtype={'data': str})
   )
@@ -307,9 +307,9 @@ def stock_splits(id_: str) -> Series[float]:
 
 
 def load_statements(
-  id_: str, date: Optional[Date] = None
+  id: str, date: Optional[Date] = None
 ) -> DataFrame[FinStatementFrame] | None:
-  query = f'SELECT * FROM "{id_}" ORDER BY date ASC'
+  query = f'SELECT * FROM "{id}" ORDER BY date ASC'
   if date:
     query += f' WHERE DATE(date) >= DATE("{date:%Y-%m-%d}")'
 
@@ -319,6 +319,16 @@ def load_statements(
     date_parser={'date': {'format': '%Y-%m-%d'}},
   )
   return df
+
+
+def load_statements_json(id: str, date: Optional[Date] = None):
+  df = load_statements(id, date)
+  if df is None:
+    return None
+
+  statements = df_to_statements(df)
+
+  return [s.to_dict() for s in statements]
 
 
 def upsert_statements(
