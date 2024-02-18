@@ -494,7 +494,7 @@
     }
   },
   "amortization_acquired_contract_backlog": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -505,7 +505,7 @@
     ]
   },
   "amortization_acquired_intangible_assets": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -520,7 +520,7 @@
     }
   },
   "amortization_acquisition_costs": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -531,7 +531,7 @@
     ]
   },
   "amortization_acquisition_other_fairvalue_adjustments": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -542,7 +542,7 @@
     ]
   },
   "amortization_acquisition_price_adjustment": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -553,7 +553,7 @@
     ]
   },
   "amortization_advance_royalty": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -564,7 +564,7 @@
     ]
   },
   "amortization_capitalized_software": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -576,7 +576,7 @@
     ]
   },
   "amortization_deferred_costs": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -592,7 +592,7 @@
     }
   },
   "amortization_deferred_loss_reinsurance": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -607,7 +607,7 @@
     }
   },
   "amortization_deferred_revenue": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -619,7 +619,7 @@
     ]
   },
   "amortization_deferred_warrant_costs": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -630,7 +630,7 @@
     ]
   },
   "amortization_discount_investment_account_receivable": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -641,7 +641,7 @@
     ]
   },
   "amortization_discounts_premiums_debt": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -652,7 +652,7 @@
     ]
   },
   "amortization_discounts_premiums_investments": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -667,7 +667,7 @@
     }
   },
   "amortization_expense": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -685,7 +685,7 @@
     }
   },
   "amortization_fairvalue_adjustment_assumed_debt": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -696,7 +696,7 @@
     ]
   },
   "amortization_favorable_contracts": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -707,7 +707,7 @@
     ]
   },
   "amortization_favorable_unfavorable_contracts": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -722,7 +722,7 @@
     }
   },
   "amortization_financing_costs": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -739,7 +739,7 @@
     ]
   },
   "amortization_goodwill": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -750,7 +750,7 @@
     ]
   },
   "amortization_income": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
@@ -761,7 +761,7 @@
     ]
   },
   "amortization_instore_displays": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -773,7 +773,7 @@
     ]
   },
   "amortization_intangible_assets": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -789,7 +789,7 @@
     }
   },
   "amortization_intangible_assets_excluding_goodwill": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -800,7 +800,7 @@
     ]
   },
   "amortization_intangible_assets_excluding_goodwill_disposal": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -811,7 +811,7 @@
     ]
   },
   "amortization_intangible_assets_finitelived": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -822,7 +822,7 @@
     ]
   },
   "amortization_intangible_liabilities": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -837,7 +837,7 @@
     }
   },
   "amortization_interest_expense_beneficial_conversion_feature": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -848,7 +848,7 @@
     ]
   },
   "amortization_lease_assets": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -859,7 +859,7 @@
     ]
   },
   "amortization_lease_expense": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -870,7 +870,7 @@
     ]
   },
   "amortization_lease_incentives_benefit": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -881,7 +881,7 @@
     ]
   },
   "amortization_other_assets": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -892,7 +892,7 @@
     ]
   },
   "amortization_prepaid_insurance": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -907,7 +907,7 @@
     }
   },
   "amortization_revenue_contract_asset": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -920,7 +920,7 @@
     ]
   },
   "amortization_revenue_contract_asset_liability": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -936,7 +936,7 @@
     }
   },
   "amortization_unfavorable_contracts": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -947,7 +947,7 @@
     ]
   },
   "amortization_unrecognized_pension_loss": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -956,6 +956,228 @@
     "gaap": [
       "AmortizationOfUnrecognizedPensionLoss"
     ]
+  },
+  "depreciation_amortization": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation and Amortization",
+      "short": "D&A"
+    },
+    "gaap": [
+      "DepreciationAndAmortization"
+    ],
+    "calculation": {
+      "order": 53,
+      "any": "depreciation + amortization_intangible_assets",
+      "temp": "depreciation_nonproduction + depletion_petroleum_properties + amortization_deferred_charges + other_depreciation_amortization"
+    }
+  },
+  "other_depreciation_amortization": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Depreciation and Amortization",
+      "short": "Other D&A"
+    },
+    "gaap": [
+      "OtherDepreciationAndAmortization"
+    ]
+  },
+  "amortization_deferred_charges": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Deferred Charges"
+    },
+    "gaap": [
+      "AmortizationOfDeferredCharges"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "amortization_acquisition_costs + amortization_intangible_assets + amortization_deferred_sales_commissions + amortization_regulatory_asset + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_depreciation_decontaminating_decommissioning_assets + amortization_deferred_charges_other",
+      "temp": "AmortizationOfAcquisitionCosts + AmortizationOfIntangibleAssets + AmortizationOfDeferredSalesCommissions + AmortizationOfRegulatoryAsset + FinanceLeaseRightOfUseAssetAmortization + AmortizationOfPowerContractsEmissionCredits + AmortizationOfNuclearFuelLease + AmortizationOfAdvanceRoyalty + AmortizationOfDeferredPropertyTaxes + AmortizationOfRateDeferral + AmortizationOfDeferredHedgeGains + AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets + OtherAmortizationOfDeferredCharges"
+    }
+  },
+  "amortization_deferred_charges_other": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Amortization of Deferred Charges"
+    },
+    "gaap": [
+      "OtherAmortizationOfDeferredCharges"
+    ]
+  },
+  "amortization_depreciation_decontaminating_decommissioning_assets": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization and Depreciation of Decontaminating and Decommissioning of Assets"
+    },
+    "gaap": [
+      "AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets"
+    ]
+  },
+  "amortization_deferred_hedge_gains": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Deferrad Hedge Gains"
+    },
+    "gaap": [
+      "AmortizationOfDeferredHedgeGains"
+    ]
+  },
+  "amortization_rate_deferral": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Rate Deferral"
+    },
+    "gaap": [
+      "AmortizationOfRateDeferral"
+    ]
+  },
+  "amortization_deferred_property_taxes": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Deferred Property Taxes"
+    },
+    "gaap": [
+      "AmortizationOfDeferredPropertyTaxes"
+    ]
+  },
+  "amortization_nuclear_fuel_lease": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Nuclear Fuel Lease"
+    },
+    "gaap": [
+      "AmortizationOfNuclearFuelLease"
+    ]
+  },
+  "amortization_power_contracts_emission_credits": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Power Contracts Emission Credits"
+    },
+    "gaap": [
+      "AmortizationOfPowerContractsEmissionCredits"
+    ]
+  },
+  "amortization_finance_lease": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Finance Lease Right of Use"
+    },
+    "gaap": [
+      "FinanceLeaseRightOfUseAssetAmortization"
+    ]
+  },
+  "amortization_regulatory_asset": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Regulatory Asset"
+    },
+    "gaap": [
+      "AmortizationOfRegulatoryAsset"
+    ]
+  },
+  "amortization_deferred_sales_commissions": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "AmortizationOfDeferredSalesCommissions"
+    },
+    "gaap": [
+      "AmortizationOfDeferredSalesCommissions"
+    ]
+  },
+  "depletion_petroleum_properties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation Petroleum Properties"
+    },
+    "gaap": [
+      "DepletionOfOilAndGasProperties"
+    ]
+  },
+  "depletion": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Total Depletion"
+    },
+    "gaap": [
+      "Depletion"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depletion_production + depletion_petroleum_propery"
+    }
+  },
+  "depletion_production": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depletion Related to Production"
+    },
+    "gaap": [
+      "CostDepletion"
+    ]
+  },
+  "depreciation_nonproduction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation Non-production"
+    },
+    "gaap": [
+      "DepreciationNonproduction"
+    ]
+  },
+  "depreciation_depletion_amortization": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation, Depletion and Amortization",
+      "short": "DDA"
+    },
+    "gaap": [
+      "DepreciationAmortizationAndAccretionNet",
+      "DepreciationDepletionAndAmortization",
+      "DepreciationAndAmortization"
+    ],
+    "calculation": {
+      "order": 53,
+      "any": "depreciation + amortization_intangible_assets",
+      "temp": "depreciation + amortization + other_depreciation_amortization + Depletion"
+    }
   },
   "asset_devaluation_expense": {
     "unit": "monetary",
@@ -2844,7 +3066,7 @@
     ]
   },
   "depreciation": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
@@ -2855,11 +3077,11 @@
     ],
     "calculation": {
       "order": 49,
-      "diff": "accumulated_depreciation_productive_assets"
+      "any": "depreciation_production + depreciation_nonproduction"
     }
   },
   "depreciation_property_plant_equipment": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
