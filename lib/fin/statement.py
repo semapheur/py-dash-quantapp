@@ -73,7 +73,7 @@ async def fetch_exchange_rate(
 
 
 async def statement_to_df(
-  financials: FinStatement, currency: Optional[str] = None
+  financials: FinStatement, currency: Optional[str] = None, multiple=False
 ) -> DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
@@ -105,13 +105,12 @@ async def statement_to_df(
 
   df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
 
-  rate = 1.0
-
   for item, entries in financials.data.items():
     for entry in entries:
+      rate = 1.0
       date = pd.to_datetime(parse_date(entry['period']))
 
-      if date > fin_date:
+      if (date > fin_date) or ((not multiple) and date != fin_date):
         continue
 
       if isinstance(entry['period'], Interval):
@@ -132,7 +131,7 @@ async def statement_to_df(
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or entry.get('unit') == 'shares'
         ):
-          df_data.setdefault((date, 'Q4', 3), {})[item] = value
+          df_data.setdefault((date, 'Q4', 3), {})[item] = value * rate
 
       if (members := entry.get('members')) is None:
         continue
@@ -164,13 +163,16 @@ async def load_financials(id: str, currency: Optional[str] = None) -> DataFrame 
   if df_statements is None:
     return None
 
-  df_statements.sort_values('date', ascending=False, inplace=True)
+  df_statements.sort_values('date', inplace=True)
   statements = df_to_statements(df_statements)
 
-  df = await statement_to_df(statements.pop(0), currency)
+  # for s in statements:
+  #  df = cast(DataFrame, df.combine_first(await statement_to_df(s, currency)))
 
-  for s in statements:
-    df.combine_first(await statement_to_df(s, currency))
+  dfs = [await statement_to_df(statements.pop(0), currency, True)] + [
+    await statement_to_df(s, currency) for s in statements
+  ]
+  df = pd.concat(dfs, join='outer')
 
   df.sort_index(level=0, ascending=True, inplace=True)
   df = cast(
@@ -198,6 +200,8 @@ def fix_financials(df: DataFrame) -> DataFrame:
   items = read_sqlite('taxonomy.db', query)
   if items is None:
     raise ValueError('Taxonomy could not be loaded!')
+
+  df.to_csv('test_.csv')
 
   df = cast(
     DataFrame, df.loc[:, list(set(df.columns).intersection(set(items['gaap'])))]
@@ -256,7 +260,7 @@ def fix_financials(df: DataFrame) -> DataFrame:
     (months == 12) & (period == 'FY')
   )
 
-  return cast(DataFrame, df.loc[mask, :])
+  return cast(DataFrame, df.loc[mask, :].dropna(how='all'))
 
 
 def get_stock_splits(fin_data: FinData) -> list[StockSplit]:

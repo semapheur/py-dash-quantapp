@@ -77,9 +77,9 @@ class FinStatement(BaseModel):
   url: Optional[str] = None
   scope: Scope
   date: Date
-  fiscal_period: FiscalPeriod
+  period: FiscalPeriod
   fiscal_end: Optional[str] = None
-  periods: set[Interval]
+  # periods: set[Interval]
   currency: set[str]
   data: FinData  # dict[str, list[SerializedItem]]
 
@@ -153,6 +153,7 @@ class FinStatementFrame(DataFrameModel):
   date: Timestamp
   period: str = Field(isin={'FY', 'Q1'})
   fiscal_end: Optional[str]
+  periods: Optional[Object]
   currency: Object
   data: Object
 
