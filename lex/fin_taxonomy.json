@@ -466,8 +466,7 @@
     },
     "gaap": [
       "AdministrativeExpense",
-      "AdministrativeExpenses",
-      "AdministrativeFeesExpense"
+      "AdministrativeExpenses"
     ]
   },
   "advertising_expense": {
@@ -479,8 +478,7 @@
     },
     "gaap": [
       "AdvertisingExpense",
-      "AdvertisingAndPromotionCosts",
-      "AdvertisingAndMarketingExpenses"
+      "AdvertisingAndPromotionCosts"
     ]
   },
   "altman_z_score": {
@@ -3902,8 +3900,178 @@
     ],
     "calculation": {
       "order": 44,
+      "temp": "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + insurance_tax + tax_excluding_income_excise_taxes + other_general_administrative_expense + ,loss_contingency_expense",
+      "gaap": "AllocatedShareBasedCompensationExpense + SalariesWagesAndOfficersCompensation + OtherLaborRelatedExpenses + ProfessionalFees + BusinessDevelopment + GeneralInsuranceExpense + RealEstateInsurance + CommunicationsInformationTechnologyAndOccupancy + OperatingLeaseExpense + TravelAndEntertainmentExpense + SuppliesAndPostageExpense + InsuranceTax + TaxesExcludingIncomeAndExciseTaxes + OtherGeneralAndAdministrativeExpense + LossContingencyLossInPeriod"
+    }
+  },
+  "loss_contingency_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss Contingency Cost"
+    },
+    "gaap": [
+      "LossContingencyLossInPeriod"
+    ]
+  },
+  "other_general_administrative_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other General and Administrative Expense"
+    },
+    "gaap": [
+      "OtherGeneralAndAdministrativeExpense"
+    ],
+    "calculation": {
+      "order": 0,
       "any": "general_expense + administrative_expense"
     }
+  },
+  "tax_excluding_income_excise_taxes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Taxes Excluding Income and Excise Taxes"
+    },
+    "gaap": [
+      "TaxesExcludingIncomeAndExciseTaxes"
+    ]
+  },
+  "tax_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Insurance Tax"
+    },
+    "gaap": [
+      "InsuranceTax"
+    ]
+  },
+  "supplies_postage_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Supplies and Postage Expense"
+    },
+    "gaap": [
+      "SuppliesAndPostageExpense"
+    ]
+  },
+  "travel_entertainment_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Travel and Entertainment Expense"
+    },
+    "gaap": [
+      "TravelAndEntertainmentExpense"
+    ]
+  },
+  "operating_lease_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Lease Expense"
+    },
+    "gaap": [
+      "OperatingLeaseExpense"
+    ]
+  },
+  "communications_information_technology_occupancy": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Communications, Information Technology and Occupancy"
+    },
+    "gaap": [
+      "CommunicationsInformationTechnologyAndOccupancy"
+    ]
+  },
+  "real_estate_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Real Estate Insurance"
+    },
+    "gaap": [
+      "RealEstateInsurance"
+    ]
+  },
+  "general_insurance_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "General Insurance Expense"
+    },
+    "gaap": [
+      "GeneralInsuranceExpense"
+    ]
+  },
+  "business_development": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Business Development"
+    },
+    "gaap": [
+      "BusinessDevelopment"
+    ]
+  },
+  "professional_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Professional Fees"
+    },
+    "gaap": [
+      "ProfessionalFees"
+    ]
+  },
+  "other_labor_related_expenses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Labor Related Expenses"
+    },
+    "gaap": [
+      "OtherLaborRelatedExpenses"
+    ]
+  },
+  "salaries_wages_officers_compensation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Salaries, Wages and Officers Compensation"
+    },
+    "gaap": [
+      "SalariesWagesAndOfficersCompensation"
+    ]
+  },
+  "allocated_sharebased_compensation_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Allocated Share-based Compensation Expensee"
+    },
+    "gaap": [
+      "AllocatedShareBasedCompensationExpense"
+    ]
   },
   "general_expense": {
     "unit": "monetary",
@@ -6058,13 +6226,493 @@
       "OperatingExpense",
       "OperatingExpenses",
       "OperatingExpensesTotal",
-      "OperatingCostsAndExpenses",
       "OperatingExpenseExcludingCostOfSales"
     ],
     "calculation": {
       "order": 55,
-      "any": "asset_devaluation_expense + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense"
+      "any": "asset_devaluation_expense + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense",
+      "gaap": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_disposition_assets - sales_type_lease_selling_profit_loss + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
     }
+  },
+  "government_assistance_operating_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Government Assistance Operating Expense"
+    },
+    "gaap": [
+      "GovernmentAssistanceOperatingExpense"
+    ]
+  },
+  "management_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Management Fees"
+    },
+    "gaap": [
+      "ManagementFeeExpense"
+    ]
+  },
+  "incentive_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Incentive Fee"
+    },
+    "gaap": [
+      "IncentiveFeeExpense"
+    ]
+  },
+  "administrative_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Administrative Fees"
+    },
+    "gaap": [
+      "AdministrativeFeesExpense"
+    ]
+  },
+  "brokerage_exchange_clearance_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Floor Brokerage Exchange and Clearance Fees"
+    },
+    "gaap": [
+      "FloorBrokerageExchangeAndClearanceFees"
+    ]
+  },
+  "insurance_commissions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Insurance Commissions"
+    },
+    "gaap": [
+      "InsuranceCommissions"
+    ]
+  },
+  "demutualization_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Demutualization Cost"
+    },
+    "gaap": [
+      "DemutualizationCostAndExpense"
+    ]
+  },
+  "other_underwriting_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Underwriting Expense"
+    },
+    "gaap": [
+      "OtherUnderwritingExpense"
+    ]
+  },
+  "direct_financing_lease_selling_loss": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Financing Lease Selling Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseSellingLoss"
+    ]
+  },
+  "sales_type_lease_selling_profit_loss": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "SalesTypeLeaseSellingProfit (Loss)"
+    },
+    "gaap": [
+      "SalesTypeLeaseSellingProfitLoss"
+    ]
+  },
+  "gain_loss_disposition_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposition of Assets"
+    },
+    "gaap": [
+      "GainLossOnDispositionOfAssets1"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_sale_property_plant_equipment + gain_loss_sale_business + gain_loss_sale_leaseback_transaction + gain_loss_disposition_intangible_assets + gain_loss_termination_lease + gain_loss_sale_other_assets",
+      "temp": "GainLossOnSaleOfPropertyPlantEquipment + GainLossOnSaleOfBusiness + SaleAndLeasebackTransactionGainLossNet + GainLossOnDispositionOfIntangibleAssets + GainLossOnTerminationOfLease + GainLossOnSaleOfOtherAssets"
+    }
+  },
+  "gain_loss_sale_other_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Other Assets"
+    },
+    "gaap": [
+      "GainLossOnSaleOfOtherAssets"
+    ]
+  },
+  "gain_loss_termination_lease": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Termination of Lease"
+    },
+    "gaap": [
+      "GainLossOnTerminationOfLease"
+    ]
+  },
+  "gain_loss_disposition_intangible_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposition of Intangible Assets"
+    },
+    "gaap": [
+      "GainLossOnDispositionOfIntangibleAssets"
+    ]
+  },
+  "gain_loss_sale_leaseback_transaction": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale And Leaseback Transaction"
+    },
+    "gaap": [
+      "SaleAndLeasebackTransactionGainLossNet"
+    ]
+  },
+  "gain_loss_sale_business": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Business"
+    },
+    "gaap": [
+      "GainLossOnSaleOfBusiness"
+    ]
+  },
+  "gain_loss_sale_property_plant_equipment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Property, Plant and Equipment"
+    },
+    "gaap": [
+      "GainLossOnSaleOfPropertyPlantEquipment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_sale_property + gain_loss_sale_other_property"
+    }
+  },
+  "gain_loss_sale_other_property": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposition of Property Plant Equipment, Excluding Oil and Gas Property and Timber Property"
+    },
+    "gaap": [
+      "GainLossOnDispositionOfAssets"
+    ]
+  },
+  "gain_loss_sale_property": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Property"
+    },
+    "gaap": [
+      "GainLossOnSaleOfPropertyPlantEquipment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_sale_petroleum_property + gain_loss_timber_property"
+    }
+  },
+  "gain_loss_sale_timber_property": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Timber Property"
+    },
+    "gaap": [
+      "GainLossOnSaleOfTimberProperty"
+    ]
+  },
+  "gain_loss_sale_petroleum_property": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Petroleum Property"
+    },
+    "gaap": [
+      "GainLossOnSaleOfOilAndGasProperty"
+    ]
+  },
+  "other_general_expense": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other General Expense"
+    },
+    "gaap": [
+      "OtherGeneralExpense"
+    ]
+  },
+  "provision_doubtful_accounts": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Provision for Doubtful Accounts"
+    },
+    "gaap": [
+      "ProvisionForDoubtfulAccounts"
+    ]
+  },
+  "operating_expenses_recurring": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Expenses"
+    },
+    "gaap": [
+      "OperatingCostsAndExpenses"
+    ],
+    "calculation": {
+      "order": 55,
+      "any": "asset_devaluation_expense + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense",
+      "gaap": "research_development_expense + depreciation_amortization + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_costs + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
+    }
+  },
+  "professional_contract_services_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Professional and Contract Services Expense"
+    },
+    "gaap": [
+      "ProfessionalAndContractServicesExpense"
+    ]
+  },
+  "unsolicited_tender_offer_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unsolicited Tender Offer Costs"
+    },
+    "gaap": [
+      "UnsolicitedTenderOfferCosts"
+    ]
+  },
+  "business_combination_integration_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Business Combination Integration Related Costs"
+    },
+    "gaap": [
+      "BusinessCombinationIntegrationRelatedCosts"
+    ]
+  },
+  "other_operating_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Cost And Expense Operating"
+    },
+    "gaap": [
+      "OtherCostAndExpenseOperating"
+    ]
+  },
+  "insurance_recoveries": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Insurance Recoveries"
+    },
+    "gaap": [
+      "InsuranceRecoveries"
+    ]
+  },
+  "malpractice_loss_contingency": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Malpractice Loss Contingency Claims Incurred Net"
+    },
+    "gaap": [
+      "MalpracticeLossContingencyClaimsIncurredNet"
+    ]
+  },
+  "gain_loss_litigation_settlement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) Related to Litigation Settlement"
+    },
+    "gaap": [
+      "GainLossRelatedToLitigationSettlement"
+    ]
+  },
+  "pre_opening_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pre-opening Costs"
+    },
+    "gaap": [
+      "PreOpeningCosts"
+    ]
+  },
+  "loan_portfolio_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loan Portfolio Expense"
+    },
+    "gaap": [
+      "LoanPortfolioExpense"
+    ]
+  },
+  "accretion_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Accretion Expense Including Asset Retirement Obligations"
+    },
+    "gaap": [
+      "AccretionExpenseIncludingAssetRetirementObligations"
+    ]
+  },
+  "royalty_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Royalty Expense"
+    },
+    "gaap": [
+      "RoyaltyExpense"
+    ]
+  },
+  "sponsor_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Sponsor Fees"
+    },
+    "gaap": [
+      "SponsorFees"
+    ]
+  },
+  "trustee_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Trustee Fees"
+    },
+    "gaap": [
+      "TrusteeFees"
+    ]
+  },
+  "custody_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Custody Fees"
+    },
+    "gaap": [
+      "CustodyFees"
+    ]
+  },
+  "restructuring_settlement_impairment_provisions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Restructuring, Settlement and Impairment Provisions"
+    },
+    "gaap": [
+      "RestructuringSettlementAndImpairmentProvisions"
+    ]
+  },
+  "recapitalization_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Recapitalization Costs"
+    },
+    "gaap": [
+      "RecapitalizationCosts"
+    ]
+  },
+  "property_exploration_rights_carrying_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Carrying Costs for Property and Exploration Rights"
+    },
+    "gaap": [
+      "CarryingCostsPropertyAndExplorationRights"
+    ]
+  },
+  "exploration_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Exploration Expense"
+    },
+    "gaap": [
+      "ExplorationExpense"
+    ]
   },
   "operating_income_loss": {
     "unit": "monetary",
@@ -11365,8 +12013,20 @@
     ],
     "calculation": {
       "order": 45,
-      "any": "selling_marketing_expense + general_administrative_expense"
+      "any": "selling_marketing_expense + general_administrative_expense + other_selling_general_administrative_expense"
     }
+  },
+  "other_selling_general_administrative_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Selling, General and Administrative Expense",
+      "short": "Other SGA Expense"
+    },
+    "gaap": [
+      "OtherSellingGeneralAndAdministrativeExpense"
+    ]
   },
   "selling_marketing_expense": {
     "unit": "monetary",
@@ -11376,10 +12036,39 @@
       "long": "Selling and Marketing Expense"
     },
     "gaap": [
-      "MarketingExpense",
-      "MarketingExpenses",
-      "SellingAndMarketingExpense",
+      "SellingAndMarketingExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "selling_expense + sales_commissions_fees + marketing_advertising_expense + franchisor_costs + product_warranty_expense + other_selling_marketing_expense"
+    }
+  },
+  "marketing_advertising_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Selling and Marketing Expense"
+    },
+    "gaap": [
+      "AdvertisingAndMarketingExpenses",
       "MarketingAndAdvertisingExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "marketing_expense + advertising_expense"
+    }
+  },
+  "marketing_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Marketing Expense"
+    },
+    "gaap": [
+      "MarketingExpense",
+      "MarketingExpenses"
     ]
   },
   "share_price_average": {
