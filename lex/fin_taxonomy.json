@@ -5107,7 +5107,8 @@
       "long": "Interest Expense on Savings Deposits"
     },
     "gaap": [
-      "InterestExpenseSavingsDeposits"
+      "InterestExpenseSavingsDeposits",
+      "InterestExpenseOnSavingAccounts"
     ]
   },
   "interest_expense_nonoperating": {
