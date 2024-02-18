@@ -217,25 +217,6 @@ def get_days(
   return days['days']
 
 
-def stock_split_adjust(df: DataFrame, ratios: Series) -> DataFrame:
-  share_cols = {
-    'shares_outstanding',
-    'weighted_average_shares_outstanding_basic',
-    'weighted_average_shares_outstanding_diluted',
-  }
-  share_cols_ = list(share_cols.intersection(set(df.columns)))
-
-  for i, col in enumerate(share_cols_):
-    df[f'{col}_adjusted'] = df[col]
-    share_cols_[i] = f'{col}_adjusted'
-
-  for date, ratio in ratios.items():
-    mask = df.index.get_level_values('date') < date
-    df.loc[mask, share_cols_] *= ratio
-
-  return df
-
-
 def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
   cols = [
     'weighted_average_shares_outstanding_basic',
@@ -265,29 +246,31 @@ def calculate_stock_splits(df: pd.DataFrame) -> pd.Series:
 
 
 def applier(
-  s: pd.Series,
+  s: Series[float],
   fn: Literal['avg', 'diff', 'shift'],
   slices: list[tuple[slice, slice | str, Literal[3, 12]]],
 ) -> pd.Series:
   result = s.copy()
-  update = [pd.Series()] * len(slices)
+  update: list[Series[float]] = []
 
-  for i, ix in enumerate(slices):
-    _s: pd.Series = result.loc[ix].copy()
-    _s.sort_index(level='date', inplace=True)
+  for ix in slices:
+    s_ = result.loc[ix].copy()
+    s_.sort_index(level='date', inplace=True)
 
-    dates = pd.to_datetime(_s.index.get_level_values('date'))
-    month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=_s.index)
+    dates = pd.to_datetime(s_.index.get_level_values('date'))
+    month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=s_.index)
 
     if fn == 'diff':
-      _s = _s.diff()
+      s_ = s_.diff()
     elif fn == 'avg':
-      _s = _s.rolling(window=2, min_periods=2).mean()
+      s_ = s_.rolling(window=2, min_periods=2).mean()
     elif fn == 'shift':
-      _s = _s.shift()
+      s_ = s_.shift()
 
-    _s = _s.loc[month_diff == ix[2]]
-    update[i] = _s
+    s_ = s_.loc[month_diff == ix[2]]
+
+    if not s_.empty:
+      update.append(cast(Series[float], s_))
 
   update_ = pd.concat(update, axis=0)
   nan_index = pd.Index(list(set(result.index).difference(update_.index)))
@@ -389,10 +372,16 @@ def calculate_items(
           financials = apply_formula(financials, col_set, calculee, formula)
 
     elif (calculer := schema.get('fill')) is not None:
+      if calculee == 'weighted_average_shares_outstanding_basic_adjusted':
+        print(financials[calculer])
       if calculer not in col_set:
         continue
 
+      print('PING!')
+
       financials = insert_to_df(financials, col_set, financials[calculer], calculee)
+      if calculee == 'weighted_average_shares_outstanding_basic_adjusted':
+        print(financials[calculer])
 
     fns = cast(
       set[Literal['avg', 'diff', 'shift']],
@@ -403,7 +392,7 @@ def calculate_items(
       if calculer not in col_set:
         continue
 
-      result = applier(financials[calculer], fn, slices)
+      result = applier(cast(Series[float], financials[calculer]), fn, slices)
       financials = insert_to_df(financials, col_set, result, calculee)
 
     col_set.union(financials.columns)

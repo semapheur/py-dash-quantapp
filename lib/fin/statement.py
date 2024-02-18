@@ -10,7 +10,6 @@ import pandas as pd
 from pandera.typing import DataFrame, Series
 
 from lib.db.lite import read_sqlite, sqlite_path
-from lib.fin.calculation import stock_split_adjust
 from lib.fin.models import (
   FinStatement,
   FinStatementFrame,
@@ -178,12 +177,8 @@ async def load_financials(id: str, currency: Optional[str] = None) -> DataFrame 
   df = cast(
     DataFrame, df.loc[df.index.get_level_values('months').isin((12, 9, 6, 3)), :]
   )
-
+  df.to_csv('test_.csv')
   df = fix_financials(df)
-
-  ratios = stock_splits(id)
-  if ratios is not None:
-    df = stock_split_adjust(df, ratios)
 
   return df
 
@@ -200,8 +195,6 @@ def fix_financials(df: DataFrame) -> DataFrame:
   items = read_sqlite('taxonomy.db', query)
   if items is None:
     raise ValueError('Taxonomy could not be loaded!')
-
-  df.to_csv('test_.csv')
 
   df = cast(
     DataFrame, df.loc[:, list(set(df.columns).intersection(set(items['gaap'])))]

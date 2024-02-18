@@ -20,7 +20,7 @@ from lib.fin.metrics import (
   weighted_average_cost_of_capital,
 )
 from lib.fin.models import Quote, CloseQuote
-from lib.fin.statement import load_financials
+from lib.fin.statement import load_financials, stock_splits
 from lib.fin.quote import get_ohlcv
 from lib.fin.taxonomy import TaxononmyCalculation
 from lib.yahoo.ticker import Ticker
@@ -42,6 +42,30 @@ def load_schema(query: Optional[str] = None) -> dict[str, TaxononmyCalculation]:
   return schema
 
 
+def stock_split_adjust(financials: DataFrame, ratios: Series | None) -> DataFrame:
+  price_cols = {
+    'share_price_close',
+    'share_price_open',
+    'share_price_high',
+    'share_price_low',
+    'share_price_average',
+  }
+  price_cols_ = list(price_cols.intersection(financials.columns))
+
+  for i, col in enumerate(price_cols_):
+    financials[f'{col}_adjusted'] = financials[col]
+    price_cols_[i] = f'{col}_adjusted'
+
+  if ratios is None:
+    return financials
+
+  for date, ratio in ratios.items():
+    mask = financials.index.get_level_values('date') < date
+    financials.loc[mask, price_cols_] /= ratio
+
+  return financials
+
+
 def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> DataFrame:
   price_records = [
     {
@@ -51,13 +75,16 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
       'share_price_low': nan,
       'share_price_average': nan,
     }
-  ] * len(financials)
+    for _ in range(len(financials))
+  ]
 
   for i, ix in enumerate(cast(pd.MultiIndex, financials.index)):
     end_date = cast(dt, ix[0])
     start_date = end_date - relativedelta(months=cast(int, ix[2]))
 
-    price_ = cast(Series[float], price.loc[start_date:end_date, 'close']).sort_index()
+    price_ = (
+      cast(Series[float], price.loc[start_date:end_date, 'close']).copy().sort_index()
+    )
     if price_.empty:
       continue
 
@@ -68,6 +95,7 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
     price_records[i]['share_price_average'] = price_.mean()
 
   price_data = pd.DataFrame.from_records(price_records, index=financials.index)
+
   return cast(DataFrame, pd.concat((financials, price_data), axis=1))
 
 
@@ -103,8 +131,11 @@ async def calculate_fundamentals(
     )
 
   financials = merge_share_price(financials, price)
+  split_ratios = stock_splits(id)
+  financials = stock_split_adjust(financials, split_ratios)
   schema = load_schema()
   financials = calculate_items(financials, schema)
+  financials.to_csv('test.csv')
 
   market_fetcher = partial(Ticker('^GSPC').ohlcv)
   market_close = cast(
