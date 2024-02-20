@@ -2486,6 +2486,87 @@
       "CostOfRevenue",
       "CostsOfRevenue",
       "CostOfGoodsAndServicesSold"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_goods_services_sold + financing_interest_expense + provision_loan_lease + policyholder_benefits_claims_incurred_net + liability_future_policy_benefits_period_expense + interest_policyholders_account_balances + policyholder_dividends + amortization_deferred_sales_inducements + amortization_future_insurance_profits + amortization_mortgage_servicing_rights + amortization_deferred_policy_acquisition_cost + amortization_value_business_acquired + cost_revenue_other - merchant_marine_operating_differential_subsidy"
+    }
+  },
+  "merchant_marine_operating_differential_subsidy": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Merchant Marine Operating Differential Subsidy"
+    },
+    "gaap": [
+      "MerchantMarineOperatingDifferentialSubsidy"
+    ]
+  },
+  "interest_policyholders_account_balances": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest Credited to Policyholders Account Balances"
+    },
+    "gaap": [
+      "InterestCreditedToPolicyholdersAccountBalances"
+    ]
+  },
+  "liability_future_policy_benefits_period_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Liability for Future Policy Benefits Period Expense"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefitsPeriodExpense"
+    ]
+  },
+  "policyholder_benefits_claims_incurred_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Policyholder Benefits and Claims Incurred Net"
+    },
+    "gaap": [
+      "PolicyholderBenefitsAndClaimsIncurredNet"
+    ]
+  },
+  "provision_loan_lease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Provision for Loan Lease and Other Losses"
+    },
+    "gaap": [
+      "ProvisionForLoanLeaseAndOtherLosses"
+    ]
+  },
+  "interest_expense_financing_production": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Financing Interest Expense Related to Production"
+    },
+    "gaap": [
+      "FinancingInterestExpense"
+    ]
+  },
+  "cost_goods_services_sold": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Goods and Services Sold"
+    },
+    "gaap": [
+      "CostOfGoodsAndServicesSold"
     ]
   },
   "cost_revenue_finance": {
@@ -2502,7 +2583,10 @@
     "aggregate": "sum",
     "label": {
       "long": "Other Revenue Cost"
-    }
+    },
+    "gaap": [
+      "OtherCostOfOperatingRevenue"
+    ]
   },
   "cost_revenue_per_day": {
     "unit": "per_day",
