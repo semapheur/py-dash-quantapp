@@ -2484,8 +2484,7 @@
     "gaap": [
       "CostOfSales",
       "CostOfRevenue",
-      "CostsOfRevenue",
-      "CostOfGoodsAndServicesSold"
+      "CostsOfRevenue"
     ],
     "calculation": {
       "order": 0,
@@ -2567,6 +2566,187 @@
     },
     "gaap": [
       "CostOfGoodsAndServicesSold"
+    ]
+  },
+  "cost_goods_services_sold_cash": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Goods and Services Sold Excluding Depreciation, Depletion and Amortization"
+    },
+    "gaap": [
+      "CostOfGoodsAndServiceExcludingDepreciationDepletionAndAmortization"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_direct_material + cost_goods_sold_lease_sales_type + cost_goods_sold_lease_direct_financing + cost_leased_rented_property_equipment + cost_direct_labor + cost_goods_services_sold_overhead + cost_maintenance + direct_taxes_licenses_costs + cost_trust_assets_sold_to_pay_expenses + cost_property_repairs_maintenance + cost_other_property_operating_expense + direct_operating_costs + loss_contracts + affiliate_costs + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production",
+      "gaap": "CostDirectMaterial + CostOfGoodsSoldSalesTypeLease + CostOfGoodsSoldDirectFinancingLease + DirectCostsOfLeasedAndRentedPropertyOrEquipment + CostDirectLabor + CostOfGoodsAndServicesSoldOverhead + CostMaintenance + DirectTaxesAndLicensesCosts + CostOfTrustAssetsSoldToPayExpenses + CostOfPropertyRepairsAndMaintenance + CostOfOtherPropertyOperatingExpense + DirectOperatingCosts + LossOnContracts + AffiliateCosts + InventoryFirmPurchaseCommitmentLoss + ExciseAndSalesTaxes + ProductionRelatedImpairmentsOrCharges"
+    }
+  },
+  "impairment_production": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Production Related Impairments or Charges"
+    },
+    "gaap": [
+      "ProductionRelatedImpairmentsOrCharges"
+    ]
+  },
+  "tax_excise_sales": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Excise and Sales Taxes"
+    },
+    "gaap": [
+      "ExciseAndSalesTaxes"
+    ]
+  },
+  "inventory_firm_purchase_commitment_loss": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Inventory Firm Purchase Commitment Loss"
+    },
+    "gaap": [
+      "InventoryFirmPurchaseCommitmentLoss"
+    ]
+  },
+  "affiliate_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Affiliate Costs"
+    },
+    "gaap": [
+      "AffiliateCosts"
+    ]
+  },
+  "loss_contracts": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss on Contracts"
+    },
+    "gaap": [
+      "LossOnContracts"
+    ]
+  },
+  "direct_operating_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Operating Costs"
+    },
+    "gaap": [
+      "DirectOperatingCosts"
+    ]
+  },
+  "cost_other_property_operating_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Other Property Operating Expense"
+    },
+    "gaap": [
+      "CostOfOtherPropertyOperatingExpense"
+    ]
+  },
+  "cost_property_repairs_maintenance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Property Repairs and Maintenance"
+    },
+    "gaap": [
+      "CostOfPropertyRepairsAndMaintenance"
+    ]
+  },
+  "cost_trust_assets_sold_to_pay_expenses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Trust Assets Sold to Pay Expenses"
+    },
+    "gaap": [
+      "CostOfTrustAssetsSoldToPayExpenses"
+    ]
+  },
+  "direct_taxes_licenses_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Taxes and Licenses Costs"
+    },
+    "gaap": [
+      "DirectTaxesAndLicensesCosts"
+    ]
+  },
+  "cost_maintenance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Maintenance Cost"
+    },
+    "gaap": [
+      "CostMaintenance"
+    ]
+  },
+  "cost_leased_rented_property_equipment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direc Cost of Leased and Rented Property or Equipment"
+    },
+    "gaap": [
+      "DirectCostsOfLeasedAndRentedPropertyOrEquipment"
+    ]
+  },
+  "cost_goods_sold_lease_direct_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Goods Sold Direct Financing Lease"
+    },
+    "gaap": [
+      "CostOfGoodsSoldDirectFinancingLease"
+    ]
+  },
+  "cost_goods_sold_lease_sales_type": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Goods Sold Sales Type Lease"
+    },
+    "gaap": [
+      "CostOfGoodsSoldSalesTypeLease"
+    ]
+  },
+  "cost_direct_material": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Material Cost"
+    },
+    "gaap": [
+      "CostDirectMaterial"
     ]
   },
   "cost_revenue_finance": {
