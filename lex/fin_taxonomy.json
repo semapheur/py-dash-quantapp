@@ -2580,8 +2580,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "cost_direct_material + cost_goods_sold_lease_sales_type + cost_goods_sold_lease_direct_financing + cost_leased_rented_property_equipment + cost_direct_labor + cost_goods_services_sold_overhead + cost_maintenance + direct_taxes_licenses_costs + cost_trust_assets_sold_to_pay_expenses + cost_property_repairs_maintenance + cost_other_property_operating_expense + direct_operating_costs + loss_contracts + affiliate_costs + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production",
-      "gaap": "CostDirectMaterial + CostOfGoodsSoldSalesTypeLease + CostOfGoodsSoldDirectFinancingLease + DirectCostsOfLeasedAndRentedPropertyOrEquipment + CostDirectLabor + CostOfGoodsAndServicesSoldOverhead + CostMaintenance + DirectTaxesAndLicensesCosts + CostOfTrustAssetsSoldToPayExpenses + CostOfPropertyRepairsAndMaintenance + CostOfOtherPropertyOperatingExpense + DirectOperatingCosts + LossOnContracts + AffiliateCosts + InventoryFirmPurchaseCommitmentLoss + ExciseAndSalesTaxes + ProductionRelatedImpairmentsOrCharges"
+      "any": "cost_direct_material + cost_goods_sold_lease_sales_type + cost_goods_sold_lease_direct_financing + cost_leased_rented_property_equipment + cost_direct_labor + cost_goods_services_sold_overhead + cost_maintenance + direct_taxes_licenses_costs + cost_trust_assets_sold_to_pay_expenses + cost_property_repairs_maintenance + cost_other_property_operating_expense + direct_operating_costs + loss_contracts + affiliate_costs + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production"
     }
   },
   "impairment_production": {
