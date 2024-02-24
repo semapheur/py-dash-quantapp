@@ -1,6 +1,7 @@
 import ast
+from datetime import date
 import re
-from typing import cast, Literal
+from typing import cast, Annotated, Literal, Optional
 import xml.etree.ElementTree as et
 
 import bs4 as bs
@@ -28,7 +29,7 @@ def xbrl_namespaces(dom: bs.BeautifulSoup) -> dict:
   return namespaces
 
 
-def gaap_items(year: int) -> pd.DataFrame:
+def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   def parse_type(text: str) -> str:
     return text.replace('ItemType', '').split(':')[-1]
 
@@ -54,7 +55,7 @@ def gaap_items(year: int) -> pd.DataFrame:
   return df
 
 
-def gaap_labels(year: int) -> pd.DataFrame:
+def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-lab-{year}.xml'
 
   with httpx.Client() as client:
@@ -74,7 +75,7 @@ def gaap_labels(year: int) -> pd.DataFrame:
   return df
 
 
-def gaap_description(year: int) -> pd.DataFrame:
+def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-doc-{year}.xml'
 
   with httpx.Client() as client:
@@ -95,7 +96,7 @@ def gaap_description(year: int) -> pd.DataFrame:
   return df
 
 
-def gaap_calculation_url(year: int) -> list[str]:
+def gaap_calculation_url(year: Annotated[int, '>=2011']) -> list[str]:
   url = f'https://xbrl.fasb.org/us-gaap/{year}/stm/'
 
   with httpx.Client() as client:
@@ -131,7 +132,7 @@ def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
   return schema
 
 
-def gaap_calculation(year: int) -> pd.DataFrame:
+def gaap_calculation(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   def calculation_text(calc: dict[str, dict[str, float]]) -> str:
     def parse_weight(weight: float) -> str:
       result = '- ' if weight < 0 else '+ '
@@ -160,7 +161,7 @@ def gaap_calculation(year: int) -> pd.DataFrame:
   return df
 
 
-def gaap_taxonomy(year: int):
+def gaap_taxonomy(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   items = gaap_items(year)
   labels = gaap_labels(year)
   description = gaap_description(year)
@@ -170,9 +171,32 @@ def gaap_taxonomy(year: int):
   items = items.merge(description, how='left', on='name')
   items = items.merge(calculation, how='left', on='name')
   items.drop_duplicates(inplace=True)
+
+  duplicates = items[items.duplicated(subset='name', keep=False)]
+  drop_rows: list[int] = []
+  for name in duplicates['name'].unique():
+    df = duplicates.loc[duplicates['name'] == name, :].copy()
+    drop_rows.append(df.loc[df['label'].str.len().idxmax()].index[0])
+
+  items.drop(index=drop_rows, inplace=True)
   items.sort_values('name', inplace=True)
-  insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
+  items.insert(0, 'year', year, True)
+
   return items
+
+
+def complete_gaap_taxonomy(end_year: Optional[int] = None):
+  if end_year is None:
+    end_year = date.today().year
+
+  dfs = [gaap_taxonomy(y) for y in range(2011, end_year)]
+  items = pd.concat(dfs, axis=0)
+
+  items.drop_duplicates(
+    subset=['name', 'label', 'description', 'calculation'], inplace=True
+  )
+  items.sort_values(['year', 'name'], inplace=True)
+  insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
 
 
 class CalcVisitor(ast.NodeVisitor):
@@ -202,9 +226,11 @@ class CalcVisitor(ast.NodeVisitor):
     self.generic_visit(node)
 
 
-def gaap_network() -> tuple[list[dict[str, int | str]], list[dict[str, str]]]:
+def gaap_network() -> tuple[list[dict[str, int | str]], list[dict[str, str]]] | None:
   query = 'SELECT DISTINCT name, calculation FROM gaap WHERE type = "monetary"'
   df = read_sqlite('taxonomy.db', query)
+  if df is None:
+    return None
 
   node_id: set[str] = set()
   edges: list[dict[str, str]] = []
