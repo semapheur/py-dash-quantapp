@@ -5643,10 +5643,10 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "interest_income_investment - interest_expense_nonoperating"
+      "any": "investment_income_interest - interest_expense_nonoperating"
     }
   },
-  "interest_income_investment": {
+  "investment_income_interest": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -5657,7 +5657,7 @@
       "InvestmentIncomeInterest"
     ]
   },
-  "interest_income_investment_nonoperating": {
+  "investment_income_nonoperating": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -5669,8 +5669,100 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "NonoperatingGainsLosses + RoyaltyIncomeNonoperating + RentalIncomeNonoperating + DevelopmentProfitsNonoperating - RecoveryStrandedCosts + LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases + InvestmentIncomeNet"
+      "any": "nonoperating_gain_loss + royalty_income_nonoperating + rental_income_nonoperating + development_profits_nonoperating - recovery_stranded_costs + leveraged_lease_income_net + InvestmentIncomeNet"
     }
+  },
+  "leveraged_lease_income_net": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Leveraged Lease Income"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "leveraged_lease_income - tax_expense_leveraged_lease + tax_credit_leveraged_lease"
+    }
+  },
+  "tax_credit_leveraged_lease": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Credit Recognized on Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementInvestmentTaxCreditRecognizedOnLeveragedLeases"
+    ]
+  },
+  "tax_expense_leveraged_lease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Expense on Leveraged Lease Income"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementIncomeTaxExpenseOnLeveragedLeases"
+    ]
+  },
+  "leveraged_lease_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Leveraged Lease Income"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementIncomeFromLeveragedLeases"
+    ]
+  },
+  "recovery_stranded_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Recovery Stranded Costs"
+    },
+    "gaap": [
+      "RecoveryStrandedCosts"
+    ]
+  },
+  "development_profits_nonoperating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-operating Development Profits"
+    },
+    "gaap": [
+      "DevelopmentProfitsNonoperating"
+    ]
+  },
+  "rental_income_nonoperating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-operating Rental Income"
+    },
+    "gaap": [
+      "RentalIncomeNonoperating"
+    ]
+  },
+  "royalty_income_nonoperating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-operating Royalty Income"
+    },
+    "gaap": [
+      "RoyaltyIncomeNonoperating"
+    ]
   },
   "nonoperating_gain_loss": {
     "unit": "monetary",
@@ -5684,8 +5776,159 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "GainLossOnInvestments + VentureCapitalGainsLossesNet + DisposalGroupNotDiscontinuedOperationGainLossOnDisposal + GainLossOnSaleOfStockInSubsidiaryOrEquityMethodInvestee + DeconsolidationGainOrLossAmount + GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome + GainLossOnSaleOfInterestInProjects + GainLossOnDerivativeInstrumentsNetPretax + BusinessCombinationBargainPurchaseGainRecognizedAmount + OtherNonoperatingGainsLosses"
+      "any": "gain_loss_investment + gain_loss_venture_capital + gain_loss_disposal_not_discontinued_operation + gain_loss_sale_stock_subsidiary + gain_loss_deconsolidation + gain_loss_sale_stock_unissued + gain_loss_sale_interest_projects + gain_loss_derivative_intstruments_pretax + gain_business_combination_bargain_purchase + gain_loss_nonoperating_other"
     }
+  },
+  "gain_business_combination_bargain_purchase": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Recognized Gain on Bargain Purchase of Business Combination"
+    },
+    "gaap": [
+      "BusinessCombinationBargainPurchaseGainRecognizedAmount"
+    ]
+  },
+  "gain_loss_nonoperating_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-operating Gains (Losses)"
+    },
+    "gaap": [
+      "OtherNonoperatingGainsLosses"
+    ]
+  },
+  "gain_loss_derivative_intstruments_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pretax Gain (Loss) on Derivative Instruments"
+    },
+    "gaap": [
+      "GainLossOnDerivativeInstrumentsNetPretax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_derivative_intstruments_pretax - loss_derivative_intstruments_pretax"
+    }
+  },
+  "gain_derivative_intstruments_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pretax Gain on Derivative Instruments"
+    },
+    "gaap": [
+      "GainOnDerivativeInstrumentsPretax"
+    ]
+  },
+  "loss_derivative_intstruments_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pretax Loss on Derivative Instruments"
+    },
+    "gaap": [
+      "LossOnDerivativeInstrumentsPretax"
+    ]
+  },
+  "gain_loss_sale_interest_projects": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Interest in Projects"
+    },
+    "gaap": [
+      "GainLossOnSaleOfInterestInProjects"
+    ]
+  },
+  "gain_loss_sale_stock_unissued": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Previously Unissued Stock by Subsidiary or Equity Investee Non-operating Income"
+    },
+    "gaap": [
+      "GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_sale_stock_unissued_subsidiary + gain_loss_sale_stock_unissued_equity_investee"
+    }
+  },
+  "gain_loss_sale_stock_unissued_equity_investee": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Previously Unissued Stock by Equity Investee"
+    },
+    "gaap": [
+      "GainOrLossOnSaleOfPreviouslyUnissuedStockByEquityInvestee"
+    ]
+  },
+  "gain_loss_sale_stock_unissued_subsidiary": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Previously Unissued Stock by Subsidiary"
+    },
+    "gaap": [
+      "GainOrLossOnSaleOfPreviouslyUnissuedStockBySubsidiary"
+    ]
+  },
+  "gain_loss_deconsolidation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Deconsolidation"
+    },
+    "gaap": [
+      "DeconsolidationGainOrLossAmount"
+    ]
+  },
+  "gain_loss_sale_stock_subsidiary": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Stock in Subsidiary or Equity Method Investee"
+    },
+    "gaap": [
+      "GainLossOnSaleOfStockInSubsidiaryOrEquityMethodInvestee"
+    ]
+  },
+  "gain_loss_disposal_not_discontinued_operation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposal of Disposal Group excluding Discontinued Operation"
+    },
+    "gaap": [
+      "DisposalGroupNotDiscontinuedOperationGainLossOnDisposal"
+    ]
+  },
+  "gain_loss_venture_capital": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Venture Capital"
+    },
+    "gaap": [
+      "VentureCapitalGainsLossesNet"
+    ]
   },
   "gain_loss_investment": {
     "unit": "monetary",
@@ -6692,6 +6935,17 @@
       "any": "productive_assets_payments + intangible_assets_payments + securities_payments + acquisition_divestitures_payments"
     }
   },
+  "investment_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Expense"
+    },
+    "gaap": [
+      "InvestmentIncomeNet"
+    ]
+  },
   "investment_income": {
     "unit": "monetary",
     "balance": "credit",
@@ -6700,7 +6954,74 @@
       "long": "Investment Income"
     },
     "gaap": [
+      "InvestmentIncomeNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_income_interest_dividend + investment_income_net_amortization_discount_premium - investment_expense"
+    }
+  },
+  "investment_income_net_amortization_discount_premium": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Income net of Amortization of Discount and Premium"
+    },
+    "gaap": [
+      "InvestmentIncomeNetAmortizationOfDiscountAndPremium"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "amortization_investment_discount - amortization_investment_premium"
+    }
+  },
+  "amortization_investment_premium": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Premium on Investment"
+    },
+    "gaap": [
+      "InvestmentIncomeAmortizationOfPremium"
+    ]
+  },
+  "amortization_investment_discount": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Discount on Investment"
+    },
+    "gaap": [
+      "InvestmentIncomeAmortizationOfDiscount"
+    ]
+  },
+  "investment_income_interest_dividend": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Interest and Dividend Income"
+    },
+    "gaap": [
       "InvestmentIncomeInterestAndDividend"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_income_interest + investment_income_dividend"
+    }
+  },
+  "investment_income_dividend": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Divident Income"
+    },
+    "gaap": [
+      "InvestmentIncomeDividend"
     ]
   },
   "investments_current": {
