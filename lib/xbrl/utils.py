@@ -33,7 +33,10 @@ def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   def parse_type(text: str) -> str:
     return text.replace('ItemType', '').split(':')[-1]
 
-  url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-{year}.xsd'
+  url = (
+    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
+    f'us-gaap-{year}{"-01-31" if year < 2022 else ""}.xsd'
+  )
 
   with httpx.Client() as client:
     rs = client.get(url)
@@ -56,7 +59,10 @@ def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
 
 
 def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
-  url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-lab-{year}.xml'
+  url = (
+    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
+    f'us-gaap-lab-{year}{"-01-31" if year < 2022 else ""}.xml'
+  )
 
   with httpx.Client() as client:
     rs = client.get(url)
@@ -76,7 +82,10 @@ def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
 
 
 def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
-  url = f'https://xbrl.fasb.org/us-gaap/{year}/elts/us-gaap-doc-{year}.xml'
+  url = (
+    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
+    f'us-gaap-doc-{year}{"-01-31" if year < 2022 else ""}.xml'
+  )
 
   with httpx.Client() as client:
     rs = client.get(url)
@@ -84,11 +93,20 @@ def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
 
   data: list[dict[str, str]] = []
 
+  pattern = (
+    r'^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|'
+    r'\[\d{4}-\d{2}\] \{(Element Deprecated|Modified References|New Element)\})$'
+  )
+
   for item in root.findall('.//link:label', namespaces=NAMESPACE):
+    description = cast(str, item.text)
+    if re.match(pattern, description) is not None:
+      continue
+
     data.append(
       {
         'name': item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
-        'description': cast(str, item.text),
+        'description': description,
       }
     )
 
@@ -103,7 +121,7 @@ def gaap_calculation_url(year: Annotated[int, '>=2011']) -> list[str]:
     rs = client.get(url)
     dom = bs.BeautifulSoup(rs.text, 'lxml')
 
-  pattern = rf'-cal-{year}.xml$'
+  pattern = rf'-cal-{year}{"-01-31" if year < 2022 else ""}.xml$'
 
   urls: list[str] = []
   for a in dom.find_all('a', href=True):
@@ -172,11 +190,13 @@ def gaap_taxonomy(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   items = items.merge(calculation, how='left', on='name')
   items.drop_duplicates(inplace=True)
 
-  duplicates = items[items.duplicated(subset='name', keep=False)]
+  duplicates = items.loc[
+    items.duplicated(subset=['name', 'type'], keep=False), :
+  ].copy()
   drop_rows: list[int] = []
   for name in duplicates['name'].unique():
     df = duplicates.loc[duplicates['name'] == name, :].copy()
-    drop_rows.append(df.loc[df['label'].str.len().idxmax()].index[0])
+    drop_rows.append(df['label'].str.len().idxmin())
 
   items.drop(index=drop_rows, inplace=True)
   items.sort_values('name', inplace=True)
