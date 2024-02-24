@@ -1092,9 +1092,7 @@
     ],
     "calculation": {
       "order": 0,
-      "all": "amortization_acquisition_costs_financing_costs + amortization_deferred_warrant_costs",
-      "any": "amortization_acquisition_costs + amortization_intangible_assets + amortization_deferred_sales_commissions + amortization_regulatory_asset + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_depreciation_decontaminating_decommissioning_assets + amortization_deferred_charges_other",
-      "temp": "AmortizationOfAcquisitionCosts + AmortizationOfIntangibleAssets + AmortizationOfDeferredSalesCommissions + AmortizationOfRegulatoryAsset + FinanceLeaseRightOfUseAssetAmortization + AmortizationOfPowerContractsEmissionCredits + AmortizationOfNuclearFuelLease + AmortizationOfAdvanceRoyalty + AmortizationOfDeferredPropertyTaxes + AmortizationOfRateDeferral + AmortizationOfDeferredHedgeGains + AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets + OtherAmortizationOfDeferredCharges"
+      "any": "amortization_acquisition_costs + amortization_intangible_assets + amortization_deferred_sales_commissions + amortization_regulatory_asset + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_depreciation_decontaminating_decommissioning_assets + amortization_deferred_charges_other"
     }
   },
   "amortization_deferred_charges_other": {
@@ -1230,7 +1228,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depletion_production + depletion_petroleum_propery"
+      "any": "depletion_production + depletion_petroleum_property"
     }
   },
   "depletion_production": {
@@ -1242,6 +1240,17 @@
     },
     "gaap": [
       "CostDepletion"
+    ]
+  },
+  "depletion_petroleum_property": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depletion Related to Production"
+    },
+    "gaap": [
+      "DepletionOfOilAndGasProperties"
     ]
   },
   "depreciation_nonproduction": {
@@ -1270,8 +1279,7 @@
     ],
     "calculation": {
       "order": 53,
-      "any": "depreciation + amortization_intangible_assets",
-      "temp": "depreciation + amortization + other_depreciation_amortization + Depletion"
+      "any": "depreciation + amortization + other_depreciation_amortization + depletion"
     }
   },
   "asset_devaluation_expense": {
@@ -3541,6 +3549,21 @@
     },
     "gaap": [
       "Depreciation"
+    ],
+    "calculation": {
+      "order": 49,
+      "any": "depreciation_production + depreciation_nonproduction"
+    }
+  },
+  "depreciation_production": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation of Tangible Asset Directly Used in Production of Goods and Rendering of Services"
+    },
+    "gaap": [
+      "CostOfGoodsAndServicesSoldDepreciation"
     ],
     "calculation": {
       "order": 49,
@@ -7827,7 +7850,7 @@
     "calculation": {
       "order": 55,
       "any": "asset_devaluation_expense + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense",
-      "gaap": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_disposition_assets - sales_type_lease_selling_profit_loss + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
+      "gaap": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
     }
   },
   "government_assistance_operating_expense": {
@@ -7940,7 +7963,7 @@
       "SalesTypeLeaseSellingProfitLoss"
     ]
   },
-  "gain_loss_disposition_assets": {
+  "gain_loss_sale_assets": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -7952,8 +7975,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "gain_loss_sale_property_plant_equipment + gain_loss_sale_business + gain_loss_sale_leaseback_transaction + gain_loss_disposition_intangible_assets + gain_loss_termination_lease + gain_loss_sale_other_assets",
-      "temp": "GainLossOnSaleOfPropertyPlantEquipment + GainLossOnSaleOfBusiness + SaleAndLeasebackTransactionGainLossNet + GainLossOnDispositionOfIntangibleAssets + GainLossOnTerminationOfLease + GainLossOnSaleOfOtherAssets"
+      "any": "gain_loss_sale_property_plant_equipment + gain_loss_sale_business + gain_loss_sale_leaseback_transaction + gain_loss_sale_intangible_assets + gain_loss_termination_lease + gain_loss_sale_other_assets"
     }
   },
   "gain_loss_sale_other_assets": {
@@ -7978,7 +8000,7 @@
       "GainLossOnTerminationOfLease"
     ]
   },
-  "gain_loss_disposition_intangible_assets": {
+  "gain_loss_sale_intangible_assets": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -8327,8 +8349,93 @@
     ],
     "calculation": {
       "order": 56,
-      "all": "gross_profit - operating_expenses"
+      "all": "gross_profit - operating_expenses + government_assistance_income_loss + other_operating_income_expense"
     }
+  },
+  "other_operating_income_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Operating Income (Expense)"
+    },
+    "gaap": [
+      "OtherOperatingIncomeExpenseNet"
+    ],
+    "calculation": {
+      "order": 624,
+      "any": "other_noninterest_operating_income - other_expense - other_nonrecurring_income_expense + capitalized_costs_recovered_phase_in_plan"
+    }
+  },
+  "capitalized_costs_recovered_phase_in_plan": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Capitalized Costs Recovered from Phase-in-plan"
+    },
+    "gaap": [
+      "PhaseInPlanAmountOfCapitalizedCostsRecovered"
+    ]
+  },
+  "other_noninterest_operating_income": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-interest Operating Income"
+    },
+    "gaap": [
+      "NoninterestIncomeOtherOperatingIncome"
+    ]
+  },
+  "other_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Expenses"
+    },
+    "gaap": [
+      "OtherExpenses"
+    ]
+  },
+  "other_nonrecurring_income_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-recurring (Income) Expense"
+    },
+    "gaap": [
+      "OtherNonrecurringIncomeExpense"
+    ],
+    "calculation": {
+      "order": 624,
+      "any": "other_nonrecurring_expense - other_nonrecurring_income"
+    }
+  },
+  "other_nonrecurring_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-recurring Income"
+    },
+    "gaap": [
+      "OtherNonrecurringIncome"
+    ]
+  },
+  "other_nonrecurring_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-recurring Expense"
+    },
+    "gaap": [
+      "OtherNonrecurringExpense"
+    ]
   },
   "operating_profit_margin": {
     "unit": "monetary_ratio",
@@ -11520,14 +11627,53 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Depreciation, Depletion and Amortization",
-      "short": "Accumulated DDA"
+      "long": "Accumulated Depreciation, Depletion and Amortization of Property, Plant and Equipment",
+      "short": "Accumulated DDA of PPE"
     },
     "gaap": [
       "AccumulatedDepreciationAndAmortization",
       "AccumulatedDepreciationAndImpairmentPropertyPlantAndEquipment",
       "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment",
       "AccumulatedDepreciationDepletionAndAmortizationDerecognitionOfPropertyPlantAndEquipment"
+    ]
+  },
+  "change_property_plant_equipment_accumulated_devaluation": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "label": {
+      "long": "Accumulated Depreciation, Depletion and Amortization",
+      "short": "Accumulated DDA"
+    },
+    "gaap": [
+      "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentPeriodIncreaseDecrease"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depreciation_depletion_amortization - property_plant_equipment_accumulated_devaluation_reclassification - property_plant_equipment_accumulated_devaluation_sale",
+      "diff": "property_plant_equipment_accumulated_devaluation"
+    }
+  },
+  "property_plant_equipment_accumulated_devaluation_sale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Change in Accumulated Depreciation Depletion and Amortization due to Sale of Property, Plant and Equipment"
+    },
+    "gaap": [
+      "AccumulatedDepreciationDepletionAndAmortizationSaleOfPropertyPlantAndEquipment1"
+    ]
+  },
+  "property_plant_equipment_accumulated_devaluation_reclassification": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Change in Accumulated Depreciation Depletion and Amortization due to Reclassification from Property, Plant and Equipment",
+      "short": "Gross PPE"
+    },
+    "gaap": [
+      "AccumulatedDepreciationDepletionAndAmortizationReclassificationsFromPropertyPlantAndEquipment1"
     ]
   },
   "property_plant_equipment_gross": {
