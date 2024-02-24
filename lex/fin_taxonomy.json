@@ -2546,6 +2546,21 @@
       "ProvisionForLoanLeaseAndOtherLosses"
     ]
   },
+  "interest_income_expense_after_provision_loan_lease": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest Income (Expense) after Provision for Loan Lease and Other Losses"
+    },
+    "gaap": [
+      "InterestIncomeExpenseAfterProvisionForLoanLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "interest_income_expense -provision_loan_lease"
+    }
+  },
   "interest_expense_financing_production": {
     "unit": "monetary",
     "balance": "debit",
@@ -4013,7 +4028,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Available-For-Sale Debt Securities Realized Gain (Loss)"
+      "long": "Realized Gain (Loss) on Available-For-Sale Debt Securities"
     },
     "gaap": [
       "DebtSecuritiesAvailableForSaleRealizedGainLoss"
@@ -4028,15 +4043,37 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Debt Securities Realized Gain (Loss)"
+      "long": "Realized Gain (Loss) on Debt Securities"
     },
     "gaap": [
       "DebtSecuritiesRealizedGainLoss"
     ],
     "calculation": {
       "order": 475,
-      "all": "gain_realized_securities_debt - loss_realized_securities_debt"
+      "any": "gain_loss_realized_securities_debt_trade + gain_loss_realized_securities_debt_afs + gain_loss_sale_securities_debt_htm"
     }
+  },
+  "gain_loss_sale_securities_htm_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Held-to-maturity Debt Securities"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesSoldSecurityRealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ]
+  },
+  "gain_loss_realized_securities_debt_trade": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Trading Debt Securities"
+    },
+    "gaap": [
+      "DebtSecuritiesTradingRealizedGainLoss"
+    ]
   },
   "gain_loss_realized_securities_debt_equity": {
     "unit": "monetary",
@@ -4155,7 +4192,7 @@
     ],
     "calculation": {
       "order": 500,
-      "all": "gain_loss_realized_securities_debt + gain_loss_unrealized_securities_debt"
+      "any": "gain_loss_realized_securities_debt + gain_loss_unrealized_securities_debt"
     }
   },
   "gain_loss_securities_fvni_equity": {
@@ -5606,7 +5643,119 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "interest_income_nonoperating - interest_expense_nonoperating"
+      "any": "interest_income_investment - interest_expense_nonoperating"
+    }
+  },
+  "interest_income_investment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Interest Income"
+    },
+    "gaap": [
+      "InvestmentIncomeInterest"
+    ]
+  },
+  "interest_income_investment_nonoperating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-operating Investment Interest Income"
+    },
+    "gaap": [
+      "InvestmentIncomeNonoperating"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "NonoperatingGainsLosses + RoyaltyIncomeNonoperating + RentalIncomeNonoperating + DevelopmentProfitsNonoperating - RecoveryStrandedCosts + LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases + InvestmentIncomeNet"
+    }
+  },
+  "nonoperating_gain_loss": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-operating Gains (Losses)"
+    },
+    "gaap": [
+      "NonoperatingGainsLosses"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "GainLossOnInvestments + VentureCapitalGainsLossesNet + DisposalGroupNotDiscontinuedOperationGainLossOnDisposal + GainLossOnSaleOfStockInSubsidiaryOrEquityMethodInvestee + DeconsolidationGainOrLossAmount + GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome + GainLossOnSaleOfInterestInProjects + GainLossOnDerivativeInstrumentsNetPretax + BusinessCombinationBargainPurchaseGainRecognizedAmount + OtherNonoperatingGainsLosses"
+    }
+  },
+  "gain_loss_investment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Investments"
+    },
+    "gaap": [
+      "GainLossOnInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_investment_realized + gain_loss_investment_unrealized"
+    }
+  },
+  "gain_loss_investment_realized": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Investments"
+    },
+    "gaap": [
+      "RealizedInvestmentGainsLosses"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "GainLossOnSecuritizationOfFinancialAssets + DebtAndEquitySecuritiesRealizedGainLoss + GainLossOnSaleOfProperties + GainsLossesOnSalesOfInvestmentRealEstate + GainLossOnSaleOfOtherInvestments + EquityMethodInvestmentRealizedGainLossOnDisposal"
+    }
+  },
+  "gain_loss_securities_realized": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Debt and Equity Securities"
+    },
+    "gaap": [
+      "DebtAndEquitySecuritiesRealizedGainLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_realized_securities_debt + gain_loss_realized_securities_fvni_equity"
+    }
+  },
+  "gain_loss_securitization_financial_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Securitization of Financial Assets"
+    },
+    "gaap": [
+      "GainLossOnSecuritizationOfFinancialAssets"
+    ]
+  },
+  "gain_loss_investment_unrealized": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Investments"
+    },
+    "gaap": [
+      "UnrealizedGainLossOnInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_investment_realized + gain_loss_investment_unrealized"
     }
   },
   "interest_income_expense": {
@@ -5911,7 +6060,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "interest_expense_operating + interest_nonoperating + interest_expense_other"
+      "any": "interest_expense_operating + interest_expense_nonoperating + interest_expense_other"
     }
   },
   "interest_expense_operating": {
