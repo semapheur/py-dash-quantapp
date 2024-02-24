@@ -47,7 +47,6 @@
     },
     "gaap": [
       "AccretionAmortizationOfDiscountsAndPremiumsInvestmentsTrading",
-      "AccretionAmortizationofDiscountsandPremiumsInvestmentsTrading",
       "AccretionAmortizationofDiscountsandPremiumsInvestmentsTrading"
     ]
   },
@@ -659,16 +658,31 @@
       "AmortizationOfDebtDiscountPremium"
     ]
   },
-  "amortization_discounts_premiums_investments": {
+  "amortization_discounts_premiums_investments_shortterm": {
     "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Accretion of Discounts and Premiums on Trade Securities"
+      "long": "Accretion of Discounts and Premiums on Short-term Investments"
     },
     "gaap": [
       "AmortizationOfPremiumAndDiscountOnShortTermInvestments"
     ]
+  },
+  "amortization_intangible_assets_liabilities": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Intangible Assets and Liabilities"
+    },
+    "gaap": [
+      "AmortizationOfIntangibleAssetsAndLiabilitiesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "amortization_intangible_assets - amortization_intangible_liabilities"
+    }
   },
   "amortization_expense": {
     "unit": "monetary_noncash",
@@ -680,15 +694,29 @@
     "gaap": [
       "AmortisedCost",
       "AmortizationExpense",
-      "AmortisationExpense",
-      "AmortizationOfIntangibleAssetsAndLiabilitiesNet"
+      "AmortisationExpense"
     ],
     "calculation": {
       "order": 131,
-      "any": "amortization_acquisition_costs + amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_advance_royalty + amortization_lease_incentives_benefit + amortization_intangible_assets + amortization_lease_assets + amortization_other_assets + amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss",
-      "gaap": "amortization_revenue_cost + amortization_future_insurance_profits + amortization_intangible_assets + amortization_deferred_policy_acquisition_cost + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees_net + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_investments + amortization_acquisition_costs + amortization_deferred_sales_commissions + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_regulatory_asset + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_deferred_charges_other + amortization_financing_costs_discounts + amortization_depreciation_decontaminating_decommissioning_assets"
+      "any": "amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets + amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss",
+      "gaap": "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_cost + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs"
+    }
+  },
+  "amortization_deferred_costs": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization of Deferred Charges"
     },
-    "temp": "CostOfGoodsAndServicesSoldAmortization + PresentValueOfFutureInsuranceProfitsAmortizationExpense1 + AmortizationOfIntangibleAssets + DeferredPolicyAcquisitionCostAmortizationExpense + DeferredSalesInducementsAmortizationExpense + AmortizationOfValueOfBusinessAcquiredVOBA - AmortizationOfDeferredLoanOriginationFeesNet + AmortizationOfMortgageServicingRightsMSRs - AccretionAmortizationOfDiscountsAndPremiumsInvestments + AmortizationOfAcquisitionCosts + AmortizationOfDeferredSalesCommissions + FinanceLeaseRightOfUseAssetAmortization + AmortizationOfPowerContractsEmissionCredits + AmortizationOfNuclearFuelLease + AmortizationOfRegulatoryAsset + AmortizationOfAdvanceRoyalty + AmortizationOfDeferredPropertyTaxes + AmortizationOfRateDeferral + AmortizationOfDeferredHedgeGains + OtherAmortizationOfDeferredCharges + AmortizationOfFinancingCostsAndDiscounts + AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets"
+    "gaap": [
+      "AmortizationOfDeferredCosts",
+      "AmortizationOfDeferredCharges"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "amortization_acquisition_costs + amortization_intangible_assets + amortization_deferred_sales_commissions + amortization_regulatory_asset + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_depreciation_decontaminating_decommissioning_assets + amortization_deferred_costs_other"
+    }
   },
   "amortization_financing_costs_discounts": {
     "unit": "monetary_noncash",
@@ -714,17 +742,6 @@
     },
     "gaap": [
       "AmortizationOfMortgageServicingRightsMSRs"
-    ]
-  },
-  "amortization_deferred_loan_origination_fees_net": {
-    "unit": "monetary_noncash",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Net Amortization of Deferred Loan Origination Fees"
-    },
-    "gaap": [
-      "AmortizationOfDeferredLoanOriginationFeesNet"
     ]
   },
   "amortization_value_business_acquired": {
@@ -771,7 +788,7 @@
       "PresentValueOfFutureInsuranceProfitsAmortizationExpense1"
     ]
   },
-  "amortization_intangible_productive_assets": {
+  "amortization_production": {
     "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
@@ -920,18 +937,14 @@
   },
   "amortization_intangible_liabilities": {
     "unit": "monetary_noncash",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "sum",
     "label": {
       "long": "Amortization of Intangible Liabilities"
     },
     "gaap": [
       "AmortizationofIntangibleLiabilities"
-    ],
-    "calculation": {
-      "order": 125,
-      "any": "amortization_deferred_revenue"
-    }
+    ]
   },
   "amortization_interest_expense_beneficial_conversion_feature": {
     "unit": "monetary_noncash",
@@ -1050,23 +1063,6 @@
       "AmortizationOfUnrecognizedPensionLoss"
     ]
   },
-  "depreciation_amortization": {
-    "unit": "monetary_noncash",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Depreciation and Amortization",
-      "short": "D&A"
-    },
-    "gaap": [
-      "DepreciationAndAmortization"
-    ],
-    "calculation": {
-      "order": 53,
-      "any": "depreciation + amortization_intangible_assets",
-      "temp": "depreciation_nonproduction + depletion_petroleum_properties + amortization_deferred_charges + other_depreciation_amortization"
-    }
-  },
   "other_depreciation_amortization": {
     "unit": "monetary_noncash",
     "balance": "debit",
@@ -1079,23 +1075,7 @@
       "OtherDepreciationAndAmortization"
     ]
   },
-  "amortization_deferred_charges": {
-    "unit": "monetary_noncash",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Amortization of Deferred Charges"
-    },
-    "gaap": [
-      "AmortizationOfDeferredCosts",
-      "AmortizationOfDeferredCharges"
-    ],
-    "calculation": {
-      "order": 0,
-      "any": "amortization_acquisition_costs + amortization_intangible_assets + amortization_deferred_sales_commissions + amortization_regulatory_asset + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_depreciation_decontaminating_decommissioning_assets + amortization_deferred_charges_other"
-    }
-  },
-  "amortization_deferred_charges_other": {
+  "amortization_deferred_costs_other": {
     "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
@@ -1274,12 +1254,28 @@
     },
     "gaap": [
       "DepreciationAmortizationAndAccretionNet",
-      "DepreciationDepletionAndAmortization",
-      "DepreciationAndAmortization"
+      "DepreciationDepletionAndAmortization"
     ],
     "calculation": {
       "order": 53,
-      "any": "depreciation + amortization + other_depreciation_amortization + depletion"
+      "any": "depreciation + amortization_expense + other_depreciation_amortization + depletion",
+      "temp": "depreciation_depletion_amortization_nonproduction + depreciation_nonproduction + "
+    }
+  },
+  "depreciation_depletion_amortization_nonproduction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation, Depletion and Amortization",
+      "short": "DDA"
+    },
+    "gaap": [
+      "DepreciationAndAmortization"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depreciation_nonproduction + depletion_petroleum_properties + amortization_deferred_costs + other_depreciation_amortization"
     }
   },
   "asset_devaluation_expense": {
@@ -3567,7 +3563,7 @@
     ],
     "calculation": {
       "order": 49,
-      "any": "depreciation_production + depreciation_nonproduction"
+      "any": "depreciation_property_plant_equipment"
     }
   },
   "depreciation_property_plant_equipment": {
@@ -6179,11 +6175,11 @@
     ]
   },
   "amortization_deferred_loan_origination_fees": {
-    "unit": "monetary",
+    "unit": "monetary_noncash",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Amortization of Deferred Loan Origination Fees Net"
+      "long": "Net Amortization of Deferred Loan Origination Fees"
     },
     "gaap": [
       "AmortizationOfDeferredLoanOriginationFeesNet"
