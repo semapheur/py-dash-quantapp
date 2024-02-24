@@ -4207,7 +4207,7 @@
     ],
     "calculation": {
       "order": 501,
-      "all": "gain_loss_realized_securities_fvni_equity + gain_loss_realized_securities_fvni_equity"
+      "all": "gain_realized_securities_fvni_equity + loss_realized_securities_fvni_equity"
     }
   },
   "gain_loss_securities_marketable": {
@@ -5714,8 +5714,52 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "GainLossOnSecuritizationOfFinancialAssets + DebtAndEquitySecuritiesRealizedGainLoss + GainLossOnSaleOfProperties + GainsLossesOnSalesOfInvestmentRealEstate + GainLossOnSaleOfOtherInvestments + EquityMethodInvestmentRealizedGainLossOnDisposal"
+      "any": "gain_loss_securitization_financial_assets + gain_loss_securities_realized + gain_loss_sale_properties + gain_loss_sale_investment_real_estate + gain_loss_sale_investment_other + gain_loss_sale_equity_method_investment"
     }
+  },
+  "gain_loss_sale_equity_method_investment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Equity Method Investments"
+    },
+    "gaap": [
+      "EquityMethodInvestmentRealizedGainLossOnDisposal"
+    ]
+  },
+  "gain_loss_sale_investment_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Other Investments"
+    },
+    "gaap": [
+      "GainLossOnSaleOfOtherInvestments"
+    ]
+  },
+  "gain_loss_sale_investment_real_estate": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Real Estate Investment"
+    },
+    "gaap": [
+      "GainsLossesOnSalesOfInvestmentRealEstate"
+    ]
+  },
+  "gain_loss_sale_properties": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Properties"
+    },
+    "gaap": [
+      "GainLossOnSaleOfProperties"
+    ]
   },
   "gain_loss_securities_realized": {
     "unit": "monetary",
