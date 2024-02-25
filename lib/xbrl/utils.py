@@ -23,7 +23,7 @@ NAMESPACE = {
   'xs': 'http://www.w3.org/2001/XMLSchema',
 }
 
-IFRS = (
+IFRS_ = (
   #'http://xbrl.ifrs.org/taxonomy/2014-03-05/IFRST_2014-03-05.zip'
   'http://xbrl.ifrs.org/taxonomy/2015-03-11/IFRST_2015-03-11.zip',
   'http://xbrl.ifrs.org/taxonomy/2016-03-31/IFRST_2016-03-31.zip',
@@ -36,7 +36,7 @@ IFRS = (
   'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRSAT_2023_03_23.zip',
 )
 
-IFRS_ = {
+IFRS = {
   2015: '2015-03-11',
   2016: '2016-03-31',
   2017: '2017-03-09',
@@ -96,7 +96,7 @@ class XbrlElement(TypedDict):
 
 class XbrlLabel(TypedDict):
   name: str
-  label: str
+  label: Optional[str]
   deprecated: Optional[int]
 
 
@@ -135,20 +135,20 @@ def xbrl_items(root: et.Element) -> DataFrame:
   return cast(DataFrame, df)
 
 
-def xbrl_labels(root: et.Element) -> DataFrame:
+def ifrs_labels(root: et.Element) -> DataFrame:
   pattern = r' \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$'
-
   data: list[XbrlLabel] = []
   for item in root.findall('.//link:label', namespaces=NAMESPACE):
     deprecated: None | int = None
-    label = cast(str, item.text)
-    if (m := re.search(pattern, label)) is not None:
+    label = item.text
+    if label is not None and (m := re.search(pattern, label)) is not None:
       label = re.sub(pattern, '', label)
       deprecated = int(m.group('year'))
 
     data.append(
       XbrlLabel(
-        name=item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
+        # r'(?<=^ifrs-full_)[a-zA-Z]+(?=_(totalLabel|label)$)'
+        name=item.attrib['id'].split('_')[1],
         label=label,
         deprecated=deprecated,
       )
@@ -158,7 +158,7 @@ def xbrl_labels(root: et.Element) -> DataFrame:
   return cast(DataFrame, df)
 
 
-def xbrl_description(root: et.Element) -> DataFrame:
+def ifrs_description(root: et.Element) -> DataFrame:
   data: list[dict[str, str]] = []
 
   pattern = r'^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|' r'\[\d{4}-\d{2}\] \{.+\})$'
@@ -169,8 +169,8 @@ def xbrl_description(root: et.Element) -> DataFrame:
       continue
 
     data.append(
-      {
-        'name': item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
+      {  # r'(?<=^ifrs-full_)[a-zA-Z]+(?=_documentation$)'
+        'name': item.attrib['id'].split('_')[1],
         'description': description,
       }
     )
@@ -179,13 +179,17 @@ def xbrl_description(root: et.Element) -> DataFrame:
   return cast(DataFrame, df)
 
 
-def xbrl_calculation(root: et.Element) -> dict[str, dict[str, dict[str, float]]]:
+def ifrs_calculation(root: et.Element) -> dict[str, dict[str, dict[str, float]]]:
+  names: dict[str, str] = {}
+  for loc in root.findall('.//link:loc', namespaces=NAMESPACE):
+    key = loc.attrib[f'{{{NAMESPACE["xlink"]}}}label']
+    names[key] = loc.attrib[f'{{{NAMESPACE["xlink"]}}}href'].split('_')[-1]
+
   schema: dict[str, dict[str, dict[str, float]]] = {}
   for calc in root.findall('.//link:calculationArc', namespaces=NAMESPACE):
-    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from'].split('_')[-1]
-
-    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to'].split('_')[-1]
-    schema.setdefault(parent, {})[item] = {
+    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from']
+    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to']
+    schema.setdefault(names[parent], {})[names[item]] = {
       'order': float(calc.attrib['order']),
       'weight': float(calc.attrib['weight']),
     }
@@ -297,7 +301,26 @@ def gaap_labels(year: Annotated[int, '>=2011']) -> DataFrame:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  return xbrl_labels(root)
+  pattern = r' \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$'
+
+  data: list[XbrlLabel] = []
+  for item in root.findall('.//link:label', namespaces=NAMESPACE):
+    deprecated: None | int = None
+    label = cast(str, item.text)
+    if (m := re.search(pattern, label)) is not None:
+      label = re.sub(pattern, '', label)
+      deprecated = int(m.group('year'))
+
+    data.append(
+      XbrlLabel(
+        name=item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
+        label=label,
+        deprecated=deprecated,
+      )
+    )
+
+  df = pd.DataFrame(data)
+  return cast(DataFrame, df)
 
 
 def gaap_description(year: Annotated[int, '>=2011']) -> DataFrame:
@@ -309,7 +332,24 @@ def gaap_description(year: Annotated[int, '>=2011']) -> DataFrame:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  return xbrl_description(root)
+    data: list[dict[str, str]] = []
+
+  pattern = r'^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|' r'\[\d{4}-\d{2}\] \{.+\})$'
+
+  for item in root.findall('.//link:label', namespaces=NAMESPACE):
+    description = cast(str, item.text)
+    if re.match(pattern, description) is not None:
+      continue
+
+    data.append(
+      {
+        'name': item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
+        'description': description,
+      }
+    )
+
+  df = pd.DataFrame(data)
+  return cast(DataFrame, df)
 
 
 def parse_gaap_calculation_urls(
@@ -345,7 +385,23 @@ def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  return xbrl_calculation(root)
+  schema: dict[str, dict[str, dict[str, float]]] = {}
+  for calc in root.findall('.//link:calculationArc', namespaces=NAMESPACE):
+    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from'].split('_')[-1]
+
+    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to'].split('_')[-1]
+    schema.setdefault(parent, {})[item] = {
+      'order': float(calc.attrib['order']),
+      'weight': float(calc.attrib['weight']),
+    }
+
+  for key, value in schema.items():
+    schema[key] = {
+      subkey: subdict
+      for subkey, subdict in sorted(value.items(), key=lambda i: i[1]['order'])
+    }
+
+  return schema
 
 
 def gaap_calculation(year: Annotated[int, '>=2011']) -> DataFrame:
@@ -382,14 +438,14 @@ def ifrs_taxonomy(year: Annotated[int, '>=2015']) -> DataFrame:
   base_url = 'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/'
 
   if year < 2018:
-    url = f'http://xbrl.ifrs.org/taxonomy/{IFRS_[year]}/IFRST_{IFRS_[year]}.zip'
+    url = f'http://xbrl.ifrs.org/taxonomy/{IFRS[year]}/IFRST_{IFRS[year]}.zip'
   elif year < 2022:
-    url = f'{base_url}IFRST_{IFRS_[year]}.zip'
+    url = f'{base_url}IFRST_{IFRS[year]}.zip'
   else:
-    url = f'{base_url}IFRSAT_{IFRS_[year]}.zip'
+    url = f'{base_url}IFRSAT_{IFRS[year]}.zip'
 
-  file_name = url.split('/')[-1]
-  zip_path = Path(f'temp/{file_name}')
+  zip_name = url.split('/')[-1]
+  zip_path = Path(f'temp/{zip_name}')
   download_file(url, zip_path)
 
   if not zipfile.is_zipfile(zip_path):
@@ -397,33 +453,33 @@ def ifrs_taxonomy(year: Annotated[int, '>=2015']) -> DataFrame:
 
   with zipfile.ZipFile(zip_path, 'r') as zip:
     with zip.open(
-      f'{zip_path.stem}/full_ifrs/full_ifrs-cor_{IFRS_[year]}.xsd', 'r'
-    ) as file:
-      root = et.parse(file).getroot()
+      f'{zip_path.stem}/full_ifrs/full_ifrs-cor_{IFRS[year]}.xsd', 'r'
+    ) as item_file:
+      root = et.parse(item_file).getroot()
       items = xbrl_items(root)
 
     with zip.open(
-      f'{zip_path.stem}/full_ifrs/labels/lab_full_ifrs-en_{IFRS_[year]}.xml', 'r'
-    ) as file:
-      root = et.parse(file).getroot()
-      labels = xbrl_labels(root)
+      f'{zip_path.stem}/full_ifrs/labels/lab_full_ifrs-en_{IFRS[year]}.xml', 'r'
+    ) as lab_file:
+      root = et.parse(lab_file).getroot()
+      labels = ifrs_labels(root)
 
     with zip.open(
-      f'{zip_path.stem}/full_ifrs/labels/doc_full_ifrs-en_{IFRS_[year]}.xml', 'r'
-    ) as file:
-      root = et.parse(file).getroot()
-      description = xbrl_description(root)
+      f'{zip_path.stem}/full_ifrs/labels/doc_full_ifrs-en_{IFRS[year]}.xml', 'r'
+    ) as doc_file:
+      root = et.parse(doc_file).getroot()
+      description = ifrs_description(root)
 
     schema: dict[str, dict[str, dict[str, float]]] = {}
     for i in zip.infolist():
       if i.is_dir():
         continue
 
-      file_ = i.filename.split('/')[-1]
-      if file_.startswith('cal') and file_.endswith('.xml'):
-        with zip.open(i.filename):
-          root = et.parse(file).getroot()
-          schema.update(xbrl_calculation(root))
+      file_name = i.filename.split('/')[-1]
+      if file_name.startswith('cal') and file_name.endswith('.xml'):
+        with zip.open(i.filename) as calc_file:
+          root = et.parse(calc_file).getroot()
+          schema.update(ifrs_calculation(root))
 
   zip_path.unlink()
   calculation = calculation_df(schema)
@@ -431,13 +487,11 @@ def ifrs_taxonomy(year: Annotated[int, '>=2015']) -> DataFrame:
   return taxonomy_df(year, items, labels, description, calculation)
 
 
-def seed_ifrs_taxonomy(end_year: Optional[int]):
+def seed_ifrs_taxonomy(end_year: Optional[int] = None):
   if end_year is None:
-    today = date.today()
+    end_year = max(IFRS.keys())
 
-    end_year = today.year if today.month > 3 else today.year - 1
-
-  dfs = [ifrs_taxonomy(y) for y in range(2011, end_year + 1)]
+  dfs = [ifrs_taxonomy(y) for y in range(2015, end_year + 1)]
   items = cast(DataFrame[Taxonomy], pd.concat(dfs, axis=0, ignore_index=True))
 
   items = cleanup_taxonomy(items)
