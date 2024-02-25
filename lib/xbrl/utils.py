@@ -437,7 +437,7 @@ def seed_ifrs_taxonomy(end_year: Optional[int]):
     end_year = today.year if today.month > 3 else today.year - 1
 
   dfs = [ifrs_taxonomy(y) for y in range(2011, end_year + 1)]
-  items = pd.concat(dfs, axis=0, ignore_index=True)
+  items = cast(DataFrame[Taxonomy], pd.concat(dfs, axis=0, ignore_index=True))
 
   items = cleanup_taxonomy(items)
   insert_sqlite(items, 'taxonomy.db', 'ifrs', 'replace', False)
