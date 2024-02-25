@@ -35,7 +35,7 @@ class GaapTaxonomy(DataFrameModel):
 class GaapElement(TypedDict):
   name: str
   type: str
-  period: Literal['duration', 'instant']
+  period: Optional[Literal['duration', 'instant']]
   balance: Optional[Literal['credit', 'debit']]
 
 
@@ -76,8 +76,8 @@ def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
         name=item.attrib['name'],
         type=parse_type(item.attrib['type']),
         period=cast(
-          Literal['duration', 'instant'],
-          item.attrib[f'{{{NAMESPACE["xbrli"]}}}periodType'],
+          Literal['duration', 'instant'] | None,
+          item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}periodType'),
         ),
         balance=cast(
           Literal['credit', 'debit'] | None,
@@ -100,13 +100,13 @@ def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  pattern = r' \(Deprecated (?<year>\d{4})(-\d{2}-\d{2})?\)$'
+  pattern = r' \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$'
 
   data: list[GaapLabel] = []
   for item in root.findall('.//link:label', namespaces=NAMESPACE):
     deprecated: None | int = None
     label = cast(str, item.text)
-    if (m := re.match(pattern, label)) is not None:
+    if (m := re.search(pattern, label)) is not None:
       label = re.sub(pattern, '', label)
       deprecated = int(m.group('year'))
 
@@ -198,7 +198,12 @@ def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
       'weight': float(calc.attrib['weight']),
     }
 
-  schema = {k: v for k, v in sorted(schema.items(), key=lambda i: i[1]['order'])}
+  for key, value in schema.items():
+    schema[key] = {
+      subkey: subdict
+      for subkey, subdict in sorted(value.items(), key=lambda i: i[1]['order'])
+    }
+
   return schema
 
 
