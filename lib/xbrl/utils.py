@@ -263,19 +263,20 @@ def gaap_taxonomy(year: Annotated[int, '>=2011']) -> DataFrame[GaapTaxonomy]:
   return cast(DataFrame[GaapTaxonomy], items)
 
 
-def complete_gaap_taxonomy(end_year: Optional[int] = None):
+def seed_gaap_taxonomy(end_year: Optional[int] = None):
   if end_year is None:
     end_year = date.today().year
 
   dfs = [gaap_taxonomy(y) for y in range(2011, end_year)]
-  items = pd.concat(dfs, axis=0)
+  items = pd.concat(dfs, axis=0, ignore_index=True)
 
   items.drop_duplicates(
     subset=['name', 'label', 'description', 'calculation'], inplace=True
   )
 
   deprecated = items.loc[items['deprecated'].notna(), :].copy()
-  deprecated.set_index(('name', 'type', 'deprecated'), inplace=True)
+  print(deprecated.head(5))
+  deprecated.set_index(['name', 'type', 'deprecated'], inplace=True)
 
   for ix in deprecated.index.unique():
     mask = (items['name'] == ix[0]) & (items['type'] == ix[1])
