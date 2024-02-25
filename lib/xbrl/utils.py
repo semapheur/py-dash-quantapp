@@ -389,27 +389,27 @@ def ifrs_taxonomy(year: Annotated[int, '>=2015']) -> DataFrame:
     url = f'{base_url}IFRSAT_{IFRS_[year]}.zip'
 
   file_name = url.split('/')[-1]
-  file_path = Path(f'temp/{file_name}')
-  download_file(url, file_path)
+  zip_path = Path(f'temp/{file_name}')
+  download_file(url, zip_path)
 
-  if not zipfile.is_zipfile(file_path):
+  if not zipfile.is_zipfile(zip_path):
     raise ValueError(f'Could not download IFRS taxonomy from: {url}')
 
-  with zipfile.ZipFile(file_path, 'r') as zip:
+  with zipfile.ZipFile(zip_path, 'r') as zip:
     with zip.open(
-      f'{file_path.stem}/full_ifrs/full_ifrs-cor_{IFRS_[year]}.xsd', 'r'
+      f'{zip_path.stem}/full_ifrs/full_ifrs-cor_{IFRS_[year]}.xsd', 'r'
     ) as file:
       root = et.parse(file).getroot()
       items = xbrl_items(root)
 
     with zip.open(
-      f'{file_path.stem}/full_ifrs/labels/lab_full_ifrs-en_{IFRS_[year]}.xml', 'r'
+      f'{zip_path.stem}/full_ifrs/labels/lab_full_ifrs-en_{IFRS_[year]}.xml', 'r'
     ) as file:
       root = et.parse(file).getroot()
       labels = xbrl_labels(root)
 
     with zip.open(
-      f'{file_path.stem}/full_ifrs/labels/doc_full_ifrs-en_{IFRS_[year]}.xml', 'r'
+      f'{zip_path.stem}/full_ifrs/labels/doc_full_ifrs-en_{IFRS_[year]}.xml', 'r'
     ) as file:
       root = et.parse(file).getroot()
       description = xbrl_description(root)
@@ -425,6 +425,7 @@ def ifrs_taxonomy(year: Annotated[int, '>=2015']) -> DataFrame:
           root = et.parse(file).getroot()
           schema.update(xbrl_calculation(root))
 
+  zip_path.unlink()
   calculation = calculation_df(schema)
 
   return taxonomy_df(year, items, labels, description, calculation)
