@@ -20,7 +20,7 @@ NAMESPACE = {
   'xs': 'http://www.w3.org/2001/XMLSchema',
 }
 
-IRFS = (
+IFRS = (
   #'http://xbrl.ifrs.org/taxonomy/2014-03-05/IFRST_2014-03-05.zip'
   'http://xbrl.ifrs.org/taxonomy/2015-03-11/IFRST_2015-03-11.zip',
   'http://xbrl.ifrs.org/taxonomy/2016-03-31/IFRST_2016-03-31.zip',
