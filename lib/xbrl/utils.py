@@ -1,13 +1,15 @@
 import ast
 from datetime import date
 import re
-from typing import cast, Annotated, Literal, Optional
+from typing import cast, Annotated, Literal, Optional, TypedDict
 import xml.etree.ElementTree as et
 
 import bs4 as bs
 import httpx
 import numpy as np
 import pandas as pd
+from pandera import DataFrameModel
+from pandera.typing import DataFrame, Series
 
 from lib.db.lite import insert_sqlite, read_sqlite
 
@@ -17,6 +19,30 @@ NAMESPACE = {
   'xlink': 'http://www.w3.org/1999/xlink',
   'xs': 'http://www.w3.org/2001/XMLSchema',
 }
+
+
+class GaapTaxonomy(DataFrameModel):
+  year: int
+  name: str
+  type: str
+  period: Literal['duration', 'instant']
+  label: str
+  description: str
+  calculation: str
+  deprecated: str
+
+
+class GaapElement(TypedDict):
+  name: str
+  type: str
+  period: Literal['duration', 'instant']
+  balance: Optional[Literal['credit', 'debit']]
+
+
+class GaapLabel(TypedDict):
+  name: str
+  label: str
+  deprecated: Optional[int]
 
 
 def xbrl_namespaces(dom: bs.BeautifulSoup) -> dict:
@@ -42,16 +68,22 @@ def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  data: list[dict[str, str | None]] = []
+  data: list[GaapElement] = []
 
   for item in root.findall('.//xs:element', namespaces=NAMESPACE):
     data.append(
-      {
-        'name': item.attrib['name'],
-        'type': parse_type(item.attrib['type']),
-        'period': item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}periodType'),
-        'balance': item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}balance'),
-      }
+      GaapElement(
+        name=item.attrib['name'],
+        type=parse_type(item.attrib['type']),
+        period=cast(
+          Literal['duration', 'instant'],
+          item.attrib[f'{{{NAMESPACE["xbrli"]}}}periodType'],
+        ),
+        balance=cast(
+          Literal['credit', 'debit'] | None,
+          item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}balance'),
+        ),
+      )
     )
 
   df = pd.DataFrame(data)
@@ -68,13 +100,22 @@ def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
     rs = client.get(url)
     root = et.fromstring(rs.content)
 
-  data: list[dict[str, str]] = []
+  pattern = r' \(Deprecated (?<year>\d{4})(-\d{2}-\d{2})?\)$'
+
+  data: list[GaapLabel] = []
   for item in root.findall('.//link:label', namespaces=NAMESPACE):
+    deprecated: None | int = None
+    label = cast(str, item.text)
+    if (m := re.match(pattern, label)) is not None:
+      label = re.sub(pattern, '', label)
+      deprecated = int(m.group('year'))
+
     data.append(
-      {
-        'name': item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
-        'label': cast(str, item.text),
-      }
+      GaapLabel(
+        name=item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
+        label=label,
+        deprecated=deprecated,
+      )
     )
 
   df = pd.DataFrame(data)
@@ -114,8 +155,10 @@ def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   return df
 
 
-def gaap_calculation_url(year: Annotated[int, '>=2011']) -> list[str]:
-  url = f'https://xbrl.fasb.org/us-gaap/{year}/stm/'
+def parse_gaap_calculation_urls(
+  year: Annotated[int, '>=2011'], suffix: Literal['stm', 'dis']
+) -> list[str]:
+  url = f'https://xbrl.fasb.org/us-gaap/{year}/{suffix}/'
 
   with httpx.Client() as client:
     rs = client.get(url)
@@ -127,7 +170,15 @@ def gaap_calculation_url(year: Annotated[int, '>=2011']) -> list[str]:
   for a in dom.find_all('a', href=True):
     slug = a.get('href')
     if re.search(pattern, slug):
-      urls.append(f'https://xbrl.fasb.org/us-gaap/{year}/stm/{slug}')
+      urls.append(f'https://xbrl.fasb.org/us-gaap/{year}/{suffix}/{slug}')
+
+  return urls
+
+
+def gaap_calculation_urls(year: Annotated[int, '>=2011']) -> list[str]:
+  urls: list[str] = []
+  for suffix in ('stm', 'dis'):
+    urls.extend(parse_gaap_calculation_urls(year, cast(Literal['stm', 'dis'], suffix)))
 
   return urls
 
@@ -147,6 +198,7 @@ def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
       'weight': float(calc.attrib['weight']),
     }
 
+  schema = {k: v for k, v in sorted(schema.items(), key=lambda i: i[1]['order'])}
   return schema
 
 
@@ -167,7 +219,7 @@ def gaap_calculation(year: Annotated[int, '>=2011']) -> pd.DataFrame:
 
     return ' '.join(text).strip()
 
-  urls = gaap_calculation_url(year)
+  urls = gaap_calculation_urls(year)
 
   schema: dict[str, dict[str, dict[str, float]]] = {}
   for url in urls:
@@ -176,10 +228,11 @@ def gaap_calculation(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   data = [{'name': k, 'calculation': calculation_text(v)} for k, v in schema.items()]
 
   df = pd.DataFrame(data)
+  df.drop_duplicates(inplace=True)
   return df
 
 
-def gaap_taxonomy(year: Annotated[int, '>=2011']) -> pd.DataFrame:
+def gaap_taxonomy(year: Annotated[int, '>=2011']) -> DataFrame[GaapTaxonomy]:
   items = gaap_items(year)
   labels = gaap_labels(year)
   description = gaap_description(year)
@@ -202,7 +255,7 @@ def gaap_taxonomy(year: Annotated[int, '>=2011']) -> pd.DataFrame:
   items.sort_values('name', inplace=True)
   items.insert(0, 'year', year, True)
 
-  return items
+  return cast(DataFrame[GaapTaxonomy], items)
 
 
 def complete_gaap_taxonomy(end_year: Optional[int] = None):
@@ -215,7 +268,24 @@ def complete_gaap_taxonomy(end_year: Optional[int] = None):
   items.drop_duplicates(
     subset=['name', 'label', 'description', 'calculation'], inplace=True
   )
-  items.sort_values(['year', 'name'], inplace=True)
+
+  deprecated = items.loc[items['deprecated'].notna(), :].copy()
+  deprecated.set_index(('name', 'type', 'deprecated'), inplace=True)
+
+  for ix in deprecated.index.unique():
+    mask = (items['name'] == ix[0]) & (items['type'] == ix[1])
+    cast(Series, items.loc[mask, 'deprecated']).fillna(ix[2], inplace=True)
+
+  duplicates = items.loc[
+    items.duplicated(subset=['name', 'type'], keep=False), :
+  ].copy()
+  drop_rows: list[int] = []
+  for name in duplicates['name'].unique():
+    df = duplicates.loc[duplicates['name'] == name, :].copy()
+    drop_rows.append(df['label'].str.len().idxmin())
+
+  items.sort_values(('name', 'year'), inplace=True)
+  items.drop(index=drop_rows, inplace=True)
   insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
 
 
