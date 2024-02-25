@@ -134,7 +134,7 @@ class Company:
     return df
 
   def xbrls(self, date: Optional[dt] = None) -> Series[str]:
-    filings = self.filings(['10-K', '10-Q', '20-F'], date, True)
+    filings = self.filings(['10-K', '10-Q', '20-F', '40-F'], date, True)
 
     if filings['date'].max() < dt(2020, 7, 1):
       raise Exception('Not possible to find XBRL names')

@@ -20,6 +20,19 @@ NAMESPACE = {
   'xs': 'http://www.w3.org/2001/XMLSchema',
 }
 
+IRFS = (
+  #'http://xbrl.ifrs.org/taxonomy/2014-03-05/IFRST_2014-03-05.zip'
+  'http://xbrl.ifrs.org/taxonomy/2015-03-11/IFRST_2015-03-11.zip',
+  'http://xbrl.ifrs.org/taxonomy/2016-03-31/IFRST_2016-03-31.zip',
+  'http://xbrl.ifrs.org/taxonomy/2017-03-09/IFRST_2017-03-09.zip',
+  'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRST_2018-03-16.zip',
+  'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRST_2019-03-27.zip',
+  'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRST_2020-03-16.zip',
+  'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRST_2021-03-24.zip',
+  'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRSAT-2022-03-24.zip',
+  'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/IFRSAT_2023_03_23.zip',
+)
+
 
 class GaapTaxonomy(DataFrameModel):
   year: int
@@ -32,14 +45,14 @@ class GaapTaxonomy(DataFrameModel):
   deprecated: str
 
 
-class GaapElement(TypedDict):
+class XbrlElement(TypedDict):
   name: str
   type: str
   period: Optional[Literal['duration', 'instant']]
   balance: Optional[Literal['credit', 'debit']]
 
 
-class GaapLabel(TypedDict):
+class XbrlLabel(TypedDict):
   name: str
   label: str
   deprecated: Optional[int]
@@ -55,24 +68,14 @@ def xbrl_namespaces(dom: bs.BeautifulSoup) -> dict:
   return namespaces
 
 
-def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
+def xbrl_items(tree: et.Element) -> DataFrame:
   def parse_type(text: str) -> str:
     return text.replace('ItemType', '').split(':')[-1]
 
-  url = (
-    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
-    f'us-gaap-{year}{"-01-31" if year < 2022 else ""}.xsd'
-  )
-
-  with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
-
-  data: list[GaapElement] = []
-
-  for item in root.findall('.//xs:element', namespaces=NAMESPACE):
+  data: list[XbrlElement] = []
+  for item in tree.findall('.//xs:element', namespaces=NAMESPACE):
     data.append(
-      GaapElement(
+      XbrlElement(
         name=item.attrib['name'],
         type=parse_type(item.attrib['type']),
         period=cast(
@@ -87,23 +90,14 @@ def gaap_items(year: Annotated[int, '>=2011']) -> pd.DataFrame:
     )
 
   df = pd.DataFrame(data)
-  return df
+  return cast(DataFrame, df)
 
 
-def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
-  url = (
-    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
-    f'us-gaap-lab-{year}{"-01-31" if year < 2022 else ""}.xml'
-  )
-
-  with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
-
+def xbrl_labels(tree: et.Element) -> DataFrame:
   pattern = r' \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$'
 
-  data: list[GaapLabel] = []
-  for item in root.findall('.//link:label', namespaces=NAMESPACE):
+  data: list[XbrlLabel] = []
+  for item in tree.findall('.//link:label', namespaces=NAMESPACE):
     deprecated: None | int = None
     label = cast(str, item.text)
     if (m := re.search(pattern, label)) is not None:
@@ -111,7 +105,7 @@ def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
       deprecated = int(m.group('year'))
 
     data.append(
-      GaapLabel(
+      XbrlLabel(
         name=item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split('_')[-1],
         label=label,
         deprecated=deprecated,
@@ -119,24 +113,15 @@ def gaap_labels(year: Annotated[int, '>=2011']) -> pd.DataFrame:
     )
 
   df = pd.DataFrame(data)
-  return df
+  return cast(DataFrame, df)
 
 
-def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
-  url = (
-    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
-    f'us-gaap-doc-{year}{"-01-31" if year < 2022 else ""}.xml'
-  )
-
-  with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
-
+def xbrl_description(tree: et.Element) -> DataFrame:
   data: list[dict[str, str]] = []
 
   pattern = r'^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|' r'\[\d{4}-\d{2}\] \{.+\})$'
 
-  for item in root.findall('.//link:label', namespaces=NAMESPACE):
+  for item in tree.findall('.//link:label', namespaces=NAMESPACE):
     description = cast(str, item.text)
     if re.match(pattern, description) is not None:
       continue
@@ -149,7 +134,44 @@ def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
     )
 
   df = pd.DataFrame(data)
-  return df
+  return cast(DataFrame, df)
+
+
+def gaap_items(year: Annotated[int, '>=2011']) -> DataFrame:
+  url = (
+    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
+    f'us-gaap-{year}{"-01-31" if year < 2022 else ""}.xsd'
+  )
+  with httpx.Client() as client:
+    rs = client.get(url)
+    tree = et.fromstring(rs.content)
+
+  return xbrl_items(tree)
+
+
+def gaap_labels(year: Annotated[int, '>=2011']) -> DataFrame:
+  url = (
+    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
+    f'us-gaap-lab-{year}{"-01-31" if year < 2022 else ""}.xml'
+  )
+  with httpx.Client() as client:
+    rs = client.get(url)
+    tree = et.fromstring(rs.content)
+
+  return xbrl_labels(tree)
+
+
+def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
+  url = (
+    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
+    f'us-gaap-doc-{year}{"-01-31" if year < 2022 else ""}.xml'
+  )
+
+  with httpx.Client() as client:
+    rs = client.get(url)
+    tree = et.fromstring(rs.content)
+
+  return xbrl_description(tree)
 
 
 def parse_gaap_calculation_urls(
@@ -240,9 +262,9 @@ def gaap_taxonomy(year: Annotated[int, '>=2011']) -> DataFrame[GaapTaxonomy]:
   description = gaap_description(year)
   calculation = gaap_calculation(year)
 
-  items = items.merge(labels, how='left', on='name')
-  items = items.merge(description, how='left', on='name')
-  items = items.merge(calculation, how='left', on='name')
+  items = cast(DataFrame, items.merge(labels, how='left', on='name'))
+  items = cast(DataFrame, items.merge(description, how='left', on='name'))
+  items = cast(DataFrame, items.merge(calculation, how='left', on='name'))
   items.drop_duplicates(inplace=True)
 
   duplicates = items.loc[

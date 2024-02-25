@@ -256,7 +256,7 @@ async def parse_statement(url: str) -> FinStatement:
     url = await parse_xbrl_url(int(cik), doc_id)
     root = await fetch(url)
 
-  form = {'10-K': 'annual', '20-F': 'annual', '10-Q': 'quarterly'}
+  form = {'10-K': 'annual', '20-F': 'annual', '40-F': 'annual', '10-Q': 'quarterly'}
 
   scope = cast(
     Scope, form[cast(str, cast(et.Element, root.find('.{*}DocumentType')).text)]
