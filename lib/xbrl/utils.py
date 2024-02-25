@@ -134,10 +134,7 @@ def gaap_description(year: Annotated[int, '>=2011']) -> pd.DataFrame:
 
   data: list[dict[str, str]] = []
 
-  pattern = (
-    r'^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|'
-    r'\[\d{4}-\d{2}\] \{(Element Deprecated|Modified References|New Element)\})$'
-  )
+  pattern = r'^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|' r'\[\d{4}-\d{2}\] \{.+\})$'
 
   for item in root.findall('.//link:label', namespaces=NAMESPACE):
     description = cast(str, item.text)
@@ -275,7 +272,6 @@ def seed_gaap_taxonomy(end_year: Optional[int] = None):
   )
 
   deprecated = items.loc[items['deprecated'].notna(), :].copy()
-  print(deprecated.head(5))
   deprecated.set_index(['name', 'type', 'deprecated'], inplace=True)
 
   for ix in deprecated.index.unique():
@@ -283,14 +279,14 @@ def seed_gaap_taxonomy(end_year: Optional[int] = None):
     cast(Series, items.loc[mask, 'deprecated']).fillna(ix[2], inplace=True)
 
   duplicates = items.loc[
-    items.duplicated(subset=['name', 'type'], keep=False), :
+    items.duplicated(subset=['name', 'type', 'description'], keep=False), :
   ].copy()
   drop_rows: list[int] = []
   for name in duplicates['name'].unique():
     df = duplicates.loc[duplicates['name'] == name, :].copy()
     drop_rows.append(df['label'].str.len().idxmin())
 
-  items.sort_values(('name', 'year'), inplace=True)
+  items.sort_values(['name', 'year'], inplace=True)
   items.drop(index=drop_rows, inplace=True)
   insert_sqlite(items, 'taxonomy.db', 'gaap', 'replace', False)
 
