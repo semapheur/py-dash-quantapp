@@ -1275,7 +1275,7 @@
     ],
     "calculation": {
       "order": 53,
-      "temp": "depreciation_depletion_amortization + accretion"
+      "any": "depreciation_depletion_amortization + accretion"
     }
   },
   "depreciation_depletion_amortization": {
@@ -1291,7 +1291,7 @@
     ],
     "calculation": {
       "order": 53,
-      "temp": "depreciation_depletion_amortization_nonproduction + depreciation_production + depletion_production + amortization_expense - amortization_deferred_costs"
+      "any": "depreciation_depletion_amortization_nonproduction + depreciation_production + depletion_production + amortization_expense - amortization_deferred_costs"
     }
   },
   "depreciation_depletion_amortization_nonproduction": {
