@@ -198,7 +198,7 @@ def download_file(url: str, file_path: str | Path):
   with open(file_path, 'wb') as file:
     with httpx.stream('GET', url=url, headers=HEADERS) as response:
       total = int(response.headers.get('content-length', 0))
-      if not total:
+      if response.status_code != 200:
         print(response.headers)
         raise Exception('Download failed!')
 

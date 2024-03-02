@@ -45,7 +45,7 @@ IFRS = {
   2020: '2020-03-16',
   2021: '2021-03-24',
   2022: '2022-03-24',
-  2023: '2023_03_23',
+  2023: '2023-03-23',
 }
 
 
@@ -435,21 +435,26 @@ def seed_gaap_taxonomy(end_year: Optional[int] = None):
 
 
 def ifrs_taxonomy(year: Annotated[int, '>=2015']) -> DataFrame:
-  base_url = 'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/'
+  base_url = (
+    f'http://xbrl.ifrs.org/taxonomy/{IFRS[year]}/'
+    if year < 2018
+    else 'https://www.ifrs.org/content/dam/ifrs/standards/taxonomy/ifrs-taxonomies/'
+  )
+  zip_stem = 'IFRST' if year < 2022 else 'IFRSAT'
+  zip_stem += '-' if year == 2022 else '_'
+  zip_stem += IFRS[year] if year < 2023 else IFRS[year].replace('-', '_')
 
-  if year < 2018:
-    url = f'http://xbrl.ifrs.org/taxonomy/{IFRS[year]}/IFRST_{IFRS[year]}.zip'
-  elif year < 2022:
-    url = f'{base_url}IFRST_{IFRS[year]}.zip'
-  else:
-    url = f'{base_url}IFRSAT_{IFRS[year]}.zip'
+  url = f'{base_url}{zip_stem}.zip'
 
-  zip_name = url.split('/')[-1]
-  zip_path = Path(f'temp/{zip_name}')
-  download_file(url, zip_path)
+  if year == 2023:
+    zip_stem = zip_stem.replace('_', '-')
+
+  zip_path = Path(f'temp/{zip_stem}.zip')
+  if not zip_path.exists():
+    download_file(url, zip_path)
 
   if not zipfile.is_zipfile(zip_path):
-    raise ValueError(f'Could not download IFRS taxonomy from: {url}')
+    raise ValueError(f'Corrupt zip file at {zip_path} retrieved from: {url}')
 
   with zipfile.ZipFile(zip_path, 'r') as zip:
     with zip.open(
