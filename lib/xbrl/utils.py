@@ -256,9 +256,8 @@ def taxonomy_df(
 
 
 def cleanup_taxonomy(items: DataFrame[Taxonomy]) -> DataFrame[Taxonomy]:
-  items.drop_duplicates(
-    subset=['name', 'label', 'description', 'calculation'], inplace=True
-  )
+  subset = ['name', 'type', 'description', 'calculation']
+  items.drop_duplicates(subset=subset, inplace=True)
 
   deprecated = items.loc[items['deprecated'].notna(), :].copy()
   deprecated.set_index(['name', 'type', 'deprecated'], inplace=True)
@@ -267,9 +266,7 @@ def cleanup_taxonomy(items: DataFrame[Taxonomy]) -> DataFrame[Taxonomy]:
     mask = (items['name'] == ix[0]) & (items['type'] == ix[1])
     cast(Series, items.loc[mask, 'deprecated']).fillna(ix[2], inplace=True)
 
-  duplicates = items.loc[
-    items.duplicated(subset=['name', 'type', 'description'], keep=False), :
-  ].copy()
+  duplicates = items.loc[items.duplicated(subset=subset, keep=False), :].copy()
   drop_rows: list[int] = []
   for name in duplicates['name'].unique():
     df = duplicates.loc[duplicates['name'] == name, :].copy()

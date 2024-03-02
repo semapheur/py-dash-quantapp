@@ -1,16 +1,4 @@
 {
-  "accretion": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Accretion"
-    },
-    "gaap": [
-      "AccretionExpense",
-      "AccretionExpenseIncludingAssetRetirementObligations"
-    ]
-  },
   "accretion_amortization_discounts_premiums_securities": {
     "unit": "monetary",
     "balance": "credit",
@@ -55,13 +43,13 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Accretion of Discounts on Debt Securities"
+      "long": "Accretion of Discounts on Debt"
     },
     "gaap": [
       "DebtDiscountAccretion"
     ]
   },
-  "accretion_discounts_investments": {
+  "accretion_discounts_securities_afs": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -69,9 +57,29 @@
       "long": "Accretion of Discounts on Trade Securities"
     },
     "gaap": [
-      "AccretionOfDiscountAmount",
-      "AccretionOfDiscountsOnShortTermInvestments",
       "AccretionOfDiscountsOnSecuritiesAvailableForSale"
+    ]
+  },
+  "accretion_discounts_investments_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Accretion of Discounts"
+    },
+    "gaap": [
+      "AccretionOfDiscountsOnShortTermInvestments"
+    ]
+  },
+  "accretion_discounts": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Accretion of Discounts"
+    },
+    "gaap": [
+      "AccretionOfDiscountAmount"
     ]
   },
   "accretion_stock_preferred_convertible": {
@@ -652,7 +660,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Accretion of Discounts and Premiums on Debt Securities"
+      "long": "Amortization of Discounts and Premiums on Debt"
     },
     "gaap": [
       "AmortizationOfDebtDiscountPremium"
@@ -663,7 +671,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Accretion of Discounts and Premiums on Short-term Investments"
+      "long": "Amortization of Discounts and Premiums on Short-term Investments"
     },
     "gaap": [
       "AmortizationOfPremiumAndDiscountOnShortTermInvestments"
@@ -694,7 +702,8 @@
     "gaap": [
       "AmortisedCost",
       "AmortizationExpense",
-      "AmortisationExpense"
+      "AmortisationExpense",
+      "AdjustmentForAmortization"
     ],
     "calculation": {
       "order": 131,
@@ -1186,7 +1195,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depletion_production + depletion_petroleum_property"
+      "any": "depletion_production + depletion_nonproduction"
     }
   },
   "depletion_production": {
@@ -1197,8 +1206,24 @@
       "long": "Depletion Related to Production"
     },
     "gaap": [
-      "CostDepletion"
+      "CostDepletion",
+      "CostOfGoodsSoldDepletion"
     ]
+  },
+  "depletion_nonproduction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depletion Nonproduction"
+    },
+    "gaap": [
+      "DepletionNonproduction"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depletion_petroleum_property"
+    }
   },
   "depletion_petroleum_property": {
     "unit": "monetary",
@@ -1220,7 +1245,38 @@
     },
     "gaap": [
       "DepreciationNonproduction"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depreciation_property_plant_equipment + depreciation_investment_property"
+    }
+  },
+  "depreciation_investment_property": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation of Investment Property"
+    },
+    "gaap": [
+      "DepreciationInvestmentProperty"
     ]
+  },
+  "depreciation_depletion_amortization_accretion": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation, Depletion, Amortization and Accretion",
+      "short": "DDAA"
+    },
+    "gaap": [
+      "DepreciationAmortizationAndAccretionNet"
+    ],
+    "calculation": {
+      "order": 53,
+      "temp": "depreciation_depletion_amortization + accretion"
+    }
   },
   "depreciation_depletion_amortization": {
     "unit": "monetary",
@@ -1231,13 +1287,11 @@
       "short": "DDA"
     },
     "gaap": [
-      "DepreciationAmortizationAndAccretionNet",
       "DepreciationDepletionAndAmortization"
     ],
     "calculation": {
       "order": 53,
-      "any": "depreciation + amortization_expense + other_depreciation_amortization + depletion",
-      "temp": "depreciation_depletion_amortization_nonproduction + depreciation_nonproduction + "
+      "temp": "depreciation_depletion_amortization_nonproduction + depreciation_production + depletion_production + amortization_expense - amortization_deferred_costs"
     }
   },
   "depreciation_depletion_amortization_nonproduction": {
@@ -1249,11 +1303,12 @@
       "short": "DDA"
     },
     "gaap": [
-      "DepreciationAndAmortization"
+      "DepreciationAndAmortization",
+      "DepreciationAndAmortisationExpense"
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_nonproduction + depletion_petroleum_properties + amortization_deferred_costs + other_depreciation_amortization"
+      "any": "depreciation_nonproduction + depletion_nonproduction + amortization_deferred_costs + other_depreciation_amortization"
     }
   },
   "asset_devaluation_expense": {
@@ -3522,7 +3577,8 @@
       "long": "Depreciation"
     },
     "gaap": [
-      "Depreciation"
+      "Depreciation",
+      "DepreciationExpense"
     ],
     "calculation": {
       "order": 49,
@@ -3541,8 +3597,30 @@
     ],
     "calculation": {
       "order": 49,
-      "any": "depreciation_property_plant_equipment"
+      "any": "depreciation_goods + depreciation_services"
     }
+  },
+  "depreciation_goods": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation of Tangible Asset Directly Used in Production of Goods"
+    },
+    "gaap": [
+      "CostOfGoodsSoldDepreciation"
+    ]
+  },
+  "depreciation_services": {
+    "unit": "monetary_noncash",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation of Tangible Asset Directly Used in Rendering of Services"
+    },
+    "gaap": [
+      "CostOfServicesDepreciation"
+    ]
   },
   "depreciation_property_plant_equipment": {
     "unit": "monetary_noncash",
@@ -3552,7 +3630,9 @@
       "long": "Depreciation of Property, Plant and Equipment"
     },
     "gaap": [
-      "PropertyPlantAndEquipmentDepreciation"
+      "DepreciationPremisesAndEquipment",
+      "PropertyPlantAndEquipmentDepreciation",
+      "DepreciationPropertyPlantAndEquipment"
     ]
   },
   "derivatives_adjustment": {
@@ -4608,7 +4688,7 @@
     ],
     "calculation": {
       "order": 44,
-      "temp": "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + insurance_tax + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_expense"
+      "any": "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + insurance_tax + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_expense"
     }
   },
   "loss_contingency_cost": {
@@ -7822,7 +7902,7 @@
     ],
     "calculation": {
       "order": 55,
-      "gaap": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
+      "any": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
     }
   },
   "government_assistance_operating_expense": {
@@ -8102,7 +8182,7 @@
     ],
     "calculation": {
       "order": 55,
-      "any": "research_development_expense + depreciation_amortization + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_expenses + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
+      "any": "research_development_expense + depreciation_depletion_amortization_nonproduction + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_expenses + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
     }
   },
   "professional_contract_services_expense": {
@@ -8193,7 +8273,7 @@
       "LoanPortfolioExpense"
     ]
   },
-  "accretion_expense": {
+  "accretion": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -8202,6 +8282,32 @@
     },
     "gaap": [
       "AccretionExpenseIncludingAssetRetirementObligations"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "accretion_expense + accretion_asset_retirement_obligation"
+    }
+  },
+  "accretion_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Accretion Expense"
+    },
+    "gaap": [
+      "AccretionExpense"
+    ]
+  },
+  "accretion_asset_retirement_obligation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Accretion of Asset Retirement Obligations"
+    },
+    "gaap": [
+      "AssetRetirementObligationAccretionExpense"
     ]
   },
   "royalty_expense": {
