@@ -698,8 +698,7 @@
     ],
     "calculation": {
       "order": 131,
-      "any": "amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets + amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss",
-      "gaap": "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_cost + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs"
+      "any": "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_cost + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs + amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets - amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss"
     }
   },
   "amortization_deferred_costs": {
@@ -852,17 +851,6 @@
       "AmortizationOfFinancingCostsAndDebtGuarantee"
     ]
   },
-  "amortization_goodwill": {
-    "unit": "monetary_noncash",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Amortization of Goodwill"
-    },
-    "gaap": [
-      "GoodwillAmortizationExpense"
-    ]
-  },
   "amortization_income": {
     "unit": "monetary_noncash",
     "balance": "credit",
@@ -895,30 +883,20 @@
     },
     "gaap": [
       "AmortizationOfIntangibleAssets",
-      "IntangibleAssetsAmortizationExpense"
+      "IntangibleAssetsAmortizationExpense",
+      "AmortisationIntangibleAssetsOtherThanGoodwill"
     ],
     "calculation": {
       "order": 52,
       "any": "amortization_intangible_assets_finitelived + amortization_intangible_assets_indefinitelived"
     }
   },
-  "amortization_intangible_assets_excluding_goodwill": {
+  "amortization_intangible_assets_disposal": {
     "unit": "monetary_noncash",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Amortization of Intangible Assets Excluding Goodwill"
-    },
-    "gaap": [
-      "AmortisationIntangibleAssetsOtherThanGoodwill"
-    ]
-  },
-  "amortization_intangible_assets_excluding_goodwill_disposal": {
-    "unit": "monetary_noncash",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Amortization on Disposal of Intangible Assets Excluding Goodwill"
+      "long": "Amortization on Disposal of Intangible Assets"
     },
     "gaap": [
       "AmortisationIntangibleAssetsOtherThanGoodwillOnDisposalOfIntangibleAssets"
@@ -4630,8 +4608,7 @@
     ],
     "calculation": {
       "order": 44,
-      "temp": "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + insurance_tax + tax_excluding_income_excise_taxes + other_general_administrative_expense + ,loss_contingency_expense",
-      "gaap": "AllocatedShareBasedCompensationExpense + SalariesWagesAndOfficersCompensation + OtherLaborRelatedExpenses + ProfessionalFees + BusinessDevelopment + GeneralInsuranceExpense + RealEstateInsurance + CommunicationsInformationTechnologyAndOccupancy + OperatingLeaseExpense + TravelAndEntertainmentExpense + SuppliesAndPostageExpense + InsuranceTax + TaxesExcludingIncomeAndExciseTaxes + OtherGeneralAndAdministrativeExpense + LossContingencyLossInPeriod"
+      "temp": "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + insurance_tax + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_expense"
     }
   },
   "loss_contingency_cost": {
@@ -4990,6 +4967,7 @@
     },
     "gaap": [
       "GoodwillImpairmentLoss",
+      "GoodwillAmortizationExpense",
       "ImpairmentChargesForGoodwill",
       "ImpairmentLossRecognisedInProfitOrLossGoodwill"
     ]
@@ -6081,8 +6059,7 @@
     "calculation": {
       "order": 0,
       "any": "interest_income - interest_expense",
-      "temp": "interest_income_loans_leases + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables + interest_income_deposits_financial_institutions + interest_income_lending_government_funds_securities + interest_income_operating - interest_expense_operating",
-      "gaap": " + InterestIncomeAndFeesBankersAcceptancesCertificatesOfDepositAndCommercialPaper + InterestIncomePurchasedReceivables + InterestIncomeDepositsWithFinancialInstitutions + InterestIncomeFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResell + InterestIncomeOperating - InterestExpenseOperating"
+      "temp": "interest_income_loans_leases + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables + interest_income_deposits_financial_institutions + interest_income_lending_government_funds_securities + interest_income_operating - interest_expense_operating"
     }
   },
   "interest_income_loans_leases": {
@@ -7700,7 +7677,7 @@
       "all": "net_income_loss / revenue"
     }
   },
-  "non_operating_expenses": {
+  "nonoperating_expenses": {
     "unit": "monetary",
     "aggregate": "sum",
     "label": {
@@ -7845,8 +7822,7 @@
     ],
     "calculation": {
       "order": 55,
-      "any": "asset_devaluation_expense + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense",
-      "gaap": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
+      "gaap": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
     }
   },
   "government_assistance_operating_expense": {
@@ -8126,8 +8102,7 @@
     ],
     "calculation": {
       "order": 55,
-      "any": "asset_devaluation_expense + research_development_expense + selling_general_administrative_expense + lease_rental_expense + other_operating_expense",
-      "gaap": "research_development_expense + depreciation_amortization + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_costs + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
+      "any": "research_development_expense + depreciation_amortization + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_expenses + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
     }
   },
   "professional_contract_services_expense": {
@@ -8161,17 +8136,6 @@
     },
     "gaap": [
       "BusinessCombinationIntegrationRelatedCosts"
-    ]
-  },
-  "other_operating_costs": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Other Cost And Expense Operating"
-    },
-    "gaap": [
-      "OtherCostAndExpenseOperating"
     ]
   },
   "insurance_recoveries": {
@@ -8566,7 +8530,7 @@
       "OtherNonoperatingIncomeExpense"
     ]
   },
-  "other_operating_expense": {
+  "other_operating_expenses": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -8574,7 +8538,8 @@
       "long": "Other Operating Expense"
     },
     "gaap": [
-      "OtherOperatingExpense"
+      "OtherOperatingExpense",
+      "OtherCostAndExpenseOperating"
     ]
   },
   "parts_components": {
