@@ -1,4 +1,122 @@
 {
+  "interest_debt_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest and Debt Expense"
+    },
+    "gaap": [
+      "InterestAndDebtExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "interest_expense_nonoperating - gain_loss_extinguishment_debt + induced_conversion_convertible_debt_expense - gain_loss_restructuring_debt - gain_loss_recourse_debt - gain_loss_nonrecourse_debt - gain_loss_repurchase_debt_instrument - distributions_mandatorily_redeemable_securities"
+    }
+  },
+  "distributions_mandatorily_redeemable_securities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Distributions on Mandatorily Redeemable Securities"
+    },
+    "gaap": [
+      "DistributionsOnMandatorilyRedeemableSecurities"
+    ]
+  },
+  "gain_loss_repurchase_debt_instrument": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Repurchase of Debt Instrument"
+    },
+    "gaap": [
+      "GainLossOnRepurchaseOfDebtInstrument"
+    ]
+  },
+  "gain_loss_nonrecourse_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Non-recourse Debt"
+    },
+    "gaap": [
+      "GainLossOnNonRecourseDebt"
+    ]
+  },
+  "gain_loss_recourse_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Recourse Debt"
+    },
+    "gaap": [
+      "GainsLossesOnRecourseDebt"
+    ]
+  },
+  "gain_loss_restructuring_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Restructuring of Debt"
+    },
+    "gaap": [
+      "GainsLossesOnRestructuringOfDebt"
+    ]
+  },
+  "induced_conversion_convertible_debt_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "InducedConversionOfConvertibleDebtExpense"
+    },
+    "gaap": [
+      "InducedConversionOfConvertibleDebtExpense"
+    ]
+  },
+  "gain_loss_extinguishment_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Extinguishment of Debt"
+    },
+    "gaap": [
+      "GainsLossesOnExtinguishmentOfDebt"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_extinguishment_debt_before_writeoff_deferred_debt_issance_cost - writeoff_deferred_debt_issance_cost"
+    }
+  },
+  "writeoff_deferred_debt_issance_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Write-off of Deferred Debt Issuance Cost"
+    },
+    "gaap": [
+      "WriteOffOfDeferredDebtIssuanceCost"
+    ]
+  },
+  "gain_loss_extinguishment_debt_before_writeoff_deferred_debt_issance_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Extinguishment of Debt Before Write-off of Deferred Debt Issuance Cost"
+    },
+    "gaap": [
+      "GainsLossesOnExtinguishmentOfDebtBeforeWriteOffOfDeferredDebtIssuanceCost"
+    ]
+  },
   "accretion_amortization_discounts_premiums_securities": {
     "unit": "monetary",
     "balance": "credit",
@@ -6130,7 +6248,6 @@
       "long": "Interest Income (Expense)"
     },
     "gaap": [
-      "InterestExpenseNet",
       "InterestIncomeExpense",
       "InterestRevenueExpense",
       "InterestIncomeExpenseNet",
@@ -6419,7 +6536,8 @@
       "InterestExpense4",
       "InterestExpense5",
       "InterestExpense6",
-      "InterestExpenses"
+      "InterestExpenses",
+      "InterestExpenseNet"
     ],
     "calculation": {
       "order": 0,
