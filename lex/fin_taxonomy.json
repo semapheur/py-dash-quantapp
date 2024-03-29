@@ -5823,7 +5823,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "interest_income_loans_leases + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables_purchased + interest_income_deposits_financial_institutions + interest_income_federal_funds_sold_securities_purchased_resell + investment_income_interest + interest_income_operating"
+      "any": "investment_income_interest + interest_income_operating"
     }
   },
   "interest_income_federal_funds_sold_securities_purchased_resell": {
@@ -5972,7 +5972,11 @@
     },
     "gaap": [
       "InvestmentIncomeInterest"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "interest_income_loans_leases + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables_purchased + interest_income_deposits_financial_institutions + interest_income_federal_funds_sold_securities_purchased_resell"
+    }
   },
   "investment_income_nonoperating": {
     "unit": "monetary",
@@ -7385,11 +7389,134 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "investment_income_interest_dividend + investment_income_net_amortization_discount_premium - investment_expense",
-      "temp": "InterestAndDividendIncomeOperating + OperatingLeasesIncomeStatementLeaseRevenue - InvestmentIncomeInvestmentExpense",
-      "2": "InterestAndFeeIncomeLoansAndLeases + InterestIncomeAndFeesBankersAcceptancesCertificatesOfDepositAndCommercialPaper + InterestIncomePurchasedReceivables + InterestIncomeDepositsWithFinancialInstitutions + InterestIncomeFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResell + InterestIncomeOperating + DividendIncomeOperating + OtherInterestAndDividendIncome + InsuranceInvestmentIncome",
-      "3": "GrossInvestmentIncomeOperating - InvestmentCompanyExpenseAfterReductionOfFeeWaiverAndReimbursement"
+      "any": "investment_income_interest_dividend + investment_income_operating + investment_income_insurance + investment_income_net_amortization_discount_premium - investment_expense_net_fee_waiver_reimbursment"
     }
+  },
+  "sublease_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Sublease Revenue"
+    },
+    "gaap": [
+      "OperatingLeasesIncomeStatementSubleaseRevenue"
+    ]
+  },
+  "lease_percentage_rate": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Lease Percentage Rate"
+    },
+    "gaap": [
+      "PercentageRent"
+    ]
+  },
+  "lease_contingent_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Contingent Lease Revenue"
+    },
+    "gaap": [
+      "OperatingLeasesIncomeStatementContingentRevenue"
+    ]
+  },
+  "lease_minimum_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Minimum Lease Revenue"
+    },
+    "gaap": [
+      "OperatingLeasesIncomeStatementMinimumLeaseRevenue"
+    ]
+  },
+  "investment_expense_net_fee_waiver_reimbursment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Expense After Reduction of Fee Waiver and Reimbursement"
+    },
+    "gaap": [
+      "InvestmentCompanyExpenseAfterReductionOfFeeWaiverAndReimbursement"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_expense - investment_expense_offset_arrangement - investment_fee_waived_contractual - investment_fee_waived_voluntary - investment_fee_paid_indirectly"
+    }
+  },
+  "investment_fee_paid_indirectly": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Fee Paid Indirectly"
+    },
+    "gaap": [
+      "InvestmentCompanyFeePaidIndirectly"
+    ]
+  },
+  "investment_fee_waived_voluntary": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Voluntary Fee Waived"
+    },
+    "gaap": [
+      "InvestmentCompanyVoluntaryFeeWaived"
+    ]
+  },
+  "investment_fee_waived_contractual": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Contractual Fee Waived"
+    },
+    "gaap": [
+      "InvestmentCompanyContractualFeeWaived"
+    ]
+  },
+  "investment_expense_offset_arrangement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Expense Offset Arrangement"
+    },
+    "gaap": [
+      "InvestmentCompanyExpenseOffsetArrangement"
+    ]
+  },
+  "investment_income_operating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Investment Income"
+    },
+    "gaap": [
+      "GrossInvestmentIncomeOperating"
+    ]
+  },
+  
+  "investment_income_insurance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Insurance Investment Income"
+    },
+    "gaap": [
+      "InsuranceInvestmentIncome"
+    ]
   },
   "investment_income_net_amortization_discount_premium": {
     "unit": "monetary",
@@ -7440,8 +7567,34 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "investment_income_interest + investment_income_dividend"
+      "any": "investment_income_interest + investment_income_dividend + interest_dividend_income_operating + interest_dividend_income_other"
     }
+  },
+  "interest_dividend_income_operating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Interest and Dividend Income"
+    },
+    "gaap": [
+      "InterestAndDividendIncomeOperating"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "interest_income_operating + dividend_income_operating"
+    }
+  },
+  "interest_dividend_income_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Interest and Dividend Income"
+    },
+    "gaap": [
+      "OtherInterestAndDividendIncome"
+    ]
   },
   "investment_income_dividend": {
     "unit": "monetary",
@@ -13112,8 +13265,13 @@
       "long": "Leasing Revenue"
     },
     "gaap": [
-      "OperatingLeaseLeaseIncome"
-    ]
+      "OperatingLeaseLeaseIncome",
+      "OperatingLeasesIncomeStatementLeaseRevenue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "lease_minimum_revenue + lease_contingent_revenue + lease_percentage_rate + sublease_revenue"
+    }
   },
   "revenue_other": {
     "unit": "monetary",
