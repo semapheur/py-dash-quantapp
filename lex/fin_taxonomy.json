@@ -11,9 +11,61 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_loan_lease",
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation",
       "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
     }
+  },
+  "employee_benefits_sharebased_compensation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Employee Benefits and Share-based Compensation"
+    },
+    "gaap": [
+      "EmployeeBenefitsAndShareBasedCompensation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_postretirement_benefit_expense - pension_postretirement_benefit_contributions + sharebased_compensation"
+    }
+  },
+  "pension_postretirement_benefit_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pension and Other Postretirement Benefit Expense"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementBenefitExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_expense + postretirement_benefit_expense"
+    }
+  },
+  "postretirement_benefit_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Post-retirement Benefit Expense"
+    },
+    "gaap": [
+      "OtherPostretirementBenefitExpense"
+    ]
+  },
+  "pension_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pension Expense"
+    },
+    "gaap": [
+      "PensionExpense"
+    ]
   },
   "recognition_deferred_revenue": {
     "unit": "monetary",
@@ -3630,7 +3682,7 @@
     ],
     "calculation": {
       "order": 96,
-      "any": "cost_goods_services_sold + financing_interest_expense + provision_loan_lease + policyholder_benefits_claims_incurred_net + liability_future_policy_benefits_period_expense + interest_policyholders_account_balances + policyholder_dividends + amortization_deferred_sales_inducements + amortization_future_insurance_profits + amortization_mortgage_servicing_rights + amortization_deferred_policy_acquisition_cost + amortization_value_business_acquired + cost_revenue_other - merchant_marine_operating_differential_subsidy"
+      "any": "cost_goods_services_sold + financing_interest_expense + provision_losses + policyholder_benefits_claims_incurred_net + liability_future_policy_benefits_period_expense + interest_policyholders_account_balances + policyholder_dividends + amortization_deferred_sales_inducements + amortization_future_insurance_profits + amortization_mortgage_servicing_rights + amortization_deferred_policy_acquisition_cost + amortization_value_business_acquired + cost_revenue_other - merchant_marine_operating_differential_subsidy"
     }
   },
   "cost_revenue_finance": {
@@ -7649,19 +7701,19 @@
       "any": "interest_income - interest_expense"
     }
   },
-  "interest_income_expense_after_provision_loan_lease": {
+  "interest_income_expense_after_provision_losses": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Interest Income (Expense) after Provision for Loan Lease and Other Losses"
+      "long": "Interest Income (Expense) after Provision for Loan, Lease and Other Losses"
     },
     "gaap": [
       "InterestIncomeExpenseAfterProvisionForLoanLoss"
     ],
     "calculation": {
       "order": 555,
-      "any": "interest_income_expense - provision_loan_lease"
+      "any": "interest_income_expense - provision_losses"
     }
   },
   "interest_income_expense_nonoperating": {
@@ -13080,12 +13132,12 @@
       "ProvisionForDoubtfulAccounts"
     ]
   },
-  "provision_loan_lease": {
+  "provision_losses": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Provision for Loan Lease and Other Losses"
+      "long": "Provision for Loan, Lease and Other Losses"
     },
     "gaap": [
       "ProvisionForLoanLeaseAndOtherLosses"
@@ -15361,6 +15413,43 @@
     },
     "gaap": [
       "ShareBasedCompensation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "stock_option_plan_expense + restricted_stock_expense + employee_stock_ownership_plan_compensation_expense"
+    }
+  },
+  "employee_stock_ownership_plan_compensation_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Employee Stock Ownership Plan Compensation Expense"
+    },
+    "gaap": [
+      "EmployeeStockOwnershipPlanESOPCompensationExpense"
+    ]
+  },
+  "restricted_stock_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Restricted Stock Expense"
+    },
+    "gaap": [
+      "RestrictedStockExpense"
+    ]
+  },
+  "stock_option_plan_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Stock Option Plan Expense"
+    },
+    "gaap": [
+      "StockOptionPlanExpense"
     ]
   },
   "shares_outstanding": {
