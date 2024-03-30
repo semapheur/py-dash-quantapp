@@ -58,6 +58,7 @@ class TaxonomyItem(BaseModel):
   unit: Literal[
     'days',
     'monetary',
+    'monetary_noncash',
     'monetary_ratio',
     'numeric_score',
     'percent',
