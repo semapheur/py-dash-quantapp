@@ -11,13 +11,292 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation",
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges",
       "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
     }
   },
+  "restructuring_cost_asset_impairment_charges": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Restructuring Costs And Asset Impairment Charges"
+    },
+    "gaap": [
+      "RestructuringCostsAndAssetImpairmentCharges"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "restructuring_cost + impairment_goodwill + impairment_intangible_assets_indefinitelived - impairment_asset"
+    }
+  },
+  "impairment_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Asset Impairment Charges"
+    },
+    "gaap": [
+      "AssetImpairmentCharges"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_goodwill_intangible_assets + impairment_tangible_assets + impairment_retained_interest + impairment_leasehold + impairment_real_estate_partnerships + impairment_equity_method_investment + net_investment_lease_credit_loss_expense_reversal + impairment_asset_other"
+    }
+  },
+  "impairment_asset_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Asset Impairment"
+    },
+    "gaap": [
+      "OtherAssetImpairmentCharges"
+    ]
+  },
+  "writedown_investment_affordable_housing_project": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Write-down on Investment in Affordable Housing Project"
+    },
+    "gaap": [
+      "AffordableHousingProjectInvestmentWriteDownAmount"
+    ]
+  },
+  "impairment_equity_method_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Equity Method Investment"
+    },
+    "gaap": [
+      "EquityMethodInvestmentOtherThanTemporaryImpairment"
+    ]
+  },
+  "impairment_real_estate_partnerships": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Real Estate Partnerships"
+    },
+    "gaap": [
+      "ImpairmentLossesRelatedToRealEstatePartnerships"
+    ]
+  },
+  "impairment_leasehold": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Leasehold"
+    },
+    "gaap": [
+      "ImpairmentOfLeasehold"
+    ]
+  },
+  "impairment_retained_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Retained Interest"
+    },
+    "gaap": [
+      "ImpairmentOfRetainedInterest"
+    ]
+  },
+  "impairment_tangible_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Tangible Assets"
+    },
+    "gaap": [
+      "TangibleAssetImpairmentCharges"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + gain_loss_writedown_disposal_group_not_discontinued_operation"
+    }
+  },
+  "loss_gain_writedown_disposal_group_not_discontinued_operation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss (Gain) on Write-down of Asset Disposal Group not Discontinued Operation"
+    },
+    "gaap": [
+      "DisposalGroupNotDiscontinuedOperationLossGainOnWriteDown"
+    ]
+  },
+  "impairment_petroleum_properties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Petroleum Properties"
+    },
+    "gaap": [
+      "ImpairmentOfOilAndGasProperties"
+    ]
+  },
+  "impairment_exploration": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Exploration Abandonment and Impairment"
+    },
+    "gaap": [
+      "ExplorationAbandonmentAndImpairmentExpense"
+    ]
+  },
+  "impairment_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Real Estate"
+    },
+    "gaap": [
+      "ImpairmentOfRealEstate"
+    ]
+  },
+  "impairment_ongoing_project": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Ongoing Project"
+    },
+    "gaap": [
+      "ImpairmentOfOngoingProject"
+    ]
+  },
+  "impairment_longlived_assets_heldforuse": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Long-lived Assets Held for Use"
+    },
+    "gaap": [
+      "ImpairmentOfLongLivedAssetsHeldForUse"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_lessor_asset + impairment_excluding_lessor_asset"
+    }
+  },
+  "impairment_excluding_lessor_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment Excluding Lessor Asset Under Operating Lease"
+    },
+    "gaap": [
+      "ImpairmentExcludingLessorAssetUnderOperatingLease"
+    ]
+  },
+  "impairment_lessor_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Lessor Asset under Operating Lease"
+    },
+    "gaap": [
+      "ImpairmentLessorAssetUnderOperatingLease"
+    ]
+  },
+  "restructuring_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Restructuring Costs"
+    },
+    "gaap": [
+      "RestructuringCosts"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "restructuring_charges - payment_restructuring + noncash_merger_related_costs"
+    }
+  },
+  "noncash_merger_related_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Noncash Merger Related Costs"
+    },
+    "gaap": [
+      "NoncashMergerRelatedCosts"
+    ]
+  },
+  "restructuring_charges": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Restructuring Charges"
+    },
+    "gaap": [
+      "RestructuringCharges"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "business_exit_costs + recapitalization_costs + severance_costs + other_restructuring_costs"
+    }
+  },
+  "other_restructuring_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Restructuring Costs"
+    },
+    "gaap": [
+      "OtherRestructuringCosts"
+    ]
+  },
+  "severance_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Severance Costs"
+    },
+    "gaap": [
+      "SeveranceCosts",
+      "SeveranceCosts1"
+    ]
+  },
+  "business_exit_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Business Exit Costs"
+    },
+    "gaap": [
+      "BusinessExitCosts",
+      "BusinessExitCosts1"
+    ]
+  },
   "employee_benefits_sharebased_compensation": {
     "unit": "monetary",
-    "balance": "credit",
+    "balance": "debit",
     "aggregate": "sum",
     "label": {
       "long": "Employee Benefits and Share-based Compensation"
@@ -13144,7 +13423,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "provision_other_credit_losses + provision_other_losses + provision_loan_lease_losses +  net_investment_lease_credit_loss_expense_reversal"
+      "any": "provision_other_credit_losses + provision_other_losses + provision_loan_lease_losses"
     }
   },
   "net_investment_lease_credit_loss_expense_reversal": {

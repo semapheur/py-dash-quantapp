@@ -13,7 +13,7 @@
 # caches
 **/__pycache__/
 /.cache
-/.mypy_cache
+**/.mypy_cache
 /.ruff_cache
 /temp
 /log
