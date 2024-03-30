@@ -1,4 +1,31 @@
 {
+  "cashflow_operating_noncash_adjustments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-cash Adjustments"
+    },
+    "gaap": [
+      "AdjustmentsNoncashItemsToReconcileNetIncomeLossToCashProvidedByUsedInOperatingActivities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_loan_lease",
+      "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
+    }
+  },
+  "recognition_deferred_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Recognition of Deferred Revenue"
+    },
+    "gaap": [
+      "RecognitionOfDeferredRevenue"
+    ]
+  },
   "proceed_operating_activities": {
     "unit": "monetary",
     "balance": "debit",
@@ -13062,6 +13089,106 @@
     },
     "gaap": [
       "ProvisionForLoanLeaseAndOtherLosses"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "provision_other_credit_losses + provision_other_losses + provision_loan_lease_losses +  net_investment_lease_credit_loss_expense_reversal"
+    }
+  },
+  "net_investment_lease_credit_loss_expense_reversal": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Net Investment in Lease Credit Loss Expense Reversal"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseCreditLossExpenseReversal"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_lease_direct_financing + impairment_lease_sales_type"
+    }
+  },
+  "impairment_lease_sales_type": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Sales Type Lease Impairment Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseImpairmentLoss"
+    ]
+  },
+  "impairment_lease_direct_financing": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Direct Financing Lease Impairment Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseImpairmentLoss"
+    ]
+  },
+  "provision_other_losses": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Provision for Other Losses"
+    },
+    "gaap": [
+      "ProvisionForOtherLosses"
+    ]
+  },
+  "provision_other_credit_losses": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Provision for Other Credit Losses"
+    },
+    "gaap": [
+      "ProvisionForOtherCreditLosses"
+    ]
+  },
+  "provision_loan_lease_losses": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Provision for Loan and Lease Losses"
+    },
+    "gaap": [
+      "ProvisionForLoanAndLeaseLosses"
+    ],
+    "calculation": {
+      "order": 1171,
+      "any": "provision_loan_losses_expensed + provision_lease_losses"
+    }
+  },
+  "provision_lease_losses": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Provision for Lease Losses"
+    },
+    "gaap": [
+      "ProvisionForLeaseLosses"
+    ]
+  },
+  "provision_loan_losses_expensed": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "balance": "debit",
+    "label": {
+      "long": "Provision for Loan Losses"
+    },
+    "gaap": [
+      "ProvisionForLoanLossesExpensed"
     ]
   },
   "quick_ratio": {
