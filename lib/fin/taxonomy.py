@@ -276,11 +276,11 @@ class Taxonomy(BaseModel):
       for k, v in self.data.items()
     ]
 
-  def to_sql(self, db_name: str):
+  def to_sql(self, db_name='taxonomy.db'):
     data = self.to_records()
     df = pd.DataFrame(data)
 
-    insert_sqlite(df, 'taxonomy.db', 'items', 'replace', False)
+    insert_sqlite(df, db_name, 'items', 'replace', False)
 
   def to_sqlite(self, db_path: str):
     con = sqlite3.connect(db_path)
@@ -435,3 +435,22 @@ def scraped_items(sort=False) -> set[str]:
     items = set(sorted(items))
 
   return items
+
+
+def backup_taxonomy():
+  from pathlib import Path
+  from shutil import copy
+
+  backup_dir = Path('lex/backup')
+  taxonomy_file = Path('lex/fin_taxonomy.json')
+
+  if not backup_dir.exists():
+    backup_dir.mkdir(exist_ok=True)
+
+  backup_file = backup_dir / taxonomy_file.name
+
+  if backup_file.exists():
+    backup_file.unlink()
+
+  # Move and replace the file
+  copy(taxonomy_file, backup_dir)
