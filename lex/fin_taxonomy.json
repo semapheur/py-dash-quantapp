@@ -1,10 +1,416 @@
 {
+  "proceed_operating_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Operating Activities"
+    },
+    "gaap": [
+      "ProceedsFromOperatingActivities"
+    ],
+    "calculation": {
+      "order": 265,
+      "any": "proceed_customer + proceed_customer_progress_payments + proceed_deposit_customer + proceed_fees + proceed_fees_license + proceed_interest_dividend + proceed_tax_income_refund + proceed_commissions + proceed_royalties + proceed_rents + proceed_financing_lease + proceed_refund_supplier_material + proceed_insurance_settlement + proceed_legal_settlements + proceed_insurance_premiums + proceed_sale_real_estate + proceed_sale_securities_operating + proceed_maturity_prepayment_call_securities_operating + proceed_sale_assets_other + proceed_grantors + proceed_collaborators + proceed_deposits_time + proceed_loans + proceed_deposits_other_institutions + proceed_sale_mortgage_loans_heldforsale + proceed_collection_mortgage_loans_heldforsale + proceeds_management_program + proceeds_other_operating_activities + deferred_tax_expense_stock_options_exercised + proceed_sale_trust_assets + proceed_lease_payments + proceed_crypto_assets_operating"
+    }
+  },
+  "proceed_crypto_assets_operating": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Crypto Assets Operating Activity"
+    },
+    "gaap": [
+      "ProceedsFromCryptoAssetOperatingActivity"
+    ]
+  },
+  "proceed_lease_payments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Lease Payments"
+    },
+    "gaap": [
+      "ProceedsFromLeasePayments"
+    ]
+  },
+  "proceed_sale_trust_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Trust Assets to Pay Expenses"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfTrustAssetsToPayExpenses"
+    ]
+  },
+  "deferred_tax_expense_stock_options_exercised": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Tax Benefit from Stock Options Exercised"
+    },
+    "gaap": [
+      "TaxBenefitFromStockOptionsExercised1",
+      "DeferredTaxExpenseFromStockOptionsExercised"
+    ]
+  },
+  "proceeds_other_operating_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Other Operating Activities"
+    },
+    "gaap": [
+      "ProceedsFromOtherOperatingActivities"
+    ]
+  },
+  "proceeds_management_program": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Demand Side Management Program"
+    },
+    "gaap": [
+      "ProceedsFromDemandSideManagementProgram"
+    ]
+  },
+  "proceed_collection_mortgage_loans_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Mortgage Loans Held for Sale"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfMortgageLoansHeldForSale"
+    ]
+  },
+  "proceed_sale_mortgage_loans_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Mortgage Loans Held for Sale"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfMortgageLoansHeldForSale"
+    ]
+  },
+  "proceed_deposits_other_institutions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Deposits with Other Institutions"
+    },
+    "gaap": [
+      "ProceedsFromDepositsWithOtherInstitutions"
+    ]
+  },
+  "proceed_loans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Loans"
+    },
+    "gaap": [
+      "ProceedsFromLoans"
+    ]
+  },
+  "proceed_deposits_time": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Time Deposits"
+    },
+    "gaap": [
+      "ProceedsFromTimeDepositsAccepted"
+    ]
+  },
+  "proceed_collaborators": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collaborators"
+    },
+    "gaap": [
+      "ProceedsFromCollaborators"
+    ]
+  },
+  "proceed_grantors": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Grantors"
+    },
+    "gaap": [
+      "ProceedsFromGrantors"
+    ]
+  },
+  "proceed_sale_assets_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Other Assets"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfOtherAssets",
+      "ProceedsFromSaleOfOtherAssets1"
+    ]
+  },
+  "proceed_maturity_prepayment_call_securities_operating": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Maturities, Prepayments and Calls of Securities Operating Activities"
+    },
+    "gaap": [
+      "ProceedsFromMaturitiesPrepaymentsAndCallsOfSecuritiesOperatingActivities"
+    ]
+  },
+  "proceed_sale_securities_operating": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Securities Operating Activities"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfSecuritiesOperatingActivities"
+    ]
+  },
+  "proceed_sale_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Real Estate"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfRealEstate"
+    ]
+  },
+  "proceed_insurance_premiums": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Insurance Premiums Collected"
+    },
+    "gaap": [
+      "ProceedsFromInsurancePremiumsCollected"
+    ]
+  },
+  "proceed_legal_settlements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Legal Settlements"
+    },
+    "gaap": [
+      "ProceedsFromLegalSettlements"
+    ]
+  },
+  "proceed_insurance_settlement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Insurance Settlement"
+    },
+    "gaap": [
+      "ProceedsFromInsuranceSettlementOperatingActivities"
+    ]
+  },
+  "proceed_refund_supplier_material": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Refunds from Suppliers of Material"
+    },
+    "gaap": [
+      "ProceedsFromRefundsFromSuppliersOfMaterial"
+    ]
+  },
+  "proceed_financing_lease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Financing Revenue Received under Leases"
+    },
+    "gaap": [
+      "ProceedsFromFinancingRevenueReceivedUnderLeases"
+    ]
+  },
+  "proceed_rents": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Rents Received"
+    },
+    "gaap": [
+      "ProceedsFromRentsReceived"
+    ]
+  },
+  "proceed_royalties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Royalties Received"
+    },
+    "gaap": [
+      "ProceedsFromRoyaltiesReceived"
+    ]
+  },
+  "proceed_commissions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Commissions Received"
+    },
+    "gaap": [
+      "ProceedsFromCommissionsReceived"
+    ]
+  },
+  "proceed_tax_income_refund": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Income Tax Refunds"
+    },
+    "gaap": [
+      "ProceedsFromIncomeTaxRefunds"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_tax_income_refund_federal + proceed_tax_income_refund_state + proceed_tax_income_refund_foreign"
+    }
+  },
+  "proceed_tax_income_refund_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Foreign Income Tax Refunds"
+    },
+    "gaap": [
+      "ProceedsFromIncomeTaxRefundForeign"
+    ]
+  },
+  "proceed_tax_income_refund_state": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from State Income Tax Refunds"
+    },
+    "gaap": [
+      "ProceedsFromIncomeTaxRefundStateAndLocal"
+    ]
+  },
+  "proceed_tax_income_refund_federal": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Federal Income Tax Refunds"
+    },
+    "gaap": [
+      "ProceedsFromIncomeTaxRefundFederal"
+    ]
+  },
+  "proceed_interest_dividend": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Interest and Dividends Received"
+    },
+    "gaap": [
+      "ProceedsFromInterestAndDividendsReceived"
+    ]
+  },
+  "proceed_fees_license": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from License Fees Received"
+    },
+    "gaap": [
+      "ProceedsFromLicenseFeesReceived"
+    ]
+  },
+  "proceed_fees": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Fees Received"
+    },
+    "gaap": [
+      "ProceedsFromFeesReceived"
+    ]
+  },
+  "proceed_deposit_customer": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Deposits from Customers"
+    },
+    "gaap": [
+      "ProceedsFromDepositsFromCustomers"
+    ]
+  },
+  "proceed_customer_progress_payments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Customers for Progress Payments"
+    },
+    "gaap": [
+      "ProceedsFromCustomersForProgressPayments"
+    ]
+  },
+  "proceed_customer": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Customers"
+    },
+    "gaap": [
+      "ProceedsFromCustomers"
+    ]
+  },
   "payment_operating_activities": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Payments for operating activities"
+      "long": "Payments for Operating Activities"
     },
     "gaap": [
       "PaymentsForOperatingActivities"
