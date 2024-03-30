@@ -11,9 +11,208 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges",
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - gain_loss_sale_loans - gain_loss_contract_termination - gain_loss_disposal_group_not_discontinued_operations - gain_loss_investment_excluding_impairment",
       "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
     }
+  },
+  "gain_loss_investment_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Investments Excluding Other Than Temporary Impairments"
+    },
+    "gaap": [
+      "GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "RealizedGainLossOnMarketableSecuritiesAndCostMethodInvestmentsExcludingOtherThanTemporaryImpairmentsAndOtherInvestments + MarketableSecuritiesUnrealizedGainLossExcludingOtherThanTemporaryImpairments",
+        "MarketableSecuritiesGainLossExcludingOtherThanTemporaryImpairments + CostmethodInvestmentsRealizedGainLossExcludingOtherThanTemporaryImpairments + VentureCapitalGainsLossesNet"
+      ]
+    }
+  },
+  "gain_loss_disposal_group_not_discontinued_operations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposal of Disposal Group Not Discontinued Operation"
+    },
+    "gaap": [
+      "DisposalGroupNotDiscontinuedOperationGainLossOnDisposal"
+    ]
+  },
+  "gain_loss_contract_termination": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Contract Termination"
+    },
+    "gaap": [
+      "GainLossOnContractTermination"
+    ]
+  },
+  "gain_loss_sale_loans": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sales of Loans Net"
+    },
+    "gaap": [
+      "GainLossOnSalesOfLoansNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_sale_loans_consumer + gain_loss_sale_loans_mortgage"
+    }
+  },
+  "gain_loss_sale_loans_mortgage": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sales of Mortgage Loans"
+    },
+    "gaap": [
+      "GainLossOnSaleOfMortgageLoans"
+    ]
+  },
+  "gain_loss_sale_loans_consumer": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sales of Consumer Loans"
+    },
+    "gaap": [
+      "GainLossOnSalesOfConsumerLoans"
+    ]
+  },
+  "deferred_income_tax_tax_credits": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Income Taxes and Tax Credits"
+    },
+    "gaap": [
+      "DeferredIncomeTaxesAndTaxCredits"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_income_deferred + tax_income_credits_adjustments + tax_credit_investment + deferred_tax_expense_stock_options_exercised + tax_income_other_noncash_expense"
+    }
+  },
+  "tax_income_other_noncash_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Noncash Income Tax Expense"
+    },
+    "gaap": [
+      "OtherNoncashIncomeTaxExpense"
+    ]
+  },
+  "tax_credit_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Tax Credit"
+    },
+    "gaap": [
+      "InvestmentTaxCredit"
+    ]
+  },
+  "tax_income_credits_adjustments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income Tax Credits and Adjustments"
+    },
+    "gaap": [
+      "IncomeTaxCreditsAndAdjustments"
+    ]
+  },
+  "income_loss_equity_method_investment_net_dividends_distributions": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Equity Method Investments Net of Dividends or Distributions"
+    },
+    "gaap": [
+      "IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "income_loss_equity_method_investments - dividend_distribution_equity_method_investment"
+    }
+  },
+  "dividend_distribution_equity_method_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Dividends or Distributions of Equity Method Investment"
+    },
+    "gaap": [
+      "EquityMethodInvestmentDividendsOrDistributions"
+    ]
+  },
+  "income_loss_equity_method_investments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Equity Method Investments"
+    },
+    "gaap": [
+      "IncomeLossFromEquityMethodInvestments"
+    ]
+  },
+  "environmental_expense_liabilities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Environmental Expense and Liabilities"
+    },
+    "gaap": [
+      "EnvironmentalExpenseAndLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "environmental_remediation_expense - payment_environmental_liabilities + change_environmental_liabilities_other"
+    }
+  },
+  "change_environmental_liabilities_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Increase (Decrease) in Environmental Liabilities"
+    },
+    "gaap": [
+      "OtherIncreaseDecreaseInEnvironmentalLiabilities"
+    ]
+  },
+  "environmental_remediation_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Environmental Remediation Expense"
+    },
+    "gaap": [
+      "EnvironmentalRemediationExpense"
+    ]
   },
   "restructuring_cost_asset_impairment_charges": {
     "unit": "monetary",
@@ -6034,7 +6233,7 @@
       "long": "Gain (Loss) on Sale of Property"
     },
     "gaap": [
-      "GainLossOnSaleOfPropertyPlantEquipment"
+      "GainLossOnSaleOfProperty"
     ],
     "calculation": {
       "order": 152,
