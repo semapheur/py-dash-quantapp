@@ -4453,8 +4453,468 @@
     ],
     "calculation": {
       "order": 453,
-      "any": "net_income_loss - deferred_tax + asset_devaluation_expense + sharebased_compensation + change_working_capital + other_noncash_income_expense"
+      "any": "cashflow_operations_continuing + cashflow_operations_discontinued"
     }
+  },
+  "cashflow_operations_discontinued": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cash Provided by (Used in) Discontinued Operations"
+    },
+    "gaap": [
+      "CashProvidedByUsedInOperatingActivitiesDiscontinuedOperations"
+    ]
+  },
+  "cashflow_operations_continuing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash Provided by (Used in) Continuing Operations"
+    },
+    "gaap": [
+      "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"
+    ],
+    "calculation": {
+      "order": 453,
+      "all": "proceed_operating_activities - payment_operating_activities",
+      "any": "net_income_loss_including_minority_interest - extraordinary_item_net_tax - income_loss_dicontinued_operations_net_tax + cashflow_operating_noncash_adjustments"
+    }
+  },
+  "income_loss_dicontinued_operations_net_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Discontinued Operations Net of Tax"
+    },
+    "gaap": [
+      "IncomeLossFromDiscontinuedOperationsNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "discontinued_operation_income_loss_phaseout_period_net_tax + discontinued_operation_gain_loss_disposal_net_tax - discontinued_operation_provision_loss_gain_disposal_net_tax + discontinued_operation_gain_loss_adjustment_disposal_prior_period_net_tax + discontinued_operation_income_loss_other_net_tax"
+    }
+  },
+  "discontinued_operation_income_loss_other_net_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Income (Loss) on Disposal of Discontinued Operations Net of Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationAmountOfOtherIncomeLossFromDispositionOfDiscontinuedOperationNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "discontinued_operation_income_loss_other_pretax - discontinued_operation_income_loss_otherd_tax_effect"
+    }
+  },
+  "discontinued_operation_income_loss_otherd_tax_effect": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Income (Loss) on Disposal of Discontinued Operations Tax Effect"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfOtherIncomeLossFromDispositionOfDiscontinuedOperation"
+    ]
+  },
+  "discontinued_operation_income_loss_other_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Income (Loss) on Disposal of Discontinued Operations Before Income Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationAmountOfOtherIncomeLossFromDispositionOfDiscontinuedOperationsBeforeIncomeTax"
+    ]
+  },
+  "discontinued_operation_gain_loss_adjustment_disposal_prior_period_net_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjustment to Prior Period Gain (Loss) on Disposal of Discontinued Operations Net of Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationAmountOfAdjustmentToPriorPeriodGainLossOnDisposalNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "discontinued_operation_gain_loss_adjustment_disposal_prior_period_pretax - discontinued_operation_gain_loss_adjustment_disposal_prior_period_tax_effect"
+    }
+  },
+  "discontinued_operation_gain_loss_adjustment_disposal_prior_period_tax_effect": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjustment to Prior Period Gain (Loss) on Disposal of Discontinued Operations Tax Effect"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfAdjustmentToPriorPeriodGainLossOnDisposal"
+    ]
+  },
+  "discontinued_operation_gain_loss_adjustment_disposal_prior_period_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjustment to Prior Period Gain (Loss) on Disposal of Discontinued Operations Before Income Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationAmountOfAdjustmentToPriorPeriodGainLossOnDisposalBeforeIncomeTax"
+    ]
+  },
+  "discontinued_operation_provision_loss_gain_disposal_net_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Provision for Loss (Gain) on Disposal of Discontinued Operations Net of Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationProvisionForLossGainOnDisposalNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "discontinued_operation_provision_loss_gain_disposal_pretax - discontinued_operation_provision_loss_gain_disposal_tax_effect"
+    }
+  },
+  "discontinued_operation_provision_loss_gain_disposal_tax_effect": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect on Loss (Gain) on Disposal of Discontinued Operations"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxExpenseBenefitFromProvisionForGainLossOnDisposal"
+    ]
+  },
+  "discontinued_operation_provision_loss_gain_disposal_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Provision for Loss (Gain) on Disposal of Discontinued Operations Before Income Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationProvisionForLossGainOnDisposalBeforeIncomeTax"
+    ]
+  },
+  "discontinued_operation_gain_loss_disposal_net_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposal of Discontinued Operations Net of Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationGainLossOnDisposalOfDiscontinuedOperationNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "discontinued_operation_gain_loss_disposal_pretax - discontinued_operation_gain_loss_disposal_tax_effect"
+    }
+  },
+  "discontinued_operation_gain_loss_disposal_tax_effect": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect on Disposal of Discontinued Operations"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfIncomeLossFromDisposalOfDiscontinuedOperation"
+    ]
+  },
+  "discontinued_operation_gain_loss_disposal_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Disposal of Discontinued Operations Before Income Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationGainLossFromDisposalOfDiscontinuedOperationBeforeIncomeTax"
+    ]
+  },
+  "discontinued_operation_income_loss_phaseout_period_net_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Discontinued Operations During Phase-out Period Net of Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriodNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "discontinued_operation_income_loss_phaseout_period_pretax - discontinued_operation_income_loss_phaseout_period_tax_effect"
+    }
+  },
+  "discontinued_operation_income_loss_phaseout_period_tax_effect": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect on Discontinued Operations During Phase-out Period"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriod"
+    ]
+  },
+  "discontinued_operation_income_loss_phaseout_period_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Discontinued Operations During Phase-out Period Before Income Tax"
+    },
+    "gaap": [
+      "DiscontinuedOperationIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriodBeforeIncomeTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "disposal_group_discontinued_operation_income_loss + disposal_group_discontinued_operation_interest_income - disposal_group_discontinued_operation_interest_expense + disposal_group_discontinued_operation_income_other - disposal_group_discontinued_operation_expense_other"
+    }
+  },
+  "disposal_group_discontinued_operation_expense_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Expense from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOtherExpense"
+    ]
+  },
+  "disposal_group_discontinued_operation_income_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Income from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOtherIncome"
+    ]
+  },
+  "disposal_group_discontinued_operation_interest_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest Expense from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationInterestExpense"
+    ]
+  },
+  "disposal_group_discontinued_operation_interest_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest Income from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationInterestIncome"
+    ]
+  },
+  "disposal_group_discontinued_operation_income_loss": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOperatingIncomeLoss"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "disposal_group_discontinued_operation_income_loss_gross - disposal_group_discontinued_operation_expense_operating + disposal_group_discontinued_operation_gain_loss_foreign_currency_translation"
+    }
+  },
+  "disposal_group_discontinued_operation_gain_loss_foreign_currency_translation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) from Foreign Currency Translation for Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationForeignCurrencyTranslationGainsLosses"
+    ]
+  },
+  "disposal_group_discontinued_operation_expense_operating": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Expense from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOperatingExpense"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "disposal_group_discontinued_operation_depreciation_amortization + disposal_group_discontinued_operation_general_admninistrative_expense"
+    }
+  },
+  "disposal_group_discontinued_operation_general_admninistrative_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "General and Administrative Expense for Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationGeneralAndAdministrativeExpense"
+    ]
+  },
+  "disposal_group_discontinued_operation_depreciation_amortization": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depcreciation and Amortization for Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDepreciationAndAmortization"
+    ]
+  },
+  "disposal_group_discontinued_operation_income_loss_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Profit (Loss) from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationGrossProfitLoss"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "disposal_group_discontinued_operation_revenue - disposal_group_discontinued_operation_revenue_cost"
+    }
+  },
+  "disposal_group_discontinued_operation_revenue_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Costs of Goods Sold for Discontinued Operation"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationCostsOfGoodsSold"
+    ]
+  },
+  "disposal_group_discontinued_operation_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Revenue from Discontinued Operations"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationRevenue"
+    ]
+  },
+  "extraordinary_item_net_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Extraordinary Item Net of Tax"
+    },
+    "gaap": [
+      "ExtraordinaryItemNetOfTax"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "extraordinary_item_gross - extraordinary_item_tax_effect"
+    }
+  },
+  "extraordinary_item_tax_effect": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect of Extraordinary Item"
+    },
+    "gaap": [
+      "TaxEffectOfExtraordinaryItem"
+    ]
+  },
+  "extraordinary_item_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Extraordinary Items"
+    },
+    "gaap": [
+      "ExtraordinaryItemsGross"
+    ],
+    "calculation": {
+      "order": 453,
+      "any": "gain_loss_adjustment_prior_extraordinary_items + extraordinary_item_investee + discontinued_application_specialized_accounting_regulate_operations + gain_loss_extraordinary_other"
+    }
+  },
+  "discontinued_application_specialized_accounting_regulate_operations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Discontinued Application of Specialized Accounting for Regulated Operations"
+    },
+    "gaap": [
+      "DiscontinuedApplicationOfSpecializedAccountingForRegulatedOperations"
+    ]
+  },
+  "gain_loss_extraordinary_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) from Other Extraordinary Items"
+    },
+    "gaap": [
+      "OtherExtraordinaryGainLoss"
+    ]
+  },
+  "extraordinary_item_investee": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Extraordinary Items of Investee"
+    },
+    "gaap": [
+      "ExtraordinaryItemOfInvestee"
+    ]
+  },
+  "gain_loss_adjustment_prior_extraordinary_items": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) fromAdjustments to Prior Period Extraordinary Items"
+    },
+    "gaap": [
+      "GainLossFromAdjustmentsToPriorPeriodExtraordinaryItems"
+    ]
   },
   "cashflow_payable_notes": {
     "unit": "monetary",
