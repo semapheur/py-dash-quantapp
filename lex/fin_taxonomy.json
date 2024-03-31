@@ -11,9 +11,57 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - gain_loss_sale_loans - gain_loss_contract_termination - gain_loss_disposal_group_not_discontinued_operations - gain_loss_investment_excluding_impairment - net_income_leases_leveraged + noncash_contribution_expense - other_noncash_income_expense",
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_disposal_group_not_discontinued_operations - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investment_excluding_impairment + impairment_investment - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - gain_loss_sale_loans - gain_loss_contract_termination - net_income_leases_leveraged + noncash_contribution_expense - other_noncash_income_expense",
       "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
     }
+  },
+  "impairment_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment on Investments Portion Recognized in Earnings Net"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_securities_availableforsale + impairment_securities_heldtomaturity + impairment_cost_method_investment"
+    }
+  },
+  "impairment_cost_method_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment on Cost Method Investments"
+    },
+    "gaap": [
+      "CostmethodInvestmentsOtherThanTemporaryImpairment"
+    ]
+  },
+  "impairment_securities_heldtomaturity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment on Held-to-Maturity Securities"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNetHeldtomaturitySecurities"
+    ]
+  },
+  "impairment_securities_availableforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment on Available-for-Sale Securities"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNetAvailableforsaleSecurities"
+    ]
   },
   "net_income_lease_leveraged": {
     "unit": "monetary",
