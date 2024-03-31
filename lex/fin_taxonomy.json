@@ -11,9 +11,68 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - gain_loss_sale_loans - gain_loss_contract_termination - gain_loss_disposal_group_not_discontinued_operations - gain_loss_investment_excluding_impairment",
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - gain_loss_sale_loans - gain_loss_contract_termination - gain_loss_disposal_group_not_discontinued_operations - gain_loss_investment_excluding_impairment - net_income_leases_leveraged + noncash_contribution_expense - other_noncash_income_expense",
       "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
     }
+  },
+  "net_income_lease_leveraged": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "income_lease_leveraged - expense_tax_income_lease_leveraged + investment_tax_credit_lease_leveraged"
+    }
+  },
+  "investment_tax_credit_lease_leveraged": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Tax Credit Recognized on Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementInvestmentTaxCreditRecognizedOnLeveragedLeases"
+    ]
+  },
+  "expense_tax_income_lease_leveraged": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income Tax Expense on Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementIncomeTaxExpenseOnLeveragedLeases"
+    ]
+  },
+  "income_lease_leveraged": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementIncomeFromLeveragedLeases"
+    ]
+  },
+  "noncash_contribution_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Noncash Contribution Expense"
+    },
+    "gaap": [
+      "NoncashContributionExpense"
+    ]
   },
   "gain_loss_investment_excluding_impairment": {
     "unit": "monetary",
@@ -27,11 +86,168 @@
     ],
     "calculation": {
       "order": 0,
-      "any": [
-        "RealizedGainLossOnMarketableSecuritiesAndCostMethodInvestmentsExcludingOtherThanTemporaryImpairmentsAndOtherInvestments + MarketableSecuritiesUnrealizedGainLossExcludingOtherThanTemporaryImpairments",
-        "MarketableSecuritiesGainLossExcludingOtherThanTemporaryImpairments + CostmethodInvestmentsRealizedGainLossExcludingOtherThanTemporaryImpairments + VentureCapitalGainsLossesNet"
-      ]
+      "any": "gain_loss_securities_marketable_excluding_impairment + gain_loss_realized_cost_method_investment_excluding_impairment + gain_loss_venture_capital"
     }
+  },
+  "gain_loss_securities_marketable_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Marketable Securities Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "MarketableSecuritiesGainLossExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_unrealized_securities_marketable_excluding_impairment + gain_loss_realized_securities_marketable_excluding_impairment"
+    }
+  },
+  "gain_loss_realized_securities_marketable_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Marketable Securities Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "MarketableSecuritiesRealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_realized_securities_trade + gain_loss_realized_securities_availableforsale_excluding_impairment + gain_loss__realized_securities_heldtomaturity_excluding_impairment"
+    }
+  },
+  "gain_loss_realized_securities_heldtomaturity_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Held-to-Maturity Securities Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesSoldSecurityRealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_impairment"
+    }
+  },
+  "gain_loss_realized_securities_availableforsale_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Available-for-Sale Securities Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "AvailableforsaleSecuritiesGrossRealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_impairment"
+    }
+  },
+  "loss_realized_securities_availableforsale_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Loss on Available-for-Sale Securities Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "AvailableforsaleSecuritiesGrossRealizedLossesExcludingOtherThanTemporaryImpairments"
+    ]
+  },
+  "gain_loss_unrealized_securities_marketable_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Marketable Securities Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "MarketableSecuritiesUnrealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_unrealized_securities_trade + gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_impairment + gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_impairment"
+    }
+  },
+  "gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized_Gain (Loss) from Transfer of Securities from Held-to-Maturity to Trading Excluding Other Than Temporary Impairments"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesTransferredToTradingSecuritiesUnrealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ]
+  },
+  "gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized_Gain (Loss) from Transfer of Securities from Available-for-Sale to Trading Excluding Other Than Temporary Impairments"
+    },
+    "gaap": [
+      "AvailableforsaleSecuritiesTransfersToTradingGainsLossesExcludingOtherThanTemporaryImpairments"
+    ]
+  },
+  "gain_loss_realized_securities_marketable_cost_method_investment_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Marketable Securities and Cost Method Investments Exluding Other than Temporary Impairment"
+    },
+    "gaap": [
+      "RealizedGainLossOnMarketableSecuritiesAndCostMethodInvestmentsExcludingOtherThanTemporaryImpairmentsAndOtherInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_realized_securities_marketable_excluding_impairment + gain_loss_realized_cost_method_investment_excluding_impairment"
+    }
+  },
+  "gain_loss_realized_cost_method_investment_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Cost Method Investments Excluding Other Than Temporary Impairments"
+    },
+    "gaap": [
+      "CostmethodInvestmentsRealizedGainLossExcludingOtherThanTemporaryImpairments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_realized_cost_method_investment - loss_realized_cost_method_investment_excluding_impairment"
+    }
+  },
+  "gain_realized_cost_method_investment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain on Cost Method Investments"
+    },
+    "gaap": [
+      "CostMethodInvestmentsRealizedGains"
+    ]
+  },
+  "loss_realized_cost_method_investment_excluding_impairment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Loss on Cost Method Investments Excluding Other Than Temporary Impairments"
+    },
+    "gaap": [
+      "CostmethodInvestmentsRealizedLossesExcludingOtherThanTemporaryImpairments"
+    ]
   },
   "gain_loss_disposal_group_not_discontinued_operations": {
     "unit": "monetary",
@@ -1535,10 +1751,10 @@
     ],
     "calculation": {
       "order": 17,
-      "any": "accretion_amortization_discounts_premiums_securities_afs + accretion_amortization_discounts_premiums_securities_trade"
+      "any": "accretion_amortization_discounts_premiums_securities_availableforsale + accretion_amortization_discounts_premiums_securities_trade"
     }
   },
-  "accretion_amortization_discounts_premiums_securities_afs": {
+  "accretion_amortization_discounts_premiums_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1606,7 +1822,7 @@
       "AccretionOfDiscountsOnShortTermInvestments"
     ]
   },
-  "accretion_discounts_securities_afs": {
+  "accretion_discounts_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -3176,7 +3392,7 @@
       "all": "cash + cash_equivalents"
     }
   },
-  "cash_cash_equivalents_afs_securities": {
+  "cash_cash_equivalents_availableforsale_securities": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -3189,7 +3405,7 @@
     ],
     "calculation": {
       "order": 356,
-      "any": "cash_cash_equivalents + securities_afs"
+      "any": "cash_cash_equivalents + securities_availableforsale"
     }
   },
   "cash_cash_equivalents_investments": {
@@ -3677,7 +3893,7 @@
       "PaymentsToProceedsFromInvestmentSecurities"
     ]
   },
-  "cashflow_securities_afs": {
+  "cashflow_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -4408,7 +4624,7 @@
       "AllowanceforSalesReturnsCurrent"
     ]
   },
-  "credit_loss_allowance_securities_afs": {
+  "credit_loss_allowance_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4420,7 +4636,7 @@
       "AvailableForSaleSecuritiesAllowanceForCreditLoss"
     ]
   },
-  "credit_loss_allowance_securities_afs_debt": {
+  "credit_loss_allowance_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4433,10 +4649,10 @@
     ],
     "calculation": {
       "order": 597,
-      "all": "credit_allowance_securities_afs_debt_current + credit_loss_allowance_securities_afs_debt_noncurrent"
+      "all": "credit_allowance_securities_availableforsale_debt_current + credit_loss_allowance_securities_availableforsale_debt_noncurrent"
     }
   },
-  "credit_loss_allowance_securities_afs_debt_current": {
+  "credit_loss_allowance_securities_availableforsale_debt_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4448,7 +4664,7 @@
       "DebtSecuritiesAvailableForSaleAllowanceForCreditLossCurrent"
     ]
   },
-  "credit_loss_allowance_securities_htm_debt": {
+  "credit_loss_allowance_securities_heldtomaturity_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -5291,7 +5507,7 @@
       "DirectTaxesAndLicensesCosts"
     ]
   },
-  "discount_premium_securities_htm_debt": {
+  "discount_premium_securities_heldtomaturity_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -5909,7 +6125,7 @@
       "GainLossOnNonRecourseDebt"
     ]
   },
-  "gain_loss_realized_pretax_securities_afs": {
+  "gain_loss_realized_pretax_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -5921,10 +6137,10 @@
     ],
     "calculation": {
       "order": 675,
-      "all": "gain_realized_pretax_securities_afs - loss_realized_pretax_securities_afs"
+      "all": "gain_realized_pretax_securities_availableforsale - loss_realized_pretax_securities_availableforsale"
     }
   },
-  "gain_loss_realized_securities_afs": {
+  "gain_loss_realized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -5937,10 +6153,10 @@
     ],
     "calculation": {
       "order": 678,
-      "all": "gain_realized_securities_afs - loss_realized_securities_afs"
+      "all": "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale"
     }
   },
-  "gain_loss_realized_securities_afs_debt": {
+  "gain_loss_realized_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -5952,7 +6168,7 @@
     ],
     "calculation": {
       "order": 681,
-      "all": "gain_realized_securities_afs_debt - loss_realized_securities_afs_debt"
+      "all": "gain_realized_securities_availableforsale_debt - loss_realized_securities_availableforsale_debt"
     }
   },
   "gain_loss_realized_securities_debt": {
@@ -5967,7 +6183,7 @@
     ],
     "calculation": {
       "order": 685,
-      "any": "gain_loss_realized_securities_debt_trade + gain_loss_realized_securities_debt_afs + gain_loss_sale_securities_debt_htm"
+      "any": "gain_loss_realized_securities_debt_trade + gain_loss_realized_securities_debt_availableforsale + gain_loss_sale_securities_debt_heldtomaturity"
     }
   },
   "gain_loss_realized_securities_debt_equity": {
@@ -6255,7 +6471,7 @@
       "any": "gain_loss_sale_property + gain_loss_sale_other_property"
     }
   },
-  "gain_loss_sale_securities_htm_debt": {
+  "gain_loss_sale_securities_heldtomaturity_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6325,7 +6541,7 @@
       "GainLossOnSaleOfTimberProperty"
     ]
   },
-  "gain_loss_securities_afs_debt": {
+  "gain_loss_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6337,10 +6553,10 @@
     ],
     "calculation": {
       "order": 704,
-      "all": "gain_loss_realized_securities_afs_debt + gain_loss_unrealized_securities_afs_debt"
+      "all": "gain_loss_realized_securities_availableforsale_debt + gain_loss_unrealized_securities_availableforsale_debt"
     }
   },
-  "gain_loss_securities_afs_derivatives": {
+  "gain_loss_securities_availableforsale_derivatives": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6352,7 +6568,7 @@
     ],
     "calculation": {
       "order": 707,
-      "all": "gain_securities_afs_derivatives - loss_securities_afs_derivatives"
+      "all": "gain_securities_availableforsale_derivatives - loss_securities_availableforsale_derivatives"
     }
   },
   "gain_loss_securities_debt": {
@@ -6448,7 +6664,7 @@
       "GainLossOnTerminationOfLease"
     ]
   },
-  "gain_loss_unrealized_accumulated_pretax_securities_afs": {
+  "gain_loss_unrealized_accumulated_pretax_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6460,10 +6676,10 @@
     ],
     "calculation": {
       "order": 720,
-      "all": "gain_unrealized_accumulated_pretax_securities_afs + loss_unrealized_accumulated_pretax_securities_afs"
+      "all": "gain_unrealized_accumulated_pretax_securities_availableforsale + loss_unrealized_accumulated_pretax_securities_availableforsale"
     }
   },
-  "gain_loss_unrealized_accumulated_pretax_securities_afs_debt": {
+  "gain_loss_unrealized_accumulated_pretax_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6475,10 +6691,10 @@
     ],
     "calculation": {
       "order": 723,
-      "all": "gain_unrealized_accumulated_pretax_securities_afs_debt - loss_unrealized_accumulated_pretax_securities_afs_debt"
+      "all": "gain_unrealized_accumulated_pretax_securities_availableforsale_debt - loss_unrealized_accumulated_pretax_securities_availableforsale_debt"
     }
   },
-  "gain_loss_unrealized_accumulated_pretax_securities_afs_equity": {
+  "gain_loss_unrealized_accumulated_pretax_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6490,10 +6706,10 @@
     ],
     "calculation": {
       "order": 726,
-      "all": "gain_unrealized_accumulated_pretax_securities_afs_equity - loss_unrealized_accumulated_pretax_securities_afs_equity"
+      "all": "gain_unrealized_accumulated_pretax_securities_availableforsale_equity - loss_unrealized_accumulated_pretax_securities_availableforsale_equity"
     }
   },
-  "gain_loss_unrealized_accumulated_securities_afs": {
+  "gain_loss_unrealized_accumulated_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6515,7 +6731,7 @@
       "MarketableSecuritiesAccumulatedUnrealizedGainLoss"
     ]
   },
-  "gain_loss_unrealized_securities_afs": {
+  "gain_loss_unrealized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6528,10 +6744,10 @@
     ],
     "calculation": {
       "order": 731,
-      "all": "gain_unrealized_securities_afs - loss_unrealized_securities_afs"
+      "all": "gain_unrealized_securities_availableforsale - loss_unrealized_securities_availableforsale"
     }
   },
-  "gain_loss_unrealized_securities_afs_debt": {
+  "gain_loss_unrealized_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6543,7 +6759,7 @@
     ],
     "calculation": {
       "order": 703,
-      "all": "gain_unrealized_securities_afs_debt - loss_unrealized_securities_afs_debt"
+      "all": "gain_unrealized_securities_availableforsale_debt - loss_unrealized_securities_availableforsale_debt"
     }
   },
   "gain_loss_unrealized_securities_debt": {
@@ -6632,7 +6848,7 @@
       "VentureCapitalGainsLossesNet"
     ]
   },
-  "gain_realized_securities_afs": {
+  "gain_realized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6643,7 +6859,7 @@
       "AvailableForSaleSecuritiesGrossRealizedGains"
     ]
   },
-  "gain_realized_securities_afs_debt": {
+  "gain_realized_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6699,7 +6915,7 @@
       "DebtSecuritiesTradingRealizedGain"
     ]
   },
-  "gain_unrealized_accumulated_pretax_securities_afs": {
+  "gain_unrealized_accumulated_pretax_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6710,7 +6926,7 @@
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedGainBeforeTax"
     ]
   },
-  "gain_unrealized_accumulated_pretax_securities_afs_debt": {
+  "gain_unrealized_accumulated_pretax_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6721,7 +6937,7 @@
       "AvailableForSaleDebtSecuritiesAccumulatedGrossUnrealizedGainBeforeTax"
     ]
   },
-  "gain_unrealized_accumulated_pretax_securities_afs_equity": {
+  "gain_unrealized_accumulated_pretax_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -6743,7 +6959,7 @@
       "DebtSecuritiesTradingAccumulatedGrossUnrealizedGainBeforeTax"
     ]
   },
-  "gain_unrealized_securities_afs": {
+  "gain_unrealized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6755,7 +6971,7 @@
       "AvailableForSaleSecuritiesGrossUnrealizedGains"
     ]
   },
-  "gain_unrealized_securities_afs_debt": {
+  "gain_unrealized_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -6766,7 +6982,7 @@
       "AvailableForSaleDebtSecuritiesGrossUnrealizedGain"
     ]
   },
-  "gain_unrealized_securities_afs_equity": {
+  "gain_unrealized_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -7245,7 +7461,7 @@
       "any": "impairment_buildings + impairment_construction_in_progess"
     }
   },
-  "impairment_securities_afs_debt": {
+  "impairment_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -8585,7 +8801,7 @@
       "InterestIncomeDebtSecuritiesOperating"
     ]
   },
-  "interest_income_securities_debt_afs": {
+  "interest_income_securities_debt_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -9351,7 +9567,7 @@
       "LossOnDerivativeInstrumentsPretax"
     ]
   },
-  "loss_realized_securities_afs": {
+  "loss_realized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9362,7 +9578,7 @@
       "AvailableForSaleSecuritiesGrossRealizedLosses"
     ]
   },
-  "loss_realized_securities_afs_debt": {
+  "loss_realized_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9407,7 +9623,7 @@
       "DebtSecuritiesTradingRealizedLoss"
     ]
   },
-  "loss_unrealized_accumulated_pretax_securities_afs": {
+  "loss_unrealized_accumulated_pretax_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -9418,7 +9634,7 @@
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedLossBeforeTax"
     ]
   },
-  "loss_unrealized_accumulated_pretax_securities_afs_debt": {
+  "loss_unrealized_accumulated_pretax_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -9429,7 +9645,7 @@
       "AvailableForSaleDebtSecuritiesAccumulatedGrossUnrealizedLossBeforeTax"
     ]
   },
-  "loss_unrealized_accumulated_pretax_securities_afs_equity": {
+  "loss_unrealized_accumulated_pretax_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -9451,7 +9667,7 @@
       "DebtSecuritiesTradingAccumulatedGrossUnrealizedLossBeforeTax"
     ]
   },
-  "loss_unrealized_accumulated_securities_afs": {
+  "loss_unrealized_accumulated_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -9462,7 +9678,7 @@
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedLossNetOfTax"
     ]
   },
-  "loss_unrealized_securities_afs_debt": {
+  "loss_unrealized_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9473,7 +9689,7 @@
       "AvailableForSaleDebtSecuritiesGrossUnrealizedLoss"
     ]
   },
-  "loss_unrealized_securities_afs_equity": {
+  "loss_unrealized_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -10285,6 +10501,32 @@
     },
     "gaap": [
       "OtherNoncashIncomeExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "other_noncash_income - other_noncash_expense"
+    }
+  },
+  "other_noncash_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-cash Expense"
+    },
+    "gaap": [
+      "OtherNoncashExpense"
+    ]
+  },
+  "other_noncash_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Non-cash Income"
+    },
+    "gaap": [
+      "OtherNoncashIncome"
     ]
   },
   "other_noninterest_operating_income": {
@@ -11533,7 +11775,7 @@
       "PaymentsToAcquireInvetmentInSecurities"
     ]
   },
-  "payment_acquisition_securities_afs": {
+  "payment_acquisition_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -11545,10 +11787,10 @@
     ],
     "calculation": {
       "order": 1031,
-      "any": "payment_acquisition_securities_afs_debt + payment_acquisition_securities_afs_equity"
+      "any": "payment_acquisition_securities_availableforsale_debt + payment_acquisition_securities_availableforsale_equity"
     }
   },
-  "payment_acquisition_securities_afs_debt": {
+  "payment_acquisition_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -11559,7 +11801,7 @@
       "PaymentsToAcquireAvailableForSaleSecuritiesDebt"
     ]
   },
-  "payment_acquisition_securities_afs_equity": {
+  "payment_acquisition_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -11581,7 +11823,7 @@
       "PaymentsToAcquireEquitySecuritiesFvNi"
     ]
   },
-  "payment_acquisition_securities_htm": {
+  "payment_acquisition_securities_heldtomaturity": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -11604,7 +11846,7 @@
     ],
     "calculation": {
       "order": 1035,
-      "any": "payment_acquisition_securities_afs + payment_acquisition_securities_htm + payment_acquisition_securities_trade"
+      "any": "payment_acquisition_securities_availableforsale + payment_acquisition_securities_heldtomaturity + payment_acquisition_securities_trade"
     }
   },
   "payment_acquisition_securities_trade": {
@@ -12986,7 +13228,7 @@
       "ProceedsFromIssuanceOfPrivatePlacementGross"
     ]
   },
-  "proceed_redemption_securities_afs": {
+  "proceed_redemption_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13137,7 +13379,7 @@
       "ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailableForSaleSecurities"
     ]
   },
-  "proceed_sale_maturity_securities_afs": {
+  "proceed_sale_maturity_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13285,7 +13527,7 @@
       "ProceedsFromSaleOfFutureRoyaltiesNetOfIssuanceCosts"
     ]
   },
-  "proceed_sale_securities_afs": {
+  "proceed_sale_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13297,10 +13539,10 @@
     ],
     "calculation": {
       "order": 1154,
-      "any": "proceed_sale_securities_afs_debt + proceed_sale_securities_afs_equity"
+      "any": "proceed_sale_securities_availableforsale_debt + proceed_sale_securities_availableforsale_equity"
     }
   },
-  "proceed_sale_securities_afs_debt": {
+  "proceed_sale_securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13311,7 +13553,7 @@
       "ProceedsFromSaleOfAvailableForSaleSecuritiesDebt"
     ]
   },
-  "proceed_sale_securities_afs_equity": {
+  "proceed_sale_securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13344,7 +13586,7 @@
       "ProceedsFromSaleOfEquitySecuritiesFvNi"
     ]
   },
-  "proceed_sale_securities_htm": {
+  "proceed_sale_securities_heldtomaturity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -14892,7 +15134,7 @@
       "all": "securities_unrealized_gain_loss + securities_sales_reclassification"
     }
   },
-  "securities_afs": {
+  "securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14905,11 +15147,11 @@
     ],
     "calculation": {
       "order": 355,
-      "all": "securities_afs_current + securities_afs_noncurrent",
-      "any": "securties_afs_debt + securities_afs_equity"
+      "all": "securities_availableforsale_current + securities_availableforsale_noncurrent",
+      "any": "securties_availableforsale_debt + securities_availableforsale_equity"
     }
   },
-  "securities_afs_amortized_cost": {
+  "securities_availableforsale_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14920,7 +15162,7 @@
       "AvailableForSaleSecuritiesAmortizedCost"
     ]
   },
-  "securities_afs_assetbacked": {
+  "securities_availableforsale_assetbacked": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14931,7 +15173,7 @@
       "AvailableForSaleSecuritiesAbsFairValue"
     ]
   },
-  "securities_afs_assetbacked_amortized_cost": {
+  "securities_availableforsale_assetbacked_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14942,7 +15184,7 @@
       "AvailableForSaleSecuritiesAbsAmortizedCost"
     ]
   },
-  "securities_afs_coupon_rate": {
+  "securities_availableforsale_coupon_rate": {
     "unit": "percent",
     "aggregate": "tail",
     "label": {
@@ -14953,7 +15195,7 @@
       "AvailableForSaleSecuritiesWeightedAverageCouponRate"
     ]
   },
-  "securities_afs_current": {
+  "securities_availableforsale_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14965,10 +15207,10 @@
     ],
     "calculation": {
       "order": 354,
-      "all": "securities_afs_debt + securities_afs_equity"
+      "all": "securities_availableforsale_debt + securities_availableforsale_equity"
     }
   },
-  "securities_afs_debt": {
+  "securities_availableforsale_debt": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14980,10 +15222,10 @@
     ],
     "calculation": {
       "order": 353,
-      "all": "securities_afs_debt_current + securities_afs_debt_noncurrent"
+      "all": "securities_availableforsale_debt_current + securities_availableforsale_debt_noncurrent"
     }
   },
-  "securities_afs_debt_accrued_interest": {
+  "securities_availableforsale_debt_accrued_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -14994,7 +15236,7 @@
       "DebtSecuritiesAvailableForSaleAccruedInterest"
     ]
   },
-  "securities_afs_debt_amortized_cost": {
+  "securities_availableforsale_debt_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15006,7 +15248,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAmortizedCost"
     ]
   },
-  "securities_afs_debt_current": {
+  "securities_availableforsale_debt_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15017,7 +15259,7 @@
       "AvailableForSaleSecuritiesDebtSecuritiesCurrent"
     ]
   },
-  "securities_afs_debt_current_amortized_cost": {
+  "securities_availableforsale_debt_current_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15028,7 +15270,7 @@
       "DebtSecuritiesAvailableForSaleAmortizedCostCurrent"
     ]
   },
-  "securities_afs_debt_excluding_accrued_interest": {
+  "securities_availableforsale_debt_excluding_accrued_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15040,10 +15282,10 @@
     ],
     "calculation": {
       "order": 1265,
-      "all": "securities_afs_debt_excluding_accrued_interest_current + securities_afs_debt_excluding_accrued_interest_noncurrent"
+      "all": "securities_availableforsale_debt_excluding_accrued_interest_current + securities_availableforsale_debt_excluding_accrued_interest_noncurrent"
     }
   },
-  "securities_afs_debt_excluding_accrued_interest_current": {
+  "securities_availableforsale_debt_excluding_accrued_interest_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15054,7 +15296,7 @@
       "DebtSecuritiesAvailableForSaleExcludingAccruedInterestCurrent"
     ]
   },
-  "securities_afs_debt_excluding_accrued_interest_noncurrent": {
+  "securities_availableforsale_debt_excluding_accrued_interest_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15065,7 +15307,7 @@
       "DebtSecuritiesAvailableForSaleExcludingAccruedInterestNoncurrent"
     ]
   },
-  "securities_afs_debt_excluding_money_market_funds_amortized_cost": {
+  "securities_availableforsale_debt_excluding_money_market_funds_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15076,7 +15318,7 @@
       "AvailableForSaleDebtSecuritiesExcludingMoneyMarketFundsAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_excluding_money_market_funds_current": {
+  "securities_availableforsale_debt_excluding_money_market_funds_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15087,7 +15329,7 @@
       "AvailableForSaleSecuritiesDebtSecuritiesExcludingMoneyMarketFundsCurrent"
     ]
   },
-  "securities_afs_debt_maturing_1_year": {
+  "securities_availableforsale_debt_maturing_1_year": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15099,7 +15341,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsFairValue"
     ]
   },
-  "securities_afs_debt_maturing_1_year_amortized_cost": {
+  "securities_availableforsale_debt_maturing_1_year_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15111,7 +15353,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_maturing_2_to_3_years": {
+  "securities_availableforsale_debt_maturing_2_to_3_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15124,7 +15366,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanOneYearThroughThreeYearsFairValue"
     ]
   },
-  "securities_afs_debt_maturing_2_to_3_years_amortized_cost": {
+  "securities_availableforsale_debt_maturing_2_to_3_years_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15137,7 +15379,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearOneThroughYearThreeAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_maturing_2_to_5_years": {
+  "securities_availableforsale_debt_maturing_2_to_5_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15151,10 +15393,10 @@
     ],
     "calculation": {
       "order": 1273,
-      "any": "securities_afs_debt_maturing_2_to_3_years + securities_afs_debt_maturing_4_to_5_years"
+      "any": "securities_availableforsale_debt_maturing_2_to_3_years + securities_availableforsale_debt_maturing_4_to_5_years"
     }
   },
-  "securities_afs_debt_maturing_2_to_5_years_amortized_cost": {
+  "securities_availableforsale_debt_maturing_2_to_5_years_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15167,10 +15409,10 @@
     ],
     "calculation": {
       "order": 1275,
-      "any": "securities_afs_debt_maturing_2_to_3_years_amortized_cost + securities_afs_debt_maturing_4_to_5_years_amortized_cost"
+      "any": "securities_availableforsale_debt_maturing_2_to_3_years_amortized_cost + securities_availableforsale_debt_maturing_4_to_5_years_amortized_cost"
     }
   },
-  "securities_afs_debt_maturing_4_to_5_years": {
+  "securities_availableforsale_debt_maturing_4_to_5_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15182,7 +15424,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue"
     ]
   },
-  "securities_afs_debt_maturing_4_to_5_years_amortized_cost": {
+  "securities_availableforsale_debt_maturing_4_to_5_years_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15195,7 +15437,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanThreeYearsThroughYearFiveAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_maturing_6_to_10_years": {
+  "securities_availableforsale_debt_maturing_6_to_10_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15206,7 +15448,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsFairValue"
     ]
   },
-  "securities_afs_debt_maturing_6_to_10_years_amortized_cost": {
+  "securities_availableforsale_debt_maturing_6_to_10_years_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15217,7 +15459,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsAmortizedCost"
     ]
   },
-  "securities_afs_debt_maturing_after_10_years": {
+  "securities_availableforsale_debt_maturing_after_10_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15228,7 +15470,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsFairValue"
     ]
   },
-  "securities_afs_debt_maturing_after_10_years_amortized_cost": {
+  "securities_availableforsale_debt_maturing_after_10_years_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15239,7 +15481,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsAmortizedCost"
     ]
   },
-  "securities_afs_debt_maturing_after_1_year": {
+  "securities_availableforsale_debt_maturing_after_1_year": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15251,10 +15493,10 @@
     ],
     "calculation": {
       "order": 1282,
-      "any": "securities_afs_debt_maturing_1_to_5_years + securities_afs_debt_maturing_after_5_years"
+      "any": "securities_availableforsale_debt_maturing_1_to_5_years + securities_availableforsale_debt_maturing_after_5_years"
     }
   },
-  "securities_afs_debt_maturing_after_5_years": {
+  "securities_availableforsale_debt_maturing_after_5_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15267,10 +15509,10 @@
     ],
     "calculation": {
       "order": 1280,
-      "any": "securities_afs_debt_maturing_6_to_10_years + securities_afs_debt_maturing_after_10_years"
+      "any": "securities_availableforsale_debt_maturing_6_to_10_years + securities_availableforsale_debt_maturing_after_10_years"
     }
   },
-  "securities_afs_debt_maturing_after_5_years_amortized_cost": {
+  "securities_availableforsale_debt_maturing_after_5_years_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15282,7 +15524,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_maturing_remainder_fiscal_year": {
+  "securities_availableforsale_debt_maturing_remainder_fiscal_year": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15293,7 +15535,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRemainderOfFiscalYearFairValue"
     ]
   },
-  "securities_afs_debt_maturing_remainder_fiscal_year_amortized_cost": {
+  "securities_availableforsale_debt_maturing_remainder_fiscal_year_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15304,7 +15546,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRemainderOfFiscalYearAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_noncurrent": {
+  "securities_availableforsale_debt_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15315,7 +15557,7 @@
       "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
     ]
   },
-  "securities_afs_debt_restricted": {
+  "securities_availableforsale_debt_restricted": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15326,7 +15568,7 @@
       "DebtSecuritiesAvailableForSaleRestricted"
     ]
   },
-  "securities_afs_debt_unrealized_loss_position": {
+  "securities_availableforsale_debt_unrealized_loss_position": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -15338,7 +15580,7 @@
       "AvailableForSaleDebtSecuritiesInvestmentsInUnrealizedLoss"
     ]
   },
-  "securities_afs_debt_with_maturity_date": {
+  "securities_availableforsale_debt_with_maturity_date": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15349,7 +15591,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDate"
     ]
   },
-  "securities_afs_debt_with_maturity_date_amortized_cost": {
+  "securities_availableforsale_debt_with_maturity_date_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15361,7 +15603,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDateAmortizedCostBasis"
     ]
   },
-  "securities_afs_debt_without_maturity_date": {
+  "securities_availableforsale_debt_without_maturity_date": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15376,7 +15618,7 @@
       "any": "trade_debt_security_maturities_remainder_fiscal_year"
     }
   },
-  "securities_afs_debt_without_maturity_date_amortized_cost": {
+  "securities_availableforsale_debt_without_maturity_date_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15387,7 +15629,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateAmortizedCost"
     ]
   },
-  "securities_afs_debt_yield": {
+  "securities_availableforsale_debt_yield": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15399,7 +15641,7 @@
       "DebtSecuritiesAvailableForSaleWeightedAverageYield"
     ]
   },
-  "securities_afs_equity": {
+  "securities_availableforsale_equity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15411,10 +15653,10 @@
     ],
     "calculation": {
       "order": 350,
-      "all": "securities_afs_equity_current + securities_afs_equity_noncurrent"
+      "all": "securities_availableforsale_equity_current + securities_availableforsale_equity_noncurrent"
     }
   },
-  "securities_afs_equity_amortized_cost": {
+  "securities_availableforsale_equity_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15425,7 +15667,7 @@
       "AvailableForSaleEquitySecuritiesAmortizedCostBasis"
     ]
   },
-  "securities_afs_equity_current": {
+  "securities_availableforsale_equity_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15436,7 +15678,7 @@
       "AvailableForSaleSecuritiesEquitySecuritiesCurrent"
     ]
   },
-  "securities_afs_equity_noncurrent": {
+  "securities_availableforsale_equity_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15448,10 +15690,10 @@
     ],
     "calculation": {
       "order": 348,
-      "all": "securities_afs_equity_noncurrent + securities_fvni_equity_noncurrent"
+      "all": "securities_availableforsale_equity_noncurrent + securities_fvni_equity_noncurrent"
     }
   },
-  "securities_afs_mortgagebacked": {
+  "securities_availableforsale_mortgagebacked": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15462,7 +15704,7 @@
       "AvailableForSaleSecuritiesMbsFairValue"
     ]
   },
-  "securities_afs_mortgagebacked_amortized_cost": {
+  "securities_availableforsale_mortgagebacked_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15473,7 +15715,7 @@
       "AvailableForSaleSecuritiesMbsAmortizedCost"
     ]
   },
-  "securities_afs_noncurrent": {
+  "securities_availableforsale_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15484,7 +15726,7 @@
       "AvailableForSaleSecuritiesNoncurrent"
     ]
   },
-  "securities_afs_unrealized_loss_position": {
+  "securities_availableforsale_unrealized_loss_position": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -15559,7 +15801,7 @@
       "EquitySecuritiesFVNINoncurrent"
     ]
   },
-  "securities_htm": {
+  "securities_heldtomaturity": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15570,7 +15812,7 @@
       "HeldToMaturitySecurities"
     ]
   },
-  "securities_htm_debt_amortized_cost": {
+  "securities_heldtomaturity_debt_amortized_cost": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15581,7 +15823,7 @@
       "DebtSecuritiesHeldToMaturityAmortizedCost"
     ]
   },
-  "securities_htm_debt_excluding_accrued_interest": {
+  "securities_heldtomaturity_debt_excluding_accrued_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15608,9 +15850,9 @@
       "all": "securities_marketable_current + securities_marketable_noncurrent"
     },
     "components": [
-      "securities_afs",
+      "securities_availableforsale",
       "securities_trade",
-      "securities_htm"
+      "securities_heldtomaturity"
     ]
   },
   "securities_marketable_current": {
@@ -15658,7 +15900,7 @@
     "calculation": {
       "order": 1309,
       "all": "securities_marketable_equity_current + securities_marketable_equity_noncurrent",
-      "any": "securities_afs_equity + securities_fvni_equity"
+      "any": "securities_availableforsale_equity + securities_fvni_equity"
     }
   },
   "securities_marketable_equity_current": {
@@ -15673,7 +15915,7 @@
     ],
     "calculation": {
       "order": 1307,
-      "all": "securities_afs_equity_current + securities_fvni_equity_current"
+      "all": "securities_availableforsale_equity_current + securities_fvni_equity_current"
     }
   },
   "securities_marketable_noncurrent": {
