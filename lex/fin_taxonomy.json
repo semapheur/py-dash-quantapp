@@ -11,9 +11,53 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_disposal_group_not_discontinued_operations - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investment_excluding_impairment + impairment_investment - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - gain_loss_sale_loans - gain_loss_contract_termination - net_income_leases_leveraged + noncash_contribution_expense - other_noncash_income_expense",
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation + restructuring_cost_asset_impairment_charges + environmental_expense_liabilities - gain_loss_disposal_group_not_discontinued_operations - gain_loss_sale_property_plant_equipment - gain_loss_disposition_intangible_assets - gain_loss_sale_other_assets - gain_loss_investment_excluding_impairment + impairment_investment - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_unrealized_foreign_currency_transaction - gain_loss_sale_loans - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense",
       "1": "DepreciationAmortizationAndAccretionNet + AmortizationOfFinancingCostsAndDiscounts + AccretionExpenseIncludingAssetRetirementObligations - RecognitionOfDeferredRevenue + ProvisionForLoanLeaseAndOtherLosses + EmployeeBenefitsAndShareBasedCompensation + RestructuringCostsAndAssetImpairmentCharges + EnvironmentalExpenseAndLiabilities - DisposalGroupNotDiscontinuedOperationGainLossOnDisposal - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnDispositionOfIntangibleAssets - GainLossOnSaleOfOtherAssets - GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments + OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet - GainLossOnInvestments - IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions - GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome - GainsLossesOnExtinguishmentOfDebt + DeferredIncomeTaxesAndTaxCredits - ExcessTaxBenefitFromShareBasedCompensationOperatingActivities + IssuanceOfStockAndWarrantsForServicesOrClaims + PaidInKindInterest + ResearchAndDevelopmentInProcess - ForeignCurrencyTransactionGainLossUnrealized - GainLossOnSalesOfLoansNet - LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases - GainLossOnContractTermination + NoncashContributionExpense - OtherNoncashIncomeExpense"
     }
+  },
+  "gain_loss_unrealized_foreign_currency_transaction": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Foreign Currency Transaction"
+    },
+    "gaap": [
+      "ForeignCurrencyTransactionGainLossUnrealized"
+    ]
+  },
+  "research_development_inprocess": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Research and Development in Process"
+    },
+    "gaap": [
+      "ResearchAndDevelopmentInProcess"
+    ]
+  },
+  "interest_paidinkind": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Paid-in-Kind Interest"
+    },
+    "gaap": [
+      "PaidInKindInterest"
+    ]
+  },
+  "issuance_stock_warrants": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Issuance of Stock and Warrants for Services or Claims"
+    },
+    "gaap": [
+      "IssuanceOfStockAndWarrantsForServicesOrClaims"
+    ]
   },
   "impairment_investment": {
     "unit": "monetary",
@@ -7506,7 +7550,7 @@
     ],
     "calculation": {
       "order": 758,
-      "any": "impairment_buildings + impairment_construction_in_progess"
+      "any": "impairment_buildings + impairment_construction_inprogess"
     }
   },
   "impairment_securities_availableforsale_debt": {
@@ -11279,7 +11323,7 @@
     ],
     "calculation": {
       "order": 329,
-      "any": "payment_acquisition_real_estate + payment_development_real_estate + payment_construction_in_progress"
+      "any": "payment_acquisition_real_estate + payment_development_real_estate + payment_construction_inprogress"
     }
   },
   "payment_acquisition_equipment_lease": {
@@ -12001,7 +12045,7 @@
       "PaymentsForCapitalImprovements"
     ]
   },
-  "payment_construction_in_progress": {
+  "payment_construction_inprogress": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
