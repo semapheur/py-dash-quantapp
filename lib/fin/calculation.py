@@ -306,6 +306,7 @@ def calculate_items(
     if isinstance(expression, ast.Expression):
       code = compile(expression, '<string>', 'eval')
       result = eval(code)
+
       if isinstance(result, int):
         return df
 
@@ -340,7 +341,9 @@ def calculate_items(
   all_visitor = AllTransformer('df')
   any_visitor = AnyTransformer('df')
   col_set = set(financials.columns)
+
   for calculee, schema in schemas.items():
+    col_set = col_set.union(financials.columns)
     if (formula := schema.get('all')) is not None:
       if isinstance(formula, str):
         all_visitor.reset_names()
@@ -372,16 +375,10 @@ def calculate_items(
           financials = apply_formula(financials, col_set, calculee, formula)
 
     elif (calculer := schema.get('fill')) is not None:
-      if calculee == 'weighted_average_shares_outstanding_basic_adjusted':
-        print(financials[calculer])
       if calculer not in col_set:
         continue
 
-      print('PING!')
-
       financials = insert_to_df(financials, col_set, financials[calculer], calculee)
-      if calculee == 'weighted_average_shares_outstanding_basic_adjusted':
-        print(financials[calculer])
 
     fns = cast(
       set[Literal['avg', 'diff', 'shift']],
@@ -394,7 +391,5 @@ def calculate_items(
 
       result = applier(cast(Series[float], financials[calculer]), fn, slices)
       financials = insert_to_df(financials, col_set, result, calculee)
-
-    col_set.union(financials.columns)
 
   return financials
