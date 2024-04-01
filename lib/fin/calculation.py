@@ -362,11 +362,14 @@ def calculate_items(
     elif (formula := schema.get('any')) is not None:
       if isinstance(formula, str):
         any_visitor.set_columns(col_set)
-        expression = ast.parse(formula, mode='eval')
-        expression = cast(
-          ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
-        )
-        financials = apply_formula(financials, col_set, calculee, expression)
+        try:
+          expression = ast.parse(formula, mode='eval')
+          expression = cast(
+            ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
+          )
+          financials = apply_formula(financials, col_set, calculee, expression)
+        except Exception as _:
+          print(formula)
       elif isinstance(formula, dict):
         formula = {
           key: formula[key] for key in set(formula.keys()).intersection(col_set)

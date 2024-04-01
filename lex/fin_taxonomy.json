@@ -736,7 +736,7 @@
       "AmortizationOfDeferredCharges"
     ],
     "calculation": {
-      "order": 122,
+      "order": 126,
       "any": "amortization_acquisition_costs + amortization_intangible_assets + amortization_deferred_sales_commissions + amortization_regulatory_asset + amortization_finance_lease + amortization_power_contracts_emission_credits + amortization_nuclear_fuel_lease + amortization_advance_royalty + amortization_deferred_property_taxes + amortization_rate_deferral + amortization_deferred_hedge_gains + amortization_depreciation_decontaminating_decommissioning_assets + amortization_deferred_costs_other"
     }
   },
@@ -913,7 +913,7 @@
       "AdjustmentForAmortization"
     ],
     "calculation": {
-      "order": 152,
+      "order": 149,
       "any": "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_cost + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs + amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets - amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss"
     }
   },
@@ -992,7 +992,7 @@
       "AmortizationOfFinancingCostsAndDiscounts"
     ],
     "calculation": {
-      "order": 138,
+      "order": 136,
       "any": "amortization_discount_premium_debt + amortization_financing_costs"
     }
   },
@@ -1043,7 +1043,7 @@
       "AmortisationIntangibleAssetsOtherThanGoodwill"
     ],
     "calculation": {
-      "order": 117,
+      "order": 114,
       "any": "amortization_intangible_assets_finitelived + amortization_intangible_assets_indefinitelived"
     }
   },
@@ -1353,7 +1353,7 @@
       "TotalAssets4"
     ],
     "calculation": {
-      "order": 83,
+      "order": 232,
       "all": "assets_current + assets_noncurrent"
     }
   },
@@ -1384,7 +1384,7 @@
       "AssetsNoncurrent"
     ],
     "calculation": {
-      "order": 81,
+      "order": 231,
       "any": "productive_assets + intangible_assets + goodwill + investments_noncurrent + other_assets_noncurrent"
     }
   },
@@ -1396,7 +1396,7 @@
       "short": "Average Assets"
     },
     "calculation": {
-      "order": 84,
+      "order": 233,
       "avg": "assets"
     }
   },
@@ -1441,7 +1441,7 @@
       "long": "Average Inventory"
     },
     "calculation": {
-      "order": 243,
+      "order": 241,
       "avg": "average_inventory"
     }
   },
@@ -1474,7 +1474,7 @@
       "long": "Average Operating Working Capital"
     },
     "calculation": {
-      "order": 245,
+      "order": 244,
       "avg": "operating_working_capital"
     }
   },
@@ -1507,7 +1507,7 @@
       "long": "Average Current Trade Receivable"
     },
     "calculation": {
-      "order": 240,
+      "order": 237,
       "avg": "receivable_trade_current"
     }
   },
@@ -1518,7 +1518,7 @@
       "long": "Average Shares Outstanding"
     },
     "calculation": {
-      "order": 54,
+      "order": 55,
       "avg": "shares_outstanding"
     }
   },
@@ -1667,7 +1667,7 @@
       "CapitalizedComputerSoftwareNet"
     ],
     "calculation": {
-      "order": 70,
+      "order": 219,
       "any": "capitalized_software_gross - capitalized_software_accumulated_amortization"
     }
   },
@@ -1713,6 +1713,32 @@
     },
     "gaap": [
       "Cash"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cash_insured + cash_uninsured"
+    }
+  },
+  "cash_uninsured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash Uninsured"
+    },
+    "gaap": [
+      "CashUninsuredAmount"
+    ]
+  },
+  "cash_insured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash Insured"
+    },
+    "gaap": [
+      "CashFDICInsuredAmount"
     ]
   },
   "cash_cash_equivalents": {
@@ -1729,8 +1755,45 @@
     ],
     "calculation": {
       "order": 305,
-      "all": "cash + cash_equivalents"
+      "all": "cash_due_banks + interest_bearing_deposits_banks + cash_equivalents"
     }
+  },
+  "interest_bearing_deposits_banks": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Interest Bearing Deposits in Banks"
+    },
+    "gaap": [
+      "InterestBearingDepositsInBanks"
+    ]
+  },
+  "cash_due_banks": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash and Due from Banks"
+    },
+    "gaap": [
+      "CashAndDueFromBanks"
+    ],
+    "calculation": {
+      "order": 305,
+      "any": "cash + due_banks"
+    }
+  },
+  "due_banks": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash and Due from Banks"
+    },
+    "gaap": [
+      "DueFromBanks"
+    ]
   },
   "cash_cash_equivalents_availableforsale_securities": {
     "unit": "monetary",
@@ -1966,7 +2029,7 @@
       "short": "Change in Long-term Debt"
     },
     "calculation": {
-      "order": 372,
+      "order": 369,
       "any": "proceed_issuance_debt_longterm - repayment_debt_longterm"
     }
   },
@@ -1998,7 +2061,7 @@
       "ProceedsFromRepaymentsOfOtherDebt"
     ],
     "calculation": {
-      "order": 369,
+      "order": 372,
       "any": "proceed_issuance_debt_other - repayment_debt_other"
     }
   },
@@ -2063,7 +2126,7 @@
       "ProceedsFromRepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess"
     ],
     "calculation": {
-      "order": 362,
+      "order": 365,
       "any": "proceed_debt_shortterm_maturing_before_3_months - repayment_debt_shortterm_maturing_before_3_months"
     }
   },
@@ -2075,7 +2138,7 @@
       "long": "Proceeds from (Repayments of) Other Short-term Debt"
     },
     "calculation": {
-      "order": 365,
+      "order": 362,
       "any": "proceed_debt_shortterm_other - repayment_debt_shortterm_other"
     }
   },
@@ -2221,7 +2284,7 @@
       "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"
     ],
     "calculation": {
-      "order": 486,
+      "order": 485,
       "all": "proceed_operating_activities - payment_operating_activities",
       "any": "net_income_loss_including_minority_interest - extraordinary_item_net_tax - income_loss_dicontinued_operations_net_tax + cashflow_operating_noncash_adjustments"
     }
@@ -2262,7 +2325,7 @@
       "short": "Net PPE Purchase/Sales"
     },
     "calculation": {
-      "order": 397,
+      "order": 395,
       "any": "proceed_productive_assets + payment_productive_assets"
     }
   },
@@ -2790,7 +2853,7 @@
       "CostsOfRevenue"
     ],
     "calculation": {
-      "order": 222,
+      "order": 197,
       "any": "cost_goods_services_sold + financing_interest_expense + provision_losses + policyholder_benefits_claims_incurred_net + liability_future_policy_benefits_period_expense + interest_policyholders_account_balances + policyholder_dividends + amortization_deferred_sales_inducements + amortization_future_insurance_profits + amortization_mortgage_servicing_rights + amortization_deferred_policy_acquisition_cost + amortization_value_business_acquired + cost_revenue_other - merchant_marine_operating_differential_subsidy"
     }
   },
@@ -2878,7 +2941,7 @@
       "AllowanceAccountForCreditLossesOfFinancialAssets"
     ],
     "calculation": {
-      "order": 528,
+      "order": 493,
       "any": "credit_loss_allowance_current + credit_loss_allowance_noncurrent"
     }
   },
@@ -2894,7 +2957,7 @@
       "AllowanceAccountForCreditLossesOfFinancialAssetsCurrent"
     ],
     "calculation": {
-      "order": 526,
+      "order": 492,
       "any": "credit_loss_allowance_receivable_current + credit_loss_allowance_securities_marketable_current"
     }
   },
@@ -2926,7 +2989,7 @@
       "AccountsAndFinancingReceivableAllowanceForCreditLoss"
     ],
     "calculation": {
-      "order": 524,
+      "order": 490,
       "any": "credit_loss_allowance_receivable_trade_current + credit_loss_allowance_receivable_financing_current"
     }
   },
@@ -3227,7 +3290,7 @@
     ],
     "calculation": {
       "order": 278,
-      "all": "debt_shortterm + debt_longterm"
+      "any": "debt_shortterm + debt_longterm"
     }
   },
   "debt_convertible": {
@@ -3315,7 +3378,7 @@
       "LongTermDebtFairValue"
     ],
     "calculation": {
-      "order": 274,
+      "order": 277,
       "all": "debt_longterm_current + debt_longterm_noncurrent"
     }
   },
@@ -3417,7 +3480,7 @@
       "ShorttermDebtFairValue"
     ],
     "calculation": {
-      "order": 277,
+      "order": 274,
       "any": "commercial_paper + debt_shortterm_other"
     }
   },
@@ -3551,7 +3614,7 @@
       "DeferredIncomeTaxesAndTaxCredits"
     ],
     "calculation": {
-      "order": 616,
+      "order": 504,
       "any": "tax_income_deferred + tax_income_credits_adjustments + tax_credit_investment + deferred_tax_expense_stock_options_exercised + tax_income_other_noncash_expense"
     }
   },
@@ -3660,7 +3723,7 @@
       "DepletionNonproduction"
     ],
     "calculation": {
-      "order": 157,
+      "order": 160,
       "any": "depletion_petroleum_property"
     }
   },
@@ -3723,7 +3786,8 @@
     },
     "calculation": {
       "order": 296,
-      "any": "depreciation_property_plant_equipment + amortization_capitalized_software"
+      "any": "depreciation_property_plant_equipment + amortization_capitalized_software",
+      "diff": "productive_assets_accumulated_depreciation_amortization"
     }
   },
   "depreciation_depletion_amortization": {
@@ -3771,7 +3835,7 @@
       "DepreciationAndAmortisationExpense"
     ],
     "calculation": {
-      "order": 159,
+      "order": 161,
       "any": "depreciation_nonproduction + depletion_nonproduction + amortization_deferred_costs + other_depreciation_amortization"
     }
   },
@@ -3808,7 +3872,7 @@
       "DepreciationNonproduction"
     ],
     "calculation": {
-      "order": 155,
+      "order": 157,
       "any": "depreciation_property_plant_equipment + depreciation_investment_property"
     }
   },
@@ -3823,7 +3887,7 @@
       "CostOfGoodsAndServicesSoldDepreciation"
     ],
     "calculation": {
-      "order": 128,
+      "order": 152,
       "any": "depreciation_goods + depreciation_services"
     }
   },
@@ -3842,7 +3906,7 @@
       "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipmentPeriodIncreaseDecrease"
     ],
     "calculation": {
-      "order": 154,
+      "order": 155,
       "any": "depreciation_depletion_amortization - property_plant_equipment_accumulated_depreciation_reclassification - property_plant_equipment_accumulated_depreciation_sale",
       "diff": "property_plant_equipment_accumulated_depreciation"
     }
@@ -4127,7 +4191,7 @@
       "DiscontinuedOperationIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriodBeforeIncomeTax"
     ],
     "calculation": {
-      "order": 795,
+      "order": 796,
       "any": "disposal_group_discontinued_operation_income_loss + disposal_group_discontinued_operation_interest_income - disposal_group_discontinued_operation_interest_expense + disposal_group_discontinued_operation_income_other - disposal_group_discontinued_operation_expense_other"
     }
   },
@@ -4212,7 +4276,7 @@
       "DisposalGroupIncludingDiscontinuedOperationOperatingExpense"
     ],
     "calculation": {
-      "order": 792,
+      "order": 789,
       "any": "disposal_group_discontinued_operation_depreciation_amortization + disposal_group_discontinued_operation_general_admninistrative_expense"
     }
   },
@@ -4260,7 +4324,7 @@
       "DisposalGroupIncludingDiscontinuedOperationOperatingIncomeLoss"
     ],
     "calculation": {
-      "order": 793,
+      "order": 794,
       "any": "disposal_group_discontinued_operation_income_loss_gross - disposal_group_discontinued_operation_expense_operating + disposal_group_discontinued_operation_gain_loss_foreign_currency_translation"
     }
   },
@@ -4275,7 +4339,7 @@
       "DisposalGroupIncludingDiscontinuedOperationGrossProfitLoss"
     ],
     "calculation": {
-      "order": 789,
+      "order": 793,
       "any": "disposal_group_discontinued_operation_revenue - disposal_group_discontinued_operation_revenue_cost"
     }
   },
@@ -4427,7 +4491,7 @@
       "BasicEarningsLossPerShare"
     ],
     "calculation": {
-      "order": 815,
+      "order": 816,
       "all": "net_income_loss / weighted_average_shares_outstanding_basic"
     }
   },
@@ -4442,7 +4506,7 @@
       "EarningsPerShareDiluted"
     ],
     "calculation": {
-      "order": 817,
+      "order": 818,
       "all": "net_income_loss / weighted_average_shares_outstanding_diluted"
     }
   },
@@ -4457,7 +4521,7 @@
       "EmployeeBenefitsAndShareBasedCompensation"
     ],
     "calculation": {
-      "order": 822,
+      "order": 823,
       "any": "pension_postretirement_benefit_expense - pension_postretirement_benefit_contributions + sharebased_compensation"
     }
   },
@@ -4472,7 +4536,7 @@
       "EmployeeBenefitsAndShareBasedCompensationNoncash"
     ],
     "calculation": {
-      "order": 562,
+      "order": 560,
       "any": "pension_postretirement_benefit_expense_reversal_noncash + sharebased_compensation"
     }
   },
@@ -4505,7 +4569,7 @@
       "long": "Enterprise Value"
     },
     "calculation": {
-      "order": 825,
+      "order": 826,
       "all": "market_capitalization + debt + stock_minority_interest - liquid_assets"
     }
   },
@@ -4517,7 +4581,7 @@
       "short": "EV/EBITDA"
     },
     "calculation": {
-      "order": 826,
+      "order": 827,
       "all": "enterprise_value / cash_operating_income_loss"
     }
   },
@@ -4529,7 +4593,7 @@
       "short": "EV/FCFF"
     },
     "calculation": {
-      "order": 828,
+      "order": 829,
       "all": "enterprise_value / free_cash_flow_firm"
     }
   },
@@ -4541,7 +4605,7 @@
       "short": "EV/Revenue"
     },
     "calculation": {
-      "order": 829,
+      "order": 830,
       "all": "enterprise_value / revenue"
     }
   },
@@ -4556,7 +4620,7 @@
       "EnvironmentalExpenseAndLiabilities"
     ],
     "calculation": {
-      "order": 623,
+      "order": 619,
       "any": "environmental_remediation_expense - payment_environmental_liabilities + change_environmental_liabilities_other"
     }
   },
@@ -4605,7 +4669,7 @@
       "long": "Equity Multiplier"
     },
     "calculation": {
-      "order": 831,
+      "order": 832,
       "all": "average_assets / average_equity"
     }
   },
@@ -4664,7 +4728,7 @@
       "ExtraordinaryItemsGross"
     ],
     "calculation": {
-      "order": 836,
+      "order": 837,
       "any": "gain_loss_adjustment_prior_extraordinary_items + extraordinary_item_investee + discontinued_application_specialized_accounting_regulate_operations + gain_loss_extraordinary_other"
     }
   },
@@ -4690,7 +4754,7 @@
       "ExtraordinaryItemNetOfTax"
     ],
     "calculation": {
-      "order": 838,
+      "order": 839,
       "any": "extraordinary_item_gross - extraordinary_item_tax_effect"
     }
   },
@@ -4790,7 +4854,7 @@
       "short": "Financing Inflow"
     },
     "calculation": {
-      "order": 851,
+      "order": 852,
       "any": "stock_proceeds + debt_proceeds + quarterly_debt_proceeds + annual_debt_proceeds + other_shortterm_debt_proceeds"
     }
   },
@@ -4802,7 +4866,7 @@
       "short": "Financing Outflow"
     },
     "calculation": {
-      "order": 857,
+      "order": 858,
       "any": "dividend_payments + stock_payments + debt_repayments + quarterly_debt_repayments + annual_debt_repayments + other_shortterm_debt_repayments"
     }
   },
@@ -4818,7 +4882,7 @@
       "InventoryFinishedGoodsNetOfReservesCurrentAndNonCurrent"
     ],
     "calculation": {
-      "order": 644,
+      "order": 640,
       "all": "finished_goods_current + finished_goods_noncurrent"
     }
   },
@@ -4858,7 +4922,7 @@
       "OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentNetOfTax"
     ],
     "calculation": {
-      "order": 860,
+      "order": 861,
       "all": "foreign_currency_transaction_translation_adjustment_pretax - foreign_currency_transaction_translation_adjustment_tax"
     }
   },
@@ -4892,7 +4956,7 @@
       "short": "FCFE"
     },
     "calculation": {
-      "order": 862,
+      "order": 863,
       "all": "operating_cashflow - payment_acquisition_productive_assets + debt_cashflow"
     }
   },
@@ -4904,7 +4968,7 @@
       "short": "FCFF"
     },
     "calculation": {
-      "order": 865,
+      "order": 866,
       "all": "operating_cashflow + interest_expense - interest_tax_shield - payment_acquisition_productive_assets"
     }
   },
@@ -5029,7 +5093,7 @@
       "GainLossOnDerivativeInstrumentsNetPretax"
     ],
     "calculation": {
-      "order": 870,
+      "order": 871,
       "any": "gain_derivative_intstruments_pretax - loss_derivative_intstruments_pretax"
     }
   },
@@ -5066,7 +5130,7 @@
       "GainsLossesOnExtinguishmentOfDebt"
     ],
     "calculation": {
-      "order": 549,
+      "order": 546,
       "any": "gain_loss_extinguishment_debt_before_writeoff_deferred_debt_issance_cost - writeoff_deferred_debt_issance_cost"
     }
   },
@@ -5103,7 +5167,7 @@
       "ForeignCurrencyTransactionGainLossBeforeTax"
     ],
     "calculation": {
-      "order": 568,
+      "order": 565,
       "any": "gain_foreign_currency_transaction_pretax - loss_foreign_currency_transaction_pretax"
     }
   },
@@ -5118,7 +5182,7 @@
       "GainLossOnInvestments"
     ],
     "calculation": {
-      "order": 887,
+      "order": 888,
       "any": "gain_loss_investment_realized + gain_loss_investment_unrealized"
     }
   },
@@ -5133,7 +5197,7 @@
       "GainLossOnInvestmentsExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 608,
+      "order": 528,
       "any": "gain_loss_securities_marketable_excluding_impairment + gain_loss_realized_cost_method_investment_excluding_impairment + gain_loss_venture_capital"
     }
   },
@@ -5148,7 +5212,7 @@
       "RealizedInvestmentGainsLosses"
     ],
     "calculation": {
-      "order": 885,
+      "order": 886,
       "any": "gain_loss_securitization_financial_assets + gain_loss_securities_realized + gain_loss_sale_properties + gain_loss_sale_investment_real_estate + gain_loss_sale_investment_other + gain_loss_sale_equity_method_investment"
     }
   },
@@ -5163,7 +5227,7 @@
       "UnrealizedGainLossOnInvestments"
     ],
     "calculation": {
-      "order": 886,
+      "order": 887,
       "any": "gain_loss_investment_realized + gain_loss_investment_unrealized"
     }
   },
@@ -5211,7 +5275,7 @@
       "CostmethodInvestmentsRealizedGainLossExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 607,
+      "order": 527,
       "any": "gain_realized_cost_method_investment - loss_realized_cost_method_investment_excluding_impairment"
     }
   },
@@ -5226,7 +5290,7 @@
       "AvailableForSaleSecuritiesGrossRealizedGainLossBeforeTax"
     ],
     "calculation": {
-      "order": 892,
+      "order": 893,
       "all": "gain_realized_pretax_securities_availableforsale - loss_realized_pretax_securities_availableforsale"
     }
   },
@@ -5242,7 +5306,7 @@
       "AvailableForSaleSecuritiesGrossRealizedGainLossNet"
     ],
     "calculation": {
-      "order": 894,
+      "order": 895,
       "all": "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale"
     }
   },
@@ -5257,7 +5321,7 @@
       "DebtSecuritiesAvailableForSaleRealizedGainLoss"
     ],
     "calculation": {
-      "order": 897,
+      "order": 898,
       "all": "gain_realized_securities_availableforsale_debt - loss_realized_securities_availableforsale_debt"
     }
   },
@@ -5272,7 +5336,7 @@
       "AvailableforsaleSecuritiesGrossRealizedGainLossExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 598,
+      "order": 513,
       "any": "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_impairment"
     }
   },
@@ -5287,7 +5351,7 @@
       "DebtSecuritiesRealizedGainLoss"
     ],
     "calculation": {
-      "order": 878,
+      "order": 883,
       "any": "gain_loss_realized_securities_debt_trade + gain_loss_realized_securities_debt_availableforsale + gain_loss_sale_securities_debt_heldtomaturity"
     }
   },
@@ -5302,7 +5366,7 @@
       "DebtAndEquitySecuritiesRealizedGainLoss"
     ],
     "calculation": {
-      "order": 899,
+      "order": 900,
       "all": "gain_loss_realized_securities_debt + gain_loss_realized_securities_equity"
     }
   },
@@ -5328,7 +5392,7 @@
       "EquitySecuritiesFvNiRealizedGainLoss"
     ],
     "calculation": {
-      "order": 874,
+      "order": 879,
       "all": "gain_realized_securities_fvni_equity - loss_realized_securities_fvni_equity"
     }
   },
@@ -5343,7 +5407,7 @@
       "HeldtomaturitySecuritiesSoldSecurityRealizedGainLossExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 900,
+      "order": 901,
       "any": "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_impairment"
     }
   },
@@ -5358,7 +5422,7 @@
       "MarketableSecuritiesRealizedGainLoss"
     ],
     "calculation": {
-      "order": 903,
+      "order": 904,
       "all": "gain_realized_securities_marketable - loss_realized_securities_marketable"
     }
   },
@@ -5373,7 +5437,7 @@
       "RealizedGainLossOnMarketableSecuritiesAndCostMethodInvestmentsExcludingOtherThanTemporaryImpairmentsAndOtherInvestments"
     ],
     "calculation": {
-      "order": 904,
+      "order": 905,
       "any": "gain_loss_realized_securities_marketable_excluding_impairment + gain_loss_realized_cost_method_investment_excluding_impairment"
     }
   },
@@ -5388,7 +5452,7 @@
       "MarketableSecuritiesRealizedGainLossExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 603,
+      "order": 517,
       "any": "gain_loss_realized_securities_trade + gain_loss_realized_securities_availableforsale_excluding_impairment + gain_loss__realized_securities_heldtomaturity_excluding_impairment"
     }
   },
@@ -5403,7 +5467,7 @@
       "TradingSecuritiesRealizedGainLoss"
     ],
     "calculation": {
-      "order": 602,
+      "order": 516,
       "all": "gain_realized_securities_trade + loss_realized_securities_trade"
     }
   },
@@ -5418,7 +5482,7 @@
       "DebtSecuritiesTradingRealizedGainLoss"
     ],
     "calculation": {
-      "order": 907,
+      "order": 908,
       "all": "gain_realized_securities_trade_debt - loss_realized_securities_trade_debt"
     }
   },
@@ -5467,7 +5531,7 @@
       "GainLossOnDispositionOfAssets1"
     ],
     "calculation": {
-      "order": 178,
+      "order": 100,
       "any": "gain_loss_sale_property_plant_equipment + gain_loss_sale_business + gain_loss_sale_leaseback_transaction + gain_loss_sale_intangible_assets + gain_loss_termination_lease + gain_loss_sale_other_assets"
     }
   },
@@ -5581,7 +5645,7 @@
       "GainLossOnSalesOfLoansNet"
     ],
     "calculation": {
-      "order": 539,
+      "order": 537,
       "any": "gain_loss_sale_loans_consumer + gain_loss_sale_loans_mortgage"
     }
   },
@@ -5607,7 +5671,7 @@
       "GainLossOnSaleOfProject"
     ],
     "calculation": {
-      "order": 540,
+      "order": 539,
       "any": "gain_loss_sale_loans + gain_loss_sale_other_loans_leases"
     }
   },
@@ -5700,7 +5764,7 @@
       "GainLossOnDispositionOfProperty"
     ],
     "calculation": {
-      "order": 173,
+      "order": 94,
       "any": "gain_loss_sale_petroleum_property + gain_loss_timber_property"
     }
   },
@@ -5715,7 +5779,7 @@
       "GainLossOnSaleOfPropertyPlantEquipment"
     ],
     "calculation": {
-      "order": 174,
+      "order": 95,
       "any": "gain_loss_sale_property + gain_loss_sale_other_property"
     }
   },
@@ -5752,7 +5816,7 @@
       "GainLossOnSaleOfPreviouslyUnissuedStockBySubsidiaryOrEquityInvesteeNonoperatingIncome"
     ],
     "calculation": {
-      "order": 534,
+      "order": 622,
       "any": "gain_loss_sale_stock_unissued_subsidiary + gain_loss_sale_stock_unissued_equity_investee"
     }
   },
@@ -5800,7 +5864,7 @@
       "DebtSecuritiesAvailableForSaleGainLoss"
     ],
     "calculation": {
-      "order": 918,
+      "order": 919,
       "all": "gain_loss_realized_securities_availableforsale_debt + gain_loss_unrealized_securities_availableforsale_debt"
     }
   },
@@ -5815,7 +5879,7 @@
       "AvailableForSaleSecuritiesGrossGainsLossesNetDerivatives"
     ],
     "calculation": {
-      "order": 921,
+      "order": 922,
       "all": "gain_securities_availableforsale_derivatives - loss_securities_availableforsale_derivatives"
     }
   },
@@ -5830,7 +5894,7 @@
       "DebtSecuritiesGainLoss"
     ],
     "calculation": {
-      "order": 925,
+      "order": 926,
       "any": "gain_loss_realized_securities_debt + gain_loss_unrealized_securities_debt"
     }
   },
@@ -5845,7 +5909,7 @@
       "EquitySecuritiesFvNiGainLoss"
     ],
     "calculation": {
-      "order": 926,
+      "order": 927,
       "all": "gain_realized_securities_fvni_equity + loss_realized_securities_fvni_equity"
     }
   },
@@ -5871,7 +5935,7 @@
       "MarketableSecuritiesGainLossExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 604,
+      "order": 524,
       "any": "gain_loss_unrealized_securities_marketable_excluding_impairment + gain_loss_realized_securities_marketable_excluding_impairment"
     }
   },
@@ -5886,7 +5950,7 @@
       "DebtAndEquitySecuritiesRealizedGainLoss"
     ],
     "calculation": {
-      "order": 879,
+      "order": 884,
       "any": "gain_loss_realized_securities_debt + gain_loss_realized_securities_fvni_equity"
     }
   },
@@ -5901,7 +5965,7 @@
       "DebtSecuritiesTradingGainLoss"
     ],
     "calculation": {
-      "order": 928,
+      "order": 929,
       "all": "gain_loss_realized_securities_trade + gain_loss_unrealized_securities_trade"
     }
   },
@@ -5938,7 +6002,7 @@
       "AvailableForSaleSecuritiesAccumulatedGrossUnrealizedGainLossBeforeTax"
     ],
     "calculation": {
-      "order": 931,
+      "order": 932,
       "all": "gain_unrealized_accumulated_pretax_securities_availableforsale + loss_unrealized_accumulated_pretax_securities_availableforsale"
     }
   },
@@ -5953,7 +6017,7 @@
       "AvailableforsaleDebtSecuritiesAccumulatedNetUnrealizedGainLossbeforeTax"
     ],
     "calculation": {
-      "order": 934,
+      "order": 935,
       "all": "gain_unrealized_accumulated_pretax_securities_availableforsale_debt - loss_unrealized_accumulated_pretax_securities_availableforsale_debt"
     }
   },
@@ -5968,7 +6032,7 @@
       "AvailableforsaleEquitySecuritiesAccumulatedNetUnrealizedGainLossbeforeTax"
     ],
     "calculation": {
-      "order": 937,
+      "order": 938,
       "all": "gain_unrealized_accumulated_pretax_securities_availableforsale_equity - loss_unrealized_accumulated_pretax_securities_availableforsale_equity"
     }
   },
@@ -6027,7 +6091,7 @@
       "UnrealizedGainLossOnDerivativesAndCommodityContracts"
     ],
     "calculation": {
-      "order": 583,
+      "order": 616,
       "any": "gain_loss_unrealized_derivatives + gain_loss_unrealized_commodity_contracts + gain_loss_unrealized_energy_contracts"
     }
   },
@@ -6065,7 +6129,7 @@
       "AvailableforsaleSecuritiesGrossUnrealizedGainLoss1"
     ],
     "calculation": {
-      "order": 943,
+      "order": 944,
       "all": "gain_unrealized_securities_availableforsale - loss_unrealized_securities_availableforsale"
     }
   },
@@ -6080,7 +6144,7 @@
       "DebtSecuritiesAvailableForSaleUnrealizedGainLoss"
     ],
     "calculation": {
-      "order": 917,
+      "order": 918,
       "all": "gain_unrealized_securities_availableforsale_debt - loss_unrealized_securities_availableforsale_debt"
     }
   },
@@ -6106,7 +6170,7 @@
       "DebtSecuritiesUnrealizedGainLoss"
     ],
     "calculation": {
-      "order": 924,
+      "order": 925,
       "all": "gain_unrealized_securities_debt - loss_unrealized_securities_debt"
     }
   },
@@ -6121,7 +6185,7 @@
       "EquitySecuritiesFvNiUnrealizedGainLoss"
     ],
     "calculation": {
-      "order": 946,
+      "order": 947,
       "all": "gain_unrealized_securities_fvni_equity - loss_unrealized_securities_fvni_equity"
     }
   },
@@ -6147,7 +6211,7 @@
       "MarketableSecuritiesUnrealizedGainLoss"
     ],
     "calculation": {
-      "order": 949,
+      "order": 950,
       "all": "gain_unrealized_securities_marketable - loss_unrealized_securities_marketable"
     }
   },
@@ -6162,7 +6226,7 @@
       "MarketableSecuritiesUnrealizedGainLossExcludingOtherThanTemporaryImpairments"
     ],
     "calculation": {
-      "order": 595,
+      "order": 523,
       "any": "gain_loss_unrealized_securities_trade + gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_impairment + gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_impairment"
     }
   },
@@ -6177,7 +6241,7 @@
       "TradingSecuritiesUnrealizedHoldingGainLoss"
     ],
     "calculation": {
-      "order": 593,
+      "order": 522,
       "all": "gain_unrealized_securities_trade - loss_unrealized_securities_trade"
     }
   },
@@ -6192,7 +6256,7 @@
       "DebtSecuritiesTradingUnrealizedGainLoss"
     ],
     "calculation": {
-      "order": 952,
+      "order": 953,
       "all": "gain_unrealized_securities_trade_debt - loss_unrealized_securities_trade_debt"
     }
   },
@@ -6430,7 +6494,7 @@
       "GeneralAndAdministrativeExpense"
     ],
     "calculation": {
-      "order": 203,
+      "order": 83,
       "any": "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + insurance_tax + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_expense"
     }
   },
@@ -6469,7 +6533,7 @@
       "Goodwill2"
     ],
     "calculation": {
-      "order": 59,
+      "order": 222,
       "all": "goodwill_gross - accumulated_impairment_goodwill"
     }
   },
@@ -6499,7 +6563,7 @@
       "IntangibleAssetsNetIncludingGoodwill"
     ],
     "calculation": {
-      "order": 955,
+      "order": 956,
       "all": "goodwill + intangible_assets"
     }
   },
@@ -6547,7 +6611,7 @@
       "GrossProfit"
     ],
     "calculation": {
-      "order": 223,
+      "order": 198,
       "all": "revenue - cost_revenue"
     }
   },
@@ -6558,7 +6622,7 @@
       "long": "Gross Profit Margin"
     },
     "calculation": {
-      "order": 958,
+      "order": 959,
       "all": "gross_profit / revenue"
     }
   },
@@ -6576,7 +6640,7 @@
       "ImpairmentLossRecognisedInProfitOrLoss"
     ],
     "calculation": {
-      "order": 964,
+      "order": 965,
       "any": "impairment_financial_assets + impairment_productive_assets + impairment_goodwill_intangible_assets"
     }
   },
@@ -6591,7 +6655,7 @@
       "AssetImpairmentCharges"
     ],
     "calculation": {
-      "order": 511,
+      "order": 591,
       "any": "impairment_goodwill_intangible_assets + impairment_tangible_assets + impairment_retained_interest + impairment_leasehold + impairment_real_estate_partnerships + impairment_equity_method_investment + net_investment_lease_credit_loss_expense_reversal + impairment_asset_other"
     }
   },
@@ -6700,7 +6764,7 @@
       "ImpairmentOfFinancialInvestmentNetOfTax"
     ],
     "calculation": {
-      "order": 963,
+      "order": 964,
       "any": "impairment_cryptocurrency"
     }
   },
@@ -6747,7 +6811,7 @@
       "ImpairmentChargesForGoodwillAndOtherIntangibleAssets"
     ],
     "calculation": {
-      "order": 492,
+      "order": 572,
       "any": "impairment_goodwill + impairment_intangible_assets"
     }
   },
@@ -6762,7 +6826,7 @@
       "GoodwillAndOtherIntangibleAssetsImpairmentLossAfterTax"
     ],
     "calculation": {
-      "order": 969,
+      "order": 970,
       "any": "impairment_goodwill_intangible_assets + tax_expense_benefit_impairment_goodwill_intangible_assets"
     }
   },
@@ -6777,7 +6841,7 @@
       "GoodwillImpairmentLossNetOfTax"
     ],
     "calculation": {
-      "order": 973,
+      "order": 974,
       "all": "impairment_goodwill - tax_expense_benefit_impairment_goodwill"
     }
   },
@@ -6796,7 +6860,7 @@
       "ImpairmentLossRecognisedInProfitOrLossIntangibleAssetsOtherThanGoodwill"
     ],
     "calculation": {
-      "order": 490,
+      "order": 570,
       "any": "impairment_intangible_assets_indefinitelived + impairment_intangible_assets_finitelived"
     }
   },
@@ -6853,7 +6917,7 @@
       "ImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwillAfterTax"
     ],
     "calculation": {
-      "order": 976,
+      "order": 977,
       "all": "impairment_intangible_assets_indefinitelived - tax_expense_benefit_impairment_intangible_assets_indefinitelived"
     }
   },
@@ -6869,7 +6933,7 @@
       "ImpairmentOfIntangibleAssetsExcludingGoodwillNetOfTax"
     ],
     "calculation": {
-      "order": 978,
+      "order": 979,
       "any": "impairment_intangible_assets + tax_expense_benefit_impairment_intangible_assets"
     }
   },
@@ -6884,7 +6948,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNet"
     ],
     "calculation": {
-      "order": 620,
+      "order": 610,
       "any": "impairment_securities_availableforsale + impairment_securities_heldtomaturity + impairment_cost_method_investment"
     }
   },
@@ -6954,7 +7018,7 @@
       "ImpairmentOfLongLivedAssetsHeldForUse"
     ],
     "calculation": {
-      "order": 505,
+      "order": 580,
       "any": "impairment_lessor_asset + impairment_excluding_lessor_asset"
     }
   },
@@ -7004,7 +7068,7 @@
       "ImpairmentLossRecognisedInProfitOrLossInvestmentPropertyAndOtherNonFinancialAssets"
     ],
     "calculation": {
-      "order": 961,
+      "order": 962,
       "any": "impairment_buildings + impairment_construction_inprogess"
     }
   },
@@ -7096,7 +7160,7 @@
       "TangibleAssetImpairmentCharges"
     ],
     "calculation": {
-      "order": 508,
+      "order": 582,
       "any": "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + gain_loss_writedown_disposal_group_not_discontinued_operation"
     }
   },
@@ -7133,7 +7197,7 @@
       "IncomeLossFromDiscontinuedOperationsNetOfTax"
     ],
     "calculation": {
-      "order": 982,
+      "order": 983,
       "any": "discontinued_operation_income_loss_phaseout_period_net_tax + discontinued_operation_gain_loss_disposal_net_tax - discontinued_operation_provision_loss_gain_disposal_net_tax + discontinued_operation_gain_loss_adjustment_disposal_prior_period_net_tax + discontinued_operation_income_loss_other_net_tax"
     }
   },
@@ -7159,7 +7223,7 @@
       "IncomeLossFromEquityMethodInvestmentsNetOfDividendsOrDistributions"
     ],
     "calculation": {
-      "order": 521,
+      "order": 542,
       "any": "income_loss_equity_method_investments - dividend_distribution_equity_method_investment"
     }
   },
@@ -7279,7 +7343,7 @@
       "IntangibleAssetsExcludingGoodwillFairValueDisclosure"
     ],
     "calculation": {
-      "order": 79,
+      "order": 229,
       "any": "intangible_assets_finitelived + intangible_assets_infinitelived"
     }
   },
@@ -7321,7 +7385,7 @@
       "FiniteLivedIntangibleAssetsFairValueDisclosure"
     ],
     "calculation": {
-      "order": 77,
+      "order": 227,
       "all": "intangible_assets_finitelived_gross - intangible_assets_finitelived_accumulated_amortization_impairment"
     }
   },
@@ -7349,7 +7413,7 @@
       "FiniteLivedIntangibleAssetsAccumulatedAmortizationImpairment"
     ],
     "calculation": {
-      "order": 76,
+      "order": 226,
       "any": "intangible_assets_finitelived_accumulated_amortization + intangible_assets_finitelived_accumulated_impairment"
     }
   },
@@ -7390,7 +7454,7 @@
       "IntangibleAssetsNetExcludingGoodwillGross"
     ],
     "calculation": {
-      "order": 992,
+      "order": 993,
       "all": "intangible_assets_finitelived_gross + intangible_assets_infinitelived_gross"
     }
   },
@@ -7408,7 +7472,7 @@
       "IndefiniteLivedIntangibleAssetsExcludingGoodwillFairValueDisclosure"
     ],
     "calculation": {
-      "order": 995,
+      "order": 996,
       "all": "intangible_assets_indefinitelived_gross - intangible_assets_indefinitelived_accumulated_impairment"
     }
   },
@@ -7464,7 +7528,7 @@
       "long": "Interest Burden"
     },
     "calculation": {
-      "order": 997,
+      "order": 998,
       "all": "pretax_income_loss / operating_income_loss"
     }
   },
@@ -7476,7 +7540,7 @@
       "short": "ICR"
     },
     "calculation": {
-      "order": 998,
+      "order": 999,
       "all": "(operating_income_loss - depreciation_depletion_amortization_accretion - payment_acquisition_productive_assets) / interest_expense"
     }
   },
@@ -7503,7 +7567,7 @@
       "InterestAndDebtExpense"
     ],
     "calculation": {
-      "order": 999,
+      "order": 1000,
       "any": "interest_expense_nonoperating - gain_loss_extinguishment_debt + induced_conversion_convertible_debt_expense - gain_loss_restructuring_debt - gain_loss_recourse_debt - gain_loss_nonrecourse_debt - gain_loss_repurchase_debt_instrument - distributions_mandatorily_redeemable_securities"
     }
   },
@@ -7518,7 +7582,7 @@
       "InterestAndDividendIncomeOperating"
     ],
     "calculation": {
-      "order": 1001,
+      "order": 1002,
       "any": "interest_income_operating + dividend_income_operating"
     }
   },
@@ -7544,7 +7608,7 @@
       "InterestAndDividendIncomeSecurities"
     ],
     "calculation": {
-      "order": 1006,
+      "order": 1007,
       "any": "interest_income_securities_mortgage_backed + interest_income_securities_state_municipal + interest_income_securities_government_bonds + dividend_income_operating"
     }
   },
@@ -7593,7 +7657,7 @@
       "InterestExpenseBeneficialInterestsIssuedByConsolidatedVariableInterestEntities"
     ],
     "calculation": {
-      "order": 741,
+      "order": 733,
       "any": "interest_expense_deposit_domestic + interest_expense_deposit_foreign"
     }
   },
@@ -7609,7 +7673,7 @@
       "FinancingInterestExpense"
     ],
     "calculation": {
-      "order": 744,
+      "order": 738,
       "any": "interest_expense_borrowing_shortterm + interest_longterm_debt_capital_securities"
     }
   },
@@ -7657,7 +7721,7 @@
       "InterestExpenseLongTermDebt"
     ],
     "calculation": {
-      "order": 1012,
+      "order": 1013,
       "any": "interest_expense_notes_debentures_subordinated + interest_expense_debentures_subordinated_junior + interest_expense_notes_mediumterm + interest_expense_advances_government_bank_longterm + interest_expense_longterm_debt_other"
     }
   },
@@ -7683,7 +7747,7 @@
       "InterestExpenseDeposits"
     ],
     "calculation": {
-      "order": 739,
+      "order": 734,
       "any": "interest_expense_deposit_domestic + interest_expense_deposit_foreign"
     }
   },
@@ -7721,7 +7785,7 @@
       "InterestExpenseDepositsDomestic"
     ],
     "calculation": {
-      "order": 737,
+      "order": 731,
       "any": "interest_expense_now_money_market_saving_deposit + interest_expense_deposit_demand + interest_expense_deposit_time + interest_expense_deposit_domestic_other"
     }
   },
@@ -7839,7 +7903,7 @@
       "InterestExpenseLongTermDebtAndCapitalSecurities"
     ],
     "calculation": {
-      "order": 1018,
+      "order": 1019,
       "any": "interest_expense_debt_longterm + interest_securities_capital"
     }
   },
@@ -7854,7 +7918,7 @@
       "InterestExpenseNonoperating"
     ],
     "calculation": {
-      "order": 727,
+      "order": 745,
       "any": "interest_expense_debt + interest_expense_leases_financial + interest_expense_deposit_customer +  interest_expense_financing"
     }
   },
@@ -7891,7 +7955,7 @@
       "InterestExpenseNOWAccountsMoneyMarketAccountsAndSavingsDeposits"
     ],
     "calculation": {
-      "order": 733,
+      "order": 728,
       "any": "interest_expense_deposit_now + interest_expense_deposit_money_market + interest_expense_deposit_saving"
     }
   },
@@ -7906,7 +7970,7 @@
       "InterestExpenseOperating"
     ],
     "calculation": {
-      "order": 745,
+      "order": 740,
       "any": "interest_expense_deposit + interest_expense_trade_liabilities + interest_expense_borrowing + interest_expense_beneficial_interest + interest_expense_securities_trust_preferred"
     }
   },
@@ -7969,7 +8033,7 @@
       "InterestIncome4"
     ],
     "calculation": {
-      "order": 1053,
+      "order": 1054,
       "any": "investment_income_interest + interest_income_operating"
     }
   },
@@ -8017,7 +8081,7 @@
       "InterestIncomeDomesticDeposits"
     ],
     "calculation": {
-      "order": 1023,
+      "order": 1024,
       "any": "interest_income_deposits_money_market + interest_income_deposits_domestic_other"
     }
   },
@@ -8043,7 +8107,7 @@
       "InterestIncomeDepositsWithFinancialInstitutions"
     ],
     "calculation": {
-      "order": 1025,
+      "order": 1026,
       "any": "interest_income_deposits_domestic + interest_income_deposits_foreign"
     }
   },
@@ -8094,7 +8158,7 @@
       "InterestRevenueExpenseNet"
     ],
     "calculation": {
-      "order": 1057,
+      "order": 1058,
       "any": "interest_income - interest_expense"
     }
   },
@@ -8109,7 +8173,7 @@
       "InterestIncomeExpenseAfterProvisionForLoanLoss"
     ],
     "calculation": {
-      "order": 1058,
+      "order": 1059,
       "any": "interest_income_expense - provision_losses"
     }
   },
@@ -8124,7 +8188,7 @@
       "InterestIncomeExpenseNonoperatingNet"
     ],
     "calculation": {
-      "order": 1059,
+      "order": 1060,
       "any": "investment_income_interest - interest_expense_nonoperating"
     }
   },
@@ -8150,7 +8214,7 @@
       "InterestIncomeFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResell"
     ],
     "calculation": {
-      "order": 1029,
+      "order": 1051,
       "any": "interest_income_federal_funds_sold + interest_income_securities_purchased_resell"
     }
   },
@@ -8209,7 +8273,7 @@
       "InterestAndFeeIncomeLoansCommercial"
     ],
     "calculation": {
-      "order": 1041,
+      "order": 1038,
       "any": "interest_income_loans_commercial_industrial_agricultural + interest_income_loans_real_estate_commercial_residential + interest_income_loans_real_estate_commercial + interest_income_loans_real_estate_construction + interest_income_loans_trade + interest_income_loans_leases_financing"
     }
   },
@@ -8235,7 +8299,7 @@
       "InterestAndFeeIncomeLoansConsumer"
     ],
     "calculation": {
-      "order": 1047,
+      "order": 1045,
       "any": "interest_income_loans_consumer_real_estate + interest_income_loans_consumer_home_equity + interest_income_loans_consumer_vehicles + interest_income_loans_consumer_credit_card + InterestAndFeeIncomeLoansOtherConsumer"
     }
   },
@@ -8316,7 +8380,7 @@
       "InterestAndFeeIncomeLoansAndLeases"
     ],
     "calculation": {
-      "order": 1050,
+      "order": 1047,
       "any": "interest_income_loans_leases_forsale + interest_income_loans_leases_inportfolio"
     }
   },
@@ -8342,7 +8406,7 @@
       "InterestAndFeeIncomeLoansAndLeasesHeldForSale"
     ],
     "calculation": {
-      "order": 1033,
+      "order": 1030,
       "any": "interest_income_loans_mortgage_forsale + interest_income_loans_leases_nonmortgage_forsale + interest_income_loans_leases_other_forsale"
     }
   },
@@ -8357,7 +8421,7 @@
       "InterestAndFeeIncomeLoansAndLeasesHeldInPortfolio"
     ],
     "calculation": {
-      "order": 1049,
+      "order": 1046,
       "any": "interest_income_loans_commercial + interest_income_loans_consumer + interest_income_loans_foreign + amortization_deferred_loan_origination_fees + interest_income_loans_other"
     }
   },
@@ -8537,7 +8601,7 @@
       "InterestIncomeSecuritiesUSTreasuryAndOtherUSGovernment"
     ],
     "calculation": {
-      "order": 1072,
+      "order": 1073,
       "any": "interest_income_securities_us_treasury + interest_income_securities_other_us_government"
     }
   },
@@ -8648,7 +8712,7 @@
       "long": "Interest Tax Shield"
     },
     "calculation": {
-      "order": 864,
+      "order": 865,
       "all": "interest_expense * tax_rate"
     }
   },
@@ -8678,7 +8742,7 @@
       "long": "Current Net Inventory"
     },
     "calculation": {
-      "order": 1077,
+      "order": 1078,
       "any": "finished_goods_current + parts_components_current + work_in_progress_raw_materials_current"
     }
   },
@@ -8737,7 +8801,7 @@
       "InventoryLIFOReserveEffectOnIncomeNet"
     ],
     "calculation": {
-      "order": 578,
+      "order": 550,
       "any": "inventory_reserve_period_charge - inventory_liquidation_effect"
     }
   },
@@ -8759,7 +8823,7 @@
       "long": "Invested Capital"
     },
     "calculation": {
-      "order": 1082,
+      "order": 1083,
       "all": "equity + debt - undue_cash"
     }
   },
@@ -8771,7 +8835,7 @@
       "short": "Investing Inflow"
     },
     "calculation": {
-      "order": 1085,
+      "order": 1086,
       "any": "proceed_productive_assets + proceed_intangible_assets + proceed_securities + proceed_acquisition_divestitures_businesses"
     }
   },
@@ -8783,7 +8847,7 @@
       "short": "Investing Outflow"
     },
     "calculation": {
-      "order": 1090,
+      "order": 1091,
       "any": "productive_assets_payments + intangible_assets_payments + securities_payments + acquisition_divestitures_payments"
     }
   },
@@ -8809,7 +8873,7 @@
       "InvestmentCompanyExpenseAfterReductionOfFeeWaiverAndReimbursement"
     ],
     "calculation": {
-      "order": 1096,
+      "order": 1097,
       "any": "investment_expense - investment_expense_offset_arrangement - investment_fee_waived_contractual - investment_fee_waived_voluntary - investment_fee_paid_indirectly"
     }
   },
@@ -8869,7 +8933,7 @@
       "NetInvestmentIncome"
     ],
     "calculation": {
-      "order": 1102,
+      "order": 1103,
       "any": "investment_income_interest_dividend + investment_income_operating + investment_income_insurance + investment_income_net_amortization_discount_premium - investment_expense_net_fee_waiver_reimbursment"
     }
   },
@@ -8906,7 +8970,7 @@
       "InvestmentIncomeInterest"
     ],
     "calculation": {
-      "order": 1052,
+      "order": 1053,
       "any": "interest_income_loans_leases + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables_purchased + interest_income_deposits_financial_institutions + interest_income_federal_funds_sold_securities_purchased_resell"
     }
   },
@@ -8921,7 +8985,7 @@
       "InvestmentIncomeInterestAndDividend"
     ],
     "calculation": {
-      "order": 1100,
+      "order": 1102,
       "any": "investment_income_interest + investment_income_dividend + interest_dividend_income_operating + interest_dividend_income_other"
     }
   },
@@ -8936,7 +9000,7 @@
       "InvestmentIncomeNetAmortizationOfDiscountAndPremium"
     ],
     "calculation": {
-      "order": 1101,
+      "order": 1098,
       "any": "amortization_investment_discount - amortization_investment_premium"
     }
   },
@@ -8951,7 +9015,7 @@
       "InvestmentIncomeNonoperating"
     ],
     "calculation": {
-      "order": 1111,
+      "order": 1112,
       "any": "nonoperating_gain_loss + royalty_income_nonoperating + rental_income_nonoperating + development_profits_nonoperating - recovery_stranded_costs + leveraged_lease_income_net + investment_income"
     }
   },
@@ -8989,7 +9053,7 @@
       "ShortTermInvestments"
     ],
     "calculation": {
-      "order": 1114,
+      "order": 1115,
       "any": "securities_current"
     }
   },
@@ -9038,7 +9102,7 @@
       "LandAndBuildingsGross"
     ],
     "calculation": {
-      "order": 63,
+      "order": 211,
       "any": "land_gross + buildings_gross"
     }
   },
@@ -9077,7 +9141,7 @@
       "FinanceLeaseLiabilitiesIas17"
     ],
     "calculation": {
-      "order": 1122,
+      "order": 1123,
       "any": "lease_liabilities_finance_current + lease_liabilities_finance_noncurrent"
     }
   },
@@ -9103,7 +9167,7 @@
       "FinanceLeaseLiabilityNoncurrent"
     ],
     "calculation": {
-      "order": 1120,
+      "order": 1122,
       "any": "lease_liabilities_finance_noncurrent_current_portion + lease_liabilities_finance_noncurrent_net_current_portion"
     }
   },
@@ -9231,7 +9295,7 @@
       "LiabilitiesAndStockholdersEquity"
     ],
     "calculation": {
-      "order": 1125,
+      "order": 1126,
       "all": "equity + liabilities"
     }
   },
@@ -9281,7 +9345,7 @@
       "OtherComprehensiveIncomeLossLongDurationInsuranceContractsDiscountRateChangesNetOfTax"
     ],
     "calculation": {
-      "order": 1128,
+      "order": 1129,
       "all": "long_duration_insurance_contracts_discount_rate_changes_pretax - long_duration_insurance_contracts_discount_rate_changes_tax"
     }
   },
@@ -9585,7 +9649,7 @@
       "MachineryEquipmentAndInternalUseSoftwareGross"
     ],
     "calculation": {
-      "order": 1133,
+      "order": 1134,
       "all": "machinery_equipment_gross + capitalized_software_gross"
     }
   },
@@ -9621,7 +9685,7 @@
       "MarketCapitalization"
     ],
     "calculation": {
-      "order": 57,
+      "order": 58,
       "all": "weighted_average_shares_outstanding_basic * share_price_average_adjusted"
     }
   },
@@ -9637,7 +9701,7 @@
       "MarketingAndAdvertisingExpense"
     ],
     "calculation": {
-      "order": 181,
+      "order": 64,
       "any": "marketing_expense + advertising_expense"
     }
   },
@@ -9782,7 +9846,7 @@
       "short": "NCAV"
     },
     "calculation": {
-      "order": 1144,
+      "order": 1145,
       "all": "average_assets_current - average_liabilities"
     }
   },
@@ -9797,7 +9861,7 @@
       "LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases"
     ],
     "calculation": {
-      "order": 1145,
+      "order": 1146,
       "any": "income_lease_leveraged - expense_tax_income_lease_leveraged + investment_tax_credit_lease_leveraged"
     }
   },
@@ -9818,8 +9882,27 @@
       "NetIncomeLossForPeriod"
     ],
     "calculation": {
+      "order": 815,
+      "all": "net_income_loss_including_minority_interest - net_income_loss_attributable_minority_interest"
+    }
+  },
+  "net_income_loss_attributable_minority_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) Attributable to Minority Interest"
+    },
+    "gaap": [
+      "NetLossAttributableToControllingInterest",
+      "IncomeLossAttributableToNoncontrollingInterest",
+      "ProfitLossAttributableToNoncontrollingInterests",
+      "NetIncomeLossAttributableToNoncontrollingInterest",
+      "NetIncomeLossesAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
       "order": 814,
-      "all": "net_income_loss_including_minority_interest - net_income_loss_to_minority_interest"
+      "any": "net_income_loss_mintority_interest_redeemable + net_income_loss_mintority_interest_redeemable"
     }
   },
   "net_income_loss_continuing_operations": {
@@ -9849,25 +9932,6 @@
       "all": "pretax_income_loss - tax_expense_benefit"
     }
   },
-  "net_income_loss_minority_interest": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Net Income (Loss) Attributable to Minority Interest"
-    },
-    "gaap": [
-      "NetLossAttributableToControllingInterest",
-      "IncomeLossAttributableToNoncontrollingInterest",
-      "ProfitLossAttributableToNoncontrollingInterests",
-      "NetIncomeLossAttributableToNoncontrollingInterest",
-      "NetIncomeLossesAttributableToNoncontrollingInterest"
-    ],
-    "calculation": {
-      "order": 1148,
-      "any": "net_income_loss_mintority_interest_redeemable + net_income_loss_mintority_interest_redeemable"
-    }
-  },
   "net_income_loss_minority_interest_nonredeemable": {
     "unit": "monetary",
     "balance": "debit",
@@ -9879,7 +9943,7 @@
       "NetIncomeLossAttributableToNonredeemableNoncontrollingInterest"
     ],
     "calculation": {
-      "order": 1149,
+      "order": 1148,
       "any": "minority_interest_net_income_loss_joint_venture_partners_nonredeemable + minority_interest_net_income_loss_limited_partnerships_nonredeemable + minority_interest_net_income_loss_operating_partnerships_nonredeemable + minority_interest_net_income_loss_other_nonredeemable + minority_interest_net_income_loss_preferred_unit_holders_nonredeemable"
     }
   },
@@ -9894,7 +9958,7 @@
       "NetIncomeLossAttributableToRedeemableNoncontrollingInterest"
     ],
     "calculation": {
-      "order": 1150,
+      "order": 1149,
       "any": "minority_interest_net_income_loss_joint_venture_partners_redeemable + minority_interest_net_income_loss_limited_partnerships_redeemable + minority_interest_net_income_loss_operating_partnerships_redeemable + minority_interest_net_income_loss_other_redeemable + minority_interest_net_income_loss_preferred_unit_holders_redeemable"
     }
   },
@@ -9909,7 +9973,7 @@
       "NetInvestmentInLeaseCreditLossExpenseReversal"
     ],
     "calculation": {
-      "order": 495,
+      "order": 590,
       "any": "impairment_lease_direct_financing + impairment_lease_sales_type"
     }
   },
@@ -9920,7 +9984,7 @@
       "long": "Net-Net Working Capital"
     },
     "calculation": {
-      "order": 1151,
+      "order": 1150,
       "all": "average_liquid_assets + 0.75 * average_receivable_trade_current + 0.5 * average_inventory - average_liabilities"
     }
   },
@@ -9943,7 +10007,7 @@
       "short": "NOPAT"
     },
     "calculation": {
-      "order": 1152,
+      "order": 1151,
       "all": "operating_income_loss * (1 - tax_rate)"
     }
   },
@@ -9955,7 +10019,7 @@
       "short": "NPM"
     },
     "calculation": {
-      "order": 1153,
+      "order": 1152,
       "all": "net_income_loss / revenue"
     }
   },
@@ -9999,7 +10063,7 @@
       "long": "Non-Operating Expense"
     },
     "calculation": {
-      "order": 1154,
+      "order": 1153,
       "any": "interest_expense + impairment"
     }
   },
@@ -10014,7 +10078,7 @@
       "NonoperatingGainsLosses"
     ],
     "calculation": {
-      "order": 1109,
+      "order": 1104,
       "any": "gain_loss_investment + gain_loss_venture_capital + gain_loss_disposal_not_discontinued_operation + gain_loss_sale_stock_subsidiary + gain_loss_deconsolidation + gain_loss_sale_stock_unissued + gain_loss_sale_interest_projects + gain_loss_derivative_intstruments_pretax + gain_business_combination_bargain_purchase + gain_loss_nonoperating_other"
     }
   },
@@ -10026,7 +10090,7 @@
       "long": "Non-operating Income"
     },
     "calculation": {
-      "order": 1155,
+      "order": 1154,
       "any": "investment_income"
     }
   },
@@ -10041,7 +10105,7 @@
       "NonoperatingIncomeExpense"
     ],
     "calculation": {
-      "order": 1157,
+      "order": 1156,
       "all": "nonoperating_income - nonoperating_expenses + other_nonoperating_income_expense"
     }
   },
@@ -10063,7 +10127,7 @@
       "TotalNotesPayableAndWarrantLiability"
     ],
     "calculation": {
-      "order": 1161,
+      "order": 1160,
       "all": "notes_payable + warrant_liability"
     }
   },
@@ -10075,7 +10139,7 @@
       "short": "Operating Inflow"
     },
     "calculation": {
-      "order": 1163,
+      "order": 1162,
       "any": {
         "net_income_loss": {
           "weight": 1,
@@ -10112,7 +10176,7 @@
       "short": "Operating Outflow"
     },
     "calculation": {
-      "order": 1164,
+      "order": 1163,
       "any": {
         "net_income_loss": {
           "weight": 1,
@@ -10151,7 +10215,7 @@
       "OperatingExpenseExcludingCostOfSales"
     ],
     "calculation": {
-      "order": 206,
+      "order": 180,
       "any": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
     }
   },
@@ -10166,7 +10230,7 @@
       "OperatingCostsAndExpenses"
     ],
     "calculation": {
-      "order": 161,
+      "order": 176,
       "any": "research_development_expense + depreciation_depletion_amortization_nonproduction + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_expenses + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
     }
   },
@@ -10186,7 +10250,7 @@
       "ProfitLossFromOperatingActivities"
     ],
     "calculation": {
-      "order": 232,
+      "order": 206,
       "all": "gross_profit - operating_expenses + government_assistance_income_loss + other_operating_income_expense"
     }
   },
@@ -10209,7 +10273,7 @@
       "short": "NPM"
     },
     "calculation": {
-      "order": 1165,
+      "order": 1164,
       "all": "operating_income_loss / revenue"
     }
   },
@@ -10220,7 +10284,7 @@
       "long": "Operating Working Capital"
     },
     "calculation": {
-      "order": 244,
+      "order": 243,
       "any": "average_receivable_trade_current + average_inventory + average_prepaid_expenses_current - average_payable_trade_current - average_deferred_revenue_current - average_accrued_expenses_current"
     }
   },
@@ -10271,7 +10335,7 @@
       "OtherComprehensiveIncomeLossNetOfTaxPortionAttributableToParent"
     ],
     "calculation": {
-      "order": 1176,
+      "order": 1175,
       "any": "derivatives_adjustment + long_duration_insurance_contracts_discount_rate_changes + foreign_currency_transaction_translation_adjustment + securities_adjustment + pension_postretirement_benefit_plans_adjustment + other_comprehensive_income"
     }
   },
@@ -10309,7 +10373,7 @@
       "OtherGeneralAndAdministrativeExpense"
     ],
     "calculation": {
-      "order": 194,
+      "order": 76,
       "any": "general_expense + administrative_expense"
     }
   },
@@ -10406,7 +10470,7 @@
       "AdjustmentsNoncashItemsToReconcileNetIncomeLossToCashProvidedByUsedInOperatingActivitiesOther"
     ],
     "calculation": {
-      "order": 552,
+      "order": 625,
       "any": "other_noncash_income - other_noncash_expense"
     }
   },
@@ -10465,7 +10529,7 @@
       "OtherNonrecurringIncomeExpense"
     ],
     "calculation": {
-      "order": 229,
+      "order": 202,
       "any": "other_nonrecurring_expense - other_nonrecurring_income"
     }
   },
@@ -10492,7 +10556,7 @@
       "OtherOperatingIncomeExpenseNet"
     ],
     "calculation": {
-      "order": 231,
+      "order": 205,
       "any": "other_noninterest_operating_income - other_expense - other_nonrecurring_income_expense + capitalized_costs_recovered_phase_in_plan"
     }
   },
@@ -10555,7 +10619,7 @@
       "AccountsPayableCurrentAndNoncurrent"
     ],
     "calculation": {
-      "order": 1181,
+      "order": 1180,
       "all": "payables_current + payables_noncurrent"
     }
   },
@@ -10581,7 +10645,7 @@
       "AccountsPayableCurrent"
     ],
     "calculation": {
-      "order": 1186,
+      "order": 1185,
       "all": "payable_trade_current + payable_tax_current + payable_interest_current + payable_dividend_current"
     }
   },
@@ -10609,7 +10673,7 @@
       "DividendsPayableCurrentAndNoncurrent"
     ],
     "calculation": {
-      "order": 1189,
+      "order": 1188,
       "all": "payable_dividend_current + payable_dividend_noncurrent"
     }
   },
@@ -10658,7 +10722,7 @@
       "InterestPayableCurrentAndNoncurrent"
     ],
     "calculation": {
-      "order": 1192,
+      "order": 1191,
       "any": "payable_interest_current - payable_interest_noncurrent"
     }
   },
@@ -10708,7 +10772,7 @@
       "NotesPayableFairValueDisclosure"
     ],
     "calculation": {
-      "order": 1197,
+      "order": 1196,
       "all": "payable_notes_current + payable_notes_noncurrent"
     }
   },
@@ -10723,7 +10787,7 @@
       "ConvertibleNotesPayable"
     ],
     "calculation": {
-      "order": 1199,
+      "order": 1198,
       "all": "payable_notes_convertible_current + payable_notes_convertible_noncurrent"
     }
   },
@@ -10762,7 +10826,7 @@
       "NotesPayableCurrentNet"
     ],
     "calculation": {
-      "order": 1196,
+      "order": 1194,
       "any": "payable_notes_convertible_current"
     }
   },
@@ -10789,7 +10853,7 @@
       "OtherNotesPayable"
     ],
     "calculation": {
-      "order": 1202,
+      "order": 1201,
       "all": "payable_notes_other_current + payable_notes_other_noncurrent"
     }
   },
@@ -10815,7 +10879,7 @@
       "AccountsPayableOtherCurrentAndNoncurrent"
     ],
     "calculation": {
-      "order": 1205,
+      "order": 1204,
       "all": "payable_other_current + payable_other_noncurrent"
     }
   },
@@ -10864,7 +10928,7 @@
       "AccountsPayableRelatedPartiesCurrentAndNoncurrent"
     ],
     "calculation": {
-      "order": 1209,
+      "order": 1208,
       "all": "payable_related_parties_current + payables_related_parties_noncurrent"
     }
   },
@@ -10953,7 +11017,7 @@
       "AccountsPayableAndAccruedLiabilitiesCurrentAndNoncurrent"
     ],
     "calculation": {
-      "order": 1213,
+      "order": 1212,
       "all": "payables_accrued_expenses_current + payables_accrued_expenses_noncurrent"
     }
   },
@@ -10968,7 +11032,7 @@
       "AccountsPayableAndAccruedLiabilitiesCurrent"
     ],
     "calculation": {
-      "order": 1212,
+      "order": 1210,
       "all": "payables_current + accrued_expenses_current"
     }
   },
@@ -11020,7 +11084,7 @@
       "PaymentsToAcquireAssetsInvestingActivities"
     ],
     "calculation": {
-      "order": 1219,
+      "order": 1218,
       "any": "payment_acquisition_investments"
     }
   },
@@ -11059,7 +11123,7 @@
       "PaymentsToAcquireNewbuildingsVesselsAndEquipment"
     ],
     "calculation": {
-      "order": 1223,
+      "order": 1222,
       "any": "payment_acquisition_buildings_vessels + payment_acquisition_machinery_equipment"
     }
   },
@@ -11107,7 +11171,7 @@
       "PaymentsToAcquireBusinessesAndInterestInAffiliates"
     ],
     "calculation": {
-      "order": 1225,
+      "order": 1224,
       "any": "payment_acquisition_business + payment_acquisition_affiliates_subsidiaries"
     }
   },
@@ -11133,7 +11197,7 @@
       "PaymentsToAcquireAndDevelopRealEstate"
     ],
     "calculation": {
-      "order": 1240,
+      "order": 1239,
       "any": "payment_acquisition_real_estate + payment_development_real_estate + payment_construction_inprogress"
     }
   },
@@ -11215,7 +11279,7 @@
       "PaymentsToAcquireInterestInSubsidiariesAndAffiliates"
     ],
     "calculation": {
-      "order": 1251,
+      "order": 1250,
       "any": "payment_acquisition_interest_affiliates + payment_acquisition_interest_subsidiaries + payment_acquisition_interest_subsidiaries_additional + payment_acquisition_equity_method_investment + payment_acquisition_interest_joint_venture"
     }
   },
@@ -11263,7 +11327,7 @@
       "PaymentsToAcquireInvestments"
     ],
     "calculation": {
-      "order": 1218,
+      "order": 1217,
       "all": "payment_acquisition_investments_shortterm + payment_acquisition_investments_longterm",
       "any": "payment_acquisition_interest_limited_partnership + payment_acquisition_securities_marketable + payment_acquisition_receivable + payment_acquisition_investments_restricted + payment_acquisition_real_estate_investment + payment_acquisition_investments_trust_preferred + payment_acquisition_projects + payment_investment_fund_decommissioning + payment_acquisition_investments_other"
     }
@@ -11429,7 +11493,7 @@
       "PaymentsToAcquireOilAndGasPropertyAndEquipment"
     ],
     "calculation": {
-      "order": 1261,
+      "order": 1260,
       "any": "payment_acquisition_property_petroleum + payment_acquisition_equipment_petroleum"
     }
   },
@@ -11456,7 +11520,7 @@
       "PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities"
     ],
     "calculation": {
-      "order": 1269,
+      "order": 1268,
       "any": "payment_acquisition_property_plant_equipment_excluding_real_estate + payment_acquisition_development_real_estate"
     }
   },
@@ -11472,7 +11536,7 @@
       "PaymentstoAcquirePropertyPlantandEquipmentExcludingRealEstate"
     ],
     "calculation": {
-      "order": 1268,
+      "order": 1267,
       "any": "payment_acquisition_furniture_fixtures + payment_acquisition_buildings_vessels_equipment + payment_acquisition_property_equipment_petroleum + payment_development_property_petroleum + payment_acquisition_mining_assets + payment_acquisition_timberlands + payment_acquisition_water_waste_water_systems + payment_acquisition_property_plant_equipment_other"
     }
   },
@@ -11498,7 +11562,7 @@
       "PaymentsToAcquireRealEstate"
     ],
     "calculation": {
-      "order": 1237,
+      "order": 1238,
       "any": "payment_acquisition_real_estate_deposit + payment_acquisition_real_estate_commercial + payment_improvement_capital + payment_acquisition_real_estate_residential + payment_acquisition_land + payment_acquisition_land_hfu + payment_acquisition_real_estate_heldforsale + payment_acquisition_real_estate_other + payment_acquisition_real_estate_previously_leased"
     }
   },
@@ -11558,7 +11622,7 @@
       "PaymentstoAcquirePreviouslyLeasedRealEstate"
     ],
     "calculation": {
-      "order": 1235,
+      "order": 1237,
       "any": "payment_acquisition_real_estate_deposit + payment_acquisition_real_estate_commercial + payment_acquisition_buildings + payment_capital_improvement + payment_acquisition_real_estate_residential + payment_acquisition_land + payment_acquisition_land_hfu + payment_acquisition_real_estate_heldforsale + payment_acquisition_real_estate_other + payment_acquisition_real_estate_previously_leased"
     }
   },
@@ -11584,7 +11648,7 @@
       "PaymentsToAcquireReceivables"
     ],
     "calculation": {
-      "order": 1281,
+      "order": 1280,
       "any": "payment_acquisition_receivable_notes + payment_acquisition_receivable_lease + payment_acquisition_receivable_loans + payment_acquisition_receivable_finance + payment_acquisition_retained_interest_securitized_receivables + payment_advance_affiliate + payment_advance_home_loan_bank + payment_fund_loans_policy + payment_acquisition_receivable_other"
     }
   },
@@ -11632,7 +11696,7 @@
       "PaymentsToAcquireNotesReceivable"
     ],
     "calculation": {
-      "order": 1275,
+      "order": 1276,
       "any": "payment_acquisition_receivable_notes_mortgage"
     }
   },
@@ -11691,7 +11755,7 @@
       "PaymentsToAcquireAvailableForSaleSecurities"
     ],
     "calculation": {
-      "order": 1285,
+      "order": 1284,
       "any": "payment_acquisition_securities_availableforsale_debt + payment_acquisition_securities_availableforsale_equity"
     }
   },
@@ -11750,7 +11814,7 @@
       "PaymentsToAcquireMarketableSecurities"
     ],
     "calculation": {
-      "order": 1289,
+      "order": 1288,
       "any": "payment_acquisition_securities_availableforsale + payment_acquisition_securities_heldtomaturity + payment_acquisition_securities_trade"
     }
   },
@@ -11821,7 +11885,7 @@
       "PaymentsToAcquireWaterAndWasteWaterSystems"
     ],
     "calculation": {
-      "order": 1266,
+      "order": 1263,
       "any": "payment_acquisition_water_systems + payment_acquisition_waste_water_systems"
     }
   },
@@ -12015,7 +12079,7 @@
       "PaymentsOfDividends"
     ],
     "calculation": {
-      "order": 1298,
+      "order": 1297,
       "any": "payment_dividend_common + payment_dividend_preferred + payment_divident_minority_interest"
     }
   },
@@ -12100,7 +12164,7 @@
       "PaymentsForFees"
     ],
     "calculation": {
-      "order": 483,
+      "order": 460,
       "any": "payment_fees_administrative + payment_fees_incentive + payment_fees_management"
     }
   },
@@ -12183,7 +12247,7 @@
       "InterestPaidOperatingAndInvestingActivities"
     ],
     "calculation": {
-      "order": 464,
+      "order": 470,
       "any": "payment_interest_capitalized + payment_interest_net"
     }
   },
@@ -12354,7 +12418,7 @@
       "PaymentsForLossesAndLossAdjustmentExpense"
     ],
     "calculation": {
-      "order": 1309,
+      "order": 1308,
       "any": "payment_claims_current_year + payment_claims_prior_years"
     }
   },
@@ -12391,7 +12455,7 @@
       "PaymentsForOperatingActivities"
     ],
     "calculation": {
-      "order": 485,
+      "order": 484,
       "any": "payment_suppliers_employees + payment_deposits + payment_rent + payment_interest + payment_tax_income + payment_tax_other + payment_fees + payment_commissions + payment_fees_brokerage + payment_royalties + payment_legal_settlements + payment_environmental_liabilities + payment_reinsurance + payment_loss_adjustment + payment_underwriting_expense + payment_merger_related_costs + payment_restructuring + payment_origination_mortgage_loans_heldforsale + payment_purchase_mortgage_loans_heldforsale + payment_purchase_securities_operating + payment_purchase_assets_other + payment_deposits_other_institutions + payment_deposits_time + payment_loans + payment_pension_postretirement_benefit_contributions + payment_postemployment_benefits + payment_asset_retirement_obligation + payment_demand_side_management_program + payment_other_operating_activities + excess_tax_benefit_sharebased_compensation + payment_contingent_consideration_liability + payment_lease_shortterm + payment_lease_variable + payment_lease_operating + payment_finance_lease_interest"
     }
   },
@@ -12439,7 +12503,7 @@
       "PensionAndOtherPostretirementBenefitContributions"
     ],
     "calculation": {
-      "order": 478,
+      "order": 466,
       "any": "payment_pension_contributions + payment_postretirement_benefits"
     }
   },
@@ -12543,7 +12607,7 @@
       "PaymentsForRepurchaseOfEquity"
     ],
     "calculation": {
-      "order": 1314,
+      "order": 1313,
       "any": "payment_repurchase_stock_common + payment_repurchase_stock_preferred"
     }
   },
@@ -12627,7 +12691,7 @@
       "PaymentsForSoftware"
     ],
     "calculation": {
-      "order": 1317,
+      "order": 1316,
       "any": "payment_development_software"
     }
   },
@@ -12653,7 +12717,7 @@
       "PaymentsToSuppliersAndEmployees"
     ],
     "calculation": {
-      "order": 472,
+      "order": 450,
       "any": "payment_suppliers + payment_employees"
     }
   },
@@ -12668,7 +12732,7 @@
       "IncomeTaxesPaid"
     ],
     "calculation": {
-      "order": 441,
+      "order": 475,
       "any": "payment_tax_income_federal + payment_tax_income_state + payment_tax_income_foreign"
     }
   },
@@ -12716,7 +12780,7 @@
       "IncomeTaxesPaid"
     ],
     "calculation": {
-      "order": 474,
+      "order": 480,
       "any": "payment_tax_income_federal + payment_tax_income_state + payment_tax_income_foreign"
     }
   },
@@ -12764,7 +12828,7 @@
       "PensionAndOtherPostretirementBenefitExpense"
     ],
     "calculation": {
-      "order": 820,
+      "order": 821,
       "any": "pension_expense + postretirement_benefit_expense"
     }
   },
@@ -12779,7 +12843,7 @@
       "PensionAndOtherPostretirementBenefitsExpenseReversalOfExpenseNoncash"
     ],
     "calculation": {
-      "order": 561,
+      "order": 559,
       "any": "pension_expense_reversal_noncash + postretirement_benefits_expense_reversal_noncash"
     }
   },
@@ -12794,7 +12858,7 @@
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentNetOfTax"
     ],
     "calculation": {
-      "order": 1170,
+      "order": 1169,
       "all": "pension_postretirement_benefit_plans_adjustment_pretax - pension_postretirement_benefit_plans_adjustment_tax"
     }
   },
@@ -12919,7 +12983,7 @@
       "short": "P/B"
     },
     "calculation": {
-      "order": 1319,
+      "order": 1318,
       "all": "market_capitalization / equity"
     }
   },
@@ -12931,7 +12995,7 @@
       "short": "P/E"
     },
     "calculation": {
-      "order": 1320,
+      "order": 1319,
       "all": "market_capitalization / net_income_loss"
     }
   },
@@ -12943,7 +13007,7 @@
       "short": "P/FCF"
     },
     "calculation": {
-      "order": 1321,
+      "order": 1320,
       "all": "market_capitalization / free_cashflow_firm"
     }
   },
@@ -12955,7 +13019,7 @@
       "short": "P/OCF"
     },
     "calculation": {
-      "order": 1322,
+      "order": 1321,
       "all": "market_capitalization / operating_cashflow"
     }
   },
@@ -12967,7 +13031,7 @@
       "short": "P/S"
     },
     "calculation": {
-      "order": 1323,
+      "order": 1322,
       "all": "market_capitalization / revenue"
     }
   },
@@ -12979,7 +13043,7 @@
       "short": "P/TB"
     },
     "calculation": {
-      "order": 1326,
+      "order": 1325,
       "all": "market_capitalization / tangible_common_equity"
     }
   },
@@ -13006,7 +13070,7 @@
       "ProceedsFromSaleMaturityAndCollectionsOfInvestments"
     ],
     "calculation": {
-      "order": 1330,
+      "order": 1329,
       "any": "proceed_collection_maturity_sale_investment_shortterm + proceed_collection_maturity_sale_investment_longterm + proceed_collection_maturity_sale_investment_other"
     }
   },
@@ -13145,7 +13209,7 @@
       "ProceedsFromSaleAndCollectionOfNotesReceivable"
     ],
     "calculation": {
-      "order": 1339,
+      "order": 1338,
       "any": "proceed_collection_receivable_notes + proceed_sale_receivable_notes"
     }
   },
@@ -13465,7 +13529,7 @@
       "ProceedsFromIssuanceInitialPublicOfferingAndPrivatePlacement"
     ],
     "calculation": {
-      "order": 1352,
+      "order": 1351,
       "any": "proceed_initial_public_offering + proceed_private_placement"
     }
   },
@@ -13513,7 +13577,7 @@
       "ProceedsFromInterestAndDividendsReceived"
     ],
     "calculation": {
-      "order": 1353,
+      "order": 1352,
       "all": "proceed_interest_dividends_received"
     }
   },
@@ -13563,7 +13627,7 @@
       "ProceedsFromIssuanceOfCommonStockAndWarrantsNet"
     ],
     "calculation": {
-      "order": 1359,
+      "order": 1358,
       "any": "proceed_issuance_stock_common + proceed_issuance_warrants"
     }
   },
@@ -13579,7 +13643,7 @@
       "ProceedsFromDebtNetOfIssuanceCosts"
     ],
     "calculation": {
-      "order": 1361,
+      "order": 1360,
       "all": "proceed_issuance_debt_gross - cost_issuance_debt"
     },
     "components": [
@@ -13686,7 +13750,7 @@
       "ProceedsFromIssuanceOfPreferredStockPreferenceStockAndWarrants"
     ],
     "calculation": {
-      "order": 1367,
+      "order": 1366,
       "any": "proceed_issuance_stock_preferred + proceed_issuance_warrants"
     }
   },
@@ -13928,7 +13992,7 @@
       "ProceedsFromOperatingActivities"
     ],
     "calculation": {
-      "order": 437,
+      "order": 436,
       "any": "proceed_customer + proceed_customer_progress_payments + proceed_deposit_customer + proceed_fees + proceed_fees_license + proceed_interest_dividend + proceed_tax_income_refund + proceed_commissions + proceed_royalties + proceed_rents + proceed_financing_lease + proceed_refund_supplier_material + proceed_insurance_settlement + proceed_legal_settlements + proceed_insurance_premiums + proceed_sale_real_estate + proceed_sale_securities_operating + proceed_maturity_prepayment_call_securities_operating + proceed_sale_assets_other + proceed_grantors + proceed_collaborators + proceed_deposits_time + proceed_loans + proceed_deposits_other_institutions + proceed_sale_mortgage_loans_heldforsale + proceed_collection_mortgage_loans_heldforsale + proceeds_management_program + proceeds_other_operating_activities + deferred_tax_expense_stock_options_exercised + proceed_sale_trust_assets + proceed_lease_payments + proceed_crypto_assets_operating"
     }
   },
@@ -14077,7 +14141,7 @@
       "ProceedsFromSalesOfInvestments"
     ],
     "calculation": {
-      "order": 1389,
+      "order": 1388,
       "any": "proceeds_sale_investments_shortterm + proceeds_sale_investments_longterm"
     }
   },
@@ -14103,7 +14167,7 @@
       "ProceedsFromSaleOfInvestments"
     ],
     "calculation": {
-      "order": 1393,
+      "order": 1392,
       "all": "proceed_sale_investments_longterm + proceed_sale_investments_shortterm"
     }
   },
@@ -14343,7 +14407,7 @@
       "ProceedsFromSaleOfAvailableForSaleSecurities"
     ],
     "calculation": {
-      "order": 1411,
+      "order": 1410,
       "any": "proceed_sale_securities_availableforsale_debt + proceed_sale_securities_availableforsale_equity"
     }
   },
@@ -14491,7 +14555,7 @@
       "ProceedsFromIncomeTaxRefunds"
     ],
     "calculation": {
-      "order": 428,
+      "order": 433,
       "any": "proceed_tax_income_refund_federal + proceed_tax_income_refund_state + proceed_tax_income_refund_foreign"
     }
   },
@@ -14572,8 +14636,8 @@
       "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet"
     ],
     "calculation": {
-      "order": 71,
-      "all": "property_plant_equipment + capitalized_software"
+      "order": 220,
+      "any": "property_plant_equipment + capitalized_software"
     }
   },
   "productive_assets_accumulated_depreciation_amortization": {
@@ -14589,7 +14653,7 @@
     ],
     "calculation": {
       "order": 1420,
-      "any": ""
+      "any": "property_plant_equipment_accumulated_depreciation + capitalized_software_accumulated_depreciation"
     }
   },
   "productive_assets_gross": {
@@ -14657,7 +14721,7 @@
       "PropertyPlantAndEquipmentFairValueDisclosure"
     ],
     "calculation": {
-      "order": 67,
+      "order": 216,
       "all": "property_plant_equipment_gross - property_plant_equipment_accumulated_depreciation"
     }
   },
@@ -14713,7 +14777,7 @@
       "PropertyPlantAndEquipmentGross"
     ],
     "calculation": {
-      "order": 66,
+      "order": 214,
       "any": "land_buildings_gross + furniture_fixtures_gross + machinery_equipment_gross"
     }
   },
@@ -14788,7 +14852,7 @@
       "ProvisionForLoanAndLeaseLosses"
     ],
     "calculation": {
-      "order": 211,
+      "order": 188,
       "any": "provision_loan_losses_expensed + provision_lease_losses"
     }
   },
@@ -14814,7 +14878,7 @@
       "ProvisionForLoanLeaseAndOtherLosses"
     ],
     "calculation": {
-      "order": 214,
+      "order": 189,
       "any": "provision_other_credit_losses + provision_other_losses + provision_loan_lease_losses"
     }
   },
@@ -15118,7 +15182,7 @@
       "NotesReceviableCurrent"
     ],
     "calculation": {
-      "order": 1446,
+      "order": 1447,
       "all": "receivable_notes_current_gross - credit_loss_allowance_receivable_notes_current"
     }
   },
@@ -15160,7 +15224,7 @@
       "NotesAndLoansReceivableNetCurrent"
     ],
     "calculation": {
-      "order": 1454,
+      "order": 1456,
       "any": "receivable_notes_current + receivable_loans_current"
     }
   },
@@ -15205,7 +15269,7 @@
       "NotesAndLoansReceivableNetNoncurrent"
     ],
     "calculation": {
-      "order": 1456,
+      "order": 1454,
       "any": "receivable_notes_noncurrent + receivable_loans_noncurrent"
     }
   },
@@ -15293,7 +15357,7 @@
       "AccountsAndOtherReceivablesNetCurrent"
     ],
     "calculation": {
-      "order": 1470,
+      "order": 1467,
       "all": "receivable_other_current_gross - credit_loss_allowance_receivable_other_current"
     }
   },
@@ -15308,7 +15372,7 @@
       "OtherNoncurrentReceivables"
     ],
     "calculation": {
-      "order": 1468,
+      "order": 1470,
       "all": "receivable_other_noncurrent_gross - credit_loss_allowance_receivable_other_noncurrent"
     }
   },
@@ -15366,7 +15430,7 @@
       "TradeAccountsReceivablesIncludedLeaseReceivables"
     ],
     "calculation": {
-      "order": 1427,
+      "order": 1428,
       "all": "receivable_trade_current + receivable_trade_noncurrent"
     }
   },
@@ -15383,7 +15447,7 @@
       "AccountsReceivableNetCurrent"
     ],
     "calculation": {
-      "order": 239,
+      "order": 236,
       "all": "receivable_trade_current_gross - credit_loss_allowance_receivable_trade_current"
     }
   },
@@ -15774,7 +15838,7 @@
       "RestructuringCharges"
     ],
     "calculation": {
-      "order": 514,
+      "order": 594,
       "any": "business_exit_costs + recapitalization_costs + severance_costs + other_restructuring_costs"
     }
   },
@@ -15789,7 +15853,7 @@
       "RestructuringCosts"
     ],
     "calculation": {
-      "order": 516,
+      "order": 596,
       "any": "restructuring_charges - payment_restructuring + noncash_merger_related_costs"
     }
   },
@@ -15804,7 +15868,7 @@
       "RestructuringCostsAndAssetImpairmentCharges"
     ],
     "calculation": {
-      "order": 517,
+      "order": 597,
       "any": "restructuring_cost + impairment_asset"
     }
   },
@@ -16008,7 +16072,7 @@
       "long": "Revenue Per Day"
     },
     "calculation": {
-      "order": 332,
+      "order": 331,
       "all": "revenue / days"
     }
   },
@@ -16130,7 +16194,7 @@
       "OtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax"
     ],
     "calculation": {
-      "order": 1175,
+      "order": 1174,
       "all": "securities_unrealized_gain_loss + securities_sales_reclassification"
     }
   },
@@ -16206,7 +16270,7 @@
       "AvailableForSaleSecuritiesCurrent"
     ],
     "calculation": {
-      "order": 313,
+      "order": 314,
       "all": "securities_availableforsale_debt + securities_availableforsale_equity"
     }
   },
@@ -16221,7 +16285,7 @@
       "AvailableForSaleSecuritiesDebtSecurities"
     ],
     "calculation": {
-      "order": 308,
+      "order": 309,
       "all": "securities_availableforsale_debt_current + securities_availableforsale_debt_noncurrent"
     }
   },
@@ -16652,7 +16716,7 @@
       "AvailableForSaleSecuritiesEquitySecurities"
     ],
     "calculation": {
-      "order": 312,
+      "order": 313,
       "all": "securities_availableforsale_equity_current + securities_availableforsale_equity_noncurrent"
     }
   },
@@ -16914,7 +16978,7 @@
       "MarketableSecuritiesEquitySecuritiesCurrent"
     ],
     "calculation": {
-      "order": 1562,
+      "order": 1563,
       "all": "securities_availableforsale_equity_current + securities_fvni_equity_current"
     }
   },
@@ -17064,7 +17128,7 @@
       "OtherComprehensiveIncomeUnrealizedHoldingGainLossOnSecuritiesArisingDuringPeriodNetOfTax"
     ],
     "calculation": {
-      "order": 1174,
+      "order": 1173,
       "all": "securities_unrealized_gain_loss_pretax - securities_unrealized_gain_loss_tax"
     }
   },
@@ -17091,7 +17155,7 @@
       "SellingGeneralAndAdministrativeExpense"
     ],
     "calculation": {
-      "order": 204,
+      "order": 84,
       "any": "selling_marketing_expense + general_administrative_expense + other_selling_general_administrative_expense"
     }
   },
@@ -17106,7 +17170,7 @@
       "SellingAndMarketingExpense"
     ],
     "calculation": {
-      "order": 186,
+      "order": 67,
       "any": "selling_expense + sales_commissions_fees + marketing_advertising_expense + franchisor_costs + product_warranty_expense + other_selling_marketing_expense"
     }
   },
@@ -17158,7 +17222,7 @@
       "ShareBasedCompensation"
     ],
     "calculation": {
-      "order": 558,
+      "order": 556,
       "any": "stock_option_plan_expense + restricted_stock_expense + employee_stock_ownership_plan_compensation_expense"
     }
   },
@@ -17310,7 +17374,7 @@
       "long": "Tangible Common Equity"
     },
     "calculation": {
-      "order": 1325,
+      "order": 1324,
       "any": "assets - intangible_assets - goodwill - liabilities - preferred_stock"
     }
   },
@@ -17460,7 +17524,7 @@
       "IncomeTaxExpenseBenefitGoodwillImpairment"
     ],
     "calculation": {
-      "order": 972,
+      "order": 973,
       "any": "tax_expense_impairment_goodwill - tax_benefit_impairment_goodwill"
     }
   },
@@ -17510,7 +17574,7 @@
       "DeferredIncomeTaxExpenseBenefit"
     ],
     "calculation": {
-      "order": 612,
+      "order": 500,
       "any": "tax_income_deferred_foreign + tax_income_deferred_national + tax_income_deferred_local"
     }
   },
@@ -17614,7 +17678,7 @@
       "EffectiveIncomeTaxRateContinuingOperations"
     ],
     "calculation": {
-      "order": 863,
+      "order": 864,
       "all": "tax_expense_benefit / pretax_income_loss"
     }
   },
@@ -17662,7 +17726,7 @@
       "long": "Undue Cash"
     },
     "calculation": {
-      "order": 1081,
+      "order": 1082,
       "all": "cash_cash_equivalents - debt_current - (interest_rate * debt) + operating_working_capital"
     }
   },
@@ -17753,7 +17817,7 @@
       "WeightedAverageNumberOfShareOutstandingBasicAndDiluted"
     ],
     "calculation": {
-      "order": 55,
+      "order": 56,
       "fill": "average_shares_outstanding"
     }
   },
@@ -17792,7 +17856,7 @@
       "InventoryWorkInProcessAndRawMaterialsNetOfReserves"
     ],
     "calculation": {
-      "order": 641,
+      "order": 643,
       "any": "raw_materials + work_in_progress"
     }
   },
