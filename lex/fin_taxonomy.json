@@ -1800,8 +1800,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Cash, Cash Equivalents and Available-For-Sale Securities",
-      "short": "Liquid Assets"
+      "long": "Cash, Cash Equivalents and Available-For-Sale Securities"
     },
     "gaap": [
       "CashAndCashEquivalentsAndAvailableForSaleInvestments"
@@ -1831,8 +1830,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Cash, Cash Equivalents and Marketable Securities",
-      "short": "Liquid Assets"
+      "long": "Cash, Cash Equivalents and Marketable Securities"
     },
     "gaap": [
       "CashCashEquivalentsAndMarketableSecurities"
@@ -1875,8 +1873,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Cash, Cash Equivalents, Restricted Cash and Marketable Securities",
-      "short": "Liquid Assets"
+      "long": "Cash, Cash Equivalents, Restricted Cash and Marketable Securities"
     },
     "gaap": [
       "CashCashEquivalentMarketableSecuritiesAndRestrictedCash"
@@ -1891,18 +1888,30 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Cash, Cash Equivalents and Short-term Investments"
+      "long": "Cash, Cash Equivalents and Short-term Investments",
+      "short": "Liquid Assets"
     },
     "gaap": [
       "CashCashEquivalentsAndInvestments",
       "CashCashEquivalentsAndMarketableSecurities",
       "CashCashEquivalentsAndShortTermInvestments",
-      "CashAndCashEquivalentsAndAvailableForSaleInvestments",
-      "CashCashEquivalentMarketableSecuritiesAndRestrictedCash"
+      "CashAndCashEquivalentsAndAvailableForSaleInvestments"
     ],
     "calculation": {
       "order": 329,
       "any": "cash_cash_equivalents + investments_shortterm"
+    }
+  },
+  "average_cash_cash_equivalents_shortterm_investments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Average Cash, Cash Equivalents and Short-term Investments"
+    },
+    "calculation": {
+      "order": 329,
+      "avg": "cash_cash_equivalents_shortterm_investments"
     }
   },
   "cash_conversion_cycle": {
@@ -1948,7 +1957,7 @@
     },
     "calculation": {
       "order": 342,
-      "all": "average_liquid_assets / average_current_liabilities"
+      "all": "average_cash_cash_equivalents_shortterm_investments / average_current_liabilities"
     }
   },
   "cash_restricted": {
@@ -3271,7 +3280,7 @@
     },
     "calculation": {
       "order": 333,
-      "all": "average_current_trade_receivables / revenue_per_day"
+      "all": "average_receivable_trade_current / revenue_per_day"
     }
   },
   "debt": {
@@ -4570,7 +4579,7 @@
     },
     "calculation": {
       "order": 826,
-      "all": "market_capitalization + debt + stock_minority_interest - liquid_assets"
+      "all": "market_capitalization + debt + stock_minority_interest - cash_cash_equivalents_shortterm_investments"
     }
   },
   "enterprise_value_to_ebitda": {
@@ -9041,12 +9050,65 @@
       "LeveragedLeasesIncomeStatementInvestmentTaxCreditRecognizedOnLeveragedLeases"
     ]
   },
-  "investments_current": {
+  "investments": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Investments"
+      "long": "Short-term Investments"
+    },
+    "gaap": [
+      "Investments"
+    ],
+    "calculation": {
+      "order": 1115,
+      "all": "investments_shorterm + investments_longterm",
+      "any": "securities_marketable + investments_equity_method + investments_cost_method + life_insurance_corporate_bank_owned + other_investments_securities_atcost + investments_other"
+    }
+  },
+  "life_insurance_corporate_bank_owned": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Life Insurance Corporate or Bank Owned Amount"
+    },
+    "gaap": [
+      "LifeInsuranceCorporateOrBankOwnedAmount"
+    ]
+  },
+  "other_investments_securities_atcost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Investments and Securities at Cost"
+    },
+    "gaap": [
+      "OtherInvestmentsAndSecuritiesAtCost"
+    ]
+  },
+  "investments_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Short-term Investments"
+    },
+    "gaap": [
+      "OtherInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_shortterm_other + investments_longterm_other"
+    }
+  },
+  "investments_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Short-term Investments"
     },
     "gaap": [
       "CurrentInvestments",
@@ -9083,12 +9145,12 @@
       "any": "securities_heldfortrading_debt + securities_availableforsale_debt_current + securities_heldtomaturity_debt_current"
     }
   },
-  "investments_noncurrent": {
+  "investments_longterm": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Investments"
+      "long": "Long-term Investments"
     },
     "gaap": [
       "LongTermInvestments"
@@ -10141,7 +10203,7 @@
     },
     "calculation": {
       "order": 1150,
-      "all": "average_liquid_assets + 0.75 * average_receivable_trade_current + 0.5 * average_inventory - average_liabilities"
+      "all": "average_cash_cash_equivalents_shortterm_investments + 0.75 * average_receivable_trade_current + 0.5 * average_inventory - average_liabilities"
     }
   },
   "net_operating_assets": {
@@ -10152,7 +10214,7 @@
     },
     "calculation": {
       "order": 286,
-      "all": "assets - liquid_assets - liabilities + debt"
+      "all": "average_assets - average_cash_cash_equivalents_shortterm_investments - average_liabilities + average_debt"
     }
   },
   "net_operating_profit_posttax": {
@@ -15102,7 +15164,7 @@
     },
     "calculation": {
       "order": 1425,
-      "all": "(average_liquid_assets + average_current_trade_receivables) / average_current_liabilities"
+      "all": "(average_cash_cash_equivalents_shortterm_investments + average_current_receivables) / average_current_liabilities"
     }
   },
   "raw_materials": {
@@ -15658,7 +15720,7 @@
       "AccountsReceivableRelatedPartiesNoncurrent"
     ]
   },
-  "receivables_other_noncurrent_gross": {
+  "receivable_other_noncurrent_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
