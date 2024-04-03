@@ -1372,9 +1372,430 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "cash_cash_equivalents_shortterm_investments + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current",
+      "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
+      "any": "cash_cash_equivalents_shortterm_investments + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + health_care_trust_fund_assets + deposits_assets_current + deferred_tax_assets_liabilities_current",
       "CashCashEquivalentsAndShortTermInvestments + ReceivablesNetCurrent + InventoryNet + PrepaidExpenseAndOtherAssetsCurrent + DeferredCostsCurrent + DerivativeInstrumentsAndHedges + AssetsHeldForSaleCurrent + CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingAndSalesTypeLeasesCurrent + IncomeTaxesReceivable + RegulatoryAssetsCurrent + AssetRecoveryDamagedPropertyCostsCurrent + FundsHeldForClients + DeferredRentAssetNetCurrent + AdvancesOnInventoryPurchases + AdvanceRoyaltiesCurrent + CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedWithinOneYear + HealthCareTrustFundAssetsLimitedAsToUseCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + DepositsAssetsCurrent + DeferredTaxAssetsLiabilitiesNetCurrent"
     }
+  },
+  "deferred_tax_assets_liabilities_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Tax Assets (Liabilities)"
+    },
+    "gaap": [
+      "DeferredTaxAssetsLiabilitiesNetCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_current - deferred_tax_liabilities_current"
+    }
+  },
+  "deferred_tax_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Tax Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesCurrent"
+    ]
+  },
+  "deferred_tax_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Tax Assets"
+    },
+    "gaap": [
+      "DeferredTaxAssetsNetCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_current_gross - deferred_tax_liabilities_valuation_allowance_current"
+    }
+  },
+  "deferred_tax_liabilities_valuation_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Valuation Allowance for Current Deferred Tax Assets"
+    },
+    "gaap": [
+      "DeferredTaxAssetsValuationAllowanceCurrent"
+    ]
+  },
+  "deferred_tax_assets_current_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Current Deferred Tax Assets"
+    },
+    "gaap": [
+      "DeferredTaxAssetsGrossCurrent"
+    ]
+  },
+  "deposits_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deposit Assets"
+    },
+    "gaap": [
+      "DepositsAssetsCurrent"
+    ]
+  },
+  "health_care_trust_fund_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Health Care Trust Fund Assets Limited as to Use Current"
+    },
+    "gaap": [
+      "HealthCareTrustFundAssetsLimitedAsToUseCurrent"
+    ]
+  },
+  "costs_excess_billings_uncomplete_contracts_programs_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Costs in Excess of Billings on Uncompleted Contracts or Programs"
+    },
+    "gaap": [
+      "CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedWithinOneYear"
+    ]
+  },
+  "advance_royalties_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Advances Royalties"
+    },
+    "gaap": [
+      "AdvanceRoyaltiesCurrent"
+    ]
+  },
+  "advances_inventory_purchases": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Advances on Inventory Purchases"
+    },
+    "gaap": [
+      "AdvancesOnInventoryPurchases"
+    ]
+  },
+  "deferred_rent_asset_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Rent Asset"
+    },
+    "gaap": [
+      "DeferredRentAssetNetCurrent"
+    ]
+  },
+  "funds_heldforclients": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Funds Held For Clients"
+    },
+    "gaap": [
+      "FundsHeldForClients"
+    ]
+  },
+  "regulatory_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Regulatory Assets Current"
+    },
+    "gaap": [
+      "RegulatoryAssetsCurrent"
+    ]
+  },
+  "investments_lease_direct_financing_sales_type_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Direct Financing and Sales Type Leases Current"
+    },
+    "gaap": [
+      "CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingAndSalesTypeLeasesCurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "investments_lease_direct_financing_current + investments_lease_sales_type"
+    }
+  },
+  "investments_lease_sales_type": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Sales Type Leases Current"
+    },
+    "gaap": [
+      "CapitalLeasesLessorBalanceSheetNetInvestmentInSalesTypeLeasesCurrent"
+    ]
+  },
+  "investments_lease_direct_financing_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Direct Financing Leases Current"
+    },
+    "gaap": [
+      "CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingLeasesCurrent"
+    ]
+  },
+  "assets_heldforsale_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Assets Held-for-Sale"
+    },
+    "gaap": [
+      "AssetsHeldForSaleCurrent",
+      "AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
+      "AssetsHeldForSaleNotPartOfDisposalGroupCurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "inventories_property_heldforsale_current + receivables_heldforsale + other_assets_heldforsale_current"
+    }
+  },
+  "other_assets_heldforsale_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivables Held-for-Sale Net Amount"
+    },
+    "gaap": [
+      "OtherAssetsHeldForSaleCurrent",
+      "AssetsHeldForSaleNotPartOfDisposalGroupCurrentOther",
+      "DisposalGroupIncludingDiscontinuedOperationOtherCurrentAssets"
+    ]
+  },
+  "receivables_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivables Held-for-Sale Net Amount"
+    },
+    "gaap": [
+      "ReceivablesHeldForSaleNetAmount",
+      "TradeAndLoansReceivablesHeldForSaleNetNotPartOfDisposalGroup",
+      "DisposalGroupIncludingDiscontinuedOperationAccountsNotesAndLoansReceivableNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_trade_heldforsale + receivable_loans_heldforsale",
+      "TradeReceivablesHeldForSaleNet + LoansReceivableHeldForSaleNet"
+    }
+  },
+  "receivable_loans_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans Receivables Held For Sale Net"
+    },
+    "gaap": [
+      "LoansReceivableHeldForSaleNet",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroup"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_heldforsale_mortgages + loans_heldforsale_other + loans_heldforsale_commercial_industrial + loans_heldforsale_commercial_real_estate + loans_heldforsale_consumer_home_equity + loans_heldforsale_consumer_installment_student + loans_heldforsale_consumer_credit_card"
+    }
+  },
+  "loans_heldforsale_consumer_credit_card": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Credit Card Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleConsumerInstallmentStudent",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupConsumerCreditCard"
+    ]
+  },
+  "loans_heldforsale_consumer_installment_student": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Installment Student Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleConsumerInstallmentStudent",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupConsumerStudent"
+    ]
+  },
+  "loans_heldforsale_consumer_home_equity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Home Equity Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleConsumerHomeEquity",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupConsumerHomeEquity"
+    ]
+  },
+  "loans_heldforsale_commercial_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Real Estate Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleCommercialRealEstate",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupCommercialRealEstate"
+    ]
+  },
+  "loans_heldforsale_commercial_industrial": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial and Industrial Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleCommercialAndIndustrial",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupCommercialAndIndustrial"
+    ]
+  },
+  "loans_heldforsale_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleOther",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupOther"
+    ]
+  },
+  "loans_heldforsale_mortgages": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Mortgage Loans Held-for-Sale"
+    },
+    "gaap": [
+      "LoansHeldForSaleMortgages",
+      "LoansReceivableHeldForSaleNetNotPartOfDisposalGroupMortgage"
+    ]
+  },
+  "receivable_trade_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Trade Receivables Held-for-Sale Net"
+    },
+    "gaap": [
+      "LoansReceivableHeldForSaleNet"
+    ]
+  },
+  "inventories_property_heldforsale_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Assets Held-for-Sale"
+    },
+    "gaap": [
+      "InventoriesPropertyHeldForSaleCurrent",
+      "DisposalGroupIncludingDiscontinuedOperationInventoryCurrent", 
+      "DisposalGroupIncludingDiscontinuedOperationInventoryNoncurrent",
+      "DisposalGroupIncludingDiscontinuedOperationInventory1"
+    ]
+  },
+  "derivatives_hedges_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Costs"
+    },
+    "gaap": [
+      "DeferredCostsCurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "derivative_assets_current + hedging_assets_current + commodity_contract_asset_current + energy_marketing_contracts_assets_current"
+    }
+  },
+  "energy_marketing_contracts_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Energy Marketing Contracts Assets"
+    },
+    "gaap": [
+      "EnergyMarketingContractsAssetsCurrent"
+    ]
+  },
+  "commodity_contract_asset_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Commodity Contract Asset"
+    },
+    "gaap": [
+      "CommodityContractAssetCurrent"
+    ]
+  },
+  "hedging_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Hedging Assets"
+    },
+    "gaap": [
+      "HedgingAssetsCurrent"
+    ]
+  },
+  "derivative_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Derivative Assets"
+    },
+    "gaap": [
+      "DerivativeAssetsCurrent"
+    ]
   },
   "deferred_costs_current": {
     "unit": "monetary",
@@ -1458,6 +1879,7 @@
       "long": "Deferred Storm and Property Reserve Deficiency Current"
     },
     "gaap": [
+      "AssetRecoveryDamagedPropertyCostsCurrent",
       "DeferredStormAndPropertyReserveDeficiencyCurrent"
     ]
   },
@@ -16154,10 +16576,6 @@
     "label": {
       "long": "Income Taxes Receivable"
     },
-    "gaap": [
-      "IncomeTaxReceivable",
-      "IncomeTaxesReceivable"
-    ],
     "calculation": {
       "order": 1475,
       "any": "receivable_tax_income_current + receivable_tax_income_noncurrent"
@@ -16171,8 +16589,9 @@
       "long": "Current Income Taxes Receivable"
     },
     "gaap": [
-      "IncomeTaxesReceivableCurrent"
-    ]
+      "IncomeTaxReceivable",
+      "IncomeTaxesReceivable"
+    ],
   },
   "receivable_tax_income_noncurrent": {
     "unit": "monetary",
