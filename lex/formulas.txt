@@ -1,1 +1,2 @@
 securities_marketable_equity_current
+securities_marketable_current
