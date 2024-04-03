@@ -15219,8 +15219,334 @@
     ],
     "calculation": {
       "order": 1429,
-      "all": "receivable_trade + receivable_nontrade"
+      "any": "receivable_trade + receivable_nontrade"
     }
+  },
+  "receivable_nontrade": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Nontrade Receivables"
+    },
+    "gaap": [
+      "NontradeReceivables"
+    ],
+    "calculation": {
+      "order": 1429,
+      "any": "receivable_credit_card + receivable_dividends_interest + receivable_tax_income + receivable_tax_valueadded + receivable_recovery_import_duties + receivable_insurance_settlements + receivable_grants + receivable_insurance_malpractice + receivable_lease_incentive + receivable_lease_financing + receivable_petroleum_interest_billing"
+    }
+  },
+  "receivable_lease_sales_type_direct_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Sales Type and Direct Financing Leases Receivable"
+    },
+    "gaap": [
+      "SalesTypeAndDirectFinancingLeasesLeaseReceivable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_lease_financing_direct + receivable_lease_sales_type"
+    }
+  },
+  "receivable_lease_sales_type": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Sales Type Leases Receivable"
+    },
+    "gaap": [
+      "SalesTypeLeaseLeaseReceivable"
+    ]
+  },
+  "receivable_lease_direct_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Direct Financing Leases Receivable"
+    },
+    "gaap": [
+      "DirectFinancingLeaseLeaseReceivable"
+    ]
+  },
+  "receivable_dividends_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Dividend and InterestReceivable"
+    },
+    "gaap": [
+      "DividendAndInterestReceivable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_dividends + receivable_interest"
+    }
+  },
+  "receivable_petroleum_interest_billing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Oil and Gas Joint Interest Billing Receivables"
+    },
+    "gaap": [
+      "OilAndGasJointInterestBillingReceivables"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_petroleum_interest_billing_current + receivable_petroleum_interest_billing_noncurrent"
+    }
+  },
+  "receivable_petroleum_interest_billing_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Oil and Gas Joint Interest Billing Receivables"
+    },
+    "gaap": [
+      "OilAndGasJointInterestBillingReceivablesCurrent"
+    ]
+  },
+  "receivable_petroleum_interest_billing_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Oil and Gas Joint Interest Billing Receivables"
+    },
+    "gaap": [
+      "OilAndGasJointInterestBillingReceivablesNoncurrent"
+    ]
+  },
+  "receivable_lease_incentive": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Lease Incentive Receivable"
+    },
+    "gaap": [
+      "LeaseIncentiveReceivable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_lease_incentive_current + receivable_lease_incentive_noncurrent"
+    }
+  },
+  "receivable_insurance_malpractice": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Insurance Receivable for Malpractice"
+    },
+    "gaap": [
+      "InsuranceReceivableForMalpractice"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_insurance_malpractice_current + receivable_insurance_malpractice_noncurrent"
+    }
+  },
+  "receivable_insurance_malpractice_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Insurance Receivable for Malpractice"
+    },
+    "gaap": [
+      "InsuranceReceivableForMalpracticeCurrent"
+    ]
+  },
+  "receivable_insurance_malpractice_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Insurance Receivable for Malpractice"
+    },
+    "gaap": [
+      "InsuranceReceivableForMalpracticeNoncurrent"
+    ]
+  },
+  "receivable_grants": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Grants Receivable"
+    },
+    "gaap": [
+      "GrantsReceivable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_grants_current + receivable_grants_noncurrent"
+    }
+  },
+  "receivable_grants_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Grants Receivable"
+    },
+    "gaap": [
+      "GrantsReceivableNoncurrent"
+    ]
+  },
+  "receivable_grants_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Grants Receivable"
+    },
+    "gaap": [
+      "GrantsReceivableCurrent"
+    ]
+  },
+  "receivable_insurance_settlements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Insurance Settlements Receivable"
+    },
+    "gaap": [
+      "InsuranceSettlementsReceivable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_insurance_settlements_current + receivable_insurance_settlements_noncurrent"
+    }
+  },
+  "receivable_insurance_settlements_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Insurance Settlements Receivable"
+    },
+    "gaap": [
+      "InsuranceSettlementsReceivableCurrent"
+    ]
+  },
+  "receivable_insurance_settlements_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Insurance Settlements Receivable"
+    },
+    "gaap": [
+      "InsuranceSettlementsReceivableNoncurrent"
+    ]
+  },
+  "receivable_recovery_import_duties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivable for Recovery of Import Duties Net"
+    },
+    "gaap": [
+      "ReceivableForRecoveryOfImportDutiesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_recovery_import_duties_current + receivable_recovery_import_duties_noncurrent"
+    }
+  },
+  "receivable_recovery_import_duties_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Receivable for Recovery of Import Duties Net"
+    },
+    "gaap": [
+      "ReceivableForRecoveryOfImportDutiesNetNoncurrent"
+    ]
+  },
+  "receivable_recovery_import_duties_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivable for Recovery of Import Duties Net"
+    },
+    "gaap": [
+      "ReceivableForRecoveryOfImportDutiesNetCurrent"
+    ]
+  },
+  "receivable_tax_valueadded": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Value Added Tax Receivable"
+    },
+    "gaap": [
+      "ValueAddedTaxReceivable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_tax_valueadded_current + receivable_tax_valueadded_noncurrent"
+    }
+  },
+  "receivable_tax_valueadded_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Value Added Tax Receivable"
+    },
+    "gaap": [
+      "ValueAddedTaxReceivableCurrent"
+    ]
+  },
+  "receivable_tax_valueadded_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Value Added Tax Receivable"
+    },
+    "gaap": [
+      "ValueAddedTaxReceivableNoncurrent"
+    ]
+  },
+  "receivable_dividends": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Dividends Receivable"
+    },
+    "gaap": [
+      "DividendsReceivable"
+    ]
+  },
+  "receivable_credit_card": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Credit Card Receivables"
+    },
+    "gaap": [
+      "CreditCardReceivables"
+    ]
   },
   "receivable_current": {
     "unit": "monetary",
@@ -15262,8 +15588,19 @@
     ],
     "calculation": {
       "order": 1434,
-      "all": "receivable_interest_current + receivable_interest_noncurrent"
+      "any": "receivable_interest_current + receivable_interest_noncurrent"
     }
+  },
+  "receivable_interest_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Interest Receivable"
+    },
+    "gaap": [
+      "InterestReceivableNoncurrent"
+    ]
   },
   "receivable_interest_current": {
     "unit": "monetary",
@@ -15620,6 +15957,17 @@
       "order": 1475,
       "any": "receivable_tax_income_current + receivable_tax_income_noncurrent"
     }
+  },
+  "receivable_tax_income_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Income Taxes Receivable"
+    },
+    "gaap": [
+      "IncomeTaxesReceivableCurrent"
+    ]
   },
   "receivable_tax_income_noncurrent": {
     "unit": "monetary",
