@@ -1374,7 +1374,7 @@
       "order": 0,
       "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
       "any": "cash_cash_equivalents_shortterm_investments + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + health_care_trust_fund_assets + deposits_assets_current + deferred_tax_assets_liabilities_current",
-      "CashCashEquivalentsAndShortTermInvestments + ReceivablesNetCurrent + InventoryNet + PrepaidExpenseAndOtherAssetsCurrent + DeferredCostsCurrent + DerivativeInstrumentsAndHedges + AssetsHeldForSaleCurrent + CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingAndSalesTypeLeasesCurrent + IncomeTaxesReceivable + RegulatoryAssetsCurrent + AssetRecoveryDamagedPropertyCostsCurrent + FundsHeldForClients + DeferredRentAssetNetCurrent + AdvancesOnInventoryPurchases + AdvanceRoyaltiesCurrent + CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedWithinOneYear + HealthCareTrustFundAssetsLimitedAsToUseCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + DepositsAssetsCurrent + DeferredTaxAssetsLiabilitiesNetCurrent"
+      "diff": "- NetInvestmentInLeaseAllowanceForCreditLossCurrent + RestrictedCashAndInvestmentsCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + AssetsHeldInTrustCurrent + IntangibleAssetsCurrent + BusinessCombinationContingentConsiderationAssetCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + ContractWithCustomerAssetNetCurrent + CapitalizedContractCostNetCurrent + NetInvestmentInLeaseCurrent + FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + SalesTypeLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DirectFinancingLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossCurrent + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + GovernmentAssistanceAmountCumulativeCurrent"
     }
   },
   "deferred_tax_assets_liabilities_current": {
@@ -1609,8 +1609,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "receivable_trade_heldforsale + receivable_loans_heldforsale",
-      "TradeReceivablesHeldForSaleNet + LoansReceivableHeldForSaleNet"
+      "any": "receivable_trade_heldforsale + receivable_loans_heldforsale"
     }
   },
   "receivable_loans_heldforsale": {
@@ -16170,6 +16169,7 @@
       "long": "Current Net Receivables"
     },
     "gaap": [
+      "ReceivablesNetCurrent",
       "TradeAndOtherCurrentReceivables",
       "AccountsNotesAndLoansReceivableNetCurrent"
     ],
@@ -16591,7 +16591,7 @@
     "gaap": [
       "IncomeTaxReceivable",
       "IncomeTaxesReceivable"
-    ],
+    ]
   },
   "receivable_tax_income_noncurrent": {
     "unit": "monetary",
