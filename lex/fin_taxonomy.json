@@ -15234,6 +15234,7 @@
     ],
     "calculation": {
       "order": 1429,
+      "all": "receivable_nontrade_current + receivable_nontrade_noncurrent",
       "any": "receivable_credit_card + receivable_dividends_interest + receivable_tax_income + receivable_tax_valueadded + receivable_recovery_import_duties + receivable_insurance_settlements + receivable_grants + receivable_insurance_malpractice + receivable_lease_incentive + receivable_lease_financing + receivable_petroleum_interest_billing"
     }
   },
@@ -15650,16 +15651,29 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Net Non-Trade Receivables",
-      "short": "Non-Trade Receivables"
+      "long": "Current Net Non-Trade Receivables"
     },
     "gaap": [
       "NontradeReceivablesCurrent"
     ],
     "calculation": {
       "order": 1443,
-      "all": "receivable_nontrade_current_gross - credit_loss_allowance_receivable_nontrade_current",
-      "any": "receivable_notes_current + receivable_related_parties_current + receivable_joint_operation_current + receivable_other_current"
+      "any": "receivable_interest_current + receivable_tax_income + receivable_tax_valueadded_current + receivable_recovery_import_duties_current + receivable_grants_current + receivable_insurance_malpractice_current + receivable_lease_incentive_current + receivable_petroleum_interest_billing_current"
+    }
+  },
+  "receivable_nontrade_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Non-Trade Receivables"
+    },
+    "gaap": [
+      "NontradeReceivablesNoncurrent"
+    ],
+    "calculation": {
+      "order": 1443,
+      "any": "receivable_interest_noncurrent + receivable_tax_income_noncurrent + receivable_tax_valueadded_noncurrent + receivable_recovery_import_duties_noncurrent + receivable_grants_noncurrent + receivable_insurance_malpractice_noncurrent + receivable_lease_incentive_noncurrent + receivable_petroleum_interest_billing_noncurrent"      
     }
   },
   "receivable_notes": {
