@@ -3593,13 +3593,13 @@
       "AllowanceAccountForCreditLossesOfFinancialAssetsNonCurrent"
     ]
   },
-  "credit_loss_allowance_receivable_current": {
+  "receivable_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Allowance for Expected Credit Loss of Receivables",
-      "short": "Current Loss Allowance for Receivables"
+      "long": "Allowance for Expected Credit Loss of Current Receivables",
+      "short": "Loss Allowance for Current Receivables"
     },
     "gaap": [
       "AllowancesAccountsReceivableCurrent",
@@ -3610,22 +3610,22 @@
     ],
     "calculation": {
       "order": 490,
-      "any": "credit_loss_allowance_receivable_trade_current + credit_loss_allowance_receivable_financing_current"
+      "any": "receivable_trade_current_allowance + receivable_financing_current_allowance"
     }
   },
-  "credit_loss_allowance_receivable_financing": {
+  "receivable_financing_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Credit Loss Allowance for Financing Receivables",
+      "long": "Credit Loss Allowance for Current Financing Receivables",
       "short": "Financing Receivables"
     },
     "gaap": [
       "FinancingReceivableAllowanceForCreditLossess"
     ]
   },
-  "credit_loss_allowance_receivable_notes": {
+  "receivable_notes_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -3637,45 +3637,45 @@
       "NotesReceivableBadDebtReserve"
     ]
   },
-  "credit_loss_allowance_receivable_notes_loans_current": {
+  "receivable_notes_loans_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Allowance for Expected Credit Loss of Notes and Loans Receivable",
-      "short": "Credit Loss Allowance for Notes and Loans Receivable"
+      "long": "Allowance for Expected Credit Loss of Current Notes and Loans Receivable",
+      "short": "Credit Loss Allowance for Current Notes and Loans Receivable"
     },
     "gaap": [
       "AllowanceForNotesAndLoansReceivableCurrent",
       "AllowanceForDoubtfulAccountsNotesAndLoansReceivableCurrent"
     ]
   },
-  "credit_loss_allowance_receivable_notes_noncurrent": {
+  "receivable_notes_noncurrent_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Allowance for Expected Credit Loss of Notes Receivable",
-      "short": "Non-current Credit Loss Allowance for Notes Receivable"
+      "long": "Allowance for Expected Credit Loss of Non-current Notes Receivable",
+      "short": "Credit Loss Allowance for Non-current Notes Receivable"
     },
     "gaap": [
       "AllowanceForNotesAndLoansReceivableNoncurrent"
     ]
   },
-  "credit_loss_allowance_receivable_other_current": {
+  "receivable_other_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Allowance for Expected Credit Loss of Other Receivables",
-      "short": "Credit Loss Allowance for Other Receivables"
+      "long": "Allowance for Expected Credit Loss of Current Other Receivables",
+      "short": "Credit Loss Allowance for Current Other Receivables"
     },
     "gaap": [
       "AllowanceForCreditLossesOtherReceivableCurrent",
       "AllowanceForDoubtfulOtherReceivablesCurrent"
     ]
   },
-  "credit_loss_allowance_receivable_trade": {
+  "receivable_trade_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -3687,12 +3687,12 @@
       "AllowanceForDoubtfulAccountsTradeReceivables"
     ]
   },
-  "credit_loss_allowance_receivable_trade_current": {
+  "receivable_trade_current_allowance": {
     "unit": "monetary",
     "aggregate": "tail",
     "label": {
-      "long": "Current Allowance for Expected Credit Loss of Trade Receivables",
-      "short": "Current Credit Loss Allowance for Trade Receivables"
+      "long": "Allowance for Expected Credit Loss of Current Trade Receivables",
+      "short": "Credit Loss Allowance for Current Trade Receivables"
     },
     "gaap": [
       "AllowanceForDoubtfulAccountsTradeReceivablesCurrent"
@@ -16175,10 +16175,129 @@
     ],
     "calculation": {
       "order": 1431,
-      "all": "receivable_current_gross - credit_loss_allowance_receivable_current"
+      "all": "receivable_current_gross - receivable_current_allowance",
+      "any": "receivable_trade_notes_loans_current + receivable_nontrade_current + receivable_unbilled_current + receivable_related_parties_current + receivable_longterm_contracts_programs_current + receivable_trade_securitization + receivable_other_current"
     }
   },
-  "receivable_current_gross": {
+  "receivable_trade_securitization": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Trade Receivables from Securitization"
+    },
+    "gaap": [
+      "AccountsReceivableFromSecuritization"
+    ]
+  },
+  "receivable_longterm_contracts_programs_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables from Long-term Contracts or Programs"
+    },
+    "gaap": [
+      "ReceivablesLongTermContractsOrPrograms"
+    ]
+  },
+  "receivable_related_parties_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables Due from Related Parties"
+    },
+    "gaap": [
+      "DueFromRelatedPartiesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_trade_related_parties_current + receivable_notes_related_parties_current + receivable_employees_current + receivable_officers_stockholders_current + receivable_affiliate_current + receivable_joint_ventures_current + receivable_other_related_parties_current"
+    }
+  },
+  "receivable_other_related_parties_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables Due from Other Related Parties"
+    },
+    "gaap": [
+      "DueFromOtherRelatedPartiesCurrent"
+    ]
+  },
+  "receivable_joint_ventures_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables Due from Joint Ventures"
+    },
+    "gaap": [
+      "DueFromJointVenturesCurrent"
+    ]
+  },
+  "receivable_affiliate_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables Due from Affiliates"
+    },
+    "gaap": [
+      "DueFromAffiliateCurrent"
+    ]
+  },
+  "receivable_officers_stockholders_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables Due from Officers or Stockholders"
+    },
+    "gaap": [
+      "DueFromOfficersOrStockholdersCurrent"
+    ]
+  },
+  "receivable_employees_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Receivables Due from Employees"
+    },
+    "gaap": [
+      "DueFromEmployeesCurrent"
+    ]
+  },
+  "receivable_unbilled_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Unbilled Receivables"
+    },
+    "gaap": [
+      "UnbilledReceivablesCurrent"
+    ]
+  },
+  "receivable_trade_notes_loans_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accounts, Notes and Loans Receivables"
+    },
+    "gaap": [
+      "AccountsNotesAndLoansReceivableNetCurrent"
+    ],
+    "calculation": {
+      "order": 1431,
+      "any": "receivable_trade_current - receivable_notes_loans_current"
+    }
+  },
+  "receivable_trade_current_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -16187,7 +16306,45 @@
       "short": "Current Gross Receivables"
     },
     "gaap": [
+      "CurrentTradeReceivablesGross",
       "AccountsReceivableGrossCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_construction_contract_current + receivable_construction_current + receivable_contract_current"
+    }
+  },
+  "receivable_contract_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Contract Receivable"
+    },
+    "gaap": [
+      "ContractReceivableDueOneYearOrLess"
+    ]
+  },
+  "receivable_construction_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Construction Contractor Receivable Retainage Year One"
+    },
+    "gaap": [
+      "ConstructionContractorReceivableRetainageYearOne"
+    ]
+  },
+  "receivable_construction_contract_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Construction Contractor Receivable Including Contract Retainage Year One"
+    },
+    "gaap": [
+      "ConstructionContractorReceivableIncludingContractRetainageYearOne"
     ]
   },
   "receivable_interest": {
@@ -16400,13 +16557,14 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Notes and Loans Receivable"
+      "long": "Net Current Notes and Loans Receivable"
     },
     "gaap": [
       "NotesAndLoansReceivableNetCurrent"
     ],
     "calculation": {
       "order": 1456,
+      "all": "receivable_notes_loans_current_gross - receivable_notes_loans_current_allowance",
       "any": "receivable_notes_current + receivable_loans_current"
     }
   },
@@ -16540,7 +16698,7 @@
     ],
     "calculation": {
       "order": 1467,
-      "all": "receivable_other_current_gross - credit_loss_allowance_receivable_other_current"
+      "all": "receivable_other_current_gross - receivable_other_current_allowance"
     }
   },
   "receivable_other_noncurrent": {
@@ -16638,20 +16796,8 @@
     ],
     "calculation": {
       "order": 236,
-      "all": "receivable_trade_current_gross - credit_loss_allowance_receivable_trade_current"
+      "all": "receivable_trade_current_gross - receivable_trade_current_allowance -credit_loss_allowance_receivable_trade_current"
     }
-  },
-  "receivable_trade_current_gross": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Current Gross Trade Receivables",
-      "short": "Gross Trade Receivables"
-    },
-    "gaap": [
-      "CurrentTradeReceivablesGross"
-    ]
   },
   "receivable_trade_noncurrent": {
     "unit": "monetary",
@@ -16678,7 +16824,7 @@
     ],
     "calculation": {
       "order": 1477,
-      "all": "receivable_trade_related_parties_current_gross - credit_loss_allowance_receivable_trade_related_parties_current"
+      "all": "receivable_trade_related_parties_current_gross - receivable_trade_related_parties_current_allowance"
     }
   },
   "receivable_trade_related_parties_noncurrent": {
