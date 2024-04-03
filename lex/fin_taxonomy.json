@@ -1369,7 +1369,197 @@
       "AssetsCurrent",
       "CurrentAssets",
       "CurrentAssets1"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cash_cash_equivalents_shortterm_investments + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current",
+      "CashCashEquivalentsAndShortTermInvestments + ReceivablesNetCurrent + InventoryNet + PrepaidExpenseAndOtherAssetsCurrent + DeferredCostsCurrent + DerivativeInstrumentsAndHedges + AssetsHeldForSaleCurrent + CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingAndSalesTypeLeasesCurrent + IncomeTaxesReceivable + RegulatoryAssetsCurrent + AssetRecoveryDamagedPropertyCostsCurrent + FundsHeldForClients + DeferredRentAssetNetCurrent + AdvancesOnInventoryPurchases + AdvanceRoyaltiesCurrent + CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedWithinOneYear + HealthCareTrustFundAssetsLimitedAsToUseCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + DepositsAssetsCurrent + DeferredTaxAssetsLiabilitiesNetCurrent"
+    }
+  },
+  "deferred_costs_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Costs"
+    },
+    "gaap": [
+      "DeferredCostsCurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "deferred_costs_finance_current + deferred_costs_finance_leasing_current + deferred_costs_fuel + deferred_storm_property_reserve_deficiency_current + deferred_costs_setup_current + deferred_costs_subscriber_acquisition_current + deferred_costs_other_current + deferred_costs_offering"
+    }
+  },
+  "deferred_costs_other_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Deferred Costs Net"
+    },
+    "gaap": [
+      "OtherDeferredCostsNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "deferred_costs_other_current_gross - deferred_costs_other_accumulated_amortization"
+    }
+  },
+  "deferred_costs_other_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Amortization of Other Deferred Costs"
+    },
+    "gaap": [
+      "AccumulatedAmortizationOfOtherDeferredCosts"
     ]
+  },
+  "deferred_costs_other_current_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Deferred Costs Gross"
+    },
+    "gaap": [
+      "OtherDeferredCostsGross"
+    ]
+  },
+  "deferred_costs_subscriber_acquisition_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Subscriber Acquisition Costs Current"
+    },
+    "gaap": [
+      "DeferredSubscriberAcquisitionCostsCurrent"
+    ]
+  },
+  "deferred_costs_setup_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Setup Costs"
+    },
+    "gaap": [
+      "DeferredSetUpCostsCurrent"
+    ]
+  },
+  "deferred_storm_property_reserve_deficiency_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Storm and Property Reserve Deficiency Current"
+    },
+    "gaap": [
+      "DeferredStormAndPropertyReserveDeficiencyCurrent"
+    ]
+  },
+  "deferred_costs_fuel": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Fuel Cost"
+    },
+    "gaap": [
+      "DeferredFuelCost"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_electric_cost + deferred_gas_cost"
+    }
+  },
+  "deferred_gas_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Gas Cost"
+    },
+    "gaap": [
+      "DeferredGasCost"
+    ]
+  },
+  "deferred_electric_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Electric Cost"
+    },
+    "gaap": [
+      "DeferredElectricCost"
+    ]
+  },
+  "deferred_costs_finance_leasing_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Leasing Costs"
+    },
+    "gaap": [
+      "DeferredCostsLeasingNetCurrent"
+    ]
+  },
+  "deferred_costs_finance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Costs"
+    },
+    "gaap": [
+      "DeferredFinanceCostsCurrentNet"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "deferred_costs_finance_current_gross - deferred_costs_current_accumulated_amortization"
+    }
+  },
+  "deferred_costs_finance_current_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Current Deferred Costs"
+    },
+    "gaap": [
+      "DeferredFinanceCostsCurrentGross"
+    ]
+  },
+  "deferred_costs_current_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Amortization of Current Deferred Finance Costs"
+    },
+    "gaap": [
+      "AccumulatedAmortizationOfCurrentDeferredFinanceCosts"
+    ]
+  },
+  "prepaid_expense_other_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Expense and Other Assets Current"
+    },
+    "gaap": [
+      "PrepaidExpenseAndOtherAssetsCurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "prepaid_expense_current + other_assets_current"
+    }
   },
   "assets_noncurrent": {
     "unit": "monetary",
@@ -2521,7 +2711,7 @@
       "diff": "payable_trade"
     }
   },
-  "change_prepaid_expenses_current": {
+  "change_prepaid_expense_current": {
     "unit": "monetary",
     "aggregate": "sum",
     "label": {
@@ -2530,7 +2720,7 @@
     },
     "calculation": {
       "order": 657,
-      "diff": "prepaid_expenses_current"
+      "diff": "prepaid_expense_current"
     }
   },
   "change_productive_assets": {
@@ -10503,7 +10693,7 @@
     },
     "calculation": {
       "order": 243,
-      "any": "average_receivable_trade_current + average_inventory + average_prepaid_expenses_current - average_payable_trade_current - average_deferred_revenue_current - average_accrued_expenses_current"
+      "any": "average_receivable_trade_current + average_inventory + average_prepaid_expense_current - average_payable_trade_current - average_deferred_revenue_current - average_accrued_expenses_current"
     }
   },
   "other_assets_current": {
@@ -13154,7 +13344,7 @@
       "PreOpeningCosts"
     ]
   },
-  "prepaid_expenses_current": {
+  "prepaid_expense_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -13162,8 +13352,9 @@
       "long": "Current Prepaid Expense"
     },
     "gaap": [
-      "OtherPrepaidExpenseCurrent",
-      "CurrentPrepaidExpenses"
+      "PrepaidExpenseCurrent",
+      "CurrentPrepaidExpenses",
+      "OtherPrepaidExpenseCurrent"
     ]
   },
   "pretax_income_loss": {
