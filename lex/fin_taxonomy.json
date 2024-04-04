@@ -1373,9 +1373,113 @@
     "calculation": {
       "order": 0,
       "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
-      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current",
-      "diff": "- NetInvestmentInLeaseAllowanceForCreditLossCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + BusinessCombinationContingentConsiderationAssetCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + CapitalizedContractCostNetCurrent + NetInvestmentInLeaseCurrent + FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + SalesTypeLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DirectFinancingLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossCurrent + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + GovernmentAssistanceAmountCumulativeCurrent"
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investment_lease_current - investment_lease_current_allowance + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + assets_heldforsale_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest",
+      "diff": "+ FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss",
+      "": "CashCashEquivalentsAndShortTermInvestments + NetInvestmentInLeaseCurrent - NetInvestmentInLeaseAllowanceForCreditLossCurrent + RestrictedCashAndInvestmentsCurrent + ReceivablesNetCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + PrepaidExpenseCurrent + ContractWithCustomerAssetNetCurrent + CapitalizedContractCostNetCurrent + DeferredCostsCurrent + DerivativeInstrumentsAndHedges + RegulatoryAssetsCurrent + FundsHeldForClients + DeferredRentAssetNetCurrent + AssetsHeldInTrustCurrent + AdvancesOnInventoryPurchases + AdvanceRoyaltiesCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + DepositsAssetsCurrent + IntangibleAssetsCurrent + BusinessCombinationContingentConsiderationAssetCurrent + OtherAssetsCurrent"
     }
+  },
+  "financial_assets_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest on Financial Assets at Amortized Cost after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_financing_accrued_interest + receivable_trade_noncurrent_accrued_interest + securities_heldtomaturity_debt_accrued_interest"
+    }
+  },
+  "securities_heldtomaturity_debt_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest on Debt Securities Helt-to-Maturity after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAccruedInterestAfterAllowanceForCreditLoss"
+    ]
+  },
+  "receivable_trade_noncurrent_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest on Trade Receivables after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss"
+    ]
+  },
+  "receivable_financing_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest on Financing Receivables after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss"
+    ]
+  },
+  "cumulative_government_assistance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Cumulative Government Assistance"
+    },
+    "gaap": [
+      "GovernmentAssistanceAmountCumulativeCurrent"
+    ]
+  },
+  "business_combination_contingent_consideration_asset_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Business Combination Contingent Consideration Asset"
+    },
+    "gaap": [
+      "BusinessCombinationContingentConsiderationAssetCurrent"
+    ]
+  },
+  "investment_lease_current_allowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investment in Lease Allowance For Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseAllowanceForCreditLossCurrent"
+    ]
+  },
+  "investment_lease_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investment in Lease"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseCurrent"
+    ]
+  },
+  "capitalized_contract_cost_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Capitalized Contract Cost"
+    },
+    "gaap": [
+      "CapitalizedContractCostNetCurrent"
+    ]
   },
   "inventory_net_allowances_customer_advances_progress_billings": {
     "unit": "monetary",
@@ -1389,9 +1493,19 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "inventory - progress_payments_net_inventory_longterm_contracts_programs",
-      "InventoryNet - ProgressPaymentsNettedAgainstInventoryForLongTermContractsOrPrograms"
+      "any": "inventory - progress_payments_net_inventory_longterm_contracts_programs"
     }
+  },
+  "progress_payments_net_inventory_longterm_contracts_programs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Progress Payments Netted Against Inventory for Long-term Contracts or Programs"
+    },
+    "gaap": [
+      "ProgressPaymentsNettedAgainstInventoryForLongTermContractsOrPrograms"
+    ]
   },
   "customer_contract_asset_current": {
     "unit": "monetary",
@@ -3703,28 +3817,12 @@
       "short": "Loss Allowance for Current Receivables"
     },
     "gaap": [
-      "AllowancesAccountsReceivableCurrent",
-      "AllowanceForDoubtfulAccountsReceivable",
-      "AccountsReceivableAllowanceForCreditLoss",
-      "AllowanceForDoubtfulAccountsReceivableCurrent",
       "AccountsAndFinancingReceivableAllowanceForCreditLoss"
     ],
     "calculation": {
       "order": 490,
-      "any": "receivable_trade_current_allowance + receivable_financing_current_allowance"
+      "any": "receivable_trade_current_allowance + receivable_notes_current_allowance"
     }
-  },
-  "receivable_financing_allowance": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Credit Loss Allowance for Current Financing Receivables",
-      "short": "Financing Receivables"
-    },
-    "gaap": [
-      "FinancingReceivableAllowanceForCreditLossess"
-    ]
   },
   "receivable_notes_allowance": {
     "unit": "monetary",
@@ -3735,7 +3833,9 @@
       "short": "Credit Loss Allowance for Notes Receivable"
     },
     "gaap": [
-      "NotesReceivableBadDebtReserve"
+      "AllowanceForNotesReceivable",
+      "NotesReceivableBadDebtReserve",
+      "FinancingReceivableAllowanceForCreditLossess"
     ]
   },
   "receivable_notes_loans_current_allowance": {
@@ -3796,6 +3896,10 @@
       "short": "Credit Loss Allowance for Current Trade Receivables"
     },
     "gaap": [
+      "AllowancesAccountsReceivableCurrent",
+      "AllowanceForDoubtfulAccountsReceivable",
+      "AccountsReceivableAllowanceForCreditLoss",
+      "AllowanceForDoubtfulAccountsReceivableCurrent",
       "AllowanceForDoubtfulAccountsTradeReceivablesCurrent"
     ]
   },
@@ -16790,6 +16894,7 @@
       "NotesReceivable",
       "NotesReceviable",
       "NotesReceivableNet",
+      "FinancingReceivable",
       "NotesReceivableFaceValue",
       "NotesReceivableFaceAmount",
       "NotesReceivableFairValueDisclosure"
