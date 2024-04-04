@@ -1372,8 +1372,8 @@
     ],
     "calculation": {
       "order": 0,
-      "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
-      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investment_lease_current - investment_lease_current_allowance + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + assets_heldforsale_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest",
+      "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + investments_lease_direct_financing_sales_type_current",
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investment_lease_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest",
       "diff": "+ FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss",
       "": "CashCashEquivalentsAndShortTermInvestments + NetInvestmentInLeaseCurrent - NetInvestmentInLeaseAllowanceForCreditLossCurrent + RestrictedCashAndInvestmentsCurrent + ReceivablesNetCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + PrepaidExpenseCurrent + ContractWithCustomerAssetNetCurrent + CapitalizedContractCostNetCurrent + DeferredCostsCurrent + DerivativeInstrumentsAndHedges + RegulatoryAssetsCurrent + FundsHeldForClients + DeferredRentAssetNetCurrent + AssetsHeldInTrustCurrent + AdvancesOnInventoryPurchases + AdvanceRoyaltiesCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + DepositsAssetsCurrent + IntangibleAssetsCurrent + BusinessCombinationContingentConsiderationAssetCurrent + OtherAssetsCurrent"
     }
@@ -1450,25 +1450,33 @@
   },
   "investment_lease_current_allowance": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Current Net Investment in Lease Allowance For Credit Loss"
     },
     "gaap": [
       "NetInvestmentInLeaseAllowanceForCreditLossCurrent"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_lease_direct_financing_current_allowance + investment_lease_sales_type_current_allowance"
+    }
   },
-  "investment_lease_current": {
+  "investment_lease_current_preallowance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Net Investment in Lease"
+      "long": "Current Net Investment in Lease Before Allowance For Credit Loss"
     },
     "gaap": [
       "NetInvestmentInLeaseCurrent"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_lease_direct_financing_current_preallowance + investment_lease_sales_type_current_preallowance"
+    }
   },
   "capitalized_contract_cost_current": {
     "unit": "monetary",
@@ -1743,22 +1751,60 @@
       "RegulatoryAssetsCurrent"
     ]
   },
-  "investments_lease_direct_financing_sales_type_current": {
+  "investments_lease_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Investment in Direct Financing and Sales Type Leases Current"
+      "long": "Current Investment in Leases After Allowance"
     },
     "gaap": [
       "CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingAndSalesTypeLeasesCurrent"
     ],
     "calculation": {
       "order": 231,
-      "any": "investments_lease_direct_financing_current + investments_lease_sales_type"
+      "all": "investments_lease_current_preallowance - investments_lease_current_allowance",
+      "any": "investments_lease_direct_financing_current + investments_lease_sales_type_current"
     }
   },
-  "investments_lease_sales_type": {
+  "investments_lease_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest from Investment in Leases After Allowance"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "investments_lease_direct_financing_accrued_interest + investments_lease_sales_type_accrued_interest"
+    }
+  },
+  "investments_lease_direct_financing_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest from Direct Financing Leases After Allowance"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss"
+    ]
+  },
+  "investments_lease_sales_type_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest from Sales Type Leases After Allowance"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss"
+    ]
+  },
+  "investments_lease_sales_type_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -1766,7 +1812,34 @@
       "long": "Current Investment in Sales Type Leases Current"
     },
     "gaap": [
-      "CapitalLeasesLessorBalanceSheetNetInvestmentInSalesTypeLeasesCurrent"
+      "CapitalLeasesLessorBalanceSheetNetInvestmentInSalesTypeLeasesCurrent",
+      "SalesTypeLeaseNetInvestmentInLeaseAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_sales_type_current_preallowance - investments_lease_sales_type_current_allowance"
+    }
+  },
+  "investments_lease_sales_type_current_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Sales Type Leases Before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseBeforeAllowanceForCreditLossCurrent"
+    ]
+  },
+  "investments_lease_sales_type_current_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Sales Type Leases Allowance for Credit Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseAllowanceForCreditLossCurrent"
     ]
   },
   "investments_lease_direct_financing_current": {
@@ -1774,10 +1847,108 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Investment in Direct Financing Leases Current"
+      "long": "Current Investment in Direct Financing Leases After Allowance for Credit Loss"
     },
     "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseAfterAllowanceForCreditLossCurrent",
       "CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingLeasesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_direct_financing_current_preallowance - investments_lease_direct_financing_current_allowance"
+    }
+  },
+  "investments_lease_direct_financing_current_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Direct Financing Leases Before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseBeforeAllowanceForCreditLossCurrent"
+    ]
+  },
+  "investments_lease_direct_financing_current_allowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Investment in Direct Financing Leases Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseAllowanceForCreditLossCurrent"
+    ]
+  },
+  "assets_disposal_group_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Assets of Disposal Group"
+    },
+    "gaap": [
+      "AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "disposal_cash_cash_equivalents + disposal_inventory_current + disposal_other_assets_current + disposal_deferred_tax_asset_current + disposal_receivable_net + disposal_goodwill_current + disposal_property_plant_and_equipment_current + disposal_capital_leased_assets_current + disposal_intangible_assets_current",
+      "DisposalGroupIncludingDiscontinuedOperationCashAndCashEquivalents + DisposalGroupIncludingDiscontinuedOperationInventoryCurrent + DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetCurrent + DisposalGroupIncludingDiscontinuedOperationOtherCurrentAssets + DisposalGroupIncludingDiscontinuedOperationAccountsNotesAndLoansReceivableNet + DisposalGroupIncludingDiscontinuedOperationGoodwillCurrent + DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentCurrent + DisposalGroupIncludingDiscontinuedOperationCapitalLeasedAssetsCurrent + DisposalGroupIncludingDiscontinuedOperationIntangibleAssetsCurrent + DisposalGroupIncludingDiscontinuedOperationPrepaidAndOtherAssetsCurrent",
+    }
+  },
+  "disposal_receivable_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Tax Assets Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetCurrent"
+    ]
+  },
+  "disposal_deferred_tax_asset_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Tax Assets Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetCurrent"
+    ]
+  },
+  "disposal_other_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Assets Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOtherCurrentAssets"
+    ]
+  },
+  "disposal_inventory_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Inventory Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationInventoryCurrent"
+    ]
+  },
+  "disposal_cash_cash_equivalents": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash and Cash Equivalents Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationCashAndCashEquivalents"
     ]
   },
   "assets_heldforsale_current": {
@@ -1789,7 +1960,6 @@
     },
     "gaap": [
       "AssetsHeldForSaleCurrent",
-      "AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
       "AssetsHeldForSaleNotPartOfDisposalGroupCurrent"
     ],
     "calculation": {
