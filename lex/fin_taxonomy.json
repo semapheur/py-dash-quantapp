@@ -1373,9 +1373,110 @@
     "calculation": {
       "order": 0,
       "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent",
-      "any": "cash_cash_equivalents_shortterm_investments + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + health_care_trust_fund_assets + deposits_assets_current + deferred_tax_assets_liabilities_current",
-      "diff": "- NetInvestmentInLeaseAllowanceForCreditLossCurrent + RestrictedCashAndInvestmentsCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + AssetsHeldInTrustCurrent + IntangibleAssetsCurrent + BusinessCombinationContingentConsiderationAssetCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + ContractWithCustomerAssetNetCurrent + CapitalizedContractCostNetCurrent + NetInvestmentInLeaseCurrent + FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + SalesTypeLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DirectFinancingLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossCurrent + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + GovernmentAssistanceAmountCumulativeCurrent"
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + inventory + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investments_lease_financing_sales_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current",
+      "diff": "- NetInvestmentInLeaseAllowanceForCreditLossCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + BusinessCombinationContingentConsiderationAssetCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + CapitalizedContractCostNetCurrent + NetInvestmentInLeaseCurrent + FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + SalesTypeLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DirectFinancingLeaseNetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossCurrent + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossCurrent + GovernmentAssistanceAmountCumulativeCurrent"
     }
+  },
+  "inventory_net_allowances_customer_advances_progress_billings": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Inventory Net of Allowances Customer Advances and Progress Billings"
+    },
+    "gaap": [
+      "InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventory - progress_payments_net_inventory_longterm_contracts_programs",
+      "InventoryNet - ProgressPaymentsNettedAgainstInventoryForLongTermContractsOrPrograms"
+    }
+  },
+  "customer_contract_asset_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetNetCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "customer_contract_assets_current_gross - customer_contract_assets_current_allowance"
+    }
+  },
+  "customer_contract_assets_current_allowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Contract with Customer Asset Accumulated Allowance for Credit Loss"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetAccumulatedAllowanceForCreditLossCurrent"
+    ]
+  },
+  "customer_contract_assets_current_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gross Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetGrossCurrent"
+    ]
+  },
+  "assets_heldintrust_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Assets Held in Trust"
+    },
+    "gaap": [
+      "AssetsHeldInTrustCurrent"
+    ]
+  },
+  "restricted_cash_investments_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Restricted Cash and Investments"
+    },
+    "gaap": [
+      "RestrictedCashAndInvestmentsCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cash_cash_equivalents_restricted_current + investments_restricted_current + other_restricted_assets_current"
+    }
+  },
+  "other_restricted_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Restricted Assets"
+    },
+    "gaap": [
+      "OtherRestrictedAssetsCurrent"
+    ]
+  },
+  "investments_restricted_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Restricted Investments"
+    },
+    "gaap": [
+      "RestrictedInvestmentsCurrent"
+    ]
   },
   "deferred_tax_assets_liabilities_current": {
     "unit": "monetary",
@@ -5490,12 +5591,12 @@
       "any": "dividend_payments + stock_payments + debt_repayments + quarterly_debt_repayments + annual_debt_repayments + other_shortterm_debt_repayments"
     }
   },
-  "finished_goods": {
+  "inventory_finished_goods": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Finished Goods Net of Reserves",
+      "long": "Finished Goods Net of Reserves",
       "short": "Finished Goods"
     },
     "gaap": [
@@ -5503,10 +5604,10 @@
     ],
     "calculation": {
       "order": 640,
-      "all": "finished_goods_current + finished_goods_noncurrent"
+      "any": "inventory_finished_goods_current + inventory_finished_goods_noncurrent"
     }
   },
-  "finished_goods_current": {
+  "inventory_finished_goods_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -5515,11 +5616,48 @@
       "short": "Finished Goods"
     },
     "gaap": [
-      "InventoryFinishedGoodsNetOfReserves",
-      "InventoryFinishedGoods"
+      "InventoryFinishedGoodsNetOfReserves"
     ]
   },
-  "finished_goods_noncurrent": {
+  "inventory_finished_goods_current_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gross Finished Goods",
+      "short": "Finished Goods"
+    },
+    "gaap": [
+      "InventoryFinishedGoods"
+    ],
+    "calculation": {
+      "order": 641,
+      "all": "inventory_demo_gross + inventory_spare_parts_gross"
+    }
+  },
+  "inventory_spare_parts_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Spare Parts"
+    },
+    "gaap": [
+      "OtherInventoriesSpareParts"
+    ]
+  },
+  "inventory_demo_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Demo Inventory"
+    },
+    "gaap": [
+      "OtherInventoryDemo"
+    ]
+  },
+  "inventory_finished_goods_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -9341,18 +9479,53 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Net Inventory"
+      "long": "Current and Noncurrent Net Inventory "
     },
     "gaap": [
-      "InventoryNet",
-      "Inventories",
       "InventoryNetCurrentAndNonCurrent",
       "InventoryCurrentAndNoncurrent"
     ],
     "calculation": {
       "order": 646,
-      "any": "finished_goods + parts_components + work_in_progress_raw_materials + other_inventory"
+      "any": "inventory_current + inventory_noncurrent"
     }
+  },
+  "inventory_adjustments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Inventory Adjustments"
+    },
+    "gaap": [
+      "InventoryAdjustments"
+    ],
+    "calculation": {
+      "order": 646,
+      "any": "inventory_valuation_reserves + inventory_lastinfirstout_reserve"
+    }
+  },
+  "inventory_lastinfirstout_reserve": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Inventory Last-in First-out Reserves"
+    },
+    "gaap": [
+      "InventoryLIFOReserve"
+    ]
+  },
+  "inventory_valuation_reserves": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Inventory Valuation Reserves"
+    },
+    "gaap": [
+      "InventoryValuationReserves"
+    ]
   },
   "inventory_current": {
     "unit": "monetary",
@@ -9361,10 +9534,37 @@
     "label": {
       "long": "Current Net Inventory"
     },
+    "gaap": [
+      "InventoryNet",
+      "Inventories"
+    ],
     "calculation": {
-      "order": 1078,
-      "any": "finished_goods_current + parts_components_current + work_in_progress_raw_materials_current"
+      "order": 646,
+      "all": "inventory_gross - inventory_adjustments",
+      "any": "inventory_finished_goods_current + inventory_parts_components + inventory_workinprocess_raw_materials + inventory_supplies + inventory_other"
     }
+  },
+  "inventory_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Inventory Net of Reserves"
+    },
+    "gaap": [
+      "OtherInventoryNetOfReserves"
+    ]
+  },
+  "inventory_supplies": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Inventory Supplies Net of Reserves"
+    },
+    "gaap": [
+      "InventorySuppliesNetOfReserves"
+    ]
   },
   "inventory_firm_purchase_commitment_loss": {
     "unit": "monetary",
@@ -9386,6 +9586,114 @@
     },
     "gaap": [
       "InventoryGross"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventory_finished_goods_gross + workinprocess_raw_materials_gross + inventory_longterm_contracts_programs_gross + inventory_inventory_gross"
+    }
+  },
+  "inventory_other_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Inventory for Long-term Contracts or Programs"
+    },
+    "gaap": [
+      "OtherInventory",
+      "OtherInventories"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventory_under_consignment_gross + inventory_warehouse_gross + inventory_scrap_gross + inventory_spare_parts_gross + inventory_demo_gross + inventory_purchased_goods_gross + inventory_offsite_premises_gross + inventory_intransit_gross + inventory_capitalized_costs_gross"
+    }
+  },
+  "inventory_capitalized_costs_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Inventory Capitalized Costs"
+    },
+    "gaap": [
+      "OtherInventoryCapitalizedCosts"
+    ]
+  },
+  "inventory_intransit_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Inventory in Transit"
+    },
+    "gaap": [
+      "OtherInventoryInTransit"
+    ]
+  },
+  "inventory_offsite_premises_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Purchased Goods"
+    },
+    "gaap": [
+      "OtherInventoryInventoryAtOffSitePremises"
+    ]
+  },
+  "inventory_purchased_goods_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Purchased Goods"
+    },
+    "gaap": [
+      "OtherInventoryPurchasedGoods"
+    ]
+  },
+  "inventory_scrap_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Scrap"
+    },
+    "gaap": [
+      "OtherInventoryScrap"
+    ]
+  },
+  "inventory_warehouse_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Warehouse Inventory"
+    },
+    "gaap": [
+      "OtherInventoryWarehouse"
+    ]
+  },
+  "inventory_under_consignment_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Materials, Supplies and Merchandise Under Consignment"
+    },
+    "gaap": [
+      "OtherInventoryMaterialsSuppliesAndMerchandiseUnderConsignment"
+    ]
+  },
+  "inventory_longterm_contracts_programs_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Inventory for Long-term Contracts or Programs"
+    },
+    "gaap": [
+      "InventoryForLongTermContractsOrPrograms"
     ]
   },
   "inventory_liquidation_effect": {
@@ -11215,18 +11523,6 @@
     },
     "gaap": [
       "OtherGeneralExpense"
-    ]
-  },
-  "other_inventory": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Other Inventory"
-    },
-    "gaap": [
-      "OtherInventories",
-      "OtherInventorySupplies"
     ]
   },
   "other_labor_related_expenses": {
@@ -15779,17 +16075,53 @@
       "all": "(average_cash_cash_equivalents_shortterm_investments + average_current_receivables) / average_current_liabilities"
     }
   },
-  "raw_materials": {
+  "inventory_raw_materials": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Raw Materials"
+      "long": "Raw Materials Net of Reserves"
+    },
+    "gaap": [
+      "InventoryRawMaterialsNetOfReserves"
+    ]
+  },
+  "inventory_raw_materials_parts_componets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Raw Materials, Components and Parts Net of Reserves"
+    },
+    "gaap": [
+      "InventoryRawMaterialsAndPurchasedPartsNetOfReserves"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventory_parts_components + inventory_raw_materials"
+    }
+  },
+  "inventory_parts_components": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Components and Parts Net of Reserves"
+    },
+    "gaap": [
+      "InventoryPartsAndComponentsNetOfReserves"
+    ]
+  },
+  "inventory_raw_materials_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Raw Materials Net of Reserves"
     },
     "gaap": [
       "InventoryRawMaterials",
-      "InventoryRawMaterialsNetOfReserves",
-      "InventoryRawMaterialsAndPurchasedPartsNetOfReserves"
+      "InventoryRawMaterialsAndPurchasedParts"
     ]
   },
   "real_estate_insurance": {
@@ -19341,33 +19673,64 @@
       "WeightedAverageNumberDilutedSharesOutstandingAdjustment"
     ]
   },
-  "work_in_progress": {
+  "inventory_workinprocess": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Work-in-process"
+      "long": "Work-in-Process Net of Reserves"
     },
     "gaap": [
-      "InventoryWorkInProcess",
       "InventoryWorkInProcessNetOfReserves"
     ]
   },
-  "work_in_progress_raw_materials": {
+  "inventory_workinprocess_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Work-in-process and Raw Materials Net Of Reserves",
-      "short": "Work-in-process and Raw Materials"
+      "long": "Gross Work-in-Process"
     },
     "gaap": [
-      "InventoryWorkInProcessAndRawMaterialsNetOfReserves"
+      "InventoryWorkInProcess"
     ],
     "calculation": {
       "order": 643,
-      "any": "raw_materials + work_in_progress"
+      "any": "inventory_raw_materials + inventory_workinprogress + inventory_ore_stockpiles + inventory_supplies"
     }
+  },
+  "inventory_supplies_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Inventory Supplies"
+    },
+    "gaap": [
+      "OtherInventorySupplies"
+    ]
+  },
+  "inventory_ore_stockpiles_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Ore and Stockpiles"
+    },
+    "gaap": [
+      "InventoryOreStockpilesOnLeachPads"
+    ]
+  },
+  "inventory_workinprocess_raw_materials": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Work-in-Process and Raw Materials Net of Reserves"
+    },
+    "gaap": [
+      "InventoryWorkInProcessAndRawMaterialsNetOfReserves"
+    ]
   },
   "working_capital": {
     "unit": "monetary",
