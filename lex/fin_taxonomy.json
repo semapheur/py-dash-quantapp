@@ -1372,10 +1372,7 @@
     ],
     "calculation": {
       "order": 0,
-      "duplicate": "AssetRecoveryDamagedPropertyCostsCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + investments_lease_direct_financing_sales_type_current",
-      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + assets_heldforsale_current + investment_lease_current + receivable_tax_income_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest",
-      "diff": "+ FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss",
-      "": "CashCashEquivalentsAndShortTermInvestments + NetInvestmentInLeaseCurrent - NetInvestmentInLeaseAllowanceForCreditLossCurrent + RestrictedCashAndInvestmentsCurrent + ReceivablesNetCurrent + InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings + PrepaidExpenseCurrent + ContractWithCustomerAssetNetCurrent + CapitalizedContractCostNetCurrent + DeferredCostsCurrent + DerivativeInstrumentsAndHedges + RegulatoryAssetsCurrent + FundsHeldForClients + DeferredRentAssetNetCurrent + AssetsHeldInTrustCurrent + AdvancesOnInventoryPurchases + AdvanceRoyaltiesCurrent + AssetsOfDisposalGroupIncludingDiscontinuedOperationCurrent + AssetsHeldForSaleNotPartOfDisposalGroupCurrent + DepositsAssetsCurrent + IntangibleAssetsCurrent + BusinessCombinationContingentConsiderationAssetCurrent + OtherAssetsCurrent"
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + receivable_tax_income_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + derivatives_hedges_current + assets_heldforsale_current + assets_disposal_group_current + investment_lease_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_costs_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest"
     }
   },
   "financial_assets_accrued_interest": {
@@ -1892,19 +1889,77 @@
     ],
     "calculation": {
       "order": 231,
-      "any": "disposal_cash_cash_equivalents + disposal_inventory_current + disposal_other_assets_current + disposal_deferred_tax_asset_current + disposal_receivable_net + disposal_goodwill_current + disposal_property_plant_and_equipment_current + disposal_capital_leased_assets_current + disposal_intangible_assets_current",
-      "DisposalGroupIncludingDiscontinuedOperationCashAndCashEquivalents + DisposalGroupIncludingDiscontinuedOperationInventoryCurrent + DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetCurrent + DisposalGroupIncludingDiscontinuedOperationOtherCurrentAssets + DisposalGroupIncludingDiscontinuedOperationAccountsNotesAndLoansReceivableNet + DisposalGroupIncludingDiscontinuedOperationGoodwillCurrent + DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentCurrent + DisposalGroupIncludingDiscontinuedOperationCapitalLeasedAssetsCurrent + DisposalGroupIncludingDiscontinuedOperationIntangibleAssetsCurrent + DisposalGroupIncludingDiscontinuedOperationPrepaidAndOtherAssetsCurrent",
+      "any": "disposal_cash_cash_equivalents + disposal_inventory_current + disposal_deferred_tax_asset_current + disposal_receivable + disposal_goodwill_current + disposal_property_plant_and_equipment_current + disposal_capital_leased_assets_current + disposal_intangible_assets_current + disposal_prepaid_expenses_other_assets_current"
     }
   },
-  "disposal_receivable_net": {
+  "disposal_prepaid_expenses_other_assets_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Deferred Tax Assets Disposal Group"
+      "long": "Current Leased Assets Disposal Group"
     },
     "gaap": [
-      "DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetCurrent"
+      "DisposalGroupIncludingDiscontinuedOperationPrepaidAndOtherAssetsCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_other_assets_current"
+    }
+  },
+  "disposal_intangible_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Leased Assets Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationIntangibleAssetsCurrent"
+    ]
+  },
+  "disposal_capital_leased_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Leased Assets Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationCapitalLeasedAssetsCurrent"
+    ]
+  },
+  "disposal_property_plant_and_equipment_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Property, Plant and Equipment Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentCurrent"
+    ]
+  },
+  "disposal_goodwill_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Goodwill Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationGoodwillCurrent"
+    ]
+  },
+  "disposal_receivable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivables Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccountsNotesAndLoansReceivableNet"
     ]
   },
   "disposal_deferred_tax_asset_current": {
@@ -1929,6 +1984,22 @@
       "DisposalGroupIncludingDiscontinuedOperationOtherCurrentAssets"
     ]
   },
+  "disposal_inventory": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Inventory Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationInventory",
+      "DisposalGroupIncludingDiscontinuedOperationInventory1"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_inventory_current + disposal_inventory_noncurrent"
+    }
+  },
   "disposal_inventory_current": {
     "unit": "monetary",
     "balance": "debit",
@@ -1938,6 +2009,17 @@
     },
     "gaap": [
       "DisposalGroupIncludingDiscontinuedOperationInventoryCurrent"
+    ]
+  },
+  "disposal_inventory_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Inventory Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationInventoryNoncurrent"
     ]
   },
   "disposal_cash_cash_equivalents": {
@@ -1976,8 +2058,7 @@
     },
     "gaap": [
       "OtherAssetsHeldForSaleCurrent",
-      "AssetsHeldForSaleNotPartOfDisposalGroupCurrentOther",
-      "DisposalGroupIncludingDiscontinuedOperationOtherCurrentAssets"
+      "AssetsHeldForSaleNotPartOfDisposalGroupCurrentOther"
     ]
   },
   "receivables_heldforsale": {
@@ -1989,8 +2070,7 @@
     },
     "gaap": [
       "ReceivablesHeldForSaleNetAmount",
-      "TradeAndLoansReceivablesHeldForSaleNetNotPartOfDisposalGroup",
-      "DisposalGroupIncludingDiscontinuedOperationAccountsNotesAndLoansReceivableNet"
+      "TradeAndLoansReceivablesHeldForSaleNetNotPartOfDisposalGroup"
     ],
     "calculation": {
       "order": 0,
@@ -2102,10 +2182,11 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Trade Receivables Held-for-Sale Net"
+      "long": "Net Trade Receivables Held-for-Sale"
     },
     "gaap": [
-      "LoansReceivableHeldForSaleNet"
+      "TradeReceivablesHeldForSaleNet",
+      "TradeReceivablesHeldForSaleNetNotPartOfDisposalGroup"
     ]
   },
   "inventories_property_heldforsale_current": {
@@ -2113,13 +2194,10 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Assets Held-for-Sale"
+      "long": "Current Inventory Held-for-Sale"
     },
     "gaap": [
-      "InventoriesPropertyHeldForSaleCurrent",
-      "DisposalGroupIncludingDiscontinuedOperationInventoryCurrent", 
-      "DisposalGroupIncludingDiscontinuedOperationInventoryNoncurrent",
-      "DisposalGroupIncludingDiscontinuedOperationInventory1"
+      "InventoriesPropertyHeldForSaleCurrent"
     ]
   },
   "derivatives_hedges_current": {
