@@ -4707,10 +4707,10 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Deferred Revenue"
+      "long": "Deferred Revenue"
     },
     "gaap": [
-      "DeferredRevenueCurrent"
+      "DeferredRevenue"
     ],
     "calculation": {
       "order": 762,
@@ -10769,7 +10769,269 @@
       "LiabilitiesCurrent",
       "CurrentLiabilities",
       "CurrentLiabilities1"
+    ],
+    "calculation": {
+      "order": 0,
+      "diff": "DueToRelatedPartiesCurrent + DeferredRevenueLeasesCurrent + ContractWithCustomerLiabilityCurrent + DeferredTaxLiabilitiesCurrent + CustomerAdvancesAndDepositsCurrent + DeferredRevenueAndCreditsCurrent + BillingsInExcessOfCostCurrent",
+      "any": "payables_accrued_expenses_current + deferred_revenue_current + debt_current + deferred_compensation_liability_current + deferred_rent_credit_current + derivative_hedge_liabilities_current + restructuring_reserve_current + liability_uncertain_tax_position_current + postemployment_benefits_liability_current + securities_loaned + regulatory_liability_current + provision_contract_loss + litigation_reserve_current + accrued_environmental_loss_contingencies_current + asset_retirement_obligation_current + closure_environmental_costs + accrued_reclamation_costs_current + deferred_gas_purchases_current + disposal_group_liabilities_current + liabilities_business_transferred_under_contractual_arrangement_current + mandatory_redemption_shares_current + customer_refund_liability_current + self_insurance_reserve_current + program_rights_obligations_current + business_combination_contingent_consideration_liability_current + other_liabilities_current + government_assistance_liability_current"
+    }
+  },
+  "government_assistance_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Government Assistance Liability"
+    },
+    "gaap": [
+      "GovernmentAssistanceLiabilityCurrent"
     ]
+  },
+  "business_combination_contingent_consideration_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Business Combination Contingent Consideration Liability"
+    },
+    "gaap": [
+      "BusinessCombinationContingentConsiderationLiabilityCurrent"
+    ]
+  },
+  "program_rights_obligations_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Program Rights Obligations"
+    },
+    "gaap": [
+      "ProgramRightsObligationsCurrent"
+    ]
+  },
+  "self_insurance_reserve_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Self Insurance Reserve"
+    },
+    "gaap": [
+      "SelfInsuranceReserveCurrent"
+    ]
+  },
+  "customer_refund_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Customer Refund Liability"
+    },
+    "gaap": [
+      "CustomerRefundLiabilityCurrent"
+    ]
+  },
+  "mandatory_redemption_shares_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Shares Subject to Mandatory Redemption Settlement Terms"
+    },
+    "gaap": [
+      "SharesSubjectToMandatoryRedemptionSettlementTermsAmountCurrent"
+    ]
+  },
+  "liabilities_business_transferred_under_contractual_arrangement_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Gas Purchases"
+    },
+    "gaap": [
+      "LiabilitiesOfBusinessTransferredUnderContractualArrangementCurrent"
+    ]
+  },
+  "disposal_group_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Gas Purchases"
+    },
+    "gaap": [
+      "DeferredGasPurchasesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "",
+      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableAndAccruedLiabilitiesCurrent + DisposalGroupIncludingDiscontinuedOperationDeferredRevenueCurrent + DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxesPayable + DisposalGroupIncludingDiscontinuedOperationOtherCurrentLiabilities + DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligationCurrent + DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligationCurrent"
+    }
+  },
+  "deferred_gas_purchases_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Gas Purchases"
+    },
+    "gaap": [
+      "DeferredGasPurchasesCurrent"
+    ]
+  },
+  "accrued_reclamation_costs_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Reclamation Costs"
+    },
+    "gaap": [
+      "AccruedReclamationCostsCurrent"
+    ]
+  },
+  "closure_environmental_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Closure and Environmental Costs"
+    },
+    "gaap": [
+      "AccruedCappingClosurePostClosureAndEnvironmentalCosts"
+    ]
+  },
+  "asset_retirement_obligation_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Asset Retirement Obligation"
+    },
+    "gaap": [
+      "AssetRetirementObligationCurrent"
+    ]
+  },
+  "accrued_environmental_loss_contingencies_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Litigation Reserve"
+    },
+    "gaap": [
+      "AccruedEnvironmentalLossContingenciesCurrent"
+    ]
+  },
+  "litigation_reserve_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Litigation Reserve"
+    },
+    "gaap": [
+      "LitigationReserveCurrent"
+    ]
+  },
+  "provision_contract_loss": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Provision for Loss on Contracts"
+    },
+    "gaap": [
+      "ProvisionForLossOnContracts"
+    ]
+  },
+  "regulatory_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Regulatory Liability"
+    },
+    "gaap": [
+      "RegulatoryLiabilityCurrent"
+    ]
+  },
+  "postemployment_benefits_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Postemployment Benefits Liability"
+    },
+    "gaap": [
+      "PostemploymentBenefitsLiabilityCurrent"
+    ]
+  },
+  "liability_uncertain_tax_position_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Liability for Uncertain Tax Positions"
+    },
+    "gaap": [
+      "LiabilityForUncertainTaxPositionsCurrent"
+    ]
+  },
+  "restructuring_reserve_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Restructuring Reserve"
+    },
+    "gaap": [
+      "RestructuringReserveCurrent"
+    ]
+  },
+  "derivative_hedge_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Derivative Instruments and Hedges Liabilities"
+    },
+    "gaap": [
+      "DerivativeInstrumentsAndHedgesLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "",
+      "DerivativeLiabilitiesCurrent + EnergyMarketingContractLiabilitiesCurrent + HedgingLiabilitiesCurrent"
+    }
+  },
+  "deferred_rent_credit_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Rent Credit"
+    },
+    "gaap": [
+      "DeferredRentCreditCurrent"
+    ]
+  },
+  "deferred_compensation_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationLiabilityCurrent"
+    ],
+    "calculation": {
+      "order": 1126,
+      "all": "equity + liabilities",
+      "DeferredCompensationShareBasedArrangementsLiabilityCurrent + DeferredCompensationCashBasedArrangementsLiabilityCurrent + OtherDeferredCompensationArrangementsLiabilityCurrent"
+    }
   },
   "liabilities_equity": {
     "unit": "monetary",
