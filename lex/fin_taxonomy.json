@@ -171,6 +171,30 @@
       "all": "accrued_employee_benefits_current + accrued_employee_benefits_noncurrent"
     }
   },
+  "accrued_salaries_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Salaries"
+    },
+    "gaap": [
+      "AccruedSalariesCurrent"
+    ]
+  },
+  "accrued_salaries": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Salaries"
+    },
+    "gaap": [
+      "AccruedSalaries",
+      "AccruedSalariesAndBenefits",
+      "AccruedSalariesCurrentAndNoncurrent"
+    ]
+  },
   "accrued_employee_benefits_current": {
     "unit": "monetary",
     "balance": "credit",
@@ -179,10 +203,7 @@
       "long": "Current Accrued Employee Benefits"
     },
     "gaap": [
-      "AccruedEmployeeBenefitsCurrent",
-      "EmployeeRelatedLiabilitiesCurrent",
-      "AccruedSalariesAndBenefits",
-      "AccruedSalariesCurrent"
+      "AccruedEmployeeBenefitsCurrent"
     ]
   },
   "accrued_equity_issuance_costs_current": {
@@ -235,8 +256,315 @@
     ],
     "calculation": {
       "order": 23,
-      "any": "accrued_employee_benefits_current + accrued_marketing_expenses_current + accrued_tax_income_current + accrued_expenses_other_current"
+      "any": "accrued_insurance_current + payable_lease_incentive_current + accrued_rent_current + accrued_royalties_current + accrued_utilities_current + accrued_sales_commission_current + accrued_professional_fees_current + accrued_advertising_current + accrued_exchange_fee_rebate_current + accrued_product_warranty_current + accrued_marketing_costs_current + accrued_expenses_other_current + employee_related_liabilities_current + payable_tax_current + interest_dividends_payable_current + settlement_liabilities_current + accrued_unredeemed_gift_cards_current"
     }
+  },
+  "accrued_unredeemed_gift_cards_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Unredeemed Gift Cards"
+    },
+    "gaap": [
+      "AccruedLiabilitiesForUnredeeemedGiftCards"
+    ]
+  },
+  "payable_lease_incentive_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Lease Incentive Payable"
+    },
+    "gaap": [
+      "LeaseIncentivePayableCurrent"
+    ]
+  },
+  "settlement_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Settlement Liabilities"
+    },
+    "gaap": [
+      "SettlementLiabilitiesCurrent"
+    ]
+  },
+  "interest_dividends_payable_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Interest and Dividends Payable"
+    },
+    "gaap": [
+      "InterestAndDividendsPayableCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payable_dividend_current + payable_interest_current"
+    }
+  },
+  "employee_related_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Employee Related Liabilities"
+    },
+    "gaap": [
+      "EmployeeRelatedLiabilitiesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "accrued_salaries_current + accrued_vacation_current + accrued_bonuses_current + accrued_payroll_taxes_current + accrued_employee_benefits_current + workers_compensation_liability_current + pension_postretirement_postemployment_benefit_liability_current + employee_related_liabilities_other_current"
+    }
+  },
+  "pension_postretirement_postemployment_benefit_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Pension, Other Postretirement and Postemployment Benefit Pension Plan Liabilities"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_postretirement_benefit_liability_current + postemployment_benefit_liability_current"
+    }
+  },
+  "pension_postretirement_benefit_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Pension and Other Postretirement Defined Benefit Plans Liabilities"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementDefinedBenefitPlansCurrentLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_benefit_plan_liability_current + other_postretirement_benefit_plan_liability_current + payable_benefits_postretirement_other_current"
+    }
+  },
+  "payable_benefits_postretirement_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Postretirement Benefit Payable"
+    },
+    "gaap": [
+      "OtherPostretirementBenefitsPayableCurrent"
+    ]
+  },
+  "other_postretirement_benefit_plan_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Defined Benefit Pension Plan Liabilities"
+    },
+    "gaap": [
+      "OtherPostretirementDefinedBenefitPlanLiabilitiesCurrent",
+      "OtherPostretirementDefinedBenefitPlanCurrentLiabilities"
+    ]
+  },
+  "pension_benefit_plan_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Defined Benefit Pension Plan Liabilities"
+    },
+    "gaap": [
+      "DefinedBenefitPensionPlanLiabilitiesCurrent"
+    ]
+  },
+  "employee_related_liabilities_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Employee Related Liabilities"
+    },
+    "gaap": [
+      "OtherEmployeeRelatedLiabilitiesCurrent"
+    ]
+  },
+  "workers_compensation_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Workers Compensation Liability"
+    },
+    "gaap": [
+      "WorkersCompensationLiabilityCurrent"
+    ]
+  },
+  "accrued_payroll_taxes_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Payroll Taxes"
+    },
+    "gaap": [
+      "AccruedPayrollTaxesCurrent"
+    ]
+  },
+  "accrued_bonuses_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Bonuses"
+    },
+    "gaap": [
+      "AccruedBonusesCurrent"
+    ]
+  },
+  "accrued_vacation_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Vacation"
+    },
+    "gaap": [
+      "AccruedVacationCurrent"
+    ]
+  },
+  "accrued_product_warranty_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Product Warranty"
+    },
+    "gaap": [
+      "ProductWarrantyAccrualClassifiedCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "accrued_product_warranty_standard_current + accrued_product_warranty_extended_current"
+    }
+  },
+  "accrued_product_warranty_extended_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Extended Product Warranty"
+    },
+    "gaap": [
+      "ExtendedProductWarrantyAccrualCurrent"
+    ]
+  },
+  "accrued_product_warranty_standard_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Standard Product Warranty"
+    },
+    "gaap": [
+      "StandardProductWarrantyAccrualCurrent"
+    ]
+  },
+  "accrued_exchange_fee_rebate_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Exchange Fee Rebate"
+    },
+    "gaap": [
+      "AccruedExchangeFeeRebateCurrent"
+    ]
+  },
+  "accrued_advertising_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Advertising"
+    },
+    "gaap": [
+      "AccruedAdvertisingCurrent"
+    ]
+  },
+  "accrued_professional_fees_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Professional Fees"
+    },
+    "gaap": [
+      "AccruedProfessionalFeesCurrent"
+    ]
+  },
+  "accrued_sales_commission_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Sales Commision"
+    },
+    "gaap": [
+      "AccruedSalesCommissionCurrent"
+    ]
+  },
+  "accrued_utilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Utilities"
+    },
+    "gaap": [
+      "AccruedUtilitiesCurrent"
+    ]
+  },
+  "accrued_royalties_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Royalties"
+    },
+    "gaap": [
+      "AccruedRoyaltiesCurrent"
+    ]
+  },
+  "accrued_rent_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Rent"
+    },
+    "gaap": [
+      "AccruedRentCurrent"
+    ]
+  },
+  "accrued_insurance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Insurance"
+    },
+    "gaap": [
+      "AccruedInsuranceCurrent"
+    ]
   },
   "accrued_expenses_noncurrent": {
     "unit": "monetary",
@@ -289,28 +617,27 @@
       "AccruedInterest3"
     ]
   },
-  "accrued_marketing_expenses": {
+  "accrued_advertising": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accrued Marketing Expenses"
+      "long": "Accrued Advertising"
     },
     "gaap": [
       "AccruedAdvertisingCurrentAndNoncurrent"
     ]
   },
-  "accrued_marketing_expenses_current": {
+  "accrued_marketing_costs_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Accrued Marketing Expenses"
+      "long": "Current Accrued Marketing Costs"
     },
     "gaap": [
       "AccruedMarketingCostsCurrent",
-      "AccruedMarketingAndDistributionCurrent",
-      "AccruedAdvertisingCurrent"
+      "AccruedMarketingAndDistributionCurrent"
     ]
   },
   "accrued_tax_income": {
@@ -325,7 +652,7 @@
     ],
     "calculation": {
       "order": 27,
-      "all": "accrued_tax_income_current + accrued_tax_income_noncurrent"
+      "any": "accrued_tax_income_current + accrued_tax_income_noncurrent"
     }
   },
   "accrued_tax_income_current": {
@@ -336,7 +663,6 @@
       "long": "Current Accrued Income Taxes"
     },
     "gaap": [
-      "AccruedIncomeTaxes",
       "AccruedIncomeTaxesCurrent"
     ]
   },
@@ -12503,7 +12829,7 @@
     ],
     "calculation": {
       "order": 1180,
-      "all": "payables_current + payables_noncurrent"
+      "all": "payable_current + payable_noncurrent"
     }
   },
   "payable_bulk_invoices_current": {
@@ -12529,8 +12855,96 @@
     ],
     "calculation": {
       "order": 1185,
-      "all": "payable_trade_current + payable_tax_current + payable_interest_current + payable_dividend_current"
+      "any": "payable_trade_current + payable_interest_bearing_current + payable_construction_current + payable_petroleum_sales_current + payable_gas_purchase_current + payable_energy_marketing_current + payable_gas_imbalance_current + payable_underwriters_promoters_employees_otherthan_salaries_wages_current + payable_retention_current + payable_other_current"
     }
+  },
+  "payable_retention_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Retention Payables"
+    },
+    "gaap": [
+      "RetentionPayableDueOneYearOrLess"
+    ]
+  },
+  "payable_underwriters_promoters_employees_otherthan_salaries_wages_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Payables for Underwriters, Promoters and Employees other than Salaries and Wages"
+    },
+    "gaap": [
+      "AccountsPayableUnderwritersPromotersAndEmployeesOtherThanSalariesAndWagesCurrent"
+    ]
+  },
+  "payable_gas_imbalance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gas Imbalance Payables"
+    },
+    "gaap": [
+      "GasImbalancePayableCurrent"
+    ]
+  },
+  "payable_energy_marketing_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Energy Marketing Payables"
+    },
+    "gaap": [
+      "EnergyMarketingAccountsPayable"
+    ]
+  },
+  "payable_gas_purchase_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gas Purchase Payables"
+    },
+    "gaap": [
+      "GasPurchasePayableCurrent"
+    ]
+  },
+  "payable_petroleum_sales_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Petroleum Sales Payables"
+    },
+    "gaap": [
+      "OilAndGasSalesPayableCurrent"
+    ]
+  },
+  "payable_construction_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Construction Payables"
+    },
+    "gaap": [
+      "ConstructionPayableCurrent"
+    ]
+  },
+  "payable_interest_bearing_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Interest Bearing Payables"
+    },
+    "gaap": [
+      "AccountsPayableInterestBearingCurrent"
+    ]
   },
   "payable_debt_equity_issuance_cost": {
     "unit": "monetary",
@@ -12606,7 +13020,7 @@
     ],
     "calculation": {
       "order": 1191,
-      "any": "payable_interest_current - payable_interest_noncurrent"
+      "any": "payable_interest_current + payable_interest_noncurrent"
     }
   },
   "payable_interest_current": {
@@ -12846,7 +13260,34 @@
       "long": "Current Tax Payables"
     },
     "gaap": [
+      "TaxesPayableCurrent",
       "CurrentTaxesPayables"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payable_tax_sales_excise_current + accrued_tax_income_current + accrued_tax_other_current"
+    }
+  },
+  "accrued_tax_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrual for Non-income Taxes"
+    },
+    "gaap": [
+      "AccrualForTaxesOtherThanIncomeTaxesCurrent"
+    ]
+  },
+  "payable_tax_sales_excise_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Sale and Excise Tax Payables"
+    },
+    "gaap": [
+      "SalesAndExciseTaxPayableCurrent"
     ]
   },
   "payable_trade": {
@@ -12916,7 +13357,7 @@
     ],
     "calculation": {
       "order": 1210,
-      "all": "payables_current + accrued_expenses_current"
+      "all": "payable_current + accrued_expenses_current"
     }
   },
   "payables_accrued_expenses_noncurrent": {
