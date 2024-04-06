@@ -1946,7 +1946,9 @@
       "long": "Current Deferred Tax Liabilities"
     },
     "gaap": [
-      "DeferredTaxLiabilitiesCurrent"
+      "CurrentTaxLiabilitiesCurrent",
+      "DeferredTaxLiabilitiesCurrent",
+      "DeferredIncomeTaxLiabilitiesCurrent"
     ]
   },
   "deferred_tax_assets_current": {
@@ -2863,17 +2865,6 @@
       "order": 0,
       "any": "deferred_tax_assets_noncurrent - deferred_tax_liabilities_noncurrent"
     }
-  },
-  "deferred_tax_liabilities_noncurrent": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Noncurrent Deferred Tax Liabilities"
-    },
-    "gaap": [
-      "DeferredTaxLiabilitiesNoncurrent"
-    ]
   },
   "deferred_tax_assets_noncurrent": {
     "unit": "monetary",
@@ -12470,9 +12461,222 @@
     ],
     "calculation": {
       "order": 0,
-      "diff": "DueToRelatedPartiesCurrent + DeferredRevenueLeasesCurrent + ContractWithCustomerLiabilityCurrent + DeferredTaxLiabilitiesCurrent + CustomerAdvancesAndDepositsCurrent + DeferredRevenueAndCreditsCurrent + BillingsInExcessOfCostCurrent",
-      "any": "payables_accrued_expenses_current + deferred_revenue_current + debt_current + deferred_compensation_liability_current + deferred_rent_credit_current + derivative_hedge_liabilities_current + restructuring_reserve_current + liability_uncertain_tax_position_current + postemployment_benefits_liability_current + securities_loaned + regulatory_liability_current + provision_contract_loss + litigation_reserve_current + accrued_environmental_loss_contingencies_current + asset_retirement_obligation_current + closure_environmental_costs + accrued_reclamation_costs_current + deferred_gas_purchases_current + disposal_group_liabilities_current + liabilities_business_transferred_under_contractual_arrangement_current + mandatory_redemption_shares_current + customer_refund_liability_current + self_insurance_reserve_current + program_rights_obligations_current + business_combination_contingent_consideration_liability_current + other_liabilities_current + government_assistance_liability_current"
+      "any": "payables_accrued_expenses_current + deferred_revenue_credits_current + debt_current + deferred_compensation_liability_current + derivative_hedge_liabilities_current + restructuring_reserve_current + deferred_tax_liabilities_current + liability_uncertain_tax_position_current + postemployment_benefits_liability_current + securities_loaned + regulatory_liability_current + provision_contract_loss + litigation_reserve_current + accrued_environmental_loss_contingencies_current + asset_retirement_obligation_current + closure_environmental_costs + accrued_reclamation_costs_current + deferred_gas_purchases_current + disposal_group_liabilities_current + liabilities_business_transferred_under_contractual_arrangement_current + mandatory_redemption_shares_current + customer_refund_liability_current + self_insurance_reserve_current + program_rights_obligations_current + business_combination_contingent_consideration_liability_current + other_liabilities_current + government_assistance_liability_current + customer_advances_deposits_current + billings_excess_cost_current"
     }
+  },
+  "billings_excess_cost_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Billings in Excess of Cost Current"
+    },
+    "gaap": [
+      "BillingsInExcessOfCostCurrent"
+    ]
+  },
+  "customer_advances_deposits_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Customer Advances and Deposits"
+    },
+    "gaap": [
+      "CustomerAdvancesAndDepositsCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "customer_advances_current + customer_deposits_current"
+    }
+  },
+  "customer_deposits_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Customer Deposits"
+    },
+    "gaap": [
+      "CustomerDepositsCurrent"
+    ]
+  },
+  "customer_advances_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Customer Advances"
+    },
+    "gaap": [
+      "CustomerAdvancesCurrent"
+    ]
+  },
+  "deferred_revenue_credits_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Revenue and Credits"
+    },
+    "gaap": [
+      "DeferredRevenueAndCreditsCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_revenue_current + deferred_revenue_leases_current + deferred_air_traffic_revenue + customer_loyalty_program_liability_current + other_deferred_credits_current + deferred_rent_credit_current"
+    }
+  },
+  "other_deferred_credits_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Deferred Credits"
+    },
+    "gaap": [
+      "OtherDeferredCreditsCurrent"
+    ]
+  },
+  "customer_loyalty_program_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Customer Loyalty Program Liability"
+    },
+    "gaap": [
+      "CustomerLoyaltyProgramLiabilityCurrent"
+    ]
+  },
+  "deferred_air_traffic_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Leases"
+    },
+    "gaap": [
+      "DeferredAirTrafficRevenue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "air_traffic_liability_current + frequent_flier_liability_current"
+    }
+  },
+  "frequent_flier_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Frequent Flier Liability"
+    },
+    "gaap": [
+      "FrequentFlierLiabilityCurrent"
+    ]
+  },
+  "air_traffic_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Air Traffic Liability"
+    },
+    "gaap": [
+      "AirTrafficLiabilityCurrent"
+    ]
+  },
+  "deferred_revenue_leases_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Leases"
+    },
+    "gaap": [
+      "DeferredRevenueLeasesCurrent"
+    ]
+  },
+  "due_related_parties_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Related Parties Current"
+    },
+    "gaap": [
+      "DueToRelatedPartiesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payable_trade_related_parties_current + payable_notes_related_parties_current + due_employees_current + due_officers_stockholders_current + due_affiliate_current + due_other_related_parties_current"
+    }
+  },
+  "due_other_related_parties_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Other Related Parties Current"
+    },
+    "gaap": [
+      "DueToOtherRelatedPartiesClassifiedCurrent"
+    ]
+  },
+  "due_affiliate_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Affiliate Current"
+    },
+    "gaap": [
+      "DueToAffiliateCurrent"
+    ]
+  },
+  "due_officers_stockholders_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Officers or Stockholders Current"
+    },
+    "gaap": [
+      "DueToOfficersOrStockholdersCurrent"
+    ]
+  },
+  "due_employees_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Employees Current"
+    },
+    "gaap": [
+      "DueToEmployeesCurrent"
+    ]
+  },
+  "payable_notes_related_parties_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Notes Payables to Related Parties"
+    },
+    "gaap": [
+      "NotesPayableRelatedPartiesClassifiedCurrent"
+    ]
+  },
+  "payable_trade_related_parties_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Trade Payables to Related Parties"
+    },
+    "gaap": [
+      "AccountsPayableRelatedPartiesCurrent"
+    ]
   },
   "government_assistance_liability_current": {
     "unit": "monetary",
@@ -22141,7 +22345,7 @@
       "InsuranceTax"
     ]
   },
-  "tax_liabilities_current": {
+  "deferred_tax_liabilities": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -22150,13 +22354,14 @@
       "short": "Current Tax Liabilities"
     },
     "gaap": [
-      "CurrentTaxLiabilities",
-      "CurrentTaxLiabilitiesCurrent",
-      "DeferredIncomeTaxLiabilitiesCurrent",
-      "DeferredTaxLiabilitiesCurrent"
-    ]
+      "CurrentTaxLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_liabilities_current + deferred_tax_liabilities_noncurrent"
+    }
   },
-  "tax_liabilities_noncurrent": {
+  "deferred_tax_liabilities_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
