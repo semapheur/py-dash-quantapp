@@ -6026,7 +6026,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current_Convertible Debt"
+      "long": "Noncurrent Convertible Debt"
     },
     "gaap": [
       "ConvertibleDebtNoncurrent"
@@ -6118,6 +6118,205 @@
     "gaap": [
       "LongTermDebtNoncurrent",
       "LongTermDebtNetOfCurrentPortion"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "longterm_lineof_credit + commercial_paper_noncurrent + loan_construction_noncurrent + debt_secured_longterm + debt_subordinated_longterm + debt_unsecured_longterm + debt_convertible_noncurrent + debt_convertible_subordinated_noncurrent + bond_transition_longterm + bond_pollution_control_longterm + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent + longterm_notes_loans + bond_special_assessment_noncurrent + loan_home_longterm_bank_advances_noncurrent + debt_longterm_other_noncurrent"
+    }
+  },
+  "debt_longterm_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Long-term Debt"
+    },
+    "gaap": [
+      "OtherLongTermDebtNoncurrent"
+    ]
+  },
+  "loan_home_longterm_bank_advances_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Long-term Federal Home Loan Bank Advances"
+    },
+    "gaap": [
+      "LongtermFederalHomeLoanBankAdvancesNoncurrent"
+    ]
+  },
+  "bond_special_assessment_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Special Assessmen Bond"
+    },
+    "gaap": [
+      "SpecialAssessmentBondNoncurrent"
+    ]
+  },
+  "longterm_notes_loans": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Notes and Loans"
+    },
+    "gaap": [
+      "LongTermNotesAndLoans"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payable_notes_longterm + payable_loans_longterm"
+    }
+  },
+  "payable_loans_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Loans Payable"
+    },
+    "gaap": [
+      "LongTermLoansPayable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_longterm_bank + payable_loans_other_longterm"
+    }
+  },
+  "payable_loans_other_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Long-term Loans Payable"
+    },
+    "gaap": [
+      "OtherLoansPayableLongTerm"
+    ]
+  },
+  "loans_longterm_bank": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Loans Payable"
+    },
+    "gaap": [
+      "LongTermLoansFromBank"
+    ]
+  },
+  "debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Junior Subordinated Debenture Owed to Unconsolidated Subsidiary Trust"
+    },
+    "gaap": [
+      "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrustNoncurrent"
+    ]
+  },
+  "bond_pollution_control_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Pollution Control Bond"
+    },
+    "gaap": [
+      "LongTermPollutionControlBond"
+    ]
+  },
+  "bond_transition_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Transition Bond"
+    },
+    "gaap": [
+      "LongTermTransitionBond"
+    ]
+  },
+  "debt_convertible_subordinated_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Convertible Subordinated Debt"
+    },
+    "gaap": [
+      "ConvertibleSubordinatedDebtNoncurrent"
+    ]
+  },
+  "debt_unsecured_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unsecured Long-term Debt"
+    },
+    "gaap": [
+      "UnsecuredLongTermDebt"
+    ]
+  },
+  "debt_subordinated_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Subordinated Long-term Debt"
+    },
+    "gaap": [
+      "SubordinatedLongTermDebt"
+    ]
+  },
+  "debt_secured_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Secured Long-term Debt"
+    },
+    "gaap": [
+      "SecuredLongTermDebt"
+    ]
+  },
+  "loan_construction_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Construction Loan"
+    },
+    "gaap": [
+      "ConstructionLoanNoncurrent"
+    ]
+  },
+  "commercial_paper_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Commercial Paper"
+    },
+    "gaap": [
+      "CommercialPaperNoncurrent"
+    ]
+  },
+  "longterm_lineof_credit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Line of Credit"
+    },
+    "gaap": [
+      "LongTermLineOfCredit"
     ]
   },
   "debt_principal_payment": {
@@ -6142,7 +6341,7 @@
     ],
     "calculation": {
       "order": 752,
-      "all": "debt_secured_current + debt_secured_noncurrent"
+      "all": "debt_secured_current + debt_secured_longterm"
     }
   },
   "debt_secured_current": {
@@ -6154,17 +6353,6 @@
     },
     "gaap": [
       "SecuredDebtCurrent"
-    ]
-  },
-  "debt_secured_noncurrent": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Long-term Secured Debt"
-    },
-    "gaap": [
-      "SecuredLongTermDebt"
     ]
   },
   "debt_shortterm": {
@@ -6242,7 +6430,7 @@
     ],
     "calculation": {
       "order": 758,
-      "all": "debt_unsecured_current + debt_unsecured_noncurrent"
+      "all": "debt_unsecured_current + debt_unsecured_longterm"
     }
   },
   "debt_unsecured_current": {
@@ -6254,17 +6442,6 @@
     },
     "gaap": [
       "UnsecuredDebtCurrent"
-    ]
-  },
-  "debt_unsecured_noncurrent": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Non-current Unsecured Debt"
-    },
-    "gaap": [
-      "UnsecuredLongTermDebt"
     ]
   },
   "deferred_income": {
@@ -6358,21 +6535,6 @@
     "calculation": {
       "order": 636,
       "any": "customer_contract_liability_current + deferred_income_current"
-    }
-  },
-  "deferred_revenue_noncurrent": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Non-current Deferred Revenue"
-    },
-    "gaap": [
-      "ContractWithCustomerLiabilityNoncurrent"
-    ],
-    "calculation": {
-      "order": 761,
-      "any": "customer_contract_liability_noncurrent + deferred_income_noncurrent"
     }
   },
   "deferred_tax_expense_stock_options_exercised": {
@@ -12323,33 +12485,19 @@
       "any": "lease_liabilities_finance_current + lease_liabilities_finance_noncurrent"
     }
   },
-  "lease_liabilities_finance_current": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Current Finance Lease Liabilities"
-    },
-    "gaap": [
-      "FinanceLeaseLiabilityCurrent"
-    ]
-  },
   "lease_liabilities_finance_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Long-term Finance Lease Liabilities"
+      "long": "Noncurrent Finance Lease Liabilities"
     },
     "gaap": [
-      "FinanceLeaseLiabilityNoncurrent"
-    ],
-    "calculation": {
-      "order": 1122,
-      "any": "lease_liabilities_finance_noncurrent_current_portion + lease_liabilities_finance_noncurrent_net_current_portion"
-    }
+      "FinanceLeaseLiabilityNoncurrent",
+      "FinanceLeaseLiabilityNetOfCurrentPortion"
+    ]
   },
-  "lease_liabilities_finance_noncurrent_current_portion": {
+  "lease_liabilities_finance_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -12357,18 +12505,8 @@
       "long": "Current portion of Long-term Finance Lease Liabilities"
     },
     "gaap": [
+      "FinanceLeaseLiabilityCurrent",
       "FinanceLeaseLiabilityCurrentPortion"
-    ]
-  },
-  "lease_liabilities_finance_noncurrent_net_current_portion": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Long-term Finance Lease Liabilities Net of Current Portion"
-    },
-    "gaap": [
-      "FinanceLeaseLiabilityNetOfCurrentPortion"
     ]
   },
   "lease_minimum_revenue": {
@@ -13043,7 +13181,7 @@
     ],
     "calculation": {
       "order": 1126,
-      "all": "deferred_compensation_liability_sharebased_current + deferred_compensation_liability_cashbased_current + deferred_compensation_liability_other_current"
+      "any": "deferred_compensation_liability_sharebased_current + deferred_compensation_liability_cashbased_current + deferred_compensation_liability_other_current"
     }
   },
   "deferred_compensation_liability_other_current": {
@@ -13107,7 +13245,106 @@
     "gaap": [
       "LiabilitiesNoncurrent",
       "NoncurrentLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "longterm_debt_capital_lease_obligations + liabilities_otherthan_longterm_debt_noncurrent"
+    }
+  },
+  "liabilities_otherthan_longterm_debt_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Longterm Debt and Capital Lease Obligations"
+    },
+    "gaap": [
+      "LiabilitiesOtherThanLongtermDebtNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "trade_payables_accrued_liabilities_noncurrent + deferred_revenue_noncurrent + deferred_compensation_liability_noncurrent + accumulated_deferred_investment_tax_credit + deferred_gain_sale_property + deferred_rent_credit_noncurrent + asset_retirement_obligations_noncurrent + deferred_income_tax_liabilities + liability_uncertain_tax_positions_noncurrent + pension_postretirement_postemployment_benefit_plans_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + shares_mandatory_redemption_settlement_terms_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + operating_lease_liability_noncurrent + liabilities_business_transferred_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liabilities_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent",
+      "AccountsPayableAndAccruedLiabilitiesNoncurrent + DeferredRevenueNoncurrent + DeferredCompensationLiabilityClassifiedNoncurrent + AccumulatedDeferredInvestmentTaxCredit + DeferredGainOnSaleOfProperty + DeferredRentCreditNoncurrent + AssetRetirementObligationsNoncurrent + DeferredIncomeTaxLiabilitiesNet + LiabilityForUncertainTaxPositionsNoncurrent + PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesNoncurrent + AccruedEnvironmentalLossContingenciesNoncurrent + CustomerRefundLiabilityNoncurrent + OffMarketLeaseUnfavorable + LeaseDepositLiability + SharesSubjectToMandatoryRedemptionSettlementTermsAmountNoncurrent + LitigationReserveNoncurrent + RegulatoryLiabilityNoncurrent + RestructuringReserveNoncurrent + LiabilitiesOfDisposalGroupIncludingDiscontinuedOperationNoncurrent + LiabilitiesOfBusinessTransferredUnderContractualArrangementNoncurrent + OtherLiabilitiesNoncurrent + OperatingLeaseLiabilityNoncurrent + SelfInsuranceReserveNoncurrent + ProgramRightsObligationsNoncurrent + BusinessCombinationContingentConsiderationLiabilityNoncurrent + DerivativeInstrumentsAndHedgesLiabilitiesNoncurrent + QualifiedAffordableHousingProjectInvestmentsCommitment + GovernmentAssistanceLiabilityNoncurrent"
+    }
+  },
+  "deferred_compensation_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationLiabilityClassifiedNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_compensation_liability_sharebased_noncurrent + deferred_compensation_liability_cashbased_noncurrent + deferred_compensation_liability_other_noncurrent",
+      "DeferredCompensationSharebasedArrangementsLiabilityClassifiedNoncurrent + DeferredCompensationCashbasedArrangementsLiabilityClassifiedNoncurrent + OtherDeferredCompensationArrangementsLiabilityClassifiedNoncurrent"
+    }
+  },
+  "deferred_compensation_liability_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Noncurrent Compensation Liability"
+    },
+    "gaap": [
+      "OtherDeferredCompensationArrangementsLiabilityClassifiedNoncurrent"
     ]
+  },
+  "deferred_compensation_liability_cashbased_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Cash-based Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationCashbasedArrangementsLiabilityClassifiedNoncurrent"
+    ]
+  },
+  "deferred_compensation_liability_sharebased_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Share-based Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationSharebasedArrangementsLiabilityClassifiedNoncurrent"
+    ]
+  },
+  "deferred_revenue_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Longterm Debt and Capital Lease Obligations"
+    },
+    "gaap": [
+      "DeferredRevenueNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "customer_contract_liability_noncurrent + deferred_income_noncurrent"
+    }
+  },
+  "longterm_debt_capital_lease_obligations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Longterm Debt and Capital Lease Obligations"
+    },
+    "gaap": [
+      "LongTermDebtAndCapitalLeaseObligations"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "debt_longterm_noncurrent + lease_liabilities_finance_noncurrent"
+    }
   },
   "liability_future_policy_benefits_period_expense": {
     "unit": "monetary",
@@ -14713,6 +14950,76 @@
     "gaap": [
       "LongTermNotesPayable",
       "NotesPayableNoncurrentNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "notes_mediumterm_noncurrent + notes_junior_subordinated_longterm + notes_senior_longterm + payable_notes_convertible_longterm + payable_notes_bank_noncurrent + payable_notes_other_longterm"
+    }
+  },
+  "payable_notes_other_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Long-term Notes Payable"
+    },
+    "gaap": [
+      "OtherLongTermNotesPayable"
+    ]
+  },
+  "payable_notes_bank_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Notes Payable to Bank"
+    },
+    "gaap": [
+      "NotesPayableToBankNoncurrent"
+    ]
+  },
+  "payable_notes_convertible_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Convertible Notes Payable"
+    },
+    "gaap": [
+      "ConvertibleLongTermNotesPayable"
+    ]
+  },
+  "notes_senior_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Senior Notes"
+    },
+    "gaap": [
+      "SeniorLongTermNotes"
+    ]
+  },
+  "notes_junior_subordinated_longterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Junior Subordinated Notes"
+    },
+    "gaap": [
+      "JuniorSubordinatedLongTermNotes"
+    ]
+  },
+  "notes_mediumterm_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Medium-term Notes"
+    },
+    "gaap": [
+      "MediumtermNotesNoncurrent"
     ]
   },
   "payable_notes_other": {
@@ -14948,8 +15255,80 @@
     ],
     "calculation": {
       "order": 1211,
-      "all": "payable_noncurrent + accrued_expenses_noncurrent"
+      "all": "payable_noncurrent + accrued_expenses_noncurrent",
+      "any": "accrued_insurance_noncurrent + payable_retention_noncurrent + accrued_tax_income_noncurrent + accrued_rent_noncurrent + accrued_product_warranty_noncurrent + payable_interest_bearing_noncurrent + accrued_expenses_other_noncurrent + workers_compensation_liability_noncurrent"
     }
+  },
+  "workers_compensation_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Workers Compensation Liability"
+    },
+    "gaap": [
+      "WorkersCompensationLiabilityNoncurrent"
+    ]
+  },
+  "payable_interest_bearing_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Interest Bearing Payables"
+    },
+    "gaap": [
+      "AccountsPayableInterestBearingNoncurrent"
+    ]
+  },
+  "accrued_product_warranty_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Product Warranty Accrual"
+    },
+    "gaap": [
+      "ProductWarrantyAccrualNoncurrent"
+    ]
+  },
+  "accrued_rent_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Rent"
+    },
+    "gaap": [
+      "AccruedRentNoncurrent"
+    ]
+  },
+  "payable_retention_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Retention Payable"
+    },
+    "gaap": [
+      "RetentionPayableDueAfterOneYear"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "",
+      "RetentionPayableDueThreeToFourYears + RetentionPayableDueFourToFiveYears + RetentionPayableDueOneToTwoYears + RetentionPayableDueTwoToThreeYears + RetentionPayableDueFiveYearsOrMore"
+    }
+  },
+  "accrued_insurance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Insurance"
+    },
+    "gaap": [
+      "AccruedInsuranceNoncurrent"
+    ]
   },
   "payment_acquire_life_insurance_policy": {
     "unit": "monetary",
