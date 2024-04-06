@@ -1776,7 +1776,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Net Investment in Lease Allowance For Credit Loss"
+      "long": "Current Net Investment in Lease Allowance for Credit Loss"
     },
     "gaap": [
       "NetInvestmentInLeaseAllowanceForCreditLossCurrent"
@@ -2785,8 +2785,430 @@
     ],
     "calculation": {
       "order": 231,
-      "any": "productive_assets + intangible_assets + goodwill + investments_noncurrent + other_assets_noncurrent"
+      "old": "productive_assets + intangible_assets + goodwill + investments_noncurrent + other_assets_noncurrent",
+      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + property_plant_equipment + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_postallowance_noncurrent + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expenses_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_income_tax_asset + business_combination_contingent_asset_noncurrent + assets_other_noncurrent + investment_qualified_affordable_housing_project + receivable_other_postallowance_noncurrent + cumulative_government_assistance_noncurrent",
+      "InventoryNoncurrent + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + NetInvestmentInLeaseNoncurrent - NetInvestmentInLeaseAllowanceForCreditLossNoncurrent + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + InventoryRealEstate + NontradeReceivablesNoncurrent + PropertyPlantAndEquipmentNet + PropertyPlantAndEquipmentCollectionsNotCapitalized + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossNoncurrent + OilAndGasPropertySuccessfulEffortMethodNet + OilAndGasPropertyFullCostMethodNet + LongTermInvestmentsAndReceivablesNet + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseNoncurrent + ContractWithCustomerAssetNetNoncurrent + CapitalizedContractCostNetNoncurrent + DerivativeInstrumentsAndHedgesNoncurrent + RegulatedEntityOtherAssetsNoncurrent + DepositsAssetsNoncurrent + DeferredRentReceivablesNetNoncurrent + AssetsHeldInTrustNoncurrent + RestrictedCashAndInvestmentsNoncurrent + DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent + AdvanceRoyaltiesNoncurrent + EstimatedInsuranceRecoveries + CustomerFunds + DeferredCosts + DeferredIncomeTaxAssetsNet + BusinessCombinationContingentConsiderationAssetNoncurrent + OtherAssetsNoncurrent + AmortizationMethodQualifiedAffordableHousingProjectInvestments + OtherReceivableAfterAllowanceForCreditLossNoncurrent + GovernmentAssistanceAmountCumulativeNoncurrent"
     }
+  },
+  "inventory_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Inventory"
+    },
+    "gaap": [
+      "InventoryRealEstate"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventor_real_estate_improvements + inventory_real_estate_heldforsale + inventory_real_estate_land_land_development_costs + inventory_real_estate_construction_inprocess + inventory_real_estate_mortgage_loans_heldininventory + inventory_operative_builders + inventory_real_estate_timeshare_availableforsale + inventory_real_estate_other"
+    }
+  },
+  "inventory_real_estate_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Real Estate Inventory"
+    },
+    "gaap": [
+      "InventoryRealEstateOther"
+    ]
+  },
+  "inventory_real_estate_timeshare_availableforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Timeshare Real Estate Inventory Available-for-Sale"
+    },
+    "gaap": [
+      "InventoryRealEstateTimeshareAvailableForSale"
+    ]
+  },
+  "inventory_operative_builders": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Operative Builders Inventory"
+    },
+    "gaap": [
+      "InventoryOperativeBuilders"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventory_homes_under_construction + inventory_homes_finished + inventory_land_heldfor_development_sale + inventory_buildings_improvements + inventory_real_estate_capitalized_interest_costs + land_under_purchase_options_recorded + inventory_real_estate_construction_materials + inventory_land_heldforsale + inventory_operative_builders_other"
+    }
+  },
+  "inventory_operative_builders_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Operative Builders Inventory"
+    },
+    "gaap": [
+      "InventoryOperativeBuildersOther"
+    ]
+  },
+  "inventory_land_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-for-Sale Land Inventory"
+    },
+    "gaap": [
+      "InventoryLandHeldForSale"
+    ]
+  },
+  "inventory_real_estate_construction_materials": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Inventory Construction Materials"
+    },
+    "gaap": [
+      "RealEstateInventoryConstructionMaterials"
+    ]
+  },
+  "land_under_purchase_options_recorded": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land under Purchase Options Recorded"
+    },
+    "gaap": [
+      "LandUnderPurchaseOptionsRecorded"
+    ]
+  },
+  "inventory_real_estate_capitalized_interest_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Buildings and Improvements Inventory"
+    },
+    "gaap": [
+      "RealEstateInventoryCapitalizedInterestCosts"
+    ]
+  },
+  "inventory_buildings_improvements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Buildings and Improvements Inventory"
+    },
+    "gaap": [
+      "InventoryBuildingsAndImprovements"
+    ]
+  },
+  "inventory_land_heldfor_development_sale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land Held for Development and Sale Inventory"
+    },
+    "gaap": [
+      "InventoryLandHeldForDevelopmentAndSale"
+    ]
+  },
+  "inventory_homes_finished": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Finished Homes Inventory"
+    },
+    "gaap": [
+      "InventoryFinishedHomes"
+    ]
+  },
+  "inventory_homes_under_construction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Homes under Construction Inventory"
+    },
+    "gaap": [
+      "InventoryHomesUnderConstruction"
+    ]
+  },
+  "inventory_real_estate_mortgage_loans_heldininventory": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Mortgage Loans Held in Inventory"
+    },
+    "gaap": [
+      "InventoryRealEstateMortgageLoansHeldInInventory"
+    ]
+  },
+  "inventory_real_estate_construction_inprocess": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Inventory Construction in Process"
+    },
+    "gaap": [
+      "InventoryRealEstateConstructionInProcess"
+    ]
+  },
+  "inventory_real_estate_land_land_development_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land and Land Development Costs of Real Estate Inventory"
+    },
+    "gaap": [
+      "InventoryRealEstateLandAndLandDevelopmentCosts"
+    ]
+  },
+  "inventory_real_estate_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-for-Sale Real Estate Inventory"
+    },
+    "gaap": [
+      "InventoryRealEstateHeldForSale"
+    ]
+  },
+  "inventor_real_estate_improvements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Inventory Improvements"
+    },
+    "gaap": [
+      "InventoryRealEstateImprovements"
+    ]
+  },
+  "investment_lease_leveraged": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Investment in Leveraged Lease"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_lease_leveraged_tax_credit_receivable + investment_lease_leveraged_residual_value - investment_lease_leveraged_deferred_income + investment_lease_leveraged_deferred_taxes + investment_lease_leveraged_rental_receivables"
+    }
+  },
+  "investment_lease_leveraged_rental_receivables": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Rental Receivable from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureRentalReceivablesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_lease_leveraged_rental_receivables_gross - investment_lease_leveraged_nonrecourse_debt_service"
+    }
+  },
+  "investment_lease_leveraged_nonrecourse_debt_service": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Nonrecourse Debt Service from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureNonrecourseDebtService"
+    ]
+  },
+  "investment_lease_leveraged_rental_receivables_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Rental Receivable from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureRentalReceivablesGross"
+    ]
+  },
+  "investment_lease_leveraged_deferred_taxes": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Taxes from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureDeferredTaxesArisingFromLeveragedLeases"
+    ]
+  },
+  "investment_lease_leveraged_deferred_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Income from Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureDeferredIncome"
+    ]
+  },
+  "investment_lease_leveraged_residual_value": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Residual Value of Leveraged Lease Assets"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureResidualValueOfLeasedAssets"
+    ]
+  },
+  "investment_lease_leveraged_tax_credit_receivable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Leveraged Lease Tax Credit Receivable"
+    },
+    "gaap": [
+      "LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentTaxCreditReceivable"
+    ]
+  },
+  "investment_lease_noncurrent_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investment in Lease Allowance of Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_lease_sales_type_noncurrent_allowance + investment_lease_direct_financing_noncurrent_allowance"
+    }
+  },
+  "investment_lease_direct_financing_noncurrent_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investment in Direct Financing Lease Allowance of Credit Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "investment_lease_sales_type_noncurrent_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investment in Sales Type Lease Allowance of Credit Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "investment_lease_noncurrent_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investment in Lease Before Allowance of Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investment_lease_sales_type_noncurrent_preallowance + investment_lease_direct_financing_noncurrent_preallowance"
+    }
+  },
+  "investment_lease_direct_financing_noncurrent_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investment in Direct Financing Lease Before Allowance of Credit Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "investment_lease_sales_type_noncurrent_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investment in Sales Type Lease Before Allowance of Credit Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "operating_lease_asset": {
+    "unit": "monetary",
+    "aggregate": "average",
+    "label": {
+      "long": "Operating Right-of-use Lease Assets"
+    },
+    "gaap": [
+      "OperatingLeaseRightOfUseAsset"
+    ]
+  },
+  "finance_lease_asset": {
+    "unit": "monetary",
+    "aggregate": "average",
+    "label": {
+      "long": "Finance Right-of-use Lease Assets"
+    },
+    "gaap": [
+      "FinanceLeaseRightOfUseAsset"
+    ],
+    "calculation": {
+      "order": 233,
+      "any": "finance_lease_asset_gross - finance_lease_asset_accumulated_amortization"
+    }
+  },
+  "finance_lease_asset_accumulated_amortization": {
+    "unit": "monetary",
+    "aggregate": "average",
+    "label": {
+      "long": "Accumulated Amortization of Finance Right-of-use Lease Assets"
+    },
+    "gaap": [
+      "FinanceLeaseRightOfUseAssetAccumulatedAmortization"
+    ]
+  },
+  "finance_lease_asset_gross": {
+    "unit": "monetary",
+    "aggregate": "average",
+    "label": {
+      "long": "Gross Finance Right-of-use Lease Assets"
+    },
+    "gaap": [
+      "FinanceLeaseRightOfUseAssetBeforeAccumulatedAmortization"
+    ]
   },
   "average_assets": {
     "unit": "monetary",
@@ -10394,6 +10816,43 @@
     },
     "gaap": [
       "InventoryNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "inventory_drilling_noncurrent + inventory_gas_storage_noncurrent + inventory_other_noncurrent"
+    }
+  },
+  "inventory_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Non-current Other Inventory"
+    },
+    "gaap": [
+      "OtherInventoryNoncurrent"
+    ]
+  },
+  "inventory_gas_storage_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Non-current Gas in Storage Inventory"
+    },
+    "gaap": [
+      "InventoryGasInStorageUndergroundNoncurrent"
+    ]
+  },
+  "inventory_drilling_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Non-current Drilling Inventory"
+    },
+    "gaap": [
+      "InventoryDrillingNoncurrent"
     ]
   },
   "inventory_reserve_effect": {
