@@ -2786,9 +2786,526 @@
     "calculation": {
       "order": 231,
       "old": "productive_assets + intangible_assets + goodwill + investments_noncurrent + other_assets_noncurrent",
-      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + property_plant_equipment + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expenses_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_income_tax_asset + business_combination_contingent_asset_noncurrent + assets_other_noncurrent + investment_qualified_affordable_housing_project + receivable_other_postallowance_noncurrent + cumulative_government_assistance_noncurrent",
-      "InventoryNoncurrent + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + NetInvestmentInLeaseNoncurrent - NetInvestmentInLeaseAllowanceForCreditLossNoncurrent + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + InventoryRealEstate + NontradeReceivablesNoncurrent + PropertyPlantAndEquipmentNet + PropertyPlantAndEquipmentCollectionsNotCapitalized + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossNoncurrent + OilAndGasPropertySuccessfulEffortMethodNet + OilAndGasPropertyFullCostMethodNet + LongTermInvestmentsAndReceivablesNet + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseNoncurrent + ContractWithCustomerAssetNetNoncurrent + CapitalizedContractCostNetNoncurrent + DerivativeInstrumentsAndHedgesNoncurrent + RegulatedEntityOtherAssetsNoncurrent + DepositsAssetsNoncurrent + DeferredRentReceivablesNetNoncurrent + AssetsHeldInTrustNoncurrent + RestrictedCashAndInvestmentsNoncurrent + DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent + AdvanceRoyaltiesNoncurrent + EstimatedInsuranceRecoveries + CustomerFunds + DeferredCosts + DeferredIncomeTaxAssetsNet + BusinessCombinationContingentConsiderationAssetNoncurrent + OtherAssetsNoncurrent + AmortizationMethodQualifiedAffordableHousingProjectInvestments + OtherReceivableAfterAllowanceForCreditLossNoncurrent + GovernmentAssistanceAmountCumulativeNoncurrent"
+      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + property_plant_equipment + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expense_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_tax_assets_liabilities_noncurrent + business_combination_contingent_asset_noncurrent + other_assets_noncurrent + investment_qualified_affordable_housing_project + receivable_other_postallowance_noncurrent + cumulative_government_assistance_noncurrent",
+      "InventoryNoncurrent + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + NetInvestmentInLeaseNoncurrent - NetInvestmentInLeaseAllowanceForCreditLossNoncurrent + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + InventoryRealEstate + NontradeReceivablesNoncurrent + PropertyPlantAndEquipmentNet + PropertyPlantAndEquipmentCollectionsNotCapitalized + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossNoncurrent + OilAndGasPropertySuccessfulEffortMethodNet + OilAndGasPropertyFullCostMethodNet + LongTermInvestmentsAndReceivablesNet + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseNoncurrent + ContractWithCustomerAssetNetNoncurrent + CapitalizedContractCostNetNoncurrent + DerivativeInstrumentsAndHedgesNoncurrent + RegulatedEntityOtherAssetsNoncurrent + DepositsAssetsNoncurrent + DeferredRentReceivablesNetNoncurrent + AssetsHeldInTrustNoncurrent + RestrictedCashAndInvestmentsNoncurrent + DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent + AdvanceRoyaltiesNoncurrent + EstimatedInsuranceRecoveries + CustomerFunds + DeferredCosts + DeferredTaxAssetsLiabilitiesNetNoncurrent + BusinessCombinationContingentConsiderationAssetNoncurrent + OtherAssetsNoncurrent + AmortizationMethodQualifiedAffordableHousingProjectInvestments + OtherReceivableAfterAllowanceForCreditLossNoncurrent + GovernmentAssistanceAmountCumulativeNoncurrent"
     }
+  },
+  "cumulative_government_assistance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Cumulative Government Assistance"
+    },
+    "gaap": [
+      "GovernmentAssistanceAmountCumulativeNoncurrent"
+    ]
+  },
+  "receivable_other_postallowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Receivable After Allowance for Credit Loss"
+    },
+    "gaap": [
+      "OtherReceivableAfterAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "",
+      "OtherReceivableBeforeAllowanceForCreditLossNoncurrent - OtherReceivableAllowanceForCreditLossNoncurrent"
+    }
+  },
+  "investment_qualified_affordable_housing_project": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Amortization Method Qualified Affordable Housing Project Investments"
+    },
+    "gaap": [
+      "AmortizationMethodQualifiedAffordableHousingProjectInvestments"
+    ]
+  },
+  "business_combination_contingent_asset_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Business Combination Contingent Consideration Asset"
+    },
+    "gaap": [
+      "BusinessCombinationContingentConsiderationAssetNoncurrent"
+    ]
+  },
+  "deferred_tax_assets_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Tax Assets (Liabilities)"
+    },
+    "gaap": [
+      "DeferredTaxAssetsLiabilitiesNetNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "",
+      "DeferredTaxAssetsNetNoncurrent - DeferredTaxLiabilitiesNoncurrent"
+    }
+  },
+  "deferred_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Costs"
+    },
+    "gaap": [
+      "DeferredCosts"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "",
+      "DeferredFinanceCostsNoncurrentNet + DeferredCostsLeasingNetNoncurrent + DeferredSetUpCostsNoncurrent + DeferredSubscriberAcquisitionCostsNoncurrent + IncentiveToLessee + DeferredSalesCommission + DeferredAdvertisingCosts + CapitalizedSoftwareDevelopmentCostsForSoftwareSoldToCustomers + DeferredCompensationPlanAssets"
+    }
+  },
+  "customer_funds": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Customer Funds"
+    },
+    "gaap": [
+      "CustomerFunds"
+    ]
+  },
+  "estimated_insurance_recoveries": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Estimated Insurance Recoveries"
+    },
+    "gaap": [
+      "EstimatedInsuranceRecoveries"
+    ]
+  },
+  "advance_royalties_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Advance Royalties"
+    },
+    "gaap": [
+      "AdvanceRoyaltiesNoncurrent"
+    ]
+  },
+  "disposal_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restricted Cash and Investments"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "restricted_cash_cash_equivalents_noncurrent + restricted_investments_noncurrent + other_restricted_assets_noncurrent",
+      "DisposalGroupIncludingDiscontinuedOperationOtherNoncurrentAssets + DisposalGroupIncludingDiscontinuedOperationInventoryNoncurrent + DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetsNoncurrent + DisposalGroupIncludingDiscontinuedOperationIntangibleAssetsNoncurrent + DisposalGroupIncludingDiscontinuedOperationGoodwillNoncurrent + DisposalGroupIncludingDiscontinuedOperationCapitalLeasedAssetsNoncurrent + DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentNoncurrent"
+    }
+  },
+  "restricted_cash_investments_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restricted Cash and Investments"
+    },
+    "gaap": [
+      "RestrictedCashAndInvestmentsNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "restricted_cash_cash_equivalents_noncurrent + restricted_investments_noncurrent + other_restricted_assets_noncurrent"
+    }
+  },
+  "other_restricted_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Restricted Assets"
+    },
+    "gaap": [
+      "OtherRestrictedAssetsNoncurrent"
+    ]
+  },
+  "restricted_investments_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restricted Investments"
+    },
+    "gaap": [
+      "RestrictedInvestmentsNoncurrent"
+    ]
+  },
+  "restricted_cash_cash_equivalents_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restricted Cash and Cash Equivalents"
+    },
+    "gaap": [
+      "RestrictedCashAndCashEquivalentsNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "restricted_cash_noncurrent + restricted_cash_equivalents_noncurrent"
+    }
+  },
+  "restricted_cash_equivalents_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restricted Cash Equivalents"
+    },
+    "gaap": [
+      "RestrictedCashEquivalentsNoncurrent"
+    ]
+  },
+  "restricted_cash_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restricted Cash"
+    },
+    "gaap": [
+      "RestrictedCashNoncurrent"
+    ]
+  },
+  "assets_heldintrust_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Assets Held in Trust"
+    },
+    "gaap": [
+      "AssetsHeldInTrustNoncurrent"
+    ]
+  },
+  "receivable_deferred_rent_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Rent Receivables Net"
+    },
+    "gaap": [
+      "DeferredRentReceivablesNetNoncurrent"
+    ]
+  },
+  "deposit_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deposit Assets"
+    },
+    "gaap": [
+      "DepositsAssetsNoncurrent"
+    ]
+  },
+  "regulated_entity_other_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Derivative Assets and Hedges"
+    },
+    "gaap": [
+      "RegulatedEntityOtherAssetsNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "regulatory_assets_noncurrent + securitized_regulatory_transition_assets_noncurrent + demand_side_management_program_costs_noncurrent + unamortized_loss_reacquired_debt_noncurrent + investments_decommissioning_fund + asset_recovery_damaged_property_costs_noncurrent + deferred_storm_property_reserve_deficiency_noncurrent + investments_power_distribution_projects + unamortized_debt_issuance_expense + phase_in_plan_amount_costs_deferred_for_rate_making_purposes"
+    }
+  },
+  "phase_in_plan_amount_costs_deferred_for_rate_making_purposes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Phase In Plan Amount of Costs Deferred for Rate Making Purposes"
+    },
+    "gaap": [
+      "PhaseInPlanAmountOfCostsDeferredForRateMakingPurposes"
+    ]
+  },
+  "unamortized_debt_issuance_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unamortized Debt Issuance Expense"
+    },
+    "gaap": [
+      "UnamortizedDebtIssuanceExpense"
+    ]
+  },
+  "investments_power_distribution_projects": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Investments in Power and Distribution Projects"
+    },
+    "gaap": [
+      "InvestmentsInPowerAndDistributionProjects"
+    ]
+  },
+  "deferred_storm_property_reserve_deficiency_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Storm and Property Reserve Deficiency"
+    },
+    "gaap": [
+      "DeferredStormAndPropertyReserveDeficiencyNoncurrent"
+    ]
+  },
+  "asset_recovery_damaged_property_costs_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Asset Recovery Damaged Property Costs"
+    },
+    "gaap": [
+      "AssetRecoveryDamagedPropertyCostsNoncurrent"
+    ]
+  },
+  "investments_decommissioning_fund": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Decommissioning Fund Investments"
+    },
+    "gaap": [
+      "DecommissioningFundInvestments"
+    ]
+  },
+  "unamortized_loss_reacquired_debt_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Unamortized Loss Reacquired Debt"
+    },
+    "gaap": [
+      "UnamortizedLossReacquiredDebtNoncurrent"
+    ]
+  },
+  "demand_side_management_program_costs_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Demand-side Management Program Costs"
+    },
+    "gaap": [
+      "DemandSideManagementProgramCostsNoncurrent"
+    ]
+  },
+  "securitized_regulatory_transition_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Securitized Regulatory Transition Assets"
+    },
+    "gaap": [
+      "SecuritizedRegulatoryTransitionAssetsNoncurrent"
+    ]
+  },
+  "regulatory_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Regulatory Assets"
+    },
+    "gaap": [
+      "RegulatoryAssetsNoncurrent"
+    ]
+  },
+  "derivatives_hedges_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Derivative Assets and Hedges"
+    },
+    "gaap": [
+      "DerivativeInstrumentsAndHedgesNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "derivative_assets_noncurrent + hedging_assets_noncurrent + commodity_contract_asset_noncurrent + energy_marketing_contracts_assets_noncurrent + gas_purchase_contract_noncurrent"
+    }
+  },
+  "gas_purchase_contract_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Gas Purchase Contract"
+    },
+    "gaap": [
+      "GasPurchaseContractNet"
+    ]
+  },
+  "energy_marketing_contracts_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Energy Marketing Contract Assets"
+    },
+    "gaap": [
+      "EnergyMarketingContractsAssetsNoncurrent"
+    ]
+  },
+  "commodity_contract_asset_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Commodity Contract Asset"
+    },
+    "gaap": [
+      "CommodityContractAssetNoncurrent"
+    ]
+  },
+  "hedging_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Hedging Assets"
+    },
+    "gaap": [
+      "HedgingAssetsNoncurrent"
+    ]
+  },
+  "derivative_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Derivative Assets"
+    },
+    "gaap": [
+      "DerivativeAssetsNoncurrent"
+    ]
+  },
+  "capitalized_contract_cost_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Capitalized Contract Cost"
+    },
+    "gaap": [
+      "CapitalizedContractCostNetNoncurrent"
+    ]
+  },
+  "customer_contract_asset_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetNetNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "customer_contract_asset_noncurrent_gross - customer_contract_asset_noncurrent_accumulated_allowance"
+    }
+  },
+  "customer_contract_asset_noncurrent_accumulated_allowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Contract with Customer Asset Accumulated Allowance for Credit Loss"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetAccumulatedAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "customer_contract_asset_noncurrent_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Gross Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetGrossNoncurrent"
+    ]
+  },
+  "prepaid_expense_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Prepaid Expense"
+    },
+    "gaap": [
+      "PrepaidExpenseNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "prepaid_expense_other_noncurrent - prepaid_mineral_royalties_noncurrent"
+    }
+  },
+  "prepaid_mineral_royalties_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Prepaid Mineral Royalties"
+    },
+    "gaap": [
+      "PrepaidMineralRoyaltiesNoncurrent"
+    ]
+  },
+  "prepaid_expense_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Prepaid Expense"
+    },
+    "gaap": [
+      "PrepaidExpenseOtherNoncurrent"
+    ]
   },
   "longterm_investments_receivables": {
     "unit": "monetary",
