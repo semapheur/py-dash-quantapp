@@ -688,7 +688,7 @@
       "AccumulatedImpairmentLosses"
     ]
   },
-  "accumulated_impairment_goodwill": {
+  "goodwill_accumulated_impairment": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1855,7 +1855,7 @@
   },
   "customer_contract_assets_current_allowance": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Current Contract with Customer Asset Accumulated Allowance for Credit Loss"
@@ -2194,7 +2194,7 @@
   },
   "investments_lease_direct_financing_current_allowance": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Current Investment in Direct Financing Leases Allowance for Credit Loss"
@@ -2786,9 +2786,131 @@
     "calculation": {
       "order": 231,
       "old": "productive_assets + intangible_assets + goodwill + investments_noncurrent + other_assets_noncurrent",
-      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + property_plant_equipment + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_postallowance_noncurrent + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expenses_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_income_tax_asset + business_combination_contingent_asset_noncurrent + assets_other_noncurrent + investment_qualified_affordable_housing_project + receivable_other_postallowance_noncurrent + cumulative_government_assistance_noncurrent",
+      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + property_plant_equipment + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expenses_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_income_tax_asset + business_combination_contingent_asset_noncurrent + assets_other_noncurrent + investment_qualified_affordable_housing_project + receivable_other_postallowance_noncurrent + cumulative_government_assistance_noncurrent",
       "InventoryNoncurrent + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + NetInvestmentInLeaseNoncurrent - NetInvestmentInLeaseAllowanceForCreditLossNoncurrent + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + InventoryRealEstate + NontradeReceivablesNoncurrent + PropertyPlantAndEquipmentNet + PropertyPlantAndEquipmentCollectionsNotCapitalized + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossNoncurrent + OilAndGasPropertySuccessfulEffortMethodNet + OilAndGasPropertyFullCostMethodNet + LongTermInvestmentsAndReceivablesNet + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseNoncurrent + ContractWithCustomerAssetNetNoncurrent + CapitalizedContractCostNetNoncurrent + DerivativeInstrumentsAndHedgesNoncurrent + RegulatedEntityOtherAssetsNoncurrent + DepositsAssetsNoncurrent + DeferredRentReceivablesNetNoncurrent + AssetsHeldInTrustNoncurrent + RestrictedCashAndInvestmentsNoncurrent + DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent + AdvanceRoyaltiesNoncurrent + EstimatedInsuranceRecoveries + CustomerFunds + DeferredCosts + DeferredIncomeTaxAssetsNet + BusinessCombinationContingentConsiderationAssetNoncurrent + OtherAssetsNoncurrent + AmortizationMethodQualifiedAffordableHousingProjectInvestments + OtherReceivableAfterAllowanceForCreditLossNoncurrent + GovernmentAssistanceAmountCumulativeNoncurrent"
     }
+  },
+  "longterm_investments_receivables": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Longterm Investments and Receivables"
+    },
+    "gaap": [
+      "LongTermInvestmentsAndReceivablesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_longterm - receivable_noncurrent"
+    }
+  },
+  "petroleum_property_full_cost_method": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Full Cost Method Petroleum Property"
+    },
+    "gaap": [
+      "OilAndGasPropertyFullCostMethodNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "petroleum_property_fill_cost_method_gross - petroleum_property_full_cost_method_depletion"
+    }
+  },
+  "petroleum_property_full_cost_method_depletion": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Full Cost Method Petroleum Property Depletion"
+    },
+    "gaap": [
+      "OilAndGasPropertyFullCostMethodDepletion"
+    ]
+  },
+  "petroleum_property_fill_cost_method_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Full Cost Method Petroleum Property"
+    },
+    "gaap": [
+      "OilAndGasPropertyFullCostMethodGross"
+    ]
+  },
+  "petroleum_property_successful_effort_method": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Succesfull Effort Method Petroleum Property"
+    },
+    "gaap": [
+      "OilAndGasPropertySuccessfulEffortMethodNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "petroleum_property_successful_effort_method_gross - petroleum_property_successful_effort_method_accumulated_depletion_amortization_impairment + petroleum_property_successful_effort_method_other"
+    }
+  },
+  "petroleum_property_successful_effort_method_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Succesful Effort Method Petroleum Property"
+    },
+    "gaap": [
+      "OtherOilAndGasPropertySuccessfulEffortMethod"
+    ]
+  },
+  "petroleum_property_successful_effort_method_accumulated_depletion_amortization_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Succesful Effort Method Petroleum Property Accumulated Depreciation, Depletion, Amortization and Impairment"
+    },
+    "gaap": [
+      "OilAndGasPropertySuccessfulEffortMethodAccumulatedDepreciationDepletionAmortizationAndImpairment"
+    ]
+  },
+  "petroleum_property_successful_effort_method_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Succesful Effort Method Petroleum Property"
+    },
+    "gaap": [
+      "OilAndGasPropertySuccessfulEffortMethodGross"
+    ]
+  },
+  "securities_availableforsale_debt_accrued_interest_noncurrent_postallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Interest from Available-for-Sale Debt Securities after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "property_plant_equipment_collections_noncapitalized": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Collections not Capitalized from Property Plant and Equipment"
+    },
+    "gaap": [
+      "PropertyPlantAndEquipmentCollectionsNotCapitalized"
+    ]
   },
   "inventory_real_estate": {
     "unit": "monetary",
@@ -4789,7 +4911,7 @@
     ],
     "calculation": {
       "order": 492,
-      "any": "credit_loss_allowance_receivable_current + credit_loss_allowance_securities_marketable_current"
+      "any": "receivable_current_allowance + securities_marketable_current_allowance"
     }
   },
   "credit_loss_allowance_noncurrent": {
@@ -4886,6 +5008,7 @@
   },
   "receivable_trade_current_allowance": {
     "unit": "monetary",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Allowance for Expected Credit Loss of Current Trade Receivables",
@@ -4899,7 +5022,7 @@
       "AllowanceForDoubtfulAccountsTradeReceivablesCurrent"
     ]
   },
-  "credit_loss_allowance_receivable_trade_related_parties_current": {
+  "receivable_trade_related_parties_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4911,7 +5034,7 @@
       "AllowanceForDoubtfulAccountsReceivableFromRelatedPartiesCurrent"
     ]
   },
-  "credit_loss_allowance_sales_returns": {
+  "sales_returns_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4923,7 +5046,7 @@
       "AllowanceforSalesReturnsCurrent"
     ]
   },
-  "credit_loss_allowance_securities_availableforsale": {
+  "securities_availableforsale_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4935,7 +5058,7 @@
       "AvailableForSaleSecuritiesAllowanceForCreditLoss"
     ]
   },
-  "credit_loss_allowance_securities_availableforsale_debt": {
+  "securities_availableforsale_debt_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4948,10 +5071,10 @@
     ],
     "calculation": {
       "order": 710,
-      "all": "credit_allowance_securities_availableforsale_debt_current + credit_loss_allowance_securities_availableforsale_debt_noncurrent"
+      "all": "securities_availableforsale_debt_current_allowance + securities_availableforsale_debt_noncurrent_allowance"
     }
   },
-  "credit_loss_allowance_securities_availableforsale_debt_current": {
+  "securities_availableforsale_debt_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -4963,7 +5086,7 @@
       "DebtSecuritiesAvailableForSaleAllowanceForCreditLossCurrent"
     ]
   },
-  "credit_loss_allowance_securities_heldtomaturity_debt": {
+  "securities_heldtomaturity_debt_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -7311,7 +7434,7 @@
     ],
     "calculation": {
       "order": 517,
-      "any": "gain_loss_realized_securities_heldfortrading + gain_loss_realized_securities_availableforsale_excluding_impairment + gain_loss__realized_securities_heldtomaturity_excluding_impairment"
+      "any": "gain_loss_realized_securities_heldfortrading + gain_loss_realized_securities_availableforsale_excluding_impairment + gain_loss_realized_securities_heldtomaturity_excluding_impairment"
     }
   },
   "gain_loss_realized_securities_heldfortrading": {
@@ -8392,7 +8515,7 @@
     ],
     "calculation": {
       "order": 222,
-      "all": "goodwill_gross - accumulated_impairment_goodwill"
+      "all": "goodwill_gross - goodwill_accumulated_impairment"
     }
   },
   "goodwill_gross": {
@@ -9140,7 +9263,7 @@
       "IndefiniteLivedTrademarks"
     ]
   },
-  "indefinitelived_tradenames": {
+  "indefinitelived_trade_names": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -9202,6 +9325,7 @@
     ],
     "calculation": {
       "order": 229,
+      "all": "intangible_assets_gross - intangible_assets_finitelived_accumulated_amortization_impairment - intangible_assets_indefinitelived_accumulated_impairment",
       "any": "intangible_assets_finitelived + intangible_assets_infinitelived"
     }
   },
@@ -9313,7 +9437,7 @@
     ],
     "calculation": {
       "order": 993,
-      "all": "intangible_assets_finitelived_gross + intangible_assets_infinitelived_gross"
+      "any": "intangible_assets_finitelived_gross + intangible_assets_infinitelived"
     }
   },
   "intangible_assets_indefinitelived": {
@@ -9325,13 +9449,12 @@
       "short": "Indefinite-lived"
     },
     "gaap": [
-      "IndefiniteLivedIntangibleAssets",
-      "IndefiniteLivedIntangibleAssetsExcludingGoodwill",
-      "IndefiniteLivedIntangibleAssetsExcludingGoodwillFairValueDisclosure"
+      "IndefiniteLivedIntangibleAssetsNet",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwillNet"
     ],
     "calculation": {
       "order": 996,
-      "all": "intangible_assets_indefinitelived_gross - intangible_assets_indefinitelived_accumulated_impairment"
+      "any": "intangible_assets_indefinitelived_gross - intangible_assets_indefinitelived_accumulated_impairment"
     }
   },
   "intangible_assets_indefinitelived_accumulated_impairment": {
@@ -9356,16 +9479,39 @@
       "long": "Gross Indefinite-lived Intangible Assets"
     },
     "gaap": [
+      "IndefiniteLivedIntangibleAssets",
       "IndefiniteLivedIntangibleAssetsGross",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwill",
       "GrossIndefiniteLivedIntangibleAssetsExcludingGoodwill",
       "IndefiniteLivedIntangibleAssetsExcludingGoodWillGross",
-      "IndefiniteLivedIntangibleAssetsExcludingGoodwillGross"
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwillGross",
+      "IndefiniteLivedIntangibleAssetsExcludingGoodwillFairValueDisclosure"
     ],
-    "components": [
-      "indefinitelived_franchise_rights",
-      "indefinitelived_license_agreements",
-      "indefinitelived_trademarks",
-      "indefinitelived_tradenames"
+    "calculation": {
+      "order": 996,
+      "any": "indefinitelived_contractual_rights + indefinitelived_franchise_rights + indefinitelived_license_agreements + indefinitelived_trademarks + indefinitelived_trade_names + intangible_assets_indefinitelive_other"
+    }
+  },
+  "intangible_assets_indefinitelive_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Indefinite-lived Intangible Assets"
+    },
+    "gaap": [
+      "OtherIndefiniteLivedIntangibleAssets"
+    ]
+  },
+  "indefinitelived_contractual_rights": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Indefinite-lived Contractual Rights"
+    },
+    "gaap": [
+      "IndefiniteLivedContractualRights"
     ]
   },
   "intangible_assets_noncurrent": {
@@ -18387,7 +18533,7 @@
     ],
     "calculation": {
       "order": 1437,
-      "all": "receivable_joint_operation_current_gross - credit_loss_allowance_receivable_joint_operation_current"
+      "all": "receivable_joint_operation_current_gross - receivable_joint_operation_current_allowance"
     }
   },
   "receivable_noncurrent": {
@@ -18399,11 +18545,11 @@
       "short": "Non-current Net Receivables"
     },
     "gaap": [
-      "AccountsReceivableNetNoncurrent"
+      "LongTermAccountsNotesAndLoansReceivableNetNoncurrent"
     ],
     "calculation": {
       "order": 1440,
-      "all": "receivable_noncurrent_gross - credit_loss_allowance_receivable_noncurrent"
+      "any": "receivable_trade_noncurrent - receivable_notes_loans_noncurrent"
     }
   },
   "receivable_nontrade_current": {
@@ -18433,8 +18579,19 @@
     ],
     "calculation": {
       "order": 1443,
-      "any": "receivable_interest_noncurrent + receivable_tax_income_noncurrent + receivable_tax_valueadded_noncurrent + receivable_recovery_import_duties_noncurrent + receivable_grants_noncurrent + receivable_insurance_malpractice_noncurrent + receivable_lease_incentive_noncurrent + receivable_petroleum_interest_billing_noncurrent"      
+      "any": "receivable_interest_noncurrent + receivable_tax_income_noncurrent + receivable_tax_valueadded_noncurrent + receivable_recovery_import_duties_noncurrent + receivable_grants_noncurrent + receivable_insurance_settlements_noncurrent + receivable_insurance_malpractice_noncurrent + receivable_grants_noncurrent + receivable_lease_incentive_noncurrent + receivable_petroleum_interest_billing_noncurrent"
     }
+  },
+  "receivable_lease_incentive_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Lease Incentive Receivables"
+    },
+    "gaap": [
+      "LeaseIncentiveReceivableNoncurrent"
+    ]
   },
   "receivable_notes": {
     "unit": "monetary",
@@ -18513,7 +18670,7 @@
     ],
     "calculation": {
       "order": 1447,
-      "all": "receivable_notes_current_gross - credit_loss_allowance_receivable_notes_current"
+      "all": "receivable_notes_current_gross - receivable_notes_current_allowance"
     }
   },
   "receivable_notes_gross": {
@@ -18601,7 +18758,38 @@
     ],
     "calculation": {
       "order": 1454,
+      "all": "receivable_notes_loans_noncurrent_gross - receivable_notes_loans_noncurrent_allowance",
       "any": "receivable_notes_noncurrent + receivable_loans_noncurrent"
+    }
+  },
+  "receivable_loans_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Non-current Net Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableNetNoncurrent"
+    ],
+    "calculation": {
+      "order": 1462,
+      "any": "receivable_loans_noncurrent_gross - receivable_loans_noncurrent_allowance"
+    }
+  },
+  "receivable_notes_loans_noncurrent_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Non-current Notes and Loans Receivable Allowance for Credit Loss"
+    },
+    "gaap": [
+      "AllowanceForNotesAndLoansReceivableNoncurrent"
+    ],
+    "calculation": {
+      "order": 1462,
+      "any": "receivable_notes_noncurrent_gross + receivable_loans_noncurrent_gross"
     }
   },
   "receivable_notes_loans_noncurrent_gross": {
@@ -18704,7 +18892,7 @@
     ],
     "calculation": {
       "order": 1470,
-      "all": "receivable_other_noncurrent_gross - credit_loss_allowance_receivable_other_noncurrent"
+      "all": "receivable_other_noncurrent_gross - receivable_other_noncurrent_allowance"
     }
   },
   "receivable_premium": {
@@ -18787,7 +18975,7 @@
     ],
     "calculation": {
       "order": 236,
-      "all": "receivable_trade_current_gross - receivable_trade_current_allowance -credit_loss_allowance_receivable_trade_current"
+      "all": "receivable_trade_current_gross - receivable_trade_current_allowance"
     }
   },
   "receivable_trade_noncurrent": {
@@ -18798,7 +18986,8 @@
       "long": "Non-current Trade Receivables"
     },
     "gaap": [
-      "NoncurrentTradeReceivables"
+      "NoncurrentTradeReceivables",
+      "AccountsReceivableNetNoncurrent"
     ]
   },
   "receivable_trade_related_parties_current": {
