@@ -10861,13 +10861,104 @@
       "long": "Current Deferred Gas Purchases"
     },
     "gaap": [
-      "DeferredGasPurchasesCurrent"
+      "LiabilitiesOfDisposalGroupIncludingDiscontinuedOperationCurrent"
     ],
     "calculation": {
       "order": 0,
-      "any": "",
-      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableAndAccruedLiabilitiesCurrent + DisposalGroupIncludingDiscontinuedOperationDeferredRevenueCurrent + DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxesPayable + DisposalGroupIncludingDiscontinuedOperationOtherCurrentLiabilities + DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligationCurrent + DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligationCurrent"
+      "any": "disposal_trade_payables_accrued_liabilities_current + disposal_deferred_revenue_current + disposal_accrued_income_taxes_payable_current + disposal_other_liabilities_current + disposal_pension_plan_benefit_obligation_current + disposal_postretirement_plan_benefit_obligation_current"
     }
+  },
+  "disposal_postretirement_plan_benefit_obligation_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Person Plan Benefit Obligation Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligationCurrent"
+    ]
+  },
+  "disposal_pension_plan_benefit_obligation_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Person Plan Benefit Obligation Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligationCurrent"
+    ]
+  },
+  "disposal_other_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOtherCurrentLiabilities"
+    ]
+  },
+  "disposal_accrued_income_taxes_payable_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Income Taxes Payable Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxesPayable"
+    ]
+  },
+  "disposal_deferred_revenue_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deferred Revenue Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredRevenueCurrent"
+    ]
+  },
+  "disposal_trade_payables_accrued_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Trade Payables and Accrued Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableAndAccruedLiabilitiesCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_payable_trade_current + disposal_accrued_liabilities_current"
+    }
+  },
+  "disposal_accrued_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Accrued Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccruedLiabilitiesCurrent"
+    ]
+  },
+  "disposal_payable_trade_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Trade Payables Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableCurrent"
+    ]
   },
   "deferred_gas_purchases_current": {
     "unit": "monetary",
@@ -11002,9 +11093,30 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "",
-      "DerivativeLiabilitiesCurrent + EnergyMarketingContractLiabilitiesCurrent + HedgingLiabilitiesCurrent"
+      "any": "derivative_liabilities_current + energy_marketing_contract_liabilities_current + hedging_liabilities_current"
     }
+  },
+  "hedging_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Hedging Liabilities"
+    },
+    "gaap": [
+      "HedgingLiabilitiesCurrent"
+    ]
+  },
+  "energy_marketing_contract_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Energy Marketing Contract Liabilities"
+    },
+    "gaap": [
+      "EnergyMarketingContractLiabilitiesCurrent"
+    ]
   },
   "deferred_rent_credit_current": {
     "unit": "monetary",
@@ -11029,9 +11141,41 @@
     ],
     "calculation": {
       "order": 1126,
-      "all": "equity + liabilities",
-      "DeferredCompensationShareBasedArrangementsLiabilityCurrent + DeferredCompensationCashBasedArrangementsLiabilityCurrent + OtherDeferredCompensationArrangementsLiabilityCurrent"
+      "all": "deferred_compensation_liability_sharebased_current + deferred_compensation_liability_cashbased_current + deferred_compensation_liability_other_current"
     }
+  },
+  "deferred_compensation_liability_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Deferred Compensation Liability"
+    },
+    "gaap": [
+      "OtherDeferredCompensationArrangementsLiabilityCurrent"
+    ]
+  },
+  "deferred_compensation_liability_cashbased_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Cash-based Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationCashBasedArrangementsLiabilityCurrent"
+    ]
+  },
+  "deferred_compensation_liability_sharebased_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Share-based Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationShareBasedArrangementsLiabilityCurrent"
+    ]
   },
   "liabilities_equity": {
     "unit": "monetary",
