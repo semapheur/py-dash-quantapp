@@ -2252,6 +2252,7 @@
       "long": "Current Leased Assets Disposal Group"
     },
     "gaap": [
+      "AssetsHeldForSaleCapitalLeasedAssetsNet",
       "DisposalGroupIncludingDiscontinuedOperationCapitalLeasedAssetsCurrent"
     ]
   },
@@ -2263,6 +2264,7 @@
       "long": "Current Property, Plant and Equipment Disposal Group"
     },
     "gaap": [
+      "AssetsHeldForSalePropertyPlantAndEquipment",
       "DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentCurrent"
     ]
   },
@@ -2761,7 +2763,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Prepaid Expense and Other Assets Current"
+      "long": "Current Prepaid Expense and Other Assets"
     },
     "gaap": [
       "PrepaidExpenseAndOtherAssetsCurrent"
@@ -2770,6 +2772,17 @@
       "order": 231,
       "any": "prepaid_expense_current + other_assets_current"
     }
+  },
+  "costs_excess_billings_uncomplete_contracts_programs_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Costs in Excess of Billings on Uncompleted Contracts or Programs"
+    },
+    "gaap": [
+      "CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedAfterOneYear"
+    ]
   },
   "assets_noncurrent": {
     "unit": "monetary",
@@ -2785,10 +2798,22 @@
     ],
     "calculation": {
       "order": 231,
-      "check": "PrepaidPensionCosts + AssetsHeldForSaleLongLived + AccountsReceivableExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent + CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedAfterOneYear + AssetsOfDisposalGroupIncludingDiscontinuedOperationNoncurrent + InvestmentsAndOtherNoncurrentAssets + PrepaidExpenseAndOtherAssetsNoncurrent",
-      "old": "productive_assets + intangible_assets + goodwill + investments_noncurrent + other_assets_noncurrent",
-      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + property_plant_equipment + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expense_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_tax_assets_liabilities_noncurrent + business_combination_contingent_asset_noncurrent + other_assets_noncurrent + investment_qualified_affordable_housing_project + receivable_other_noncurrent_postallowance + cumulative_government_assistance_noncurrent",
-      "1": "InventoryNoncurrent + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + NetInvestmentInLeaseNoncurrent - NetInvestmentInLeaseAllowanceForCreditLossNoncurrent + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + InventoryRealEstate + NontradeReceivablesNoncurrent + PropertyPlantAndEquipmentNet + PropertyPlantAndEquipmentCollectionsNotCapitalized + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLossNoncurrent + OilAndGasPropertySuccessfulEffortMethodNet + OilAndGasPropertyFullCostMethodNet + LongTermInvestmentsAndReceivablesNet + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseNoncurrent + ContractWithCustomerAssetNetNoncurrent + CapitalizedContractCostNetNoncurrent + DerivativeInstrumentsAndHedgesNoncurrent + RegulatedEntityOtherAssetsNoncurrent + DepositsAssetsNoncurrent + DeferredRentReceivablesNetNoncurrent + AssetsHeldInTrustNoncurrent + RestrictedCashAndInvestmentsNoncurrent + DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent + AdvanceRoyaltiesNoncurrent + EstimatedInsuranceRecoveries + CustomerFunds + DeferredCosts + DeferredTaxAssetsLiabilitiesNetNoncurrent + BusinessCombinationContingentConsiderationAssetNoncurrent + OtherAssetsNoncurrent + AmortizationMethodQualifiedAffordableHousingProjectInvestments + OtherReceivableAfterAllowanceForCreditLossNoncurrent + GovernmentAssistanceAmountCumulativeNoncurrent"
+      "any": "inventory_noncurrent + finance_lease_asset + operating_lease_asset + investment_lease_noncurrent_preallowance - investment_lease_noncurrent_allowance + investment_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + productive_assets + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expense_other_assets_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_tax_assets_liabilities_noncurrent + business_combination_contingent_asset_noncurrent + investment_qualified_affordable_housing_project + receivable_other_noncurrent_postallowance + cumulative_government_assistance_noncurrent + costs_excess_billings_uncomplete_contracts_programs_noncurrent"
+    }
+  },
+  "prepaid_expense_other_assets_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Nonurrent Prepaid Expense and Other Assets"
+    },
+    "gaap": [
+      "PrepaidExpenseAndOtherAssetsNoncurrent"
+    ],
+    "calculation": {
+      "order": 231,
+      "any": "prepaid_expense_noncurrent + other_assets_noncurrent"
     }
   },
   "cumulative_government_assistance_noncurrent": {
@@ -3068,7 +3093,9 @@
       "long": "Noncurrent Restricted Cash and Investments"
     },
     "gaap": [
-      "DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent"
+      "AssetsHeldForSaleLongLived",
+      "DisposalGroupIncludingDiscontinuedOperationAssetsNoncurrent",
+      "AssetsOfDisposalGroupIncludingDiscontinuedOperationNoncurrent"
     ],
     "calculation": {
       "order": 0,
@@ -3138,6 +3165,7 @@
       "long": "Noncurrent Other Assets Disposal Group"
     },
     "gaap": [
+      "AssetsHeldForSaleOtherNoncurrent",
       "DisposalGroupIncludingDiscontinuedOperationOtherNoncurrentAssets"
     ]
   },
@@ -12093,7 +12121,8 @@
       "long": "Long-term Investments"
     },
     "gaap": [
-      "LongTermInvestments"
+      "LongTermInvestments",
+      "InvestmentsAndOtherNoncurrentAssets"
     ],
     "calculation": {
       "order": 0,
@@ -19744,11 +19773,37 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Trade Receivables"
+      "long": "Noncurrent Net Trade Receivables"
     },
     "gaap": [
       "NoncurrentTradeReceivables",
       "AccountsReceivableNetNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_trade_noncurrent_gross - receivable_trade_noncurrent_allowance"
+    }
+  },
+  "receivable_trade_noncurrent_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Trade Receivables Allowance for Credit Loss"
+    },
+    "gaap": [
+      "AllowanceForDoubtfulAccountsReceivableNoncurrent"
+    ]
+  },
+  "receivable_trade_noncurrent_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Gross Trade Receivables"
+    },
+    "gaap": [
+      "AccountsReceivableGrossNoncurrent"
     ]
   },
   "receivable_trade_related_parties_current": {
