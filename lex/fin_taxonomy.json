@@ -12887,7 +12887,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Deferred Gas Purchases"
+      "long": "Current Liabilities of Business Transferred under Contractual Arrangement"
     },
     "gaap": [
       "LiabilitiesOfBusinessTransferredUnderContractualArrangementCurrent"
@@ -13263,9 +13263,469 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "trade_payables_accrued_liabilities_noncurrent + deferred_revenue_noncurrent + deferred_compensation_liability_noncurrent + accumulated_deferred_investment_tax_credit + deferred_gain_sale_property + deferred_rent_credit_noncurrent + asset_retirement_obligations_noncurrent + deferred_income_tax_liabilities + liability_uncertain_tax_positions_noncurrent + pension_postretirement_postemployment_benefit_plans_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + shares_mandatory_redemption_settlement_terms_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + operating_lease_liability_noncurrent + liabilities_business_transferred_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liabilities_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent",
+      "any": "trade_payables_accrued_liabilities_noncurrent + deferred_revenue_noncurrent + deferred_compensation_liability_noncurrent + accumulated_deferred_investment_tax_credit + deferred_gain_sale_property + deferred_rent_credit_noncurrent + asset_retirement_obligations_noncurrent + deferred_tax_liabilities_noncurrent + liability_uncertain_tax_positions_noncurrent + pension_postretirement_postemployment_benefit_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + shares_mandatory_redemption_settlement_terms_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + operating_lease_liability_noncurrent + liabilities_business_transferred_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liabilities_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent",
       "AccountsPayableAndAccruedLiabilitiesNoncurrent + DeferredRevenueNoncurrent + DeferredCompensationLiabilityClassifiedNoncurrent + AccumulatedDeferredInvestmentTaxCredit + DeferredGainOnSaleOfProperty + DeferredRentCreditNoncurrent + AssetRetirementObligationsNoncurrent + DeferredIncomeTaxLiabilitiesNet + LiabilityForUncertainTaxPositionsNoncurrent + PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesNoncurrent + AccruedEnvironmentalLossContingenciesNoncurrent + CustomerRefundLiabilityNoncurrent + OffMarketLeaseUnfavorable + LeaseDepositLiability + SharesSubjectToMandatoryRedemptionSettlementTermsAmountNoncurrent + LitigationReserveNoncurrent + RegulatoryLiabilityNoncurrent + RestructuringReserveNoncurrent + LiabilitiesOfDisposalGroupIncludingDiscontinuedOperationNoncurrent + LiabilitiesOfBusinessTransferredUnderContractualArrangementNoncurrent + OtherLiabilitiesNoncurrent + OperatingLeaseLiabilityNoncurrent + SelfInsuranceReserveNoncurrent + ProgramRightsObligationsNoncurrent + BusinessCombinationContingentConsiderationLiabilityNoncurrent + DerivativeInstrumentsAndHedgesLiabilitiesNoncurrent + QualifiedAffordableHousingProjectInvestmentsCommitment + GovernmentAssistanceLiabilityNoncurrent"
     }
+  },
+  "government_assistance_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Goverment Assistance Liability"
+    },
+    "gaap": [
+      "GovernmentAssistanceLiabilityNoncurrent"
+    ]
+  },
+  "qualified_affordable_housing_project_investments_commitment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Qualified Affordable Housing Project Investments Commitment"
+    },
+    "gaap": [
+      "QualifiedAffordableHousingProjectInvestmentsCommitment"
+    ]
+  },
+  "derivatives_hedges_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Derivatives and Hedge Liabilities"
+    },
+    "gaap": [
+      "DerivativeInstrumentsAndHedgesLiabilitiesNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "derivative_liabilities_noncurrent + energy_marketing_contract_liabilities_noncurrent + hedging_liabilities_noncurrent"
+    }
+  },
+  "hedging_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Hedging Liabilities"
+    },
+    "gaap": [
+      "HedgingLiabilitiesNoncurrent"
+    ]
+  },
+  "energy_marketing_contract_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Energy Marketing Contract Liabilities"
+    },
+    "gaap": [
+      "EnergyMarketingContractLiabilitiesNoncurrent"
+    ]
+  },
+  "business_combination_contingent_consideration_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Business Combination Contingent Consideration Liability"
+    },
+    "gaap": [
+      "BusinessCombinationContingentConsiderationLiabilityNoncurrent"
+    ]
+  },
+  "program_rights_obligations_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Program Rights Obligations"
+    },
+    "gaap": [
+      "ProgramRightsObligationsNoncurrent"
+    ]
+  },
+  "self_insurance_reserve_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Self Insurance Reserve"
+    },
+    "gaap": [
+      "SelfInsuranceReserveNoncurrent"
+    ]
+  },
+  "operating_lease_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Operating Lease Liability"
+    },
+    "gaap": [
+      "OperatingLeaseLiabilityNoncurrent"
+    ]
+  },
+  "liabilities_business_transferred_under_contractual_arrangement_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Liabilities of Business Transferred under Contractual Arrangement"
+    },
+    "gaap": [
+      "LiabilitiesOfBusinessTransferredUnderContractualArrangementNoncurrent"
+    ]
+  },
+  "disposal_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Disposal Group Liabilities"
+    },
+    "gaap": [
+      "LiabilitiesOfDisposalGroupIncludingDiscontinuedOperationNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_deferred_tax_libabilities_noncurrent + disposal_deferred_revenue_noncurrent + disposal_other_liabilities_noncurrent + disposal_pension_plan_benefit_obligation_noncurrent + disposal_postretirement_plan_benefit_obligation_noncurrent + disposal_accrued_income_tax_payable_noncurrent"
+    }
+  },
+  "disposal_accrued_income_tax_payable_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Income Tax Payables Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxPayableNoncurrent"
+    ]
+  },
+  "disposal_postretirement_plan_benefit_obligation_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Postretirement Benefit Obligation Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligationNoncurrent"
+    ]
+  },
+  "disposal_pension_plan_benefit_obligation_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Pension Benefit Obligation Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligationNoncurrent"
+    ]
+  },
+  "disposal_other_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Noncurrent Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOtherNoncurrentLiabilities"
+    ]
+  },
+  "disposal_deferred_revenue_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Revenue Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredRevenueNoncurrent"
+    ]
+  },
+  "disposal_deferred_tax_libabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Tax Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredTaxLiabilitiesNoncurrent"
+    ]
+  },
+  "restructuring_reserve_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Restructuring Reeserve"
+    },
+    "gaap": [
+      "RestructuringReserveNoncurrent"
+    ]
+  },
+  "regulatory_liabilities_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Regulatory Liabilities"
+    },
+    "gaap": [
+      "RegulatoryLiabilityNoncurrent"
+    ]
+  },
+  "litigation_reserve_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Litigation Reserve"
+    },
+    "gaap": [
+      "LitigationReserveNoncurrent"
+    ]
+  },
+  "shares_mandatory_redemption_settlement_terms_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Shares Subject to Mandatory Redemption Settlement Terms"
+    },
+    "gaap": [
+      "SharesSubjectToMandatoryRedemptionSettlementTermsAmountNoncurrent"
+    ]
+  },
+  "lease_deposit_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Lease Deposit Liability"
+    },
+    "gaap": [
+      "LeaseDepositLiability"
+    ]
+  },
+  "offmarket_lease_unfavorable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unfavorable Off-market Lease"
+    },
+    "gaap": [
+      "OffMarketLeaseUnfavorable"
+    ]
+  },
+  "customer_refund_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Customer Refund Liability"
+    },
+    "gaap": [
+      "CustomerRefundLiabilityNoncurrent"
+    ]
+  },
+  "accrued_environmental_loss_contingencies_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Environmental Loss Contingencies"
+    },
+    "gaap": [
+      "AccruedEnvironmentalLossContingenciesNoncurrent"
+    ]
+  },
+  "pension_postretirement_postemployment_benefit_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Pension, Other Postretirement and Postemployment Benefit Plans Liabilities"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_postretirement_benefit_liability_noncurrent + postemployment_benefit_liability_noncurrent"
+    }
+  },
+  "pension_postretirement_benefit_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Pension and Other Postretirement Plans Liabilities"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementDefinedBenefitPlansLiabilitiesNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_benefit_plan_liability_noncurrent + other_postretirement_benefit_plan_liability_noncurrent + payable_benefits_postretirement_other_noncurrent"
+    }
+  },
+  "payable_benefits_postretirement_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Postretirement Benefits Payable"
+    },
+    "gaap": [
+      "OtherPostretirementBenefitsPayableNoncurrent"
+    ]
+  },
+  "other_postretirement_benefit_plan_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Postretirement Defined Benefit Plan Liabilities"
+    },
+    "gaap": [
+      "OtherPostretirementDefinedBenefitPlanLiabilitiesNoncurrent"
+    ]
+  },
+  "pension_benefit_plan_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Defined Pension Benefit Plan Liabilities"
+    },
+    "gaap": [
+      "DefinedBenefitPensionPlanLiabilitiesNoncurrent"
+    ]
+  },
+  "liability_uncertain_tax_positions_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Liability for Uncertain Tax Positions"
+    },
+    "gaap": [
+      "LiabilityForUncertainTaxPositionsNoncurrent"
+    ]
+  },
+  "asset_retirement_obligations_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Asset Retirement Obligations"
+    },
+    "gaap": [
+      "AssetRetirementObligationsNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "mine_reclamation_closing_liability_noncurrent + petroleum_reclamation_liability_noncurrent + accrued_capping_closure_post_closure_environmental_costs_noncurrent + decommissioning_liability_noncurrent + spent_nuclear_fuel_obligation_noncurrent"
+    }
+  },
+  "spent_nuclear_fuel_obligation_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Spent Nuclear Fuel Obligation"
+    },
+    "gaap": [
+      "SpentNuclearFuelObligationNoncurrent"
+    ]
+  },
+  "decommissioning_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Decommissioning Liability"
+    },
+    "gaap": [
+      "DecommissioningLiabilityNoncurrent"
+    ]
+  },
+  "accrued_capping_closure_post_closure_environmental_costs_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Capping Closure Post Closure and Environmental Costs"
+    },
+    "gaap": [
+      "AccruedCappingClosurePostClosureAndEnvironmentalCostsNoncurrent"
+    ]
+  },
+  "petroleum_reclamation_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Petroleum Reclamation Liability"
+    },
+    "gaap": [
+      "OilAndGasReclamationLiabilityNoncurrent"
+    ]
+  },
+  "mine_reclamation_closing_liability_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Mine Reclamation and Closing Liability"
+    },
+    "gaap": [
+      "MineReclamationAndClosingLiabilityNoncurrent"
+    ]
+  },
+  "deferred_rent_credit_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Rent Credit"
+    },
+    "gaap": [
+      "DeferredRentCreditNoncurrent"
+    ]
+  },
+  "deferred_gain_sale_property": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Gain on Sale of Property"
+    },
+    "gaap": [
+      "DeferredGainOnSaleOfProperty"
+    ]
+  },
+  "accumulated_deferred_investment_tax_credit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Deferred Investment Tax Credit"
+    },
+    "gaap": [
+      "AccumulatedDeferredInvestmentTaxCredit"
+    ]
   },
   "deferred_compensation_liability_noncurrent": {
     "unit": "monetary",
@@ -13279,8 +13739,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "deferred_compensation_liability_sharebased_noncurrent + deferred_compensation_liability_cashbased_noncurrent + deferred_compensation_liability_other_noncurrent",
-      "DeferredCompensationSharebasedArrangementsLiabilityClassifiedNoncurrent + DeferredCompensationCashbasedArrangementsLiabilityClassifiedNoncurrent + OtherDeferredCompensationArrangementsLiabilityClassifiedNoncurrent"
+      "any": "deferred_compensation_liability_sharebased_noncurrent + deferred_compensation_liability_cashbased_noncurrent + deferred_compensation_liability_other_noncurrent"
     }
   },
   "deferred_compensation_liability_other_noncurrent": {
@@ -15315,9 +15774,63 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "",
-      "RetentionPayableDueThreeToFourYears + RetentionPayableDueFourToFiveYears + RetentionPayableDueOneToTwoYears + RetentionPayableDueTwoToThreeYears + RetentionPayableDueFiveYearsOrMore"
+      "any": "payable_retention_due_1_to_2_years + payable_retention_due_2_to_3_years + payable_retention_due_3_to_4_years + payable_retention_due_4_to_5_years + payable_retention_due_above_5_years"
     }
+  },
+  "payable_retention_due_above_5_years": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retention Payable Due 5 Years or More"
+    },
+    "gaap": [
+      "RetentionPayableDueFiveYearsOrMore"
+    ]
+  },
+  "payable_retention_due_4_to_5_years": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retention Payable Due 4 to 5 Years"
+    },
+    "gaap": [
+      "RetentionPayableDueFourToFiveYears"
+    ]
+  },
+  "payable_retention_due_3_to_4_years": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retention Payable Due 3 to 4 Years"
+    },
+    "gaap": [
+      "RetentionPayableDueThreeToFourYears"
+    ]
+  },
+  "payable_retention_due_2_to_3_years": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retention Payable Due 2 to 3 Years"
+    },
+    "gaap": [
+      "RetentionPayableDueTwoToThreeYears"
+    ]
+  },
+  "payable_retention_due_1_to_2_years": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retention Payable Due 1 to 2 Years"
+    },
+    "gaap": [
+      "RetentionPayableDueTwoToThreeYears"
+    ]
   },
   "accrued_insurance_noncurrent": {
     "unit": "monetary",
@@ -22733,7 +23246,8 @@
       "short": "Current Tax Liabilities"
     },
     "gaap": [
-      "CurrentTaxLiabilities"
+      "CurrentTaxLiabilities",
+      "DeferredIncomeTaxLiabilitiesNet"
     ],
     "calculation": {
       "order": 0,
