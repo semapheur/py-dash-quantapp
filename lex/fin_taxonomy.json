@@ -5305,7 +5305,8 @@
       "long": "Commercial Paper"
     },
     "gaap": [
-      "CommercialPaper"
+      "CommercialPaper",
+      "CommercialPaperCurrent"
     ]
   },
   "common_stock_additional_paid_in_capital": {
@@ -6045,8 +6046,22 @@
     ],
     "calculation": {
       "order": 722,
-      "any": "debt_shortterm + debt_longterm_current",
-      "ShortTermBorrowings + LongTermDebtAndCapitalLeaseObligationsCurrent"
+      "any": "debt_shortterm + longterm_debt_capital_lease_obligations_current "
+    }
+  },
+  "longterm_debt_capital_lease_obligations_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Debt"
+    },
+    "gaap": [
+      "LongTermDebtAndCapitalLeaseObligationsCurrent"
+    ],
+    "calculation": {
+      "order": 722,
+      "any": "debt_longterm_current + lease_liabilities_finance_current"
     }
   },
   "debt_interest_rate": {
@@ -6096,6 +6111,194 @@
       "CurrentPortionOfLongtermBorrowings",
       "DebtInstrumentCurrentPortionOfLongTermGross",
       "DebtInstrumentCurrentPortionOfLongTermDebtGross"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "longterm_lineof_credit_current + commercial_paper_longterm_current + loan_construction_longterm_current + debt_secured_current + debt_unsecured_current + debt_subordinated_current + debt_convertible_subordinated_current + debt_convertible_current + bond_transition_longterm_current + bond_pollution_control_longterm_current + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current + payable_notes_loans_current + bond_special_assessment_current + loan_home_federal_bank_advances_current + debt_longterm_other_current + borrowings_under_guaranteed_investment_agreements"
+    }
+  },
+  "borrowings_under_guaranteed_investment_agreements": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Borrowings Under Guaranteed Investment Agreements"
+    },
+    "gaap": [
+      "BorrowingsUnderGuaranteedInvestmentAgreements"
+    ]
+  },
+  "debt_longterm_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current portion of other Long-term Debt"
+    },
+    "gaap": [
+      "OtherLongTermDebtCurrent"
+    ]
+  },
+  "loan_home_federal_bank_advances_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Federal Home Loan Bank Advances"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesCurrent"
+    ]
+  },
+  "bond_special_assessment_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Special Assessment Bond"
+    },
+    "gaap": [
+      "SpecialAssessmentBondCurrent"
+    ]
+  },
+  "payable_notes_loans_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Notes and Loans Payable"
+    },
+    "gaap": [
+      "NotesAndLoansPayableCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payable_notes_current + payable_loans_current"
+    }
+  },
+  "payable_loans_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Loans Payable"
+    },
+    "gaap": [
+      "LoansPayableCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payable_loans_bank_current + payable_loans_other_current"
+    }
+  },
+  "payable_loans_other_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Current Loans Payable"
+    },
+    "gaap": [
+      "OtherLoansPayableCurrent"
+    ]
+  },
+  "payable_loans_bank_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Loans Payable to Bank"
+    },
+    "gaap": [
+      "LoansPayableToBankCurrent"
+    ]
+  },
+  "debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Junior Subordinated Debenture Owed to Unconsolidated Subsidiary Trust"
+    },
+    "gaap": [
+      "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrustCurrent"
+    ]
+  },
+  "bond_pollution_control_longterm_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current portion of Long-term Pollution Control Bond"
+    },
+    "gaap": [
+      "LongtermPollutionControlBondCurrent"
+    ]
+  },
+  "bond_transition_longterm_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current portion of Long-term Transition Bond"
+    },
+    "gaap": [
+      "LongtermTransitionBondCurrent"
+    ]
+  },
+  "commercial_paper_longterm_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current portion of Long-term Commercial Paper"
+    },
+    "gaap": [
+      "LongTermCommercialPaperCurrent"
+    ]
+  },
+  "debt_convertible_subordinated_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Convertible Subordinated Debt"
+    },
+    "gaap": [
+      "ConvertibleSubordinatedDebtCurrent"
+    ]
+  },
+  "debt_subordinated_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Subordinated Debt"
+    },
+    "gaap": [
+      "SubordinatedDebtCurrent"
+    ]
+  },
+  "loan_construction_longterm_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current portion of Long-term Construction Loan"
+    },
+    "gaap": [
+      "LongTermConstructionLoanCurrent"
+    ]
+  },
+  "longterm_lineof_credit_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Lines of Credit"
+    },
+    "gaap": [
+      "LinesOfCreditCurrent"
     ]
   },
   "debt_longterm_current_due_next_fiscal_year": {
@@ -6371,9 +6574,170 @@
     ],
     "calculation": {
       "order": 274,
-      "any": "commercial_paper + debt_shortterm_other",
-      "BankOverdrafts + CommercialPaper + BridgeLoan + ConstructionLoan + ShortTermBankLoansAndNotesPayable + ShortTermNonBankLoansAndNotesPayable + SecuritiesSoldUnderAgreementsToRepurchase + FederalHomeLoanBankAdvancesMaturitiesSummaryDueWithinOneYearOfBalanceSheetDate + WarehouseAgreementBorrowings + OtherShortTermBorrowings"
+      "any": "bank_overdrafts + commercial_paper + loan_bridge + loan_construction + shortterm_bank_loans_notes_payable + shortterm_nonbank_loans_notes_payable + securities_repurchase_agreement + loan_home_federal_bank_advances_maturities_current + warehouse_agreement_borrowings + debt_shortterm_other"
     }
+  },
+  "warehouse_agreement_borrowings": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Warehouse Agreement Borrowings"
+    },
+    "gaap": [
+      "WarehouseAgreementBorrowings"
+    ]
+  },
+  "loan_home_federal_bank_advances_maturities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Current"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesMaturitiesSummaryDueWithinOneYearOfBalanceSheetDate"
+    ]
+  },
+  "loan_home_federal_bank_advances_maturities_current_floating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Floating Federal Home Loan Bank Advances Current"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesMaturitiesSummaryByInterestRateTypeFloatingRateUnderOneYear"
+    ]
+  },
+  "loan_home_federal_bank_advances_maturities_current_fixed": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Fixed Federal Home Loan Bank Advances Current"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesMaturitiesSummaryByInterestRateTypeFixedRateUnderOneYear"
+    ]
+  },
+  "securities_repurchase_agreement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Sold under Agreements to Repurchase"
+    },
+    "gaap": [
+      "SecuritiesSoldUnderAgreementsToRepurchase"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_repurchase_agreement_subjectto_master_netting_arrangement + securities_repurchase_agreement_notsubjectto_master_netting_arrangement"
+    }
+  },
+  "securities_repurchase_agreement_notsubjectto_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Sold under Agreements to Repurchase Not Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "SecuritiesSoldUnderAgreementsToRepurchaseNotSubjectToMasterNettingArrangement"
+    ]
+  },
+  "securities_repurchase_agreement_subjectto_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Sold under Agreements to Repurchase After Offset Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "SecuritySoldUnderAgreementToRepurchaseAfterOffsetSubjectToMasterNettingArrangement"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_repurchase_agreement_gross - securities_repurchase_agreement_asset"
+    }
+  },
+  "securities_repurchase_agreement_asset": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Sold under Agreements to Repurchase Asset"
+    },
+    "gaap": [
+      "SecuritiesSoldUnderAgreementsToRepurchaseAsset"
+    ]
+  },
+  "securities_repurchase_agreement_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Securities Sold under Agreements to Repurchase"
+    },
+    "gaap": [
+      "SecuritiesSoldUnderAgreementsToRepurchaseGross"
+    ]
+  },
+  "shortterm_nonbank_loans_notes_payable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Short-term Non-Bank Loans and Notes Payable"
+    },
+    "gaap": [
+      "ShortTermNonBankLoansAndNotesPayable"
+    ]
+  },
+  "shortterm_bank_loans_notes_payable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Short-term Bank Loans and Notes Payable"
+    },
+    "gaap": [
+      "ShortTermBankLoansAndNotesPayable"
+    ]
+  },
+  "loan_construction": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Construction Loan"
+    },
+    "gaap": [
+      "ConstructionLoan"
+    ]
+  },
+  "loan_bridge": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Bridge Loan"
+    },
+    "gaap": [
+      "BridgeLoan"
+    ]
+  },
+  "bank_overdrafts": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Bank Overdrafts"
+    },
+    "gaap": [
+      "BankOverdrafts"
+    ]
   },
   "debt_shortterm_interest_rate": {
     "unit": "monetary_ratio",
@@ -15625,7 +15989,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-Current Convertible Notes Payables"
+      "long": "Noncurrent Convertible Notes Payables"
     },
     "gaap": [
       "ConvertibleNotesPayableNoncurrentNet"
@@ -15644,15 +16008,59 @@
     ],
     "calculation": {
       "order": 1194,
-      "any": "payable_notes_convertible_current"
+      "any": "notes_mediumterm_current + notes_junior_subordinated_current + notes_senior_current + payable_notes_convertible_current + payable_notes_bank_current + payable_notes_other_current"
     }
+  },
+  "payable_notes_bank_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Notes Payable to Bank"
+    },
+    "gaap": [
+      "NotesPayableToBankCurrent"
+    ]
+  },
+  "notes_senior_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Senior Notes"
+    },
+    "gaap": [
+      "SeniorNotesCurrent"
+    ]
+  },
+  "notes_junior_subordinated_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Junior Subordinated Notes"
+    },
+    "gaap": [
+      "JuniorSubordinatedNotesCurrent"
+    ]
+  },
+  "notes_mediumterm_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Medium-term Notes"
+    },
+    "gaap": [
+      "MediumtermNotesCurrent"
+    ]
   },
   "payable_notes_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Notes Payables"
+      "long": "Noncurrent Notes Payables"
     },
     "gaap": [
       "LongTermNotesPayable",
