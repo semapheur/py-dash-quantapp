@@ -4941,9 +4941,109 @@
     ],
     "calculation": {
       "order": 0,
-      "": "- IncreaseDecreaseInRestrictedCash - IncreaseDecreaseInRestrictedCashAndInvestments - UseOfRestrictedCashForAcquisitionOfOilAndGasProperty - PaymentsForProceedsFromMortgageDeposits + ProceedsFromMortgageDeposits",
-      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_investments_restricted - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits - cashflow_deposits_mortgage + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_restricted_cash_investments - use_restricted_cash_acquisition_petroleum_property - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
     }
+  },
+  "cashflow_deposits_mortgage": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Mortgage Deposits"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromMortgageDeposits"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_deposits_mortgage - proceed_deposits_mortgage",
+      "PaymentsForMortgageDeposits - ProceedsFromMortgageDeposits"
+    }
+  },
+  "proceed_deposits_mortgage": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Mortgage Deposits"
+    },
+    "gaap": [
+      "ProceedsFromMortgageDeposits"
+    ]
+  },
+  "payment_deposits_mortgage": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Mortgage Deposits"
+    },
+    "gaap": [
+      "PaymentsForMortgageDeposits"
+    ]
+  },
+  "use_restricted_cash_acquisition_petroleum_property": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Use of Restricted Cash for Acquisition of Oil and Gas Property"
+    },
+    "gaap": [
+      "UseOfRestrictedCashForAcquisitionOfOilAndGasProperty"
+    ]
+  },
+  "cashflow_restricted_cash_investments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Restricted Cash and Investments"
+    },
+    "gaap": [
+      "IncreaseDecreaseInRestrictedCashAndInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cashflow_cash_restricted + cashflow_investments_restricted"
+    }
+  },
+  "cashflow_cash_restricted": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Restricted Cash"
+    },
+    "gaap": [
+      "IncreaseDecreaseInRestrictedCash"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "increase_cash_restricted - decrease_cash_restricted"
+    }
+  },
+  "decrease_cash_restricted": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Decrease in Restricted Cash"
+    },
+    "gaap": [
+      "DecreaseInRestrictedCash"
+    ]
+  },
+  "increase_cash_restricted": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase in Restricted Cash"
+    },
+    "gaap": [
+      "IncreaseInRestrictedCash"
+    ]
   },
   "payment_contingent_consideration_liability_investing_activities": {
     "unit": "monetary",
