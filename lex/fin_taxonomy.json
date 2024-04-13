@@ -4882,7 +4882,38 @@
     ],
     "calculation": {
       "order": 388,
-      "all": "dividend_payments + stock_cashflow + longterm_debt_cashflow + shortterm_debt_cashflow + other_financing_cashflow"
+      "old": "dividend_payments + stock_cashflow + longterm_debt_cashflow + shortterm_debt_cashflow + other_financing_cashflow",
+      "any": "cashflow_financing_continuing_operations + cashflow_financing_discontinued_operations",
+      "NetCashProvidedByUsedInFinancingActivitiesContinuingOperations + CashProvidedByUsedInFinancingActivitiesDiscontinuedOperations"
+    }
+  },
+  "cashflow_financing_discontinued_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash Provided by (Used in) Financing Activities Discontinued Operations",
+      "short": "Financing Cash Flow Discontinued Operations"
+    },
+    "gaap": [
+      "CashProvidedByUsedInFinancingActivitiesDiscontinuedOperations"
+    ]
+  },
+  "cashflow_financing_continuing_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash Provided by (Used in) Financing Activities Continuing Operations",
+      "short": "Financing Cash Flow Continuing Operations"
+    },
+    "gaap": [
+      "NetCashProvidedByUsedInFinancingActivitiesContinuingOperations"
+    ],
+    "calculation": {
+      "order": 389,
+      "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_mortgage_deposits - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_redeemable_preferred_stock + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payable_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + cashflow_other_financing_activities",
+      "IncreaseDecreaseInDeposits + ProceedsFromRepaymentsOfDebt - PaymentOfFinancingAndStockIssuanceCosts - PaymentsForProceedsFromHedgeFinancingActivities - PaymentsForProceedsFromDerivativeInstrumentFinancingActivities - PaymentsForProceedsFromMortgageDeposits + ProceedsFromPaymentsToMinorityShareholders - PaymentsForRepurchaseOfRedeemableNoncontrollingInterest + ProceedsFromRepurchaseOfTrustPreferredSecurities + ProceedsFromRepurchaseOfRedeemablePreferredStock + ProceedsFromRepurchaseOfEquity - PaymentsOfDividends - DistributionMadeToLimitedLiabilityCompanyLLCMemberCashDistributionsPaid - DistributionMadeToLimitedPartnerCashDistributionsPaid + IncreaseDecreaseInSecuritiesLendingPayable - OriginationOfLoansToEmployeeStockOwnershipPlans + ProceedsFromRepaymentOfLoansByEmployeeStockOwnershipPlans + ProceedsFromRepaymentOfLoansToPurchaseCommonStock - OriginationOfLoanToPurchaseCommonStock - PaymentsOfDerivativeIssuanceCosts - PaymentsOfDebtRestructuringCosts - PaymentsOfDebtExtinguishmentCosts + IncreaseDecreaseInAdvancePaymentsByBorrowersForTaxesAndInsurance - PaymentsRelatedToTaxWithholdingForShareBasedCompensation - PaymentsOfDistributionsToAffiliates + ProceedsFromContributionsFromAffiliates + ProceedsFromContributionsFromParent + ProceedsFromPartnershipContribution - PaymentsOfMergerRelatedCostsFinancingActivities - PaymentForContingentConsiderationLiabilityFinancingActivities + ProceedsFromAdvanceForAndContributionInAidOfConstructionFinancingActivity - PaymentForAdvanceForConstructionFinancingActivity + ProceedsFromPaymentsForOtherFinancingActivities"
     }
   },
   "cashflow_financing_other": {
