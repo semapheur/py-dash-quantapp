@@ -4941,9 +4941,229 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_lease - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_longterm_loans_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - change_investments_restricted - change_collateral_held_under_securities_lending - cashflow_other_interest_earning_assets - payment_operating_lease_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_constriction + allowance_contribution_aid_constriction - payment_acquire_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquire_management_contract_rights - cashflow_other_investing_activities - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities",
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_longterm_loans_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - change_investments_restricted - change_collateral_held_under_securities_lending - cashflow_other_interest_earning_assets - payment_operating_lease_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_constriction + allowance_contribution_aid_constriction - payment_acquire_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquire_management_contract_rights - cashflow_other_investing_activities - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities",
       "ProceedsFromPaymentsForFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResellNet - PaymentsForProceedsFromProductiveAssets + ProceedsFromDisposalCryptoAsset - PaymentsForProceedsFromMortgageServicingRights - PaymentsForProceedsFromInvestments - PaymentsForProceedsFromRealEstatePartnershipInvestmentNet - PaymentsForProceedsFromBusinessesAndInterestInAffiliates - PaymentsForProceedsFromFederalHomeLoanBankStock - PaymentsForProceedsFromFederalReserveBankStock - PaymentsForProceedsFromLoansAndLeases - PaymentsForProceedsFromLifeInsurancePolicies - PaymentsForProceedsFromRemovalCosts - PaymentsForProceedsFromNuclearFuel + ProceedsFromPaymentsForLongTermLoansForRelatedParties - PaymentsForProceedsFromHedgeInvestingActivities - PaymentsForProceedsFromDerivativeInstrumentInvestingActivities + ProceedsFromEquityMethodInvestmentDividendsOrDistributionsReturnOfCapital + ProceedsFromPaymentsForInInterestBearingDepositsInBanks + ProceedsFromSaleOfForeclosedAssets + ProceedsFromSaleOfWhollyOwnedRealEstateAndRealEstateAcquiredInSettlementOfLoans - IncreaseDecreaseOfRestrictedInvestments - IncreaseDecreaseInCollateralHeldUnderSecuritiesLending - PaymentsForProceedsFromOtherInterestEarningAssets - OperatingLeasePaymentsUse + ProceedsFromLeasePaymentSalesTypeAndDirectFinancingLeasesInvestingActivity - PaymentsForInvestmentInRestrictedCashFromPollutionControlBond + ProceedsFromDistributionOfRestrictedCashFromPollutionControlBond + ProceedsFromAdvancesForConstruction - RepaymentsOfAdvancesForConstruction - IncreaseDecreaseInLeaseAcquisitionCosts - PaymentsForLeasingCostsCommissionsAndTenantImprovements - PaymentsForProceedsFromDepositsOnRealEstateAcquisitions + ProceedsFromContributionInAidOfConstruction + AllowanceForFundsUsedDuringConstructionInvestingActivities - PaymentsToAcquireRoyaltyInterestsInMiningProperties + ProceedsFromInsuranceSettlementInvestingActivities - IncreaseDecreaseInDeferredChargesInvesting - PaymentsToAcquireManagementContractRights - PaymentsForProceedsFromOtherInvestingActivities - OriginationOfNotesReceivableFromRelatedParties + RepaymentOfNotesReceivableFromRelatedParties - PaymentForContingentConsiderationLiabilityInvestingActivities"
     }
+  },
+  "cashflow_loans_leases": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Loans and Leases"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromLoansAndLeases"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_loans_leases_heldforinvestment - proceed_sale_loans_leases_heldforinvestment - proceed_loans_leases_originations_principal_collections - proceed_recovery_loan_previously_charged_off - cashflow_loans_leases_other"
+    }
+  },
+  "cashflow_loans_leases_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) other Loans and Leases"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromOtherLoansAndLeases"
+    ]
+  },
+  "proceed_recovery_loan_previously_charged_off": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Recoveries of Loan Previously Charged Off"
+    },
+    "gaap": [
+      "ProceedsFromRecoveriesOfLoanPreviouslyChargedOff"
+    ]
+  },
+  "proceed_loans_leases_originations_principal_collections": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromLoanAndLeaseOriginationsAndPrincipalCollections",
+      "ProceedsFromLoanAndLeaseOriginationsAndPrincipalCollections1"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_loan_originations + proceed_principal_loans_leases_heldforinvestment"
+    }
+  },
+  "proceed_principal_loans_leases_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Principal Repayments on Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromPrincipalRepaymentsOnLoansAndLeasesHeldForInvestment"
+    ]
+  },
+  "proceed_loan_originations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromLoanOriginations",
+      "ProceedsFromLoanOriginations1"
+    ]
+  },
+  "proceed_sale_loans_leases_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfLoansAndLeasesHeldForInvestment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_securitization_loans_heldforinvestment + proceed_sale_loans_heldforinvestment + proceed_leases_heldforinvestment + proceed_loans_leases_heldforinvestment_other"
+    }
+  },
+  "proceed_loans_leases_heldforinvestment_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds of Other Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "ProceedsOfOtherLoansAndLeasesHeldForInvestment"
+    ]
+  },
+  "proceed_leases_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Leases Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromLeasesHeldForInvestment"
+    ]
+  },
+  "proceed_sale_loans_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Loans Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfLoansHeldForInvestment"
+    ]
+  },
+  "proceed_securitization_loans_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Securitization of Loans Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromSecuritizationsOfLoansHeldForInvestment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_securitization_loans_consumer + proceed_securitization_credit_cards"
+    }
+  },
+  "proceed_securitization_credit_cards": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Securitization of Credit Cards"
+    },
+    "gaap": [
+      "ProceedsFromSecuritizationsOfCreditCards"
+    ]
+  },
+  "proceed_securitization_loans_consumer": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Securitization of Consumer Loans"
+    },
+    "gaap": [
+      "ProceedsFromSecuritizationsOfConsumerLoans"
+    ]
+  },
+  "payment_acquisition_loans_leases_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "PaymentsToAcquireLoansAndLeasesHeldForInvestment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_loans_leases_heldforinvestment_credit_card_securitizations + payment_acquisition_loans_heldforinvestment + payment_acquisition_leases_heldforinvestment + payment_acquisition_loans_leases_heldforinvestment_other"
+    }
+  },
+  "payment_acquisition_loans_leases_heldforinvestment_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Other Loans and Leases Held for Investment"
+    },
+    "gaap": [
+      "PaymentsToAcquireOtherLoansAndLeasesHeldForInvestment"
+    ]
+  },
+  "payment_acquisition_leases_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Leases Held for Investment"
+    },
+    "gaap": [
+      "PaymentsToAcquireLeasesHeldForInvestment"
+    ]
+  },
+  "payment_acquisition_loans_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Loans Held for Investment"
+    },
+    "gaap": [
+      "PaymentsToAcquireLoansHeldForInvestment"
+    ]
+  },
+  "payment_acquisition_loans_leases_heldforinvestment_credit_card_securitizations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Loans and Leases Held for Investment Credit Card Securitizations"
+    },
+    "gaap": [
+      "PaymentsToAcquireLoansAndLeasesHeldForInvestmentCreditCardSecuritizations"
+    ]
   },
   "cashflow_central_bank_reserve_stock": {
     "unit": "monetary",
