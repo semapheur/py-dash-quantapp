@@ -4924,7 +4924,6 @@
     ],
     "calculation": {
       "order": 399,
-      "old": "cashflow_productive_assets + cashflow_intangible_assets + cashflow_securities + cashflow_acquisition_divestitures + cashflow_investing_other",
       "any": "cashflow_investing_continuing_operations + cashflow_investing_discontinued_operations",
       "NetCashProvidedByUsedInInvestingActivitiesContinuingOperations + CashProvidedByUsedInInvestingActivitiesDiscontinuedOperations"
     }
@@ -4942,9 +4941,168 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_back_stock - cashflow_central_bank_reserve_stock - cashflow_loans_lease - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_longterm_loans_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - change_investments_restricted - change_collateral_held_under_securities_lending - cashflow_other_interest_earning_assets - payment_operating_lease_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_constriction + allowance_contribution_aid_constriction - payment_acquire_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquire_management_contract_rights - cashflow_other_investing_activities - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities",
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_lease - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_longterm_loans_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - change_investments_restricted - change_collateral_held_under_securities_lending - cashflow_other_interest_earning_assets - payment_operating_lease_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_constriction + allowance_contribution_aid_constriction - payment_acquire_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquire_management_contract_rights - cashflow_other_investing_activities - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities",
       "ProceedsFromPaymentsForFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResellNet - PaymentsForProceedsFromProductiveAssets + ProceedsFromDisposalCryptoAsset - PaymentsForProceedsFromMortgageServicingRights - PaymentsForProceedsFromInvestments - PaymentsForProceedsFromRealEstatePartnershipInvestmentNet - PaymentsForProceedsFromBusinessesAndInterestInAffiliates - PaymentsForProceedsFromFederalHomeLoanBankStock - PaymentsForProceedsFromFederalReserveBankStock - PaymentsForProceedsFromLoansAndLeases - PaymentsForProceedsFromLifeInsurancePolicies - PaymentsForProceedsFromRemovalCosts - PaymentsForProceedsFromNuclearFuel + ProceedsFromPaymentsForLongTermLoansForRelatedParties - PaymentsForProceedsFromHedgeInvestingActivities - PaymentsForProceedsFromDerivativeInstrumentInvestingActivities + ProceedsFromEquityMethodInvestmentDividendsOrDistributionsReturnOfCapital + ProceedsFromPaymentsForInInterestBearingDepositsInBanks + ProceedsFromSaleOfForeclosedAssets + ProceedsFromSaleOfWhollyOwnedRealEstateAndRealEstateAcquiredInSettlementOfLoans - IncreaseDecreaseOfRestrictedInvestments - IncreaseDecreaseInCollateralHeldUnderSecuritiesLending - PaymentsForProceedsFromOtherInterestEarningAssets - OperatingLeasePaymentsUse + ProceedsFromLeasePaymentSalesTypeAndDirectFinancingLeasesInvestingActivity - PaymentsForInvestmentInRestrictedCashFromPollutionControlBond + ProceedsFromDistributionOfRestrictedCashFromPollutionControlBond + ProceedsFromAdvancesForConstruction - RepaymentsOfAdvancesForConstruction - IncreaseDecreaseInLeaseAcquisitionCosts - PaymentsForLeasingCostsCommissionsAndTenantImprovements - PaymentsForProceedsFromDepositsOnRealEstateAcquisitions + ProceedsFromContributionInAidOfConstruction + AllowanceForFundsUsedDuringConstructionInvestingActivities - PaymentsToAcquireRoyaltyInterestsInMiningProperties + ProceedsFromInsuranceSettlementInvestingActivities - IncreaseDecreaseInDeferredChargesInvesting - PaymentsToAcquireManagementContractRights - PaymentsForProceedsFromOtherInvestingActivities - OriginationOfNotesReceivableFromRelatedParties + RepaymentOfNotesReceivableFromRelatedParties - PaymentForContingentConsiderationLiabilityInvestingActivities"
     }
+  },
+  "cashflow_central_bank_reserve_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Central Bank Reserve Stock"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromFederalReserveBankStock"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_central_bank_reserve_stock - proceed_sale_central_bank_reserve_stock"
+    }
+  },
+  "proceed_sale_central_bank_reserve_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Central Bank Reserve Stock"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfFederalReserveStock"
+    ]
+  },
+  "payment_acquisition_central_bank_reserve_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Central Bank Reserve Stock"
+    },
+    "gaap": [
+      "PaymentsToAcquireFederalReserveStock"
+    ]
+  },
+  "cashflow_federal_home_loan_bank_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Federal Home Loan Bank Stock"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromFederalHomeLoanBankStock"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_federal_home_loan_bank_stock - proceed_sale_federal_home_loan_bank_stock"
+    }
+  },
+  "proceed_sale_federal_home_loan_bank_stock": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Federal Home Loan Bank Stock"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfFederalHomeLoanBankStock"
+    ]
+  },
+  "payment_acquisition_federal_home_loan_bank_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Federal Home Loan Bank Stock"
+    },
+    "gaap": [
+      "PaymentsToAcquireFederalHomeLoanBankStock"
+    ]
+  },
+  "cashflow_businesses_affiliates": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Businesses and Interest in Affiliates"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromBusinessesAndInterestInAffiliates"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_businesses_affiliates - proceed_divestiture_businesses_affiliates"
+    }
+  },
+  "cashflow_real_estate_partnership_investment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Real Estate Partnership Investment"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromRealEstatePartnershipInvestmentNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_real_estate_partnership_interest - proceed_divestiture_real_estate_partnership - proceed_distribution_real_estate_partnership - distribution_payable_real_estate_partnership + cashflow_real_estate_partnership_other"
+    }
+  },
+  "cashflow_real_estate_partnership_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Other Real Estate Partnerships"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromOtherRealEstatePartnerships"
+    ]
+  },
+  "distribution_payable_real_estate_partnership": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Distributions Payable to RealEstate Partnerships"
+    },
+    "gaap": [
+      "DistributionsPayableToRealEstatePartnerships"
+    ]
+  },
+  "proceed_distribution_real_estate_partnership": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Distribution Received from Real Estate Partnerships"
+    },
+    "gaap": [
+      "ProceedsFromDistributionsReceivedFromRealEstatePartnerships"
+    ]
+  },
+  "proceed_divestiture_real_estate_partnership": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Divestitures of Real Estate Partnership"
+    },
+    "gaap": [
+      "ProceedsFromDivestitureOfRealEstatePartnership"
+    ]
+  },
+  "payment_acquisition_real_estate_partnership_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Partners Interest in Real Estate Partnership"
+    },
+    "gaap": [
+      "PaymentsToAcquirePartnersInterestInRealEstatePartnershipNetOfCashAcquired"
+    ]
   },
   "cashflow_mortgage_servicing_rights": {
     "unit": "monetary",
@@ -5081,8 +5239,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "payment_acquisition_investments - proceed_sale_maturity_collection_investment",
-      "PaymentsToAcquireInvestments - ProceedsFromSaleMaturityAndCollectionsOfInvestments"
+      "any": "payment_acquisition_investments - proceed_sale_maturity_collection_investment"
     }
   },
   "cashflow_operating": {
@@ -16711,7 +16868,7 @@
       "any": "payment_acquisition_buildings_vessels + payment_acquisition_machinery_equipment"
     }
   },
-  "payment_acquisition_business": {
+  "payment_acquisition_businesses": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16732,7 +16889,7 @@
       "any": "payment_acquisition_business_gross + payment_other_acquisition_business + cashflow_acquisition_previous + payment_acquisition_inprocess_research_development - acquistion_cash_acquired"
     }
   },
-  "payment_acquisition_business_gross": {
+  "payment_acquisition_businesses_gross": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16744,7 +16901,7 @@
       "PaymentsToAcquireBusinessesGrossAndWorkingCapitalAdjustments"
     ]
   },
-  "payment_acquisition_business_interest": {
+  "payment_acquisition_businesses_affiliates": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16756,7 +16913,7 @@
     ],
     "calculation": {
       "order": 1224,
-      "any": "payment_acquisition_business + payment_acquisition_affiliates_subsidiaries"
+      "any": "payment_acquisition_businesses + payment_acquisition_interest_affiliates_subsidiaries"
     }
   },
   "payment_acquisition_crypto_assets": {
@@ -16864,8 +17021,19 @@
     ],
     "calculation": {
       "order": 1250,
-      "any": "payment_acquisition_interest_affiliates + payment_acquisition_interest_subsidiaries + payment_acquisition_interest_subsidiaries_additional + payment_acquisition_equity_method_investment + payment_acquisition_interest_joint_venture"
+      "any": "payment_acquisition_interest_subsidiaries + payment_acquisition_interest_subsidiaries_additional + payment_acquisition_equity_method_investment + payment_acquisition_interest_joint_venture"
     }
+  },
+  "payment_acquisition_interest_subsidiaries_additional": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Additional Interest in Subsidiary"
+    },
+    "gaap": [
+      "PaymentsToAcquireAdditionalInterestInSubsidiaries"
+    ]
   },
   "payment_acquisition_interest_joint_venture": {
     "unit": "monetary",
@@ -18656,10 +18824,74 @@
     ],
     "calculation": {
       "order": 1329,
-      "old": "proceed_collection_maturity_sale_investment_shortterm + proceed_collection_maturity_sale_investment_longterm + proceed_collection_maturity_sale_investment_other",
-      "any": "proceed_limited_partneship_investment + proceed_sale_maturity_securities_marketable + proceed_sale_collection_receivables + proceed_sale_equity_securities_fvni + proceed_sale_other_real_estate + proceed_sale_restricted_investments + proceed_sale_insurance_investments + proceed_sale_real_estate_heldforinvestment + proceed_sale_investments_projects + proceed_decommissioning_fund + proceed_sale_maturity_other_investments",
-      "ProceedsFromLimitedPartnershipInvestments + ProceedsFromSaleAndMaturityOfMarketableSecurities + ProceedsFromSaleAndMaturityOfAvailableForSaleSecurities + ProceedsFromSaleAndMaturityOfHeldToMaturitySecurities + ProceedsFromSaleAndCollectionOfReceivables + ProceedsFromSaleOfEquitySecuritiesFvNi + ProceedsFromSaleOfOtherRealEstate + ProceedsFromSaleOfRestrictedInvestments + ProceedsFromSaleOfInsuranceInvestments + ProceedsFromSaleOfRealEstateHeldforinvestment + ProceedsFromSaleOfInvestmentProjects + ProceedsFromDecommissioningFund + ProceedsFromSaleAndMaturityOfOtherInvestments"
+      "any": "proceed_limited_partneship_investment + proceed_sale_maturity_securities_marketable + proceed_sale_collection_receivables + proceed_sale_securities_fvni_equity + proceed_sale_real_estate_other + proceed_sale_investments_restricted + proceed_sale_investments_insurance + proceed_sale_real_estate_heldforinvestment + proceed_sale_investment_projects + proceed_decommissioning_fund + proceed_sale_maturity_investments_other"
     }
+  },
+  "proceed_decommissioning_fund": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Decommissioning Fund"
+    },
+    "gaap": [
+      "ProceedsFromDecommissioningFund"
+    ]
+  },
+  "proceed_sale_investment_projects": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Investment Projects"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfInvestmentProjects"
+    ]
+  },
+  "proceed_sale_real_estate_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Held-for-Investment Real Estate"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfRealEstateHeldforinvestment"
+    ]
+  },
+  "proceed_sale_investments_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Insurance Investments"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfInsuranceInvestments"
+    ]
+  },
+  "proceed_sale_investments_restricted": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Restricted Investments"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfRestrictedInvestments"
+    ]
+  },
+  "proceed_sale_real_estate_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Other Real Estate"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfOtherRealEstate"
+    ]
   },
   "proceed_sale_collection_receivables": {
     "unit": "monetary",
@@ -18683,7 +18915,7 @@
       "ProceedsFromLimitedPartnershipInvestments"
     ]
   },
-  "proceed_sale_maturity_collection_investment_longterm": {
+  "proceed_sale_maturity_collection_investments_longterm": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18694,7 +18926,7 @@
       "ProceedsFromSaleMaturityAndCollectionOfLongtermInvestments"
     ]
   },
-  "proceed_sale_maturity_other_investments": {
+  "proceed_sale_maturity_investments_other": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18703,6 +18935,21 @@
     },
     "gaap": [
       "ProceedsFromSaleAndMaturityOfOtherInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_investments_other + proceed_maturities_prepayments_calls_investments_other"
+    }
+  },
+  "proceed_maturities_prepayments_calls_investments_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Maturities, Prepayments and Calls of Other Investments"
+    },
+    "gaap": [
+      "ProceedsFromMaturitiesPrepaymentsAndCallsOfOtherInvestments"
     ]
   },
   "proceed_sale_maturity_collection_investment_shortterm": {
@@ -19070,7 +19317,22 @@
       "ProceedsFromTimeDepositsAccepted"
     ]
   },
-  "proceed_divestiture_business": {
+  "proceed_divestiture_businesses_affiliates": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Divestiture of Businesses and Interest in Affiliates"
+    },
+    "gaap": [
+      "ProceedsFromDivestitureOfBusinessesAndInterestsInAffiliates"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_divestiture_business_net_cash_divested + proceed_divestiture_interest_subsidiaries_affiliates"
+    }
+  },
+  "proceed_divestiture_interest_subsidiaries_affiliates": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -19078,9 +19340,70 @@
       "long": "Proceeds from Divestiture of Businesses"
     },
     "gaap": [
-      "ProceedsFromDivestitureOfBusinesses",
-      "ProceedsFromDivestitureOfBusinessesNetOfCashDivested",
-      "ProceedsFromDivestitureOfBusinessesAndInterestsInAffiliates"
+      "ProceedsFromDivestitureOfInterestInSubsidiariesAndAffiliates"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_divestiture_interest_consolidated_subsidiaries + proceed_sale_equity_method_investments + proceed_divestiture_interest_joint_venture"
+    }
+  },
+  "proceed_divestiture_interest_joint_venture": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Divestiture of Interest in Joint Venture"
+    },
+    "gaap": [
+      "ProceedsFromDivestitureOfInterestInJointVenture"
+    ]
+  },
+  "proceed_divestiture_interest_consolidated_subsidiaries": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Divestiture of Interest in Consolidated Subsidiaries"
+    },
+    "gaap": [
+      "ProceedsFromDivestitureOfInterestInConsolidatedSubsidiaries"
+    ]
+  },
+  "proceed_divestiture_businesses_net_cash_divested": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Divestiture of Businesses Net of Cash Divested"
+    },
+    "gaap": [
+      "ProceedsFromDivestitureOfBusinessesNetOfCashDivested"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_divestiture_businesses - cash_divested_deconsolidation"
+    }
+  },
+  "cash_divested_deconsolidation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cash Divested from Deconsolidation"
+    },
+    "gaap": [
+      "CashDivestedFromDeconsolidation"
+    ]
+  },
+  "proceed_divestiture_businesses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Divestiture of Businesses"
+    },
+    "gaap": [
+      "ProceedsFromDivestitureOfBusinesses"
     ]
   },
   "proceed_divestiture_business_financial": {
