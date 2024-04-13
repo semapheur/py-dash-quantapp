@@ -4941,9 +4941,543 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_longterm_loans_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - change_investments_restricted - change_collateral_held_under_securities_lending - cashflow_other_interest_earning_assets - payment_operating_lease_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_constriction + allowance_contribution_aid_constriction - payment_acquire_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquire_management_contract_rights - cashflow_other_investing_activities - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities",
-      "ProceedsFromPaymentsForFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResellNet - PaymentsForProceedsFromProductiveAssets + ProceedsFromDisposalCryptoAsset - PaymentsForProceedsFromMortgageServicingRights - PaymentsForProceedsFromInvestments - PaymentsForProceedsFromRealEstatePartnershipInvestmentNet - PaymentsForProceedsFromBusinessesAndInterestInAffiliates - PaymentsForProceedsFromFederalHomeLoanBankStock - PaymentsForProceedsFromFederalReserveBankStock - PaymentsForProceedsFromLoansAndLeases - PaymentsForProceedsFromLifeInsurancePolicies - PaymentsForProceedsFromRemovalCosts - PaymentsForProceedsFromNuclearFuel + ProceedsFromPaymentsForLongTermLoansForRelatedParties - PaymentsForProceedsFromHedgeInvestingActivities - PaymentsForProceedsFromDerivativeInstrumentInvestingActivities + ProceedsFromEquityMethodInvestmentDividendsOrDistributionsReturnOfCapital + ProceedsFromPaymentsForInInterestBearingDepositsInBanks + ProceedsFromSaleOfForeclosedAssets + ProceedsFromSaleOfWhollyOwnedRealEstateAndRealEstateAcquiredInSettlementOfLoans - IncreaseDecreaseOfRestrictedInvestments - IncreaseDecreaseInCollateralHeldUnderSecuritiesLending - PaymentsForProceedsFromOtherInterestEarningAssets - OperatingLeasePaymentsUse + ProceedsFromLeasePaymentSalesTypeAndDirectFinancingLeasesInvestingActivity - PaymentsForInvestmentInRestrictedCashFromPollutionControlBond + ProceedsFromDistributionOfRestrictedCashFromPollutionControlBond + ProceedsFromAdvancesForConstruction - RepaymentsOfAdvancesForConstruction - IncreaseDecreaseInLeaseAcquisitionCosts - PaymentsForLeasingCostsCommissionsAndTenantImprovements - PaymentsForProceedsFromDepositsOnRealEstateAcquisitions + ProceedsFromContributionInAidOfConstruction + AllowanceForFundsUsedDuringConstructionInvestingActivities - PaymentsToAcquireRoyaltyInterestsInMiningProperties + ProceedsFromInsuranceSettlementInvestingActivities - IncreaseDecreaseInDeferredChargesInvesting - PaymentsToAcquireManagementContractRights - PaymentsForProceedsFromOtherInvestingActivities - OriginationOfNotesReceivableFromRelatedParties + RepaymentOfNotesReceivableFromRelatedParties - PaymentForContingentConsiderationLiabilityInvestingActivities"
+      "": "- IncreaseDecreaseInRestrictedCash - IncreaseDecreaseInRestrictedCashAndInvestments - UseOfRestrictedCashForAcquisitionOfOilAndGasProperty - PaymentsForProceedsFromMortgageDeposits + ProceedsFromMortgageDeposits",
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_investments_restricted - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
     }
+  },
+  "payment_contingent_consideration_liability_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment for Contingent Consideration Liability Investing Activities"
+    },
+    "gaap": [
+      "PaymentForContingentConsiderationLiabilityInvestingActivities"
+    ]
+  },
+  "repayment_receivable_notes_related_parties": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayment of Notes Receivable from Related Parties"
+    },
+    "gaap": [
+      "RepaymentOfNotesReceivableFromRelatedParties"
+    ]
+  },
+  "origination_receivable_notes_related_parties": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Origination of Notes Receivable from Related Parties"
+    },
+    "gaap": [
+      "OriginationOfNotesReceivableFromRelatedParties"
+    ]
+  },
+  "payment_acquisition_management_contract_rights": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Management Contract Rights"
+    },
+    "gaap": [
+      "PaymentsToAcquireManagementContractRights"
+    ]
+  },
+  "change_deferred_charges_investing": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Deferred Charges Investing"
+    },
+    "gaap": [
+      "IncreaseDecreaseInDeferredChargesInvesting"
+    ]
+  },
+  "proceed_insurance_settlement_investing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Insurance Settlement Investing Activities"
+    },
+    "gaap": [
+      "ProceedsFromInsuranceSettlementInvestingActivities"
+    ]
+  },
+  "payment_acquisition_royalty_interests_mining_properties": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Royalty Interests in Mining Properties"
+    },
+    "gaap": [
+      "PaymentsToAcquireRoyaltyInterestsInMiningProperties"
+    ]
+  },
+  "allowance_funds_construction_investing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Allowance for Funds Used During Construction Investing Activities"
+    },
+    "gaap": [
+      "AllowanceForFundsUsedDuringConstructionInvestingActivities"
+    ]
+  },
+  "proceed_contribution_aid_construction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Contribution in Aid of Construction"
+    },
+    "gaap": [
+      "ProceedsFromContributionInAidOfConstruction"
+    ]
+  },
+  "cashflow_deposits_real_estate_acquisitions": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Deposits on Real Estate Acquisitions"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromDepositsOnRealEstateAcquisitions"
+    ]
+  },
+  "payment_leasing_costs_commissions_tenant_improvements": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Leasing Costs, Commissions and Tenant Improvements"
+    },
+    "gaap": [
+      "PaymentsForLeasingCostsCommissionsAndTenantImprovements"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_leasing_costs + payment_tenant_improvements + payment_lease_commissions"
+    }
+  },
+  "payment_lease_commissions": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Lease Commissions"
+    },
+    "gaap": [
+      "PaymentsForLeaseCommissions"
+    ]
+  },
+  "payment_tenant_improvements": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Tenant Improvements"
+    },
+    "gaap": [
+      "PaymentsForTenantImprovements"
+    ]
+  },
+  "payment_leasing_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Leasing Costs"
+    },
+    "gaap": [
+      "PaymentsForLeasingCosts"
+    ]
+  },
+  "change_lease_acquisition_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Lease Acquisition Costs"
+    },
+    "gaap": [
+      "IncreaseDecreaseInLeaseAcquisitionCosts"
+    ]
+  },
+  "repayment_advances_construction": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments for Advances for Construction"
+    },
+    "gaap": [
+      "RepaymentsOfAdvancesForConstruction"
+    ]
+  },
+  "proceed_advances_construction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Advances for Construction"
+    },
+    "gaap": [
+      "ProceedsFromAdvancesForConstruction"
+    ]
+  },
+  "proceed_distribution_restricted_cash_pollution_control_bond": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Distribution of Restricted Cash from Pollution Control Bond"
+    },
+    "gaap": [
+      "ProceedsFromDistributionOfRestrictedCashFromPollutionControlBond"
+    ]
+  },
+  "payment_investment_restricted_cash_pollution_control_bond": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Investment in Restricted Cash from Pollution Control Bond"
+    },
+    "gaap": [
+      "PaymentsForInvestmentInRestrictedCashFromPollutionControlBond"
+    ]
+  },
+  "proceed_lease_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Lease Payment Sales Type and Direct Financing Leases Investing Activity"
+    },
+    "gaap": [
+      "ProceedsFromLeasePaymentSalesTypeAndDirectFinancingLeasesInvestingActivity"
+    ]
+  },
+  "payment_lease_operating_use": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Use of Operating Lease"
+    },
+    "gaap": [
+      "OperatingLeasePaymentsUse"
+    ]
+  },
+  "cashflow_other_interest_earning_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Other Interest Earning Assets"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromOtherInterestEarningAssets"
+    ]
+  },
+  "cashflow_collateral_securities_lending": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Collateral Held Under Securities Lending"
+    },
+    "gaap": [
+      "IncreaseDecreaseInCollateralHeldUnderSecuritiesLending"
+    ]
+  },
+  "cashflow_investments_restricted": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) of Restricted Investments"
+    },
+    "gaap": [
+      "IncreaseDecreaseOfRestrictedInvestments"
+    ]
+  },
+  "proceed_sale_real_estate_wholly_owned_acquired_settlement_loans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Wholly Owned Real Estate and Real Estate Acquired in Settlement of Loans"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfWhollyOwnedRealEstateAndRealEstateAcquiredInSettlementOfLoans"
+    ]
+  },
+  "proceed_sale_foreclosed_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Foreclosed Assets"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfForeclosedAssets"
+    ]
+  },
+  "cashflow_interest_bearing_bank_deposits": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments for) Interest Bearing Deposits in Banks"
+    },
+    "gaap": [
+      "ProceedsFromPaymentsForInInterestBearingDepositsInBanks"
+    ]
+  },
+  "cashflow_equity_method_investing_dividends_distributions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments for) Equity Method Investment Dividends or Distributions Return of Capital"
+    },
+    "gaap": [
+      "ProceedsFromEquityMethodInvestmentDividendsOrDistributionsReturnOfCapital"
+    ]
+  },
+  "cashflow_derivative_instrument_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Derivative Instrument Investing Activities"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromDerivativeInstrumentInvestingActivities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_derivative_instrument_investing_activities - proceed_derivative_instrument_investing_activities"
+    }
+  },
+  "proceed_derivative_instrument_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Derivative Instrument Investing Activities"
+    },
+    "gaap": [
+      "ProceedsFromDerivativeInstrumentInvestingActivities"
+    ]
+  },
+  "payment_derivative_instrument_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Derivative Instrument Investing Activities"
+    },
+    "gaap": [
+      "PaymentsForDerivativeInstrumentInvestingActivities"
+    ]
+  },
+  "cashflow_hedge_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Hedge Investing Activities"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromHedgeInvestingActivities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_hedge_investing_activities - proceed_hedge_investing_activities"
+    }
+  },
+  "proceed_hedge_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Hedge Investing Activities"
+    },
+    "gaap": [
+      "ProceedsFromHedgeInvestingActivities"
+    ]
+  },
+  "payment_hedge_investing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Hedge Investing Activities"
+    },
+    "gaap": [
+      "PaymentsForHedgeInvestingActivities"
+    ]
+  },
+  "cashflow_loans_longterm_related_parties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments for) Long-term Loans for Related Parties"
+    },
+    "gaap": [
+      "ProceedsFromPaymentsForLongTermLoansForRelatedParties"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_collection_loans_longterm_related_parties - payment_fund_loans_longterm_related_parties"
+    }
+  },
+  "payment_fund_loans_longterm_related_parties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Fund Long-term Loans for Related Parties"
+    },
+    "gaap": [
+      "PaymentsToFundLongtermLoansToRelatedParties"
+    ]
+  },
+  "proceed_collection_loans_longterm_related_parties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Long-term Loans for Related Parties"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfLongtermLoansToRelatedParties"
+    ]
+  },
+  "cashflow_nuclear_fuel": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Nuclear Fuel"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromNuclearFuel"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_nuclear_fuel - proceed_nuclear_fuel"
+    }
+  },
+  "proceed_nuclear_fuel": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Nuclear Fuel"
+    },
+    "gaap": [
+      "ProceedsFromNuclearFuel"
+    ]
+  },
+  "payment_nuclear_fuel": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Nuclear Fuel"
+    },
+    "gaap": [
+      "PaymentsForNuclearFuel"
+    ]
+  },
+  "cashflow_removal_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Removal Costs"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromRemovalCosts"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_removal_costs - proceed_removal_costs"
+    }
+  },
+  "proceed_removal_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Removal Costs"
+    },
+    "gaap": [
+      "ProceedsFromRemovalCosts"
+    ]
+  },
+  "payment_removal_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Removal Costs"
+    },
+    "gaap": [
+      "PaymentsForRemovalCosts"
+    ]
+  },
+  "cashflow_life_insurance_policies": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Life Insurance Policies"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromLifeInsurancePolicies"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_life_insurance_policies - proceed_life_insurance_policies"
+    }
+  },
+  "proceed_life_insurance_policies": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Life Insurance Policies"
+    },
+    "gaap": [
+      "ProceedsFromLifeInsurancePolicies"
+    ]
+  },
+  "payment_acquisition_life_insurance_policies": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Life Insurance Policies"
+    },
+    "gaap": [
+      "PaymentsToAcquireLifeInsurancePolicies"
+    ]
   },
   "cashflow_loans_leases": {
     "unit": "monetary",
@@ -5440,8 +5974,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Payments for (Proceeds from) Other Investing Activities",
-      "short": "Other Investing Activities"
+      "long": "Payments for (Proceeds from) Other Investing Activities"
     },
     "gaap": [
       "PaymentsForProceedsFromOtherInvestingActivities"
