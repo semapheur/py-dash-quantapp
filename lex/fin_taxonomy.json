@@ -4924,9 +4924,20 @@
     ],
     "calculation": {
       "order": 399,
-      "any": "cashflow_investing_continuing_operations + cashflow_investing_discontinued_operations",
-      "NetCashProvidedByUsedInInvestingActivitiesContinuingOperations + CashProvidedByUsedInInvestingActivitiesDiscontinuedOperations"
+      "any": "cashflow_investing_continuing_operations + cashflow_investing_discontinued_operations"
     }
+  },
+  "cashflow_investing_discontinued_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash Provided by (Used in) Investing Activities Discontinued Operations",
+      "short": "Investing Cash Flow for Discontinued Operations"
+    },
+    "gaap": [
+      "CashProvidedByUsedInInvestingActivitiesDiscontinuedOperations"
+    ]
   },
   "cashflow_investing_continuing_operations": {
     "unit": "monetary",
@@ -4956,8 +4967,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "payment_deposits_mortgage - proceed_deposits_mortgage",
-      "PaymentsForMortgageDeposits - ProceedsFromMortgageDeposits"
+      "any": "payment_deposits_mortgage - proceed_deposits_mortgage"
     }
   },
   "proceed_deposits_mortgage": {
