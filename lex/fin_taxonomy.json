@@ -4924,12 +4924,142 @@
     ],
     "calculation": {
       "order": 399,
-      "any": "cashflow_productive_assets + cashflow_intangible_assets + cashflow_securities + cashflow_acquisition_divestitures + cashflow_investing_other"
+      "old": "cashflow_productive_assets + cashflow_intangible_assets + cashflow_securities + cashflow_acquisition_divestitures + cashflow_investing_other",
+      "any": "cashflow_investing_continuing_operations + cashflow_investing_discontinued_operations",
+      "NetCashProvidedByUsedInInvestingActivitiesContinuingOperations + CashProvidedByUsedInInvestingActivitiesDiscontinuedOperations"
     }
+  },
+  "cashflow_investing_continuing_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash Provided by (Used in) Investing Activities Continuing Operations",
+      "short": "Investing Cash Flow Continuing Operations"
+    },
+    "gaap": [
+      "NetCashProvidedByUsedInInvestingActivitiesContinuingOperations"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_back_stock - cashflow_central_bank_reserve_stock - cashflow_loans_lease - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_longterm_loans_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - change_investments_restricted - change_collateral_held_under_securities_lending - cashflow_other_interest_earning_assets - payment_operating_lease_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_constriction + allowance_contribution_aid_constriction - payment_acquire_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquire_management_contract_rights - cashflow_other_investing_activities - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities",
+      "ProceedsFromPaymentsForFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResellNet - PaymentsForProceedsFromProductiveAssets + ProceedsFromDisposalCryptoAsset - PaymentsForProceedsFromMortgageServicingRights - PaymentsForProceedsFromInvestments - PaymentsForProceedsFromRealEstatePartnershipInvestmentNet - PaymentsForProceedsFromBusinessesAndInterestInAffiliates - PaymentsForProceedsFromFederalHomeLoanBankStock - PaymentsForProceedsFromFederalReserveBankStock - PaymentsForProceedsFromLoansAndLeases - PaymentsForProceedsFromLifeInsurancePolicies - PaymentsForProceedsFromRemovalCosts - PaymentsForProceedsFromNuclearFuel + ProceedsFromPaymentsForLongTermLoansForRelatedParties - PaymentsForProceedsFromHedgeInvestingActivities - PaymentsForProceedsFromDerivativeInstrumentInvestingActivities + ProceedsFromEquityMethodInvestmentDividendsOrDistributionsReturnOfCapital + ProceedsFromPaymentsForInInterestBearingDepositsInBanks + ProceedsFromSaleOfForeclosedAssets + ProceedsFromSaleOfWhollyOwnedRealEstateAndRealEstateAcquiredInSettlementOfLoans - IncreaseDecreaseOfRestrictedInvestments - IncreaseDecreaseInCollateralHeldUnderSecuritiesLending - PaymentsForProceedsFromOtherInterestEarningAssets - OperatingLeasePaymentsUse + ProceedsFromLeasePaymentSalesTypeAndDirectFinancingLeasesInvestingActivity - PaymentsForInvestmentInRestrictedCashFromPollutionControlBond + ProceedsFromDistributionOfRestrictedCashFromPollutionControlBond + ProceedsFromAdvancesForConstruction - RepaymentsOfAdvancesForConstruction - IncreaseDecreaseInLeaseAcquisitionCosts - PaymentsForLeasingCostsCommissionsAndTenantImprovements - PaymentsForProceedsFromDepositsOnRealEstateAcquisitions + ProceedsFromContributionInAidOfConstruction + AllowanceForFundsUsedDuringConstructionInvestingActivities - PaymentsToAcquireRoyaltyInterestsInMiningProperties + ProceedsFromInsuranceSettlementInvestingActivities - IncreaseDecreaseInDeferredChargesInvesting - PaymentsToAcquireManagementContractRights - PaymentsForProceedsFromOtherInvestingActivities - OriginationOfNotesReceivableFromRelatedParties + RepaymentOfNotesReceivableFromRelatedParties - PaymentForContingentConsiderationLiabilityInvestingActivities"
+    }
+  },
+  "cashflow_mortgage_servicing_rights": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Mortgage Servicing Rights"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromMortgageServicingRights"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_mortgage_servicing_rights - proceed_sale_mortgage_servicing_rights"
+    }
+  },
+  "proceed_sale_mortgage_servicing_rights": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Mortgage Servicing Rights"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfMortgageServicingRightsMSR"
+    ]
+  },
+  "payment_acquisition_mortgage_servicing_rights": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Acquire Mortgage Servicing Rights"
+    },
+    "gaap": [
+      "PaymentsToAcquireMortgageServicingRightsMSR"
+    ]
+  },
+  "proceed_disposal_crypto_asset": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Disposal Crypto Asset"
+    },
+    "gaap": [
+      "ProceedsFromDisposalCryptoAsset"
+    ]
+  },
+  "cashflow_federal_funds_sold_securities_purchased_resell_agreement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments for) Federal Funds Sold and Securities Purchased under Agreements To Resell"
+    },
+    "gaap": [
+      "ProceedsFromPaymentsForFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResellNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cashflow_federal_funds_sold + cashflow_securities_purchased_resell_agreements"
+    }
+  },
+  "cashflow_securities_purchased_resell_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments for) Securities Purchased under Agreements to Resell"
+    },
+    "gaap": [
+      "ProceedsFromPaymentsForSecuritiesPurchasedUnderAgreementsToResell"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_securities_purchased_resell_agreements - payment_securities_purchased_resell_agreements"
+    }
+  },
+  "payment_securities_purchased_resell_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Securities Purchased under Agreements to Resell"
+    },
+    "gaap": [
+      "PaymentsForSecuritiesPurchasedUnderAgreementsToResell"
+    ]
+  },
+  "proceed_securities_purchased_resell_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Securities Purchased under Agreements to Resell"
+    },
+    "gaap": [
+      "ProceedsFromSecuritiesPurchasedUnderAgreementsToResell"
+    ]
+  },
+  "cashflow_federal_funds_sold": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Change in Federal Funds Sold"
+    },
+    "gaap": [
+      "IncreaseDecreaseInFederalFundsSold"
+    ]
   },
   "cashflow_investing_other": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "sum",
     "label": {
       "long": "Payments for (Proceeds from) Other Investing Activities",
@@ -4941,15 +5071,19 @@
   },
   "cashflow_investments": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Proceeds from Sale and Maturity of Trade Securities",
-      "short": "Proceeds from Trade Securities"
+      "long": "Payments for (Proceeds from) Investments"
     },
     "gaap": [
       "PaymentsForProceedsFromInvestments"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payment_acquisition_investments - proceed_sale_maturity_collection_investment",
+      "PaymentsToAcquireInvestments - ProceedsFromSaleMaturityAndCollectionsOfInvestments"
+    }
   },
   "cashflow_operating": {
     "unit": "monetary",
@@ -5028,15 +5162,17 @@
   },
   "cashflow_productive_assets": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Purchase and Sale of Property, Plant and Equipment",
-      "short": "Net PPE Purchase/Sales"
+      "long": "Payments for (Proceeds from) Productive Assets"
     },
+    "gaap": [
+      "PaymentsForProceedsFromProductiveAssets"
+    ],
     "calculation": {
       "order": 395,
-      "any": "proceed_productive_assets + payment_productive_assets"
+      "any": "payment_acquisition_productive_assets - proceed_sale_productive_assets"
     }
   },
   "cashflow_securities": {
@@ -5238,7 +5374,7 @@
     "unit": "monetary",
     "aggregate": "sum",
     "label": {
-      "long": "Increase (Decrease) in Fixed Assets"
+      "long": "Increase (Decrease) in Productive Assets"
     },
     "calculation": {
       "order": 295,
@@ -18507,7 +18643,7 @@
       "ProceedsFromCollaborators"
     ]
   },
-  "proceed_collection_maturity_sale_investment": {
+  "proceed_sale_maturity_collection_investment": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18520,10 +18656,34 @@
     ],
     "calculation": {
       "order": 1329,
-      "any": "proceed_collection_maturity_sale_investment_shortterm + proceed_collection_maturity_sale_investment_longterm + proceed_collection_maturity_sale_investment_other"
+      "old": "proceed_collection_maturity_sale_investment_shortterm + proceed_collection_maturity_sale_investment_longterm + proceed_collection_maturity_sale_investment_other",
+      "any": "proceed_limited_partneship_investment + proceed_sale_maturity_securities_marketable + proceed_sale_collection_receivables + proceed_sale_equity_securities_fvni + proceed_sale_other_real_estate + proceed_sale_restricted_investments + proceed_sale_insurance_investments + proceed_sale_real_estate_heldforinvestment + proceed_sale_investments_projects + proceed_decommissioning_fund + proceed_sale_maturity_other_investments",
+      "ProceedsFromLimitedPartnershipInvestments + ProceedsFromSaleAndMaturityOfMarketableSecurities + ProceedsFromSaleAndMaturityOfAvailableForSaleSecurities + ProceedsFromSaleAndMaturityOfHeldToMaturitySecurities + ProceedsFromSaleAndCollectionOfReceivables + ProceedsFromSaleOfEquitySecuritiesFvNi + ProceedsFromSaleOfOtherRealEstate + ProceedsFromSaleOfRestrictedInvestments + ProceedsFromSaleOfInsuranceInvestments + ProceedsFromSaleOfRealEstateHeldforinvestment + ProceedsFromSaleOfInvestmentProjects + ProceedsFromDecommissioningFund + ProceedsFromSaleAndMaturityOfOtherInvestments"
     }
   },
-  "proceed_collection_maturity_sale_investment_longterm": {
+  "proceed_sale_collection_receivables": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Limited Partnership Investments"
+    },
+    "gaap": [
+      "ProceedsFromSaleAndMaturityOfMarketableSecurities"
+    ]
+  },
+  "proceed_limited_partneship_investment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Limited Partnership Investments"
+    },
+    "gaap": [
+      "ProceedsFromLimitedPartnershipInvestments"
+    ]
+  },
+  "proceed_sale_maturity_collection_investment_longterm": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18534,18 +18694,18 @@
       "ProceedsFromSaleMaturityAndCollectionOfLongtermInvestments"
     ]
   },
-  "proceed_collection_maturity_sale_investment_other": {
+  "proceed_sale_maturity_other_investments": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Proceeds from Sale, Maturity and Collection of Other Investments"
+      "long": "Proceeds from Sale and Maturity of Other Investments"
     },
     "gaap": [
       "ProceedsFromSaleAndMaturityOfOtherInvestments"
     ]
   },
-  "proceed_collection_maturity_sale_investment_shortterm": {
+  "proceed_sale_maturity_collection_investment_shortterm": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18634,7 +18794,7 @@
       "ProceedsFromCollectionOfTradeAccountsReceivable"
     ]
   },
-  "proceed_collection_sale_receivable": {
+  "proceed_sale_collection_receivable": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18643,14 +18803,118 @@
     },
     "gaap": [
       "ProceedsFromSaleAndCollectionOfReceivables"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_collection_receivable_notes + proceed_sale_collection_receivable_lease + proceed_sale_collection_receivable_loan + proceed_sale_collection_receivable_notes_mortgage + proceed_sale_collection_receivable_finance + proceed_collection_retained_interest_receivable_securitized + proceed_collection_advance_affiliate + proceed_advance_home_loan_bank + proceed_sale_collection_receivable_other"
+    }
   },
-  "proceed_collection_sale_receivable_notes": {
+  "proceed_sale_collection_receivable_other": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Proceeds from Collection and Sale of Notes Receivables"
+      "long": "Proceeds from Sale and Collection of Other Receivables"
+    },
+    "gaap": [
+      "ProceedsFromFederalHomeLoanBankAdvances"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_receivable_other + proceed_collection_receivable_other"
+    }
+  },
+  "proceed_collection_receivable_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Other Receivable"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfOtherReceivables"
+    ]
+  },
+  "proceed_sale_receivable_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Other Receivable"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfOtherReceivables"
+    ]
+  },
+  "proceed_advance_home_loan_bank": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Federal Home Loan Bank Advances"
+    },
+    "gaap": [
+      "ProceedsFromFederalHomeLoanBankAdvances"
+    ]
+  },
+  "proceed_collection_advance_affiliate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Advance to Affiliate"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfAdvanceToAffiliate"
+    ]
+  },
+  "proceed_collection_retained_interest_receivable_securitized": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Retained Interest in Securitized Receivables"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfRetainedInterestInSecuritizedReceivables"
+    ]
+  },
+  "proceed_sale_collection_receivable_finance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale and Collection of Finance Receivables"
+    },
+    "gaap": [
+      "ProceedsFromSaleAndCollectionOfFinanceReceivables"
+    ],
+    "calculation": {
+      "order": 1338,
+      "any": "proceed_sale_receivable_finance + proceed_collection_receivable_finance"
+    }
+  },
+  "proceed_sale_collection_receivable_lease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale and Collection of Lease Receivables"
+    },
+    "gaap": [
+      "ProceedsFromSaleAndCollectionOfLeaseReceivables"
+    ],
+    "calculation": {
+      "order": 1338,
+      "any": "proceed_sale_receivable_lease + proceed_collection_receivable_lease"
+    }
+  },
+  "proceed_sale_collection_receivable_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale and Collection of Notes Receivables"
     },
     "gaap": [
       "ProceedsFromNotesReceivable",
@@ -18659,10 +18923,10 @@
     ],
     "calculation": {
       "order": 1338,
-      "any": "proceed_collection_receivable_notes + proceed_sale_receivable_notes"
+      "any": "proceed_sale_receivable_notes + proceed_collection_receivable_notes"
     }
   },
-  "proceed_collection_sale_receivable_notes_mortgage": {
+  "proceed_sale_collection_receivable_notes_mortgage": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -19664,15 +19928,41 @@
       "ProceedsFromSaleOfMachineryAndEquipment"
     ]
   },
-  "proceed_sale_maturities_prepayments_calls": {
+  "proceed_maturities_prepayments_calls_securities_availableforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Proceeds from Maturities of Trade Securities"
+      "long": "Proceeds from Maturities, Prepayments and Calls of Available-for-Sale Securities"
     },
     "gaap": [
       "ProceedsFromMaturitiesPrepaymentsAndCallsOfAvailableForSaleSecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_maturities_prepayments_calls_securities_mortgagebacked + proceed_collection_retained_interest_securities_availableforsale"
+    }
+  },
+  "proceed_collection_retained_interest_securities_availableforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collection of Retained Interest in Available-for-Sale Securitized Receivables"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfRetainedInterestInSecuritizedReceivablesCategorizedAsAvailableForSale"
+    ]
+  },
+  "proceed_maturities_prepayments_calls_securities_mortgagebacked": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Maturities, Prepayments and Calls of Mortgage-Backed Securities"
+    },
+    "gaap": [
+      "ProceedsFromMaturitiesPrepaymentsAndCallsOfMortgageBackedSecuritiesMBS"
     ]
   },
   "proceed_sale_maturity_securities_availableforsale": {
@@ -19684,7 +19974,11 @@
     },
     "gaap": [
       "ProceedsFromSaleAndMaturityOfAvailableForSaleSecurities"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_securities_availableforsale + proceed_maturities_prepayments_calls_securities_availableforsale"
+    }
   },
   "proceed_sale_maturity_securities_marketable": {
     "unit": "monetary",
@@ -19695,6 +19989,88 @@
     },
     "gaap": [
       "ProceedsFromSaleAndMaturityOfMarketableSecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_maturity_securities_heldforinvestment + proceed_sale_maturity_securities_availableforsale + proceed_sale_maturity_securities_heldtomaturity"
+    }
+  },
+  "proceed_sale_maturity_securities_heldtomaturity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale and Maturity of Held-to-maturity Securities"
+    },
+    "gaap": [
+      "ProceedsFromSaleAndMaturityOfHeldToMaturitySecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_securities_heldtomaturity + proceed_maturities_prepayments_calls_securities_heldtomaturity"
+    }
+  },
+  "proceed_maturities_prepayments_calls_securities_heldtomaturity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Maturities, Prepayments and Calls of Held-to-maturity Securities"
+    },
+    "gaap": [
+      "ProceedsFromMaturitiesPrepaymentsAndCallsOfHeldToMaturitySecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_collection_retained_interest_securities_heldtomaturity"
+    }
+  },
+  "proceed_collection_retained_interest_securities_heldtomaturity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Collections of Retained Interest in Held-to-maturity Securitized Receivables"
+    },
+    "gaap": [
+      "ProceedsFromCollectionOfRetainedInterestInSecuritizedReceivablesCategorizedAsHeldToMaturity"
+    ]
+  },
+  "proceed_sale_maturity_securities_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale and Maturity of Trading Securities Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromSaleAndMaturityOfTradingSecuritiesHeldforinvestment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_sale_securities_heldforinvestment + proceed_maturities_repayments_calls_securities_heldforinvestment"
+    }
+  },
+  "proceed_maturities_repayments_calls_securities_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Maturities, Repayments and Calls of Trading Securities Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromMaturitiesRepaymentsAndCallsOfTradingSecuritiesHeldforinvestment"
+    ]
+  },
+  "proceed_sale_securities_heldforinvestment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Trading Securities Held for Investment"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfTradingSecuritiesHeldforinvestment"
     ]
   },
   "proceed_sale_mortgage_loans_heldforsale": {
