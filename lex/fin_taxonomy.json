@@ -4717,9 +4717,10 @@
   },
   "cashflow_debt": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Issuance and Repayments of Debt",
+      "long": "Proceeds from (Repayments of) Debt",
       "short": "Net Borrowing"
     },
     "gaap": [
@@ -4727,7 +4728,41 @@
     ],
     "calculation": {
       "order": 373,
-      "all": "cashflow_debt_shortterm + cashflow_debt_longterm + cashflow_debt_other"
+      "old": "cashflow_debt_shortterm + cashflow_debt_longterm + cashflow_debt_other",
+      "any": "cashflow_debt_shortterm + cashflow_longterm_debt_capital_securities + change_contract_holders_funds + change_annuities_investment_certificates + cashflow_debt_other + cashflow_deposits_debt_retirements - repayment_loans_longterm_vendors",
+      "ProceedsFromRepaymentsOfShortTermDebt + ProceedsFromRepaymentsOfLongTermDebtAndCapitalSecurities + NetChangeContractHoldersFunds + NetChangeAnnuitiesAndInvestmentCertificates + ProceedsFromRepaymentsOfOtherDebt + ProceedsFromPaymentsForDepositsAppliedToDebtRetirements - RepaymentsOfLongtermLoansFromVendors"
+    }
+  },
+  "cashflow_longterm_debt_capital_securities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Repayments of) Long-Term Debt and Capital Securities"
+    },
+    "gaap": [
+      "ProceedsFromRepaymentsOfLongTermDebtAndCapitalSecurities"
+    ],
+    "calculation": {
+      "order": 369,
+      "any": "proceed_issuance_longterm_debt_capital_securities - repayment_longterm_debt_capital_securities",
+      "ProceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet - RepaymentsOfLongTermDebtAndCapitalSecurities"
+    }
+  },
+  "proceed_issuance_longterm_debt_capital_securities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Long-Term Debt and Capital Securities"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet"
+    ],
+    "calculation": {
+      "order": 369,
+      "any": "proceed_issuance_debt_longterm + proceed_issuance_capital_securities",
+      "ProceedsFromIssuanceOfLongTermDebt + ProceedsFromIssuanceOfMandatoryRedeemableCapitalSecurities"
     }
   },
   "cashflow_debt_longterm": {
@@ -4735,8 +4770,8 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Issuance and Repayments of Long-term Debt",
-      "short": "Change in Long-term Debt"
+      "long": "Proceeds from (Repayments of) Long-term Debt",
+      "short": "Net Long-term Borrowing"
     },
     "calculation": {
       "order": 369,
@@ -4780,8 +4815,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Issuance and Repayments of Secured Debt",
-      "short": "Change in Long-term Debt"
+      "long": "Proceeds from (Repayments of) Secured Debt"
     },
     "gaap": [
       "ProceedsFromRepaymentsOfSecuredDebt"
@@ -4796,17 +4830,105 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Issuance and Repayments of Commercial Paper",
-      "short": "Change in Short-term Debt"
+      "long": "Proceeds from (Repayments of) Short-term Debt",
+      "short": "Net Short-term Borrowing"
     },
     "gaap": [
-      "ProceedsFromRepaymentsOfCommercialPaper",
       "ProceedsFromRepaymentsOfShortTermDebt"
     ],
     "calculation": {
       "order": 366,
-      "any": "cashflow_debt_shortterm_maturing_before_3_months + cashflow_debt_shortterm_maturing_after_3_months + cashflow_debt_shortterm_other"
+      "all": "cashflow_debt_shortterm_maturing_before_3_months + cashflow_debt_shortterm_maturing_after_3_months + cashflow_debt_shortterm_other",
+      "any": "proceed_debt_shortterm - repayment_debt_shortterm",
+      "ProceedsFromShortTermDebt - RepaymentsOfShortTermDebt"
     }
+  },
+  "cashflow_commercial_paper": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Repayments of) Commercial Paper"
+    },
+    "gaap": [
+      "ProceedsFromRepaymentsOfCommercialPaper"
+    ],
+    "calculation": {
+      "order": 366,
+      "any": "proceed_issuance_commercial_paper - repayment_commercial_paper"
+    }
+  },
+  "repayment_commercial_paper": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Commercial Paper"
+    },
+    "gaap": [
+      "RepaymentsOfCommercialPaper"
+    ]
+  },
+  "proceed_debt_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash from Issuance and Repayments of Commercial Paper",
+      "short": "Change in Short-term Debt"
+    },
+    "gaap": [
+      "ProceedsFromShortTermDebt"
+    ],
+    "calculation": {
+      "order": 366,
+      "all": "cashflow_debt_shortterm_maturing_before_3_months + cashflow_debt_shortterm_maturing_after_3_months + cashflow_debt_shortterm_other",
+      "any": "proceed_credit_line + proceed_debt_bank + proceed_issuance_commercial_paper + proceed_debt_subordinated_shortterm + proceed_payable_notes + proceed_payable_loans_construction + proceed_capital_lease_obligations_shortterm + proceed_debt_shortterm_other"
+    }
+  },
+  "proceed_capital_lease_obligations_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Short-term Capital Lease Obligations"
+    },
+    "gaap": [
+      "ProceedsFromShortTermCapitalLeaseObligations"
+    ]
+  },
+  "proceed_payable_loans_construction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Construction Loans Payable"
+    },
+    "gaap": [
+      "ProceedsFromConstructionLoansPayable"
+    ]
+  },
+  "proceed_debt_subordinated_shortterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Subordinated Short-term Debt"
+    },
+    "gaap": [
+      "ProceedsFromSubordinatedShortTermDebt"
+    ]
+  },
+  "proceed_debt_bank": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Bank Debt"
+    },
+    "gaap": [
+      "ProceedsFromBankDebt"
+    ]
   },
   "cashflow_debt_shortterm_maturing_after_3_months": {
     "unit": "monetary",
@@ -4915,6 +5037,65 @@
       "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_mortgage_deposits - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_redeemable_preferred_stock + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payable_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + cashflow_other_financing_activities",
       "IncreaseDecreaseInDeposits + ProceedsFromRepaymentsOfDebt - PaymentOfFinancingAndStockIssuanceCosts - PaymentsForProceedsFromHedgeFinancingActivities - PaymentsForProceedsFromDerivativeInstrumentFinancingActivities - PaymentsForProceedsFromMortgageDeposits + ProceedsFromPaymentsToMinorityShareholders - PaymentsForRepurchaseOfRedeemableNoncontrollingInterest + ProceedsFromRepurchaseOfTrustPreferredSecurities + ProceedsFromRepurchaseOfRedeemablePreferredStock + ProceedsFromRepurchaseOfEquity - PaymentsOfDividends - DistributionMadeToLimitedLiabilityCompanyLLCMemberCashDistributionsPaid - DistributionMadeToLimitedPartnerCashDistributionsPaid + IncreaseDecreaseInSecuritiesLendingPayable - OriginationOfLoansToEmployeeStockOwnershipPlans + ProceedsFromRepaymentOfLoansByEmployeeStockOwnershipPlans + ProceedsFromRepaymentOfLoansToPurchaseCommonStock - OriginationOfLoanToPurchaseCommonStock - PaymentsOfDerivativeIssuanceCosts - PaymentsOfDebtRestructuringCosts - PaymentsOfDebtExtinguishmentCosts + IncreaseDecreaseInAdvancePaymentsByBorrowersForTaxesAndInsurance - PaymentsRelatedToTaxWithholdingForShareBasedCompensation - PaymentsOfDistributionsToAffiliates + ProceedsFromContributionsFromAffiliates + ProceedsFromContributionsFromParent + ProceedsFromPartnershipContribution - PaymentsOfMergerRelatedCostsFinancingActivities - PaymentForContingentConsiderationLiabilityFinancingActivities + ProceedsFromAdvanceForAndContributionInAidOfConstructionFinancingActivity - PaymentForAdvanceForConstructionFinancingActivity + ProceedsFromPaymentsForOtherFinancingActivities"
     }
+  },
+  "change_deposits": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Deposits"
+    },
+    "gaap": [
+      "IncreaseDecreaseInDeposits"
+    ],
+    "calculation": {
+      "order": 390,
+      "any": "change_deposits_savings + change_deposits_demand + change_deposits_time + change_deposits_other"
+    }
+  },
+  "change_deposits_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Other Deposits"
+    },
+    "gaap": [
+      "IncreaseDecreaseInOtherDeposits"
+    ]
+  },
+  "change_deposits_time": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Time Deposits"
+    },
+    "gaap": [
+      "IncreaseDecreaseInTimeDeposits"
+    ]
+  },
+  "change_deposits_demand": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Demand Deposits"
+    },
+    "gaap": [
+      "IncreaseDecreaseInDemandDeposits"
+    ]
+  },
+  "change_deposits_savings": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Savings Deposits"
+    },
+    "gaap": [
+      "IncreaseDecreaseInSavingsDeposits"
+    ]
   },
   "cashflow_financing_other": {
     "unit": "monetary",
@@ -6200,8 +6381,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Proceeds from and Repayments of Notes Payable",
-      "short": "Change in Equity"
+      "long": "Proceeds from (Repayments of) Notes Payable"
     },
     "gaap": [
       "ProceedsFromRepaymentsOfNotesPayable"
@@ -7301,7 +7481,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "longterm_lineof_credit_current + commercial_paper_longterm_current + loan_construction_longterm_current + debt_secured_current + debt_unsecured_current + debt_subordinated_current + debt_convertible_subordinated_current + debt_convertible_current + bond_transition_longterm_current + bond_pollution_control_longterm_current + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current + payable_notes_loans_current + bond_special_assessment_current + loan_home_federal_bank_advances_current + debt_longterm_other_current + borrowings_under_guaranteed_investment_agreements"
+      "any": "credit_line_longterm_current + commercial_paper_longterm_current + loan_construction_longterm_current + debt_secured_current + debt_unsecured_current + debt_subordinated_current + debt_convertible_subordinated_current + debt_convertible_current + bond_transition_longterm_current + bond_pollution_control_longterm_current + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current + payable_notes_loans_current + bond_special_assessment_current + loan_home_federal_bank_advances_current + debt_longterm_other_current + borrowings_under_guaranteed_investment_agreements"
     }
   },
   "borrowings_under_guaranteed_investment_agreements": {
@@ -7477,7 +7657,7 @@
       "LongTermConstructionLoanCurrent"
     ]
   },
-  "longterm_lineof_credit_current": {
+  "credit_line_longterm_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -7512,7 +7692,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "longterm_lineof_credit + commercial_paper_noncurrent + loan_construction_noncurrent + debt_secured_longterm + debt_subordinated_longterm + debt_unsecured_longterm + debt_convertible_noncurrent + debt_convertible_subordinated_noncurrent + bond_transition_longterm + bond_pollution_control_longterm + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent + longterm_notes_loans + bond_special_assessment_noncurrent + loan_home_longterm_bank_advances_noncurrent + debt_longterm_other_noncurrent"
+      "any": "credit_line_longterm + commercial_paper_noncurrent + loan_construction_noncurrent + debt_secured_longterm + debt_subordinated_longterm + debt_unsecured_longterm + debt_convertible_noncurrent + debt_convertible_subordinated_noncurrent + bond_transition_longterm + bond_pollution_control_longterm + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent + longterm_notes_loans + bond_special_assessment_noncurrent + loan_home_longterm_bank_advances_noncurrent + debt_longterm_other_noncurrent"
     }
   },
   "debt_longterm_other_noncurrent": {
@@ -7699,7 +7879,7 @@
       "CommercialPaperNoncurrent"
     ]
   },
-  "longterm_lineof_credit": {
+  "credit_line_longterm": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -20098,6 +20278,32 @@
     },
     "gaap": [
       "ProceedsFromLinesOfCredit"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_credit_line_secured + proceed_credit_line_unsecured"
+    }
+  },
+  "proceed_credit_line_unsecured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Unsecured Lines of Credit"
+    },
+    "gaap": [
+      "ProceedsFromUnsecuredLinesOfCredit"
+    ]
+  },
+  "proceed_credit_line_secured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Secured Lines of Credit"
+    },
+    "gaap": [
+      "ProceedsFromSecuredLinesOfCredit"
     ]
   },
   "proceed_credit_line_longterm": {
@@ -20580,7 +20786,7 @@
       "proceed_debt_commercial_paper"
     ]
   },
-  "proceed_issuance_debt_commercial_paper": {
+  "proceed_issuance_commercial_paper": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -20612,6 +20818,120 @@
     "gaap": [
       "ProceedsFromNoncurrentBorrowings",
       "ProceedsFromIssuanceOfLongTermDebt"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_credit_line_longterm + proceed_issuance_notes_mediumterm + proceed_issuance_debt_senior_longterm + proceed_issuance_debt_subordinated_longterm + proceed_borrowing_loan_home_bank + proceed_debt_convertible + proceed_debt_related_party + proceed_issuance_debt_tax_exempt_secured + proceed_issuance_debt_secured + proceed_issuance_debt_tax_exempt_unsecured + proceed_issuance_debt_unsecured + proceed_issuance_bond_mortgage + proceed_bond_pollution_control + proceed_issuance_financial_services_obligations + proceed_issuance_debt_longterm_other"
+    }
+  },
+  "proceed_issuance_financial_services_obligations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Financial Services Obligations"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfFinancialServicesObligations"
+    ]
+  },
+  "proceed_bond_pollution_control": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Pollution Control Bond"
+    },
+    "gaap": [
+      "ProceedsFromPollutionControlBond"
+    ]
+  },
+  "proceed_issuance_bond_mortgage": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of First Mortgage Bond"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfFirstMortgageBond"
+    ]
+  },
+  "proceed_issuance_debt_tax_exempt_unsecured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Unsecured Tax Exempt Debt"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfUnsecuredTaxExemptDebt"
+    ]
+  },
+  "proceed_issuance_debt_tax_exempt_secured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Secured Tax Exempt Debt"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfSecuredTaxExemptDebt"
+    ]
+  },
+  "proceed_debt_related_party": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Related Party Debt"
+    },
+    "gaap": [
+      "ProceedsFromRelatedPartyDebt"
+    ]
+  },
+  "proceed_debt_convertible": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Convertible Debt"
+    },
+    "gaap": [
+      "ProceedsFromConvertibleDebt"
+    ]
+  },
+  "proceed_borrowing_home_loan_bank": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Federal Home Loan Bank Borrowings"
+    },
+    "gaap": [
+      "ProceedsFromFederalHomeLoanBankBorrowings"
+    ]
+  },
+  "proceed_issuance_debt_subordinated_longterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Subordinated Long-Term Debt"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfSubordinatedLongTermDebt"
+    ]
+  },
+  "proceed_issuance_notes_mediumterm": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Medium-term Notes"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfMediumTermNotes"
     ]
   },
   "proceed_issuance_debt_longterm_other": {
@@ -20625,7 +20945,7 @@
       "ProceedsFromIssuanceOfOtherLongTermDebt"
     ]
   },
-  "proceed_issuance_debt_longterm_senior": {
+  "proceed_issuance_debt_senior_longterm": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -20936,6 +21256,32 @@
     "gaap": [
       "ProceedsFromNotesPayable",
       "ProceedsFromNotesPayable1"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_payable_notes_secured + proceed_payable_notes_unsecured"
+    }
+  },
+  "proceed_payable_notes_unsecured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Unsecured Notes Payable"
+    },
+    "gaap": [
+      "ProceedsFromUnsecuredNotesPayable"
+    ]
+  },
+  "proceed_payable_notes_secured": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Secured Notes Payable"
+    },
+    "gaap": [
+      "ProceedsFromSecuredNotesPayable"
     ]
   },
   "proceed_private_placement": {
@@ -23400,8 +23746,64 @@
     ],
     "calculation": {
       "order": 1483,
-      "any": "repayment_debt_shortterm_maturing_before_3_months + repayment_debt_shortterm_maturing_after_3_months + repayment_debt_shortterm_other"
+      "all": "repayment_debt_shortterm_maturing_before_3_months + repayment_debt_shortterm_maturing_after_3_months + repayment_debt_shortterm_other",
+      "any": "repayment_credit_line + repayment_debt_bank + reduction_capital_lease_obligations_shortterm + repayment_commercial_paper + repayment_debt_subordinated_shortterm + repayment_payable_notes + repayment_payable_loans_construction + repayment_debt_shortterm_other"
     }
+  },
+  "repayment_payable_loans_construction": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Construction Loans Payable"
+    },
+    "gaap": [
+      "RepaymentsOfConstructionLoansPayable"
+    ]
+  },
+  "repayment_payable_notes": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Notes Payable"
+    },
+    "gaap": [
+      "RepaymentsOfNotesPayable"
+    ]
+  },
+  "repayment_debt_subordinated_shortterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Subordinated Short-Term Debt"
+    },
+    "gaap": [
+      "RepaymentsOfSubordinatedShortTermDebt"
+    ]
+  },
+  "reduction_capital_lease_obligations_shortterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reduction of Short-Term Capital Lease Obligations"
+    },
+    "gaap": [
+      "ReductionOfShortTermCapitalLeaseObligations"
+    ]
+  },
+  "repayment_debt_bank": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Bank Debt"
+    },
+    "gaap": [
+      "RepaymentsOfBankDebt"
+    ]
   },
   "repayment_debt_shortterm_maturing_after_3_months": {
     "unit": "monetary",
@@ -23448,7 +23850,7 @@
       "RepaymentsOfUnsecuredDebt"
     ]
   },
-  "repayment_lease_capital_longterm": {
+  "repayment_capital_lease_obligation_longterm": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
