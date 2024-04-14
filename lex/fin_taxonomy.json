@@ -4749,6 +4749,22 @@
       "ProceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet - RepaymentsOfLongTermDebtAndCapitalSecurities"
     }
   },
+  "repayment_longterm_debt_capital_securities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Long-Term Debt and Capital Securities"
+    },
+    "gaap": [
+      "RepaymentsOfLongTermDebtAndCapitalSecurities"
+    ],
+    "calculation": {
+      "order": 369,
+      "any": "repayment_debt_longterm + payment_principal_finance_lease + repayment_capital_securities",
+      "RepaymentsOfLongTermDebt + FinanceLeasePrincipalPayments + RepaymentsOfMandatoryRedeemableCapitalSecurities"
+    }
+  },
   "proceed_issuance_longterm_debt_capital_securities": {
     "unit": "monetary",
     "balance": "debit",
@@ -23677,6 +23693,113 @@
       "PaymentsOnLongtermDebt",
       "RepaymentsOfLongTermDebt",
       "RepaymentsOfNoncurrentBorrowings"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "repayment_credit_line_longterm + repayment_notes_mediumterm + repayment_debt_senior + repayment_debt_subordinated + repayment_home_loan_borrowing + repayment_debt_convertible + repayment_debt_related_party + repayment_debt_assumed + repayment_debt_tax_exempt_unsecured + repayment_debt_secured + repayment_debt_unsecured + repayment_bond_mortgage + repayment_bond_pollution_control + repayment_debt_longterm_other"
+    }
+  },
+  "repayment_bond_pollution_control": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Pollution Control Bond"
+    },
+    "gaap": [
+      "RepaymentsOfPollutionControlBond"
+    ]
+  },
+  "repayment_bond_mortgage": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of First Mortgage Bond"
+    },
+    "gaap": [
+      "RepaymentsOfFirstMortgageBond"
+    ]
+  },
+  "repayment_debt_tax_exempt_unsecured": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Unsecured Tax Exempt Debt"
+    },
+    "gaap": [
+      "RepaymentsOfUnsecuredTaxExemptDebt"
+    ]
+  },
+  "repayment_debt_assumed": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Assumed Debt"
+    },
+    "gaap": [
+      "RepaymentsOfAssumedDebt"
+    ]
+  },
+  "repayment_home_loan_borrowing": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Federal Home Loan Bank Borrowings"
+    },
+    "gaap": [
+      "RepaymentsOfFederalHomeLoanBankBorrowings"
+    ]
+  },
+  "repayment_debt_subordinated": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Subordinated Debt"
+    },
+    "gaap": [
+      "RepaymentsOfSubordinatedDebt"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "maturities_debt_subordinated + repayment_early_debt_subordinated"
+    }
+  },
+  "repayment_early_debt_subordinated": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Early Repayment of Subordinated Debt"
+    },
+    "gaap": [
+      "EarlyRepaymentOfSubordinatedDebt"
+    ]
+  },
+  "maturities_debt_subordinated": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "MaturitiesOfSubordinatedDebt"
+    },
+    "gaap": [
+      "MaturitiesOfSubordinatedDebt"
+    ]
+  },
+  "repayment_notes_mediumterm": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Medium-Term Notes"
+    },
+    "gaap": [
+      "RepaymentsOfMediumTermNotes"
     ]
   },
   "repayment_debt_longterm_other": {
@@ -23701,7 +23824,7 @@
       "RepaymentsOfOtherDebt"
     ]
   },
-  "repayment_debt_related_parties": {
+  "repayment_debt_related_party": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -23732,6 +23855,32 @@
     },
     "gaap": [
       "RepaymentsOfSeniorDebt"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "maturities_debt_senior + repayment_early_debt_senior"
+    }
+  },
+  "repayment_early_debt_senior": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Early Repayments of Senior Debt"
+    },
+    "gaap": [
+      "EarlyRepaymentOfSeniorDebt"
+    ]
+  },
+  "maturities_debt_senior": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Senior Debt"
+    },
+    "gaap": [
+      "MaturitiesOfSeniorDebt"
     ]
   },
   "repayment_debt_shortterm": {
