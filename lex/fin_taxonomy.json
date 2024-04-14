@@ -4729,9 +4729,130 @@
     "calculation": {
       "order": 373,
       "old": "cashflow_debt_shortterm + cashflow_debt_longterm + cashflow_debt_other",
-      "any": "cashflow_debt_shortterm + cashflow_longterm_debt_capital_securities + change_contract_holders_funds + change_annuities_investment_certificates + cashflow_debt_other + cashflow_deposits_debt_retirements - repayment_loans_longterm_vendors",
-      "ProceedsFromRepaymentsOfShortTermDebt + ProceedsFromRepaymentsOfLongTermDebtAndCapitalSecurities + NetChangeContractHoldersFunds + NetChangeAnnuitiesAndInvestmentCertificates + ProceedsFromRepaymentsOfOtherDebt + ProceedsFromPaymentsForDepositsAppliedToDebtRetirements - RepaymentsOfLongtermLoansFromVendors"
+      "any": "cashflow_debt_shortterm + cashflow_longterm_debt_capital_securities + change_contract_holders_funds + cashflow_annuities_investment_certificates + cashflow_debt_other + cashflow_deposits_debt_retirements - repayment_loans_longterm_vendors"
     }
+  },
+  "repayment_loans_longterm_vendors": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Longterm Loans from Vendors"
+    },
+    "gaap": [
+      "RepaymentsOfLongtermLoansFromVendors"
+    ]
+  },
+  "cashflow_deposits_debt_retirements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments for) Deposits Applied to Debt Retirements"
+    },
+    "gaap": [
+      "ProceedsFromPaymentsForDepositsAppliedToDebtRetirements"
+    ],
+    "calculation": {
+      "order": 373,
+      "any": "proceed_deposits_debt_retirements - repayment_deposits_debt_retirements"
+    }
+  },
+  "repayment_deposits_debt_retirements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Deposits Applied to Debt Retirements"
+    },
+    "gaap": [
+      "PaymentsForDepositsAppliedToDebtRetirements"
+    ]
+  },
+  "proceed_deposits_debt_retirements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Deposits Applied to Debt Retirements"
+    },
+    "gaap": [
+      "ProceedsFromDepositsAppliedToDebtRetirements"
+    ]
+  },
+  "cashflow_annuities_investment_certificates": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Change in Annuities and Investment Certificates"
+    },
+    "gaap": [
+      "NetChangeAnnuitiesAndInvestmentCertificates"
+    ],
+    "calculation": {
+      "order": 373,
+      "any": "proceed_annuities_investment_certificates - repayment_annuities_investment_certificates"
+    }
+  },
+  "repayment_annuities_investment_certificates": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of from Annuities and Investment Certificates"
+    },
+    "gaap": [
+      "RepaymentsOfAnnuitiesAndInvestmentCertificates"
+    ]
+  },
+  "proceed_annuities_investment_certificates": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Annuities and Investment Certificates"
+    },
+    "gaap": [
+      "ProceedsFromAnnuitiesAndInvestmentCertificates"
+    ]
+  },
+  "change_contract_holders_funds": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Change in Contract Holders Funds"
+    },
+    "gaap": [
+      "NetChangeContractHoldersFunds"
+    ],
+    "calculation": {
+      "order": 373,
+      "any": "addition_contract_holders_funds - withdrawal_contract_holder_funds"
+    }
+  },
+  "withdrawal_contract_holder_funds": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Withdrawal from Contract Holders Funds"
+    },
+    "gaap": [
+      "WithdrawalFromContractHoldersFunds"
+    ]
+  },
+  "addition_contract_holders_funds": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Additions to Contract Holders Funds"
+    },
+    "gaap": [
+      "AdditionsToContractHoldersFunds"
+    ]
   },
   "cashflow_longterm_debt_capital_securities": {
     "unit": "monetary",
@@ -4745,8 +4866,7 @@
     ],
     "calculation": {
       "order": 369,
-      "any": "proceed_issuance_longterm_debt_capital_securities - repayment_longterm_debt_capital_securities",
-      "ProceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet - RepaymentsOfLongTermDebtAndCapitalSecurities"
+      "any": "proceed_issuance_longterm_debt_capital_securities - repayment_longterm_debt_capital_securities"
     }
   },
   "repayment_longterm_debt_capital_securities": {
@@ -4761,9 +4881,30 @@
     ],
     "calculation": {
       "order": 369,
-      "any": "repayment_debt_longterm + payment_principal_finance_lease + repayment_capital_securities",
-      "RepaymentsOfLongTermDebt + FinanceLeasePrincipalPayments + RepaymentsOfMandatoryRedeemableCapitalSecurities"
+      "any": "repayment_debt_longterm + payment_principal_finance_lease + repayment_capital_securities"
     }
+  },
+  "repayment_capital_securities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Repayments of Mandatory Redeemable Capital Securities"
+    },
+    "gaap": [
+      "RepaymentsOfMandatoryRedeemableCapitalSecurities"
+    ]
+  },
+  "payment_principal_finance_lease": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Principal Payment of Finance Leases"
+    },
+    "gaap": [
+      "FinanceLeasePrincipalPayments"
+    ]
   },
   "proceed_issuance_longterm_debt_capital_securities": {
     "unit": "monetary",
@@ -4777,9 +4918,19 @@
     ],
     "calculation": {
       "order": 369,
-      "any": "proceed_issuance_debt_longterm + proceed_issuance_capital_securities",
-      "ProceedsFromIssuanceOfLongTermDebt + ProceedsFromIssuanceOfMandatoryRedeemableCapitalSecurities"
+      "any": "proceed_issuance_debt_longterm + proceed_issuance_capital_securities"
     }
+  },
+  "proceed_issuance_capital_securities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Mandatory Redeemable Capital Securities"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfMandatoryRedeemableCapitalSecurities"
+    ]
   },
   "cashflow_debt_longterm": {
     "unit": "monetary",
@@ -4855,8 +5006,7 @@
     "calculation": {
       "order": 366,
       "all": "cashflow_debt_shortterm_maturing_before_3_months + cashflow_debt_shortterm_maturing_after_3_months + cashflow_debt_shortterm_other",
-      "any": "proceed_debt_shortterm - repayment_debt_shortterm",
-      "ProceedsFromShortTermDebt - RepaymentsOfShortTermDebt"
+      "any": "proceed_debt_shortterm - repayment_debt_shortterm"
     }
   },
   "cashflow_commercial_paper": {
@@ -4995,15 +5145,14 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Cash from Issuance and Repurchase of Equity",
-      "short": "Change in Equity"
+      "long": "Proceeds from  (Repurchase of) Equity"
     },
     "gaap": [
       "ProceedsFromRepurchaseOfEquity"
     ],
     "calculation": {
       "order": 382,
-      "any": "proceed_issuance_stock - repurchase_stock"
+      "any": "proceed_issuance_sale_equity - payment_repurchase_equity"
     }
   },
   "cashflow_financing": {
@@ -5020,9 +5169,7 @@
     ],
     "calculation": {
       "order": 388,
-      "old": "dividend_payments + stock_cashflow + longterm_debt_cashflow + shortterm_debt_cashflow + other_financing_cashflow",
-      "any": "cashflow_financing_continuing_operations + cashflow_financing_discontinued_operations",
-      "NetCashProvidedByUsedInFinancingActivitiesContinuingOperations + CashProvidedByUsedInFinancingActivitiesDiscontinuedOperations"
+      "any": "cashflow_financing_continuing_operations + cashflow_financing_discontinued_operations"
     }
   },
   "cashflow_financing_discontinued_operations": {
@@ -5050,9 +5197,515 @@
     ],
     "calculation": {
       "order": 389,
-      "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_mortgage_deposits - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_redeemable_preferred_stock + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payable_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + cashflow_other_financing_activities",
-      "IncreaseDecreaseInDeposits + ProceedsFromRepaymentsOfDebt - PaymentOfFinancingAndStockIssuanceCosts - PaymentsForProceedsFromHedgeFinancingActivities - PaymentsForProceedsFromDerivativeInstrumentFinancingActivities - PaymentsForProceedsFromMortgageDeposits + ProceedsFromPaymentsToMinorityShareholders - PaymentsForRepurchaseOfRedeemableNoncontrollingInterest + ProceedsFromRepurchaseOfTrustPreferredSecurities + ProceedsFromRepurchaseOfRedeemablePreferredStock + ProceedsFromRepurchaseOfEquity - PaymentsOfDividends - DistributionMadeToLimitedLiabilityCompanyLLCMemberCashDistributionsPaid - DistributionMadeToLimitedPartnerCashDistributionsPaid + IncreaseDecreaseInSecuritiesLendingPayable - OriginationOfLoansToEmployeeStockOwnershipPlans + ProceedsFromRepaymentOfLoansByEmployeeStockOwnershipPlans + ProceedsFromRepaymentOfLoansToPurchaseCommonStock - OriginationOfLoanToPurchaseCommonStock - PaymentsOfDerivativeIssuanceCosts - PaymentsOfDebtRestructuringCosts - PaymentsOfDebtExtinguishmentCosts + IncreaseDecreaseInAdvancePaymentsByBorrowersForTaxesAndInsurance - PaymentsRelatedToTaxWithholdingForShareBasedCompensation - PaymentsOfDistributionsToAffiliates + ProceedsFromContributionsFromAffiliates + ProceedsFromContributionsFromParent + ProceedsFromPartnershipContribution - PaymentsOfMergerRelatedCostsFinancingActivities - PaymentForContingentConsiderationLiabilityFinancingActivities + ProceedsFromAdvanceForAndContributionInAidOfConstructionFinancingActivity - PaymentForAdvanceForConstructionFinancingActivity + ProceedsFromPaymentsForOtherFinancingActivities"
+      "": "ExcessTaxBenefitFromShareBasedCompensationFinancingActivities + SaleLeasebackTransactionNetProceedsFinancingActivities",
+      "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_deposits_mortgage - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_stock_preferred_redeemable + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payable_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + excess_tax_benefit_sharebased_compensation_financing_activities + cashflow_financing_other"
     }
+  },
+  "cashflow_leaseback_transaction_financing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payment for) Leaseback Transaction FinancingActivities"
+    },
+    "gaap": [
+      "SaleLeasebackTransactionNetProceedsFinancingActivities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_leaseback_transaction_financing_activities - payment_leaseback_transaction_financing_activities"
+    }
+  },
+  "payment_leaseback_transaction_financing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment for Leaseback Transaction FinancingActivities"
+    },
+    "gaap": [
+      "SaleLeasebackTransactionTransactionCostsFinancingActivities"
+    ]
+  },
+  "proceed_leaseback_transaction_financing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Leaseback Transaction FinancingActivities"
+    },
+    "gaap": [
+      "SaleLeasebackTransactionGrossProceedsFinancingActivities"
+    ]
+  },
+  "excess_tax_benefit_sharebased_compensation_financing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Excess Tax Benefit from Share-Based Compensation Financing Activities"
+    },
+    "gaap": [
+      "ExcessTaxBenefitFromShareBasedCompensationFinancingActivities"
+    ]
+  },
+  "payment_advance_construction_financing_activity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment for Advance for Construction Financing Activity"
+    },
+    "gaap": [
+      "PaymentForAdvanceForConstructionFinancingActivity"
+    ]
+  },
+  "proceed_advance_contribution_aid_construction_financing_activity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Advance for and Contribution in Aid of Construction Financing Activity"
+    },
+    "gaap": [
+      "ProceedsFromAdvanceForAndContributionInAidOfConstructionFinancingActivity"
+    ]
+  },
+  "payment_contingent_consideration_liability_financing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Contingent Consideration Liability Financing Activities"
+    },
+    "gaap": [
+      "PaymentForContingentConsiderationLiabilityFinancingActivities"
+    ]
+  },
+  "payment_merger_related_costs_financing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Merger Related Costs Financing Activities"
+    },
+    "gaap": [
+      "PaymentsOfMergerRelatedCostsFinancingActivities"
+    ]
+  },
+  "proceed_contributions_partnership": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Partnership Contribution"
+    },
+    "gaap": [
+      "ProceedsFromPartnershipContribution"
+    ]
+  },
+  "proceed_contributions_parent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Contributions from Parent"
+    },
+    "gaap": [
+      "ProceedsFromContributionsFromParent"
+    ]
+  },
+  "proceed_contributions_affiliates": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Contributions from Affiliates"
+    },
+    "gaap": [
+      "ProceedsFromContributionsFromAffiliates"
+    ]
+  },
+  "payment_distribution_affiliates": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Distributions to Affiliates"
+    },
+    "gaap": [
+      "PaymentsOfDistributionsToAffiliates"
+    ]
+  },
+  "payment_tax_withholding_sharebased_compensation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments Related to Tax Withholding For Share-Based Compensation"
+    },
+    "gaap": [
+      "PaymentsRelatedToTaxWithholdingForShareBasedCompensation"
+    ]
+  },
+  "change_advance_payments_borrowers_taxes_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase Decrease in Advance Payments by Borrowers for Taxes and Insurance"
+    },
+    "gaap": [
+      "IncreaseDecreaseInAdvancePaymentsByBorrowersForTaxesAndInsurance",
+      "NetIncreaseDecreaseInAdvancePaymentsByBorrowersForTaxesAndInsurance"
+    ]
+  },
+  "payment_debt_extinguishment_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Debt Extinguishment Costs"
+    },
+    "gaap": [
+      "PaymentsOfDebtExtinguishmentCosts"
+    ]
+  },
+  "payment_debt_restructuring_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Debt Restructuring Costs"
+    },
+    "gaap": [
+      "PaymentsOfDebtRestructuringCosts"
+    ]
+  },
+  "payment_derivative_issuance_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Derivative Issuance Costs"
+    },
+    "gaap": [
+      "PaymentsOfDerivativeIssuanceCosts"
+    ]
+  },
+  "origination_loans_purchase_common_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Origination of Loans to Purchase Common Stock"
+    },
+    "gaap": [
+      "OriginationOfLoanToPurchaseCommonStock"
+    ]
+  },
+  "cashflow_loans_purchase_common_stock": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Repayment of) Loans to Purchase Common Stock"
+    },
+    "gaap": [
+      "ProceedsFromRepaymentOfLoansToPurchaseCommonStock"
+    ]
+  },
+  "cashflow_loans_employee_stock_ownership_plans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Repayment of) Loans By Employee Stock Ownership Plans"
+    },
+    "gaap": [
+      "ProceedsFromRepaymentOfLoansByEmployeeStockOwnershipPlans"
+    ]
+  },
+  "origination_loans_employee_stock_ownership_plans": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Origination of Loans to Employee Stock Ownership Plans"
+    },
+    "gaap": [
+      "OriginationOfLoansToEmployeeStockOwnershipPlans"
+    ]
+  },
+  "change_payable_securities_lending": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Increase (Decrease) in Securities Lending Payable"
+    },
+    "gaap": [
+      "IncreaseDecreaseInSecuritiesLendingPayable"
+    ]
+  },
+  "payment_distribution_limited_partner": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment of Distributions to Limited Partner"
+    },
+    "gaap": [
+      "DistributionMadeToLimitedPartnerCashDistributionsPaid"
+    ]
+  },
+  "payment_distribution_limited_liability_company": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment of Distributions to Limited Liability Company"
+    },
+    "gaap": [
+      "DistributionMadeToLimitedLiabilityCompanyLLCMemberCashDistributionsPaid"
+    ]
+  },
+  "cashflow_stock_preferred_redeemable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Repurchase of) Redeemable Preferred Stock"
+    },
+    "gaap": [
+      "ProceedsFromRepurchaseOfRedeemablePreferredStock"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_issuance_stock_preferred_redeemable + proceed_issuance_stock_preferred_redeemable_convertible - payment_repurchase_stock_preferred_redeemable - payment_repurchase_stock_preferred_redeemable_convertible"
+    }
+  },
+  "payment_repurchase_stock_preferred_redeemable_convertible": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Redeemable Convertible Preferred Stock"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfRedeemableConvertiblePreferredStock"
+    ]
+  },
+  "payment_repurchase_stock_preferred_redeemable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Redeemable Preferred Stock"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfRedeemablePreferredStock"
+    ]
+  },
+  "cashflow_securities_trust_preferred": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Repurchase of) Trust Preferred Securities"
+    },
+    "gaap": [
+      "ProceedsFromRepurchaseOfTrustPreferredSecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_issuance_securities_trust_preferred - payment_repurchase_securities_trust_preferred"
+    }
+  },
+  "payment_repurchase_securities_trust_preferred": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Trust Preferred Securities"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfTrustPreferredSecurities"
+    ]
+  },
+  "proceed_securities_trust_preferred": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Trust Preferred Securities"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfTrustPreferredSecurities"
+    ]
+  },
+  "cashflow_redeemable_minority_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Repurchase of) Redeemable Noncontrolling Interest"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfRedeemableNoncontrollingInterest"
+    ]
+  },
+  "cashflow_minority_shareholders": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from (Payments to) Minority Shareholders"
+    },
+    "gaap": [
+      "ProceedsFromPaymentsToMinorityShareholders"
+    ],
+    "calculation": {
+      "order": 390,
+      "any": "proceed_minority_shareholders - payment_minority_shareholders"
+    }
+  },
+  "payment_minority_shareholders": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments to Minority Shareholders"
+    },
+    "gaap": [
+      "PaymentsToMinorityShareholders"
+    ]
+  },
+  "proceed_minority_shareholders": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Minority Shareholders"
+    },
+    "gaap": [
+      "ProceedsFromMinorityShareholders"
+    ]
+  },
+  "cashflow_derivative_instrument_financing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Derivative Instrument Financing Activities"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromDerivativeInstrumentFinancingActivities"
+    ],
+    "calculation": {
+      "order": 390,
+      "any": "payment_derivative_instrument_financing_activities - proceed_derivative_instrument_financing_activities"
+    }
+  },
+  "proceed_derivative_instrument_financing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Derivative Instrument Financing Activities"
+    },
+    "gaap": [
+      "ProceedsFromDerivativeInstrumentFinancingActivities"
+    ]
+  },
+  "payment_derivative_instrument_financing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Derivative Instrument Financing Activities"
+    },
+    "gaap": [
+      "PaymentsForDerivativeInstrumentFinancingActivities"
+    ]
+  },
+  "cashflow_hedge_financing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Hedge Financing Activities"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromHedgeFinancingActivities"
+    ],
+    "calculation": {
+      "order": 390,
+      "any": "payment_hedge_financing_activities - proceed_hedge_financing_activities"
+    }
+  },
+  "proceed_hedge_financing_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Hedge Financing Activities"
+    },
+    "gaap": [
+      "ProceedsFromHedgeFinancingActivities"
+    ]
+  },
+  "payment_hedge_financing_activities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Hedge Financing Activities"
+    },
+    "gaap": [
+      "PaymentsForHedgeFinancingActivities"
+    ]
+  },
+  "payment_financing_stock_issuance_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment of Financing and Stock Issuance Costs"
+    },
+    "gaap": [
+      "PaymentOfFinancingAndStockIssuanceCosts"
+    ],
+    "calculation": {
+      "order": 390,
+      "any": "payment_financing_costs + payment_issuance_stock"
+    }
+  },
+  "payment_financing_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment of Financing Costs"
+    },
+    "gaap": [
+      "PaymentsOfFinancingCosts"
+    ],
+    "calculation": {
+      "order": 390,
+      "any": "payment_issuance_debt + payment_loan_cost"
+    }
+  },
+  "payment_loan_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payment of Loan Costs"
+    },
+    "gaap": [
+      "PaymentsOfLoanCosts"
+    ]
   },
   "change_deposits": {
     "unit": "monetary",
@@ -5180,7 +5833,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits - cashflow_deposits_mortgage + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_restricted_cash_investments - use_restricted_cash_acquisition_petroleum_property - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_interest_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_restricted_cash_investments - use_restricted_cash_acquisition_petroleum_property - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
     }
   },
   "cashflow_deposits_mortgage": {
@@ -13821,7 +14474,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Investment Divident Income"
+      "long": "Investment Dividend Income"
     },
     "gaap": [
       "InvestmentIncomeDividend"
@@ -18907,7 +19560,7 @@
       "PaymentsToDevelopSoftware"
     ]
   },
-  "payment_dividend": {
+  "payment_dividends": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18922,10 +19575,36 @@
     ],
     "calculation": {
       "order": 1297,
-      "any": "payment_dividend_common + payment_dividend_preferred + payment_divident_minority_interest"
+      "any": "payment_dividends_ordinary + payment_capital_distribution"
     }
   },
-  "payment_dividend_common": {
+  "payment_capital_distribution": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Capital Distribution"
+    },
+    "gaap": [
+      "PaymentsOfCapitalDistribution"
+    ]
+  },
+  "payment_dividends_ordinary": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments of Ordinary Dividends"
+    },
+    "gaap": [
+      "PaymentsOfOrdinaryDividends"
+    ],
+    "calculation": {
+      "order": 1297,
+      "any": "payment_dividends_common + payment_dividends_preferred + payment_dividends_minority_interest"
+    }
+  },
+  "payment_dividends_common": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18934,12 +19613,11 @@
     },
     "gaap": [
       "DividendsCommonStock",
-      "PaymentsOfOrdinaryDividends",
       "PaymentsOfDividendsCommonStock",
       "PaymentsOfDividendsAndDividendEquivalentsOnCommonStockAndRestrictedStockUnits"
     ]
   },
-  "payment_dividend_minority_interest": {
+  "payment_dividends_minority_interest": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18950,7 +19628,7 @@
       "PaymentsOfDividendsMinorityInterest"
     ]
   },
-  "payment_divident_preferred": {
+  "payment_dividends_preferred": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18958,8 +19636,8 @@
       "long": "Payments of Dividends on Preferred Stock"
     },
     "gaap": [
-      "PaymentsOfDividendsPreferredStockAndPreferenceStock",
-      "DividendsPreferredStock"
+      "DividendsPreferredStock",
+      "PaymentsOfDividendsPreferredStockAndPreferenceStock"
     ]
   },
   "payment_employees": {
@@ -19450,8 +20128,41 @@
     ],
     "calculation": {
       "order": 1313,
-      "any": "payment_repurchase_stock_common + payment_repurchase_stock_preferred"
+      "any": "payment_repurchase_stock_common + payment_repurchase_stock_preferred + payment_repurchase_stock_preferred_convertible + payment_repurchase_private_placement + payment_repurchase_initial_public_offering + payment_repurchase_warrants + payment_repurchase_other_equity"
     }
+  },
+  "payment_repurchase_other_equity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Other Equity"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfOtherEquity"
+    ]
+  },
+  "payment_repurchase_initial_public_offering": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Initial Public Offering"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfInitialPublicOffering"
+    ]
+  },
+  "payment_repurchase_private_placement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Private Placement"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfPrivatePlacement"
+    ]
   },
   "payment_repurchase_stock_common": {
     "unit": "monetary",
@@ -19462,6 +20173,17 @@
     },
     "gaap": [
       "PaymentsForRepurchaseOfCommonStock"
+    ]
+  },
+  "payment_repurchase_stock_preferred_convertible": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for Repurchase of Convertible Preferred Stock"
+    },
+    "gaap": [
+      "PaymentsForRepurchaseOfConvertiblePreferredStock"
     ]
   },
   "payment_repurchase_stock_preferred": {
@@ -21005,7 +21727,7 @@
       "ProceedsFromIssuanceOfUnsecuredDebt"
     ]
   },
-  "proceed_issuance_preferred_stock_warrants": {
+  "proceed_issuance_warrants_preferred_stock": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -21029,6 +21751,135 @@
     },
     "gaap": [
       "ProceedsFromIssuanceOrSaleOfEquity"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_issuance_stock_common + proceed_sale_stock_treasury + proceed_issuance_stock_preferred_warrants + proceed_issuance_stock_preferred_convertible + proceed_initial_public_offering_private_placement + proceed_issuance_shares_under_incentive_sharebased_compensation_plans_stock_options + proceed_stock_plans + proceed_warrant_exercises + proceed_issuance_limited_partners_units_common + proceed_issuance_limited_partners_units_preferred + proceed_sale_interest_partnership_unit + proceed_sale_interest_corporate_unit + proceed_sale_contributed_capital + proceed_other_equity"
+    } 
+  },
+  "proceed_other_equity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Other Equity"
+    },
+    "gaap": [
+      "ProceedsFromOtherEquity"
+    ]
+  },
+  "proceed_sale_contributed_capital": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Contributed Capital"
+    },
+    "gaap": [
+      "ProceedsFromContributedCapital"
+    ]
+  },
+  "proceed_sale_interest_corporate_unit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Interest in Corporate Units"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfInterestInCorporateUnit"
+    ]
+  },
+  "proceed_sale_interest_partnership_unit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Interest in Partnership Units"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfInterestInPartnershipUnit"
+    ]
+  },
+  "proceed_issuance_limited_partners_units_preferred": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Preferred Limited Partners Units"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfPreferredLimitedPartnersUnits"
+    ]
+  },
+  "proceed_issuance_limited_partners_units_common": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Common Limited Partners Units"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfCommonLimitedPartnersUnits"
+    ]
+  },
+  "proceed_warrant_exercises": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Warrant Exercises"
+    },
+    "gaap": [
+      "ProceedsFromWarrantExercises"
+    ]
+  },
+  "proceed_stock_plans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Stock Plans"
+    },
+    "gaap": [
+      "ProceedsFromStockPlans"
+    ]
+  },
+  "proceed_issuance_shares_under_incentive_sharebased_compensation_plans_stock_options": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance of Shares under Incentive and Share-Based Compensation Plans Including Stock Options"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfSharesUnderIncentiveAndShareBasedCompensationPlansIncludingStockOptions"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "proceed_issuance_shares_under_incentive_sharebased_compensation_plans + proceed_exercise_stock_options"
+    }
+  },
+  "proceed_exercise_stock_options": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Stock Options Exercised"
+    },
+    "gaap": [
+      "ProceedsFromStockOptionsExercised"
+    ]
+  },
+  "proceed_issuance_shares_under_incentive_sharebased_compensation_plans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Issuance or Sale of Equity and Debt"
+    },
+    "gaap": [
+      "ProceedsFromIssuanceOfSharesUnderIncentiveAndShareBasedCompensationPlans"
     ]
   },
   "proceed_issuance_sale_equity_debt": {
@@ -21132,8 +21983,7 @@
       "long": "Proceeds from Issuance of Preferred Convertible and Redeemable Stock"
     },
     "gaap": [
-      "ProceedsFromIssuanceOfRedeemableConvertiblePreferredStock",
-      "ProceedsFromIssuanceOfRedeemablePreferredStockNetOfUnderwritingFees"
+      "ProceedsFromIssuanceOfRedeemableConvertiblePreferredStock"
     ]
   },
   "proceed_issuance_stock_preferred_redeemable": {
@@ -21141,10 +21991,11 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Proceeds from Issuance of Preferred Stock"
+      "long": "Proceeds from Issuance of Redeemable Preferred Stock"
     },
     "gaap": [
-      "ProceedsFromIssuanceOfRedeemablePreferredStock"
+      "ProceedsFromIssuanceOfRedeemablePreferredStock",
+      "ProceedsFromIssuanceOfRedeemablePreferredStockNetOfUnderwritingFees"
     ]
   },
   "proceed_issuance_warrants": {
