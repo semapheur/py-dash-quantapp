@@ -4876,7 +4876,6 @@
     ],
     "calculation": {
       "order": 373,
-      "old": "cashflow_debt_shortterm + cashflow_debt_longterm + cashflow_debt_other",
       "any": "cashflow_debt_shortterm + cashflow_longterm_debt_capital_securities + change_contract_holders_funds + cashflow_annuities_investment_certificates + cashflow_debt_other + cashflow_deposits_debt_retirements - repayment_loans_longterm_vendors"
     }
   },
@@ -5345,7 +5344,6 @@
     ],
     "calculation": {
       "order": 389,
-      "": "ExcessTaxBenefitFromShareBasedCompensationFinancingActivities + SaleLeasebackTransactionNetProceedsFinancingActivities",
       "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_deposits_mortgage - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_stock_preferred_redeemable + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payable_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + excess_tax_benefit_sharebased_compensation_financing_activities + cashflow_financing_other"
     }
   },
