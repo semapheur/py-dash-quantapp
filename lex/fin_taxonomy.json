@@ -731,53 +731,175 @@
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossNetOfTax",
       "AccumulatedOtherComprehensiveIncome"
+    ],
+    "calculation": {
+      "order": 993,
+      "all": "accumulated_other_comprehensive_income_loss_pretax - accumulated_other_comprehensive_income_loss_tax",
+      "any": "accumulated_gain_loss_foreign_currency_transaction_translation + accumulated_gain_loss_unrealized_securities_availableforsale + accumulated_gain_loss_cashflow_hedges_effect + accumulated_gain_loss_pension_postretirement_benefit_plan + accumulated_gain_loss_financial_liability_fair_value + accumulated_gain_loss_derivative_qualifying_hedge_excluded_component - accumulated_impairment_securities_debt"
+    }
+  },
+  "accumulated_impairment_securities_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Impairment of Debt Securities Net of Tax"
+    },
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossOtherThanTemporaryImpairmentNotCreditLossNetOfTaxDebtSecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "accumulated_impairment_securities_availableforsale_debt + accumulated_impairment_securities_heldtomaturity_debt"
+    }
+  },
+  "accumulated_impairment_securities_heldtomaturity_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Impairment of Held-to-Maturity Debt Securities Net of Tax"
+    },
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossOtherThanTemporaryImpairmentNotCreditLossNetOfTaxHeldtomaturityDebtSecurities"
     ]
   },
-  "accumulated_other_comprehensive_income_loss_derivatives_adjustment": {
+  "accumulated_impairment_securities_availableforsale_debt": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Impairment of Available-for-Sale Debt Securities Net of Tax"
+    },
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossOtherThanTemporaryImpairmentNotCreditLossNetOfTaxAvailableforsaleDebtSecurities"
+    ]
+  },
+  "accumulated_gain_loss_derivative_qualifying_hedge_excluded_component": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Other Comprehensive Income Derivative Instrument Adjustment",
-      "short": "AOCI Derivative Instrument Adjustment"
+      "long": "Accumulated Gain (Loss) from Derivative Qualifying as Hedge Excluded Component After Tax"
     },
     "gaap": [
+      "AociDerivativeQualifyingAsHedgeExcludedComponentAfterTax"
+    ]
+  },
+  "accumulated_gain_loss_financial_liability_fair_value": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Gain (Loss) of Financial Liability under Fair Value After Tax"
+    },
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionAfterTax"
+    ]
+  },
+  "accumulated_gain_loss_pension_postretirement_benefit_plan": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Other Comprehensive Loss from Pension and Other Postretirement Benefit Plans"
+    },
+    "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossDefinedBenefitPensionAndOtherPostretirementPlansNetOfTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "accumulated_gain_loss_benefit_plan_minimum_pension_liability_posttax - accumulated_gain_loss_pension_postretirement_benefit_plan_posttax + accumulated_gain_loss_benefit_plan_prior_service_cost_credit_posttax - accumulated_gain_loss_benefit_plan_transition_assets_obligations_posttax"
+    }
+  },
+  "accumulated_gain_loss_benefit_plan_transition_assets_obligations_posttax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Benefit Plan Transition Assets Obligations After Tax"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAccumulatedOtherComprehensiveIncomeNetTransitionAssetsObligationsAfterTax"
+    ]
+  },
+  "accumulated_gain_loss_benefit_plan_prior_service_cost_credit_posttax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Benefit Plan Prior Service Cost Credit After Tax"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAccumulatedOtherComprehensiveIncomeNetPriorServiceCostCreditAfterTax"
+    ]
+  },
+  "accumulated_gain_loss_pension_postretirement_benefit_plan_posttax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Benefit Plan Gain (Loss) After Tax"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAccumulatedOtherComprehensiveIncomeNetGainsLossesAfterTax"
+    ]
+  },
+  "accumulated_gain_loss_benefit_plan_minimum_pension_liability_posttax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Minimum Pension Liability After Tax"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAccumulatedOtherComprehensiveIncomeMinimumPensionLiabilityAfterTax"
+    ]
+  },
+  "accumulated_gain_loss_cashflow_hedges_effect": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Gain (Loss) from Cash Flow Hedges Effect Net of Tax"
+    },
+    "gaap": [
+      "AociLossCashFlowHedgeCumulativeGainLossAfterTax",
       "AccumulatedOtherComprehensiveIncomeLossCumulativeChangesInNetGainLossFromCashFlowHedgesEffectNetOfTax"
     ]
   },
-  "accumulated_other_comprehensive_income_loss_foreign_currency_transaction_translation_adjustment": {
+  "accumulated_gain_loss_foreign_currency_transaction_translation": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Other Comprehensive Income Foreign Currency Transaction/Translation Adjustment",
-      "short": "AOCI FOREX Adjustment"
+      "long": "Accumulated Gain (Loss) from Foreign Currency Transaction/Translation After Tax",
+      "short": "Accumulated FOREX Adjustment"
     },
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeForeignCurrencyTranslationAdjustment",
-      "AccumulatedOtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentNetOfTax",
-      "AccumulatedOtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentsBeforeTax"
+      "AccumulatedOtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentNetOfTax"
     ]
   },
-  "accumulated_other_comprehensive_income_loss_foreign_currency_transaction_translation_adjustment_pretax": {
+  "accumulated_gain_loss_foreign_currency_transaction_translation_pretax": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Other Comprehensive Income Foreign Currency Transaction/Translation Adjustment",
-      "short": "AOCI FOREX Adjustment"
+      "long": "Foreign Currency Transaction/Translation Adjustment Before Tax",
+      "short": "Pretax FOREX Adjustment"
     },
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentsBeforeTax"
     ]
   },
-  "accumulated_other_comprehensive_income_loss_investment_adjustment": {
+  "accumulated_gain_loss_unrealized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Other Comprehensive Income Investment Adjustment",
-      "short": "AOCI Investment Adjustment"
+      "long": "Accumulated Unrealized Gain (Loss) of Available-for-Sale Securities After Tax",
+      "short": "AFS Securities Adjustment"
     },
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax"
@@ -799,20 +921,21 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Other Comprehensive Income (Loss)"
+      "long": "Accumulated Other Comprehensive Income (Loss) Tax"
     },
     "gaap": [
       "AccumulatedOtherComprehensiveIncomeLossTax"
     ]
   },
-  "accumulated_other_comprehensive_pretax_income_loss": {
+  "accumulated_other_comprehensive_income_loss_pretax": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Accumulated Other Comprehensive Pretax Income (Loss)"
+      "long": "Accumulated Other Comprehensive Income (Loss) Before Tax"
     },
     "gaap": [
+      "AccumulatedOtherComprehensiveIncomeLossBeforeTax",
       "AccumulatedOtherComprehensiveIncomeLossBeforeTax1"
     ]
   },
@@ -827,7 +950,7 @@
       "CashAcquiredFromAcquisition"
     ]
   },
-  "additional_paid_in_capital": {
+  "additional_paidin_capital": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -837,11 +960,36 @@
     "gaap": [
       "AdditionalPaidInCapital",
       "AdditionalPaidinCapital",
-      "AdditionalPaidInCapitalCommonStock",
       "AdditionalPaidInCapitalSharePremium"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "additional_paidin_capital_common_stock + additional_paidin_capital_preferred_stock"
+    }
+  },
+  "additional_paidin_capital_preferred_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Additional Paid In Capital for Preferred Stock"
+    },
+    "gaap": [
+      "AdditionalPaidInCapitalPreferredStock"
     ]
   },
-  "additional_paid_in_capital_treasury_stock_cost": {
+  "additional_paidin_capital_common_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Additional Paid In Capital for Common Stock"
+    },
+    "gaap": [
+      "AdditionalPaidInCapitalCommonStock"
+    ]
+  },
+  "additional_paidin_capital_treasury_stock_cost": {
     "unit": "monetary",
     "aggregate": "tail",
     "label": {
@@ -7345,7 +7493,7 @@
       "CommercialPaperCurrent"
     ]
   },
-  "common_stock_additional_paid_in_capital": {
+  "common_stock_additional_paidin_capital": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -7357,7 +7505,7 @@
     ],
     "calculation": {
       "order": 668,
-      "all": "common_stock + additional_paid_in_capital"
+      "all": "common_stock + additional_paidin_capital"
     }
   },
   "communications_information_technology_occupancy": {
@@ -9911,6 +10059,216 @@
       "Equity",
       "NetEquity",
       "StockholdersEquity"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "stock_preferred - receivable_subscription_stock_preferred_unissued + stock_common - stock_treasury - stock_common_subsidiary - receivable_subscription_stock_common_unissued + subscription_stock_common + additional_paidin_capital + stock_treasury_deferred_employee_stockownership_plan - equity_deferred_compensation + accumulated_other_comprehensive_income_loss_net_tax - accumulated_distributions_excess_net_income + retained_earnings_accumulated_deficit - unearned_esop_shares + additional_capital_other - receivable_officers_directors_issuance_capital_stock - receivable_shareholders_affiliates_issuance_capital_stock + warrants_rights_outstanding - receivable_stockholders_equity_note_subscription"
+    }
+  },
+  "receivable_stockholders_equity_note_subscription": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Stockholders Equity Note Subscriptions Receivable"
+    },
+    "gaap": [
+      "StockholdersEquityNoteSubscriptionsReceivable"
+    ]
+  },
+  "warrants_rights_outstanding": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Warrants and Rights Outstanding"
+    },
+    "gaap": [
+      "WarrantsAndRightsOutstanding"
+    ]
+  },
+  "receivable_shareholders_affiliates_issuance_capital_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivable from Shareholders or Affiliates for Issuance of Capital Stock"
+    },
+    "gaap": [
+      "ReceivableFromShareholdersOrAffiliatesForIssuanceOfCapitalStock"
+    ]
+  },
+  "receivable_officers_directors_issuance_capital_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivable from Officers and Directors for Issuance of Capital Stock"
+    },
+    "gaap": [
+      "ReceivableFromOfficersAndDirectorsForIssuanceOfCapitalStock"
+    ]
+  },
+  "additional_capital_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Additional Capital"
+    },
+    "gaap": [
+      "OtherAdditionalCapital"
+    ]
+  },
+  "unearned_stock_employee_stockownership_plan": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unearned Employee Stock Ownership Plan Shares"
+    },
+    "gaap": [
+      "UnearnedESOPShares"
+    ]
+  },
+  "accumulated_distributions_excess_net_income": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Distribution in Excsess of Net Income"
+    },
+    "gaap": [
+      "AccumulatedDistributionsInExcessOfNetIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cumulative_dividends - cumulative_earnings_deficit"
+    }
+  },
+  "cumulative_earnings_deficit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cumulative Earnings (Deficit)"
+    },
+    "gaap": [
+      "CumulativeEarningsDeficit"
+    ]
+  },
+  "cumulative_dividends": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cumulative Dividends"
+    },
+    "gaap": [
+      "CumulativeDividends"
+    ]
+  },
+  "equity_deferred_compensation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Compensation Equity"
+    },
+    "gaap": [
+      "DeferredCompensationEquity"
+    ]
+  },
+  "stock_treasury_deferred_employee_stock_ownership_plan": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Treasury Stock Deferred Employee Stock Ownership Plan"
+    },
+    "gaap": [
+      "TreasuryStockDeferredEmployeeStockOwnershipPlan"
+    ]
+  },
+  "subscription_stock_common": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Common Stock Subscriptions"
+    },
+    "gaap": [
+      "CommonStockSharesSubscriptions"
+    ]
+  },
+  "stock_common_subsidiary": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Common Stock Held by Subsidiary"
+    },
+    "gaap": [
+      "CommonStockHeldBySubsidiary"
+    ]
+  },
+  "receivable_subscription_stock_common_unissued": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivable Subscription of Unissued Common Shares"
+    },
+    "gaap": [
+      "CommonStockShareSubscribedButUnissuedSubscriptionsReceivable"
+    ]
+  },
+  "receivable_subscription_stock_preferred_unissued": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Receivable Subscription of Unissued Preferred Shares"
+    },
+    "gaap": [
+      "PreferredStockSharesSubscribedButUnissuedSubscriptionsReceivable"
+    ]
+  },
+  "stock_treasury": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Treasury Stock Value Outstanding"
+    },
+    "gaap": [
+      "TreasuryStockValue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "stock_treasury_common + stock_treasury_preferred"
+    }
+  },
+  "stock_treasury_preferred": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Preferred Treasury Stock Value"
+    },
+    "gaap": [
+      "TreasuryStockPreferredValue"
+    ]
+  },
+  "stock_treasury_common": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Common Treasury Stock Value"
+    },
+    "gaap": [
+      "TreasuryStockCommonValue"
     ]
   },
   "equity_minority_interest": {
@@ -9925,6 +10283,87 @@
       "MinorityInterest",
       "NoncontrollingInterest",
       "NoncontrollingInterests"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "equity_minority_interest_limited_partnerships + equity_minority_interest_operating_partnerships + equity_minority_interest_preferred_unit_holders + equity_minority_interest_joint_ventures + equity_minority_interest_other + equity_minority_interest_nonredeemable + equity_minority_interest_variable_interest_entity"
+    }
+  },
+  "equity_minority_interest_variable_interest_entity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Minority Interest in Variable Interest Entity"
+    },
+    "gaap": [
+      "NoncontrollingInterestInVariableInterestEntity"
+    ]
+  },
+  "equity_minority_interest_nonredeemable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Nonredeemable Minority Interests"
+    },
+    "gaap": [
+      "NonredeemableNoncontrollingInterest"
+    ]
+  },
+  "equity_minority_interest_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Minority Interests"
+    },
+    "gaap": [
+      "OtherMinorityInterests"
+    ]
+  },
+  "equity_minority_interest_joint_ventures": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Minority Interest in Joint Ventures"
+    },
+    "gaap": [
+      "MinorityInterestInJointVentures"
+    ]
+  },
+  "equity_minority_interest_preferred_unit_holders": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Minority Interest in Preferred Unit Holders"
+    },
+    "gaap": [
+      "MinorityInterestInPreferredUnitHolders"
+    ]
+  },
+  "equity_minority_interest_operating_partnerships": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Minority Interest in Operating Partnerships"
+    },
+    "gaap": [
+      "MinorityInterestInOperatingPartnerships"
+    ]
+  },
+  "equity_minority_interest_limited_partnerships": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Minority Interest in Limited Partnerships"
+    },
+    "gaap": [
+      "MinorityInterestInLimitedPartnerships"
     ]
   },
   "equity_multiplier": {
@@ -15315,7 +15754,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Person Plan Benefit Obligation Disposal Group"
+      "long": "Current Postretirement Plan Benefit Obligation Disposal Group"
     },
     "gaap": [
       "DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligationCurrent"
@@ -15633,8 +16072,172 @@
     ],
     "calculation": {
       "order": 1126,
-      "all": "equity + liabilities"
+      "any": "equity_including_minority_interest + equity_temporary + liabilities + commitments_contingencies"
     }
+  },
+  "equity_members_including_minority_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Members Equity Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "LimitedLiabilityCompanyLlcMembersEquityIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "equity_members_minority_interest + equity_members"
+    }
+  },
+  "equity_members": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Members Equity"
+    },
+    "gaap": [
+      "MembersEquity"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "members_capital - receivable_notes_owner_limited_liability_company"
+    }
+  },
+  "receivable_notes_owner_limited_liability_company": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Notes Receivable by Owner to Limited Liability Company"
+    },
+    "gaap": [
+      "NotesReceivableByOwnerToLimitedLiabilityCompanyLLC"
+    ]
+  },
+  "members_capital": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Members Capital"
+    },
+    "gaap": [
+      "MembersCapital"
+    ]
+  },
+  "equity_members_minority_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Members Equity Attributable to Minority Interest"
+    },
+    "gaap": [
+      "MembersEquityAttributableToNoncontrollingInterest"
+    ]
+  },
+  "equity_including_minority_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Stockholders Equity Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "equity + equity_minority_interest"
+    }
+  },
+  "equity_temporary": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Temporary Equity Including Portion Attributable to Minority Interests"
+    },
+    "gaap": [
+      "TemporaryEquityCarryingAmountIncludingPortionAttributableToNoncontrollingInterests"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "equity_temporary_parent + equity_minority_interest_redeemable"
+    }
+  },
+  "equity_temporary_parent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Temporary Equity Attributable to Parent"
+    },
+    "gaap": [
+      "TemporaryEquityCarryingAmountAttributableToParent"
+    ]
+  },
+  "equity_minority_interest_redeemable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Redeemable Minority Interest Equity"
+    },
+    "gaap": [
+      "RedeemableNoncontrollingInterestEquityCarryingAmount",
+      "TemporaryEquityCarryingAmountAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "equity_minority_interest_redeemable_common + equity_minority_interest_redeemable_preferred + equity_minority_interest_redeemable_other"
+    }
+  },
+  "equity_minority_interest_redeemable_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Redeemable Minority Interest Equity"
+    },
+    "gaap": [
+      "RedeemableNoncontrollingInterestEquityOtherCarryingAmount"
+    ]
+  },
+  "equity_minority_interest_redeemable_preferred": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Redeemable Preferred Minority Interest Equity"
+    },
+    "gaap": [
+      "RedeemableNoncontrollingInterestEquityPreferredCarryingAmount"
+    ]
+  },
+  "equity_minority_interest_redeemable_common": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Redeemable Common Minority Interest Equity"
+    },
+    "gaap": [
+      "RedeemableNoncontrollingInterestEquityCommonCarryingAmount"
+    ]
+  },
+  "commitments_contingencies": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commitments and Contingencies"
+    },
+    "gaap": [
+      "CommitmentsAndContingencies"
+    ]
   },
   "liabilities_noncurrent": {
     "unit": "monetary",
@@ -24972,6 +25575,88 @@
     "gaap": [
       "RetainedEarnings",
       "RetainedEarningsAccumulatedDeficit"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "retained_earnings_appropriated + retained_earnings_unappropriated",
+      "any": "accumulated_ordinary_income_loss + accumulated_gain_loss_longterm_capital + accumulated_appreciation_depreciation - accumulated_capital_loss_carryforward + accumulated_temporary_difference_other"
+    }
+  },
+  "retained_earnings_unappropriated": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retained Earnings Unappropriated"
+    },
+    "gaap": [
+      "RetainedEarningsUnappropriated"
+    ]
+  },
+  "retained_earnings_appropriated": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retained Earnings Appropriated"
+    },
+    "gaap": [
+      "RetainedEarningsAppropriated"
+    ]
+  },
+  "accumulated_temporary_difference_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Other Temporary Difference"
+    },
+    "gaap": [
+      "InvestmentCompanyDistributableEarningsLossAccumulatedTemporaryDifferenceOther"
+    ]
+  },
+  "accumulated_capital_loss_carryforward": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Capital Loss Carryforward"
+    },
+    "gaap": [
+      "InvestmentCompanyDistributableEarningsLossAccumulatedCapitalLossCarryforward"
+    ]
+  },
+  "accumulated_appreciation_depreciation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Appreciation (Depreciation)"
+    },
+    "gaap": [
+      "InvestmentCompanyDistributableEarningsLossAccumulatedAppreciationDepreciation"
+    ]
+  },
+  "accumulated_gain_loss_longterm_capital": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Long-term Capital Gain (Loss)"
+    },
+    "gaap": [
+      "InvestmentCompanyDistributableEarningsLossAccumulatedLongTermCapitalGainLoss"
+    ]
+  },
+  "accumulated_ordinary_income_loss": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Ordinary Income (Loss)"
+    },
+    "gaap": [
+      "InvestmentCompanyDistributableEarningsLossAccumulatedOrdinaryIncomeLoss"
     ]
   },
   "return_on_assets": {
@@ -26548,7 +27233,8 @@
     },
     "gaap": [
       "CommonStockValue",
-      "CommonSharesValue"
+      "CommonSharesValue",
+      "CommonStockValueOutstanding"
     ]
   },
   "stock_option_plan_expense": {
@@ -26570,7 +27256,8 @@
       "long": "Preferred Stock Value"
     },
     "gaap": [
-      "PreferredStockValue"
+      "PreferredStockValue",
+      "PreferredStockValueOutstanding"
     ]
   },
   "stock_split_ratio": {
