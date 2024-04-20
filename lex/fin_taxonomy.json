@@ -828,7 +828,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Benefit Plan Prior Service Cost Credit After Tax"
+      "long": "Benefit Plan Prior Service Cost (Credit) After Tax"
     },
     "gaap": [
       "DefinedBenefitPlanAccumulatedOtherComprehensiveIncomeNetPriorServiceCostCreditAfterTax"
@@ -9377,56 +9377,60 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Adjustment for Unrealized Gain (Loss) on Derivative Instruments"
+      "long": "Adjusted Unrealized Gain (Loss) on Cash Flow Hedge Derivative Instruments Net of Tax"
     },
     "gaap": [
+      "OtherComprehensiveIncomeLossDerivativesQualifyingAsHedgesNetOfTax",
       "OtherComprehensiveIncomeLossCashFlowHedgeGainLossAfterReclassificationAndTax",
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossafterReclassificationandTax"
     ],
     "calculation": {
       "order": 771,
-      "any": "gain_loss_derivatives_unadjusted + gain_loss_derivatives_adjustment"
+      "any": "gain_loss_derivatives + adjustment_accumulated_gain_loss_derivatives"
     }
   },
-  "gain_loss_derivatives_unadjusted": {
+  "gain_loss_derivatives": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Unrealized Gain (Loss) on Derivative Instruments Before Reclassification Net of Tax"
+      "long": "Unrealized Gain (Loss) on Cash Flow Hedge Derivative Instruments Net of Tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossCashFlowHedgeGainLossBeforeReclassificationAfterTax",
+      "OtherComprehensiveIncomeUnrealizedGainLossOnDerivativesArisingDuringPeriodNetOfTax",
       "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossbeforeReclassificationafterTax"
     ],
     "calculation": {
       "order": 0,
-      "any": "gain_loss_derivatives_unadjusted_pretax - gain_loss_derivatives_unadjusted_tax"
+      "any": "gain_loss_derivatives_pretax - gain_loss_derivatives_tax"
     }
   },
-  "gain_loss_derivatives_unadjusted_tax": {
+  "gain_loss_derivatives_tax": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Unrealized Gain (Loss) on Derivative Instruments Before Reclassification Tax"
+      "long": "Unrealized Gain (Loss) on Derivative Instruments Tax Effect"
     },
     "gaap": [
-      "OtherComprehensiveIncomeLossCashFlowHedgeGainLossBeforeReclassificationTax"
+      "OtherComprehensiveIncomeLossCashFlowHedgeGainLossBeforeReclassificationTax",
+      "OtherComprehensiveIncomeUnrealizedGainLossOnDerivativesArisingDuringPeriodTax"
     ]
   },
-  "gain_loss_derivatives_unadjusted_pretax": {
+  "gain_loss_derivatives_pretax": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Unrealized Gain (Loss) on Derivative Instruments Before Reclassification and Tax"
+      "long": "Unrealized Gain (Loss) on Derivative Instruments Before Tax"
     },
     "gaap": [
-      "OtherComprehensiveIncomeLossCashFlowHedgeGainLossBeforeReclassificationAndTax"
+      "OtherComprehensiveIncomeLossCashFlowHedgeGainLossBeforeReclassificationAndTax",
+      "OtherComprehensiveIncomeUnrealizedGainLossOnDerivativesArisingDuringPeriodBeforeTax"
     ]
   },
-  "gain_loss_derivatives_adjustment": {
+  "adjustment_accumulated_gain_loss_derivatives": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9435,25 +9439,27 @@
     },
     "gaap": [
       "OtherComprehensiveIncomeLossCashFlowHedgeGainLossReclassificationAfterTax",
-      "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossReclassificationAfterTax"
+      "OtherComprehensiveIncomeLossDerivativeInstrumentGainLossReclassificationAfterTax",
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIOnDerivativesNetOfTax"
     ],
     "calculation": {
       "order": 0,
-      "any": "gain_loss_derivatives_adjustment_pretax - gain_loss_derivatives_adjustment_tax"
+      "any": "adjustment_accumulated_gain_loss_derivatives_pretax - adjustment_accumulated_gain_loss_derivatives_tax"
     }
   },
-  "gain_loss_derivatives_adjustment_tax": {
+  "adjustment_accumulated_gain_loss_derivatives_tax": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Reclassification Adjustment on Accumulated Gain (Loss) of Derivative Instruments Tax"
+      "long": "Reclassification Adjustment on Accumulated Gain (Loss) of Derivative Instruments Tax Effect"
     },
     "gaap": [
-      "OtherComprehensiveIncomeLossCashFlowHedgeGainLossReclassificationTax"
+      "OtherComprehensiveIncomeLossCashFlowHedgeGainLossReclassificationTax",
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIOnDerivativesTax"
     ]
   },
-  "gain_loss_derivatives_adjustment_pretax": {
+  "adjustment_accumulated_gain_loss_derivatives_pretax": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9462,7 +9468,8 @@
     },
     "gaap": [
       "OtherComprehensiveIncomeLossCashFlowHedgeGainLossReclassificationBeforeTax",
-      "OtherComprehensiveIncomeLossCashFlowHedgeReclassificationForDiscontinuanceBeforeTax"
+      "OtherComprehensiveIncomeLossCashFlowHedgeReclassificationForDiscontinuanceBeforeTax",
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIOnDerivativesBeforeTax"
     ]
   },
   "development_profits_nonoperating": {
@@ -18231,6 +18238,32 @@
       "OtherComprehensiveIncomeOtherNetOfTax"
     ]
   },
+  "other_comprehensive_income_loss_parent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Comprehensive Income (Loss) Attributable to Parent"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossNetOfTaxPortionAttributableToParent"
+    ]
+  },
+  "other_comprehensive_income_loss_minority_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Comprehensive Income (Loss) Attributable to Noncontrolling Interest"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossNetOfTaxPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "OtherComprehensiveIncomeAvailableforsaleSecuritiesAdjustmentNetOfTaxPortionAttributableToNoncontrollingInterest + OtherComprehensiveIncomeLossCashFlowHedgeGainLossAfterReclassificationAndTaxNoncontrollingInterest + OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionAfterTaxAndReclassificationAdjustmentAttributableToNoncontrollingInterest + OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseAfterAdjustmentsAndTaxNoncontrollingInterest1 + OtherComprehensiveIncomeForeignCurrencyTransactionAndTranslationAdjustmentNetOfTaxPortionAttributableToNoncontrollingInterest - OtherComprehensiveIncomeDefinedBenefitPlansAdjustmentNetOfTaxPortionAttributableToNoncontrollingInterest + OciEquityMethodInvestmentAfterTaxNoncontrollingInterest + OciLiabilityForFuturePolicyBenefitGainLossAfterReclassificationAdjustmentAndTaxNoncontrollingInterest + OciMarketRiskBenefitInstrumentSpecificCreditRiskGainLossAfterAdjustmentsAndTaxNoncontrollingInterest"
+    }
+  },
   "other_comprehensive_income_loss": {
     "unit": "monetary",
     "balance": "credit",
@@ -18239,18 +18272,339 @@
       "long": "Other Comprehensive Income (Loss)"
     },
     "gaap": [
-      "OtherComprehensiveIncomeLossNetOfTax",
-      "OtherComprehensiveIncomeLossNetOfTaxPortionAttributableToParent"
+      "OtherComprehensiveIncomeLossNetOfTax"
     ],
     "calculation": {
       "order": 1175,
-      "old": "derivatives_adjustment + long_duration_insurance_contracts_discount_rate_changes + foreign_currency_transaction_translation_adjustment + securities_adjustment + pension_postretirement_benefit_plans_adjustment + other_comprehensive_income",
-      "all": "other_comprehensive_income_loss_before_reclassifications - accumulated_other_comprehensive_income_loss_reclassification + income_loss_equity_method_investment_posttax",
-      "any": "",
-      "OtherComprehensiveIncomeLossAvailableForSaleSecuritiesAdjustmentNetOfTax + OtherComprehensiveIncomeLossCashFlowHedgeGainLossAfterReclassificationAndTax + OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentNetOfTax - OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentNetOfTax - OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossNetOfTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecurities - OtherComprehensiveLossHeldToMaturitySecurityOttiAfterTaxAndAdjustments + OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionAfterTaxAndReclassificationAdjustment + OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseAfterAdjustmentsAndTax"
+      "all": "other_comprehensive_income_loss_unadjusted - adjustment_accumulated_other_comprehensive_income_loss + income_loss_equity_method_investment",
+      "any": "adjusted_gain_loss_unrealized_securities_availableforsale + adjusted_gain_loss_derivatives + adjusted_gain_loss_foreign_currency_transaction_translation - adjusted_loss_gain_pension_postretirement_benefit_plans - impairment_securities_availableforsale_including_minority_interest - adjusted_impairment_securities_heldtomaturity + adjusted_gain_loss_financial_liability_risk + adjusted_gain_loss_derivatives_excluded_component + income_loss_equity_method_investment"
     }
   },
-  "income_loss_equity_method_investment_posttax": {
+  "adjusted_gain_loss_derivatives_excluded_component": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjusted Unrealized Gain (Loss) on Excluded Component of Derivative Instruments Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseAfterAdjustmentsAndTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_derivatives_excluded_component - adjustment_accumulated_gain_loss_excluded_component"
+    }
+  },
+  "gain_loss_derivatives_excluded_component": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Excluded Component of Derivative Instruments Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseBeforeAdjustmentsAfterTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_derivatives_excluded_component_pretax - gain_loss_derivatives_excluded_component_tax"
+    }
+  },
+  "gain_loss_derivatives_excluded_component_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Excluded Component of Derivative Instruments Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseBeforeAdjustmentsTax"
+    ]
+  },
+  "gain_loss_derivatives_excluded_component_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Excluded Component of Derivative Instruments Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseBeforeAdjustmentsAndTax"
+    ]
+  },
+  "adjusted_gain_loss_financial_liability_risk": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjusted Unrealized Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionAfterTaxAndReclassificationAdjustment"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_financial_liability_risk - adjustment_accumulated_gain_loss_financial_liability_risk"
+    }
+  },
+  "adjustment_accumulated_gain_loss_financial_liability_risk": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment from Accumulated Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionReclassificationAdjustmentFromAociForDerecognitionAfterTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "adjustment_accumulated_gain_loss_financial_liability_risk_pretax - adjustment_accumulated_gain_loss_financial_liability_risk_tax"
+    }
+  },
+  "adjustment_accumulated_gain_loss_financial_liability_risk_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment from Accumulated Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionReclassificationAdjustmentFromAociForDerecognitionTax"
+    ]
+  },
+  "adjustment_accumulated_gain_loss_financial_liability_risk_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment from Accumulated Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionReclassificationAdjustmentFromAociForDerecognitionBeforeTax"
+    ]
+  },
+  "gain_loss_financial_liability_risk": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionUnrealizedGainLossArisingDuringPeriodAfterTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_financial_liability_risk_pretax - gain_loss_financial_liability_risk_tax"
+    }
+  },
+  "gain_loss_financial_liability_risk_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionUnrealizedGainLossArisingDuringPeriodTax"
+    ]
+  },
+  "gain_loss_financial_liability_risk_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) from Increase (Decrease) in Credit Risk of Financial Liabilities Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionUnrealizedGainLossArisingDuringPeriodBeforeTax"
+    ]
+  },
+  "adjusted_impairment_securities_heldtomaturity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Held-to-Maturity Securities Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveLossHeldToMaturitySecurityOttiAfterTaxAndAdjustments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_securities_heldtomaturity_including_minority_interest - adjustment_accumulated_impairment_securities_heldtomaturity_accretion -  adjustment_accumulated_impairment_securities_heldtomaturity_realized"
+    }
+  },
+  "adjustment_accumulated_impairment_securities_heldtomaturity_realized": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment to Accumulated Impairment of Held-to-Maturity Securities Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveLossHeldToMaturitySecurityReclassificationAdjustmentFromAociForNoncreditPortionOfOttiAfterTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "adjustment_accumulated_impairment_securities_heldtomaturity_sale + adjustment_accumulated_impairment_securities_heldtomaturity_additional_credit_loss"
+    }
+  },
+  "adjustment_accumulated_impairment_securities_heldtomaturity_additional_credit_loss": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment to Accumulated Other than Temporary Impairment of Held-to-Maturity from Additional Credit Loss Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveLossHeldToMaturitySecurityReclassificationAdjustmentFromAociForNoncreditPortionOfOttiAdditionalCreditLossAfterTax"
+    ]
+  },
+  "adjustment_accumulated_impairment_securities_heldtomaturity_sale": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment to Accumulated Other than Temporary Impairment of Held-to-Maturity Securities Realized upon Sale Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveLossHeldToMaturitySecurityReclassificationAdjustmentFromAociForNoncreditPortionOfOttiSaleAfterTax"
+    ]
+  },
+  "adjustment_accumulated_impairment_securities_heldtomaturity_accretion": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment to Accumulated Other than Temporary Impairment of Held-to-Maturity Securities from Accretion"
+    },
+    "gaap": [
+      "OtherComprehensiveLossHeldToMaturitySecurityAdjustmentFromAociForAccretionOfNoncreditPortionOfOttiAfterTax"
+    ]
+  },
+  "impairment_securities_including_minority_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Securities Net of Tax Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossNetOfTaxIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "impairment_securities_including_minority_interest_pretax - impairment_securities_including_minority_interest_tax",
+      "any": "impairment_securities_availableforsale_including_minority_interest + impairment_securities_heldtomaturity_including_minority_interest"
+    }
+  },
+  "impairment_securities_including_minority_interest_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Securities Tax Effect Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossTaxIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_securities_availableforsale_including_minority_interest_tax + impairment_securities_heldtomaturity_including_minority_interest_tax"
+    }
+  },
+  "impairment_securities_including_minority_interest_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Securities Before Tax Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossBeforeTaxIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_securities_availableforsale_including_minority_interest_pretax + impairment_securities_heldtomaturity_including_minority_interest_pretax"
+    }
+  },
+  "impairment_securities_heldtomaturity_including_minority_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Held-to-Maturity Securities Net of Tax Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossNetOfTaxIncludingPortionAttributableToNoncontrollingInterestHeldtomaturitySecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_securities_heldtomaturity_including_minority_interest_pretax - impairment_securities_heldtomaturity_including_minority_interest_tax"
+    }
+  },
+  "impairment_securities_heldtomaturity_including_minority_interest_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Held-to-Maturity Securities Tax Effect Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossTaxIncludingPortionAttributableToNoncontrollingInterestHeldtomaturitySecurities"
+    ]
+  },
+  "impairment_securities_heldtomaturity_including_minority_interest_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Held-to-Maturity Securities Before Tax Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossBeforeTaxIncludingPortionAttributableToNoncontrollingInterestHeldtomaturitySecurities"
+    ]
+  },
+  "impairment_securities_availableforsale_including_minority_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Available-for-Sale Securities Including Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossNetOfTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "impairment_securities_availableforsale_including_minority_interest_pretax - impairment_securities_availableforsale_including_minority_interest_tax"
+    }
+  },
+  "impairment_securities_availableforsale_including_minority_interest_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Available-for-Sale Securities Tax Effect Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecurities"
+    ]
+  },
+  "impairment_securities_availableforsale_including_minority_interest_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other than Temporary Losses on Available-for-Sale Securities Before Tax Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossBeforeTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecurities"
+    ]
+  },
+  "income_loss_equity_method_investment": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18287,7 +18641,7 @@
       "OciEquityMethodInvestmentBeforeTax"
     ]
   },
-  "other_comprehensive_income_loss_before_reclassifications": {
+  "other_comprehensive_income_loss_unadjusted": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18298,7 +18652,7 @@
       "OtherComprehensiveIncomeLossBeforeReclassificationsNetOfTax"
     ]
   },
-  "accumulated_other_comprehensive_income_loss_reclassification": {
+  "adjustment_accumulated_other_comprehensive_income_loss": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -21253,15 +21607,270 @@
     "calculation": {
       "order": 1169,
       "all": "adjusted_loss_gain_pension_postretirement_benefit_plans_pretax - adjusted_loss_gain_pension_postretirement_benefit_plans_tax",
-      "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentBeforeReclassificationAdjustmentsNetOfTax - OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansNetOfTax"
+      "any": "loss_gain_pension_postretirement_benefit_plans - adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans"
     }
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "any": "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_prior_service_cost_credit - adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_transition_asset_obligation - adjustment_accumulated_gain_loss_pension_postretirement_benefit_plans_realized"
+    }
+  },
+  "adjustment_accumulated_gain_loss_pension_postretirement_benefit_plans_realized": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Transition Asset (Obligation) Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeReclassificationOfDefinedBenefitPlansNetGainLossRecognizedInNetPeriodicBenefitCostNetOfTax",
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetGainLossNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "all": "adjustment_accumulated_gain_loss_pension_postretirement_benefit_plans_realized_pretax - adjustment_accumulated_gain_loss_pension_postretirement_benefit_plans_realized_tax"
+    }
+  },
+  "adjustment_accumulated_gain_loss_pension_postretirement_benefit_plans_realized_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Transition Asset (Obligation) Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetGainLossTax"
+    ]
+  },
+  "adjustment_accumulated_gain_loss_pension_postretirement_benefit_plans_realized_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Transition Asset (Obligation) Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetGainLossBeforeTax"
+    ]
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_transition_asset_obligation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Transition Asset (Obligation) Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeReclassificationOfDefinedBenefitPlanNetTransitionAssetObligationRecognizedInNetPeriodicBenefitCostNetOfTax",
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetTransitionAssetObligationNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "all": "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_transition_asset_obligation_pretax - adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_transition_asset_obligation_tax"
+    }
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_transition_asset_obligation_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Transition Asset (Obligation) Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetTransitionAssetObligationTax"
+    ]
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_transition_asset_obligation_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Transition Asset (Obligation) Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossReclassificationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetTransitionAssetObligationBeforeTax"
+    ]
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_prior_service_cost_credit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Prior Service Cost (Credit) Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossAmortizationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetPriorServiceCostCreditNetOfTax",
+      "OtherComprehensiveIncomeLossAmortizationPensionAndOtherPostretirementBenefitPlansNetPriorServiceCostRecognizedInNetPeriodicPensionCostNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "all": "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_prior_service_cost_credit_pretax - adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_prior_service_cost_credit_tax"
+    }
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_prior_service_cost_credit_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Prior Service Cost (Credit) Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossAmortizationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetPriorServiceCostCreditTax"
+    ]
+  },
+  "adjustment_accumulated_loss_gain_pension_postretirement_benefit_plans_prior_service_cost_credit_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment of Accumulated Loss (Gain) on Pension Benefit Plans from Prior Service Cost (Credit) Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossAmortizationAdjustmentFromAOCIPensionAndOtherPostretirementBenefitPlansForNetPriorServiceCostCreditBeforeTax"
+    ]
+  },
+  "loss_gain_pension_postretirement_benefit_plans": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss (Gain) on Pension and Postretirement Benefit Plans Before Reclassification Adjustments Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentBeforeReclassificationAdjustmentsNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "any": "loss_gain_benefit_plans_prior_service_costs_credit - gain_loss_benefit_plans_finalization - gain_loss_benefit_plans_unamortized"
+    }
+  },
+  "gain_loss_benefit_plans_finalization": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Finalization of Pension and Postretirement Benefit Plans Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinalizationOfPensionAndNonPensionPostretirementPlanValuationNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "all": "gain_loss_benefit_plans_finalization_pretax - gain_loss_benefit_plans_finalization_tax"
+    }
+  },
+  "gain_loss_benefit_plans_finalization_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Finalization of Pension and Postretirement Benefit Plans Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeFinalizationOfPensionAndNonPensionPostretirementPlanValuationTax"
+    ]
+  },
+  "gain_loss_benefit_plans_finalization_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Finalization of Pension and Postretirement Benefit Plans Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossFinalizationOfPensionAndNonPensionPostretirementPlanValuationBeforeTax"
+    ]
+  },
+  "gain_loss_benefit_plans_unamortized": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unamortized Gain (Loss) on Pension and Postretirement Benefit Plans Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeDefinedBenefitPlansNetUnamortizedGainLossArisingDuringPeriodNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "all": "gain_loss_benefit_plans_unamortized_pretax - gain_loss_benefit_plans_unamortized_tax"
+    }
+  },
+  "gain_loss_benefit_plans_unamortized_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unamortized Gain (Loss) on Pension and Postretirement Benefit Plans Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeDefinedBenefitPlansNetUnamortizedGainLossArisingDuringPeriodTax"
+    ]
+  },
+  "gain_loss_benefit_plans_unamortized_pretax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unamortized Gain (Loss) on Pension and Postretirement Benefit Plans Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansNetUnamortizedGainLossArisingDuringPeriodBeforeTax"
+    ]
+  },
+  "loss_gain_benefit_plans_prior_service_costs_credit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss (Gain) on Benefit Plan Prior Service Costs Credit Net of Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeDefinedBenefitPlanNetPriorServiceCostsCreditArisingDuringPeriodNetOfTax"
+    ],
+    "calculation": {
+      "order": 1169,
+      "all": "loss_gain_benefit_plans_prior_service_costs_credit_pretax - loss_gain_benefit_plans_prior_service_costs_credit_tax"
+    }
+  },
+  "loss_gain_benefit_plans_prior_service_costs_credit_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss (Gain) on Benefit Plan Prior Service Costs Credit Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeDefinedBenefitPlanNetPriorServiceCostCreditArisingDuringPeriodBeforeTax"
+    ]
+  },
+  "loss_gain_benefit_plans_prior_service_costs_credit_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Loss (Gain) on Benefit Plan Prior Service Costs Credit Before Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeDefinedBenefitPlanNetPriorServiceCostCreditArisingDuringPeriodBeforeTax"
+    ]
   },
   "adjusted_loss_gain_pension_postretirement_benefit_plans_pretax": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Pension Benefit Plans Adjustment Before Tax"
+      "long": "Pension and Postretirement Benefit Plans Reclassification Adjustment Before Tax"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansAdjustmentBeforeTax"
@@ -21272,7 +21881,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Pension Benefit Plans Tax Adjustment"
+      "long": "Pension and Postretirement Benefit Plans Tax Effect"
     },
     "gaap": [
       "OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansTax"
@@ -26174,7 +26783,7 @@
       "all": "operating_income_loss - nonoperating_expenses"
     }
   },
-  "gain_loss_unrealized_securities_availableforsale_adjusted": {
+  "adjusted_gain_loss_unrealized_securities_availableforsale": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
