@@ -14889,7 +14889,34 @@
       "long": "Equity Method Investments"
     },
     "gaap": [
-      "EquityMethodInvestments"
+      "EquityMethodInvestments",
+      "InvestmentAccountedForUsingEquityMethod"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_equity_method_associates + investments_equity_method_joint_ventures"
+    }
+  },
+  "investments_equity_method_joint_ventures": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Equity Method Investments in Joint Ventures"
+    },
+    "gaap": [
+      "InvestmentsInJointVenturesAccountedForUsingEquityMethod"
+    ]
+  },
+  "investments_equity_method_associates": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Equity Method Investments in Associates"
+    },
+    "gaap": [
+      "InvestmentsInAssociatesAccountedForUsingEquityMethod"
     ]
   },
   "investments_equity_method_fairvalue": {
@@ -15067,7 +15094,8 @@
       "long": "Other Longterm Investments"
     },
     "gaap": [
-      "OtherLongTermInvestments"
+      "OtherLongTermInvestments",
+      "NoncurrentInvestmentsOtherThanInvestmentsAccountedForUsingEquityMethod"
     ]
   },
   "investments_other": {
@@ -16840,10 +16868,10 @@
     ],
     "calculation": {
       "order": 357,
-      "any": "operating_expenses_recurring + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
+      "any": "operating_expenses_core + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fees + incentive_fees + management_fees - government_assistance_operating_expense"
     }
   },
-  "operating_expenses_recurring": {
+  "operating_expenses_core": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
