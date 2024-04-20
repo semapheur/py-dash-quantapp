@@ -18247,11 +18247,15 @@
     },
     "gaap": [
       "OtherComprehensiveIncomeLossNetOfTaxPortionAttributableToParent"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "other_comprehensive_income_loss - other_comprehensive_income_loss_minority_interest"
+    }
   },
   "other_comprehensive_income_loss_minority_interest": {
     "unit": "monetary",
-    "balance": "credit",
+    "balance": "debit",
     "aggregate": "sum",
     "label": {
       "long": "Other Comprehensive Income (Loss) Attributable to Noncontrolling Interest"
@@ -18261,8 +18265,30 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "OtherComprehensiveIncomeAvailableforsaleSecuritiesAdjustmentNetOfTaxPortionAttributableToNoncontrollingInterest + OtherComprehensiveIncomeLossCashFlowHedgeGainLossAfterReclassificationAndTaxNoncontrollingInterest + OtherComprehensiveIncomeLossFinancialLiabilityFairValueOptionAfterTaxAndReclassificationAdjustmentAttributableToNoncontrollingInterest + OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseAfterAdjustmentsAndTaxNoncontrollingInterest1 + OtherComprehensiveIncomeForeignCurrencyTransactionAndTranslationAdjustmentNetOfTaxPortionAttributableToNoncontrollingInterest - OtherComprehensiveIncomeDefinedBenefitPlansAdjustmentNetOfTaxPortionAttributableToNoncontrollingInterest + OciEquityMethodInvestmentAfterTaxNoncontrollingInterest + OciLiabilityForFuturePolicyBenefitGainLossAfterReclassificationAdjustmentAndTaxNoncontrollingInterest + OciMarketRiskBenefitInstrumentSpecificCreditRiskGainLossAfterAdjustmentsAndTaxNoncontrollingInterest"
+      "all": "other_comprehensive_income_loss_minority_interest_pretax - other_comprehensive_income_loss_minority_interest_tax"
     }
+  },
+  "other_comprehensive_income_loss_minority_interest_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Comprehensive Income (Loss) Attributable to Noncontrolling Interest Tax Effect"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossTaxPortionAttributableToNoncontrollingInterest"
+    ]
+  },
+  "other_comprehensive_income_loss_minority_interest_pretax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Comprehensive Income (Loss) Before Tax Attributable to Noncontrolling Interest"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossBeforeTaxPortionAttributableToNoncontrollingInterest"
+    ]
   },
   "other_comprehensive_income_loss": {
     "unit": "monetary",
@@ -18277,8 +18303,93 @@
     "calculation": {
       "order": 1175,
       "all": "other_comprehensive_income_loss_unadjusted - adjustment_accumulated_other_comprehensive_income_loss + income_loss_equity_method_investment",
-      "any": "adjusted_gain_loss_unrealized_securities_availableforsale + adjusted_gain_loss_derivatives + adjusted_gain_loss_foreign_currency_transaction_translation - adjusted_loss_gain_pension_postretirement_benefit_plans - impairment_securities_availableforsale_including_minority_interest - adjusted_impairment_securities_heldtomaturity + adjusted_gain_loss_financial_liability_risk + adjusted_gain_loss_derivatives_excluded_component + income_loss_equity_method_investment"
+      "any": "adjusted_gain_loss_unrealized_securities_availableforsale + adjusted_gain_loss_derivatives + adjusted_gain_loss_foreign_currency_transaction_translation - adjusted_loss_gain_pension_postretirement_benefit_plans - impairment_securities_availableforsale_including_minority_interest - adjusted_impairment_securities_heldtomaturity + adjusted_gain_loss_financial_liability_risk + adjusted_gain_loss_derivatives_excluded_component + adjusted_gain_loss_market_risk_benefit + adjusted_gain_loss_future_policy_benefit + income_loss_equity_method_investment"
     }
+  },
+  "adjusted_gain_loss_future_policy_benefit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjusted Unrealized Gain (Loss) on Liability for Future Policy Benefit Net of Tax"
+    },
+    "gaap": [
+      "OciLiabilityForFuturePolicyBenefitGainLossAfterReclassificationAdjustmentAndTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_future_policy_benefit - adjustment_accumulated_gain_loss_future_policy_benefit"
+    }
+  },
+  "adjustment_accumulated_gain_loss_future_policy_benefit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjustment of Accumulated Gain (Loss) on Liability for Future Policy Benefit Net of Tax"
+    },
+    "gaap": [
+      "OciLiabilityForFuturePolicyBenefitGainLossReclassificationAdjustmentFromAociAfterTax"
+    ]
+  },
+  "gain_loss_future_policy_benefit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Liability for Future Policy Benefit Net of Tax"
+    },
+    "gaap": [
+      "OciLiabilityForFuturePolicyBenefitGainLossBeforeReclassificationAdjustmentAfterTax"
+    ]
+  },
+  "adjusted_gain_loss_market_risk_benefit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Adjusted Unrealized Gain (Loss) on Increase (Decrease) in Financial Insurance Credit Risk Net of Tax"
+    },
+    "gaap": [
+      "OciMarketRiskBenefitInstrumentSpecificCreditRiskGainLossAfterAdjustmentsAndTax"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "gain_loss_market_risk_benefit - adjustment_accumulated_gain_loss_market_risk_benefit - adjustment_accumulated_gain_loss_market_risk_benefit_derecognition"
+    }
+  },
+  "adjustment_accumulated_gain_loss_market_risk_benefit_derecognition": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment on Accumulated Gain (Loss) for Derecognition of Financial Insurance Credit Risk Net of Tax"
+    },
+    "gaap": [
+      "OciMarketRiskBenefitInstrumentSpecificCreditRiskAdjustmentFromAociForDerecognitionAfterTax"
+    ]
+  },
+  "adjustment_accumulated_gain_loss_market_risk_benefit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reclassification Adjustment on Accumulated Gain (Loss) on Increase (Decrease) in Financial Insurance Credit Risk Net of Tax"
+    },
+    "gaap": [
+      "OciMarketRiskBenefitInstrumentSpecificCreditRiskGainLossReclassificationAdjustmentFromAociAfterTax"
+    ]
+  },
+  "gain_loss_market_risk_benefit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unrealized Gain (Loss) on Increase (Decrease) in Financial Insurance Credit Risk Net of Tax"
+    },
+    "gaap": [
+      "OciMarketRiskBenefitInstrumentSpecificCreditRiskGainLossBeforeAdjustmentsAfterTax"
+    ]
   },
   "adjusted_gain_loss_derivatives_excluded_component": {
     "unit": "monetary",
