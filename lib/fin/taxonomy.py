@@ -82,6 +82,7 @@ class TaxonomyRecord(TypedDict):
   unit: Literal[
     'days',
     'monetary',
+    'monetary_noncash',
     'monetary_ratio',
     'numeric_score',
     'percent',
@@ -177,21 +178,18 @@ class Taxonomy(BaseModel):
       if (calc := v.calculation) is None:
         continue
 
-      calc_value = cast(
-        str | dict[str, TaxononmyCalculationItem],
-        calc.get('all')
-        or calc.get('any')
-        or calc.get('avg')
-        or calc.get('diff')
-        or calc.get('fill')
-        or calc.get('shift'),
-      )
+      calc_values = [
+        cast(str | dict[str, TaxononmyCalculationItem], calc.get(i))
+        for i in calc.keys()
+        if i != 'order'
+      ]
 
-      if isinstance(calc_value, str):
-        order_dict[k] = extract_items(calc_value)
+      for calc_value in calc_values:
+        if isinstance(calc_value, str):
+          order_dict[k].update(extract_items(calc_value))
 
-      elif isinstance(calc_value, dict):
-        order_dict[k] = set(calc_value.keys())
+        elif isinstance(calc_value, dict):
+          order_dict[k].update(set(calc_value.keys()))
 
     visited: set[str] = set()
     result: list[str] = []
