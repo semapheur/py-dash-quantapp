@@ -68,7 +68,7 @@ def m_score(df: DataFrame) -> DataFrame:
     - (
       df['operating_working_capital']
       + df['productive_assets']
-      + df['investments_longterm']
+      + df['financial_assets_noncurrent']
     )
     / df['assets']
   )

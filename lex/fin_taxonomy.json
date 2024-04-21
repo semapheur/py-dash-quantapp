@@ -3220,6 +3220,7 @@
       "long": "Capitalized Software"
     },
     "gaap": [
+      "ComputerSoftware",
       "CapitalizedSoftware",
       "CapitalizedComputerSoftwareNet"
     ],
@@ -9070,18 +9071,7 @@
       "CurrentDerivativeFinancialAssets"
     ]
   },
-  "financial_assets_noncurrent": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Noncurrent Financial Assets"
-    },
-    "gaap": [
-      "NoncurrentFinancialAssets"
-    ]
-  },
-  "financial_assets_noncurrent_amortized_cost": {
+  "securities_amortized_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -15083,8 +15073,57 @@
     ],
     "calculation": {
       "order": 578,
-      "any": "investments_affiliates_subsidiaries_associates_joint_ventures + securities_marketable_noncurrent + securities_fvni_equity_noncurrent + investments_physical_commodities + health_care_trust_fund_assets_noncurrent + investments_longterm_other + securities_auctionrate_noncurrent + investments_leveraged_lease"
+      "any": "securities_noncurrent + investments_affiliates_subsidiaries_associates_joint_ventures + investments_physical_commodities + health_care_trust_fund_assets_noncurrent + investments_longterm_other + investments_leveraged_lease"
     }
+  },
+  "securities_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Non-current Securities"
+    },
+    "calculation": {
+      "order": 578,
+      "any": "securities_marketable_noncurrent + securities_fvni_noncurrent + securities_fvoci_noncurrent + securities_amortized_noncurrent + securities_auctionrate_noncurrent"
+    }
+  },
+  "securities_fvoci_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Securities with Fair Value through Other Comprehensive Income"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsAtFairValueThroughOtherComprehensiveIncome"
+    ],
+    "calculation": {
+      "order": 578,
+      "any": "securities_fvoci_other_noncurrent + securities_fvoci_equity_noncurrent"
+    }
+  },
+  "securities_fvoci_equity_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Equity Securities with Fair Value through Other Comprehensive Income"
+    },
+    "gaap": [
+      "NoncurrentInvestmentsInEquityInstrumentsDesignatedAtFairValueThroughOtherComprehensiveIncome"
+    ]
+  },
+  "securities_fvoci_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Noncurrent Securities with Fair Value through Other Comprehensive Income"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsMeasuredAtFairValueThroughOtherComprehensiveIncome"
+    ]
   },
   "investments_longterm_other": {
     "unit": "monetary",
@@ -15809,20 +15848,32 @@
       "any": "debt_longterm_current + lease_liabilities_finance_current"
     }
   },
-  "longterm_investments_receivables": {
+  "financial_assets_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Net Longterm Investments and Receivables"
+      "long": "Noncurrent Financial Assets"
     },
     "gaap": [
-      "LongTermInvestmentsAndReceivablesNet"
+      "LongTermInvestmentsAndReceivablesNet",
+      "NoncurrentFinancialAssets"
     ],
     "calculation": {
       "order": 591,
-      "any": "investments_longterm - receivable_noncurrent"
+      "any": "investments_longterm + receivable_noncurrent + financial_assets_other_noncurrent"
     }
+  },
+  "financial_assets_other_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Assets"
+    },
+    "gaap": [
+      "OtherNoncurrentFinancialAssets"
+    ]
   },
   "longterm_notes_loans": {
     "unit": "monetary",
@@ -24852,7 +24903,7 @@
     ],
     "calculation": {
       "order": 590,
-      "any": "receivable_trade_noncurrent - receivable_notes_loans_noncurrent"
+      "any": "receivable_trade_noncurrent + receivable_notes_loans_noncurrent"
     }
   },
   "receivable_nontrade": {
@@ -25090,6 +25141,7 @@
       "long": "Non-current Notes and Loans Receivable"
     },
     "gaap": [
+      "NoncurrentLoansAndReceivables",
       "NotesAndLoansReceivableNetNoncurrent"
     ],
     "calculation": {
@@ -27562,7 +27614,8 @@
       "long": "Non-current Available-For-Sale Securities"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesNoncurrent"
+      "AvailableForSaleSecuritiesNoncurrent",
+      "NoncurrentFinancialAssetsAvailableforsale"
     ],
     "calculation": {
       "order": 570,
@@ -27661,7 +27714,7 @@
     ],
     "calculation": {
       "order": 2489,
-      "all": "securities_heldfortrading_equity + securities_fvni_equity_noncurrent"
+      "any": "securities_heldfortrading_equity + securities_fvni_equity_noncurrent"
     }
   },
   "securities_fvni_equity_noncurrent": {
@@ -27726,7 +27779,7 @@
       "TradingSecuritiesDebtWeightedAverageCouponRate"
     ]
   },
-  "securities_heldfortrading_debt_maturing_1_to_5_years": {
+  "securities_heldformaturity_debt_maturing_1_to_5_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27737,7 +27790,7 @@
       "HeldToMaturitySecuritiesDebtMaturitiesWithinOneYearFairValue"
     ]
   },
-  "securities_heldfortrading_debt_maturing_5_to_10_years": {
+  "securities_heldformaturity_debt_maturing_5_to_10_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27748,7 +27801,7 @@
       "HeldToMaturitySecuritiesDebtMaturitiesAfterFiveThroughTenYearsFairValue"
     ]
   },
-  "securities_heldfortrading_debt_maturing_after_10_years": {
+  "securities_heldformaturity_debt_maturing_after_10_years": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27912,7 +27965,7 @@
     ],
     "calculation": {
       "order": 575,
-      "any": "securities_heldfortrading_debt_maturing_1_to_5_years + securities_heldfortrading_debt_maturing_5_to_10_years + securities_heldfortrading_debt_maturing_after_10_years + securities_heldfortrading_debt_without_single_maturity_date"
+      "any": "securities_heldformaturity_debt_maturing_1_to_5_years + securities_heldformaturity_debt_maturing_5_to_10_years + securities_heldformaturity_debt_maturing_after_10_years + securities_heldfortrading_debt_without_single_maturity_date"
     }
   },
   "securities_heldtomaturity_noncurrent": {
@@ -27923,7 +27976,8 @@
       "long": "Noncurrent Helt-to-Maturity Securities Fair Value"
     },
     "gaap": [
-      "HeldToMaturitySecuritiesNoncurrent"
+      "HeldToMaturitySecuritiesNoncurrent",
+      "NoncurrentHeldtomaturityInvestments"
     ],
     "calculation": {
       "order": 576,
@@ -28023,8 +28077,67 @@
     ],
     "calculation": {
       "order": 577,
-      "any": "securities_availableforsale_noncurrent + securities_heldtomaturity_noncurrent + securities_marketable_other_noncurrent"
+      "any": "securities_availableforsale_noncurrent + securities_heldtomaturity_noncurrent + securities_heldfortrading_noncurrent + securities_marketable_other_noncurrent"
     }
+  },
+  "securities_fvni_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Securities with Fair Value through Net Income"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLoss"
+    ],
+    "calculation": {
+      "order": 577,
+      "any": "securities_heldfortrading_noncurrent + securities_fvni_equity_noncurrent + securities_fvni_initial_recognition_noncurrent + scurities_fvni_equity_own_noncurrent + securities_fvni_debt_own_noncurrent + securities_fvni_mandatorily_noncurrent"
+    }
+  },
+  "securities_fvni_mandatorily_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Securities Mandatorily Measured at Fair Value through Net Income"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLossMandatorilyMeasuredAtFairValue"
+    ]
+  },
+  "securities_fvni_debt_own_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Own Reacquired Debt Securities with Fair Value through Net Income"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLossMeasuredAsSuchInAccordanceWithExemptionForReacquisitionOfOwnEquityInstruments"
+    ]
+  },
+  "scurities_fvni_equity_own_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Own Reacquired Equity Securities with Fair Value through Net Income"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLossMeasuredAsSuchInAccordanceWithExemptionForRepurchaseOfOwnFinancialLiabilities"
+    ]
+  },
+  "securities_heldfortrading_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Securities Held for Trading"
+    },
+    "gaap": [
+      "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLossClassifiedAsHeldForTrading"
+    ]
   },
   "securities_marketable_other_current": {
     "unit": "monetary",
