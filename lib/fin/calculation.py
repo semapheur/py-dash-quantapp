@@ -61,7 +61,9 @@ class AnyTransformer(ast.NodeTransformer):
     return call
 
 
-def fin_slices(ix: pd.MultiIndex) -> list[tuple[slice, slice | str, Literal[3, 12]]]:
+def fin_slices(
+  ix: pd.MultiIndex,
+) -> list[tuple[slice, slice | str, Literal[3, 12]]]:
   slices: list[tuple[slice, slice | str, Literal[3, 12]]] = []
   periods = {'FY', 'TTM1', 'TTM2', 'TTM3'}.intersection(ix.levels[1])
   for p in periods:
@@ -254,11 +256,13 @@ def applier(
   update: list[Series[float]] = []
 
   for ix in slices:
-    s_ = result.loc[ix].copy()
+    s_ = cast(pd.Series, result.to_frame().loc[ix, :]).copy()
     s_.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(s_.index.get_level_values('date'))
-    month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=s_.index)
+    month_diff = df_time_difference(dates, 30, 'D')
+    month_diff.index = s_.index
+    # month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=s_.index)
 
     if fn == 'diff':
       s_ = s_.diff()
@@ -270,7 +274,10 @@ def applier(
     s_ = s_.loc[month_diff == ix[2]]
 
     if not s_.empty:
-      update.append(cast(Series[float], s_))
+      update.append(cast(Series[float], s_.loc[:, cast(str, s.name)]))
+
+  if not update:
+    return result
 
   update_ = pd.concat(update, axis=0)
   nan_index = pd.Index(list(set(result.index).difference(update_.index)))

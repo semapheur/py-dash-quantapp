@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from pandera import DataFrameModel
 from pandera.dtypes import Timestamp
-from pandera.typing import DataFrame, Index
+from pandera.typing import DataFrame, Index, Series
 import statsmodels.api as sm
 
 from lib.fin.calculation import applier, fin_slices
@@ -24,16 +24,27 @@ def f_score(df: DataFrame) -> DataFrame:
 
   df['piotroski_f_score'] = (
     np.heaviside(df['return_on_equity'], 0)
-    + np.heaviside(applier(df['return_on_assets'], 'diff', slices), 0)
+    + np.heaviside(
+      applier(cast(Series[float], df['return_on_assets']), 'diff', slices), 0
+    )
     + np.heaviside(ocf, 0)
     + np.heaviside(ocf / df['assets'] - df['return_on_assets'], 0)
-    + np.heaviside(applier(df['debt'], 'diff', slices), 0)
-    + np.heaviside(applier(df['quick_ratio'], 'diff', slices), 0)
+    + np.heaviside(applier(cast(Series[float], df['debt']), 'diff', slices), 0)
+    + np.heaviside(applier(cast(Series[float], df['quick_ratio']), 'diff', slices), 0)
     + np.heaviside(
-      -applier(df['weighted_average_shares_outstanding_basic'], 'diff', slices), 1
+      -applier(
+        cast(Series[float], df['weighted_average_shares_outstanding_basic']),
+        'diff',
+        slices,
+      ),
+      1,
     )
-    + np.heaviside(applier(df['gross_profit_margin'], 'diff', slices), 0)
-    + np.heaviside(applier(df['asset_turnover'], 'diff', slices), 0)
+    + np.heaviside(
+      applier(cast(Series[float], df['gross_profit_margin']), 'diff', slices), 0
+    )
+    + np.heaviside(
+      applier(cast(Series[float], df['asset_turnover']), 'diff', slices), 0
+    )
   )
   return df
 
@@ -57,10 +68,13 @@ def m_score(df: DataFrame) -> DataFrame:
   slices = fin_slices(cast(pd.MultiIndex, df.index))
   # Days Sales in Receivables Index
   dsri = df['average_receivable_trade_current'] / df['revenue']
-  dsri /= applier(dsri, 'shift', slices)
+  dsri /= applier(cast(Series[float], dsri), 'shift', slices)
 
   # Gross Margin Index
-  gmi = applier(df['gross_profit_margin'], 'shift', slices) / df['gross_profit_margin']
+  gmi = (
+    applier(cast(Series[float], df['gross_profit_margin']), 'shift', slices)
+    / df['gross_profit_margin']
+  )
 
   # Asset Quality Index
   aqi = (
@@ -73,22 +87,22 @@ def m_score(df: DataFrame) -> DataFrame:
     / df['assets']
   )
 
-  aqi /= applier(aqi, 'shift', slices)
+  aqi /= applier(cast(Series[float], aqi), 'shift', slices)
 
   # Sales Growth Index
-  sgi = df['revenue'] / applier(df['revenue'], 'shift', slices)
+  sgi = df['revenue'] / applier(cast(Series[float], df['revenue']), 'shift', slices)
 
   # Depreciation Index
   depi = df['depreciation'] / (df['productive_assets'] - df['depreciation'])
-  depi /= applier(depi, 'shift', slices)
+  depi /= applier(cast(Series[float], depi), 'shift', slices)
 
   # Sales General and Administrative Expenses Index
   sgai = df['selling_general_administrative_expense'] / df['revenue']
-  sgai /= applier(sgai, 'shift', slices)
+  sgai /= applier(cast(Series[float], sgai), 'shift', slices)
 
   # Leverage Index
   li = df['liabilities'] / df['assets']
-  li /= applier(li, 'shift', slices)
+  li /= applier(cast(Series[float], li), 'shift', slices)
 
   # Total Accruals to Total Assets
   ocf = df['cashflow_operating']

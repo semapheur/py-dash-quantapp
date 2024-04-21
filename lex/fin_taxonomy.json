@@ -1788,7 +1788,7 @@
       "AdvanceRoyaltiesNoncurrent"
     ]
   },
-  "advances_affiliate": {
+  "advance_affiliate": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1799,7 +1799,7 @@
       "AdvancesToAffiliate"
     ]
   },
-  "advances_inventory_purchases": {
+  "advance_inventory_purchases": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -2660,7 +2660,7 @@
     ],
     "calculation": {
       "order": 529,
-      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + receivable_tax_income_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + derivatives_hedges_current + assets_heldforsale_current + assets_disposal_group_current + investment_lease_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advances_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_costs_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest"
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + receivable_tax_income_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + derivatives_hedges_current + assets_heldforsale_current + assets_disposal_group_current + investment_lease_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advance_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_costs_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest"
     }
   },
   "assets_disposal_group_current": {
@@ -4779,6 +4779,17 @@
     "calculation": {
       "order": 1628,
       "diff": "payable_trade"
+    }
+  },
+  "average_prepaid_expense_current": {
+    "unit": "monetary",
+    "aggregate": "sum",
+    "label": {
+      "long": "Average Prepaid Expenses"
+    },
+    "calculation": {
+      "order": 1629,
+      "avg": "prepaid_expense_current"
     }
   },
   "change_prepaid_expense_current": {
@@ -7319,7 +7330,7 @@
       "long": "Current Deferred Costs"
     },
     "gaap": [
-      "DeferredCostsCurrent"
+      "DerivativeInstrumentsAndHedges"
     ],
     "calculation": {
       "order": 426,
@@ -14835,7 +14846,7 @@
     ],
     "calculation": {
       "order": 565,
-      "any": "investments_equity_method + investments_cost_method + advances_affiliate"
+      "any": "investments_equity_method + investments_cost_method + advance_affiliate"
     }
   },
   "investments_cost_method": {
@@ -21015,11 +21026,102 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Prepaid Expense"
+      "long": "Current Prepaid Expenses"
     },
     "gaap": [
       "PrepaidExpenseCurrent",
-      "CurrentPrepaidExpenses",
+      "CurrentPrepaidExpenses"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "prepaid_insurance + prepaid_rent + prepaid_advertising + prepaid_royalties + prepaid_supplies + prepaid_interest + prepaid_taxes + prepaid_expense_other_current"
+    }
+  },
+  "prepaid_taxes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Taxes"
+    },
+    "gaap": [
+      "PrepaidTaxes"
+    ]
+  },
+  "prepaid_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Interest"
+    },
+    "gaap": [
+      "PrepaidInterest"
+    ]
+  },
+  "prepaid_supplies": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Supplies"
+    },
+    "gaap": [
+      "Supplies"
+    ]
+  },
+  "prepaid_royalties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Royalties"
+    },
+    "gaap": [
+      "PrepaidRoyalties"
+    ]
+  },
+  "prepaid_advertising": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Advertising"
+    },
+    "gaap": [
+      "PrepaidAdvertising"
+    ]
+  },
+  "prepaid_rent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Rent"
+    },
+    "gaap": [
+      "PrepaidRent"
+    ]
+  },
+  "prepaid_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Insurance"
+    },
+    "gaap": [
+      "PrepaidInsurance"
+    ]
+  },
+  "prepaid_expense_other_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Current Prepaid Expenses"
+    },
+    "gaap": [
       "OtherPrepaidExpenseCurrent"
     ]
   },
@@ -28968,15 +29070,40 @@
       "UnamortizedLossReacquiredDebtNoncurrent"
     ]
   },
-  "undue_cash": {
+  "liquid_assets": {
     "unit": "monetary",
-    "aggregate": "recalc",
+    "balance": "debit",
+    "aggregate": "tail",
     "label": {
-      "long": "Undue Cash"
+      "long": "Liquid Assets"
     },
     "calculation": {
       "order": 2084,
-      "all": "cash_cash_equivalents - debt_current - (interest_rate * debt) + operating_working_capital"
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current"
+    }
+  },
+  "assets_current_noncash": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Excess Cash"
+    },
+    "calculation": {
+      "order": 2084,
+      "all": "assets_current - liquid_assets"
+    }
+  },
+  "liabilities_current_unmet": {
+    "unit": "monetary",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Excess Cash"
+    },
+    "calculation": {
+      "order": 2084,
+      "all": "cash_cash_equivalents_shortterm_investments - (liabilities_current - assets_current_noncash)",
+      "min": 0
     }
   },
   "unearned_stock_employee_stockownership_plan": {

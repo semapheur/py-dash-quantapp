@@ -12,6 +12,7 @@ from iso4217 import Currency
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
+from pandera.dtypes import Timestamp
 from tqdm import tqdm
 from lib.const import HEADERS
 
@@ -167,10 +168,11 @@ def month_difference(date1: dt | Date, date2: dt | Date) -> int:
   return delta.years * 12 + delta.months + round(delta.days / 30)
 
 
-def df_time_difference(dates: pd.DatetimeIndex, periods: int = 30, freq: str = 'D'):
-  return np.round(
-    cast(np.timedelta64, dates.to_series().diff()) / np.timedelta64(periods, freq)
-  )
+def df_time_difference(
+  dates: pd.DatetimeIndex, periods: int = 30, freq: str = 'D'
+) -> Series[float]:
+  time_diff: Series[float] = dates.to_series().diff() / pd.Timedelta(periods, freq)
+  return cast(Series[float], time_diff.round())
 
 
 def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> Series[int]:
