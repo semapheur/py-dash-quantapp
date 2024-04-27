@@ -274,7 +274,7 @@ def applier(
     s_ = s_.loc[month_diff == ix[2]]
 
     if not s_.empty:
-      update.append(cast(Series[float], s_.loc[:, cast(str, s.name)]))
+      update.append(cast(Series[float], s_.loc[:, s_.columns[0]]))
 
   if not update:
     return result

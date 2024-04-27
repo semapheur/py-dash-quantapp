@@ -68,6 +68,7 @@ def m_score(df: DataFrame) -> DataFrame:
   slices = fin_slices(cast(pd.MultiIndex, df.index))
   # Days Sales in Receivables Index
   dsri = df['average_receivable_trade_current'] / df['revenue']
+  dsri.name = 'dsri'
   dsri /= applier(cast(Series[float], dsri), 'shift', slices)
 
   # Gross Margin Index
@@ -86,7 +87,7 @@ def m_score(df: DataFrame) -> DataFrame:
     )
     / df['assets']
   )
-
+  aqi.name = 'aqi'
   aqi /= applier(cast(Series[float], aqi), 'shift', slices)
 
   # Sales Growth Index
@@ -94,6 +95,7 @@ def m_score(df: DataFrame) -> DataFrame:
 
   # Depreciation Index
   depi = df['depreciation'] / (df['productive_assets'] - df['depreciation'])
+  depi.name = 'depi'
   depi /= applier(cast(Series[float], depi), 'shift', slices)
 
   # Sales General and Administrative Expenses Index
@@ -102,11 +104,11 @@ def m_score(df: DataFrame) -> DataFrame:
 
   # Leverage Index
   li = df['liabilities'] / df['assets']
+  li.name = 'li'
   li /= applier(cast(Series[float], li), 'shift', slices)
 
   # Total Accruals to Total Assets
-  ocf = df['cashflow_operating']
-  tata = (df['operating_income_loss'] - ocf) / df['average_assets']
+  tata = (df['operating_income_loss'] - df['cashflow_operating']) / df['average_assets']
 
   # Beneish M-score
   df['beneish_m_score'] = (
