@@ -53,6 +53,7 @@ class TaxonomyCalculation(TypedDict, total=False):
   fill: Optional[str]
   shift: Optional[str]
   min: Optional[str | float]
+  max: Optional[str | float]
 
 
 class TaxonomyItem(BaseModel):

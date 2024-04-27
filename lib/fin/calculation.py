@@ -288,7 +288,7 @@ def applier(
   return result
 
 
-def adjuster(
+def lower_bound(
   df: DataFrame, df_cols: set[str], value: str | float, calculee: str
 ) -> DataFrame:
   if isinstance(value, float):
@@ -298,6 +298,20 @@ def adjuster(
     return df
 
   df.loc[df[calculee] < df[value], calculee] = df[value]
+
+  return df
+
+
+def upper_bound(
+  df: DataFrame, df_cols: set[str], value: str | float, calculee: str
+) -> DataFrame:
+  if isinstance(value, float):
+    df.loc[df[calculee] > value, calculee] = value
+
+  elif value not in df_cols:
+    return df
+
+  df.loc[df[calculee] > df[value], calculee] = df[value]
 
   return df
 
@@ -420,6 +434,9 @@ def calculate_items(
       financials = insert_to_df(financials, col_set, financials[filler], calculee)
 
     if (value := schema.get('min')) is not None:
-      financials = adjuster(financials, col_set, value, calculee)
+      financials = lower_bound(financials, col_set, value, calculee)
+
+    if (value := schema.get('max')) is not None:
+      financials = upper_bound(financials, col_set, value, calculee)
 
   return financials
