@@ -294,10 +294,8 @@ def lower_bound(
   if isinstance(value, float):
     df.loc[df[calculee] < value, calculee] = value
 
-  elif value not in df_cols:
-    return df
-
-  df.loc[df[calculee] < df[value], calculee] = df[value]
+  elif value in df_cols:
+    df.loc[df[calculee] < df[value], calculee] = df[value]
 
   return df
 
