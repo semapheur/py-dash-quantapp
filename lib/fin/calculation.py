@@ -10,7 +10,7 @@ from pandera.typing import DataFrame, Series
 
 from lib.db.lite import read_sqlite
 from lib.fin.models import FiscalPeriod
-from lib.fin.taxonomy import TaxononmyCalculation, TaxononmyCalculationItem
+from lib.fin.taxonomy import TaxonomyCalculation, TaxonomyCalculationItem
 from lib.utils import df_time_difference
 
 
@@ -288,8 +288,22 @@ def applier(
   return result
 
 
+def adjuster(
+  df: DataFrame, df_cols: set[str], value: str | float, calculee: str
+) -> DataFrame:
+  if isinstance(value, float):
+    df.loc[df[calculee] < value, calculee] = value
+
+  elif value not in df_cols:
+    return df
+
+  df.loc[df[calculee] < df[value], calculee] = df[value]
+
+  return df
+
+
 def calculate_items(
-  financials: DataFrame, schemas: dict[str, TaxononmyCalculation], recalc: bool = False
+  financials: DataFrame, schemas: dict[str, TaxonomyCalculation], recalc: bool = False
 ) -> DataFrame:
   def insert_to_df(
     df: DataFrame, df_cols: set[str], insert_data: pd.Series, insert_name: str
@@ -308,7 +322,7 @@ def calculate_items(
     df: DataFrame,
     df_cols: set[str],
     col_name: str,
-    expression: ast.Expression | dict[str, TaxononmyCalculationItem],
+    expression: ast.Expression | dict[str, TaxonomyCalculationItem],
   ) -> DataFrame:
     if isinstance(expression, ast.Expression):
       code = compile(expression, '<string>', 'eval')
@@ -351,6 +365,24 @@ def calculate_items(
 
   for calculee, schema in schemas.items():
     col_set = col_set.union(financials.columns)
+
+    fns = cast(
+      set[Literal['avg', 'diff', 'shift']],
+      {'avg', 'diff', 'shift'}.intersection(schema.keys()),
+    )
+    calculated = False
+    for fn in fns:
+      calculer = cast(str, schema[fn])
+      if calculer not in col_set:
+        continue
+
+      result = applier(cast(Series[float], financials[calculer]), fn, slices)
+      financials = insert_to_df(financials, col_set, result, calculee)
+      calculated = True
+
+    if calculated:
+      continue
+
     if (formula := schema.get('all')) is not None:
       if isinstance(formula, str):
         all_visitor.reset_names()
@@ -366,7 +398,7 @@ def calculate_items(
         if set(formula.keys()).issubset(col_set):
           financials = apply_formula(financials, col_set, calculee, formula)
 
-    elif (formula := schema.get('any')) is not None:
+    if (formula := schema.get('any')) is not None:
       if isinstance(formula, str):
         any_visitor.set_columns(col_set)
         try:
@@ -384,22 +416,10 @@ def calculate_items(
         if formula:
           financials = apply_formula(financials, col_set, calculee, formula)
 
-    elif (calculer := schema.get('fill')) is not None:
-      if calculer not in col_set:
-        continue
+    if (filler := schema.get('fill')) is not None and filler in col_set:
+      financials = insert_to_df(financials, col_set, financials[filler], calculee)
 
-      financials = insert_to_df(financials, col_set, financials[calculer], calculee)
-
-    fns = cast(
-      set[Literal['avg', 'diff', 'shift']],
-      {'avg', 'diff', 'shift'}.intersection(schema.keys()),
-    )
-    for fn in fns:
-      calculer = cast(str, schema[fn])
-      if calculer not in col_set:
-        continue
-
-      result = applier(cast(Series[float], financials[calculer]), fn, slices)
-      financials = insert_to_df(financials, col_set, result, calculee)
+    if (value := schema.get('min')) is not None:
+      financials = adjuster(financials, col_set, value, calculee)
 
   return financials

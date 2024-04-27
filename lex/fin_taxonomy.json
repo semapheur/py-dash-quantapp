@@ -29094,7 +29094,19 @@
       "all": "assets_current - liquid_assets"
     }
   },
-  "liabilities_current_unmet": {
+  "liabilities_current_cashcovered": {
+    "unit": "monetary",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Cash-covered Current Liabilities"
+    },
+    "calculation": {
+      "order": 2084,
+      "all": "liabilities_current - assets_current_noncash",
+      "min": 0
+    }
+  },
+  "cash_excess": {
     "unit": "monetary",
     "aggregate": "recalc",
     "label": {
@@ -29102,7 +29114,7 @@
     },
     "calculation": {
       "order": 2084,
-      "all": "cash_cash_equivalents_shortterm_investments - (liabilities_current - assets_current_noncash)",
+      "all": "cash_cash_equivalents_shortterm_investments - liabilities_current_cashcovered",
       "min": 0
     }
   },

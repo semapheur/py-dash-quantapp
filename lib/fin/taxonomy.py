@@ -39,19 +39,20 @@ class TaxonomyLabel(TypedDict, total=False):
   short: Optional[str]
 
 
-class TaxononmyCalculationItem(TypedDict):
+class TaxonomyCalculationItem(TypedDict):
   weight: int | float
   sign: Literal[-1, 1]
 
 
-class TaxononmyCalculation(TypedDict, total=False):
+class TaxonomyCalculation(TypedDict, total=False):
   order: int
-  all: Optional[str | dict[str, TaxononmyCalculationItem]]
-  any: Optional[str | dict[str, TaxononmyCalculationItem]]
+  all: Optional[str | dict[str, TaxonomyCalculationItem]]
+  any: Optional[str | dict[str, TaxonomyCalculationItem]]
   avg: Optional[str]
   diff: Optional[str]
   fill: Optional[str]
   shift: Optional[str]
+  min: Optional[str | float]
 
 
 class TaxonomyItem(BaseModel):
@@ -73,7 +74,7 @@ class TaxonomyItem(BaseModel):
   aggregate: Literal['average', 'recalc', 'sum', 'tail']
   label: TaxonomyLabel
   gaap: Optional[list[str]] = None
-  calculation: Optional[TaxononmyCalculation] = None
+  calculation: Optional[TaxonomyCalculation] = None
   components: Optional[list[str]] = None
 
 
@@ -151,13 +152,13 @@ class Taxonomy(BaseModel):
       order = 0 if base_item_calc is None else max(0, base_item_calc['order'] - 1)
 
       if prefix == 'average':
-        calc = TaxononmyCalculation(order=order, avg=base_item)
+        calc = TaxonomyCalculation(order=order, avg=base_item)
         label = TaxonomyLabel(
           long=f'Average {label.get("long")}',
           short=None if short is None else f'Average {short}',
         )
       elif prefix == 'change':
-        calc = TaxononmyCalculation(order=order, diff=base_item)
+        calc = TaxonomyCalculation(order=order, diff=base_item)
         label = TaxonomyLabel(
           long=f'Change in {label.get("long")}',
           short=None if short is None else f'Change in {short}',
@@ -179,7 +180,7 @@ class Taxonomy(BaseModel):
         continue
 
       calc_values = [
-        cast(str | dict[str, TaxononmyCalculationItem], calc.get(i))
+        cast(str | dict[str, TaxonomyCalculationItem], calc.get(i))
         for i in calc.keys()
         if i != 'order'
       ]
@@ -238,7 +239,7 @@ class Taxonomy(BaseModel):
 
   def calculation_schema(
     self, select: Optional[set[str]] = None
-  ) -> dict[str, TaxononmyCalculation]:
+  ) -> dict[str, TaxonomyCalculation]:
     keys = set(self.data.keys())
     if select:
       keys = keys.intersection(select)
@@ -250,7 +251,7 @@ class Taxonomy(BaseModel):
     }
     return schema
 
-  def extra_calculation_schema(self) -> dict[str, TaxononmyCalculation]:
+  def extra_calculation_schema(self) -> dict[str, TaxonomyCalculation]:
     schema = {
       k: calc
       for k, v in self.data.items()
