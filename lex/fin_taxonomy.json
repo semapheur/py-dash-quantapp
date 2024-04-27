@@ -1886,7 +1886,7 @@
     },
     "calculation": {
       "order": 714,
-      "all": "1.2 * average_operating_working_capital / average_assets + 1.4 * average_retained_earnings_accumulated_deficit / average_assets + 3.3 * operating_income_loss / average_assets + 0.6 * market_capitalization / average_liabilities + average_revenue / average_assets"
+      "all": "1.2 * average_operating_working_capital / average_assets + 1.4 * average_retained_earnings_accumulated_deficit / average_assets + 3.3 * operating_income_loss / average_assets + 0.6 * market_capitalization / average_liabilities + revenue / average_assets"
     }
   },
   "amortization_acquired_contract_backlog": {
@@ -3492,7 +3492,7 @@
     },
     "calculation": {
       "order": 988,
-      "all": "average_cash_cash_equivalents_shortterm_investments / average_liabilities_current"
+      "all": "cash_cash_equivalents_shortterm_investments / liabilities_current"
     }
   },
   "cash_restricted": {
@@ -5452,7 +5452,7 @@
     },
     "calculation": {
       "order": 1675,
-      "all": "average_assets_current / average_liabilities_current"
+      "all": "assets_current / liabilities_current"
     }
   },
   "custody_fees": {
@@ -6089,7 +6089,7 @@
     },
     "calculation": {
       "order": 1714,
-      "all": "average_debt / average_assets"
+      "all": "debt / assets"
     }
   },
   "debt_to_equity": {
@@ -6101,7 +6101,7 @@
     },
     "calculation": {
       "order": 1715,
-      "all": "average_debt / average_equity"
+      "all": "debt / equity"
     }
   },
   "debt_unsecured": {
@@ -8864,7 +8864,7 @@
     },
     "calculation": {
       "order": 1810,
-      "all": "average_assets / average_equity"
+      "all": "assets / equity"
     }
   },
   "equity_temporary": {
@@ -9013,7 +9013,7 @@
   },
   "finance_lease_asset": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Finance Right-of-use Lease Assets"
     },
@@ -9027,7 +9027,7 @@
   },
   "finance_lease_asset_accumulated_amortization": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Accumulated Amortization of Finance Right-of-use Lease Assets"
     },
@@ -9037,7 +9037,7 @@
   },
   "finance_lease_asset_gross": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Gross Finance Right-of-use Lease Assets"
     },
@@ -16477,14 +16477,14 @@
   },
   "net_current_asset_value": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Net-Net Working Capital",
       "short": "NCAV"
     },
     "calculation": {
       "order": 2190,
-      "all": "average_assets_current - average_liabilities"
+      "all": "assets_current - liabilities"
     }
   },
   "net_income_lease_leveraged": {
@@ -16616,13 +16616,13 @@
   },
   "net_net_working_capital": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Net-Net Working Capital"
     },
     "calculation": {
       "order": 2195,
-      "all": "average_cash_cash_equivalents_shortterm_investments + 0.75 * average_receivable_trade_current + 0.5 * average_inventory - average_liabilities"
+      "all": "cash_cash_equivalents_shortterm_investments + 0.75 * receivable_trade_current + 0.5 * inventory - liabilities"
     }
   },
   "net_operating_assets": {
@@ -16633,7 +16633,7 @@
     },
     "calculation": {
       "order": 897,
-      "all": "average_assets - average_cash_cash_equivalents_shortterm_investments - average_liabilities + average_debt"
+      "all": "assets - cash_cash_equivalents_shortterm_investments - liabilities + debt"
     }
   },
   "net_operating_profit_posttax": {
@@ -16970,7 +16970,7 @@
   },
   "operating_lease_asset": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Operating Right-of-use Lease Assets"
     },
@@ -17014,13 +17014,13 @@
   },
   "operating_working_capital": {
     "unit": "monetary",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Operating Working Capital"
     },
     "calculation": {
       "order": 706,
-      "any": "average_receivable_trade_current + average_inventory + average_prepaid_expense_current - average_payable_trade_current - average_deferred_revenue_current - average_accrued_expenses_current"
+      "any": "receivable_trade_current + inventory + prepaid_expense_current - payable_trade_current - deferred_revenue_current - accrued_expenses_current"
     }
   },
   "origination_loans_employee_stock_ownership_plans": {
@@ -24503,13 +24503,13 @@
   },
   "quick_ratio": {
     "unit": "monetary_ratio",
-    "aggregate": "average",
+    "aggregate": "tail",
     "label": {
       "long": "Quick Ratio"
     },
     "calculation": {
       "order": 2370,
-      "all": "(average_cash_cash_equivalents_shortterm_investments + average_receivable_current) / average_liabilities_current"
+      "all": "(cash_cash_equivalents_shortterm_investments + receivable_current) / liabilities_current"
     }
   },
   "real_estate_insurance": {
@@ -29310,7 +29310,7 @@
     ],
     "calculation": {
       "order": 1637,
-      "all": "average_assets_current - average_liabilities_noncurrent"
+      "all": "assets_current - liabilities_noncurrent"
     }
   },
   "writedown_inventory": {
