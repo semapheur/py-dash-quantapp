@@ -1,4 +1,4 @@
-from datetime import date as Date, timedelta
+from datetime import datetime as dt, date as Date, timedelta
 from enum import Enum
 from functools import partial
 import json
@@ -20,7 +20,11 @@ from lib.fin.models import (
   FinData,
 )
 from lib.fin.quote import get_ohlcv
-from lib.utils import combine_duplicate_columns, df_time_difference
+from lib.utils import (
+  fiscal_quarter_monthly,
+  combine_duplicate_columns,
+  df_time_difference,
+)
 from lib.yahoo.ticker import Ticker
 
 
@@ -98,6 +102,8 @@ async def statement_to_df(
     return rate
 
   fin_date = pd.to_datetime(financials.date)
+  fiscal_end_month = int(financials.fiscal_end.split('-')[0])
+  fin_quarter = fiscal_quarter_monthly(fin_date.month, fiscal_end_month)
   fin_scope = financials.scope
   fin_period = financials.period
   currencies = financials.currency.difference({currency})
@@ -117,7 +123,11 @@ async def statement_to_df(
       else:
         months = ScopeEnum[fin_scope].value
 
-      period = fin_period
+      if months > 12:
+        continue
+
+      quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
+      period = cast(FiscalPeriod, f'Q{quarter}' if months < 12 else 'FY')
       if fin_period == 'FY' and months < 12:
         period = 'Q4'
 

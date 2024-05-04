@@ -30,7 +30,8 @@ from lib.fin.statement import df_to_statements, load_statements, upsert_statemen
 from lib.utils import (
   insert_characters,
   month_difference,
-  fiscal_quarter,
+  end_of_month,
+  fiscal_quarter_monthly,
   validate_currency,
   replace_all,
 )
@@ -264,22 +265,36 @@ async def parse_statement(url: str) -> FinStatement:
   date = dt.strptime(
     cast(str, cast(et.Element, root.find('.{*}DocumentPeriodEndDate')).text), '%Y-%m-%d'
   )
+
   fiscal_end = cast(
     str, cast(et.Element, root.find('.{*}CurrentFiscalYearEndDate')).text
-  )[1:]
+  )
+  fiscal_end = re.sub('^-+', '', fiscal_end)
+  fiscal_pattern = r'(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01]))'
 
-  if (el := root.find('.{*}DocumentFiscalPeriodFocus')) is not None:
-    fiscal_period = cast(FiscalPeriod, el.text)
-  elif scope == 'annual':
-    fiscal_period = 'FY'
-  else:
-    fiscal_pattern = r'(\d{2})-(\d{2})'
+  match = re.search(fiscal_pattern, fiscal_end)
+  fiscal_end_month = int(cast(re.Match[str], match).group(1))
 
-    match = re.search(fiscal_pattern, fiscal_end)
-    month = int(cast(re.Match[str], match).group(1))
-    day = int(cast(re.Match[str], match).group(2))
+  fiscal_period = cast(
+    str, cast(et.Element, root.find('.{*}DocumentFiscalPeriodFocus')).text
+  )
 
-    fiscal_period = cast(FiscalPeriod, fiscal_quarter(date, month, day))
+  # if (el := root.find('.{*}DocumentFiscalPeriodFocus')) is not None:
+  #  fiscal_period = cast(FiscalPeriod, el.text)
+  # elif scope == 'annual':
+  #  fiscal_period = 'FY'
+  # else:
+  #  fiscal_pattern = r'(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01]))'
+  #  match = re.search(fiscal_pattern, fiscal_end)
+  #  month = int(cast(re.Match[str], match).group(1))
+  #  fiscal_period = cast(FiscalPeriod, f'Q{fiscal_quarter_monthly(date, month)}')
+
+  derived_quarter = fiscal_quarter_monthly(date, fiscal_end_month)
+  stated_quarter = int(fiscal_period[1])
+  if scope == 'quarterly' and derived_quarter != stated_quarter:
+    new_fiscal_month = (fiscal_end_month - 3 * stated_quarter) % 12
+    new_fiscal_day = end_of_month(date.year, new_fiscal_month)
+    fiscal_period = f'{new_fiscal_month}-{new_fiscal_day}'
 
   doc_id = url.split('/')[-2]
   currency: set[str] = set()

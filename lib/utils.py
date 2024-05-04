@@ -1,6 +1,5 @@
 from datetime import datetime as dt, date as Date, time
 from dateutil.relativedelta import relativedelta
-import inspect
 import json
 import math
 import re
@@ -8,7 +7,6 @@ from pathlib import Path
 from typing import cast, Literal, Optional, TypeAlias
 
 import httpx
-from iso4217 import Currency
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
@@ -196,6 +194,19 @@ def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> Quarter:
   return cast(Quarter, f'Q{math.ceil(months/3)}')
 
 
+def fiscal_quarter_monthly(month: int, fiscal_end_month: Optional[int] = None) -> int:
+  if fiscal_end_month is not None:
+    month = 12 - ((fiscal_end_month - month) % 12)
+
+  return ((month - 1) // 3) + 1
+
+
+def end_of_month(year, month):
+  import calendar
+
+  return calendar.monthrange(range, month)[1]
+
+
 def download_file(url: str, file_path: str | Path):
   with open(file_path, 'wb') as file:
     with httpx.stream('GET', url=url, headers=HEADERS) as response:
@@ -213,6 +224,8 @@ def download_file(url: str, file_path: str | Path):
 
 
 def validate_currency(code: str) -> bool:
+  from iso4217 import Currency
+
   try:
     _ = Currency(code.upper())
     return True
@@ -221,6 +234,8 @@ def validate_currency(code: str) -> bool:
 
 
 def get_constructor_args(class_obj) -> set[str]:
+  import inspect
+
   # Get the constructor signature
   signature = inspect.signature(class_obj.__init__)
   return set(signature.parameters.keys())

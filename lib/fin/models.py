@@ -1,5 +1,6 @@
 from datetime import date as Date
 import json
+import re
 from typing import cast, Literal, Optional, TypeAlias
 from typing_extensions import TypedDict
 
@@ -78,10 +79,19 @@ class FinStatement(BaseModel):
   scope: Scope
   date: Date
   period: FiscalPeriod
-  fiscal_end: Optional[str] = None
+  fiscal_end: str
   # periods: set[Interval]
   currency: set[str]
   data: FinData  # dict[str, list[SerializedItem]]
+
+  @field_validator('fiscal_end', mode='before')
+  @classmethod
+  def validate_fiscal_end(cls, value, info: ValidationInfo):
+    pattern = r'(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'
+    if not re.match(pattern, value):
+      raise ValueError(f'{value} does not match the format -%m-%d')
+
+    return value
 
   @field_validator('currency', mode='before')
   @classmethod
