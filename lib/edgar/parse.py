@@ -23,7 +23,6 @@ from lib.fin.models import (
   Item,
   Member,
   Scope,
-  FiscalPeriod,
   FinData,
 )
 from lib.fin.statement import df_to_statements, load_statements, upsert_statements

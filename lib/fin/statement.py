@@ -1,4 +1,4 @@
-from datetime import datetime as dt, date as Date, timedelta
+from datetime import date as Date, timedelta
 from enum import Enum
 from functools import partial
 import json
@@ -76,7 +76,9 @@ async def fetch_exchange_rate(
 
 
 async def statement_to_df(
-  financials: FinStatement, currency: Optional[str] = None, multiple=False
+  financials: FinStatement,
+  currency: Optional[str] = None,
+  multiple=False,
 ) -> DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
     if isinstance(period, Interval):
@@ -103,12 +105,11 @@ async def statement_to_df(
 
   fin_date = pd.to_datetime(financials.date)
   fiscal_end_month = int(financials.fiscal_end.split('-')[0])
-  fin_quarter = fiscal_quarter_monthly(fin_date.month, fiscal_end_month)
   fin_scope = financials.scope
   fin_period = financials.period
   currencies = financials.currency.difference({currency})
 
-  df_data: dict[tuple[Date, FiscalPeriod, int], dict[str, int | float]] = {}
+  df_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, int | float]] = {}
 
   for item, entries in financials.data.items():
     for entry in entries:
@@ -135,12 +136,14 @@ async def statement_to_df(
         if (currency is not None) and (unit := entry.get('unit', '')) in currencies:
           rate = await exchange_rate(currency, unit, entry['period'])
 
-        df_data.setdefault((date, period, months), {})[item] = value * rate
+        df_data.setdefault((date, period, months, fiscal_end_month), {})[item] = (
+          value * rate
+        )
 
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or entry.get('unit') == 'shares'
         ):
-          df_data.setdefault((date, 'Q4', 3), {})[item] = value * rate
+          df_data.setdefault((date, 'Q4', 3, fiscal_end_month), {})[item] = value * rate
 
       if (members := entry.get('members')) is None:
         continue
@@ -154,12 +157,14 @@ async def statement_to_df(
 
         dim = '.' + d if (d := m_entry.get('dim')) else ''
         key = f'{item}{dim}.{member}'
-        df_data.setdefault((date, period, months), {})[key] = m_value * rate
+        df_data.setdefault((date, period, months, fiscal_end_month), {})[key] = (
+          m_value * rate
+        )
 
         if fin_period == 'FY' and (
           isinstance(entry['period'], Instant) or m_entry.get('unit') == 'shares'
         ):
-          df_data.setdefault((date, 'Q4', 3), {})[key] = m_value
+          df_data.setdefault((date, 'Q4', 3, fiscal_end_month), {})[key] = m_value
 
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
@@ -193,10 +198,47 @@ async def load_financials(id: str, currency: Optional[str] = None) -> DataFrame 
   return df
 
 
-def fix_financials(df: DataFrame) -> DataFrame:
+def fix_financials(
+  financials: DataFrame, fiscal_end_date: Optional[Date] = None
+) -> DataFrame:
   def check_combos(ix: pd.MultiIndex, conditions: set[tuple[str, int]]) -> bool:
     return conditions.issubset(set(ix.droplevel('date')))
 
+  def quarterize(df: DataFrame):
+    conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
+
+    period_months = df.index.droplevel(['date', 'fiscale_end_month'])
+    for i in range(1, len(conditions)):
+      mask = (period_months == conditions[i - 1]) | (period_months == conditions[i])
+      df_ = df.loc[mask, diff_items].copy()
+      if not check_combos(
+        cast(pd.MultiIndex, df_.index), {conditions[i - 1], conditions[i]}
+      ):
+        continue
+
+      df_.sort_index(level='date', inplace=True)
+
+      df_['month_difference'] = df_time_difference(
+        cast(pd.DatetimeIndex, df_.index.get_level_values('date')), 30, 'D'
+      )
+      df_.loc[:, diff_items] = df_[diff_items].diff()
+      df_ = df_.loc[df_['month_difference'] == 3, diff_items]
+      df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1], slice(None)), :]
+      df_.reset_index(level='months', inplace=True)
+      df_.loc[:, 'months'] = 3
+      df_.set_index('months', append=True, inplace=True)
+
+      if conditions[i][0] == 'FY':
+        df_.reset_index(level='period', inplace=True)
+        df_.loc[:, 'period'] = 'Q4'
+        df_.set_index('period', append=True, inplace=True)
+        df_ = df_.reorder_levels(['date', 'period', 'months'])
+
+      df = cast(DataFrame, df.combine_first(df_))
+
+    return cast(DataFrame, df.dropna(how='all'))
+
+  quarter_set = {'Q1', 'Q2', 'Q3', 'Q4'}
   query = """
     SELECT json_each.value AS gaap, item FROM items 
     JOIN json_each(gaap) ON 1=1
@@ -206,64 +248,89 @@ def fix_financials(df: DataFrame) -> DataFrame:
   if items is None:
     raise ValueError('Taxonomy could not be loaded!')
 
-  df = cast(
-    DataFrame, df.loc[:, list(set(df.columns).intersection(set(items['gaap'])))]
+  financials = cast(
+    DataFrame,
+    financials.loc[:, list(set(financials.columns).intersection(set(items['gaap'])))],
   )
 
   rename = {k: v for k, v in zip(items['gaap'], items['item'])}
-  df.rename(columns=rename, inplace=True)
-  df = combine_duplicate_columns(df)
+  financials.rename(columns=rename, inplace=True)
+  financials = combine_duplicate_columns(financials)
 
   query = 'SELECT item FROM items WHERE aggregate = "sum"'
   sum_items = read_sqlite('taxonomy.db', query)
   if sum_items is None:
     raise ValueError('Taxonomy could not be loaded!')
 
-  diff_items = list(set(sum_items['item']).intersection(set(df.columns)))
+  diff_items = list(set(sum_items['item']).intersection(set(financials.columns)))
 
-  conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
-  mp = df.index.droplevel('date')
-  for i in range(1, len(conditions)):
-    mask = (mp == conditions[i - 1]) | (mp == conditions[i])
-    # mask = (period == conditions[i - 1][0]) & (months == conditions[i - 1][1]) | (
-    #  period == conditions[i][0]
-    # ) & (months == conditions[i][1])
-    df_ = df.loc[mask, diff_items].copy()
-    if not check_combos(
-      cast(pd.MultiIndex, df_.index), {conditions[i - 1], conditions[i]}
-    ):
-      continue
-
-    df_.sort_index(level='date', inplace=True)
-
-    df_['month_difference'] = df_time_difference(
-      cast(pd.DatetimeIndex, df_.index.get_level_values('date')), 30, 'D'
+  fiscal_ends = cast(pd.MultiIndex, financials.index).levels[3]
+  for fiscal_end in fiscal_ends:
+    mask = financials.index.get_level_values('fiscal_end_month') == fiscal_end
+    financials = cast(
+      DataFrame, financials.combine_first(quarterize(financials.loc[mask, :]))
     )
-    print(df_['month_difference'])
 
-    df_.loc[:, diff_items] = df_[diff_items].diff()
-    df_ = df_.loc[df_['month_difference'] == 3, diff_items]
-    df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
-    df_.reset_index(level='months', inplace=True)
-    df_.loc[:, 'months'] = 3
-    df_.set_index('months', append=True, inplace=True)
+  financials.reset_index('fiscal_end_month', drop=True, inplace=True)
+  financials.sort_index(level='date', inplace=True)
+  period = financials.index.get_level_values('period')
+  months = financials.index.get_level_values('months')
 
-    if conditions[i][0] == 'FY':
-      df_.reset_index(level='period', inplace=True)
-      df_.loc[:, 'period'] = 'Q4'
-      df_.set_index('period', append=True, inplace=True)
-      df_ = df_.reorder_levels(['date', 'period', 'months'])
-
-    df = cast(DataFrame, df.combine_first(df_))
-
-  period = df.index.get_level_values('period')
-  months = df.index.get_level_values('months')
-
-  mask = ((months == 3) & period.isin({'Q1', 'Q2', 'Q3', 'Q4'})) | (
+  mask = ((months == 3) & period.isin(quarter_set)) | (
     (months == 12) & (period == 'FY')
   )
+  financials = financials.loc[mask, :].dropna(how='all')
+  if len(fiscal_ends) == 1:
+    return cast(DataFrame, financials)
 
-  return cast(DataFrame, df.loc[mask, :].dropna(how='all'))
+  levels = ['date', 'period', 'months']
+  fiscal_end = financials.index.droplevel(['period', 'months'])[-1]
+
+  mask = (financials.index.get_level_values('date') < fiscal_end[0]) & (
+    financials.index.get_level_values('period') == 'FY'
+  )
+  financials = financials.loc[~mask, :]
+
+  dates = financials.index.get_level_values('date')
+  financials.reset_index(level='period', inplace=True)
+  for i in financials.loc[dates < fiscal_end[0], 'period'].index:
+    financials.at[i, 'period'] = f'Q{fiscal_quarter_monthly(i[0].month, fiscal_end[1])}'
+
+  mask = (financials.index.get_level_values('date') < fiscal_end[0]) & (
+    financials['period'] == 'Q4'
+  )
+
+  fy = financials.loc[mask, :]
+  fy.reset_index(level='months', inplace=True)
+  fy.loc[:, 'period'] = 'FY'
+  fy.loc[:, 'months'] = 12
+  fy.set_index(['period', 'months'], append=True, inplace=True)
+  fy = fy.reorder_levels(levels)
+
+  financials.set_index('period', append=True, inplace=True)
+  financials = cast(
+    DataFrame,
+    financials.reorder_levels(levels),
+  )
+
+  financials = cast(DataFrame, pd.concat((financials, fy), axis=0))
+  financials.sort_index(level=['date', 'period'], inplace=True)
+
+  mask = (financials.index.get_level_values('date') < fiscal_end[0]) & (
+    financials.index.get_level_values('period') != 'FY'
+  )
+
+  window_size = 4
+  windows = financials.loc[mask, diff_items].rolling(4)
+  for i in range(len(financials) - window_size + 1):
+    window = windows.get_window(i)
+    if list(window.index.get_level_values('period')) != ['Q1', 'Q2', 'Q3', 'Q4']:
+      continue
+
+    ix = (window.index.get_level_values('date').max(), 'FY', 12)
+    financials.loc[ix, diff_items] = window.sum()
+
+  return cast(DataFrame, financials)
 
 
 def get_stock_splits(fin_data: FinData) -> list[StockSplit]:

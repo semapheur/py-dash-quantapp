@@ -172,6 +172,7 @@ class FinancialsIndex(DataFrameModel):
   date: Index[Timestamp]
   period: Index[Literal['Q1', 'Q2', 'Q3', 'Q4', 'FY', 'TTM']]
   months: Index[int] = Field(ge=1, coerce=True)
+  fiscal_end_month: Index[int] = Field(ge=1, le=12, coerce=True)
 
   class Config:
     multiindex_coerce = True
