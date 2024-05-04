@@ -239,10 +239,10 @@ def fix_financials(df: DataFrame) -> DataFrame:
     df_['month_difference'] = df_time_difference(
       cast(pd.DatetimeIndex, df_.index.get_level_values('date')), 30, 'D'
     )
+    print(df_['month_difference'])
 
     df_.loc[:, diff_items] = df_[diff_items].diff()
     df_ = df_.loc[df_['month_difference'] == 3, diff_items]
-
     df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1]), :]
     df_.reset_index(level='months', inplace=True)
     df_.loc[:, 'months'] = 3

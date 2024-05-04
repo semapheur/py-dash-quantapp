@@ -260,9 +260,7 @@ def applier(
     s_.sort_index(level='date', inplace=True)
 
     dates = pd.to_datetime(s_.index.get_level_values('date'))
-    month_diff = df_time_difference(dates, 30, 'D')
-    month_diff.index = s_.index
-    # month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=s_.index)
+    month_diff = pd.Series(df_time_difference(dates, 30, 'D'), index=s_.index)
 
     if fn == 'diff':
       s_ = s_.diff()

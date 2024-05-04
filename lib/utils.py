@@ -168,9 +168,11 @@ def month_difference(date1: dt | Date, date2: dt | Date) -> int:
 
 def df_time_difference(
   dates: pd.DatetimeIndex, periods: int = 30, freq: str = 'D'
-) -> Series[float]:
-  time_diff: Series[float] = dates.to_series().diff() / pd.Timedelta(periods, freq)
-  return cast(Series[float], time_diff.round())
+) -> np.ndarray[float]:
+  return np.round(
+    np.diff(dates.to_numpy(), prepend=[np.datetime64('nat', 'D')])
+    / np.timedelta64(periods, freq)
+  )
 
 
 def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> Series[int]:
