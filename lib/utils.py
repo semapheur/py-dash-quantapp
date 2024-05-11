@@ -10,7 +10,6 @@ import httpx
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
-from pandera.dtypes import Timestamp
 from tqdm import tqdm
 from lib.const import HEADERS
 
@@ -206,7 +205,7 @@ def fiscal_quarter_monthly(month: int, fiscal_end_month: Optional[int] = None) -
 def end_of_month(year, month):
   import calendar
 
-  return calendar.monthrange(range, month)[1]
+  return calendar.monthrange(year, month)[1]
 
 
 def download_file(url: str, file_path: str | Path):

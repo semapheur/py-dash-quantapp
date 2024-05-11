@@ -230,6 +230,7 @@ async def update_fundamentals(
     fundamentals = await calculate_fundamentals(
       id, currency, financials, ohlcv_fetcher, beta_years
     )
+
     upsert_sqlite(fundamentals, 'fundamentals.db', table, {'date': Date})
     return fundamentals
 

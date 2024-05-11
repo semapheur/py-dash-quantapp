@@ -37,6 +37,10 @@ class AnyTransformer(ast.NodeTransformer):
   def __init__(self, df_name: str):
     self.df_name = df_name
     self.df_columns: set[str] = set()
+    self.names: set[str] = set()
+
+  def reset_names(self):
+    self.names = set()
 
   def set_columns(self, columns: set[str]):
     self.df_columns = columns
@@ -44,6 +48,8 @@ class AnyTransformer(ast.NodeTransformer):
   def visit_Name(self, node):
     if node.id not in self.df_columns:
       return ast.Constant(value=0)
+
+    self.names.add(node.id)
 
     call = ast.Call(
       func=ast.Attribute(
@@ -320,11 +326,14 @@ def calculate_items(
   ) -> DataFrame:
     if insert_name in df_cols:
       df.loc[:, insert_name] = (
-        insert_data if recalc else df[insert_name].combine_first(insert_data)
+        insert_data
+        if recalc
+        else df[insert_name].replace(0, np.nan).combine_first(insert_data)
       )
     else:
       new_column = pd.DataFrame({insert_name: insert_data})
       df = cast(DataFrame, pd.concat([df, new_column], axis=1))
+      df_cols.add(insert_name)
 
     return df
 
@@ -374,7 +383,7 @@ def calculate_items(
   col_set = set(financials.columns)
 
   for calculee, schema in schemas.items():
-    col_set = col_set.union(financials.columns)
+    col_set.update(financials.columns)
 
     fns = cast(
       set[Literal['avg', 'diff', 'shift']],
@@ -410,15 +419,15 @@ def calculate_items(
 
     if (formula := schema.get('any')) is not None:
       if isinstance(formula, str):
+        any_visitor.reset_names()
         any_visitor.set_columns(col_set)
-        try:
-          expression = ast.parse(formula, mode='eval')
-          expression = cast(
-            ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
-          )
+        expression = ast.parse(formula, mode='eval')
+        expression = cast(
+          ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
+        )
+
+        if any_visitor.names:
           financials = apply_formula(financials, col_set, calculee, expression)
-        except Exception as _:
-          print(formula)
       elif isinstance(formula, dict):
         formula = {
           key: formula[key] for key in set(formula.keys()).intersection(col_set)

@@ -168,7 +168,7 @@ async def statement_to_df(
 
   df = pd.DataFrame.from_dict(df_data, orient='index')
   df.index = pd.MultiIndex.from_tuples(df.index)
-  df.index.names = ['date', 'period', 'months']
+  df.index.names = ['date', 'period', 'months', 'fiscal_end_month']
   return cast(DataFrame, df)
 
 
@@ -207,7 +207,7 @@ def fix_financials(
   def quarterize(df: DataFrame):
     conditions = (('Q1', 3), ('Q2', 6), ('Q3', 9), ('FY', 12))
 
-    period_months = df.index.droplevel(['date', 'fiscale_end_month'])
+    period_months = df.index.droplevel(['date', 'fiscal_end_month'])
     for i in range(1, len(conditions)):
       mask = (period_months == conditions[i - 1]) | (period_months == conditions[i])
       df_ = df.loc[mask, diff_items].copy()
