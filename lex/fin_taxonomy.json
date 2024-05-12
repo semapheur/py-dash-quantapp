@@ -9211,8 +9211,19 @@
     ],
     "calculation": {
       "order": 1500,
-      "any": "gain_loss_adjustment_prior_extraordinary_items + extraordinary_item_investee + discontinued_application_specialized_accounting_regulate_operations + gain_loss_extraordinary_other"
+      "any": "gain_purchase_business + gain_loss_adjustment_prior_extraordinary_items + extraordinary_item_investee + discontinued_application_specialized_accounting_regulate_operations + gain_loss_extraordinary_other"
     }
+  },
+  "gain_purchase_business": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain on Purchase of Business"
+    },
+    "gaap": [
+      "GainOnPurchaseOfBusiness"
+    ]
   },
   "extraordinary_item_investee": {
     "unit": "monetary",
@@ -16715,6 +16726,33 @@
       "any": "net_income_loss_mintority_interest_redeemable + net_income_loss_mintority_interest_redeemable"
     }
   },
+  "net_income_loss_continuing_operations_including_minority_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) from Continuing Operations Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "ProfitLossFromContinuingOperations",
+      "IncomeLossFromContinuingOperationsIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "pretax_income_loss - tax_expense_benefit"
+    }
+  },
+  "net_income_loss_continuing_operations_minority_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) from Continuing Operations Attributable to Minority Interest"
+    },
+    "gaap": [
+      "IncomeLossFromContinuingOperationsAttributableToNoncontrollingEntity"
+    ]
+  },
   "net_income_loss_continuing_operations": {
     "unit": "monetary",
     "balance": "credit",
@@ -16723,9 +16761,13 @@
       "long": "Net Income (Loss) from Continuing Operations"
     },
     "gaap": [
-      "ProfitLossFromContinuingOperations",
-      "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersBasic"
-    ]
+      "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersBasic",
+      "IncomeLossFromContinuingOperations"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "net_income_loss_continuing_operations_including_minority_interest - net_income_loss_continuing_operations_minority_interest"
+    }
   },
   "net_income_loss_including_minority_interest": {
     "unit": "monetary",
@@ -16739,7 +16781,7 @@
     ],
     "calculation": {
       "order": 1672,
-      "all": "pretax_income_loss - tax_expense_benefit"
+      "all": "net_income_loss_continuing_operations_including_minority_interest + income_loss_dicontinued_operations"
     }
   },
   "net_income_loss_minority_interest_nonredeemable": {
