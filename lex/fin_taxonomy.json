@@ -1898,7 +1898,7 @@
     },
     "calculation": {
       "order": 910,
-      "all": "1.2 * average_operating_working_capital / average_assets + 1.4 * average_retained_earnings_accumulated_deficit / average_assets + 3.3 * operating_income_loss / average_assets + 0.6 * market_capitalization / average_liabilities + revenue / average_assets"
+      "all": "1.2 * average_operating_working_capital / average_assets + 1.4 * average_retained_earnings_accumulated_deficit / average_assets + 3.3 * income_loss_operating / average_assets + 0.6 * market_capitalization / average_liabilities + revenue / average_assets"
     }
   },
   "amortization_acquired_contract_backlog": {
@@ -3324,7 +3324,7 @@
     },
     "calculation": {
       "order": 1022,
-      "all": "payment_acquisition_productive_assets / operating_income_loss"
+      "all": "payment_acquisition_productive_assets / income_loss_operating"
     }
   },
   "capital_expenditure_to_revenue": {
@@ -3669,7 +3669,7 @@
       "CashFDICInsuredAmount"
     ]
   },
-  "cash_operating_income_loss": {
+  "income_loss_before_interest_tax_cash": {
     "unit": "monetary",
     "aggregate": "sum",
     "label": {
@@ -3678,7 +3678,7 @@
     },
     "calculation": {
       "order": 1088,
-      "all": "operating_income_loss + depreciation_depletion_amortization_accretion"
+      "any": "income_loss_before_interest_tax + depreciation_depletion_amortization_accretion"
     }
   },
   "cash_ratio": {
@@ -8799,7 +8799,7 @@
     },
     "calculation": {
       "order": 1853,
-      "all": "enterprise_value / cash_operating_income_loss"
+      "all": "enterprise_value / income_loss_before_interest_tax_cash"
     }
   },
   "enterprise_value_to_free_cash_flow_firm": {
@@ -12695,7 +12695,7 @@
     },
     "calculation": {
       "order": 2055,
-      "all": "income_loss_pretax / operating_income_loss"
+      "all": "income_loss_pretax / income_loss_operating"
     }
   },
   "interest_coverage_ratio": {
@@ -12707,7 +12707,7 @@
     },
     "calculation": {
       "order": 2056,
-      "all": "(operating_income_loss - depreciation_depletion_amortization_accretion - payment_acquisition_productive_assets) / interest_expense"
+      "all": "(income_loss_operating - depreciation_depletion_amortization_accretion - payment_acquisition_productive_assets) / interest_expense"
     }
   },
   "interest_credited_policy_owner_accounts": {
@@ -14815,8 +14815,19 @@
     ],
     "calculation": {
       "order": 2169,
-      "any": "nonoperating_gain_loss + royalty_income_nonoperating + rental_income_nonoperating + development_profits_nonoperating - recovery_stranded_costs + leveraged_lease_income_net + investment_income"
+      "any": "gain_loss_investment_nonoperating + royalty_income_nonoperating + rental_income_nonoperating + development_profits_nonoperating - recovery_stranded_costs + leveraged_lease_income_net + investment_income + income_nonoperating_asset_related_other"
     }
+  },
+  "income_nonoperating_asset_related_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Nonoperating Asset Related Income"
+    },
+    "gaap": [
+      "OtherNonoperatingAssetRelatedIncome"
+    ]
   },
   "investment_income_operating": {
     "unit": "monetary",
@@ -16923,7 +16934,7 @@
     },
     "calculation": {
       "order": 2210,
-      "all": "operating_income_loss * (1 - tax_rate)"
+      "all": "income_loss_operating * (1 - tax_rate)"
     }
   },
   "net_profit_margin": {
@@ -16971,18 +16982,7 @@
       "NoncashMergerRelatedCosts"
     ]
   },
-  "nonoperating_expenses": {
-    "unit": "monetary",
-    "aggregate": "sum",
-    "label": {
-      "long": "Non-Operating Expense"
-    },
-    "calculation": {
-      "order": 2212,
-      "any": "interest_expense + impairment"
-    }
-  },
-  "nonoperating_gain_loss": {
+  "gain_loss_investment_nonoperating": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16997,18 +16997,6 @@
       "any": "gain_loss_investment + gain_loss_venture_capital + gain_loss_disposal_not_discontinued_operation + gain_loss_sale_stock_subsidiary + gain_loss_deconsolidation + gain_loss_sale_stock_unissued + gain_loss_sale_interest_projects + gain_loss_derivative_intstruments_pretax + gain_business_combination_bargain_purchase + gain_loss_nonoperating_other"
     }
   },
-  "nonoperating_income": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Non-operating Income"
-    },
-    "calculation": {
-      "order": 2213,
-      "any": "investment_income"
-    }
-  },
   "nonoperating_income_expense": {
     "unit": "monetary",
     "balance": "credit",
@@ -17021,11 +17009,371 @@
     ],
     "calculation": {
       "order": 2215,
-      "all": "nonoperating_income - nonoperating_expenses + other_nonoperating_income_expense"
+      "any": "investment_income_nonoperating + gain_loss_contract_termination + gain_loss_condemnation + gain_loss_sale_lease_financing - loss_catastrophes + allowance_funds_construction_additions + gain_loss_foreign_currency_transaction_pretax - lease_salestype_initial_direct_cost_expense_commencement - lease_operating_initial_direct_cost_expense_term + gain_loss_sale_leased_assets_operating + gain_loss_sale_real_estate_other + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + income_loss_real_estate_operation - impairment_recovery_mortgage_servicing_rights + gain_debt_conversion + allowance_funds_construction_additions_capitalized_cost_equity - expense_reversal_benefit_plan_excluding_service_cost + government_assistance_nonoperating_income + government_assistance_nonoperating_expense + other_nonoperating_income_expense - loss_gain_unusual_infrequent_item + gain_loss_investment_health_care_trust_fund + interest_income_health_care_trust_fund - expense_administrative_health_care_trust_fund"
     }
+  },
+  "expense_administrative_health_care_trust_fund": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Health Care Trust Fund Administrative Expense"
+    },
+    "gaap": [
+      "HealthCareTrustFundAdministrativeExpense"
+    ]
+  },
+  "interest_income_health_care_trust_fund": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Health Care Trust Fund Interest Income"
+    },
+    "gaap": [
+      "HealthCareTrustFundInterestIncome"
+    ]
+  },
+  "gain_loss_investment_health_care_trust_fund": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Health Care Trust Fund Investment Gains (Losses) Net"
+    },
+    "gaap": [
+      "HealthCareTrustFundInvestmentGainsLossesNet"
+    ]
+  },
+  "gain_loss_sale_lease_financing": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Capital Leases Net"
+    },
+    "gaap": [
+      "GainLossOnSaleOfCapitalLeasesNet"
+    ]
+  },
+  "loss_gain_unusual_infrequent_item": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unusual or Infrequent Item Net (Gain) Loss"
+    },
+    "gaap": [
+      "UnusualOrInfrequentItemNetGainLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "unusual_infrequent_item_net_insurance_proceeds - gain_unusual_infrequent_item"
+    }
+  },
+  "gain_unusual_infrequent_item": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unusual or Infrequent Item Gain"
+    },
+    "gaap": [
+      "UnusualOrInfrequentItemGainGross"
+    ]
+  },
+  "unusual_infrequent_item_net_insurance_proceeds": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unusual or Infrequent Item Net of Insurance Proceeds"
+    },
+    "gaap": [
+      "UnusualOrInfrequentItemNetOfInsuranceProceeds"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loss_unusual_infrequent_item - unusual_infrequent_item_insurance_proceeds"
+    }
+  },
+  "unusual_infrequent_item_insurance_proceeds": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Unusual or Infrequent Insurance Proceeds"
+    },
+    "gaap": [
+      "UnusualOrInfrequentItemInsuranceProceeds"
+    ]
+  },
+  "loss_unusual_infrequent_item": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Unusual or Infrequent Item Loss"
+    },
+    "gaap": [
+      "UnusualOrInfrequentItemLossGross"
+    ]
+  },
+  "government_assistance_nonoperating_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Government Assistance Nonoperating Expense"
+    },
+    "gaap": [
+      "GovernmentAssistanceNonoperatingExpense"
+    ]
+  },
+  "government_assistance_nonoperating_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Government Assistance Nonoperating Income"
+    },
+    "gaap": [
+      "GovernmentAssistanceNonoperatingIncome"
+    ]
+  },
+  "expense_reversal_benefit_plan_excluding_service_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Periodic Defined Benefits Expense (Reversal of Expense) Excluding Service Cost Component"
+    },
+    "gaap": [
+      "NetPeriodicDefinedBenefitsExpenseReversalOfExpenseExcludingServiceCostComponent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "benefit_plan_interest_cost - benefit_plan_expected_return_plan_assets - benefit_plan_interest_gain_loss_settlements_curtailments - benefit_plan_amortization_gains_losses - benefit_plan_amortization_transition_asset_obligation - benefit_plan_amortization_prior_service_cost_credit - benefit_plan_other_cost"
+    }
+  },
+  "benefit_plan_other_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Other Costs"
+    },
+    "gaap": [
+      "DefinedBenefitPlanOtherCosts"
+    ]
+  },
+  "benefit_plan_amortization_prior_service_cost_credit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Amortization of Prior Service Cost Credit"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAmortizationOfPriorServiceCostCredit"
+    ]
+  },
+  "benefit_plan_amortization_transition_asset_obligation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Amortization of Transition Asset Obligation"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAmortizationOfTransitionAssetObligation"
+    ]
+  },
+  "benefit_plan_amortization_gains_losses": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Amortization of Gains (Losses)"
+    },
+    "gaap": [
+      "DefinedBenefitPlanAmortizationOfGainsLosses"
+    ]
+  },
+  "benefit_plan_interest_gain_loss_settlements_curtailments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Recognized Net Gain (Loss) Due to Settlements and Curtailments"
+    },
+    "gaap": [
+      "DefinedBenefitPlanRecognizedNetGainLossDueToSettlementsAndCurtailments",
+      "DefinedBenefitPlanRecognizedNetGainLossDueToSettlementsAndCurtailments1"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "benefit_plan_interest_gain_loss_settlements + benefit_plan_interest_gain_loss_curtailments"
+    }
+  },
+  "benefit_plan_interest_gain_loss_curtailments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Recognized Net Gain (Loss) Due to Curtailments"
+    },
+    "gaap": [
+      "DefinedBenefitPlanRecognizedNetGainLossDueToCurtailments"
+    ]
+  },
+  "benefit_plan_interest_gain_loss_settlements": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Recognized Net Gain (Loss) Due to Settlements"
+    },
+    "gaap": [
+      "DefinedBenefitPlanRecognizedNetGainLossDueToSettlements",
+      "DefinedBenefitPlanRecognizedNetGainLossDueToSettlements1"
+    ]
+  },
+  "benefit_plan_expected_return_plan_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Expected Return on Plan Assets"
+    },
+    "gaap": [
+      "DefinedBenefitPlanExpectedReturnOnPlanAssets"
+    ]
+  },
+  "benefit_plan_interest_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Defined Benefit Plan Interest Cost"
+    },
+    "gaap": [
+      "DefinedBenefitPlanInterestCost"
+    ]
+  },
+  "allowance_funds_construction_additions_capitalized_cost_equity": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Public Utilities Allowance for Funds Used During Construction Capitalized Cost Of Equity"
+    },
+    "gaap": [
+      "PublicUtilitiesAllowanceForFundsUsedDuringConstructionCapitalizedCostOfEquity"
+    ]
+  },
+  "income_loss_real_estate_operation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Profit (Loss) from Real Estate Operations"
+    },
+    "gaap": [
+      "ProfitLossFromRealEstateOperations"
+    ]
+  },
+  "gain_loss_conversion_investments_foreign": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Conversion Gains and Losses on Foreign Investments"
+    },
+    "gaap": [
+      "ConversionGainsAndLossesOnForeignInvestments"
+    ]
+  },
+  "revenue_real_estate_investment_partnership": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Real Estate Investment Partnership Revenue"
+    },
+    "gaap": [
+      "RealEstateInvestmentPartnershipRevenue"
+    ]
+  },
+  "income_bank_owned_life_insurance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Bank Owned Life Insurance Income"
+    },
+    "gaap": [
+      "BankOwnedLifeInsuranceIncome"
+    ]
+  },
+  "gain_loss_sale_real_estate_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gains (Losses) on Sales of Other Real Estate"
+    },
+    "gaap": [
+      "GainsLossesOnSalesOfOtherRealEstate"
+    ]
+  },  
+  "gain_loss_sale_leased_assets_operating": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Leased Operating Assets"
+    },
+    "gaap": [
+      "GainLossOnSaleOfLeasedAssetsNetOperatingLeases"
+    ]
+  },
+  "lease_operating_initial_direct_cost_expense_term": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Sales Type Lease Initial Direct Cost Expense Commencement"
+    },
+    "gaap": [
+      "OperatingLeaseInitialDirectCostExpenseOverTerm"
+    ]
+  },
+  "lease_salestype_initial_direct_cost_expense_commencement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Sales Type Lease Initial Direct Cost Expense Commencement"
+    },
+    "gaap": [
+      "SalesTypeLeaseInitialDirectCostExpenseCommencement"
+    ]
+  },
+  "loss_catastrophes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Non-recurring Income (Loss)"
+    },
+    "gaap": [
+      "LossFromCatastrophes"
+    ]
   },
   "nonrecurring_income_loss": {
     "unit": "monetary",
+    "balance": "credit",
     "aggregate": "sum",
     "label": {
       "long": "Non-recurring Income (Loss)"
@@ -17157,7 +17505,7 @@
       "any": "research_development_expense + depreciation_depletion_amortization_nonproduction + exploration_expense + property_exploration_rights_carrying_costs + recapitalization_costs + restructuring_settlement_impairment_provisions + custody_fees + trustee_fees + sponsor_fees + royalty_expense + accretion_expense + loan_portfolio_expense + pre_opening_costs - gain_loss_litigation_settlement + malpractice_loss_contingency - insurance_recoveries + other_operating_expenses + business_combination_integration_costs + unsolicited_tender_offer_costs + professional_contract_services_expense"
     }
   },
-  "operating_income_loss": {
+  "income_loss_operating": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -17208,7 +17556,7 @@
     },
     "calculation": {
       "order": 2226,
-      "all": "operating_income_loss / revenue"
+      "all": "income_loss_operating / revenue"
     }
   },
   "operating_working_capital": {
@@ -17554,10 +17902,25 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Other Non-operating Income (Expense)"
+      "long": "Other Nonoperating Income (Expense)"
     },
     "gaap": [
       "OtherNonoperatingIncomeExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "other_nonoperating_income - other_nonoperating_expense"
+    }
+  },
+  "other_nonoperating_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Nonoperating Expense"
+    },
+    "gaap": [
+      "OtherNonoperatingExpense"
     ]
   },
   "other_nonrecurring_expense": {
@@ -21742,12 +22105,27 @@
       "PrepaidTaxes"
     ]
   },
+  "income_loss_before_interest_tax": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Interest, Extraordinary Items and Minority Interest"
+    },
+    "gaap": [
+      "IncomeLossFromContinuingOperationsBeforeInterestExpenseInterestIncomeIncomeTaxesExtraordinaryItemsNoncontrollingInterestsNet"
+    ],
+    "calculation": {
+      "order": 1670,
+      "any": "income_loss_operating + income_loss_nonoperating + income_loss_equity_method_investments"
+    }
+  },
   "income_loss_pretax_excluding_equity_method_investments": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Extraordinary Items and Minority Interest and Income (Loss) from Equity Method Investments",
+      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Extraordinary Items, Minority Interest and Equity Method Investments",
       "short": "Pretax Income (Loss)"
     },
     "gaap": [
@@ -21755,7 +22133,7 @@
     ],
     "calculation": {
       "order": 1670,
-      "any": "operating_income_loss - nonoperating_income_expense"
+      "any": "income_loss_operating + income_loss_nonoperating"
     }
   },
   "income_loss_pretax": {
@@ -27703,7 +28081,7 @@
     },
     "calculation": {
       "order": 2484,
-      "all": "operating_income_loss - nonoperating_expenses"
+      "all": "income_loss_operating - nonoperating_expenses"
     }
   },
   "scurities_fvni_equity_own_noncurrent": {
