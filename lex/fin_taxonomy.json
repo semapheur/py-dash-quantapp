@@ -2775,9 +2775,426 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + investments_lease_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + investments_lease_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets + investments_lease_preallowance + lease_assets_finance + lease_assets_operating + goodwill_intangible_assets + prepaid_expense + deferred_costs + hosting_arrangement_service_contract_implementation_cost_capitalized + other_interest_earning_assets + assets_heldintrust + receivables_deferred_rent + disposal_assets + assets_heldforsale + deposit_assets + assets_under_management + indemnification_asset + recorded_third_party_environmental_recoveries + business_combination_contingent_asset + investment_qualified_affordable_housing_project + debt_issuance_costs_credit_line_arrangements + healthcare_organization_trade_receivables_third_party_payor_retroactive_adjustments + safeguarding_asset_platform_operator_crypto_asset + other_assets + other_assets_miscellaneous + securities_debt + cumulative_government_assistance",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
     }
+  },
+  "cumulative_government_assistance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Government Assistance Amount Cumulative"
+    },
+    "gaap": [
+      "GovernmentAssistanceAmountCumulative"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cumulative_government_assistance_current + cumulative_government_assistance_noncurrent"
+    }
+  },
+  "other_assets_miscellaneous": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Miscellaneous Assets"
+    },
+    "gaap": [
+      "OtherAssetsMiscellaneous"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "other_assets_miscellaneous_current + other_assets_miscellaneous_noncurrent"
+    }
+  },
+  "other_assets_miscellaneous_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Other Miscellaneous Assets"
+    },
+    "gaap": [
+      "OtherAssetsMiscellaneousNoncurrent"
+    ]
+  },
+  "other_assets_miscellaneous_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Other Miscellaneous Assets"
+    },
+    "gaap": [
+      "OtherAssetsMiscellaneousCurrent"
+    ]
+  },
+  "other_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Assets"
+    },
+    "gaap": [
+      "OtherAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "other_assets_current + other_assets_noncurrent"
+    }
+  },
+  "safeguarding_asset_platform_operator_crypto_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Safeguarding Asset Platform Operator Crypto Asset"
+    },
+    "gaap": [
+      "SafeguardingAssetPlatformOperatorCryptoAsset"
+    ]
+  },
+  "healthcare_organization_trade_receivables_third_party_payor_retroactive_adjustments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Health Care Organization Accounts Receivable Due from Third Party Payor Retroactive Adjustment"
+    },
+    "gaap": [
+      "HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment"
+    ]
+  },
+  "debt_issuance_costs_credit_line_arrangements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Debt Issuance Costs Line of Credit Arrangements Net"
+    },
+    "gaap": [
+      "DebtIssuanceCostsLineOfCreditArrangementsNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "debt_issuance_costs_credit_line_arrangements_gross - debt_issuance_costs_credit_line_arrangements_accumulated_amortization"
+    }
+  },
+  "debt_issuance_costs_credit_line_arrangements_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Amortization of Debt Issuance Costs Line of Credit Arrangements"
+    },
+    "gaap": [
+      "AccumulatedAmortizationOfDebtIssuanceCostsLineOfCreditArrangements"
+    ]
+  },
+  "debt_issuance_costs_credit_line_arrangements_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Debt Issuance Costs Line of Credit Arrangements Gross"
+    },
+    "gaap": [
+      "DebtIssuanceCostsLineOfCreditArrangementsGross"
+    ]
+  },
+  "recorded_third_party_environmental_recoveries": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Recorded Third Party Environmental Recoveries"
+    },
+    "gaap": [
+      "RecordedThirdPartyEnvironmentalRecoveriesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "recorded_third_party_environmental_recoveries_current + recorded_third_party_environmental_recoveries_noncurrent"
+    }
+  },
+  "recorded_third_party_environmental_recoveries_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Recorded Third Party Environmental Recoveries Noncurrent"
+    },
+    "gaap": [
+      "RecordedThirdPartyEnvironmentalRecoveriesNoncurrent"
+    ]
+  },
+  "recorded_third_party_environmental_recoveries_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Recorded Third Party Environmental Recoveries Current"
+    },
+    "gaap": [
+      "RecordedThirdPartyEnvironmentalRecoveriesCurrent"
+    ]
+  },
+  "indemnification_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Indemnification Asset"
+    },
+    "gaap": [
+      "FDICIndemnificationAsset"
+    ]
+  },
+  "assets_under_management": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Assets under Management Carrying Amount"
+    },
+    "gaap": [
+      "AssetsUnderManagementCarryingAmount"
+    ]
+  },
+  "assets_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Assets Heldforsale Not Part of Disposal Group"
+    },
+    "gaap": [
+      "AssetsHeldForSaleNotPartOfDisposalGroup"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "receivables_heldforsale + assets_heldforsale_other",
+      "any": "assets_heldforsale_current + assets_heldforsale_noncurrent"
+    }
+  },
+  "assets_heldforsale_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Assets Heldforsale Not Part of Disposal Group"
+    },
+    "gaap": [
+      "AssetsHeldForSaleNotPartOfDisposalGroupOther"
+    ]
+  },
+  "disposal_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Assets of Disposal Group Including Discontinued Operation"
+    },
+    "gaap": [
+      "AssetsOfDisposalGroupIncludingDiscontinuedOperation"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "disposal_assets_current + disposal_assets_noncurrent",
+      "DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipment + DisposalGroupIncludingDiscontinuedOperationIntangibleAssets + DisposalGroupIncludingDiscontinuedOperationGoodwill1 + DisposalGroupIncludingDiscontinuedOperationCashAndCashEquivalents + DisposalGroupIncludingDiscontinuedOperationAccountsNotesAndLoansReceivableNet + DisposalGroupIncludingDiscontinuedOperationInventory1 + DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssets + DisposalGroupIncludingDiscontinuedOperationOtherAssets + DisposalGroupIncludingDiscontinuedOperationPrepaidAndOtherAssets + DisposalGroupIncludingDiscontinuedOperationInvestment + DisposalGroupIncludingDiscontinuedOperationDeferredPolicyAcquisitionCost + DisposalGroupIncludingDiscontinuedOperationPremiumReceivableAfterAllowanceForCreditLoss + DisposalGroupIncludingDiscontinuedOperationReinsuranceRecoverableIncludingReinsurancePremiumPaid + DisposalGroupIncludingDiscontinuedOperationSeparateAccountAsset"
+    }
+  },
+  "receivables_deferred_rent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Rent Receivables Net"
+    },
+    "gaap": [
+      "DeferredRentReceivablesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivables_deferred_rent_current + receivables_deferred_rent_noncurrent"
+    }
+  },
+  "assets_heldintrust": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Assets Held in Trust"
+    },
+    "gaap": [
+      "AssetsHeldInTrust"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "assets_heldintrust_current + assets_heldintrust_noncurrent"
+    }
+  },
+  "other_interest_earning_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Interest Earning Assets"
+    },
+    "gaap": [
+      "OtherInterestEarningAssets"
+    ]
+  },
+  "hosting_arrangement_service_contract_implementation_cost_capitalized": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Hosting Arrangement Service Contract Implementation Cost Capitalized after Accumulated Amortization"
+    },
+    "gaap": [
+      "HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "hosting_arrangement_service_contract_implementation_cost_capitalized_before_accumulated_amortization - hosting_arrangement_service_contract_implementation_cost_capitalized_accumulated_amortization"
+    }
+  },
+  "hosting_arrangement_service_contract_implementation_cost_capitalized_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Hosting Arrangement Service Contract Implementation Cost Capitalized Accumulated Amortization"
+    },
+    "gaap": [
+      "HostingArrangementServiceContractImplementationCostCapitalizedAccumulatedAmortization"
+    ]
+  },
+  "hosting_arrangement_service_contract_implementation_cost_capitalized_before_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Hosting Arrangement Service Contract Implementation Cost Capitalized before Accumulated Amortization"
+    },
+    "gaap": [
+      "HostingArrangementServiceContractImplementationCostCapitalizedBeforeAccumulatedAmortization"
+    ]
+  },
+  "deferred_costs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Costs"
+    },
+    "gaap": [
+      "DeferredCostsCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_costs_current + deferred_costs_noncurrent"
+    }
+  },
+  "prepaid_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Expense"
+    },
+    "gaap": [
+      "PrepaidExpenseCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "prepaid_expense_current + prepaid_expense_noncurrent"
+    }
+  },
+  "investments_lease_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Investment in Lease before Allowance"
+    },
+    "gaap": [
+      "NetInvestmentInLease"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "investments_lease_sales_type_preallowance + investments_lease_direct_financing_preallowance",
+      "any": "investments_lease_current_preallowance + investments_lease_noncurrent_preallowance"
+    }
+  },
+  "investments_lease_direct_financing_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Investment in Direct Financing Lease before Allowance"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLease"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "receivables_lease_direct_financing + lease_direct_financing_unguaranteed_residual_asset - lease_direct_financing_deferred_selling_profit",
+      "any": "investments_lease_direct_financing_current_preallowance + investments_lease_direct_financing_noncurrent_preallowance"
+    }
+  },
+  "lease_direct_financing_deferred_selling_profit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Direct Financing Lease Deferred Selling Profit"
+    },
+    "gaap": [
+      "DirectFinancingLeaseDeferredSellingProfit"
+    ]
+  },
+  "lease_direct_financing_unguaranteed_residual_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Direct Financing Lease Unguaranteed Residual Asset"
+    },
+    "gaap": [
+      "DirectFinancingLeaseUnguaranteedResidualAsset"
+    ]
+  },
+  "investments_lease_sales_type_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Investment in Sales Type Lease before Allowance"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLease"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "receivables_lease_sales_type + lease_sales_type_unguaranteed_residual_asset",
+      "any": "investments_lease_sales_type_current_preallowance + investments_lease_sales_type_noncurrent_preallowance"
+    }
+  },
+  "lease_sales_type_unguaranteed_residual_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Sales Type Lease Unguaranteed Residual Asset"
+    },
+    "gaap": [
+      "SalesTypeLeaseUnguaranteedResidualAsset"
+    ]
   },
   "derivative_assets": {
     "unit": "monetary",
@@ -2791,9 +3208,83 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "derivative_assets_current + derivative_assets_noncurrent",
-      "DerivativeAssetAfterOffsetSubjectToMasterNettingArrangement + DerivativeAssetNotSubjectToMasterNettingArrangement"
+      "all": "derivative_assets_with_master_netting_arrangement + derivative_assets_without_master_netting_arrangement",
+      "any": "derivative_assets_current + derivative_assets_noncurrent"
     }
+  },
+  "derivative_assets_without_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Asset Not Subject To Master Netting Arrangement"
+    },
+    "gaap": [
+      "DerivativeAssetNotSubjectToMasterNettingArrangement"
+    ]
+  },
+  "derivative_assets_with_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Asset After Offset Subject To Master Netting Arrangement"
+    },
+    "gaap": [
+      "DerivativeAssetAfterOffsetSubjectToMasterNettingArrangement"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "derivative_asset_fairvalue_not_offset_against_collateral - derivative_assets_collateral_obligation_return_cash_offset"
+    }
+  },
+  "derivative_assets_collateral_obligation_return_cash_offset": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Asset Collateral Obligation To Return Cash Offset"
+    },
+    "gaap": [
+      "DerivativeAssetCollateralObligationToReturnCashOffset"
+    ]
+  },
+  "derivative_asset_fairvalue_not_offset_against_collateral": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Fair Value of Derivative Asset Amount Not Offset Against Collateral"
+    },
+    "gaap": [
+      "DerivativeFairValueOfDerivativeAssetAmountNotOffsetAgainstCollateral"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "derivative_asset_fairvalue - derivative_asset_fairvalue_gross_liability"
+    }
+  },
+  "derivative_asset_fairvalue_gross_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Asset Fair Value Gross Liability"
+    },
+    "gaap": [
+      "DerivativeAssetFairValueGrossLiability"
+    ]
+  },
+  "derivative_asset_fairvalue": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Fair Value of Derivative Asset Amount"
+    },
+    "gaap": [
+      "DerivativeFairValueOfDerivativeAsset"
+    ]
   },
   "securities_collateral_fairvalue": {
     "unit": "monetary",
@@ -5231,8 +5722,20 @@
     ],
     "calculation": {
       "order": 0,
+      "all": "deposit_assets_current + deposit_assets_noncurrent",
       "any": "deposit_security + deposit_contracts_assets + deposit_retainage + deposit_margin + deposit_escrow + deposit_clearing_organizations_other_securities + deposit_earnest_money"
     }
+  },
+  "deposit_assets_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Deposit Assets"
+    },
+    "gaap": [
+      "DepositsAssetsCurrent"
+    ]
   },
   "deposit_earnest_money": {
     "unit": "monetary",
@@ -5469,7 +5972,7 @@
       "any": "cash_bound_interest + receivable_current + receivable_tax_income_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + deferred_costs_current + derivatives_hedges_current + investments_lease_current + deferred_rent_asset_current + advance_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + deposits_assets_current + customer_contract_asset_current + deferred_tax_assets_liabilities_current + capitalized_contract_cost_current + financial_assets_accrued_interest"
     }
   },
-  "assets_disposal_group_current": {
+  "disposal_assets_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -5536,7 +6039,7 @@
     ],
     "calculation": {
       "order": 538,
-      "any": "inventory_noncurrent + lease_assets_finance + lease_assets_operating + investments_lease_noncurrent_preallowance - investments_lease_noncurrent_allowance + investments_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + productive_assets + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expense_other_assets_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs + deferred_tax_assets_liabilities_noncurrent + business_combination_contingent_asset_noncurrent + investment_qualified_affordable_housing_project + receivable_other_noncurrent_postallowance + cumulative_government_assistance_noncurrent + costs_excess_billings_uncomplete_contracts_programs_noncurrent"
+      "any": "inventory_noncurrent + lease_assets_finance + lease_assets_operating + investments_lease_noncurrent_preallowance - investments_lease_noncurrent_allowance + investments_lease_leveraged + inventory_real_estate + receivable_nontrade_noncurrent + productive_assets + property_plant_equipment_collections_noncapitalized + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance + petroleum_property_successful_effort_method + petroleum_property_full_cost_method + longterm_investments_receivables + intangible_assets_goodwill + prepaid_expense_other_assets_noncurrent + customer_contract_asset_noncurrent + capitalized_contract_cost_noncurrent + derivatives_hedges_noncurrent + regulated_entity_other_assets_noncurrent + deposit_assets_noncurrent + receivable_deferred_rent_noncurrent + assets_heldintrust_noncurrent + restricted_cash_investments_noncurrent + disposal_assets_noncurrent + advance_royalties_noncurrent + estimated_insurance_recoveries + customer_funds + deferred_costs_noncurrent + deferred_tax_assets_liabilities_noncurrent + business_combination_contingent_asset_noncurrent + investment_qualified_affordable_housing_project + receivable_other_noncurrent_postallowance + cumulative_government_assistance_noncurrent + costs_excess_billings_uncomplete_contracts_programs_noncurrent"
     }
   },
   "average_assets": {
@@ -5698,7 +6201,7 @@
       "avg": "productive_assets"
     }
   },
-  "average_receivable_current": {
+  "average_receivables_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -5707,10 +6210,10 @@
     },
     "calculation": {
       "order": 968,
-      "avg": "receivable_current"
+      "avg": "receivables_current"
     }
   },
-  "average_receivable_trade_current": {
+  "average_receivables_trade_current": {
     "unit": "monetary",
     "aggregate": "average",
     "label": {
@@ -5718,7 +6221,7 @@
     },
     "calculation": {
       "order": 969,
-      "avg": "receivable_trade_current"
+      "avg": "receivables_trade_current"
     }
   },
   "average_shares_outstanding": {
@@ -6002,6 +6505,21 @@
     "gaap": [
       "BuildingsAndImprovementsGross"
     ]
+  },
+  "business_combination_contingent_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Business Combination Contingent Consideration Asset"
+    },
+    "gaap": [
+      "BusinessCombinationContingentConsiderationAsset"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "business_combination_contingent_asset_current + business_combination_contingent_asset_noncurrent"
+    }
   },
   "business_combination_contingent_asset_noncurrent": {
     "unit": "monetary",
@@ -7085,7 +7603,7 @@
     ],
     "calculation": {
       "order": 1843,
-      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_restricted_cash_investments - use_restricted_cash_acquisition_petroleum_property - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivable_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
+      "any": "cashflow_federal_funds_sold_securities_purchased_resell_agreement - cashflow_productive_assets - proceed_disposal_crypto_asset - cashflow_mortgage_servicing_rights - cashflow_investments - cashflow_real_estate_partnership_investment - cashflow_businesses_affiliates - cashflow_federal_home_loan_bank_stock - cashflow_central_bank_reserve_stock - cashflow_loans_leases - cashflow_life_insurance_policies - cashflow_removal_cost - cashflow_nuclear_fuel + cashflow_loans_longterm_related_parties - cashflow_hedge_investing_activities - cashflow_derivative_instrument_investing_activities + cashflow_equity_method_investing_dividends_distributions + cashflow_interest_bearing_bank_deposits + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans - cashflow_restricted_cash_investments - use_restricted_cash_acquisition_petroleum_property - cashflow_collateral_securities_lending - cashflow_other_interest_earning_assets - payment_lease_operating_use + proceed_lease_financing - payment_investment_restricted_cash_pollution_control_bond + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction - repayment_advances_construction - change_lease_acquisition_costs - payment_leasing_costs_commissions_tenant_improvements - cashflow_deposits_real_estate_acquisitions + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities - payment_acquisition_royalty_interests_mining_properties + proceed_insurance_settlement_investing_activities - change_deferred_charges_investing - payment_acquisition_management_contract_rights - cashflow_investing_other - origination_receivable_notes_related_parties + repayment_receivables_notes_related_parties - payment_contingent_consideration_liability_investing_activities"
     }
   },
   "cashflow_investing_discontinued_operations": {
@@ -7827,7 +8345,7 @@
       "diff": "productive_assets"
     }
   },
-  "change_receivable_trade_current": {
+  "change_receivables_trade_current": {
     "unit": "monetary",
     "aggregate": "sum",
     "label": {
@@ -7839,7 +8357,7 @@
     ],
     "calculation": {
       "order": 1880,
-      "diff": "receivable_trade_current"
+      "diff": "receivables_trade_current"
     }
   },
   "change_tax_assets_current": {
@@ -8827,7 +9345,7 @@
     },
     "calculation": {
       "order": 1500,
-      "all": "average_receivable_trade_current / revenue_per_day"
+      "all": "average_receivables_trade_current / revenue_per_day"
     }
   },
   "debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current": {
@@ -9373,7 +9891,7 @@
       "DeferredCompensationPlanAssets"
     ]
   },
-  "deferred_costs": {
+  "deferred_costs_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -18365,6 +18883,17 @@
       "any": "investments_lease_direct_financing_accrued_interest + investments_lease_sales_type_accrued_interest"
     }
   },
+  "investments_lease_current_preallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investment in Leases before Allowance"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseCurrent"
+    ]
+  },
   "investments_lease_current": {
     "unit": "monetary",
     "balance": "debit",
@@ -26035,7 +26564,7 @@
     },
     "calculation": {
       "order": 2417,
-      "any": "proceed_sale_productive_assets + proceed_sale_maturity_collection_investment + proceed_disposal_crypto_asset + proceed_divestiture_businesses_affiliates + proceed_sale_mortgage_servicing_rights + proceed_securities_purchased_under_resell_agreements + proceed_sale_federal_home_loan_bank_stock + proceed_sale_central_bank_reserve_stock + proceed_life_insurance_policies + proceed_removal_costs + proceed_nuclear_fuel + proceed_collection_loans_longterm_related_parties + proceed_hedge_investing_activities + proceed_derivative_instrument_investing_activities + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans + proceed_lease_financing + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities + proceed_insurance_settlement_investing_activities + proceed_divestiture_real_estate_partnership + proceed_distribution_real_estate_partnership + distribution_payable_real_estate_partnership + proceed_sale_loans_leases_heldforinvestment + proceed_loans_leases_originations_principal_collections + proceed_recovery_loan_previously_charged_off + repayment_receivable_notes_related_parties"
+      "any": "proceed_sale_productive_assets + proceed_sale_maturity_collection_investment + proceed_disposal_crypto_asset + proceed_divestiture_businesses_affiliates + proceed_sale_mortgage_servicing_rights + proceed_securities_purchased_under_resell_agreements + proceed_sale_federal_home_loan_bank_stock + proceed_sale_central_bank_reserve_stock + proceed_life_insurance_policies + proceed_removal_costs + proceed_nuclear_fuel + proceed_collection_loans_longterm_related_parties + proceed_hedge_investing_activities + proceed_derivative_instrument_investing_activities + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans + proceed_lease_financing + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities + proceed_insurance_settlement_investing_activities + proceed_divestiture_real_estate_partnership + proceed_distribution_real_estate_partnership + distribution_payable_real_estate_partnership + proceed_sale_loans_leases_heldforinvestment + proceed_loans_leases_originations_principal_collections + proceed_recovery_loan_previously_charged_off + repayment_receivables_notes_related_parties"
     }
   },
   "proceed_issuance_atthemarket_offering": {
@@ -30547,7 +31076,7 @@
       "PaymentsOnConvertibleNotesPayable"
     ]
   },
-  "repayment_receivable_notes_related_parties": {
+  "repayment_receivables_notes_related_parties": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -31797,7 +32326,11 @@
     "gaap": [
       "DebtSecurities",
       "DebtSecuritiesAtFairValue"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_debt_current + securities_debt_noncurrent"
+    }
   },
   "securities_debt_current": {
     "unit": "monetary",
