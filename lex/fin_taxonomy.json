@@ -12536,8 +12536,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Income (Loss) Available to Common Stockholders",
-      "short": "Net Income (Loss)"
+      "long": "Net Income (Loss)"
     },
     "gaap": [
       "NetIncomeLoss",
@@ -12593,13 +12592,311 @@
       "long": "Net Income (Loss) from Continuing Operations"
     },
     "gaap": [
-      "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersBasic",
       "IncomeLossFromContinuingOperations"
     ],
     "calculation": {
       "order": 2218,
       "any": "income_loss_net_continuing_operations_including_minority_interest - income_loss_net_continuing_operations_minority_interest"
     }
+  },
+  "income_loss_net_continuing_operations_common_stockholders_diluted": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) from Continuing Operations Available to Common Stockholders Diluted"
+    },
+    "gaap": [
+      "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersDiluted"
+    ],
+    "calculation": {
+      "order": 2218,
+      "any": "income_loss_net_continuing_operations + interest_convertible_debt + dividends_preferred_convertible + securities_dilutive"
+    }
+  },
+  "income_loss_net_continuing_operations_common_stockholders_basic": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) from Continuing Operations Available to Common Stockholders Basic"
+    },
+    "gaap": [
+      "NetIncomeLossFromContinuingOperationsAvailableToCommonShareholdersBasic"
+    ],
+    "calculation": {
+      "order": 2218,
+      "any": "income_loss_net_continuing_operations - preferred_stock_dividends_other_adjustments"
+    }
+  },
+  "income_loss_net_common_stockholders_diluted": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) Available to Common Stockholders Diluted"
+    },
+    "gaap": [
+      "NetIncomeLossAvailableToCommonStockholdersDiluted"
+    ],
+    "calculation": {
+      "order": 2218,
+      "any": "income_loss_net_common_stockholders_basic + interest_convertible_debt + dividends_preferred_convertible + securities_dilutive"
+    }
+  },
+  "securities_dilutive": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Dilutive Securities"
+    },
+    "gaap": [
+      "DilutiveSecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "amount_dilutive_securities_stock_options_restrictive_stock_units + amount_dilutive_securities_employee_stock_ownership_plan_convertible_preferred_stock + securities_dilutive_effect_basic_earnings_per_share_other"
+    }
+  },
+  "securities_dilutive_effect_basic_earnings_per_share_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Dilutive Securities Effect on Basic Earnings Per Share"
+    },
+    "gaap": [
+      "DilutiveSecuritiesEffectOnBasicEarningsPerShareOther"
+    ]
+  },
+  "amount_dilutive_securities_employee_stock_ownership_plan_convertible_preferred_stock": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amount of Dilutive Securities ESOP Convertible Preferred Stock"
+    },
+    "gaap": [
+      "AmountOfDilutiveSecuritiesESOPConvertiblePreferredStock"
+    ]
+  },
+  "amount_dilutive_securities_stock_options_restrictive_stock_units": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amount of Dilutive Securities Stock Options and Restrictive Stock Units"
+    },
+    "gaap": [
+      "AmountOfDilutiveSecuritiesStockOptionsAndRestrictiveStockUnits"
+    ]
+  },
+  "dividends_preferred_convertible": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Convertible Preferred Dividends Net of Tax"
+    },
+    "gaap": [
+      "ConvertiblePreferredDividendsNetOfTax"
+    ]
+  },
+  "interest_convertible_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest on Convertible Debt Net of Tax"
+    },
+    "gaap": [
+      "InterestOnConvertibleDebtNetOfTax"
+    ]
+  },
+  "income_loss_net_common_stockholders_basic": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Income (Loss) Available to Common Stockholders Basic"
+    },
+    "gaap": [
+      "NetIncomeLossAvailableToCommonStockholdersBasic"
+    ],
+    "calculation": {
+      "order": 2218,
+      "any": "income_loss_net - preferred_stock_dividends_other_adjustments"
+    }
+  },
+  "preferred_stock_dividends_other_adjustments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "PreferredStockDividendsAndOtherAdjustmentss"
+    },
+    "gaap": [
+      "PreferredStockDividendsAndOtherAdjustments"
+    ],
+    "calculation": {
+      "order": 2218,
+      "any": "dividends_stock_preferred_income_statement_impact + dividends_stock_preferred_redeemable + stock_preferred_converted_other_securities + stock_preferred_redemption_premium - stock_preferred_redemption_discount + stock_preferred_conversions_inducements + temporary_equity_dividends_adjustment + temporary_equity_accretion_redemption_value_adjustment + general_partner_distributions + warrant_down_round_feature_decrease + stock_option_down_round_feature_decrease + preferred_stock_convertible_down_round_feature_decrease + equity_classified_written_call_option_modification_decrease + other_preferred_stock_dividends_adjustments"
+    }
+  },
+  "other_preferred_stock_dividends_adjustments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Preferred Stock Dividends and Adjustments"
+    },
+    "gaap": [
+      "OtherPreferredStockDividendsAndAdjustments"
+    ]
+  },
+  "equity_classified_written_call_option_modification_decrease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Equity Classified Written Call Option Modification Decrease In Net Income (Loss) To Common Shareholder Amount"
+    },
+    "gaap": [
+      "EquityClassifiedWrittenCallOptionModificationDecreaseInNetIncomeLossToCommonShareholderAmount"
+    ]
+  },
+  "preferred_stock_convertible_down_round_feature_decrease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Convertible Preferred Stock Down Round Feature Decrease In Net Income (Loss) To Common Shareholder Amount"
+    },
+    "gaap": [
+      "PreferredStockConvertibleDownRoundFeatureDecreaseInNetIncomeLossToCommonShareholderAmount"
+    ]
+  },
+  "stock_option_down_round_feature_decrease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Stock Option Down Round Feature Decrease In Net Income (Loss) To Common Shareholder Amount"
+    },
+    "gaap": [
+      "StockOptionDownRoundFeatureDecreaseInNetIncomeLossToCommonShareholderAmount"
+    ]
+  },
+  "warrant_down_round_feature_decrease": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Warrant Down Round Feature Decrease In Net Income (Loss) To Common Shareholder Amount"
+    },
+    "gaap": [
+      "WarrantDownRoundFeatureDecreaseInNetIncomeLossToCommonShareholderAmount"
+    ]
+  },
+  "general_partner_distributions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "General Partner Distributions"
+    },
+    "gaap": [
+      "GeneralPartnerDistributions"
+    ]
+  },
+  "temporary_equity_accretion_redemption_value_adjustment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Temporary Equity Accretion To Redemption Value Adjustment"
+    },
+    "gaap": [
+      "TemporaryEquityAccretionToRedemptionValueAdjustment"
+    ]
+  },
+  "temporary_equity_dividends_adjustment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Temporary Equity Dividends Adjustment"
+    },
+    "gaap": [
+      "TemporaryEquityDividendsAdjustment"
+    ]
+  },
+  "stock_preferred_conversions_inducements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Preferred Stock Conversions Inducements"
+    },
+    "gaap": [
+      "PreferredStockConversionsInducements"
+    ]
+  },
+  "stock_preferred_redemption_discount": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Preferred Stock Redemption Discount"
+    },
+    "gaap": [
+      "PreferredStockRedemptionDiscount"
+    ]
+  },
+  "stock_preferred_redemption_premium": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Preferred Stock Redemption Premium"
+    },
+    "gaap": [
+      "PreferredStockRedemptionPremium"
+    ]
+  },
+  "stock_preferred_converted_other_securities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Redeemable Preferred Stock Dividends"
+    },
+    "gaap": [
+      "ConvertiblePreferredStockConvertedToOtherSecurities"
+    ]
+  },
+  "dividends_stock_preferred_redeemable": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Redeemable Preferred Stock Dividends"
+    },
+    "gaap": [
+      "RedeemablePreferredStockDividends"
+    ]
+  },
+  "dividends_stock_preferred_income_statement_impact": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Preferred Stock Dividends Income Statement Impact"
+    },
+    "gaap": [
+      "PreferredStockDividendsIncomeStatementImpact"
+    ]
   },
   "income_loss_net_continuing_operations_including_minority_interest": {
     "unit": "monetary",
