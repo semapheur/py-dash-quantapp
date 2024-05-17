@@ -2775,9 +2775,974 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
     }
+  },
+  "loans_leases_receivable_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Loans and Leases Receivable Covered and Not Covered"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_covered + loans_leases_receivable_uncovered"
+    }
+  },
+  "loans_leases_receivable_uncovered": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmount"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "loans_leases_receivable_net_deferred_income - loans_leases_receivable_loans_inprocess - loans_leases_receivable_allowance",
+      "any": "loans_leases_receivable_commercial_net + loans_leases_receivable_consumer_net + loans_leases_receivable_foreign_net + loans_leases_receivable_other_net"
+    }
+  },
+  "loans_leases_receivable_other_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Loans and Leases Receivable Net Reported Amount"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmountOther"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_net_deferred_income_other - loans_leases_receivable_loans_inprocess_other - loans_leases_receivable_allowance_other"
+    }
+  },
+  "loans_leases_receivable_foreign_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Loans and Leases Receivable Net Reported Amount"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmountForeign"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_net_deferred_income_foreign - loans_leases_receivable_loans_inprocess_foreign - loans_leases_receivable_allowance_foreign"
+    }
+  },
+  "loans_leases_receivable_consumer_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Loans and Leases Receivable Net Reported Amount"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmountConsumer"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_net_deferred_income_consumer - loans_leases_receivable_loans_inprocess_consumer - loans_leases_receivable_allowance_consumer"
+    }
+  },
+  "loans_leases_receivable_commercial_net": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Loans and Leases Receivable Net Reported Amount"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmountCommercial"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_net_deferred_income_commercial - loans_leases_receivable_loans_inprocess_commercial - loans_leases_receivable_allowance_commercial"
+    }
+  },
+  "loans_leases_receivable_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableAllowance"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_allowance_commercial + loans_leases_receivable_allowance_consumer + loans_leases_receivable_allowance_foreign + loans_leases_receivable_allowance_other"
+    }
+  },
+  "loans_leases_receivable_allowance_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Other Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableOtherAllowance"
+    ]
+  },
+  "loans_leases_receivable_allowance_foreign": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Foreign Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignAllowance"
+    ]
+  },
+  "loans_leases_receivable_allowance_consumer": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Consumer Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerAllowance"
+    ]
+  },
+  "loans_leases_receivable_allowance_commercial": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Commercial Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableCommercialAllowance"
+    ]
+  },
+  "loans_leases_receivable_loans_inprocess": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Loans in Process"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableLoansInProcess"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_loans_inprocess_commercial + loans_leases_receivable_loans_inprocess_consumer + loans_leases_receivable_loans_inprocess_foreign + loans_leases_receivable_loans_inprocess_other"
+    }
+  },
+  "loans_leases_receivable_loans_inprocess_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Other Loans in Process"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableOtherLoansInProcess"
+    ]
+  },
+  "loans_leases_receivable_loans_inprocess_foreign": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Foreign Loans in Process"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignLoansInProcess"
+    ]
+  },
+  "loans_leases_receivable_loans_inprocess_consumer": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Consumer Loans in Process"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerLoansInProcess"
+    ]
+  },
+  "loans_leases_receivable_loans_inprocess_commercial": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Commercial Loans in Process"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableCommercialLoansInProcess"
+    ]
+  },
+  "loans_leases_receivable_net_deferred_income": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Net of Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetOfDeferredIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "loans_leases_receivable_gross - loans_leases_receivable_deferred_income",
+      "any": "loans_leases_receivable_net_deferred_income_commercial + loans_leases_receivable_net_deferred_income_consumer + loans_leases_receivable_net_deferred_income_foreign + loans_leases_receivable_net_deferred_income_other"
+    }
+  },
+  "loans_leases_receivable_net_deferred_income_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Loans and Leases Receivable Net of Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableOtherNetOfDeferredIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_other_gross - loans_leases_receivable_deferred_income_other"
+    }
+  },
+  "loans_leases_receivable_net_deferred_income_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Loans and Leases Receivable Net of Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignNetOfDeferredIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_foreign_gross - loans_leases_receivable_deferred_income_foreign"
+    }
+  },
+  "loans_leases_receivable_net_deferred_income_consumer": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Loans and Leases Receivable Net of Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerNetOfDeferredIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_consumer_gross - loans_leases_receivable_deferred_income_consumer"
+    }
+  },
+  "loans_leases_receivable_net_deferred_income_commercial": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Loans and Leases Receivable Net of Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableCommercialNetOfDeferredIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_commercial_gross - loans_leases_receivable_deferred_income_commercial"
+    }
+  },
+  "loans_leases_receivable_deferred_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableDeferredIncome"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_deferred_income_commercial + loans_leases_receivable_deferred_income_consumer + loans_leases_receivable_deferred_income_foreign + loans_leases_receivable_deferred_income_other"
+    }
+  },
+  "loans_leases_receivable_deferred_income_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Loans and Leases Receivable Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableDeferredIncomeOther"
+    ]
+  },
+  "loans_leases_receivable_deferred_income_foreign": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Loans and Leases Receivable Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableDeferredIncomeForeign"
+    ]
+  },
+  "loans_leases_receivable_deferred_income_consumer": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Loans and Leases Receivable Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableDeferredIncomeConsumer"
+    ]
+  },
+  "loans_leases_receivable_deferred_income_commercial": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Loans and Leases Receivable Deferred Income"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableDeferredIncomeCommercial"
+    ]
+  },
+  "loans_leases_receivable_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableGrossCarryingAmount"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_before_fees_gross + loans_leases_receivable_receivable_foreign + loans_leases_receivable_other + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums"
+    }
+  },
+  "unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unamortized Loan Commitment and Origination Fees and Unamortized Discounts or Premiums"
+    },
+    "gaap": [
+      "UnamortizedLoanCommitmentAndOriginationFeesAndUnamortizedDiscountsOrPremiums"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_commercial + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_consumer + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_foreign + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_other"
+    }
+  },
+  "unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Unamortized Loan Commitment and Origination Fees and Unamortized Discounts or Premiums"
+    },
+    "gaap": [
+      "UnamortizedLoanCommitmentAndOriginationFeesAndUnamortizedDiscountsOrPremiumsOther"
+    ]
+  },
+  "unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Unamortized Loan Commitment and Origination Fees and Unamortized Discounts or Premiums"
+    },
+    "gaap": [
+      "UnamortizedLoanCommitmentAndOriginationFeesAndUnamortizedDiscountsOrPremiumsForeign"
+    ]
+  },
+  "unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_consumer": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Unamortized Loan Commitment and Origination Fees and Unamortized Discounts or Premiums"
+    },
+    "gaap": [
+      "UnamortizedLoanCommitmentAndOriginationFeesAndUnamortizedDiscountsOrPremiumsConsumer"
+    ]
+  },
+  "unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_commercial": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Unamortized Loan Commitment and Origination Fees and Unamortized Discounts or Premiums"
+    },
+    "gaap": [
+      "UnamortizedLoanCommitmentAndOriginationFeesAndUnamortizedDiscountsOrPremiumsCommercial"
+    ]
+  },
+  "loans_leases_receivable_other_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Other Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableGrossCarryingAmountOther"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_other + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_other"
+    }
+  },
+  "loans_leases_receivable_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableOther"
+    ]
+  },
+  "loans_leases_receivable_foreign_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Foreign Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableGrossCarryingAmountForeign"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_foreign + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_foreign"
+    }
+  },
+  "loans_leases_receivable_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeign"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_foreign_commercial_consumer_real_estate + loans_leases_receivable_commercial_foreign + loans_leases_receivable_consumer_installment_revolving_foreign + loans_leases_receivable_governments_foreign + loans_leases_receivable_financial_institutions_foreign + loans_leases_receivable_lease_financing_foreign + loans_leases_receivable_commerical_consumer_foreign_other"
+    }
+  },
+  "loans_leases_receivable_commerical_consumer_foreign_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Foreign Commercial and Consumer Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignCommercialAndConsumerOther"
+    ]
+  },
+  "loans_leases_receivable_lease_financing_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Lease Financing Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignLeaseFinancing"
+    ]
+  },
+  "loans_leases_receivable_financial_institutions_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Financial Institutions Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignFinancialInstitutions"
+    ]
+  },
+  "loans_leases_receivable_governments_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Governments Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignGovernments"
+    ]
+  },
+  "loans_leases_receivable_consumer_installment_revolving_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Consumer Installment and Revolving Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignConsumerInstallmentAndRevolving"
+    ]
+  },
+  "loans_leases_receivable_commercial_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Commercial Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignCommercial"
+    ]
+  },
+  "loans_leases_receivable_foreign_commercial_consumer_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreign Commercial and Consumer Real Estate Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableForeignCommercialAndConsumerRealEstate"
+    ]
+  },
+  "loans_leases_receivable_commercial_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Commercial Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableGrossCarryingAmountCommercial"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_commercial + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_commercial"
+    }
+  },
+  "loans_leases_receivable_commercial": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableCommercial"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_receivable_commercial_financial_agricultural + loans_receivable_commercial_real_estate + loans_receivable_mortgage_warehouse_lending + leases_receivable_commercial_lease_financing + loans_receivable_commercial_trade_financing + loans_leases_receivable_commercial_governments"
+    }
+  },
+  "loans_leases_receivable_commercial_governments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans and Leases Receivable Commercial Governments"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableCommercialGovernments"
+    ]
+  },
+  "loans_receivable_commercial_trade_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Leases Receivable Commercial Lease Financing"
+    },
+    "gaap": [
+      "LoansReceivableCommercialTradeFinancing"
+    ]
+  },
+  "leases_receivable_commercial_lease_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Leases Receivable Commercial Lease Financing"
+    },
+    "gaap": [
+      "LeasesReceivableCommercialLeaseFinancing"
+    ]
+  },
+  "loans_receivable_mortgage_warehouse_lending": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans Receivable Mortgage Warehouse Lending"
+    },
+    "gaap": [
+      "LoansReceivableMortgageWarehouseLending"
+    ]
+  },
+  "loans_receivable_commercial_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Real Estate Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialRealEstate"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_receivable_commercial_mortgage + loans_receivable_commercial_acquisition + loans_receivable_commercial_development + loans_receivable_commercial_construction"
+    }
+  },
+  "loans_receivable_commercial_construction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Construction Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialConstruction"
+    ]
+  },
+  "loans_receivable_commercial_development": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Development Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialDevelopment"
+    ]
+  },
+  "loans_receivable_commercial_acquisition": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Acquisition Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialAcquisition"
+    ]
+  },
+  "loans_receivable_commercial_mortgage": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Mortgage Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialMortgage"
+    ]
+  },
+  "loans_receivable_commercial_financial_agricultural": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial and Agricultural Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialFinancialAndAgricultural"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_receivable_commercial_industrial + loans_receivable_commercial_financial_institutions + loans_receivable_commercial_agricultural"
+    }
+  },
+  "loans_receivable_commercial_agricultural": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Agricultural Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialAgricultural"
+    ]
+  },
+  "loans_receivable_commercial_financial_institutions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial Financials Institutions Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialFinancialInstitutions"
+    ]
+  },
+  "loans_receivable_commercial_industrial": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Commercial and Industrial Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableCommercialAndIndustrial"
+    ]
+  },
+  "loans_leases_receivable_consumer_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Consumer Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableGrossCarryingAmountConsumer"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_consumer + unarmortized_loan_commitment_origination_fees_unamortized_discounts_premiums_consumer"
+    }
+  },
+  "loans_leases_receivable_consumer": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumer"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_consumer_installment_revolving + loans_leases_receivable_consumer_real_estate + loans_leases_receivable_consumer_other + loans_insurance_policy"
+    }
+  },
+  "loans_insurance_policy": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans Insurance Policy"
+    },
+    "gaap": [
+      "LoansInsurancePolicy"
+    ]
+  },
+  "loans_leases_receivable_consumer_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Consumer Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerOther"
+    ]
+  },
+  "loans_leases_receivable_consumer_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Real Estate Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerRealEstate"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_consumer_mortgage + loans_leases_receivable_consumer_home_equity + loans_leases_receivable_consumer_construction"
+    }
+  },
+  "loans_leases_receivable_consumer_construction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Construction Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerConstruction"
+    ]
+  },
+  "loans_leases_receivable_consumer_mortgage": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Mortgage Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerMortgage"
+    ]
+  },
+  "loans_leases_receivable_consumer_home_equity": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Home Equity Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerHomeEquity"
+    ]
+  },
+  "loans_leases_receivable_consumer_installment_revolving": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Installment and Revolving Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerInstallmentAndRevolving"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_consumer_revolving_credit_card + loans_leases_receivable_consumer_installment_durable_goods + loans_leases_receivable_consumer_revolving_other + loans_leases_receivable_consumer_installment_student + loans_leases_receivable_consumer_installment_other + loans_leases_receivable_consumer_lease_financing"
+    }
+  },
+  "loans_leases_receivable_consumer_lease_financing": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Financing Lease Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerLeaseFinancing"
+    ]
+  },
+  "loans_leases_receivable_consumer_installment_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Consumer Installment Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerInstallmentOther"
+    ]
+  },
+  "loans_leases_receivable_consumer_installment_student": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Installment Student Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerInstallmentStudent"
+    ]
+  },
+  "loans_leases_receivable_consumer_revolving_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Consumer Revolving Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerRevolvingOther"
+    ]
+  },
+  "loans_leases_receivable_consumer_installment_durable_goods": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Installment Durable Goods Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerInstallmentDurableGoods"
+    ]
+  },
+  "loans_leases_receivable_consumer_revolving_credit_card": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Consumer Revolving Credit Card Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableConsumerRevolvingCreditCard"
+    ]
+  },
+  "loans_leases_receivable_before_fees_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Loans and Leases Receivable before Fees"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableBeforeFeesGross"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_commercial + loans_leases_receivable_consumer"
+    }
+  },
+  "loans_leases_receivable_covered": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Covered Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableNetReportedAmountCovered"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loans_leases_receivable_covered_gross - loans_leases_receivable_covered_gross_allowance"
+    }
+  },
+  "loans_leases_receivable_covered_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Covered Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableGrossCarryingAmountCovered"
+    ]
+  },
+  "loans_leases_receivable_covered_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Covered Loans and Leases Receivable"
+    },
+    "gaap": [
+      "LoansAndLeasesReceivableAllowanceCovered"
+    ]
   },
   "memberships_exchanges_owned": {
     "unit": "monetary",
