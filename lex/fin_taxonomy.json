@@ -2775,9 +2775,418 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
     }
+  },
+  "receivable_financing_excluding_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financing Receivable Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_financing_excluding_accrued_interest_current + receivable_financing_excluding_accrued_interest_noncurrent"
+    }
+  },
+  "receivable_financing_excluding_accrued_interest_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Financing Receivable Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_financing_excluding_accrued_interest_before_allowance_noncurrent + receivable_financing_excluding_accrued_interest_allowance_noncurrent",
+      "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent - FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+    }
+  },
+  "receivable_financing_excluding_accrued_interest_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Financing Receivable Excluding Accrued Interest Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+    ]
+  },
+  "receivable_financing_excluding_accrued_interest_before_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Financing Receivable Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "receivable_financing_excluding_accrued_interest_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Financing Receivable Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLossCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "receivable_financing_excluding_accrued_interest_before_allowance_current + receivable_financing_excluding_accrued_interest_allowance_current",
+      "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent - FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    }
+  },
+  "receivable_financing_excluding_accrued_interest_allowance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Financing Receivable Excluding Accrued Interest Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ]
+  },
+  "receivable_financing_excluding_accrued_interest_before_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Financing Receivable Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
+    ]
+  },
+  "due_customer_acceptances": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due from Customer Acceptances"
+    },
+    "gaap": [
+      "DueFromCustomerAcceptances"
+    ]
+  },
+  "cash_surrender_value_life_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash Surrender Value of Life Insurance"
+    },
+    "gaap": [
+      "CashSurrenderValueOfLifeInsurance"
+    ]
+  },
+  "guaranty_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Guaranty Assets"
+    },
+    "gaap": [
+      "GuarantyAssets"
+    ]
+  },
+  "loan_home_federal_bank_advances": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvances"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "loan_home_federal_bank_advances_par_value - loan_home_federal_bank_advances_commitment_fees - loan_home_federal_bank_advances_discount_affordable_housing_program + loan_home_federal_bank_advances_premium - loan_home_federal_bank_advances_discount + loan_home_federal_bank_advances_valuation_adjustments_hedging_activities + loan_home_federal_bank_advances_valuation_adjustments_under_fair_value_option"
+    }
+  },
+  "loan_home_federal_bank_advances_valuation_adjustments_under_fair_value_option": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Valuation under Fait Value Option"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesValuationAdjustmentsUnderFairValueOption"
+    ]
+  },
+  "loan_home_federal_bank_advances_valuation_adjustments_hedging_activities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Valuation Adjustments for Hedging Activities"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesValuationAdjustmentsForHedgingActivities"
+    ]
+  },
+  "loan_home_federal_bank_advances_discount": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Discount"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesDiscount"
+    ]
+  },
+  "loan_home_federal_bank_advances_premium": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Premium"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesPremium"
+    ]
+  },
+  "loan_home_federal_bank_advances_commitment_fees": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Commitment Fees"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesCommitmentFees"
+    ]
+  },
+  "loan_home_federal_bank_advances_par_value": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Advances Par Value"
+    },
+    "gaap": [
+      "FederalHomeLoanBankAdvancesParValue"
+    ]
+  },
+  "collateralized_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Collateralized Agreements"
+    },
+    "gaap": [
+      "CollateralizedAgreements"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_purchased_under_resell_agreements + securities_borrowed + securities_collateral + secured_demand_notes"
+    }
+  },
+  "secured_demand_notes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Secured Demand Notes"
+    },
+    "gaap": [
+      "SecuredDemandNotes"
+    ]
+  },
+  "securities_collateral": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Received as Collateral"
+    },
+    "gaap": [
+      "SecuritiesReceivedAsCollateral"
+    ]
+  },
+  "securities_borrowed": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Borrowed Securities"
+    },
+    "gaap": [
+      "SecuritiesBorrowed"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_borrowed_with_master_netting_arrangement + securities_borrowed_without_master_netting_arrangement"
+    }
+  },
+  "securities_borrowed_without_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Borrowed Securities After Offset Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "SecuritiesBorrowedNotSubjectToMasterNettingArrangement"
+    ]
+  },
+  "securities_borrowed_with_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Borrowed Securities After Offset Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "SecurityBorrowedAfterOffsetSubjectToMasterNettingArrangement"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_borrowed_gross - securities_borrowed_liability"
+    }
+  },
+  "securities_borrowed_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Borrowed Securities Liability"
+    },
+    "gaap": [
+      "SecuritiesBorrowedLiability"
+    ]
+  },
+  "securities_borrowed_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Borrowed Securities"
+    },
+    "gaap": [
+      "SecuritiesBorrowedGross"
+    ]
+  },
+  "securities_purchased_under_resell_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Purchased Under Agreements to Resell"
+    },
+    "gaap": [
+      "SecuritiesPurchasedUnderAgreementsToResell"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_purchased_under_resell_agreements_with_master_netting_arrangement + securities_purchased_under_resell_agreements_without_master_netting_arrangement"
+    }
+  },
+  "securities_purchased_under_resell_agreements_without_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Security Purchased under Agreement to Resell After Offset Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "SecurityPurchasedUnderAgreementToResellAfterOffsetSubjectToMasterNettingArrangement"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_purchased_under_resell_agreements_gross + securities_purchased_under_resell_agreements_liability"
+    }
+  },
+  "securities_purchased_under_resell_agreements_with_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Security Purchased under Agreement to Resell After Offset Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "SecurityPurchasedUnderAgreementToResellAfterOffsetSubjectToMasterNettingArrangement"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_purchased_under_resell_agreements_gross + securities_purchased_under_resell_agreements_liability"
+    }
+  },
+  "securities_purchased_under_resell_agreements_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Security Purchased under Agreement to Resell Liability"
+    },
+    "gaap": [
+      "SecuritiesPurchasedUnderAgreementsToResellLiability"
+    ]
+  },
+  "securities_purchased_under_resell_agreements_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Security Purchased under Agreement to Resell"
+    },
+    "gaap": [
+      "SecuritiesPurchasedUnderAgreementsToResellGross"
+    ]
+  },
+  "bank_stock_home_loan_reserve": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Stock and Federal Reserve Bank Stock"
+    },
+    "gaap": [
+      "FederalHomeLoanBankStockAndFederalReserveBankStock"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "bank_stock_home_loan + bank_stock_central_bank"
+    }
+  },
+  "bank_stock_central_bank": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Reserve Bank Stock"
+    },
+    "gaap": [
+      "FederalReserveBankStock"
+    ]
+  },
+  "bank_stock_home_loan": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Home Loan Bank Stock"
+    },
+    "gaap": [
+      "FederalHomeLoanBankStock"
+    ]
   },
   "restricted_assets_other": {
     "unit": "monetary",
@@ -4588,7 +4997,7 @@
       "IncreaseDecreaseInFederalFundsSold"
     ]
   },
-  "cashflow_federal_funds_sold_securities_purchased_resell_agreement": {
+  "cashflow_federal_funds_sold_securities_purchased_under_resell_agreements": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -4600,7 +5009,7 @@
     ],
     "calculation": {
       "order": 1815,
-      "any": "cashflow_federal_funds_sold + cashflow_securities_purchased_resell_agreements"
+      "any": "cashflow_federal_funds_sold + cashflow_securities_purchased_under_resell_agreements"
     }
   },
   "cashflow_federal_home_loan_bank_stock": {
@@ -5167,7 +5576,7 @@
       "ProceedsFromPaymentsForTradingSecurities"
     ]
   },
-  "cashflow_securities_purchased_resell_agreements": {
+  "cashflow_securities_purchased_under_resell_agreements": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5179,7 +5588,7 @@
     ],
     "calculation": {
       "order": 1814,
-      "any": "proceed_securities_purchased_resell_agreements - payment_securities_purchased_resell_agreements"
+      "any": "proceed_securities_purchased_under_resell_agreements - payment_securities_purchased_under_resell_agreements"
     }
   },
   "cashflow_securities_trust_preferred": {
@@ -21086,7 +21495,7 @@
     },
     "calculation": {
       "order": 2347,
-      "any": "payment_acquisition_productive_assets + payment_acquisition_investments + payment_acquisition_businesses_affiliates + payment_securities_purchased_resell_agreements + payment_acquisition_federal_home_loan_bank_stock + payment_acquisition_mortgage_servicing_rights + payment_acquisition_central_bank_reserve_stock + payment_acquisition_life_insurance_policies + payment_removal_costs + payment_nuclear_fuelpayment_nuclear_fuel + payment_fund_loans_longterm_related_parties + payment_hedge_investing_activities + payment_derivative_instrument_investing_activities + use_restricted_cash_acquisition_petroleum_property + payment_investment_restricted_cash_pollution_control_bond + payment_leasing_costs_commissions_tenant_improvements + + payment_acquisition_royalty_interests_mining_properties + payment_acquisition_management_contract_rights + payment_contingent_consideration_liability_investing_activities + payment_acquisition_real_estate_partnership_interest + origination_receivable_notes_related_parties +  payment_acquisition_loans_leases_heldforinvestment + repayment_advances_construction + payment_lease_operating_use"
+      "any": "payment_acquisition_productive_assets + payment_acquisition_investments + payment_acquisition_businesses_affiliates + payment_securities_purchased_under_resell_agreements + payment_acquisition_federal_home_loan_bank_stock + payment_acquisition_mortgage_servicing_rights + payment_acquisition_central_bank_reserve_stock + payment_acquisition_life_insurance_policies + payment_removal_costs + payment_nuclear_fuelpayment_nuclear_fuel + payment_fund_loans_longterm_related_parties + payment_hedge_investing_activities + payment_derivative_instrument_investing_activities + use_restricted_cash_acquisition_petroleum_property + payment_investment_restricted_cash_pollution_control_bond + payment_leasing_costs_commissions_tenant_improvements + + payment_acquisition_royalty_interests_mining_properties + payment_acquisition_management_contract_rights + payment_contingent_consideration_liability_investing_activities + payment_acquisition_real_estate_partnership_interest + origination_receivable_notes_related_parties +  payment_acquisition_loans_leases_heldforinvestment + repayment_advances_construction + payment_lease_operating_use"
     }
   },
   "payment_investment_fund_decommissioning": {
@@ -21692,7 +22101,7 @@
       "PaymentsForRoyalties"
     ]
   },
-  "payment_securities_purchased_resell_agreements": {
+  "payment_securities_purchased_under_resell_agreements": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -23619,7 +24028,7 @@
     },
     "calculation": {
       "order": 2417,
-      "any": "proceed_sale_productive_assets + proceed_sale_maturity_collection_investment + proceed_disposal_crypto_asset + proceed_divestiture_businesses_affiliates + proceed_sale_mortgage_servicing_rights + proceed_securities_purchased_resell_agreements + proceed_sale_federal_home_loan_bank_stock + proceed_sale_central_bank_reserve_stock + proceed_life_insurance_policies + proceed_removal_costs + proceed_nuclear_fuel + proceed_collection_loans_longterm_related_parties + proceed_hedge_investing_activities + proceed_derivative_instrument_investing_activities + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans + proceed_lease_financing + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities + proceed_insurance_settlement_investing_activities + proceed_divestiture_real_estate_partnership + proceed_distribution_real_estate_partnership + distribution_payable_real_estate_partnership + proceed_sale_loans_leases_heldforinvestment + proceed_loans_leases_originations_principal_collections + proceed_recovery_loan_previously_charged_off + repayment_receivable_notes_related_parties"
+      "any": "proceed_sale_productive_assets + proceed_sale_maturity_collection_investment + proceed_disposal_crypto_asset + proceed_divestiture_businesses_affiliates + proceed_sale_mortgage_servicing_rights + proceed_securities_purchased_under_resell_agreements + proceed_sale_federal_home_loan_bank_stock + proceed_sale_central_bank_reserve_stock + proceed_life_insurance_policies + proceed_removal_costs + proceed_nuclear_fuel + proceed_collection_loans_longterm_related_parties + proceed_hedge_investing_activities + proceed_derivative_instrument_investing_activities + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans + proceed_lease_financing + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities + proceed_insurance_settlement_investing_activities + proceed_divestiture_real_estate_partnership + proceed_distribution_real_estate_partnership + distribution_payable_real_estate_partnership + proceed_sale_loans_leases_heldforinvestment + proceed_loans_leases_originations_principal_collections + proceed_recovery_loan_previously_charged_off + repayment_receivable_notes_related_parties"
     }
   },
   "proceed_issuance_atthemarket_offering": {
@@ -25462,7 +25871,7 @@
       "ProceedsFromSaleOfTrustAssetsToPayExpenses"
     ]
   },
-  "proceed_securities_purchased_resell_agreements": {
+  "proceed_securities_purchased_under_resell_agreements": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -29768,7 +30177,7 @@
     ],
     "calculation": {
       "order": 620,
-      "any": "securities_loaned_subject_to_master_netting_arrangement + securities_loaned_not_subject_to_master_netting_arrangement"
+      "any": "securities_loaned_with_master_netting_arrangement + securities_loaned_without_master_netting_arrangement"
     }
   },
   "securities_loaned_asset": {
@@ -29793,7 +30202,7 @@
       "SecuritiesLoanedGross"
     ]
   },
-  "securities_loaned_not_subject_to_master_netting_arrangement": {
+  "securities_loaned_without_master_netting_arrangement": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -29804,7 +30213,7 @@
       "SecuritiesLoanedNotSubjectToMasterNettingArrangement"
     ]
   },
-  "securities_loaned_subject_to_master_netting_arrangement": {
+  "securities_loaned_with_master_netting_arrangement": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
