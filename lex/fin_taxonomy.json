@@ -2775,8 +2775,49 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
+    }
+  },
+  "memberships_exchanges_owned": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Memberships in Exchanges Owned"
+    },
+    "gaap": [
+      "MembershipsInExchangesOwned"
+    ]
+  },
+  "real_estate_heldforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Held for Sale"
+    },
+    "gaap": [
+      "RealEstateHeldforsale"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "land_available_for_sale"
+    }
+  },
+  "deferred_income_tax_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Income Tax Assets Net"
+    },
+    "gaap": [
+      "DeferredIncomeTaxAssetsNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_liabilities_current + deferred_tax_assets_liabilities_noncurrent"
     }
   },
   "investments_real_estate": {
@@ -2791,9 +2832,30 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "investments_real_estate_property + investments_real_estate_joint_venture + investments_real_estate_unconsolidated_other_joint_venture + investments_real_estate_other",
-      "RealEstateInvestmentPropertyNet + RealEstateInvestmentsJointVentures + RealEstateInvestmentsUnconsolidatedRealEstateAndOtherJointVentures"
+      "any": "investments_real_estate_property + investments_real_estate_joint_venture + investments_real_estate_unconsolidated_other_joint_venture"
     }
+  },
+  "investments_real_estate_unconsolidated_other_joint_venture": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Unconsolidated Real Estate and Other Joint Ventures"
+    },
+    "gaap": [
+      "RealEstateInvestmentsUnconsolidatedRealEstateAndOtherJointVentures"
+    ]
+  },
+  "investments_real_estate_joint_venture": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Joint Ventures"
+    },
+    "gaap": [
+      "RealEstateInvestmentsJointVentures"
+    ]
   },
   "investments_real_estate_property": {
     "unit": "monetary",
@@ -2807,9 +2869,19 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "investments_real_estate_property_atcost - investments_real_estate_property_accumulated_depreciation",
-      "RealEstateInvestmentPropertyAtCost - RealEstateInvestmentPropertyAccumulatedDepreciation"
+      "any": "investments_real_estate_property_atcost - investments_real_estate_property_accumulated_depreciation"
     }
+  },
+  "investments_real_estate_property_accumulated_depreciation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Accumulated Depreciation"
+    },
+    "gaap": [
+      "RealEstateInvestmentPropertyAccumulatedDepreciation"
+    ]
   },
   "investments_real_estate_property_atcost": {
     "unit": "monetary",
@@ -2823,11 +2895,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "investments_buildings_improvements + investments_real_estate_development_inprocess + investments_real_estate_rental_properties + fixtures_equipment_gross + land_land_improvements + land_available_for_development + land_available_for_sale + investments_real_estate_tenant_improvements + investments_real_estate_other",
-      "InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RentalProperties + RealEstateAcquiredThroughForeclosure + TenantImprovements + LandAvailableForDevelopment + RealEstateInvestmentsOther",
-      "InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RentalProperties + RealEstateAcquiredThroughForeclosure + RealEstateHeldforsale + LandAvailableForSale + TenantImprovements + LandAvailableForDevelopment + RealEstateInvestmentsOther",
-      "LandAvailableForSale + TenantImprovements + FixturesAndEquipmentGross + RealEstateHeldforsale + LandAndLandImprovements + LandAvailableForDevelopment + InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RealEstateAcquiredThroughForeclosure + RentalProperties + RealEstateInvestmentsOther",
-      "InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RentalProperties + RealEstateAcquiredThroughForeclosure + RealEstateHeldforsale + Land + LandAvailableForSale + LandImprovements + TenantImprovements + LandAvailableForDevelopment + FixturesAndEquipmentGross + RealEstateInvestmentsOther"
+      "any": "investments_buildings_improvements + investments_real_estate_development_inprocess + investments_real_estate_rental_properties + land_available_for_development + investments_real_estate_tenant_improvements + investments_real_estate_other"
     }
   },
   "investments_real_estate_tenant_improvements": {
