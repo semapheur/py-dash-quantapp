@@ -2775,9 +2775,121 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + investments_lease_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
     }
+  },
+  "derivative_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Assets"
+    },
+    "gaap": [
+      "DerivativeAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "derivative_assets_current + derivative_assets_noncurrent",
+      "DerivativeAssetAfterOffsetSubjectToMasterNettingArrangement + DerivativeAssetNotSubjectToMasterNettingArrangement"
+    }
+  },
+  "securities_collateral_fairvalue": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Securities Held as Collateral at Fair Value"
+    },
+    "gaap": [
+      "SecuritiesHeldAsCollateralAtFairValue"
+    ]
+  },
+  "separate_account_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Separate Account Assets"
+    },
+    "gaap": [
+      "SeparateAccountAssets"
+    ]
+  },
+  "securities_availableforsale_debt_accrued_interest_postallowance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest from Available-for-Sale Debt Securities after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_availableforsale_debt_accrued_interest_current_postallowance + securities_availableforsale_debt_accrued_interest_noncurrent_postallowance"
+    }
+  },
+  "insurance_life_bank_owned": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Bank Owned Life Insurance"
+    },
+    "gaap": [
+      "BankOwnedLifeInsurance"
+    ]
+  },
+  "servicing_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Servicing Asset"
+    },
+    "gaap": [
+      "ServicingAsset"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "servicing_asset_fairvalue + servicing_asset_amortized_value"
+    }
+  },
+  "servicing_asset_amortized_value": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Servicing Asset at Amortized Value"
+    },
+    "gaap": [
+      "ServicingAssetAtAmortizedValue"
+    ]
+  },
+  "servicing_asset_fairvalue": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Servicing Asset at Fair Value"
+    },
+    "gaap": [
+      "ServicingAssetAtFairValueAmount"
+    ]
+  },
+  "interest_heldbytransferor_fairvalue": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Interests Continued to be Held by Transferor Fair Value"
+    },
+    "gaap": [
+      "InterestsContinuedToBeHeldByTransferorFairValue"
+    ]
   },
   "loans_leases_receivable_net": {
     "unit": "monetary",
