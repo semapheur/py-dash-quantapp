@@ -2775,9 +2775,532 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + ",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
     }
+  },
+  "reinsurance_recoverables": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Reinsurance Recoverables"
+    },
+    "gaap": [
+      "ReinsuranceRecoverables"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "prepaid_reinsurance_premiums + reinsurance_recoverables_paid_unpaid_losses"
+    }
+  },
+  "reinsurance_recoverables_paid_unpaid_losses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Reinsurance Recoverables on Paid and Unpaid Losses"
+    },
+    "gaap": [
+      "ReinsuranceRecoverablesOnPaidAndUnpaidLosses"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "reinsurance_recoverables_paid_losses + reinsurance_recoverables_unpaid_claims_adjustments"
+    }
+  },
+  "reinsurance_recoverables_unpaid_claims_adjustments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Reinsurance Recoverable for Unpaid Claims and Claims Adjustments"
+    },
+    "gaap": [
+      "ReinsuranceRecoverableForUnpaidClaimsAndClaimsAdjustments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "reinsurance_recoverables_unpaid_losses_gross - reinsurance_recoverables_unpaid_losses_allowance"
+    }
+  },
+  "reinsurance_recoverables_unpaid_losses_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss on Reinsurance Recoverable for Unpaid Claims"
+    },
+    "gaap": [
+      "ReinsuranceRecoverablesOnUnpaidLossesAllowance"
+    ]
+  },
+  "reinsurance_recoverables_unpaid_losses_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Reinsurance Recoverable for Unpaid Claims"
+    },
+    "gaap": [
+      "ReinsuranceRecoverablesOnUnpaidLossesGross"
+    ]
+  },
+  "reinsurance_recoverables_paid_losses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Reinsurance Recoverables on Paid Losses"
+    },
+    "gaap": [
+      "ReinsuranceRecoverablesOnPaidLosses"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "reinsurance_recoverables_paid_losses_gross - reinsurance_recoverables_paid_losses_allowance"
+    }
+  },
+  "reinsurance_recoverables_paid_losses_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Reinsurance Recoverables on Paid Losses"
+    },
+    "gaap": [
+      "ReinsuranceRecoverablesOnPaidLossesAllowance"
+    ]
+  },
+  "reinsurance_recoverables_paid_losses_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Reinsurance Recoverables on Paid Losses"
+    },
+    "gaap": [
+      "ReinsuranceRecoverablesOnPaidLossesGross"
+    ]
+  },
+  "prepaid_reinsurance_premiums": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Prepaid Reinsurance Premiums"
+    },
+    "gaap": [
+      "PrepaidReinsurancePremiums"
+    ]
+  },
+  "customers_liability_for_acceptances": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Customers Liability for Acceptances"
+    },
+    "gaap": [
+      "CustomersLiabilityForAcceptancesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "customers_liability_for_acceptances_gross - customers_liability_for_acceptances_allowance"
+    }
+  },
+  "customers_liability_for_acceptances_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Customers Liability for Acceptances"
+    },
+    "gaap": [
+      "AllowanceForUncollectibleCustomersLiabilityForAcceptances"
+    ]
+  },
+  "customers_liability_for_acceptances_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Customers Liability for Acceptances"
+    },
+    "gaap": [
+      "CustomersLiabilityForAcceptancesGross"
+    ]
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-for-Sale Debt Securities Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_current + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_noncurrent"
+    }
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Available-for-Sale Debt Securities Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_before_allowance_noncurrent - securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_noncurrent"
+    }
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Allowance for Credit Loss of Available-for-Sale Debt Securities Excluding Accrued Interest"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+    ]
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_before_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Available-for-Sale Debt Securities Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Available-for-Sale Debt Securities Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLossCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_before_allowance_current - securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_current"
+    }
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Allowance for Credit Loss of Available-for-Sale Debt Securities Excluding Accrued Interest"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ]
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_before_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Available-for-Sale Debt Securities Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
+    ]
+  },
+  "investments_lease_excluding_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Investments in Lease Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_excluding_accrued_interest_current + investments_lease_excluding_accrued_interest_noncurrent"
+    }
+  },
+  "investments_lease_excluding_accrued_interest_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investments in Lease Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_excluding_accrued_interest_before_allowance_noncurrent - investments_lease_excluding_accrued_interest_allowance_noncurrent"
+    }
+  },
+  "investments_lease_excluding_accrued_interest_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Allowance for Credit Loss of Net Investments in Lease Excluding Accrued Interest"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_sales_type_excluding_accrued_interest_allowance_noncurrent + investments_lease_direct_financing_excluding_accrued_interest_allowance_noncurrent"
+    }
+  },
+  "investments_lease_direct_financing_excluding_accrued_interest_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Allowance for Credit Loss of Net Investments in Direct Financing Lease Excluding Accrued Interest"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ]
+  },
+  "investments_lease_sales_type_excluding_accrued_interest_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Allowance for Credit Loss of Net Investments in Sales Type Lease Excluding Accrued Interest"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+    ]
+  },
+  "investments_lease_excluding_accrued_interest_before_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investments in Lease Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_sales_type_excluding_accrued_interest_before_allowance_noncurrent + investments_lease_direct_financing_excluding_accrued_interest_before_allowance_noncurrent"
+    }
+  },
+  "investments_lease_direct_financing_excluding_accrued_interest_before_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investments in Direct Financing Lease Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "investments_lease_sales_type_excluding_accrued_interest_before_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Investments in Sales Type Lease Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "investments_lease_excluding_accrued_interest_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investments in Lease Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLossCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_excluding_accrued_interest_before_allowance_current - investments_lease_excluding_accrued_interest_allowance_current"
+    }
+  },
+  "investments_lease_excluding_accrued_interest_allowance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Allowance for Credit Loss of Net Investments in Lease Excluding Accrued Interest"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_sales_type_excluding_accrued_interest_allowance_current + investments_lease_direct_financing_excluding_accrued_interest_allowance_current"
+    }
+  },
+  "investments_lease_direct_financing_excluding_accrued_interest_allowance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Allowance for Credit Loss of Net Investments in Direct Financing Lease Excluding Accrued Interest"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ]
+  },
+  "investments_lease_sales_type_excluding_accrued_interest_allowance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Allowance for Credit Loss of Net Investments in Sales Type Lease Excluding Accrued Interest"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ]
+  },
+  "investments_lease_excluding_accrued_interest_before_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investments in Lease Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "NetInvestmentInLeaseExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_lease_sales_type_excluding_accrued_interest_before_allowance_current + investments_lease_direct_financing_excluding_accrued_interest_before_allowance_current"
+    }
+  },
+  "investments_lease_direct_financing_excluding_accrued_interest_before_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investments in Direct Financing Lease Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DirectFinancingLeaseNetInvestmentInLeaseExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
+    ]
+  },
+  "investments_lease_sales_type_excluding_accrued_interest_before_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Investments in Sales Type Lease Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "SalesTypeLeaseNetInvestmentInLeaseExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
+    ]
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Debt Securities Held-to-Maturity Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_heldtomaturity_debt_excluding_accrued_interest_current + securities_heldtomaturity_debt_excluding_accrued_interest_noncurrent"
+    }
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Debt Securities Held-to-Maturity Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_noncurrent - securities_heldtomaturity_debt_excluding_accrued_interest_allowance_noncurrent"
+    }
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Allowance for Credit Loss of Debt Securities Held-to-Maturity Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+    ]
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_noncurrent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Debt Securities Held-to-Maturity Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Debt Securities Held-to-Maturity Excluding Accrued Interest after Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLossCurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_current - securities_heldtomaturity_debt_excluding_accrued_interest_allowance_current"
+    }
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest_allowance_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Allowance for Credit Loss of Debt Securities Held-to-Maturity Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAllowanceForCreditLossExcludingAccruedInterestCurrent"
+    ]
+  },
+  "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_current": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Debt Securities Held-to-Maturity Excluding Accrued Interest before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
+    ]
   },
   "receivable_financing_excluding_accrued_interest": {
     "unit": "monetary",
@@ -2806,8 +3329,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "receivable_financing_excluding_accrued_interest_before_allowance_noncurrent + receivable_financing_excluding_accrued_interest_allowance_noncurrent",
-      "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent - FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
+      "any": "receivable_financing_excluding_accrued_interest_before_allowance_noncurrent + receivable_financing_excluding_accrued_interest_allowance_noncurrent"
     }
   },
   "receivable_financing_excluding_accrued_interest_allowance_noncurrent": {
@@ -2815,7 +3337,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Noncurrent Financing Receivable Excluding Accrued Interest Allowance for Credit Loss"
+      "long": "Noncurrent Allowance for Credit Loss of Financing Receivable Excluding Accrued Interest"
     },
     "gaap": [
       "FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
@@ -2844,8 +3366,7 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "receivable_financing_excluding_accrued_interest_before_allowance_current + receivable_financing_excluding_accrued_interest_allowance_current",
-      "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent - FinancingReceivableAllowanceForCreditLossExcludingAccruedInterestCurrent"
+      "any": "receivable_financing_excluding_accrued_interest_before_allowance_current + receivable_financing_excluding_accrued_interest_allowance_current"
     }
   },
   "receivable_financing_excluding_accrued_interest_allowance_current": {
@@ -6625,7 +7146,71 @@
       "CustomerAdvancesNoncurrent"
     ]
   },
-  "customer_contract_asset_current": {
+  "customer_contract_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetNet"
+    ],
+    "calculation": {
+      "order": 233,
+      "all": "customer_contract_assets_gross - customer_contract_assets_allowance",
+      "any": "customer_contract_assets_current + customer_contract_assets_noncurrent"
+    }
+  },
+  "customer_contract_assets_allowance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Allowance for Credit Loss of Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetAccumulatedAllowanceForCreditLoss"
+    ]
+  },
+  "customer_contract_asset_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetGross"
+    ],
+    "calculation": {
+      "order": 233,
+      "any": "customer_contract_assets_nonpast_due + customer_contract_assets_past_due"
+    }
+  },
+  "customer_contract_assets_past_due": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Past Due Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetPastDue"
+    ]
+  },
+  "customer_contract_assets_nonpast_due": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Nonpast Due Contract with Customer Asset"
+    },
+    "gaap": [
+      "ContractWithCustomerAssetNotPastDue"
+    ]
+  },
+  "customer_contract_assets_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -6640,7 +7225,7 @@
       "any": "customer_contract_assets_current_gross - customer_contract_assets_current_allowance"
     }
   },
-  "customer_contract_asset_noncurrent": {
+  "customer_contract_assets_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -6652,10 +7237,10 @@
     ],
     "calculation": {
       "order": 436,
-      "any": "customer_contract_asset_noncurrent_gross - customer_contract_asset_noncurrent_accumulated_allowance"
+      "any": "customer_contract_assets_noncurrent_gross - customer_contract_assets_noncurrent_accumulated_allowance"
     }
   },
-  "customer_contract_asset_noncurrent_accumulated_allowance": {
+  "customer_contract_assets_noncurrent_accumulated_allowance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -6666,7 +7251,7 @@
       "ContractWithCustomerAssetAccumulatedAllowanceForCreditLossNoncurrent"
     ]
   },
-  "customer_contract_asset_noncurrent_gross": {
+  "customer_contract_assets_noncurrent_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26446,7 +27031,7 @@
       "RecapitalizationCosts"
     ]
   },
-  "receivable": {
+  "receivables": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26461,11 +27046,11 @@
     ],
     "calculation": {
       "order": 2501,
-      "all": "receivable_current + receivable_noncurrent",
-      "any": "receivable_trade + receivable_nontrade + premiums_other_receivables"
+      "all": "receivables_current + receivables_noncurrent",
+      "any": "receivables_trade + receivables_nontrade + premiums_other_receivables"
     }
   },
-  "receivable_affiliate_current": {
+  "receivables_affiliate_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26476,7 +27061,7 @@
       "DueFromAffiliateCurrent"
     ]
   },
-  "receivable_construction_contract_current": {
+  "receivables_construction_contract_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26487,7 +27072,7 @@
       "ConstructionContractorReceivableIncludingContractRetainageYearOne"
     ]
   },
-  "receivable_construction_current": {
+  "receivables_construction_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26498,7 +27083,7 @@
       "ConstructionContractorReceivableRetainageYearOne"
     ]
   },
-  "receivable_contract": {
+  "receivables_contract": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26509,7 +27094,7 @@
       "ReceivablesFromContractsWithCustomers"
     ]
   },
-  "receivable_contract_current": {
+  "receivables_contract_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26521,7 +27106,7 @@
       "CurrentReceivablesFromContractsWithCustomers"
     ]
   },
-  "receivable_credit_card": {
+  "receivables_credit_card": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26532,7 +27117,7 @@
       "CreditCardReceivables"
     ]
   },
-  "receivable_current": {
+  "receivables_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26546,10 +27131,10 @@
     ],
     "calculation": {
       "order": 397,
-      "any": "receivable_trade_notes_loans_current + receivable_nontrade_current + receivable_unbilled_current + receivable_related_parties_current + receivable_longterm_contracts_programs_current + receivable_trade_securitization + receivable_other_current"
+      "any": "receivables_trade_notes_loans_current + receivables_nontrade_current + receivables_unbilled_current + receivables_related_parties_current + receivables_longterm_contracts_programs_current + receivables_trade_securitization + receivables_other_current"
     }
   },
-  "receivable_current_allowance": {
+  "receivables_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -26562,10 +27147,10 @@
     ],
     "calculation": {
       "order": 1305,
-      "any": "receivable_trade_current_allowance + receivable_notes_current_allowance"
+      "any": "receivables_trade_current_allowance + receivables_notes_current_allowance"
     }
   },
-  "receivable_deferred_rent_noncurrent": {
+  "receivables_deferred_rent_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26576,7 +27161,7 @@
       "DeferredRentReceivablesNetNoncurrent"
     ]
   },
-  "receivable_dividends": {
+  "receivables_dividends": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26587,7 +27172,7 @@
       "DividendsReceivable"
     ]
   },
-  "receivable_dividends_interest": {
+  "receivables_dividends_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26599,10 +27184,10 @@
     ],
     "calculation": {
       "order": 2494,
-      "any": "receivable_dividends + receivable_interest"
+      "any": "receivables_dividends + receivables_interest"
     }
   },
-  "receivable_employees_current": {
+  "receivables_employees_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26613,7 +27198,7 @@
       "DueFromEmployeesCurrent"
     ]
   },
-  "receivable_financing_accrued_interest": {
+  "receivables_financing_accrued_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26624,7 +27209,7 @@
       "FinancingReceivableAccruedInterestAfterAllowanceForCreditLoss"
     ]
   },
-  "receivable_grants": {
+  "receivables_grants": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26636,10 +27221,10 @@
     ],
     "calculation": {
       "order": 2496,
-      "any": "receivable_grants_current + receivable_grants_noncurrent"
+      "any": "receivables_grants_current + receivables_grants_noncurrent"
     }
   },
-  "receivable_grants_current": {
+  "receivables_grants_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26650,7 +27235,7 @@
       "GrantsReceivableCurrent"
     ]
   },
-  "receivable_grants_noncurrent": {
+  "receivables_grants_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26661,7 +27246,7 @@
       "GrantsReceivableNoncurrent"
     ]
   },
-  "receivable_insurance_malpractice": {
+  "receivables_insurance_malpractice": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26673,10 +27258,10 @@
     ],
     "calculation": {
       "order": 2499,
-      "any": "receivable_insurance_malpractice_current + receivable_insurance_malpractice_noncurrent"
+      "any": "receivables_insurance_malpractice_current + receivables_insurance_malpractice_noncurrent"
     }
   },
-  "receivable_insurance_malpractice_current": {
+  "receivables_insurance_malpractice_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26687,7 +27272,7 @@
       "InsuranceReceivableForMalpracticeCurrent"
     ]
   },
-  "receivable_insurance_malpractice_noncurrent": {
+  "receivables_insurance_malpractice_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26698,7 +27283,7 @@
       "InsuranceReceivableForMalpracticeNoncurrent"
     ]
   },
-  "receivable_insurance_settlements": {
+  "receivables_insurance_settlements": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26710,10 +27295,10 @@
     ],
     "calculation": {
       "order": 2488,
-      "any": "receivable_insurance_settlements_current + receivable_insurance_settlements_noncurrent"
+      "any": "receivables_insurance_settlements_current + receivables_insurance_settlements_noncurrent"
     }
   },
-  "receivable_insurance_settlements_current": {
+  "receivables_insurance_settlements_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26724,7 +27309,7 @@
       "InsuranceSettlementsReceivableCurrent"
     ]
   },
-  "receivable_insurance_settlements_noncurrent": {
+  "receivables_insurance_settlements_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26735,7 +27320,7 @@
       "InsuranceSettlementsReceivableNoncurrent"
     ]
   },
-  "receivable_interest": {
+  "receivables_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26747,10 +27332,10 @@
     ],
     "calculation": {
       "order": 2492,
-      "any": "receivable_interest_current + receivable_interest_noncurrent"
+      "any": "receivables_interest_current + receivables_interest_noncurrent"
     }
   },
-  "receivable_interest_current": {
+  "receivables_interest_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26761,7 +27346,7 @@
       "InterestReceivableCurrent"
     ]
   },
-  "receivable_interest_noncurrent": {
+  "receivables_interest_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26772,7 +27357,7 @@
       "InterestReceivableNoncurrent"
     ]
   },
-  "receivable_joint_operation_current": {
+  "receivables_joint_operation_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26785,10 +27370,10 @@
     ],
     "calculation": {
       "order": 2505,
-      "all": "receivable_joint_operation_current_gross - receivable_joint_operation_current_allowance"
+      "all": "receivables_joint_operation_current_gross - receivables_joint_operation_current_allowance"
     }
   },
-  "receivable_joint_ventures_current": {
+  "receivables_joint_ventures_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26800,7 +27385,7 @@
       "CurrentReceivablesDueFromJointVentures"
     ]
   },
-  "receivable_lease_direct_financing": {
+  "receivables_lease_direct_financing": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26811,7 +27396,7 @@
       "DirectFinancingLeaseLeaseReceivable"
     ]
   },
-  "receivable_lease_incentive": {
+  "receivables_lease_incentive": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26823,10 +27408,10 @@
     ],
     "calculation": {
       "order": 2490,
-      "any": "receivable_lease_incentive_current + receivable_lease_incentive_noncurrent"
+      "any": "receivables_lease_incentive_current + receivables_lease_incentive_noncurrent"
     }
   },
-  "receivable_lease_incentive_noncurrent": {
+  "receivables_lease_incentive_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26837,7 +27422,7 @@
       "LeaseIncentiveReceivableNoncurrent"
     ]
   },
-  "receivable_lease_sales_type": {
+  "receivables_lease_sales_type": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26848,7 +27433,7 @@
       "SalesTypeLeaseLeaseReceivable"
     ]
   },
-  "receivable_lease_sales_type_direct_financing": {
+  "receivables_lease_sales_type_direct_financing": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26860,10 +27445,10 @@
     ],
     "calculation": {
       "order": 2509,
-      "any": "receivable_lease_financing_direct + receivable_lease_sales_type"
+      "any": "receivables_lease_financing_direct + receivables_lease_sales_type"
     }
   },
-  "receivable_loans_heldforsale": {
+  "receivables_loans_heldforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26879,7 +27464,7 @@
       "any": "loans_heldforsale_mortgages + loans_heldforsale_other + loans_heldforsale_commercial_industrial + loans_heldforsale_commercial_real_estate + loans_heldforsale_consumer_home_equity + loans_heldforsale_consumer_installment_student + loans_heldforsale_consumer_credit_card"
     }
   },
-  "receivable_loans_noncurrent": {
+  "receivables_loans_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26891,10 +27476,10 @@
     ],
     "calculation": {
       "order": 2022,
-      "any": "receivable_loans_noncurrent_gross - receivable_loans_noncurrent_allowance"
+      "any": "receivables_loans_noncurrent_gross - receivables_loans_noncurrent_allowance"
     }
   },
-  "receivable_longterm_contracts_programs_current": {
+  "receivables_longterm_contracts_programs_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26905,7 +27490,7 @@
       "ReceivablesLongTermContractsOrPrograms"
     ]
   },
-  "receivable_noncurrent": {
+  "receivables_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26918,10 +27503,10 @@
     ],
     "calculation": {
       "order": 2029,
-      "any": "receivable_trade_noncurrent + receivable_notes_loans_noncurrent"
+      "any": "receivables_trade_noncurrent + receivables_notes_loans_noncurrent"
     }
   },
-  "receivable_nontrade": {
+  "receivables_nontrade": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26933,11 +27518,11 @@
     ],
     "calculation": {
       "order": 2500,
-      "all": "receivable_nontrade_current + receivable_nontrade_noncurrent",
-      "any": "receivable_credit_card + receivable_dividends_interest + receivable_tax_income + receivable_tax_valueadded + receivable_recovery_import_duties + receivable_insurance_settlements + receivable_grants + receivable_insurance_malpractice + receivable_lease_incentive + receivable_lease_financing + receivable_petroleum_interest_billing"
+      "all": "receivables_nontrade_current + receivables_nontrade_noncurrent",
+      "any": "receivables_credit_card + receivables_dividends_interest + receivables_tax_income + receivables_tax_valueadded + receivables_recovery_import_duties + receivables_insurance_settlements + receivables_grants + receivables_insurance_malpractice + receivables_lease_incentive + receivables_lease_financing + receivables_petroleum_interest_billing"
     }
   },
-  "receivable_nontrade_current": {
+  "receivables_nontrade_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26949,10 +27534,10 @@
     ],
     "calculation": {
       "order": 365,
-      "any": "receivable_interest_current + receivable_tax_income + receivable_tax_valueadded_current + receivable_recovery_import_duties_current + receivable_grants_current + receivable_insurance_malpractice_current + receivable_lease_incentive_current + receivable_petroleum_interest_billing_current"
+      "any": "receivables_interest_current + receivables_tax_income + receivables_tax_valueadded_current + receivables_recovery_import_duties_current + receivables_grants_current + receivables_insurance_malpractice_current + receivables_lease_incentive_current + receivables_petroleum_interest_billing_current"
     }
   },
-  "receivable_nontrade_noncurrent": {
+  "receivables_nontrade_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26964,10 +27549,10 @@
     ],
     "calculation": {
       "order": 445,
-      "any": "receivable_interest_noncurrent + receivable_tax_income_noncurrent + receivable_tax_valueadded_noncurrent + receivable_recovery_import_duties_noncurrent + receivable_grants_noncurrent + receivable_insurance_settlements_noncurrent + receivable_insurance_malpractice_noncurrent + receivable_grants_noncurrent + receivable_lease_incentive_noncurrent + receivable_petroleum_interest_billing_noncurrent"
+      "any": "receivables_interest_noncurrent + receivables_tax_income_noncurrent + receivables_tax_valueadded_noncurrent + receivables_recovery_import_duties_noncurrent + receivables_grants_noncurrent + receivables_insurance_settlements_noncurrent + receivables_insurance_malpractice_noncurrent + receivables_grants_noncurrent + receivables_lease_incentive_noncurrent + receivables_petroleum_interest_billing_noncurrent"
     }
   },
-  "receivable_notes": {
+  "receivables_notes": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -26986,10 +27571,10 @@
     ],
     "calculation": {
       "order": 2510,
-      "all": "receivable_notes_current + receivable_notes_noncurrent"
+      "all": "receivables_notes_current + receivables_notes_noncurrent"
     }
   },
-  "receivable_notes_allowance": {
+  "receivables_notes_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27003,7 +27588,7 @@
       "FinancingReceivableAllowanceForCreditLossess"
     ]
   },
-  "receivable_notes_convertible": {
+  "receivables_notes_convertible": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27019,10 +27604,10 @@
     ],
     "calculation": {
       "order": 2514,
-      "all": "receivable_notes_convertible_current + receivable_notes_convertible_noncurrent"
+      "all": "receivables_notes_convertible_current + receivables_notes_convertible_noncurrent"
     }
   },
-  "receivable_notes_convertible_current": {
+  "receivables_notes_convertible_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27034,7 +27619,7 @@
       "ConvertibleNotesReceivableCurrentPortion"
     ]
   },
-  "receivable_notes_convertible_noncurrent": {
+  "receivables_notes_convertible_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27045,7 +27630,7 @@
       "ConvertibleNotesReceivableNetOfCurrentPortion"
     ]
   },
-  "receivable_notes_current": {
+  "receivables_notes_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27058,10 +27643,10 @@
     ],
     "calculation": {
       "order": 386,
-      "all": "receivable_notes_current_gross - receivable_notes_current_allowance"
+      "all": "receivables_notes_current_gross - receivables_notes_current_allowance"
     }
   },
-  "receivable_notes_gross": {
+  "receivables_notes_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27073,7 +27658,7 @@
       "NotesReceivableGross"
     ]
   },
-  "receivable_notes_loans": {
+  "receivables_notes_loans": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27085,10 +27670,10 @@
     ],
     "calculation": {
       "order": 2516,
-      "any": "receivable_notes_loans_current + receivable_notes_loans_noncurrent"
+      "any": "receivables_notes_loans_current + receivables_notes_loans_noncurrent"
     }
   },
-  "receivable_notes_loans_current": {
+  "receivables_notes_loans_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27101,11 +27686,11 @@
     ],
     "calculation": {
       "order": 390,
-      "all": "receivable_notes_loans_current_gross - receivable_notes_loans_current_allowance",
-      "any": "receivable_notes_current + receivable_loans_current"
+      "all": "receivables_notes_loans_current_gross - receivables_notes_loans_current_allowance",
+      "any": "receivables_notes_current + receivables_loans_current"
     }
   },
-  "receivable_notes_loans_current_allowance": {
+  "receivables_notes_loans_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27118,7 +27703,7 @@
       "AllowanceForDoubtfulAccountsNotesAndLoansReceivableCurrent"
     ]
   },
-  "receivable_notes_loans_current_gross": {
+  "receivables_notes_loans_current_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27130,10 +27715,10 @@
     ],
     "calculation": {
       "order": 388,
-      "any": "receivable_notes_current_gross + receivable_loans_current_gross"
+      "any": "receivables_notes_current_gross + receivables_loans_current_gross"
     }
   },
-  "receivable_notes_loans_gross": {
+  "receivables_notes_loans_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27145,10 +27730,10 @@
     ],
     "calculation": {
       "order": 2517,
-      "any": "receivable_notes_loans_current_gross + receivable_notes_loans_noncurrent_gross"
+      "any": "receivables_notes_loans_current_gross + receivables_notes_loans_noncurrent_gross"
     }
   },
-  "receivable_notes_loans_noncurrent": {
+  "receivables_notes_loans_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27161,11 +27746,11 @@
     ],
     "calculation": {
       "order": 2025,
-      "all": "receivable_notes_loans_noncurrent_gross - receivable_notes_loans_noncurrent_allowance",
-      "any": "receivable_notes_noncurrent + receivable_loans_noncurrent"
+      "all": "receivables_notes_loans_noncurrent_gross - receivables_notes_loans_noncurrent_allowance",
+      "any": "receivables_notes_noncurrent + receivables_loans_noncurrent"
     }
   },
-  "receivable_notes_loans_noncurrent_allowance": {
+  "receivables_notes_loans_noncurrent_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27177,10 +27762,10 @@
     ],
     "calculation": {
       "order": 2020,
-      "any": "receivable_notes_noncurrent_gross + receivable_loans_noncurrent_gross"
+      "any": "receivables_notes_noncurrent_gross + receivables_loans_noncurrent_gross"
     }
   },
-  "receivable_notes_loans_noncurrent_gross": {
+  "receivables_notes_loans_noncurrent_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27192,10 +27777,10 @@
     ],
     "calculation": {
       "order": 2024,
-      "any": "receivable_notes_noncurrent_gross + receivable_loans_noncurrent_gross"
+      "any": "receivables_notes_noncurrent_gross + receivables_loans_noncurrent_gross"
     }
   },
-  "receivable_notes_noncurrent": {
+  "receivables_notes_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27209,7 +27794,7 @@
       "NotesReceivableNetOfCurrentPortion"
     ]
   },
-  "receivable_notes_noncurrent_allowance": {
+  "receivables_notes_noncurrent_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27221,7 +27806,7 @@
       "AllowanceForNotesAndLoansReceivableNoncurrent"
     ]
   },
-  "receivable_notes_owner_limited_liability_company": {
+  "receivables_notes_owner_limited_liability_company": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27232,7 +27817,7 @@
       "NotesReceivableByOwnerToLimitedLiabilityCompanyLLC"
     ]
   },
-  "receivable_notes_related_parties_current": {
+  "receivables_notes_related_parties_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27245,7 +27830,7 @@
       "NotesReceivableRelatedParties"
     ]
   },
-  "receivable_notes_related_parties_noncurrent": {
+  "receivables_notes_related_parties_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27257,7 +27842,7 @@
       "NotesReceivableRelatedPartiesNoncurrent"
     ]
   },
-  "receivable_officers_directors_issuance_capital_stock": {
+  "receivables_officers_directors_issuance_capital_stock": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27268,7 +27853,7 @@
       "ReceivableFromOfficersAndDirectorsForIssuanceOfCapitalStock"
     ]
   },
-  "receivable_officers_stockholders_current": {
+  "receivables_officers_stockholders_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27279,7 +27864,7 @@
       "DueFromOfficersOrStockholdersCurrent"
     ]
   },
-  "receivable_other": {
+  "receivables_other": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27292,10 +27877,10 @@
     ],
     "calculation": {
       "order": 2380,
-      "all": "receivable_other_current + receivable_other_noncurrent"
+      "all": "receivables_other_current + receivables_other_noncurrent"
     }
   },
-  "receivable_other_current": {
+  "receivables_other_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27310,10 +27895,10 @@
     ],
     "calculation": {
       "order": 395,
-      "all": "receivable_other_current_gross - receivable_other_current_allowance"
+      "all": "receivables_other_current_gross - receivables_other_current_allowance"
     }
   },
-  "receivable_other_current_allowance": {
+  "receivables_other_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27326,7 +27911,7 @@
       "AllowanceForDoubtfulOtherReceivablesCurrent"
     ]
   },
-  "receivable_other_current_gross": {
+  "receivables_other_current_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27337,7 +27922,7 @@
       "OtherReceivablesGrossCurrent"
     ]
   },
-  "receivable_other_noncurrent": {
+  "receivables_other_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27350,10 +27935,10 @@
     ],
     "calculation": {
       "order": 2379,
-      "any": "receivable_other_noncurrent_gross - receivable_other_noncurrent_allowance"
+      "any": "receivables_other_noncurrent_gross - receivables_other_noncurrent_allowance"
     }
   },
-  "receivable_other_noncurrent_allowance": {
+  "receivables_other_noncurrent_allowance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27364,7 +27949,7 @@
       "OtherReceivableAllowanceForCreditLossNoncurrent"
     ]
   },
-  "receivable_other_noncurrent_gross": {
+  "receivables_other_noncurrent_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27375,7 +27960,7 @@
       "OtherReceivableBeforeAllowanceForCreditLossNoncurrent"
     ]
   },
-  "receivable_other_related_parties_current": {
+  "receivables_other_related_parties_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27386,7 +27971,7 @@
       "DueFromOtherRelatedPartiesCurrent"
     ]
   },
-  "receivable_petroleum_interest_billing": {
+  "receivables_petroleum_interest_billing": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27398,10 +27983,10 @@
     ],
     "calculation": {
       "order": 2491,
-      "any": "receivable_petroleum_interest_billing_current + receivable_petroleum_interest_billing_noncurrent"
+      "any": "receivables_petroleum_interest_billing_current + receivables_petroleum_interest_billing_noncurrent"
     }
   },
-  "receivable_petroleum_interest_billing_current": {
+  "receivables_petroleum_interest_billing_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27412,7 +27997,7 @@
       "OilAndGasJointInterestBillingReceivablesCurrent"
     ]
   },
-  "receivable_petroleum_interest_billing_noncurrent": {
+  "receivables_petroleum_interest_billing_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27423,7 +28008,7 @@
       "OilAndGasJointInterestBillingReceivablesNoncurrent"
     ]
   },
-  "receivable_premiums": {
+  "receivables_premiums": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27435,10 +28020,10 @@
     ],
     "calculation": {
       "order": 2385,
-      "all": "receivable_premiums_gross - receivable_premiums_allowance"
+      "all": "receivables_premiums_gross - receivables_premiums_allowance"
     }
   },
-  "receivable_premiums_allowance": {
+  "receivables_premiums_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27449,7 +28034,7 @@
       "PremiumsReceivableAllowanceForDoubtfulAccounts"
     ]
   },
-  "receivable_premiums_gross": {
+  "receivables_premiums_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27464,7 +28049,7 @@
       "all": "PremiumsReceivableGross - PremiumsReceivableAllowanceForDoubtfulAccounts"
     }
   },
-  "receivable_recovery_import_duties": {
+  "receivables_recovery_import_duties": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27476,10 +28061,10 @@
     ],
     "calculation": {
       "order": 2495,
-      "any": "receivable_recovery_import_duties_current + receivable_recovery_import_duties_noncurrent"
+      "any": "receivables_recovery_import_duties_current + receivables_recovery_import_duties_noncurrent"
     }
   },
-  "receivable_recovery_import_duties_current": {
+  "receivables_recovery_import_duties_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27490,7 +28075,7 @@
       "ReceivableForRecoveryOfImportDutiesNetCurrent"
     ]
   },
-  "receivable_recovery_import_duties_noncurrent": {
+  "receivables_recovery_import_duties_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27501,7 +28086,7 @@
       "ReceivableForRecoveryOfImportDutiesNetNoncurrent"
     ]
   },
-  "receivable_related_parties_current": {
+  "receivables_related_parties_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27514,10 +28099,10 @@
     ],
     "calculation": {
       "order": 375,
-      "any": "receivable_trade_related_parties_current + receivable_notes_related_parties_current + receivable_employees_current + receivable_officers_stockholders_current + receivable_affiliate_current + receivable_joint_ventures_current + receivable_other_related_parties_current"
+      "any": "receivables_trade_related_parties_current + receivables_notes_related_parties_current + receivables_employees_current + receivables_officers_stockholders_current + receivables_affiliate_current + receivables_joint_ventures_current + receivables_other_related_parties_current"
     }
   },
-  "receivable_shareholders_affiliates_issuance_capital_stock": {
+  "receivables_shareholders_affiliates_issuance_capital_stock": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27528,7 +28113,7 @@
       "ReceivableFromShareholdersOrAffiliatesForIssuanceOfCapitalStock"
     ]
   },
-  "receivable_stockholders_equity_note_subscription": {
+  "receivables_stockholders_equity_note_subscription": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27539,7 +28124,7 @@
       "StockholdersEquityNoteSubscriptionsReceivable"
     ]
   },
-  "receivable_subscription_stock_common_unissued": {
+  "receivables_subscription_stock_common_unissued": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27550,7 +28135,7 @@
       "CommonStockShareSubscribedButUnissuedSubscriptionsReceivable"
     ]
   },
-  "receivable_subscription_stock_preferred_unissued": {
+  "receivables_subscription_stock_preferred_unissued": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27561,7 +28146,7 @@
       "PreferredStockSharesSubscribedButUnissuedSubscriptionsReceivable"
     ]
   },
-  "receivable_tax_income": {
+  "receivables_tax_income": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27570,10 +28155,10 @@
     },
     "calculation": {
       "order": 357,
-      "any": "receivable_tax_income_current + receivable_tax_income_noncurrent"
+      "any": "receivables_tax_income_current + receivables_tax_income_noncurrent"
     }
   },
-  "receivable_tax_income_current": {
+  "receivables_tax_income_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27585,7 +28170,7 @@
       "IncomeTaxesReceivable"
     ]
   },
-  "receivable_tax_income_noncurrent": {
+  "receivables_tax_income_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27596,7 +28181,7 @@
       "IncomeTaxesReceivableNoncurrent"
     ]
   },
-  "receivable_tax_valueadded": {
+  "receivables_tax_valueadded": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27608,10 +28193,10 @@
     ],
     "calculation": {
       "order": 2498,
-      "any": "receivable_tax_valueadded_current + receivable_tax_valueadded_noncurrent"
+      "any": "receivables_tax_valueadded_current + receivables_tax_valueadded_noncurrent"
     }
   },
-  "receivable_tax_valueadded_current": {
+  "receivables_tax_valueadded_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27622,7 +28207,7 @@
       "ValueAddedTaxReceivableCurrent"
     ]
   },
-  "receivable_tax_valueadded_noncurrent": {
+  "receivables_tax_valueadded_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27633,7 +28218,7 @@
       "ValueAddedTaxReceivableNoncurrent"
     ]
   },
-  "receivable_trade": {
+  "receivables_trade": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27650,11 +28235,11 @@
     ],
     "calculation": {
       "order": 2486,
-      "all": "receivable_trade_current + receivable_trade_noncurrent",
+      "all": "receivables_trade_current + receivables_trade_noncurrent",
       "fill": "receivable"
     }
   },
-  "receivable_trade_allowance": {
+  "receivables_trade_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27666,7 +28251,7 @@
       "AllowanceForDoubtfulAccountsTradeReceivables"
     ]
   },
-  "receivable_trade_current": {
+  "receivables_trade_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27680,11 +28265,11 @@
     ],
     "calculation": {
       "order": 382,
-      "all": "receivable_trade_current_gross - receivable_trade_current_allowance",
-      "fill": "receivable_trade"
+      "all": "receivables_trade_current_gross - receivables_trade_current_allowance",
+      "fill": "receivables_trade"
     }
   },
-  "receivable_trade_current_allowance": {
+  "receivables_trade_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27700,7 +28285,7 @@
       "AllowanceForDoubtfulAccountsTradeReceivablesCurrent"
     ]
   },
-  "receivable_trade_current_gross": {
+  "receivables_trade_current_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27714,10 +28299,10 @@
     ],
     "calculation": {
       "order": 381,
-      "any": "receivable_construction_contract_current + receivable_construction_current + receivable_contract_current"
+      "any": "receivables_construction_contract_current + receivables_construction_current + receivables_contract_current"
     }
   },
-  "receivable_trade_heldforsale": {
+  "receivables_trade_heldforsale": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27729,7 +28314,7 @@
       "TradeReceivablesHeldForSaleNetNotPartOfDisposalGroup"
     ]
   },
-  "receivable_trade_noncurrent": {
+  "receivables_trade_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27742,10 +28327,10 @@
     ],
     "calculation": {
       "order": 2028,
-      "any": "receivable_trade_noncurrent_gross - receivable_trade_noncurrent_allowance"
+      "any": "receivables_trade_noncurrent_gross - receivables_trade_noncurrent_allowance"
     }
   },
-  "receivable_trade_noncurrent_accrued_interest": {
+  "receivables_trade_noncurrent_accrued_interest": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27756,7 +28341,7 @@
       "AccountsReceivableNoncurrentAccruedInterestAfterAllowanceForCreditLoss"
     ]
   },
-  "receivable_trade_noncurrent_allowance": {
+  "receivables_trade_noncurrent_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27767,7 +28352,7 @@
       "AllowanceForDoubtfulAccountsReceivableNoncurrent"
     ]
   },
-  "receivable_trade_noncurrent_gross": {
+  "receivables_trade_noncurrent_gross": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27778,7 +28363,7 @@
       "AccountsReceivableGrossNoncurrent"
     ]
   },
-  "receivable_trade_notes": {
+  "receivables_trade_notes": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27790,10 +28375,10 @@
     ],
     "calculation": {
       "order": 2521,
-      "any": "receivable_trade + receivable_notes"
+      "any": "receivables_trade + receivables_notes"
     }
   },
-  "receivable_trade_notes_loans_current": {
+  "receivables_trade_notes_loans_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27805,10 +28390,10 @@
     ],
     "calculation": {
       "order": 391,
-      "any": "receivable_trade_current + receivable_notes_loans_current"
+      "any": "receivables_trade_current + receivables_notes_loans_current"
     }
   },
-  "receivable_trade_related_parties_current": {
+  "receivables_trade_related_parties_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27822,10 +28407,10 @@
     ],
     "calculation": {
       "order": 371,
-      "all": "receivable_trade_related_parties_current_gross - receivable_trade_related_parties_current_allowance"
+      "all": "receivables_trade_related_parties_current_gross - receivables_trade_related_parties_current_allowance"
     }
   },
-  "receivable_trade_related_parties_current_allowance": {
+  "receivables_trade_related_parties_current_allowance": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27837,7 +28422,7 @@
       "AllowanceForDoubtfulAccountsReceivableFromRelatedPartiesCurrent"
     ]
   },
-  "receivable_trade_related_parties_noncurrent": {
+  "receivables_trade_related_parties_noncurrent": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27848,7 +28433,7 @@
       "AccountsReceivableRelatedPartiesNoncurrent"
     ]
   },
-  "receivable_trade_securitization": {
+  "receivables_trade_securitization": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27859,7 +28444,7 @@
       "AccountsReceivableFromSecuritization"
     ]
   },
-  "receivable_unbilled_current": {
+  "receivables_unbilled_current": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27884,7 +28469,7 @@
     ],
     "calculation": {
       "order": 291,
-      "any": "receivable_trade_heldforsale + receivable_loans_heldforsale"
+      "any": "receivables_trade_heldforsale + receivables_loans_heldforsale"
     }
   },
   "recognition_deferred_revenue": {
@@ -30123,7 +30708,7 @@
       "HeldToMaturitySecuritiesDebtMaturitiesWithinOneYearNetCarryingAmount"
     ]
   },
-  "securities_heldtomaturity_debt_excluding_accrued_interest": {
+  "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
