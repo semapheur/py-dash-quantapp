@@ -2775,9 +2775,211 @@
     "calculation": {
       "order": 539,
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + ",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease_excluding_accrued_interest + receivables + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate",
       "CashCashEquivalentsAndFederalFundsSold + OtherRestrictedAssets + LeveragedLeasesNetInvestmentInLeveragedLeasesDisclosureInvestmentInLeveragedLeasesNet + FederalHomeLoanBankStockAndFederalReserveBankStock + CollateralizedAgreements + FederalHomeLoanBankAdvances + GuarantyAssets + CashSurrenderValueOfLifeInsurance + DueFromCustomerAcceptances + FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesHeldToMaturityExcludingAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseExcludingAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss + AccountsReceivableNet + NontradeReceivables + OtherReceivables + CustomersLiabilityForAcceptancesNet + ReinsuranceRecoverables + ContractWithCustomerAssetNet + CapitalizedContractCostNet + FundsHeldUnderReinsuranceAgreementsAsset + ValueOfBusinessAcquiredVOBA + InventoryRealEstate + OtherRealEstateAndForeclosedAssets + Investments + RealEstateInvestments + DeferredIncomeTaxAssetsNet + RealEstateHeldforsale + MembershipsInExchangesOwned + LoansAndLeasesReceivableNetReportedAmountCoveredAndNotCovered + InterestsContinuedToBeHeldByTransferorFairValue + ServicingAsset + BankOwnedLifeInsurance + FinancialAssetAmortizedCostAccruedInterestAfterAllowanceForCreditLoss + NetInvestmentInLeaseAccruedInterestAfterAllowanceForCreditLoss + DebtSecuritiesAvailableForSaleAccruedInterestAfterAllowanceForCreditLoss + SeparateAccountAssets + SecuritiesHeldAsCollateralAtFairValue + DerivativeAssets + NetInvestmentInLease + FinanceLeaseRightOfUseAsset + OperatingLeaseRightOfUseAsset + IntangibleAssetsNetIncludingGoodwill + PrepaidExpenseCurrentAndNoncurrent + DeferredCostsCurrentAndNoncurrent + HostingArrangementServiceContractImplementationCostCapitalizedAfterAccumulatedAmortization + OtherInterestEarningAssets + AssetsHeldInTrust + DeferredRentReceivablesNet + AssetsOfDisposalGroupIncludingDiscontinuedOperation + AssetsHeldForSaleNotPartOfDisposalGroup + DepositsAssets + AssetsUnderManagementCarryingAmount + FDICIndemnificationAsset + RecordedThirdPartyEnvironmentalRecoveriesNet + BusinessCombinationContingentConsiderationAsset + AmortizationMethodQualifiedAffordableHousingProjectInvestments + DebtIssuanceCostsLineOfCreditArrangementsNet + HealthCareOrganizationAccountsReceivableDueFromThirdPartyPayorRetroactiveAdjustment + SafeguardingAssetPlatformOperatorCryptoAsset + OtherAssets + OtherAssetsMiscellaneous + DebtSecurities + LongTermInvestments + GovernmentAssistanceAmountCumulative"
     }
+  },
+  "investments_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments"
+    },
+    "gaap": [
+      "RealEstateInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_real_estate_property + investments_real_estate_joint_venture + investments_real_estate_unconsolidated_other_joint_venture + investments_real_estate_other",
+      "RealEstateInvestmentPropertyNet + RealEstateInvestmentsJointVentures + RealEstateInvestmentsUnconsolidatedRealEstateAndOtherJointVentures"
+    }
+  },
+  "investments_real_estate_property": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Property Net"
+    },
+    "gaap": [
+      "RealEstateInvestmentPropertyNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_real_estate_property_atcost - investments_real_estate_property_accumulated_depreciation",
+      "RealEstateInvestmentPropertyAtCost - RealEstateInvestmentPropertyAccumulatedDepreciation"
+    }
+  },
+  "investments_real_estate_property_atcost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Property at Cost"
+    },
+    "gaap": [
+      "RealEstateInvestmentPropertyAtCost"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "investments_buildings_improvements + investments_real_estate_development_inprocess + investments_real_estate_rental_properties + fixtures_equipment_gross + land_land_improvements + land_available_for_development + land_available_for_sale + investments_real_estate_tenant_improvements + investments_real_estate_other",
+      "InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RentalProperties + RealEstateAcquiredThroughForeclosure + TenantImprovements + LandAvailableForDevelopment + RealEstateInvestmentsOther",
+      "InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RentalProperties + RealEstateAcquiredThroughForeclosure + RealEstateHeldforsale + LandAvailableForSale + TenantImprovements + LandAvailableForDevelopment + RealEstateInvestmentsOther",
+      "LandAvailableForSale + TenantImprovements + FixturesAndEquipmentGross + RealEstateHeldforsale + LandAndLandImprovements + LandAvailableForDevelopment + InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RealEstateAcquiredThroughForeclosure + RentalProperties + RealEstateInvestmentsOther",
+      "InvestmentBuildingAndBuildingImprovements + DevelopmentInProcess + RentalProperties + RealEstateAcquiredThroughForeclosure + RealEstateHeldforsale + Land + LandAvailableForSale + LandImprovements + TenantImprovements + LandAvailableForDevelopment + FixturesAndEquipmentGross + RealEstateInvestmentsOther"
+    }
+  },
+  "investments_real_estate_tenant_improvements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Tenant Improvements"
+    },
+    "gaap": [
+      "TenantImprovements"
+    ]
+  },
+  "investments_real_estate_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investments Other"
+    },
+    "gaap": [
+      "RealEstateInvestmentsOther"
+    ]
+  },
+  "land_available_for_sale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land Available for Sale"
+    },
+    "gaap": [
+      "LandAvailableForSale"
+    ]
+  },
+  "land_available_for_development": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land Available for Development"
+    },
+    "gaap": [
+      "LandAvailableForDevelopment"
+    ]
+  },
+  "investments_real_estate_rental_properties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investment Rental Properties"
+    },
+    "gaap": [
+      "RentalProperties"
+    ]
+  },
+  "investments_real_estate_development_inprocess": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Investment Development in Process"
+    },
+    "gaap": [
+      "DevelopmentInProcess"
+    ]
+  },
+  "investments_buildings_improvements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Investment in Building and Building Improvements"
+    },
+    "gaap": [
+      "InvestmentBuildingAndBuildingImprovements"
+    ]
+  },
+  "other_real_estate_foreclosed_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Real Estate and Foreclosed Assets"
+    },
+    "gaap": [
+      "OtherRealEstateAndForeclosedAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "foreclosed_assets + real_estate_other"
+    }
+  },
+  "foreclosed_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Foreclosed Assets"
+    },
+    "gaap": [
+      "ForeclosedAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "real_estate_aqcuired_from_foreclosure + foreclosed_assets_other"
+    }
+  },
+  "foreclosed_assets_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Foreclosed Assets"
+    },
+    "gaap": [
+      "OtherForeclosedAssets"
+    ]
+  },
+  "real_estate_aqcuired_from_foreclosure": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Real Estate Acquired Through Foreclosure"
+    },
+    "gaap": [
+      "RealEstateAcquiredThroughForeclosure"
+    ]
+  },
+  "value_business_acquired": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Value of Business Acquired"
+    },
+    "gaap": [
+      "ValueOfBusinessAcquiredVOBA"
+    ]
+  },
+  "funds_under_reinsurance_agreements_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Funds Held under Reinsurance Agreements Asset"
+    },
+    "gaap": [
+      "FundsHeldUnderReinsuranceAgreementsAsset"
+    ]
   },
   "reinsurance_recoverables": {
     "unit": "monetary",
@@ -4645,7 +4847,7 @@
       "FloorBrokerageExchangeAndClearanceFees"
     ]
   },
-  "buildings_gross": {
+  "buildings_improvements_gross": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -4780,6 +4982,55 @@
       "order": 1440,
       "all": "payment_acquisition_productive_assets / revenue"
     }
+  },
+  "capitalized_contract_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Capitalized Contract Cost"
+    },
+    "gaap": [
+      "CapitalizedContractCostNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "capitalized_contract_cost_current + capitalized_contract_cost_noncurrent",
+      "any": "capitalized_contract_cost_gross - capitalized_contract_cost_accumulated_amortization - capitalized_contract_cost_accumulated_impairment"
+    }
+  },
+  "capitalized_contract_cost_accumulated_impairment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Capitalized Contract Cost Accumulated Impairment"
+    },
+    "gaap": [
+      "CapitalizedContractCostAccumulatedImpairment"
+    ]
+  },
+  "capitalized_contract_cost_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Capitalized Contract Cost Accumulated Amortization"
+    },
+    "gaap": [
+      "CapitalizedContractCostAccumulatedAmortization"
+    ]
+  },
+  "capitalized_contract_cost_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Capitalized Contract Cost"
+    },
+    "gaap": [
+      "CapitalizedContractCostGross"
+    ]
   },
   "capitalized_contract_cost_current": {
     "unit": "monetary",
@@ -17395,6 +17646,21 @@
       "IssuanceOfStockAndWarrantsForServicesOrClaims"
     ]
   },
+  "land_land_improvements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land and Land Improvements"
+    },
+    "gaap": [
+      "LandAndLandImprovements"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "land + land_improvements"
+    }
+  },
   "land": {
     "unit": "monetary",
     "balance": "debit",
@@ -17403,8 +17669,18 @@
       "long": "Land"
     },
     "gaap": [
-      "Land",
-      "LandAndLandImprovements"
+      "Land"
+    ]
+  },
+  "land_improvements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land Improvements"
+    },
+    "gaap": [
+      "LandImprovements"
     ]
   },
   "land_buildings_gross": {
@@ -17419,7 +17695,8 @@
     ],
     "calculation": {
       "order": 478,
-      "any": "land_gross + buildings_gross"
+      "any": "land_land_improvements + buildings_improvements_gross",
+      "LandAndLandImprovements + BuildingsAndImprovementsGross"
     }
   },
   "land_under_purchase_options_recorded": {
@@ -18498,7 +18775,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Machinery and Equipment"
+      "long": "Gross Machinery and Equipment"
     },
     "gaap": [
       "MachineryAndEquipmentGross"
@@ -26804,8 +27081,86 @@
     ],
     "calculation": {
       "order": 480,
-      "any": "land_buildings_gross + furniture_fixtures_gross + machinery_equipment_gross"
+      "all": "property_available_for_operating_lease_gross + property_plant_equipment_exclusing_lessor_assets_under_operating_lease_gross",
+      "any": "land_buildings_gross + furniture_fixtures_gross + machinery_equipment_gross + fixtures_equipment_gross + capital_computer_software_gross + construction_inprogress_gross + leasehold_improvements_gross + timber_timberlands + capital_leased_assets_gross + property_available_for_operating_lease_gross + property_plant_equipment_other_gross"
     }
+  },
+  "property_plant_equipment_exclusing_lessor_assets_under_operating_lease_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Property Plant and Equipment Excluding Lessor Asset Under Operating Lease Before Accumulated Depreciation"
+    },
+    "gaap": [
+      "PropertyPlantAndEquipmentExcludingLessorAssetUnderOperatingLeaseBeforeAccumulatedDepreciation"
+    ]
+  },
+  "property_available_for_operating_lease_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Property Subject to or Available for Operating Lease Gross"
+    },
+    "gaap": [
+      "PropertySubjectToOrAvailableForOperatingLeaseGross"
+    ]
+  },
+  "capital_leased_assets_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Capital Leased Assets Gross"
+    },
+    "gaap": [
+      "CapitalLeasedAssetsGross"
+    ]
+  },
+  "timber_timberlands": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Timber and Timberlands"
+    },
+    "gaap": [
+      "TimberAndTimberlands"
+    ]
+  },
+  "leasehold_improvements_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Leasehold Improvements"
+    },
+    "gaap": [
+      "LeaseholdImprovementsGross"
+    ]
+  },
+  "construction_inprogress_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Construction in Progress"
+    },
+    "gaap": [
+      "ConstructionInProgressGross"
+    ]
+  },
+  "fixtures_equipment_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Fixtures and Equipment"
+    },
+    "gaap": [
+      "FixturesAndEquipmentGross"
+    ]
   },
   "property_plant_equipment_other": {
     "unit": "monetary",
@@ -26815,7 +27170,6 @@
       "long": "Other Property, Plant and Equipment"
     },
     "gaap": [
-      "PropertyPlantAndEquipmentOther",
       "PropertyPlantAndEquipmentOtherNet"
     ],
     "calculation": {
@@ -26842,7 +27196,7 @@
       "long": "Gross Property, Plant and Equipment"
     },
     "gaap": [
-      "PropertyPlantAndEquipmentOtherGross"
+      "PropertyPlantAndEquipmentOther"
     ]
   },
   "provision_contract_loss": {
