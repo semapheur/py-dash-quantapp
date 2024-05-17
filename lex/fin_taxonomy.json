@@ -12437,7 +12437,7 @@
     ],
     "calculation": {
       "order": 1432,
-      "any": "income_loss_operating + income_loss_nonoperating + income_loss_equity_method_investment"
+      "any": "income_loss_pretax_excluding_equity_method_investments + income_loss_equity_method_investment"
     }
   },
   "income_loss_before_interest_tax_cash": {
@@ -12566,7 +12566,7 @@
     ],
     "calculation": {
       "order": 1896,
-      "any": "income_loss_net_mintority_interest_redeemable + income_loss_net_mintority_interest_redeemable"
+      "any": "income_loss_net_minority_interest_redeemable + income_loss_net_minority_interest_nonredeemable"
     }
   },
   "income_loss_net_before_extraordinary_item": {
@@ -12922,7 +12922,8 @@
       "long": "Net Income (Loss) from Continuing Operations Attributable to Minority Interest"
     },
     "gaap": [
-      "IncomeLossFromContinuingOperationsAttributableToNoncontrollingEntity"
+      "IncomeLossFromContinuingOperationsAttributableToNoncontrollingEntity",
+      "ProfitLossFromContinuingOperationsAttributableToNoncontrollingInterests"
     ]
   },
   "income_loss_net_dicontinued_operations": {
@@ -12948,7 +12949,8 @@
     },
     "gaap": [
       "ProfitLoss",
-      "ProfitLossIncludingPortionAttributableToNoncontrollingInterest"
+      "ProfitLossIncludingPortionAttributableToNoncontrollingInterest",
+      "NetIncomeLossIncludingPortionAttributableToNonredeemableNoncontrollingInterest"
     ],
     "calculation": {
       "order": 1224,
@@ -17423,6 +17425,7 @@
       "long": "Non-redeemable Minority Interest in Net Income (Loss) from Joint Venture Partners"
     },
     "gaap": [
+      "MinorityInterestInNetIncomeLossJointVenturePartners",
       "NoncontrollingInterestInNetIncomeLossJointVenturePartnersNonredeemable"
     ]
   },
@@ -17445,6 +17448,7 @@
       "long": "Non-redeemable Minority Interest in Net Income (Loss) from Limited Partnerships"
     },
     "gaap": [
+      "MinorityInterestInNetIncomeLossLimitedPartnerships",
       "NoncontrollingInterestInNetIncomeLossLimitedPartnershipsNonredeemable"
     ]
   },
@@ -17467,6 +17471,7 @@
       "long": "Non-redeemable Minority Interest in Net Income (Loss) from Operating Partnerships"
     },
     "gaap": [
+      "MinorityInterestInNetIncomeLossOperatingPartnerships",
       "NoncontrollingInterestInNetIncomeLossOperatingPartnershipsNonredeemable"
     ]
   },
@@ -17489,6 +17494,7 @@
       "long": "Other Redeemable Minority Interest in Net Income (Loss)"
     },
     "gaap": [
+      "MinorityInterestInNetIncomeLossOtherMinorityInterests",
       "NoncontrollingInterestInNetIncomeLossOtherNoncontrollingInterestsNonredeemable"
     ]
   },
@@ -17511,6 +17517,7 @@
       "long": "Non-redeemable Minority Interest in Net Income (Loss) from Preferred Unit Holders"
     },
     "gaap": [
+      "MinorityInterestInNetIncomeLossPreferredUnitHolders",
       "NoncontrollingInterestInNetIncomeLossPreferredUnitHoldersNonredeemable"
     ]
   },
@@ -17646,7 +17653,7 @@
       "NoncashMergerRelatedCosts"
     ]
   },
-  "nonoperating_income_expense": {
+  "income_loss_nonoperating": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -17659,14 +17666,6 @@
     "calculation": {
       "order": 2257,
       "any": "investment_income_nonoperating + gain_loss_contract_termination + gain_loss_condemnation + gain_loss_sale_lease_financing - loss_catastrophes + allowance_funds_construction_additions + gain_loss_foreign_currency_transaction_pretax - lease_salestype_initial_direct_cost_expense_commencement - lease_operating_initial_direct_cost_expense_term + gain_loss_sale_leased_assets_operating + gain_loss_sale_real_estate_other + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + income_loss_real_estate_operation - impairment_recovery_mortgage_servicing_rights + gain_debt_conversion + allowance_funds_construction_additions_capitalized_cost_equity - expense_reversal_benefit_plan_excluding_service_cost + government_assistance_nonoperating_income + government_assistance_nonoperating_expense + other_nonoperating_income_expense - loss_gain_unusual_infrequent_item + gain_loss_investment_health_care_trust_fund + interest_income_health_care_trust_fund - expense_administrative_health_care_trust_fund"
-    }
-  },
-  "nonrecurring_income_loss": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Non-recurring Income (Loss)"
     }
   },
   "notes_junior_subordinated_current": {
@@ -30250,7 +30249,8 @@
       "IncomeTaxes",
       "IncomeTaxesNet",
       "IncomeTaxExpenseBenefit",
-      "IncomeTaxExpenseBenefits"
+      "IncomeTaxExpenseBenefits",
+      "IncomeTaxExpenseContinuingOperations"
     ]
   },
   "tax_expense_benefit_continuing_operations": {
