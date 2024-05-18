@@ -7484,6 +7484,21 @@
       "short": "M-score"
     }
   },
+  "billings_excess_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Billings in Excess of Cost"
+    },
+    "gaap": [
+      "BillingsInExcessOfCost"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "billings_excess_cost_current + billings_excess_cost_noncurrent"
+    }
+  },
   "billings_excess_cost_current": {
     "unit": "monetary",
     "balance": "credit",
@@ -10133,6 +10148,21 @@
       "CustomerAdvancesCurrent"
     ]
   },
+  "customer_advances_deposits": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Customer Advances and Deposits"
+    },
+    "gaap": [
+      "CustomerAdvancesAndDeposits"
+    ],
+    "calculation": {
+      "order": 646,
+      "any": "customer_advances_deposits_current + customer_advances_deposits_current"
+    }
+  },
   "customer_advances_deposits_current": {
     "unit": "monetary",
     "balance": "credit",
@@ -11465,6 +11495,33 @@
       "any": "deferred_revenue_current + deferred_revenue_noncurrent"
     }
   },
+  "deferred_revenue_credits": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Revenue and Credits"
+    },
+    "gaap": [
+      "DeferredRevenueAndCredits"
+    ],
+    "calculation": {
+      "order": 598,
+      "all": "deferred_revenue_credits_current + deferred_revenue_credits_noncurrent",
+      "any": "deferred_revenue + deferred_revenue_leases + deferred_gain_sale_property + deferred_rent_credit + deferred_longterm_liability_charges + deferred_leasing_commissions + incentive_lessor + advance_rent"
+    }
+  },
+  "deferred_leasing_commissions": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Leasing Commissions"
+    },
+    "gaap": [
+      "DeferredLeasingCommissions"
+    ]
+  },
   "deferred_revenue_credits_current": {
     "unit": "monetary",
     "balance": "credit",
@@ -11510,12 +11567,50 @@
       "any": "customer_contract_liability_current + deferred_income_current"
     }
   },
+  "deferred_revenue_leases": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Lease Revenue"
+    },
+    "gaap": [
+      "DeferredRevenueLeasesNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "deferred_revenue_leases_gross - deferred_revenue_leases_accumulated_amortization",
+      "any": "deferred_revenue_leases_current + deferred_revenue_leases_noncurrent"
+    }
+  },
+  "deferred_revenue_leases_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Lease Revenue Accumulated Amortization"
+    },
+    "gaap": [
+      "DeferredRevenueLeasesAccumulatedAmortization"
+    ]
+  },
+  "deferred_revenue_leases_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Deferred Lease Revenue"
+    },
+    "gaap": [
+      "DeferredRevenueLeasesGross"
+    ]
+  },
   "deferred_revenue_leases_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Deferred Leases"
+      "long": "Current Deferred Lease Revenue"
     },
     "gaap": [
       "DeferredRevenueLeasesCurrent"
@@ -12115,6 +12210,7 @@
       "long": "Deferred Tax Liabilities"
     },
     "gaap": [
+      "DeferredTaxLiabilities",
       "DeferredIncomeTaxLiabilitiesNet"
     ],
     "calculation": {
@@ -13537,7 +13633,7 @@
       "RedeemablePreferredStockDividends"
     ]
   },
-  "due_affiliate_current": {
+  "payables_affiliate_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13548,7 +13644,7 @@
       "DueToAffiliateCurrent"
     ]
   },
-  "due_affiliate_noncurrent": {
+  "payables_affiliate_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13570,7 +13666,7 @@
       "DueFromBanks"
     ]
   },
-  "due_employees_current": {
+  "payables_employees_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13581,7 +13677,7 @@
       "DueToEmployeesCurrent"
     ]
   },
-  "due_employees_noncurrent": {
+  "payables_employees_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13592,7 +13688,7 @@
       "DueToEmployeesNoncurrent"
     ]
   },
-  "due_officers_stockholders_current": {
+  "payables_officers_stockholders_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13603,7 +13699,7 @@
       "DueToOfficersOrStockholdersCurrent"
     ]
   },
-  "due_officers_stockholders_noncurrent": {
+  "payables_officers_stockholders_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13614,7 +13710,7 @@
       "DueToOfficersOrStockholdersNoncurrent"
     ]
   },
-  "due_other_related_parties_current": {
+  "payables_related_parties_other_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13625,7 +13721,7 @@
       "DueToOtherRelatedPartiesClassifiedCurrent"
     ]
   },
-  "due_other_related_parties_noncurrent": {
+  "payables_related_parties_other_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13635,6 +13731,97 @@
     "gaap": [
       "DueToOtherRelatedPartiesNoncurrent"
     ]
+  },
+  "payables_related_parties": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Related Parties"
+    },
+    "gaap": [
+      "DueToRelatedPartiesCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 1958,
+      "all": "payables_related_parties_current + payables_related_parties_noncurrent",
+      "any": "payables_trade_related_parties + payables_notes_related_parties + payables_employees + payables_officers_stockholders + payables_affiliates + payables_related_parties_other"
+    }
+  },
+  "payables_related_parties_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Other Related Parties"
+    },
+    "gaap": [
+      "DueToOtherRelatedPartiesCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 1958,
+      "any": "payables_related_parties_other_current + payables_related_parties_other_noncurrent"
+    }
+  },
+  "payables_affiliates": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Affiliates"
+    },
+    "gaap": [
+      "DueToAffiliateCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 1958,
+      "any": "payables_affiliates_current + payables_affiliates_noncurrent"
+    }
+  },
+  "payables_officers_stockholders": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Officers and Stockholders"
+    },
+    "gaap": [
+      "DueToOfficersOrStockholdersCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 1958,
+      "any": "payables_officers_stockholders_current + payables_officers_stockholders_noncurrent"
+    }
+  },
+  "payables_employees": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Due to Employees"
+    },
+    "gaap": [
+      "DueToEmployeesCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 1958,
+      "any": "payables_employees_current + payables_employees_noncurrent"
+    }
+  },
+  "payables_notes_related_parties": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Notes Payable to Related Parties"
+    },
+    "gaap": [
+      "NotesPayableRelatedPartiesCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 1958,
+      "any": "payables_notes_related_parties_current + payables_notes_related_parties_noncurrent"
+    }
   },
   "payables_related_parties_current": {
     "unit": "monetary",
@@ -13664,7 +13851,7 @@
     ],
     "calculation": {
       "order": 1961,
-      "any": "payable_trade_related_parties_noncurrent + payable_notes_related_parties_noncurrent + due_employees_noncurrent + due_officers_stockholders_noncurrent + due_affiliate_noncurrent + due_other_related_parties_noncurrent"
+      "any": "payable_trade_related_parties_noncurrent + payable_notes_related_parties_noncurrent + payables_employees_noncurrent + payables_officers_stockholders_noncurrent + payables_affiliate_noncurrent + payables_related_parties_other_noncurrent"
     }
   },
   "earnings_per_share_basic": {
@@ -21276,9 +21463,8 @@
     ],
     "calculation": {
       "order": 737,
-      "": "DueToRelatedPartiesCurrentAndNoncurrent + IncentiveFromLessor + DeferredRevenueLeasesNet + ContractWithCustomerLiability + DeferredRevenueAndCredits + BillingsInExcessOfCost + CustomerAdvancesAndDeposits + DeferredTaxLiabilities + PensionAndOtherPostretirementDefinedBenefitPlansLiabilitiesCurrentAndNoncurrent + PostemploymentBenefitsLiabilityCurrentAndNoncurrent + LiabilitiesOfAssetsHeldForSale",
       "all": "liabilities_current + liabilities_noncurrent",
-      "any": "qualified_affordable_housing_project_investments_commitment + operating_lease_liability + affordable_housing_program_obligation + liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense + supplier_finance_program_obligation + policyholder_funds + deposit_liabilities + federal_funds_purchased + collaterized_financings + bank_acceptances_executed_outstanding + payables_investment_purchase + payables_distribution + payables_incentive_fee + payables_stock_common_redeemed + payables_stock_preferred_redeemed + financial_instruments_sold_notyet_purchased_fairvalue + deferred_tax_liabilities + trading_liabilities + derivative_liabilities + notes_surplus + beneficial_interest + payables_brokes_dealers_clearing_organizations + payables_accrued_expenses + deferred_revenue + unrecognized_tax_benefits + accrued_liabilities_commissions_expense_taxes + accrued_environmental_loss_contingencies + advance_payments_borrowers_taxes_insurance + unearned_premiums + servicing_liability + advance_rent + deferred_gain_sale_property + deferred_longterm_liability_charges + deferred_rent_credit + deferred_compensation_liability + pension_postretirement_postemployment_benefits_liability + separate_accounts_liability + litigation_reserve + self_insurance_reserve + security_deposit_liability + restructuring_reserve + off_market_lease_unfavorable + lease_deposit_liability + debt_capital_lease_obligations + asset_retirement_obligation + disposal_liabilities + mandatory_redemption_shares + business_combination_contingent_consideration_liability + asset_acquisition_contingent_consideration_liability + entertainment_license_agreement_program_material_liability + safeguarding_liability_platform_operator_crypto_asset + other_liabilities + government_assistance_liability"
+      "any": "qualified_affordable_housing_project_investments_commitment + operating_lease_liability + affordable_housing_program_obligation + liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense + supplier_finance_program_obligation + policyholder_funds + deposit_liabilities + federal_funds_purchased + collaterized_financings + bank_acceptances_executed_outstanding + payables_related_parties + payables_investment_purchase + payables_distribution + payables_incentive_fee + payables_stock_common_redeemed + payables_stock_preferred_redeemed + financial_instruments_sold_notyet_purchased_fairvalue + deferred_tax_liabilities + trading_liabilities + derivative_liabilities + notes_surplus + beneficial_interest + payables_brokes_dealers_clearing_organizations + payables_accrued_expenses + deferred_revenue_credits + unrecognized_tax_benefits + accrued_liabilities_commissions_expense_taxes + accrued_environmental_loss_contingencies + advance_payments_borrowers_taxes_insurance + unearned_premiums + servicing_liability + deferred_compensation_liability + pension_postretirement_postemployment_benefits_liability + separate_accounts_liability + litigation_reserve + self_insurance_reserve + security_deposit_liability + restructuring_reserve + off_market_lease_unfavorable + lease_deposit_liability + debt_capital_lease_obligations + asset_retirement_obligation + disposal_liabilities + mandatory_redemption_shares + business_combination_contingent_consideration_liability + customer_contract_liability + customer_advances_deposits + asset_acquisition_contingent_consideration_liability + entertainment_license_agreement_program_material_liability + safeguarding_liability_platform_operator_crypto_asset + billings_excess_cost + other_liabilities + government_assistance_liability"
     }
   },
   "government_assistance_liability": {
@@ -21390,6 +21576,7 @@
       "long": "Disposal Group Liabilities"
     },
     "gaap": [
+      "LiabilitiesOfAssetsHeldForSale",
       "LiabilitiesOfDisposalGroupIncludingDiscontinuedOperation"
     ],
     "calculation": {
