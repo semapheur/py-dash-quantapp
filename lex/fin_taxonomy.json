@@ -12960,7 +12960,7 @@
       "DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxPayableNoncurrent"
     ]
   },
-  "disposal_accrued_income_taxes_payable_current": {
+  "disposal_accrued_income_tax_payable_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13077,7 +13077,18 @@
       "DisposalGroupIncludingDiscontinuedOperationDeferredTaxAssetsNoncurrent"
     ]
   },
-  "disposal_deferred_tax_libabilities_noncurrent": {
+  "disposal_deferred_tax_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Deferred Tax Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredTaxLiabilitiesCurrent"
+    ]
+  },
+  "disposal_deferred_tax_liabilities_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13266,7 +13277,7 @@
     ],
     "calculation": {
       "order": 639,
-      "any": "disposal_trade_payables_accrued_liabilities_current + disposal_deferred_revenue_current + disposal_accrued_income_taxes_payable_current + disposal_other_liabilities_current + disposal_pension_plan_benefit_obligation_current + disposal_postretirement_plan_benefit_obligation_current"
+      "any": "disposal_trade_payables_accrued_liabilities_current + disposal_deferred_revenue_current + disposal_accrued_income_tax_payable_current + disposal_other_liabilities_current + disposal_pension_plan_benefit_obligation_current + disposal_postretirement_plan_benefit_obligation_current + disposal_deferred_tax_liabilities_current"
     }
   },
   "disposal_intangible_assets_current": {
@@ -13341,7 +13352,7 @@
     ],
     "calculation": {
       "order": 708,
-      "any": "disposal_deferred_tax_libabilities_noncurrent + disposal_deferred_revenue_noncurrent + disposal_other_liabilities_noncurrent + disposal_pension_plan_benefit_obligation_noncurrent + disposal_postretirement_plan_benefit_obligation_noncurrent + disposal_accrued_income_tax_payable_noncurrent"
+      "any": "disposal_deferred_tax_liabilities_noncurrent + disposal_deferred_revenue_noncurrent + disposal_other_liabilities_noncurrent + disposal_pension_plan_benefit_obligation_noncurrent + disposal_postretirement_plan_benefit_obligation_noncurrent + disposal_accrued_income_tax_payable_noncurrent"
     }
   },
   "disposal_other_assets_current": {
@@ -21582,9 +21593,179 @@
     "calculation": {
       "order": 0,
       "all": "disposal_liabilities_current + disposal_liabilities_noncurrent",
-      "any": "",
-      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableAndAccruedLiabilities + DisposalGroupIncludingDiscontinuedOperationAccountsPayable + DisposalGroupIncludingDiscontinuedOperationAccruedLiabilities + DisposalGroupIncludingDiscontinuedOperationDeferredTaxLiabilities + DisposalGroupIncludingDiscontinuedOperationDeferredRevenue + DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligation + DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligation + DisposalGroupIncludingDiscontinuedOperationOtherLiabilities + DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxPayable + DisposalGroupIncludingDiscontinuedOperationSeparateAccountLiability + DisposalGroupIncludingDiscontinuedOperationLiabilityForFuturePolicyBenefitBeforeReinsurance + DisposalGroupIncludingDiscontinuedOperationLiabilityForClaimsAndClaimsAdjustmentExpense + DisposalGroupIncludingDiscontinuedOperationLiabilityForUnpaidClaimsAndClaimsAdjustmentExpense"
+      "any": "disposal_trade_payables_accrued_liabilities + disposal_deferred_tax_liabilities + disposal_deferred_revenue + disposal_pension_plan_benefit_obligation + disposal_postretirement_plan_benefit_obligation + disposal_other_liabilities + disposal_accrued_income_tax_payable + disposal_separate_account_liability + disposal_liability_future_policy_benefit_before_reinsurance + disposal_liability_claims_claims_adjustment_expense + disposal_liability_unpaid_claims_claims_adjustment_expense"
     }
+  },
+  "disposal_liability_unpaid_claims_claims_adjustment_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Unpaid Claims and Claims Adjustment Expense Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationLiabilityForUnpaidClaimsAndClaimsAdjustmentExpense"
+    ]
+  },
+  "disposal_liability_claims_claims_adjustment_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Claims and Claims Adjustment Expense Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationLiabilityForClaimsAndClaimsAdjustmentExpense"
+    ]
+  },
+  "disposal_liability_future_policy_benefit_before_reinsurance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefit Before Reinsurance Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationLiabilityForFuturePolicyBenefitBeforeReinsurance"
+    ]
+  },
+  "disposal_separate_account_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Separate Account Liability Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationSeparateAccountLiability"
+    ]
+  },
+  "disposal_accrued_income_tax_payable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Income Tax Payable Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxPayable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_accrued_income_tax_payable_current + disposal_accrued_income_tax_payable_noncurrent"
+    }
+  },
+  "disposal_other_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationOtherLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_other_liabilities_current + disposal_other_liabilities_noncurrent"
+    }
+  },
+  "disposal_postretirement_plan_benefit_obligation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Postretirement Plan Benefit Obligation Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_postretirement_plan_benefit_obligation_current + disposal_postretirement_plan_benefit_obligation_noncurrent"
+    }
+  },
+  "disposal_pension_plan_benefit_obligation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Pension Plan Benefit Obligation Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_pension_plan_benefit_obligation_current + disposal_pension_plan_benefit_obligation_noncurrent"
+    }
+  },
+  "disposal_deferred_revenue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Revenue Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredRevenue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_deferred_revenue_current + disposal_deferred_revenue_noncurrent"
+    }
+  },
+  "disposal_deferred_tax_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationDeferredTaxLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_deferred_tax_liabilities_current + disposal_deferred_tax_liabilities_noncurrent"
+    }
+  },
+  "disposal_trade_payables_accrued_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Trade Payables and Accrued Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableAndAccruedLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "disposal_trade_payables + disposal_accrued_liabilities"
+    }
+  },
+  "disposal_accrued_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Liabilities Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccruedLiabilities"
+    ]
+  },
+  "disposal_trade_payables": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Trade Payables Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationAccountsPayable"
+    ]
   },
   "asset_retirement_obligation": {
     "unit": "monetary",
