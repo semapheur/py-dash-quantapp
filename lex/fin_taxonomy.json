@@ -8591,7 +8591,7 @@
     ],
     "calculation": {
       "order": 1675,
-      "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_deposits_mortgage - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payable_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + excess_tax_benefit_sharebased_compensation_financing_activities + cashflow_financing_other"
+      "any": "change_deposits + cashflow_debt - payment_financing_stock_issuance_cost + cashflow_hedge_financing_activities - cashflow_derivative_instrument_financing_activities - cashflow_deposits_mortgage - cashflow_minority_shareholders - cashflow_redeemable_minority_interest + cashflow_securities_trust_preferred + cashflow_equity - payment_dividends - payment_distribution_limited_liability_company - payment_distribution_limited_partner + change_payables_securities_lending - origination_loans_employee_stock_ownership_plans + cashflow_loans_employee_stock_ownership_plans + cashflow_loans_purchase_common_stock - origination_loans_purchase_common_stock + payment_derivative_issuance_costs - payment_debt_restructuring_costs - payment_debt_extinguishment_costs + change_advance_payments_borrowers_taxes_insurance - payment_tax_withholding_sharebased_compensation - payment_distribution_affiliates + proceed_contributions_affiliates + proceed_contributions_parent + proceed_contributions_partnership - payment_merger_related_costs_financing_activities - payment_contingent_consideration_liability_financing_activities + proceed_advance_contribution_aid_construction_financing_activity - payment_advance_construction_financing_activity + excess_tax_benefit_sharebased_compensation_financing_activities + cashflow_financing_other"
     }
   },
   "cashflow_financing_discontinued_operations": {
@@ -9394,7 +9394,7 @@
       "diff": "other_liabilities"
     }
   },
-  "change_payable_securities_lending": {
+  "changes_payable_securities_lending": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9405,7 +9405,7 @@
       "IncreaseDecreaseInSecuritiesLendingPayable"
     ]
   },
-  "change_payable_trade": {
+  "changes_payables_trade": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -9418,7 +9418,7 @@
     ],
     "calculation": {
       "order": 1878,
-      "diff": "payable_trade"
+      "diff": "payables_trade"
     }
   },
   "change_prepaid_expense_current": {
@@ -10743,7 +10743,7 @@
     ],
     "calculation": {
       "order": 587,
-      "any": "bank_overdrafts + commercial_paper + loan_bridge + loan_construction + shortterm_bank_loans_notes_payable + shortterm_nonbank_loans_notes_payable + securities_repurchase_agreement + loan_home_federal_bank_advances_maturities_current + warehouse_agreement_borrowings + debt_shortterm_other"
+      "any": "bank_overdrafts + commercial_paper + loan_bridge + loan_construction + shortterm_bank_loans_notes_payable + shortterm_nonbank_loans_notes_payable + securities_sold_under_repurchase_agreement + loan_home_federal_bank_advances_maturities_current + warehouse_agreement_borrowings + debt_shortterm_other"
     }
   },
   "debt_shortterm_interest_rate": {
@@ -12422,7 +12422,7 @@
   },
   "derivative_liabilities": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Derivative Liabilities"
@@ -12434,12 +12434,61 @@
     ],
     "calculation": {
       "order": 1941,
+      "all": "derivative_liabilities_with_master_netting_arrangement + derivative_liabilities_without_master_netting_arrangement",
       "any": "derivative_liabilities_current + derivative_liabilities_noncurrent"
     }
   },
-  "derivative_liabilities_current": {
+  "derivative_liabilities_without_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Liabilities Not Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "DerivativeLiabilityNotSubjectToMasterNettingArrangement"
+    ]
+  },
+  "derivative_liabilities_with_master_netting_arrangement": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Liabilities After Offset Subject to Master Netting Arrangement"
+    },
+    "gaap": [
+      "DerivativeLiabilityAfterOffsetSubjectToMasterNettingArrangement"
+    ],
+    "calculation": {
+      "order": 1941,
+      "any": "derivative_liabilities_not_offset_against_collateral - derivative_liabilities_collateral_right_reclaim_cash_offset"
+    }
+  },
+  "derivative_liabilities_collateral_right_reclaim_cash_offset": {
     "unit": "monetary",
     "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Liabilities Right to Reclaim Cash Offset"
+    },
+    "gaap": [
+      "DerivativeLiabilityCollateralRightToReclaimCashOffset"
+    ]
+  },
+  "derivative_liabilities_not_offset_against_collateral": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Derivative Liabilities Not Offset against Collateral"
+    },
+    "gaap": [
+      "DerivativeFairValueOfDerivativeLiabilityAmountNotOffsetAgainstCollateral"
+    ]
+  },
+  "derivative_liabilities_current": {
+    "unit": "monetary",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Current Derivative Liabilities"
@@ -12450,7 +12499,7 @@
   },
   "derivative_liabilities_noncurrent": {
     "unit": "monetary",
-    "balance": "debit",
+    "balance": "credit",
     "aggregate": "tail",
     "label": {
       "long": "Non-current Derivative Liabilities"
@@ -13199,7 +13248,7 @@
       "DisposalGroupIncludingDiscontinuedOperationOtherNoncurrentLiabilities"
     ]
   },
-  "disposal_payable_trade_current": {
+  "disposal_payables_trade_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13315,7 +13364,7 @@
     ],
     "calculation": {
       "order": 637,
-      "any": "disposal_payable_trade_current + disposal_accrued_liabilities_current"
+      "any": "disposal_payables_trade_current + disposal_accrued_liabilities_current"
     }
   },
   "distribution_payable_real_estate_partnership": {
@@ -13542,7 +13591,7 @@
       "DueToOtherRelatedPartiesNoncurrent"
     ]
   },
-  "due_related_parties_current": {
+  "payables_related_parties_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13554,10 +13603,10 @@
     ],
     "calculation": {
       "order": 1958,
-      "any": "payable_trade_related_parties_current + payable_notes_related_parties_current + due_employees_current + due_officers_stockholders_current + due_affiliate_current + due_other_related_parties_current"
+      "any": "payables_trade_related_parties_current + payables_notes_related_parties_current + payables_employees_current + payables_officers_stockholders_current + payables_affiliates_current + payables_related_parties_other_current"
     }
   },
-  "due_related_parties_noncurrent": {
+  "payables_related_parties_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -13565,7 +13614,8 @@
       "long": "Due to Related Parties Noncurrent"
     },
     "gaap": [
-      "DueToRelatedPartiesNoncurrent"
+      "DueToRelatedPartiesNoncurrent",
+      "NoncurrentPayablesToRelatedParties"
     ],
     "calculation": {
       "order": 1961,
@@ -21181,8 +21231,696 @@
     ],
     "calculation": {
       "order": 737,
-      "all": "liabilities_current + liabilities_noncurrent"
+      "all": "liabilities_current + liabilities_noncurrent",
+      "any": "qualified_affordable_housing_project_investments_commitment + operating_lease_liability + affordable_housing_program_obligation + liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense + supplier_finance_program_obligation + policyholder_funds + deposit_liabilities + federal_funds_purchased + collaterized_financings + bank_acceptances_executed_outstanding + payables_investment_purchase + payables_distribution + payables_incentive_fee + payables_stock_common_redeemed + payables_stock_preferred_redeemed + financial_instruments_sold_notyet_purchased_fairvalue + deferred_tax_liabilities + trading_liabilities + derivative_liabilities + notes_surplus + beneficial_interest + payables_brokes_dealers_clearing_organizations + payables_accrued_expenses + deferred_revenue + unrecognized_tax_benefits + accrued_liabilities_commissions_expense_taxes + accrued_environmental_loss_contingencies + advance_payments_borrowers_taxes_insurance + unearned_premiums + servicing_liability + advance_rent + deferred_gain_sale_property + deferred_longterm_liability_charges + deferred_rent_credit + deferred_compensation_liabilities + pension_postretirement_postemployment_benefits_liability + separate_accounts_liability + litigation_reserve + self_insurance_reserve + security_deposit_liability + restructuring_reserve + off_market_lease_unfavorable + lease_deposit_liability + debt_capital_lease_obligations + asset_retirement_obligation + disposal_group_liaibilities + shares_with_mandatory_settlement_terms + business_combination_contingent_consideration_liability + asset_acquisition_contingent_consideration_liability + entertainment_license_agreement_program_material_liability + safeguarding_liability_platform_operator_crypto_asset + other_liabilities + government_assistance_liability",
+      "QualifiedAffordableHousingProjectInvestmentsCommitment + OperatingLeaseLiability + AffordableHousingProgramObligation + LiabilityForFuturePolicyBenefitsAndUnpaidClaimsAndClaimsAdjustmentExpense + SupplierFinanceProgramObligation + PolicyholderFunds + Deposits + FederalFundsPurchased + CollateralizedFinancings + BankAcceptancesExecutedAndOutstanding + PayableInvestmentPurchase + DistributionPayable + IncentiveFeePayable + PayableCommonStockRedeemed + PayablePreferredStockRedeemed + FinancialInstrumentsSoldNotYetPurchasedAtFairValue + DeferredIncomeTaxLiabilitiesNet + TradingLiabilities + DerivativeLiabilities + SurplusNotes + BeneficialInterest + PayablesToBrokerDealersAndClearingOrganizations + AccountsPayableAndAccruedLiabilitiesCurrentAndNoncurrent + DeferredRevenue + UnrecognizedTaxBenefits + AccruedLiabilitiesForCommissionsExpenseAndTaxes + AccrualForEnvironmentalLossContingencies + AdvancePaymentsByBorrowersForTaxesAndInsurance + UnearnedPremiums + ServicingLiability + AdvanceRent + DeferredGainOnSaleOfProperty + DeferredLongTermLiabilityCharges + DeferredRentCredit + DeferredCompensationLiabilityCurrentAndNoncurrent + PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesCurrentAndNoncurrent + SeparateAccountsLiability + LitigationReserve + SelfInsuranceReserve + SecurityDepositLiability + RestructuringReserve + OffMarketLeaseUnfavorable + LeaseDepositLiability + DebtAndCapitalLeaseObligations + AssetRetirementObligation + LiabilitiesOfDisposalGroupIncludingDiscontinuedOperation + SharesSubjectToMandatoryRedemptionSettlementTermsAmount + BusinessCombinationContingentConsiderationLiability + AssetAcquisitionContingentConsiderationLiability + EntertainmentLicenseAgreementForProgramMaterialLiability + SafeguardingLiabilityPlatformOperatorCryptoAsset + OtherLiabilities + GovernmentAssistanceLiability"
     }
+  },
+  "deferred_rent_credit": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "DeferredRentCredit"
+    },
+    "gaap": [
+      "DeferredRentCredit"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_rent_credit_current + deferred_rent_credit_noncurrent"
+    }
+  },
+  "deferred_longterm_liability_charges": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Long-term Liability Charges"
+    },
+    "gaap": [
+      "DeferredLongTermLiabilityCharges"
+    ]
+  },
+  "advance_rent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Advance Rent"
+    },
+    "gaap": [
+      "AdvanceRent"
+    ]
+  },
+  "servicing_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Servicing Liability"
+    },
+    "gaap": [
+      "ServicingLiability"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "servicing_liability_fair_value + servicing_liability_amortized_value"
+    }
+  },
+  "servicing_liability_amortized_value": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Servicing Liability at Amortized Value Balance"
+    },
+    "gaap": [
+      "ServicingLiabilityAtAmortizedValueBalance"
+    ]
+  },
+  "servicing_liability_fair_value": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Servicing Liability at Fair Value Amount"
+    },
+    "gaap": [
+      "ServicingLiabilityAtFairValueAmount"
+    ]
+  },
+  "unearned_premiums": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unearned Premiums"
+    },
+    "gaap": [
+      "UnearnedPremiums"
+    ]
+  },
+  "advance_payments_borrowers_taxes_insurance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Advance Payments by Borrowers for Taxes and Insurance"
+    },
+    "gaap": [
+      "AdvancePaymentsByBorrowersForTaxesAndInsurance"
+    ]
+  },
+  "accrued_environmental_loss_contingencies": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrual for Environmental Loss Contingencies"
+    },
+    "gaap": [
+      "AccrualForEnvironmentalLossContingencies"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "accrued_environmental_loss_contingencies_current + accrued_environmental_loss_contingencies_noncurrent"
+    }
+  },
+  "accrued_liabilities_commissions_expense_taxes": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Liabilities for Commissions Expense and Taxes"
+    },
+    "gaap": [
+      "AccruedLiabilitiesForCommissionsExpenseAndTaxes"
+    ]
+  },
+  "unrecognized_tax_benefits": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unrecognized Tax Benefits"
+    },
+    "gaap": [
+      "UnrecognizedTaxBenefits"
+    ]
+  },
+  "payables_brokes_dealers_clearing_organizations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Payables to Broker Dealers and Clearing Organizations"
+    },
+    "gaap": [
+      "PayablesToBrokerDealersAndClearingOrganizations"
+    ]
+  },
+  "beneficial_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Beneficial Interest"
+    },
+    "gaap": [
+      "BeneficialInterest"
+    ]
+  },
+  "notes_surplus": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Surplus Notes"
+    },
+    "gaap": [
+      "SurplusNotes"
+    ]
+  },
+  "trading_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Trading Liabilities"
+    },
+    "gaap": [
+      "TradingLiabilities"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_fairvalue": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased at Fair Value"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedAtFairValue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "financial_instruments_sold_notyet_purchased_government_obligations + financial_instruments_sold_notyet_purchased_state_obligations + financial_instruments_sold_notyet_purchased_other_sovereign_government_debt + financial_instruments_sold_notyet_purchased_corporate_debt + financial_instruments_sold_notyet_purchased_corporate_equities + financial_instruments_sold_notyet_purchased_physical_commodities + financial_instruments_sold_notyet_purchased_mortgage_backed_asset_backed_securities + financial_instruments_sold_notyet_purchased_derivatives_other_contracts"
+    }
+  },
+  "financial_instruments_sold_notyet_purchased_derivatives_other_contracts": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased Derivatives and Other Contracts"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedDerivativesAndOtherContracts"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_mortgage_backed_asset_backed_securities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased Mortgages, Mortgage-backed and Asset-backed Securities"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedMortgagesMortgageBackedAndAssetBackedSecurities"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_physical_commodities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased Physical Commodities"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedPhysicalCommoditiesSold"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_corporate_equities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased Corporate Equities"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedCorporateEquities"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_corporate_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased Corporate Debt"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedCorporateDebt"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_other_sovereign_government_debt": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased Other Sovereign Government Debt"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedOtherSovereignGovernmentDebt"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_state_obligations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased State and Municipal Obligations"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedStateAndMunicipalGovernmentObligations"
+    ]
+  },
+  "financial_instruments_sold_notyet_purchased_government_obligations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Financial Instruments Sold Not Yet Purchased US Government And Agency Obligations"
+    },
+    "gaap": [
+      "FinancialInstrumentsSoldNotYetPurchasedUSGovernmentAndAgencyObligations"
+    ]
+  },
+  "payables_stock_preferred_redeemed": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Payable Preferred Stock Redeemed"
+    },
+    "gaap": [
+      "PayablePreferredStockRedeemed"
+    ]
+  },
+  "payables_stock_common_redeemed": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Payable Common Stock Redeemed"
+    },
+    "gaap": [
+      "PayableCommonStockRedeemed"
+    ]
+  },
+  "payables_incentive_fee": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Incentive Fee Payable"
+    },
+    "gaap": [
+      "IncentiveFeePayable"
+    ]
+  },
+  "payables_distribution": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Distribution Payable"
+    },
+    "gaap": [
+      "DistributionPayable"
+    ]
+  },
+  "payables_investment_purchase": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Payable Investment Purchase"
+    },
+    "gaap": [
+      "PayableInvestmentPurchase"
+    ]
+  },
+  "bank_acceptances_executed_outstanding": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Bank Acceptances Executed and Outstanding"
+    },
+    "gaap": [
+      "BankAcceptancesExecutedAndOutstanding"
+    ]
+  },
+  "collaterized_financings": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Collateralized Financings"
+    },
+    "gaap": [
+      "CollateralizedFinancings"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "securities_loaned + securities_sold_under_repurchase_agreement + obligation_return_securities_collateral + other_secured_financings"
+    }
+  },
+  "other_secured_financings": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Secured Financings"
+    },
+    "gaap": [
+      "OtherSecuredFinancings"
+    ]
+  },
+  "obligation_return_securities_collateral": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Obligation to Return Securities Received As Collateral"
+    },
+    "gaap": [
+      "ObligationToReturnSecuritiesReceivedAsCollateral"
+    ]
+  },
+  "federal_funds_purchased": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Federal Funds Purchased"
+    },
+    "gaap": [
+      "FederalFundsPurchased"
+    ]
+  },
+  "deposit_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deposit Liabilities"
+    },
+    "gaap": [
+      "Deposits"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deposit_liabilities_retail + deposit_liabilities_wholesale"
+    }
+  },
+  "deposit_liabilities_wholesale": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Wholesale Deposit Liabilities"
+    },
+    "gaap": [
+      "DepositsWholesale"
+    ]
+  },
+  "deposit_liabilities_retail": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Retail Deposit Liabilities"
+    },
+    "gaap": [
+      "DepositsRetail"
+    ]
+  },
+  "policyholder_funds": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Policyholder Funds"
+    },
+    "gaap": [
+      "PolicyholderFunds"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "policyholder_payables_dividends + policyholder_contract_deposits + policyholder_funds_other"
+    }
+  },
+  "policyholder_funds_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Policyholder Funds"
+    },
+    "gaap": [
+      "OtherPolicyholderFunds"
+    ]
+  },
+  "policyholder_contract_deposits": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Policyholder Contract Deposits"
+    },
+    "gaap": [
+      "PolicyholderContractDeposits"
+    ]
+  },
+  "policyholder_payables_dividends": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Policyholder Dividends Payable"
+    },
+    "gaap": [
+      "PolicyholderDividendsPayable"
+    ]
+  },
+  "supplier_finance_program_obligation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Supplier Finance Program Obligation"
+    },
+    "gaap": [
+      "SupplierFinanceProgramObligation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "supplier_finance_program_obligation_current + supplier_finance_program_obligation_noncurrent"
+    }
+  },
+  "supplier_finance_program_obligation_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Supplier Finance Program Obligation"
+    },
+    "gaap": [
+      "SupplierFinanceProgramObligationNoncurrent"
+    ]
+  },
+  "supplier_finance_program_obligation_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Supplier Finance Program Obligation"
+    },
+    "gaap": [
+      "SupplierFinanceProgramObligationCurrent"
+    ]
+  },
+  "liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefits and Unpaid Claims and Claims Adjustment Expense"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefitsAndUnpaidClaimsAndClaimsAdjustmentExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "liability_future_policy_benefits + liability_claims_claims_adjustment_expense + guaranteed_interest_contracts + payables_reinsurance"
+    }
+  },
+  "payables_reinsurance": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Reinsurance Payable"
+    },
+    "gaap": [
+      "ReinsurancePayable"
+    ]
+  },
+  "guaranteed_interest_contracts": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Guaranteed Interest Contracts"
+    },
+    "gaap": [
+      "GuaranteedInterestContracts"
+    ]
+  },
+  "liability_claims_claims_adjustment_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Unpaid Claims and Claims Adjustment Expense"
+    },
+    "gaap": [
+      "LiabilityForClaimsAndClaimsAdjustmentExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "liability_claims_claims_adjustment_expense_reported_claims + liability_claims_claims_adjustment_expense_incurred_unreported"
+    }
+  },
+  "liability_claims_claims_adjustment_expense_incurred_unreported": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Unpaid Claims and Adjustment Expense Incurred but not Reported"
+    },
+    "gaap": [
+      "LiabilityForUnpaidClaimsAndClaimsAdjustmentExpenseIncurredButNotReportedIBNRClaimsAmount"
+    ]
+  },
+  "liability_claims_claims_adjustment_expense_reported_claims": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Unpaid Claims and Adjustment Expense Reported Claims Amount"
+    },
+    "gaap": [
+      "LiabilityForUnpaidClaimsAndClaimsAdjustmentExpenseReportedClaimsAmount"
+    ]
+  },
+  "liability_future_policy_benefits": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefits"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefits"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "liability_future_policy_benefits_life + liability_future_policy_benefits_individual_group_annuities_supplementary_contracts + liability_future_policy_benefits_disability_accident_benefits + liability_future_policy_benefits_other_contracts"
+    }
+  },
+  "liability_future_policy_benefits_other_contracts": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefits Other Contracts"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefitsOtherContracts"
+    ]
+  },
+  "liability_future_policy_benefits_disability_accident_benefits": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefits Disability and Accident"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefitsDisabilityAndAccidentBenefits"
+    ]
+  },
+  "liability_future_policy_benefits_individual_group_annuities_supplementary_contracts": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefits Individual and Group Annuities and Supplementary Contracts"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefitsIndividualAndGroupAnnuitiesAndSupplementaryContracts"
+    ]
+  },
+  "liability_future_policy_benefits_life": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Liability for Future Policy Benefits Life"
+    },
+    "gaap": [
+      "LiabilityForFuturePolicyBenefitsLife"
+    ]
+  },
+  "affordable_housing_program_obligation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Affordable Housing Program Obligation"
+    },
+    "gaap": [
+      "AffordableHousingProgramObligation"
+    ]
+  },
+  "operating_lease_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Operating Lease Liability"
+    },
+    "gaap": [
+      "OperatingLeaseLiability"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "operating_lease_liability_current + operating_lease_liability_noncurrent"
+    }
+  },
+  "operating_lease_liability_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Operating Lease Liability"
+    },
+    "gaap": [
+      "OperatingLeaseLiabilityCurrent"
+    ]
   },
   "liabilities_business_transferred_under_contractual_arrangement_current": {
     "unit": "monetary",
@@ -21659,7 +22397,7 @@
     ],
     "calculation": {
       "order": 667,
-      "any": "payable_notes_longterm + payable_loans_longterm"
+      "any": "payables_notes_longterm + payables_loans_longterm"
     }
   },
   "loss_catastrophes": {
@@ -23150,10 +23888,10 @@
     ],
     "calculation": {
       "order": 2297,
-      "all": "payable_current + payable_noncurrent"
+      "all": "payables_current + payables_noncurrent"
     }
   },
-  "payable_benefits_postretirement_other_current": {
+  "payables_benefits_postretirement_other_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23164,7 +23902,7 @@
       "OtherPostretirementBenefitsPayableCurrent"
     ]
   },
-  "payable_benefits_postretirement_other_noncurrent": {
+  "payables_benefits_postretirement_other_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23175,7 +23913,7 @@
       "OtherPostretirementBenefitsPayableNoncurrent"
     ]
   },
-  "payable_bulk_invoices_current": {
+  "payables_bulk_invoices_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23186,7 +23924,7 @@
       "AccountsPayableBulkInvoicesCurrent"
     ]
   },
-  "payable_construction_current": {
+  "payables_construction_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23197,7 +23935,7 @@
       "ConstructionPayableCurrent"
     ]
   },
-  "payable_current": {
+  "payables_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23209,10 +23947,10 @@
     ],
     "calculation": {
       "order": 610,
-      "any": "payable_trade_current + payable_interest_bearing_current + payable_construction_current + payable_petroleum_sales_current + payable_gas_purchase_current + payable_energy_marketing_current + payable_gas_imbalance_current + payable_underwriters_promoters_employees_otherthan_salaries_wages_current + payable_retention_current + payable_other_current"
+      "any": "payables_trade_current + payables_interest_bearing_current + payables_construction_current + payables_petroleum_sales_current + payables_gas_purchase_current + payables_energy_marketing_current + payables_gas_imbalance_current + payables_underwriters_promoters_employees_otherthan_salaries_wages_current + payables_retention_current + payables_other_current"
     }
   },
-  "payable_debt_equity_issuance_cost": {
+  "payables_debt_equity_issuance_cost": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23223,7 +23961,7 @@
       "AccountsPayableForDebtAndEquityIssuanceCosts"
     ]
   },
-  "payable_dividend": {
+  "payables_dividend": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23237,10 +23975,10 @@
     ],
     "calculation": {
       "order": 2301,
-      "all": "payable_dividend_current + payable_dividend_noncurrent"
+      "all": "payables_dividend_current + payables_dividend_noncurrent"
     }
   },
-  "payable_dividend_current": {
+  "payables_dividend_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23252,7 +23990,7 @@
       "DividendsPayableCurrent"
     ]
   },
-  "payable_dividend_noncurrent": {
+  "payables_dividend_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23263,7 +24001,7 @@
       "DividendsPayableNoncurrent"
     ]
   },
-  "payable_energy_marketing_current": {
+  "payables_energy_marketing_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23274,7 +24012,7 @@
       "EnergyMarketingAccountsPayable"
     ]
   },
-  "payable_equity_issuance_cost": {
+  "payables_equity_issuance_cost": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23285,7 +24023,7 @@
       "AccountsPayableForEquityIssuanceCosts"
     ]
   },
-  "payable_gas_imbalance_current": {
+  "payables_gas_imbalance_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23296,7 +24034,7 @@
       "GasImbalancePayableCurrent"
     ]
   },
-  "payable_gas_purchase_current": {
+  "payables_gas_purchase_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23307,7 +24045,7 @@
       "GasPurchasePayableCurrent"
     ]
   },
-  "payable_interest": {
+  "payables_interest": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23319,10 +24057,10 @@
     ],
     "calculation": {
       "order": 2304,
-      "any": "payable_interest_current + payable_interest_noncurrent"
+      "any": "payables_interest_current + payables_interest_noncurrent"
     }
   },
-  "payable_interest_bearing_current": {
+  "payables_interest_bearing_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23333,7 +24071,7 @@
       "AccountsPayableInterestBearingCurrent"
     ]
   },
-  "payable_interest_bearing_noncurrent": {
+  "payables_interest_bearing_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23344,7 +24082,7 @@
       "AccountsPayableInterestBearingNoncurrent"
     ]
   },
-  "payable_interest_current": {
+  "payables_interest_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23355,7 +24093,7 @@
       "InterestPayableCurrent"
     ]
   },
-  "payable_interest_noncurrent": {
+  "payables_interest_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23366,7 +24104,7 @@
       "InterestPayableNoncurrent"
     ]
   },
-  "payable_lease_incentive_current": {
+  "payables_lease_incentive_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23377,7 +24115,7 @@
       "LeaseIncentivePayableCurrent"
     ]
   },
-  "payable_loans_bank_current": {
+  "payables_loans_bank_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23388,7 +24126,7 @@
       "LoansPayableToBankCurrent"
     ]
   },
-  "payable_loans_current": {
+  "payables_loans_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23400,10 +24138,10 @@
     ],
     "calculation": {
       "order": 552,
-      "any": "payable_loans_bank_current + payable_loans_other_current"
+      "any": "payables_loans_bank_current + payables_loans_other_current"
     }
   },
-  "payable_loans_longterm": {
+  "payables_loans_longterm": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23415,10 +24153,10 @@
     ],
     "calculation": {
       "order": 665,
-      "any": "loans_longterm_bank + payable_loans_other_longterm"
+      "any": "loans_longterm_bank + payables_loans_other_longterm"
     }
   },
-  "payable_loans_other_current": {
+  "payables_loans_other_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23429,7 +24167,7 @@
       "OtherLoansPayableCurrent"
     ]
   },
-  "payable_loans_other_longterm": {
+  "payables_loans_other_longterm": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23440,7 +24178,7 @@
       "OtherLoansPayableLongTerm"
     ]
   },
-  "payable_noncurrent": {
+  "payables_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23451,7 +24189,7 @@
       "NoncurrentPayables"
     ]
   },
-  "payable_notes": {
+  "payables_notes": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23465,10 +24203,10 @@
     ],
     "calculation": {
       "order": 2310,
-      "all": "payable_notes_current + payable_notes_noncurrent"
+      "all": "payables_notes_current + payables_notes_noncurrent"
     }
   },
-  "payable_notes_bank_current": {
+  "payables_notes_bank_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23479,7 +24217,7 @@
       "NotesPayableToBankCurrent"
     ]
   },
-  "payable_notes_bank_noncurrent": {
+  "payables_notes_bank_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23490,7 +24228,7 @@
       "NotesPayableToBankNoncurrent"
     ]
   },
-  "payable_notes_convertible": {
+  "payables_notes_convertible": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23502,10 +24240,10 @@
     ],
     "calculation": {
       "order": 2312,
-      "all": "payable_notes_convertible_current + payable_notes_convertible_noncurrent"
+      "all": "payables_notes_convertible_current + payables_notes_convertible_noncurrent"
     }
   },
-  "payable_notes_convertible_current": {
+  "payables_notes_convertible_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23517,7 +24255,7 @@
       "ConvertibleNotesPayableCurrentNet"
     ]
   },
-  "payable_notes_convertible_longterm": {
+  "payables_notes_convertible_longterm": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23528,7 +24266,7 @@
       "ConvertibleLongTermNotesPayable"
     ]
   },
-  "payable_notes_convertible_noncurrent": {
+  "payables_notes_convertible_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23539,7 +24277,7 @@
       "ConvertibleNotesPayableNoncurrentNet"
     ]
   },
-  "payable_notes_current": {
+  "payables_notes_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23552,10 +24290,10 @@
     ],
     "calculation": {
       "order": 559,
-      "any": "notes_mediumterm_current + notes_junior_subordinated_current + notes_senior_current + payable_notes_convertible_current + payable_notes_bank_current + payable_notes_other_current"
+      "any": "notes_mediumterm_current + notes_junior_subordinated_current + notes_senior_current + payables_notes_convertible_current + payables_notes_bank_current + payables_notes_other_current"
     }
   },
-  "payable_notes_loans_current": {
+  "payables_notes_loans_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23567,10 +24305,10 @@
     ],
     "calculation": {
       "order": 560,
-      "any": "payable_notes_current + payable_loans_current"
+      "any": "payables_notes_current + payables_loans_current"
     }
   },
-  "payable_notes_noncurrent": {
+  "payables_notes_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23583,10 +24321,10 @@
     ],
     "calculation": {
       "order": 2309,
-      "any": "notes_mediumterm_noncurrent + notes_junior_subordinated_longterm + notes_senior_longterm + payable_notes_convertible_longterm + payable_notes_bank_noncurrent + payable_notes_other_longterm"
+      "any": "notes_mediumterm_noncurrent + notes_junior_subordinated_longterm + notes_senior_longterm + payables_notes_convertible_longterm + payables_notes_bank_noncurrent + payables_notes_other_longterm"
     }
   },
-  "payable_notes_other": {
+  "payables_notes_other": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23598,10 +24336,10 @@
     ],
     "calculation": {
       "order": 2314,
-      "all": "payable_notes_other_current + payable_notes_other_noncurrent"
+      "all": "payables_notes_other_current + payables_notes_other_noncurrent"
     }
   },
-  "payable_notes_other_current": {
+  "payables_notes_other_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23612,7 +24350,7 @@
       "OtherNotesPayableCurrent"
     ]
   },
-  "payable_notes_other_longterm": {
+  "payables_notes_other_longterm": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23623,7 +24361,7 @@
       "OtherLongTermNotesPayable"
     ]
   },
-  "payable_notes_related_parties_current": {
+  "payables_notes_related_parties_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23634,7 +24372,7 @@
       "NotesPayableRelatedPartiesClassifiedCurrent"
     ]
   },
-  "payable_notes_related_parties_noncurrent": {
+  "payables_notes_related_parties_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23645,7 +24383,7 @@
       "NotesPayableRelatedPartiesNoncurrent"
     ]
   },
-  "payable_other": {
+  "payables_other": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23657,10 +24395,10 @@
     ],
     "calculation": {
       "order": 2316,
-      "all": "payable_other_current + payable_other_noncurrent"
+      "all": "payables_other_current + payables_other_noncurrent"
     }
   },
-  "payable_other_current": {
+  "payables_other_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23672,7 +24410,7 @@
       "AccountsPayableOtherCurrent"
     ]
   },
-  "payable_other_noncurrent": {
+  "payables_other_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23683,7 +24421,7 @@
       "OtherNoncurrentPayables"
     ]
   },
-  "payable_petroleum_sales_current": {
+  "payables_petroleum_sales_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23694,7 +24432,7 @@
       "OilAndGasSalesPayableCurrent"
     ]
   },
-  "payable_production_supplies_current": {
+  "payables_production_supplies_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23705,7 +24443,7 @@
       "AccountsPayableProductionSuppliesCurrent"
     ]
   },
-  "payable_related_parties": {
+  "payables_trade_related_parties": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23717,33 +24455,10 @@
     ],
     "calculation": {
       "order": 2320,
-      "all": "payable_related_parties_current + payables_related_parties_noncurrent"
+      "all": "payables_trade_related_parties_current + payables_trade_related_parties_noncurrent"
     }
   },
-  "payable_related_parties_current": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Current Payables to Related Parties"
-    },
-    "gaap": [
-      "AccountsPayableRelatedPartiesCurrent"
-    ]
-  },
-  "payable_related_parties_noncurrent": {
-    "unit": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Non-current Payables to Related Parties"
-    },
-    "gaap": [
-      "AccountsPayableRelatedPartiesNoncurrent",
-      "NoncurrentPayablesToRelatedParties"
-    ]
-  },
-  "payable_retention_current": {
+  "payables_retention_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23754,7 +24469,7 @@
       "RetentionPayableDueOneYearOrLess"
     ]
   },
-  "payable_retention_due_1_to_2_years": {
+  "payables_retention_due_1_to_2_years": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23765,7 +24480,7 @@
       "RetentionPayableDueTwoToThreeYears"
     ]
   },
-  "payable_retention_due_2_to_3_years": {
+  "payables_retention_due_2_to_3_years": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23776,7 +24491,7 @@
       "RetentionPayableDueTwoToThreeYears"
     ]
   },
-  "payable_retention_due_3_to_4_years": {
+  "payables_retention_due_3_to_4_years": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23787,7 +24502,7 @@
       "RetentionPayableDueThreeToFourYears"
     ]
   },
-  "payable_retention_due_4_to_5_years": {
+  "payables_retention_due_4_to_5_years": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23798,7 +24513,7 @@
       "RetentionPayableDueFourToFiveYears"
     ]
   },
-  "payable_retention_due_above_5_years": {
+  "payables_retention_due_above_5_years": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23809,7 +24524,7 @@
       "RetentionPayableDueFiveYearsOrMore"
     ]
   },
-  "payable_retention_noncurrent": {
+  "payables_retention_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23821,10 +24536,10 @@
     ],
     "calculation": {
       "order": 2327,
-      "any": "payable_retention_due_1_to_2_years + payable_retention_due_2_to_3_years + payable_retention_due_3_to_4_years + payable_retention_due_4_to_5_years + payable_retention_due_above_5_years"
+      "any": "payables_retention_due_1_to_2_years + payables_retention_due_2_to_3_years + payables_retention_due_3_to_4_years + payables_retention_due_4_to_5_years + payables_retention_due_above_5_years"
     }
   },
-  "payable_tax_current": {
+  "payables_tax_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23837,10 +24552,10 @@
     ],
     "calculation": {
       "order": 49,
-      "any": "payable_tax_sales_excise_current + accrued_tax_income_current + accrued_tax_other_current"
+      "any": "payables_tax_sales_excise_current + accrued_tax_income_current + accrued_tax_other_current"
     }
   },
-  "payable_tax_sales_excise_current": {
+  "payables_tax_sales_excise_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23851,7 +24566,7 @@
       "SalesAndExciseTaxPayableCurrent"
     ]
   },
-  "payable_trade": {
+  "payables_trade": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23863,10 +24578,10 @@
     ],
     "calculation": {
       "order": 1877,
-      "all": "payable_trade_current + payable_trade_noncurrent"
+      "all": "payables_trade_current + payables_trade_noncurrent"
     }
   },
-  "payable_trade_current": {
+  "payables_trade_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23878,7 +24593,7 @@
       "CurrentPayablesToCustomers"
     ]
   },
-  "payable_trade_noncurrent": {
+  "payables_trade_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23890,7 +24605,7 @@
       "NoncurrentPayablesToTradeSuppliers"
     ]
   },
-  "payable_trade_related_parties_current": {
+  "payables_trade_related_parties_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23901,7 +24616,7 @@
       "AccountsPayableRelatedPartiesCurrent"
     ]
   },
-  "payable_trade_related_parties_noncurrent": {
+  "payables_trade_related_parties_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23912,7 +24627,7 @@
       "AccountsPayableRelatedPartiesNoncurrent"
     ]
   },
-  "payable_underwriters_promoters_employees_otherthan_salaries_wages_current": {
+  "payables_underwriters_promoters_employees_otherthan_salaries_wages_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -23951,7 +24666,7 @@
     ],
     "calculation": {
       "order": 611,
-      "all": "payable_current + accrued_expenses_current"
+      "all": "payables_current + accrued_expenses_current"
     }
   },
   "payables_accrued_expenses_noncurrent": {
@@ -34828,7 +35543,7 @@
       "any": "securities_marketable_noncurrent + securities_fvni_noncurrent + securities_fvoci_noncurrent + securities_amortized_noncurrent + securities_auctionrate_noncurrent"
     }
   },
-  "securities_repurchase_agreement": {
+  "securities_sold_under_repurchase_agreement": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -34840,10 +35555,10 @@
     ],
     "calculation": {
       "order": 577,
-      "any": "securities_repurchase_agreement_subjectto_master_netting_arrangement + securities_repurchase_agreement_notsubjectto_master_netting_arrangement"
+      "any": "securities_sold_under_repurchase_agreement_with_master_netting_arrangement + securities_sold_under_repurchase_agreement_without_master_netting_arrangement"
     }
   },
-  "securities_repurchase_agreement_asset": {
+  "securities_sold_under_repurchase_agreement_asset": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -34854,7 +35569,7 @@
       "SecuritiesSoldUnderAgreementsToRepurchaseAsset"
     ]
   },
-  "securities_repurchase_agreement_gross": {
+  "securities_sold_under_repurchase_agreement_gross": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -34865,7 +35580,7 @@
       "SecuritiesSoldUnderAgreementsToRepurchaseGross"
     ]
   },
-  "securities_repurchase_agreement_notsubjectto_master_netting_arrangement": {
+  "securities_sold_under_repurchase_agreement_without_master_netting_arrangement": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -34876,7 +35591,7 @@
       "SecuritiesSoldUnderAgreementsToRepurchaseNotSubjectToMasterNettingArrangement"
     ]
   },
-  "securities_repurchase_agreement_subjectto_master_netting_arrangement": {
+  "securities_sold_under_repurchase_agreement_with_master_netting_arrangement": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -34888,7 +35603,7 @@
     ],
     "calculation": {
       "order": 576,
-      "any": "securities_repurchase_agreement_gross - securities_repurchase_agreement_asset"
+      "any": "securities_sold_under_repurchase_agreement_gross - securities_sold_under_repurchase_agreement_asset"
     }
   },
   "securitized_regulatory_transition_assets_noncurrent": {
