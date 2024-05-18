@@ -2774,10 +2774,795 @@
     ],
     "calculation": {
       "order": 539,
-      "": "DeferredTaxAssetsLiabilitiesNet + DeferredFinanceCostsNet + DeferredCostsLeasingNet",
+      "": "DeferredTaxAssetsLiabilitiesNet",
       "all": "assets_current + assets_noncurrent",
-      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loans_collateral + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease + receivables + receivables_related_parties + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + property_plant_equipment + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_income_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets + lease_assets_finance + lease_assets_operating + goodwill_intangible_assets + deferred_costs + hosting_arrangement_service_contract_implementation_cost_capitalized + other_interest_earning_assets + assets_heldintrust + receivables_deferred_rent + disposal_assets + assets_heldforsale + deposit_assets + assets_under_management + indemnification_asset + recorded_third_party_environmental_recoveries + business_combination_contingent_asset + costs_excess_billings_uncomplete_contracts_programs + investment_qualified_affordable_housing_project + debt_issuance_costs_credit_line_arrangements + healthcare_organization_trade_receivables_third_party_payor_retroactive_adjustments + safeguarding_asset_platform_operator_crypto_asset + defined_benefit_plan_assets + prepaid_pension_costs + prepaid_expense_other_assets + other_assets_miscellaneous + securities_debt + cumulative_government_assistance",
+      "any": "cash_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_lease_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loans_collateral + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivable_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease + receivables + receivables_related_parties + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + property_plant_equipment + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_tax_assets_liabilities + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivable_reported_amount + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets + lease_assets_finance + lease_assets_operating + goodwill_intangible_assets + deferred_costs + hosting_arrangement_service_contract_implementation_cost_capitalized + other_interest_earning_assets + assets_heldintrust + receivables_deferred_rent + disposal_assets + assets_heldforsale + deposit_assets + assets_under_management + indemnification_asset + recorded_third_party_environmental_recoveries + business_combination_contingent_asset + costs_excess_billings_uncomplete_contracts_programs + investment_qualified_affordable_housing_project + debt_issuance_costs_credit_line_arrangements + healthcare_organization_trade_receivables_third_party_payor_retroactive_adjustments + safeguarding_asset_platform_operator_crypto_asset + defined_benefit_plan_assets + prepaid_pension_costs + prepaid_expense_other_assets + other_assets_miscellaneous + securities_debt + cumulative_government_assistance",
     }
+  },
+  "deferred_tax_assets_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Deferred Tax Assets"
+    },
+    "gaap": [
+      "DeferredTaxAssetsGross"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "deferred_tax_assets_current_gross + deferred_tax_assets_noncurrent_gross",
+      "any": "deferred_tax_assets_carryforwards_operating_loss + deferred_tax_assets_carryforwards_tax_credit + deferred_tax_assets_carryforwards_charitable_contribution + deferred_tax_assets_carryforwards_capital_loss + deferred_tax_assets_carryforwards_other_loss + deferred_tax_assets_carryforwards_other + deferred_tax_assets_deferred_expense + deferred_tax_assets_hedging_transactions + deferred_tax_assets_derivative_instruments + deferred_tax_assets_inventory + deferred_tax_assets_unrealized_loss_securities_heldfortrading + deferred_tax_assets_unrealized_loss_securities_availableforsale + deferred_tax_assets_regulatory_assets_liabilities + deferred_tax_assets_inprocess_research_development + deferred_tax_assets_deferred_income + deferred_tax_assets_unrealized_loss_currency + deferred_tax_assets_other_comprehensive_loss + deferred_tax_assets_deferred_gain_sale_leaseback_transaction + deferred_tax_assets_investment_subsidiaries + deferred_tax_assets_equity_method_investments + deferred_tax_assets_parents_basis_discontinued_operation + deferred_tax_assets_intra_entity_transfer_asset + deferred_tax_assets_other + deferred_tax_assets_frequent_flier_liability + deferred_tax_assets_carryforwards_interests + deferred_tax_assets_state_taxes + deferred_tax_assets_goodwill_intangible_assets + deferred_tax_assets_investments + deferred_tax_assets_property_plant_equipment"
+    }
+  },
+  "deferred_tax_assets_property_plant_equipment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Property Plant and Equipment"
+    },
+    "gaap": [
+      "DeferredTaxAssetsPropertyPlantAndEquipment"
+    ]
+  },
+  "deferred_tax_assets_investments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Investments"
+    },
+    "gaap": [
+      "DeferredTaxAssetsInvestments"
+    ]
+  },
+  "deferred_tax_assets_goodwill_intangible_assets": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Goodwill and Intangible Assets"
+    },
+    "gaap": [
+      "DeferredTaxAssetsGoodwillAndIntangibleAssets"
+    ]
+  },
+  "deferred_tax_assets_state_taxes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets State Taxes"
+    },
+    "gaap": [
+      "DeferredTaxAssetsStateTaxes"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_interests": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Interest Carryforward"
+    },
+    "gaap": [
+      "DeferredTaxAssetInterestCarryforward"
+    ]
+  },
+  "deferred_tax_assets_frequent_flier_liability": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Frequent Flier Liability"
+    },
+    "gaap": [
+      "DeferredTaxAssetsFrequentFlierLiability"
+    ]
+  },
+  "deferred_tax_assets_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Deferred Tax Assets"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOther"
+    ]
+  },
+  "deferred_tax_assets_intra_entity_transfer_asset": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Intra Entity Transfer Asset other than Inventory"
+    },
+    "gaap": [
+      "DeferredTaxAssetIntraEntityTransferAssetOtherThanInventory"
+    ]
+  },
+  "deferred_tax_assets_parents_basis_discontinued_operation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Parents Basis in Discontinued Operation"
+    },
+    "gaap": [
+      "DeferredTaxAssetParentsBasisInDiscontinuedOperation"
+    ]
+  },
+  "deferred_tax_assets_equity_method_investments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Equity Method Investments"
+    },
+    "gaap": [
+      "DeferredTaxAssetsEquityMethodInvestments"
+    ]
+  },
+  "deferred_tax_assets_investment_subsidiaries": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Investment in Subsidiaries"
+    },
+    "gaap": [
+      "DeferredTaxAssetsInvestmentInSubsidiaries"
+    ]
+  },
+  "deferred_tax_assets_deferred_gain_sale_leaseback_transaction": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Deferred Gain on Sale Leaseback Transaction"
+    },
+    "gaap": [
+      "DeferredTaxAssetsDeferredGainOnSaleLeasebackTransaction"
+    ]
+  },
+  "deferred_tax_assets_other_comprehensive_loss": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Other Comprehensive Losses"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOtherComprehensiveLoss"
+    ]
+  },
+  "deferred_tax_assets_unrealized_loss_currency": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Unrealized Currency Losses"
+    },
+    "gaap": [
+      "DeferredTaxAssetsUnrealizedCurrencyLosses"
+    ]
+  },
+  "deferred_tax_assets_deferred_income": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Deferred Income"
+    },
+    "gaap": [
+      "DeferredTaxAssetsDeferredIncome"
+    ]
+  },
+  "deferred_tax_assets_inprocess_research_development": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets In Process Research and Development"
+    },
+    "gaap": [
+      "DeferredTaxAssetsInProcessResearchAndDevelopment"
+    ]
+  },
+  "deferred_tax_assets_regulatory_assets_liabilities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Regulatory Assets and Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxAssetsRegulatoryAssetsAndLiabilities"
+    ]
+  },
+  "deferred_tax_assets_unrealized_loss_securities_availableforsale": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Unrealized Loss on Available-for-Sale Securities"
+    },
+    "gaap": [
+      "DeferredTaxAssetsUnrealizedLossesOnAvailableforSaleSecuritiesGross"
+    ]
+  },
+  "deferred_tax_assets_unrealized_loss_securities_heldfortrading": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Unrealized Loss on Trading Securities"
+    },
+    "gaap": [
+      "DeferredTaxAssetsUnrealizedLossesOnTradingSecurities"
+    ]
+  },
+  "deferred_tax_assets_inventory": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Inventory"
+    },
+    "gaap": [
+      "DeferredTaxAssetsInventory"
+    ]
+  },
+  "deferred_tax_assets_derivative_instruments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Hedging Transactions"
+    },
+    "gaap": [
+      "DeferredTaxAssetsDerivativeInstruments"
+    ]
+  },
+  "deferred_tax_assets_hedging_transactions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Hedging Transactions"
+    },
+    "gaap": [
+      "DeferredTaxAssetsHedgingTransactions"
+    ]
+  },
+  "deferred_tax_assets_deferred_expense": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Deferred Expense"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_reserves_accruals + deferred_tax_assets_deferred_expense_other + deferred_tax_assets_compensation_benefits"
+    }
+  },
+  "deferred_tax_assets_compensation_benefits": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Compensation and Benefits"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefits"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_postretirement_benefits + deferred_tax_assets_pensions + deferred_tax_assets_sharebased_compensation_cost + deferred_tax_assets_employee_compensation + deferred_tax_assets_employee_bonuses + deferred_tax_assets_severance_payments + deferred_tax_assets_compensated_absences + deferred_tax_assets_employee_benefits + deferred_tax_assets_compensation_benefits_other"
+    }
+  },
+  "deferred_tax_assets_compensation_benefits_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Other Compensation and Benefits"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsOther"
+    ]
+  },
+  "deferred_tax_assets_employee_benefits": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Employee Benefits"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsEmployeeBenefits"
+    ]
+  },
+  "deferred_tax_assets_compensated_absences": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Compensated Absences"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsCompensatedAbsences"
+    ]
+  },
+  "deferred_tax_assets_severance_payments": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Severance Payments"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsSeverancePayments"
+    ]
+  },
+  "deferred_tax_assets_employee_bonuses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Employee Bonuses"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsEmployeeBonuses"
+    ]
+  },
+  "deferred_tax_assets_employee_compensation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Employee Compensation"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsEmployeeCompensation"
+    ]
+  },
+  "deferred_tax_assets_sharebased_compensation_cost": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Share-based Compensation Cost"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsShareBasedCompensationCost"
+    ]
+  },
+  "deferred_tax_assets_pensions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Pensions"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsPensions"
+    ]
+  },
+  "deferred_tax_assets_postretirement_benefits": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Postretirement Benefits"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseCompensationAndBenefitsPostretirementBenefits"
+    ]
+  },
+  "deferred_tax_assets_deferred_expense_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Other Deferred Expense"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseOther"
+    ]
+  },
+  "deferred_tax_assets_reserves_accruals": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Deferred Expense Reserves and Accruals"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccruals"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_allowance_doubtful_accounts + deferred_tax_assets_provision_loan_losses + deferred_tax_assets_unearned_premiums_reserve + deferred_tax_assets_loss_reserves + deferred_tax_assets_returns_allowances + deferred_tax_assets_warranty_reserves + deferred_tax_assets_contingencies + deferred_tax_assets_self_insurance + deferred_tax_assets_legal_settlements + deferred_tax_assets_impairment_losses + deferred_tax_assets_restructuring_charges + deferred_tax_assets_asset_retirement_obligations + deferred_tax_assets_deferred_rent + deferred_tax_assets_reserves + deferred_tax_assets_accrued_liabilities + deferred_tax_assets_policyholder_liabilities + deferred_tax_assets_reserves_accruals_other"
+    }
+  },
+  "deferred_tax_assets_reserves_accruals_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Other Reserves and Accruals"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsOther"
+    ]
+  },
+  "deferred_tax_assets_policyholder_liabilities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Policyholder Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsPolicyholderLiabilities"
+    ]
+  },
+  "deferred_tax_assets_accrued_liabilities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Accrued Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsAccruedLiabilities"
+    ]
+  },
+  "deferred_tax_assets_reserves": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Reserves"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsReserves"
+    ]
+  },
+  "deferred_tax_assets_deferred_rent": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Deferred Rent"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsDeferredRent"
+    ]
+  },
+  "deferred_tax_assets_asset_retirement_obligations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Asset Retirement Obligations"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsAssetRetirementObligations"
+    ]
+  },
+  "deferred_tax_assets_restructuring_charges": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Restructuring Charges"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsRestructuringCharges"
+    ]
+  },
+  "deferred_tax_assets_impairment_losses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Impairment Losses"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsImpairmentLosses"
+    ]
+  },
+  "deferred_tax_assets_legal_settlements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Legal Settlements"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsLegalSettlements"
+    ]
+  },
+  "deferred_tax_assets_self_insurance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Self Insurance"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsSelfInsurance"
+    ]
+  },
+  "deferred_tax_assets_contingencies": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Contingencies"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsContingencies"
+    ]
+  },
+  "deferred_tax_assets_warranty_reserves": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Warranty Reserves"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsWarrantyReserves"
+    ]
+  },
+  "deferred_tax_assets_returns_allowances": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Returns and Allowances"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsReturnsAndAllowances"
+    ]
+  },
+  "deferred_tax_assets_loss_reserves": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Loss Reserves"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsLossReserves"
+    ]
+  },
+  "deferred_tax_assets_unearned_premiums_reserve": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Unearned Premiums Reserve"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsUnearnedPremiumsReserve"
+    ]
+  },
+  "deferred_tax_assets_provision_loan_losses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Provision for Loan Losses"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsProvisionForLoanLosses"
+    ]
+  },
+  "deferred_tax_assets_allowance_doubtful_accounts": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Allowance for Doubtful Accounts"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxDeferredExpenseReservesAndAccrualsAllowanceForDoubtfulAccounts"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Other Carryforwards"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOtherTaxCarryforwards"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_other_loss": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Other Loss Carryforwards"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOtherLossCarryforwards"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_capital_loss": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Capital Loss Carryforwards"
+    },
+    "gaap": [
+      "DeferredTaxAssetsCapitalLossCarryforwards"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_charitable_contribution": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Charitable Contribution Carryforwards"
+    },
+    "gaap": [
+      "DeferredTaxAssetsCharitableContributionCarryforwards"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_tax_credit": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Tax Credit Carryforwards"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxCreditCarryforwards"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_assets_carryforwards_tax_credit_research + deferred_tax_assets_carryforwards_tax_credit_foreign + deferred_tax_assets_carryforwards_tax_credit_general_business + deferred_tax_assets_carryforwards_tax_credit_alternative_minimum_tax + deferred_tax_assets_carryforwards_tax_credit_other"
+    }
+  },
+  "deferred_tax_assets_carryforwards_tax_credit_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Tax Credit Carryforwards Other"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxCreditCarryforwardsOther"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_tax_credit_alternative_minimum_tax": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Tax Credit Carryforwards Alternative Minimum Tax"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxCreditCarryforwardsAlternativeMinimumTax"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_tax_credit_general_business": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Tax Credit Carryforwards General Business"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxCreditCarryforwardsGeneralBusiness"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_tax_credit_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Tax Credit Carryforwards Foreign"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxCreditCarryforwardsForeign"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_tax_credit_research": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Tax Credit Carryforwards Research"
+    },
+    "gaap": [
+      "DeferredTaxAssetsTaxCreditCarryforwardsResearch"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_operating_loss": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Operating Loss Carryforwards"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOperatingLossCarryforwards"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "deferred_tax_assets_carryforwards_operating_loss_with_expiration + deferred_tax_assets_carryforwards_operating_loss_without_expiration",
+      "any": "deferred_tax_assets_carryforwards_operating_loss_domestic + deferred_tax_assets_carryforwards_operating_loss_foreign + deferred_tax_assets_carryforwards_operating_loss_local"
+    }
+  },
+  "deferred_tax_assets_carryforwards_operating_loss_local": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Operating Loss Carryforwards State and Local"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOperatingLossCarryforwardsStateAndLocal"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_operating_loss_foreign": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Operating Loss Carryforwards Foreign"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOperatingLossCarryforwardsForeign"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_operating_loss_domestic": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Operating Loss Carryforwards Domestic"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOperatingLossCarryforwardsDomestic"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_operating_loss_without_expiration": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Operating Loss Carryforwards not Subject to Expiration"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOperatingLossCarryforwardsNotSubjectToExpiration"
+    ]
+  },
+  "deferred_tax_assets_carryforwards_operating_loss_with_expiration": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Tax Assets Operating Loss Carryforwards Subject to Expiration"
+    },
+    "gaap": [
+      "DeferredTaxAssetsOperatingLossCarryforwardsSubjectToExpiration"
+    ]
   },
   "defined_benefit_plan_assets": {
     "unit": "monetary",
@@ -3321,7 +4106,65 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "deferred_costs_current + deferred_costs_noncurrent"
+      "all": "deferred_costs_current + deferred_costs_noncurrent",
+      "any": "deferred_costs_finance + deferred_costs_policy_acquisition + deferred_costs_leasing + lessee_incentive + deferred_sales_commission"
+    }
+  },
+  "deferred_costs_policy_acquisition": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Policy Acquisition Costs"
+    },
+    "gaap": [
+      "DeferredPolicyAcquisitionCosts",
+      "DeferredPolicyAcquisitionCostsNet"
+    ]
+  },
+  "deferred_costs_finance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Net Deferred Finance Costs"
+    },
+    "gaap": [
+      "DeferredFinanceCostsNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_costs_finance_gross - deferred_costs_finance_accumulated_amortization"
+    }
+  },
+  "deferred_costs_finance_accumulated_amortization": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Finance Costs Accumulated Amortization"
+    },
+    "gaap": [
+      "AccumulatedAmortizationDeferredFinanceCosts"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_costs_finance_current_accumulated_amortization + deferred_costs_finance_noncurrent_accumulated_amortization"
+    }
+  },
+  "deferred_costs_finance_gross": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Gross Deferred Finance Costs"
+    },
+    "gaap": [
+      "DeferredFinanceCostsGross"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_costs_finance_current_gross + deferred_costs_finance_noncurrent_gross"
     }
   },
   "prepaid_expense": {
@@ -4597,7 +5440,7 @@
       "any": "land_available_for_sale"
     }
   },
-  "deferred_income_tax_assets": {
+  "deferred_tax_assets_liabilities": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -4605,10 +5448,12 @@
       "long": "Deferred Income Tax Assets Net"
     },
     "gaap": [
-      "DeferredIncomeTaxAssetsNet"
+      "DeferredIncomeTaxAssetsNet",
+      "DeferredTaxAssetsLiabilitiesNet"
     ],
     "calculation": {
       "order": 0,
+      "all": "deferred_tax_assets - deferred_tax_liabilities","DeferredTaxAssetsNet - DeferredIncomeTaxLiabilities",
       "any": "deferred_tax_assets_liabilities_current + deferred_tax_assets_liabilities_noncurrent"
     }
   },
@@ -10160,7 +11005,7 @@
       "any": "deferred_costs_finance_current + deferred_costs_leasing_current + deferred_costs_fuel + deferred_storm_property_reserve_deficiency_current + deferred_costs_setup_current + deferred_costs_subscriber_acquisition_current + deferred_costs_other_current + deferred_costs_offering"
     }
   },
-  "deferred_costs_current_accumulated_amortization": {
+  "deferred_costs_finance_current_accumulated_amortization": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -10183,7 +11028,7 @@
     ],
     "calculation": {
       "order": 271,
-      "any": "deferred_costs_finance_current_gross - deferred_costs_current_accumulated_amortization"
+      "any": "deferred_costs_finance_current_gross - deferred_costs_finance_current_accumulated_amortization"
     }
   },
   "deferred_costs_finance_current_gross": {
@@ -10796,16 +11641,405 @@
       "DeferredTaxExpenseFromStockOptionsExercised"
     ]
   },
+  "deferred_tax_liabilities_gross": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities"
+    },
+    "gaap": [
+      "DeferredIncomeTaxLiabilities"
+    ],
+    "calculation": {
+      "order": 1937,
+      "all": "deferred_tax_liabilities_current_gross + deferred_tax_liabilities_noncurrent_gross",
+      "any": "deferred_tax_liabilities_property_plant_equipment + deferred_tax_liabilities_prepaid_expenses + deferred_tax_liabilities_capitalized_inventory_cost + deferred_tax_liabilities_goodwill_intangible_assets + deferred_tax_liabilities_other_finitelived_assets + deferred_tax_liabilities_regulatory_assets_liabilities + deferred_tax_liabilities_unrealized_gains_trading_securities + deferred_tax_liabilities_unrealized_gains_currency_transactions + deferred_tax_liabilities_other_comprehensive_income + deferred_tax_liabilities_mortgage_servicing_rights + deferred_tax_liabilities_derivatives + deferred_tax_liabilities_zero_coupon_notes + deferred_tax_liabilities_interests_financial_assets + deferred_tax_liabilities_noncontrolled_affiliates + deferred_tax_liabilities_undistributed_foreign_earnings + deferred_tax_liabilities_leasing_arrangements + deferred_tax_liabilities_financing_arrangements + deferred_tax_liabilities_tax_deferred_income + deferred_tax_liabilities_deferred_expense + deferred_tax_liabilities_parents_basis_discontinued_operation + deferred_tax_liabilities_other + deferred_tax_liabilities_investments"
+    }
+  },
+  "deferred_tax_liabilities_intra_entity_transfer_asset": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Intra Entity Transfer Asset Other Than Inventory"
+    },
+    "gaap": [
+      "DeferredTaxLiabilityIntraEntityTransferAssetOtherThanInventory"
+    ]
+  },
+  "deferred_tax_liabilities_regulatory_assets_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Regulatory Assets and Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesRegulatoryAssetsAndLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_liabilities_regulatory_assets"
+    }
+  },
+  "deferred_tax_liabilities_investments": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Investments"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesInvestments"
+    ]
+  },
+  "deferred_tax_liabilities_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Deferred Tax Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesOther"
+    ]
+  },
+  "deferred_tax_liabilities_parents_basis_discontinued_operation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Parents Basis in Discontinued Operation"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesParentsBasisInDiscontinuedOperation"
+    ]
+  },
+  "deferred_tax_liabilities_deferred_expense": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Deferred Expense"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_liabilities_deferred_financing_costs + deferred_tax_liabilities_deferred_policy_acquisition_cost + deferred_tax_liabilities_capitalized_interest + deferred_tax_liabilities_capitalized_software + deferred_tax_liabilities_capitalized_research_development_costs + deferred_tax_liabilities_capitalized_patent_costs + deferred_tax_liabilities_other_capitalized_costs"
+    }
+  },
+  "deferred_tax_liabilities_other_capitalized_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Other Capitalized Costs"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseOtherCapitalizedCosts"
+    ]
+  },
+  "deferred_tax_liabilities_capitalized_patent_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Capitalized Patent Costs"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseCapitalizedPatentCosts"
+    ]
+  },
+  "deferred_tax_liabilities_capitalized_research_development_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Capitalized Research and Development Costs"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseCapitalizedResearchAndDevelopmentCosts"
+    ]
+  },
+  "deferred_tax_liabilities_capitalized_software": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Capitalized Software"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseCapitalizedSoftware"
+    ]
+  },
+  "deferred_tax_liabilities_capitalized_interest": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Capitalized Interest"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseCapitalizedInterest"
+    ]
+  },
+  "deferred_tax_liabilities_deferred_policy_acquisition_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Deferred Policy Acquisition Cost"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseDeferredPolicyAcquisitionCost"
+    ]
+  },
+  "deferred_tax_liabilities_deferred_financing_costs": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Deferred Financing Costs"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseDeferredFinancingCosts"
+    ]
+  },
+  "deferred_tax_liabilities_tax_deferred_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Deferred Income"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesTaxDeferredIncome"
+    ]
+  },
+  "deferred_tax_liabilities_financing_arrangements": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Financing Arrangements"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesFinancingArrangements"
+    ]
+  },
+  "deferred_tax_liabilities_leasing_arrangements": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Leasing Arrangements"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesLeasingArrangements"
+    ]
+  },
+  "deferred_tax_liabilities_undistributed_foreign_earnings": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Undistributed Foreign Earnings"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesUndistributedForeignEarnings"
+    ]
+  },
+  "deferred_tax_liabilities_noncontrolled_affiliates": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Interest in Noncontrolled Affiliates"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesInvestmentInNoncontrolledAffiliates"
+    ]
+  },
+  "deferred_tax_liabilities_interests_financial_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Interest in Financial Assets Continued to be Held"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesInterestsInFinancialAssetsContinuedToBeHeld"
+    ]
+  },
+  "deferred_tax_liabilities_zero_coupon_notes": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Zero Coupon Notes"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesZeroCouponNotes"
+    ]
+  },
+  "deferred_tax_liabilities_unrealized_gains_currency_transactions": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Unrealized Gains on Currency Transactions"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesUnrealizedCurrencyTransactionGains"
+    ]
+  },
+  "deferred_tax_liabilities_derivatives": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Derivatives"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDerivatives"
+    ]
+  },
+  "deferred_tax_liabilities_mortgage_servicing_rights": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Mortgage Servicing Rights"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesMortgageServicingRights"
+    ]
+  },
+  "deferred_tax_liabilities_other_comprehensive_income": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Other Comprehensive Income"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesOtherComprehensiveIncome"
+    ]
+  },
+  "deferred_tax_liabilities_unrealized_gains_trading_securities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Unrealized Gains on Trading Securities"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesUnrealizedGainsOnTradingSecurities"
+    ]
+  },
+  "deferred_tax_liabilities_regulatory_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Regulatory Assets"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesRegulatoryAssets"
+    ]
+  },
+  "deferred_tax_liabilities_other_finitelived_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Other Finite-lived Assets"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesOtherFiniteLivedAssets"
+    ]
+  },
+  "deferred_tax_liabilities_goodwill_intangible_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Goodwill and Intangible Assets"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesGoodwillAndIntangibleAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_tax_liabilities_goodwill + deferred_tax_liabilities_intangible_assets"
+    }
+  },
+  "deferred_tax_liabilities_intangible_assets": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Intangible Assets"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesGoodwillAndIntangibleAssetsIntangibleAssets"
+    ]
+  },
+  "deferred_tax_liabilities_goodwill": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Goodwill"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesGoodwillAndIntangibleAssetsGoodwill"
+    ]
+  },
+  "deferred_tax_liabilities_capitalized_inventory_cost": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Deferred Expense Capitalized Inventory Costs"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesDeferredExpenseCapitalizedInventoryCosts"
+    ]
+  },
+  "deferred_tax_liabilities_prepaid_expenses": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Prepaid Expenses"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesPrepaidExpenses"
+    ]
+  },
+  "deferred_tax_liabilities_property_plant_equipment": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Tax Liabilities Property Plant and Equipment"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesPropertyPlantAndEquipment"
+    ]
+  },
   "deferred_tax_liabilities": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Current Deferred Tax Liabilities",
-      "short": "Current Tax Liabilities"
+      "long": "Deferred Tax Liabilities"
     },
     "gaap": [
-      "CurrentTaxLiabilities",
       "DeferredIncomeTaxLiabilitiesNet"
     ],
     "calculation": {
@@ -10821,6 +12055,7 @@
       "long": "Current Deferred Tax Liabilities"
     },
     "gaap": [
+      "CurrentTaxLiabilities",
       "CurrentTaxLiabilitiesCurrent",
       "DeferredTaxLiabilitiesCurrent",
       "DeferredIncomeTaxLiabilitiesCurrent"
@@ -19679,8 +20914,7 @@
     ],
     "calculation": {
       "order": 478,
-      "any": "land_land_improvements + buildings_improvements_gross",
-      "LandAndLandImprovements + BuildingsAndImprovementsGross"
+      "any": "land_land_improvements + buildings_improvements_gross"
     }
   },
   "land_under_purchase_options_recorded": {
