@@ -2728,7 +2728,7 @@
       "AssetRetirementObligationCurrent"
     ]
   },
-  "asset_retirement_obligations_noncurrent": {
+  "asset_retirement_obligation_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -7044,7 +7044,7 @@
     ],
     "calculation": {
       "order": 401,
-      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + receivable_tax_income_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + derivatives_hedges_current + assets_heldforsale_current + assets_disposal_group_current + investments_lease_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advance_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_costs_current + deferred_tax_assets_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest"
+      "any": "cash_cash_equivalents_shortterm_investments + restricted_cash_investments_current + receivable_current + receivable_tax_income_current + inventory_net_allowances_customer_advances_progress_billings + prepaid_expense_other_assets_current + derivatives_hedges_current + assets_heldforsale_current + assets_disposal_current + investments_lease_current + regulatory_assets_current + funds_heldforclients + deferred_rent_asset_current + advance_inventory_purchases + advance_royalties_current + costs_excess_billings_uncomplete_contracts_programs_current + assets_heldintrust_current + health_care_trust_fund_assets + intangible_assets_current + deposits_assets_current + customer_contract_asset_current + deferred_costs_current + deferred_tax_assets_current + capitalized_contract_cost_current + business_combination_contingent_consideration_asset_current + cumulative_government_assistance_current + financial_assets_accrued_interest"
     }
   },
   "assets_current_noncash": {
@@ -8936,7 +8936,7 @@
     ],
     "calculation": {
       "order": 1355,
-      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_group_not_discontinued_operations - gain_loss_sale_assets - gain_loss_investment_excluding_impairment + impairment_investment - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + product_warranty_expense - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_cost + amortization_lease_operating_rightofuse_asset + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
+      "any": "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operations - gain_loss_sale_assets - gain_loss_investment_excluding_impairment + impairment_investment - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + product_warranty_expense - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_cost + amortization_lease_operating_rightofuse_asset + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
     }
   },
   "cashflow_operations_continuing": {
@@ -9958,7 +9958,7 @@
       "LongTermLineOfCredit"
     ]
   },
-  "credit_line_longterm_current": {
+  "credit_line_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -10495,12 +10495,57 @@
       "NetDebt",
       "DebtNet",
       "CurrentAndLongTermDebt",
+      "DebtLongtermAndShorttermCombinedAmount"
+    ],
+    "calculation": {
+      "order": 746,
+      "any": "debt_shortterm + debt_longterm"
+    }
+  },
+  "debt_instrument": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Total Debt"
+    },
+    "gaap": [
       "DebtInstrumentFairValue",
       "DebtInstrumentCarryingAmount"
     ],
     "calculation": {
       "order": 746,
-      "any": "debt_shortterm + debt_longterm"
+      "any": "payables_notes + payables_loans + credit_lines + debt_convertible"
+    }
+  },
+  "credit_line": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Lines of Credit"
+    },
+    "gaap": [
+      "LinesOfCreditFairValueDisclosure"
+    ],
+    "calculation": {
+      "order": 746,
+      "any": "credit_line_current + credit_line_longterm"
+    }
+  },
+  "payables_loans": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans Payable"
+    },
+    "gaap": [
+      "LoansPayableFairValueDisclosure"
+    ],
+    "calculation": {
+      "order": 746,
+      "any": "payables_loans_current + payables_loans_longterm"
     }
   },
   "debt_convertible": {
@@ -10629,7 +10674,7 @@
     ],
     "calculation": {
       "order": 571,
-      "any": "credit_line_longterm_current + commercial_paper_longterm_current + loan_construction_longterm_current + debt_secured_current + debt_unsecured_current + debt_subordinated_current + debt_convertible_subordinated_current + debt_convertible_current + bond_transition_longterm_current + bond_pollution_control_longterm_current + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current + payable_notes_loans_current + bond_special_assessment_current + loan_home_federal_bank_advances_current + debt_longterm_other_current + borrowings_under_guaranteed_investment_agreements"
+      "any": "credit_line_current + commercial_paper_longterm_current + loan_construction_longterm_current + debt_secured_current + debt_unsecured_current + debt_subordinated_current + debt_convertible_subordinated_current + debt_convertible_current + bond_transition_longterm_current + bond_pollution_control_longterm_current + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_current + payable_notes_loans_current + bond_special_assessment_current + loan_home_federal_bank_advances_current + debt_longterm_other_current + borrowings_under_guaranteed_investment_agreements"
     }
   },
   "debt_longterm_current_due_next_fiscal_year": {
@@ -12746,7 +12791,7 @@
     ],
     "calculation": {
       "order": 1137,
-      "any": "disposal_group_discontinued_operation_income_loss + disposal_group_discontinued_operation_interest_income - disposal_group_discontinued_operation_interest_expense + disposal_group_discontinued_operation_income_other - disposal_group_discontinued_operation_expense_other"
+      "any": "disposal_discontinued_operation_income_loss + disposal_discontinued_operation_interest_income - disposal_discontinued_operation_interest_expense + disposal_discontinued_operation_income_other - disposal_discontinued_operation_expense_other"
     }
   },
   "discontinued_operation_income_loss_phaseout_period_tax": {
@@ -12969,7 +13014,7 @@
       "DisposalGroupIncludingDiscontinuedOperationGoodwillNoncurrent"
     ]
   },
-  "disposal_group_discontinued_operation_depreciation_amortization": {
+  "disposal_discontinued_operation_depreciation_amortization": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -12980,7 +13025,7 @@
       "DisposalGroupIncludingDiscontinuedOperationDepreciationAndAmortization"
     ]
   },
-  "disposal_group_discontinued_operation_expense_operating": {
+  "disposal_discontinued_operation_expense_operating": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -12992,10 +13037,10 @@
     ],
     "calculation": {
       "order": 1131,
-      "any": "disposal_group_discontinued_operation_depreciation_amortization + disposal_group_discontinued_operation_general_admninistrative_expense"
+      "any": "disposal_discontinued_operation_depreciation_amortization + disposal_discontinued_operation_general_admninistrative_expense"
     }
   },
-  "disposal_group_discontinued_operation_expense_other": {
+  "disposal_discontinued_operation_expense_other": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13006,7 +13051,7 @@
       "DisposalGroupIncludingDiscontinuedOperationOtherExpense"
     ]
   },
-  "disposal_group_discontinued_operation_gain_loss_foreign_currency_translation": {
+  "disposal_discontinued_operation_gain_loss_foreign_currency_translation": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13017,7 +13062,7 @@
       "DisposalGroupIncludingDiscontinuedOperationForeignCurrencyTranslationGainsLosses"
     ]
   },
-  "disposal_group_discontinued_operation_general_admninistrative_expense": {
+  "disposal_discontinued_operation_general_admninistrative_expense": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13028,7 +13073,7 @@
       "DisposalGroupIncludingDiscontinuedOperationGeneralAndAdministrativeExpense"
     ]
   },
-  "disposal_group_discontinued_operation_income_loss": {
+  "disposal_discontinued_operation_income_loss": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -13040,10 +13085,10 @@
     ],
     "calculation": {
       "order": 1135,
-      "any": "disposal_group_discontinued_operation_income_loss_gross - disposal_group_discontinued_operation_expense_operating + disposal_group_discontinued_operation_gain_loss_foreign_currency_translation"
+      "any": "disposal_discontinued_operation_income_loss_gross - disposal_discontinued_operation_expense_operating + disposal_discontinued_operation_gain_loss_foreign_currency_translation"
     }
   },
-  "disposal_group_discontinued_operation_income_loss_gross": {
+  "disposal_discontinued_operation_income_loss_gross": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -13055,10 +13100,10 @@
     ],
     "calculation": {
       "order": 1134,
-      "any": "disposal_group_discontinued_operation_revenue - disposal_group_discontinued_operation_revenue_cost"
+      "any": "disposal_discontinued_operation_revenue - disposal_discontinued_operation_revenue_cost"
     }
   },
-  "disposal_group_discontinued_operation_income_other": {
+  "disposal_discontinued_operation_income_other": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -13069,7 +13114,7 @@
       "DisposalGroupIncludingDiscontinuedOperationOtherIncome"
     ]
   },
-  "disposal_group_discontinued_operation_interest_expense": {
+  "disposal_discontinued_operation_interest_expense": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -13080,7 +13125,7 @@
       "DisposalGroupIncludingDiscontinuedOperationInterestExpense"
     ]
   },
-  "disposal_group_discontinued_operation_interest_income": {
+  "disposal_discontinued_operation_interest_income": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -13091,7 +13136,7 @@
       "DisposalGroupIncludingDiscontinuedOperationInterestIncome"
     ]
   },
-  "disposal_group_discontinued_operation_revenue": {
+  "disposal_discontinued_operation_revenue": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -13102,7 +13147,7 @@
       "DisposalGroupIncludingDiscontinuedOperationRevenue"
     ]
   },
-  "disposal_group_discontinued_operation_revenue_cost": {
+  "disposal_discontinued_operation_revenue_cost": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -13113,12 +13158,12 @@
       "DisposalGroupIncludingDiscontinuedOperationCostsOfGoodsSold"
     ]
   },
-  "disposal_group_liabilities_current": {
+  "disposal_liabilities_current": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Deferred Gas Purchases"
+      "long": "Current Disposal Group Liabilities"
     },
     "gaap": [
       "LiabilitiesOfDisposalGroupIncludingDiscontinuedOperationCurrent"
@@ -14726,7 +14771,7 @@
       "OtherComprehensiveIncomeUnrealizedGainLossOnDerivativesArisingDuringPeriodTax"
     ]
   },
-  "gain_loss_disposal_group_not_discontinued_operations": {
+  "gain_loss_disposal_not_discontinued_operations": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -17329,7 +17374,7 @@
     ],
     "calculation": {
       "order": 1268,
-      "any": "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + gain_loss_writedown_disposal_group_not_discontinued_operation"
+      "any": "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + gain_loss_writedown_disposal_not_discontinued_operation"
     }
   },
   "incentive_fees": {
@@ -21232,8 +21277,404 @@
     "calculation": {
       "order": 737,
       "all": "liabilities_current + liabilities_noncurrent",
-      "any": "qualified_affordable_housing_project_investments_commitment + operating_lease_liability + affordable_housing_program_obligation + liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense + supplier_finance_program_obligation + policyholder_funds + deposit_liabilities + federal_funds_purchased + collaterized_financings + bank_acceptances_executed_outstanding + payables_investment_purchase + payables_distribution + payables_incentive_fee + payables_stock_common_redeemed + payables_stock_preferred_redeemed + financial_instruments_sold_notyet_purchased_fairvalue + deferred_tax_liabilities + trading_liabilities + derivative_liabilities + notes_surplus + beneficial_interest + payables_brokes_dealers_clearing_organizations + payables_accrued_expenses + deferred_revenue + unrecognized_tax_benefits + accrued_liabilities_commissions_expense_taxes + accrued_environmental_loss_contingencies + advance_payments_borrowers_taxes_insurance + unearned_premiums + servicing_liability + advance_rent + deferred_gain_sale_property + deferred_longterm_liability_charges + deferred_rent_credit + deferred_compensation_liabilities + pension_postretirement_postemployment_benefits_liability + separate_accounts_liability + litigation_reserve + self_insurance_reserve + security_deposit_liability + restructuring_reserve + off_market_lease_unfavorable + lease_deposit_liability + debt_capital_lease_obligations + asset_retirement_obligation + disposal_group_liaibilities + shares_with_mandatory_settlement_terms + business_combination_contingent_consideration_liability + asset_acquisition_contingent_consideration_liability + entertainment_license_agreement_program_material_liability + safeguarding_liability_platform_operator_crypto_asset + other_liabilities + government_assistance_liability",
+      "any": "qualified_affordable_housing_project_investments_commitment + operating_lease_liability + affordable_housing_program_obligation + liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense + supplier_finance_program_obligation + policyholder_funds + deposit_liabilities + federal_funds_purchased + collaterized_financings + bank_acceptances_executed_outstanding + payables_investment_purchase + payables_distribution + payables_incentive_fee + payables_stock_common_redeemed + payables_stock_preferred_redeemed + financial_instruments_sold_notyet_purchased_fairvalue + deferred_tax_liabilities + trading_liabilities + derivative_liabilities + notes_surplus + beneficial_interest + payables_brokes_dealers_clearing_organizations + payables_accrued_expenses + deferred_revenue + unrecognized_tax_benefits + accrued_liabilities_commissions_expense_taxes + accrued_environmental_loss_contingencies + advance_payments_borrowers_taxes_insurance + unearned_premiums + servicing_liability + advance_rent + deferred_gain_sale_property + deferred_longterm_liability_charges + deferred_rent_credit + deferred_compensation_liability + pension_postretirement_postemployment_benefits_liability + separate_accounts_liability + litigation_reserve + self_insurance_reserve + security_deposit_liability + restructuring_reserve + off_market_lease_unfavorable + lease_deposit_liability + debt_capital_lease_obligations + asset_retirement_obligation + disposal_liabilities + mandatory_redemption_shares + business_combination_contingent_consideration_liability + asset_acquisition_contingent_consideration_liability + entertainment_license_agreement_program_material_liability + safeguarding_liability_platform_operator_crypto_asset + other_liabilities + government_assistance_liability",
       "QualifiedAffordableHousingProjectInvestmentsCommitment + OperatingLeaseLiability + AffordableHousingProgramObligation + LiabilityForFuturePolicyBenefitsAndUnpaidClaimsAndClaimsAdjustmentExpense + SupplierFinanceProgramObligation + PolicyholderFunds + Deposits + FederalFundsPurchased + CollateralizedFinancings + BankAcceptancesExecutedAndOutstanding + PayableInvestmentPurchase + DistributionPayable + IncentiveFeePayable + PayableCommonStockRedeemed + PayablePreferredStockRedeemed + FinancialInstrumentsSoldNotYetPurchasedAtFairValue + DeferredIncomeTaxLiabilitiesNet + TradingLiabilities + DerivativeLiabilities + SurplusNotes + BeneficialInterest + PayablesToBrokerDealersAndClearingOrganizations + AccountsPayableAndAccruedLiabilitiesCurrentAndNoncurrent + DeferredRevenue + UnrecognizedTaxBenefits + AccruedLiabilitiesForCommissionsExpenseAndTaxes + AccrualForEnvironmentalLossContingencies + AdvancePaymentsByBorrowersForTaxesAndInsurance + UnearnedPremiums + ServicingLiability + AdvanceRent + DeferredGainOnSaleOfProperty + DeferredLongTermLiabilityCharges + DeferredRentCredit + DeferredCompensationLiabilityCurrentAndNoncurrent + PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesCurrentAndNoncurrent + SeparateAccountsLiability + LitigationReserve + SelfInsuranceReserve + SecurityDepositLiability + RestructuringReserve + OffMarketLeaseUnfavorable + LeaseDepositLiability + DebtAndCapitalLeaseObligations + AssetRetirementObligation + LiabilitiesOfDisposalGroupIncludingDiscontinuedOperation + SharesSubjectToMandatoryRedemptionSettlementTermsAmount + BusinessCombinationContingentConsiderationLiability + AssetAcquisitionContingentConsiderationLiability + EntertainmentLicenseAgreementForProgramMaterialLiability + SafeguardingLiabilityPlatformOperatorCryptoAsset + OtherLiabilities + GovernmentAssistanceLiability"
+    }
+  },
+  "government_assistance_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Government Assistance Liability"
+    },
+    "gaap": [
+      "GovernmentAssistanceLiability"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "government_assistance_liability_current + government_assistance_liability_noncurrent"
+    }
+  },
+  "other_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Liabilities"
+    },
+    "gaap": [
+      "OtherLiabilities"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "other_liabilities_current + other_liabilities_noncurrent"
+    }
+  },
+  "safeguarding_liability_platform_operator_crypto_asset": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Safeguarding Liability Platform Operator Crypto Asset"
+    },
+    "gaap": [
+      "SafeguardingLiabilityPlatformOperatorCryptoAsset"
+    ]
+  },
+  "entertainment_license_agreement_program_material_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Entertainment License Agreement for Program Material Liability"
+    },
+    "gaap": [
+      "EntertainmentLicenseAgreementForProgramMaterialLiability"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "entertainment_license_agreement_program_material_liability_current + entertainment_license_agreement_program_material_liability_noncurrent"
+    }
+  },
+  "asset_acquisition_contingent_consideration_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Asset Acquisition Contingent Consideration Liability"
+    },
+    "gaap": [
+      "AssetAcquisitionContingentConsiderationLiability"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "asset_acquisition_contingent_consideration_liability_current + asset_acquisition_contingent_consideration_liability_noncurrent"
+    }
+  },
+  "business_combination_contingent_consideration_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Business Combination Contingent Consideration Liability"
+    },
+    "gaap": [
+      "BusinessCombinationContingentConsiderationLiability"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "business_combination_contingent_consideration_liability_current + business_combination_contingent_consideration_liability_noncurrent"
+    }
+  },
+  "mandatory_redemption_shares": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Shares Subject to Mandatory Redemption Settlement Terms Amount"
+    },
+    "gaap": [
+      "SharesSubjectToMandatoryRedemptionSettlementTermsAmount"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "mandatory_redemption_shares_current + mandatory_redemption_shares_noncurrent"
+    }
+  },
+  "disposal_liabilities": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Disposal Group Liabilities"
+    },
+    "gaap": [
+      "LiabilitiesOfDisposalGroupIncludingDiscontinuedOperation"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "disposal_liabilities_current + disposal_liabilities_noncurrent",
+      "any": "",
+      "DisposalGroupIncludingDiscontinuedOperationAccountsPayableAndAccruedLiabilities + DisposalGroupIncludingDiscontinuedOperationAccountsPayable + DisposalGroupIncludingDiscontinuedOperationAccruedLiabilities + DisposalGroupIncludingDiscontinuedOperationDeferredTaxLiabilities + DisposalGroupIncludingDiscontinuedOperationDeferredRevenue + DisposalGroupIncludingDiscontinuedOperationPensionPlanBenefitObligation + DisposalGroupIncludingDiscontinuedOperationPostretirementPlanBenefitObligation + DisposalGroupIncludingDiscontinuedOperationOtherLiabilities + DisposalGroupIncludingDiscontinuedOperationAccruedIncomeTaxPayable + DisposalGroupIncludingDiscontinuedOperationSeparateAccountLiability + DisposalGroupIncludingDiscontinuedOperationLiabilityForFuturePolicyBenefitBeforeReinsurance + DisposalGroupIncludingDiscontinuedOperationLiabilityForClaimsAndClaimsAdjustmentExpense + DisposalGroupIncludingDiscontinuedOperationLiabilityForUnpaidClaimsAndClaimsAdjustmentExpense"
+    }
+  },
+  "asset_retirement_obligation": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Asset Retirement Obligation"
+    },
+    "gaap": [
+      "AssetRetirementObligation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "asset_retirement_obligation_current + asset_retirement_obligation_noncurrent"
+    }
+  },
+  "debt_capital_lease_obligations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Debt and Capital Lease Obligations"
+    },
+    "gaap": [
+      "DebtAndCapitalLeaseObligations"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "debt + capital_lease_obligations + borrowings_under_guaranteed_investment_agreements + lease_liabilities_finance + other_borrowings"
+    }
+  },
+  "other_borrowings": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Borrowings"
+    },
+    "gaap": [
+      "OtherBorrowings"
+    ]
+  },
+  "capital_lease_obligations": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Capital Lease Obligations"
+    },
+    "gaap": [
+      "CapitalLeaseObligations"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "capital_lease_obligations_current + capital_lease_obligations_noncurrent"
+    }
+  },
+  "capital_lease_obligations_noncurrent": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Capital Lease Obligations"
+    },
+    "gaap": [
+      "CapitalLeaseObligationsNoncurrent"
+    ]
+  },
+  "capital_lease_obligations_current": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Capital Lease Obligations"
+    },
+    "gaap": [
+      "CapitalLeaseObligationsCurrent"
+    ]
+  },
+  "off_market_lease_unfavorable": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Off-market Lease Unfavorable"
+    },
+    "gaap": [
+      "OffMarketLeaseUnfavorable"
+    ]
+  },
+  "restructuring_reserve": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "RestructuringReserve"
+    },
+    "gaap": [
+      "RestructuringReserve"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "restructuring_reserve_current + restructuring_reserve_noncurrent"
+    }
+  },
+  "security_deposit_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Security Deposit Liability"
+    },
+    "gaap": [
+      "SecurityDepositLiability"
+    ]
+  },
+  "self_insurance_reserve": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Self Insurance Reserve"
+    },
+    "gaap": [
+      "SelfInsuranceReserve"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "self_insurance_reserve_current + self_insurance_reserve_noncurrent"
+    }
+  },
+  "litigation_reserve": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "LitigationReserve"
+    },
+    "gaap": [
+      "LitigationReserve"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "litigation_reserve_current + litigation_reserve_noncurrent"
+    }
+  },
+  "separate_accounts_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Separate Accounts Liability"
+    },
+    "gaap": [
+      "SeparateAccountsLiability"
+    ]
+  },
+  "pension_postretirement_postemployment_benefits_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Pension and Other Postretirement and Postemployment Benefit Plans Liabilities"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementAndPostemploymentBenefitPlansLiabilitiesCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "pension_postretirement_postemployment_benefits_liability_current + pension_postretirement_postemployment_benefits_liability_noncurrent",
+      "any": "postemployment_benefits_liability + pension_postretirement_benefits_liability + payables_benefits_postretirement_other"
+    }
+  },
+  "payables_benefits_postretirement_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Postretirement Benefit Payables"
+    },
+    "gaap": [
+      "OtherPostretirementBenefitsPayableCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payables_benefits_postretirement_other_current + payables_benefits_postretirement_other_noncurrent"
+    }
+  },
+  "pension_postretirement_benefits_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Pension and Other Postretirement Benefit Plans Liabilities"
+    },
+    "gaap": [
+      "PensionAndOtherPostretirementDefinedBenefitPlansLiabilitiesCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "pension_postretirement_benefits_liability_current + pension_postretirement_benefits_liability_noncurrent"
+    }
+  },
+  "postemployment_benefits_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Postemployment Benefits Liability"
+    },
+    "gaap": [
+      "PostemploymentBenefitsLiabilityCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "postemployment_benefits_liability_current + postemployment_benefits_liability_noncurrent"
+    }
+  },
+  "deferred_compensation_liability": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationLiabilityCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": "deferred_compensation_liability_current + deferred_compensation_liability_noncurrent",
+      "any": "deferred_compensation_liability_sharebased + deferred_compensation_liability_cashbased + deferred_compensation_liability_other"
+    }
+  },
+  "deferred_compensation_liability_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Deferred Compensation Liability"
+    },
+    "gaap": [
+      "OtherDeferredCompensationArrangementsLiabilityCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_compensation_liability_other_current + deferred_compensation_liability_other_noncurrent"
+    }
+  },
+  "deferred_compensation_liability_cashbased": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Cash-based Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationCashbasedArrangementsLiabilityCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_compensation_liability_cashbased_current + deferred_compensation_liability_cashbased_noncurrent"
+    }
+  },
+  "deferred_compensation_liability_sharebased": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Share-based Deferred Compensation Liability"
+    },
+    "gaap": [
+      "DeferredCompensationSharebasedArrangementsLiabilityCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "deferred_compensation_liability_sharebased_current + deferred_compensation_liability_sharebased_noncurrent"
     }
   },
   "deferred_rent_credit": {
@@ -21958,7 +22399,7 @@
     ],
     "calculation": {
       "order": 651,
-      "any": "payables_accrued_expenses_current + deferred_revenue_credits_current + debt_current + deferred_compensation_liability_current + derivative_hedge_liabilities_current + restructuring_reserve_current + deferred_tax_liabilities_current + liability_uncertain_tax_position_current + securities_loaned + regulatory_liability_current + provision_contract_loss + litigation_reserve_current + accrued_environmental_loss_contingencies_current + asset_retirement_obligation_current + accrued_capping_closure_post_closure_environmental_costs + accrued_reclamation_costs_current + deferred_gas_purchases_current + disposal_group_liabilities_current + liabilities_business_transferred_under_contractual_arrangement_current + mandatory_redemption_shares_current + customer_refund_liability_current + self_insurance_reserve_current + program_rights_obligations_current + business_combination_contingent_consideration_liability_current + other_liabilities_current + government_assistance_liability_current + customer_advances_deposits_current + billings_excess_cost_current"
+      "any": "payables_accrued_expenses_current + deferred_revenue_credits_current + debt_current + deferred_compensation_liability_current + derivative_hedge_liabilities_current + restructuring_reserve_current + deferred_tax_liabilities_current + liability_uncertain_tax_position_current + securities_loaned + regulatory_liability_current + provision_contract_loss + litigation_reserve_current + accrued_environmental_loss_contingencies_current + asset_retirement_obligation_current + accrued_capping_closure_post_closure_environmental_costs + accrued_reclamation_costs_current + deferred_gas_purchases_current + disposal_liabilities_current + liabilities_business_transferred_under_contractual_arrangement_current + mandatory_redemption_shares_current + customer_refund_liability_current + self_insurance_reserve_current + program_rights_obligations_current + business_combination_contingent_consideration_liability_current + other_liabilities_current + government_assistance_liability_current + customer_advances_deposits_current + billings_excess_cost_current"
     }
   },
   "liabilities_current_cashcovered": {
@@ -22032,7 +22473,7 @@
     ],
     "calculation": {
       "order": 735,
-      "any": "trade_payables_accrued_liabilities_noncurrent + deferred_revenue_credits_noncurrent + deferred_compensation_liability_noncurrent + asset_retirement_obligations_noncurrent + deferred_tax_liabilities_noncurrent + liability_uncertain_tax_positions_noncurrent + customer_advances_deposits_noncurrent + pension_postretirement_postemployment_benefits_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + shares_mandatory_redemption_settlement_terms_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + operating_lease_liability_noncurrent + liabilities_business_transferred_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liabilities_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent + billings_excess_cost_noncurrent + coal_supply_agreement_obligation_noncurrent"
+      "any": "trade_payables_accrued_liabilities_noncurrent + deferred_revenue_credits_noncurrent + deferred_compensation_liability_noncurrent + asset_retirement_obligation_noncurrent + deferred_tax_liabilities_noncurrent + liability_uncertain_tax_positions_noncurrent + customer_advances_deposits_noncurrent + pension_postretirement_postemployment_benefits_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + mandatory_redemption_shares_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + operating_lease_liability_noncurrent + liabilities_business_transferred_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liabilities_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent + billings_excess_cost_noncurrent + coal_supply_agreement_obligation_noncurrent"
     }
   },
   "liability_future_policy_benefits_period_expense": {
@@ -22522,7 +22963,7 @@
       "any": "unusual_infrequent_item_net_insurance_proceeds - gain_unusual_infrequent_item"
     }
   },
-  "loss_gain_writedown_disposal_group_not_discontinued_operation": {
+  "loss_gain_writedown_disposal_not_discontinued_operation": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -23896,7 +24337,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Other Postretirement Benefit Payable"
+      "long": "Current Other Postretirement Benefits Payable"
     },
     "gaap": [
       "OtherPostretirementBenefitsPayableCurrent"
@@ -24154,6 +24595,21 @@
     "calculation": {
       "order": 665,
       "any": "loans_longterm_bank + payables_loans_other_longterm"
+    }
+  },
+  "payables_loans_other": {
+    "unit": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Loans Payable"
+    },
+    "gaap": [
+      "OtherLoansPayable"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "payables_loans_other_current + payables_loans_other_longterm"
     }
   },
   "payables_loans_other_current": {
@@ -35733,7 +36189,7 @@
       "any": "stock_option_plan_expense + restricted_stock_expense + employee_stock_ownership_plan_compensation_expense"
     }
   },
-  "shares_mandatory_redemption_settlement_terms_noncurrent": {
+  "mandatory_redemption_shares_noncurrent": {
     "unit": "monetary",
     "balance": "credit",
     "aggregate": "tail",
