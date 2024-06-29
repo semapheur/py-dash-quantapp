@@ -67,9 +67,16 @@ def z_score(df: DataFrame) -> DataFrame:
 def m_score(df: DataFrame) -> DataFrame:
   slices = fin_slices(cast(pd.MultiIndex, df.index))
   # Days Sales in Receivables Index
-  dsri = df['average_receivable_trade_current'] / df['revenue']
-  dsri.name = 'dsri'
-  dsri /= applier(cast(Series[float], dsri), 'shift', slices)
+  receivables = df.get(
+    'average_receivables_trade_current',
+    df.get('average_receivables_trade', df.get('average_receivables', None)),
+  )
+
+  dsri: float | pd.Series = 0.0
+  if receivables is not None:
+    dsri = cast(Series[float], receivables) / df['revenue']
+    dsri.name = 'dsri'
+    dsri /= applier(cast(Series[float], dsri), 'shift', slices)
 
   # Gross Margin Index
   gmi = (
@@ -108,7 +115,7 @@ def m_score(df: DataFrame) -> DataFrame:
   li /= applier(cast(Series[float], li), 'shift', slices)
 
   # Total Accruals to Total Assets
-  tata = (df['operating_income_loss'] - df['cashflow_operating']) / df['average_assets']
+  tata = (df['income_loss_operating'] - df['cashflow_operating']) / df['average_assets']
 
   # Beneish M-score
   df['beneish_m_score'] = (
