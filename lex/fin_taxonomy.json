@@ -15013,7 +15013,7 @@
     ],
     "calculation": {
       "order": 2676,
-      "any": "impairment_goodwill_intangible_assets + tax_expense_benefit_impairment_goodwill_intangible_assets"
+      "any": "impairment_goodwill_intangible_assets + tax_income_expense_benefit_impairment_goodwill_intangible_assets"
     }
   },
   "impairment_goodwill_posttax": {
@@ -15028,7 +15028,7 @@
     ],
     "calculation": {
       "order": 2680,
-      "all": "impairment_goodwill - tax_expense_benefit_impairment_goodwill"
+      "all": "impairment_goodwill - tax_income_expense_benefit_impairment_goodwill"
     }
   },
   "impairment_intangible_assets": {
@@ -15104,7 +15104,7 @@
     ],
     "calculation": {
       "order": 2683,
-      "all": "impairment_intangible_assets_indefinitelived - tax_expense_benefit_impairment_intangible_assets_indefinitelived"
+      "all": "impairment_intangible_assets_indefinitelived - tax_income_expense_benefit_impairment_intangible_assets_indefinitelived"
     }
   },
   "impairment_intangible_assets_posttax": {
@@ -15120,7 +15120,7 @@
     ],
     "calculation": {
       "order": 2685,
-      "any": "impairment_intangible_assets + tax_expense_benefit_impairment_intangible_assets"
+      "any": "impairment_intangible_assets + tax_income_expense_benefit_impairment_intangible_assets"
     }
   },
   "impairment_investment": {
@@ -36791,7 +36791,7 @@
       "any": "tax_expense - tax_benefit"
     }
   },
-  "tax_expense_benefit": {
+  "tax_income_expense_benefit": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -36878,7 +36878,9 @@
       "long": "Current Income Tax Expense (Benefit)"
     },
     "gaap": [
+      "CurrentTaxExpenseIncome",
       "CurrentIncomeTaxExpenseBenefit"
+
     ],
     "calculation": {
       "order": 0,
@@ -37531,7 +37533,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Income Tax Reconciliation Energy Related Credits"
+      "long": "Income Tax Reconciliation Energy-related Credits"
     },
     "gaap": [
       "EffectiveIncomeTaxRateReconciliationTaxCreditEnergyRelatedAmount"
@@ -37590,11 +37592,7 @@
     },
     "gaap": [
       "IncomeTaxReconciliationStateAndLocalIncomeTaxes"
-    ],
-    "calculation": {
-      "order": 0,
-      "any": "tax_income_reconciliation_2017_act + tax_income_reconciliation_2017_act_transition_accumulated_foreign_earnings"
-    }
+    ]
   },
   "tax_income_reconciliation_federal_statutory_rate": {
     "unit": "monetary",
@@ -37608,10 +37606,10 @@
     ],
     "calculation": {
       "order": 0,
-      "any": "tax_income_reconciliation_2017_act + tax_income_reconciliation_2017_act_transition_accumulated_foreign_earnings"
+      "any": "tax_income_reconciliation_act2017 + tax_income_reconciliation_act2017_transition_accumulated_foreign_earnings"
     }
   },
-  "tax_income_reconciliation_effective_2017_act_transition_accumulated_foreign_earnings": {
+  "tax_income_reconciliation_effective_act2017_transition_accumulated_foreign_earnings": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -37622,7 +37620,7 @@
       "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017TransitionTaxOnAccumulatedForeignEarningsAmount"
     ]
   },
-  "tax_income_reconciliation_effective_2017_act": {
+  "tax_income_reconciliation_effective_act2017": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -37706,6 +37704,7 @@
     },
     "gaap": [
       "DeferredIncomeTaxes",
+      "DeferredTaxExpenseIncome",
       "DeferredIncomeTaxExpenseBenefit"
     ],
     "calculation": {
@@ -37814,8 +37813,651 @@
     ],
     "calculation": {
       "order": 2594,
-      "all": "tax_expense_benefit / income_loss_pretax"
+      "all": "tax_income_expense_benefit / income_loss_pretax",
+      "any": "tax_rate_reconciliation_federal_statutory + tax_rate_reconciliation_local + tax_rate_reconciliation_foreign_differential - tax_rate_reconciliation_credit + tax_rate_reconciliation_nondeductible_expense - tax_rate_reconciliation_deductions + tax_rate_reconciliation_settlements + tax_rate_reconciliation_contingencies - tax_rate_reconciliation_excempt_income - tax_rate_reconciliation_equity_earning_loss_unconsolidated_subsidiary - tax_rate_reconciliation_minority_interest_income_expense - tax_rate_reconciliation_holidays + tax_rate_reconciliation_disposition_business + tax_rate_reconciliation_disposition_assets + tax_rate_reconciliation_repatriation_foreign_earnings + tax_rate_reconciliation_repatriation_foreign_earnings_act2004 + tax_rate_reconciliation_change_enacted_rate + tax_rate_reconciliation_prior_year + tax_rate_reconciliation_change_deferred_tax_assets_valuation_allowance + tax_rate_reconciliation_sharebased_compensation_excess_benefit + tax_rate_reconciliation_other_adjustments + tax_rate_reconciliation_other + tax_rate_reconciliation_crossborder_effect"
     }
+  },
+  "tax_rate_reconciliation_crossborder_effect": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Cross-border Tax Effect"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationCrossBorderTaxEffectPercent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_beat - tax_rate_reconciliation_fdii + tax_rate_reconciliation_gilti + tax_rate_reconciliation_crossborder_other"
+    }
+  },
+  "tax_rate_reconciliation_crossborder_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Cross-border Effect"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationCrossBorderOtherPercent"
+    ]
+  },
+  "tax_rate_reconciliation_gilti": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Global Intangible Low-taxed Income"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationGiltiPercent"
+    ]
+  },
+  "tax_rate_reconciliation_fdii": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Foreign Derived Intangible Income"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationFdiiPercent"
+    ]
+  },
+  "tax_rate_reconciliation_beat": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Base Erosion and Anti-abuse Tax"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationBeatPercent"
+    ]
+  },
+  "tax_rate_reconciliation_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Items"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationOtherReconcilingItemsPercent"
+    ]
+  },
+  "tax_rate_reconciliation_other_adjustments": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Adjustments"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationOtherAdjustments"
+    ]
+  },
+  "tax_rate_reconciliation_sharebased_compensation_excess_benefit": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Share-based Compensation Excess Tax Benefit"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationShareBasedCompensationExcessTaxBenefitPercent"
+    ]
+  },
+  "tax_rate_reconciliation_change_deferred_tax_assets_valuation_allowance": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Change in Deferred Tax Assets Valuation Allowance"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationChangeInDeferredTaxAssetsValuationAllowance"
+    ]
+  },
+  "tax_rate_reconciliation_prior_year": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Prior Year Income Taxes"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationPriorYearIncomeTaxes"
+    ]
+  },
+  "tax_rate_reconciliation_change_enacted_rate": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Change in Enacted Tax Rate"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationChangeInEnactedTaxRate"
+    ]
+  },
+  "tax_rate_reconciliation_repatriation_foreign_earnings_act2004": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Repatriation of Foreign Earnings (Jobs Creation Act of 2004)"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationRepatriationForeignEarningsJobsCreationActOf2004"
+    ]
+  },
+  "tax_rate_reconciliation_repatriation_foreign_earnings": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Repatriation of Foreign Earnings"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationRepatriationOfForeignEarnings"
+    ]
+  },
+  "tax_rate_reconciliation_disposition_assets": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Disposition of Assets"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDispositionOfAssets"
+    ]
+  },
+  "tax_rate_reconciliation_disposition_business": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Disposition of Business"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDispositionOfBusiness"
+    ]
+  },
+  "tax_rate_reconciliation_holidays": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Tax Holidays"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxHolidays"
+    ]
+  },
+  "tax_rate_reconciliation_minority_interest_income_expense": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Minority Interest Income (Expense)"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationMinorityInterestIncomeExpense"
+    ]
+  },
+  "tax_rate_reconciliation_equity_earning_loss_unconsolidated_subsidiary": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Equity in Earnings (Losses) of Unconsolidated Subsidiary"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationEquityInEarningsLossesOfUnconsolidatedSubsidiary"
+    ]
+  },
+  "tax_rate_reconciliation_excempt_income": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Tax Excempt Income"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxExemptIncome"
+    ]
+  },
+  "tax_rate_reconciliation_contingencies": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Tax Contingencies"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxContingencies"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_contingencies_domestic + tax_rate_reconciliation_contingencies_foreign + tax_rate_reconciliation_contingencies_local + tax_rate_reconciliation_contingencies_other"
+    }
+  },
+  "tax_rate_reconciliation_contingencies_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Tax Contingencies"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxContingenciesOther"
+    ]
+  },
+  "tax_rate_reconciliation_contingencies_local": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of State and Local Tax Contingencies"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxContingenciesStateAndLocal"
+    ]
+  },
+  "tax_rate_reconciliation_contingencies_foreign": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Foreign Tax Contingencies"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxContingenciesForeign"
+    ]
+  },
+  "tax_rate_reconciliation_contingencies_domestic": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Domestic Tax Contingencies"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxContingenciesDomestic"
+    ]
+  },
+  "tax_rate_reconciliation_settlements": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Tax Settlements"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxSettlements"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_settlements_domestic + tax_rate_reconciliation_settlements_foreign + tax_rate_reconciliation_settlements_local + tax_rate_reconciliation_settlements_other"
+    }
+  },
+  "tax_rate_reconciliation_settlements_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Tax Settlements"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxSettlementsOther"
+    ]
+  },
+  "tax_rate_reconciliation_settlements_local": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of State and Local Tax Settlements"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxSettlementsStateAndLocal"
+    ]
+  },
+  "tax_rate_reconciliation_settlements_foreign": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Foreign Tax Settlements"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxSettlementsForeign"
+    ]
+  },
+  "tax_rate_reconciliation_settlements_domestic": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Domestic Tax Settlements"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxSettlementsDomestic"
+    ]
+  },
+  "tax_rate_reconciliation_deductions": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Deductions"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductions"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_deductions_extraterritorial_income_exclusion + tax_rate_reconciliation_deductions_qualified_production_activities + tax_rate_reconciliation_deductions_dividends + tax_rate_reconciliation_deductions_employee_stock_ownership_plan_dividends + tax_rate_reconciliation_deductions_medicare_prescription_drug_benefit + tax_rate_reconciliation_deductions_other"
+    }
+  },
+  "tax_rate_reconciliation_deductions_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Deductions"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductionsOther"
+    ]
+  },
+  "tax_rate_reconciliation_deductions_medicare_prescription_drug_benefit": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Deductions for Medicare Prescription Drug Benefit"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductionsMedicarePrescriptionDrugBenefit"
+    ]
+  },
+  "tax_rate_reconciliation_deductions_employee_stock_ownership_plan_dividends": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Deductions for Employee Stock Ownership Plan Dividends"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductionsEmployeeStockOwnershipPlanDividends"
+    ]
+  },
+  "tax_rate_reconciliation_deductions_dividends": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Deductions for Dividends"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductionsDividends"
+    ]
+  },
+  "tax_rate_reconciliation_deductions_qualified_production_activities": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Deductions for Qualified Production Activities"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductionsQualifiedProductionActivities"
+    ]
+  },
+  "tax_rate_reconciliation_deductions_extraterritorial_income_exclusion": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Deductions for Extraterritorial Income Exclusion"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationDeductionsExtraterritorialIncomeExclusion"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Nondeductible Expense"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpense"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_nondeductible_expense_depreciation_amortization + tax_rate_reconciliation_nondeductible_expense_depletion + tax_rate_reconciliation_nondeductible_expense_meals_entertainment + tax_rate_reconciliation_nondeductible_expense_charitable_contributions + tax_rate_reconciliation_nondeductible_expense_restructuring_charges + tax_rate_reconciliation_nondeductible_expense_impairment + tax_rate_reconciliation_nondeductible_expense_research_development + tax_rate_reconciliation_nondeductible_expense_sharebased_compensation + tax_rate_reconciliation_nondeductible_expense_leases + tax_rate_reconciliation_nondeductible_expense_life_insurance + tax_rate_reconciliation_nondeductible_expense_other"
+    }
+  },
+  "tax_rate_reconciliation_nondeductible_expense_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Nondeductible Expense"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseOther"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_life_insurance": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Life Insurance"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseLifeInsurance"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_leases": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Leases"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseLeases"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_sharebased_compensation": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Share-based Compensation Cost"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseShareBasedCompensationCost"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_research_development": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Research and Development"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseResearchAndDevelopment"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_impairment": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Impairment"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseImpairmentLosses"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_restructuring_charges": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Restructuring Charges"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseRestructuringCharges"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_charitable_contributions": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Charitable Contributions"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseCharitableContributions"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_meals_entertainment": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Meals and Entertainment"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseMealsAndEntertainment"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_depletion": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Depletion"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseDepletion"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_depreciation_amortization": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Depreciation and Amortization"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseDepreciationAndAmortization"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_nondeductible_expense_depreciation + tax_rate_reconciliation_nondeductible_expense_amortization"
+    }
+  },
+  "tax_rate_reconciliation_nondeductible_expense_amortization": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Amortization"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseAmortization"
+    ]
+  },
+  "tax_rate_reconciliation_nondeductible_expense_depreciation": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Depreciation"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationNondeductibleExpenseDepreciation"
+    ]
+  },
+  "tax_rate_reconciliation_credit": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Tax Credits"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCredits"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "tax_rate_reconciliation_credit_research + tax_rate_reconciliation_credit_foreign + tax_rate_reconciliation_credit_investment + tax_rate_reconciliation_credit_energy_related + tax_rate_reconciliation_credit_other"
+    }
+  },
+  "tax_rate_reconciliation_credit_other": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Other Tax Credits"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCreditsOther"
+    ]
+  },
+  "tax_rate_reconciliation_credit_energy_related": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Energy-related Tax Credits"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCreditEnergyRelatedPercent"
+    ]
+  },
+  "tax_rate_reconciliation_credit_investment": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Investment Tax Credits"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCreditsInvestment"
+    ]
+  },
+  "tax_rate_reconciliation_credit_foreign": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Foreign Tax Credits"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCreditsForeign"
+    ]
+  },
+  "tax_rate_reconciliation_credit_research": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Research Tax Credits"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCreditsResearch"
+    ]
+  },
+  "tax_rate_reconciliation_foreign_differential": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of Foreign Income Tax Rate Differential"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationForeignIncomeTaxRateDifferential"
+    ]
+  },
+  "tax_rate_reconciliation_local": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation of State and Local Income Taxes"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationStateAndLocalIncomeTaxes"
+    ]
+  },
+  "tax_rate_reconciliation_federal_statutory": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation at Federal Statutory Income Tax Rate"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationAtFederalStatutoryIncomeTaxRate"
+    ],
+    "calculation": {
+      "order": 2594,
+      "any": "tax_rate_reconciliation_act2017 + tax_rate_reconciliation_act2017_transition_accumulated_foreign_earnings"
+    }
+  },
+  "tax_rate_reconciliation_act2017_transition_accumulated_foreign_earnings": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Transition Tax on Accumulated Foreing Earning (Tax Cuts and Jobs Act of 2017)"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017TransitionTaxOnAccumulatedForeignEarningsPercent"
+    ]
+  },
+  "tax_rate_reconciliation_act2017": {
+    "unit": "percent",
+    "aggregate": "recalc",
+    "label": {
+      "long": "Effective Income Tax Rate from Reconciliation for Tax Cuts and Jobs Act of 2017"
+    },
+    "gaap": [
+      "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017Percent"
+    ]
   },
   "tax_rate_discontinued_operations": {
     "unit": "percent",
@@ -37826,11 +38468,7 @@
     },
     "gaap": [
       "EffectiveIncomeTaxRateDiscontinuedOperations"
-    ],
-    "calculation": {
-      "order": 3186,
-      "all": "tax_expense_benefit / income_loss_pretax"
-    }
+    ]
   },
   "temporary_equity_accretion_redemption_value_adjustment": {
     "unit": "monetary",
