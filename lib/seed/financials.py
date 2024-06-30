@@ -4,6 +4,7 @@ import logging
 import time
 
 import pandas as pd
+from sqlalchemy import text
 from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
@@ -31,14 +32,14 @@ SCREENER_CURRENCIES = {'XOSL': 'NOK'}
 
 
 async def seed_edgar_financials(exchange: str) -> None:
-  query = f"""
+  query = """
     SELECT stock.id AS id, edgar.cik AS cik FROM stock
     INNER JOIN edgar ON
       edgar.ticker = stock.ticker
-    WHERE stock.mic = "{exchange}" AND stock.ticker IN (SELECT ticker FROM edgar)
-    """
+    WHERE stock.mic = ":exchange" AND stock.ticker IN (SELECT ticker FROM edgar)
+  """
 
-  df = read_sqlite('ticker.db', query)
+  df = read_sqlite('ticker.db', query, {'exchange': exchange})
   if df is None:
     raise ValueError(f'No tickers found for {exchange}')
 

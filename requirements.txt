@@ -38,6 +38,7 @@ pycountry
 pypika
 python-dotenv
 #pyyaml
+rapidfuzz
 requests
 scikit-learn
 scipy

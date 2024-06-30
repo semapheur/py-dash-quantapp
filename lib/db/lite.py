@@ -145,11 +145,11 @@ def read_sqlite(
   if tables == [] or table not in set(tables):
     return None
 
-  if isinstance(query, str):
-    query = text(query)
+  if params:
+    if isinstance(query, str):
+      query = text(query)
 
-    if params:
-      query = query.bindparams(**params)
+    query = query.bindparams(**params)
 
   with engine.connect().execution_options(autocommit=True) as con:
     df = pd.read_sql(
