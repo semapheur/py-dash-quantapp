@@ -55,8 +55,8 @@ class Ticker:
       url = f'https://query2.finance.yahoo.com/v8/finance/chart/{self.ticker}'
 
       async with httpx.AsyncClient() as client:
-        rs = await client.get(url, headers=HEADERS, params=params)
-        data: dict = rs.json()
+        response = await client.get(url, headers=HEADERS, params=params)
+        data: dict = response.json()
 
       return data['chart']['result'][0]
 

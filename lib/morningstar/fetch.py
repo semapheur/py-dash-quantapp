@@ -33,10 +33,10 @@ async def fetch_api(params: ApiParams, timeout: Optional[float | int] = None) ->
   client_timeout = httpx.Timeout(timeout) if timeout else None
 
   async with httpx.AsyncClient(timeout=client_timeout) as client:
-    rs = await client.get(
+    response = await client.get(
       url, headers=HEADERS, params=params.model_dump(exclude_none=True)
     )
-    return rs.json()
+    return response.json()
 
 
 async def get_currency(id_: str) -> str:
@@ -59,6 +59,7 @@ async def get_tickers(
   }
   fields = {
     'stock': (
+      'isin',
       'SecId',
       'Ticker',
       'Name',
@@ -70,7 +71,9 @@ async def get_tickers(
       'ClosePrice',
     ),
     'eft': (
-      'SecId' 'Ticker',
+      'isin',
+      'SecId',
+      'Ticker',
       'Name',
       'ExchangeId',
       'Currency',
@@ -78,7 +81,7 @@ async def get_tickers(
       'ClosePrice',
     ),
     'index': ('SecId', 'Name', 'Currency'),
-    'fund': ('SecId', 'LegalName', 'Currency', 'CategoryName', 'ClosePrice'),
+    'fund': ('isin', 'SecId', 'LegalName', 'Currency', 'CategoryName', 'ClosePrice'),
     'func_category': ('name', 'id'),
   }
   universe = {
@@ -198,6 +201,7 @@ async def fund_data():
     'Lo CQ-Hi IS',
   )
   fields = {
+    'isin': 'isin',
     'SecId': 'id',
     'LegalName': 'name',
     'CategoryName': 'category',

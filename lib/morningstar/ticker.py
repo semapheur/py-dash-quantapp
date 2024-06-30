@@ -50,10 +50,10 @@ class Stock(Security):
     url = 'https://tools.morningstar.no/api/rest.svc/timeseries_ohlcv/dr6pz9spfi'
 
     async with httpx.AsyncClient() as client:
-      rs = await client.get(url, headers=HEADERS, params=params)
-      if rs.status_code != 200:
+      response = await client.get(url, headers=HEADERS, params=params)
+      if response.status_code != 200:
         raise httpx.RequestError(f'Error fetching OHLCV for {self.id}: {rs}')
-      parse: list[list[float | int]] = rs.json()
+      parse: list[list[float | int]] = response.json()
 
     scrap: list[Ohlcv] = []
     for d in parse:
@@ -335,7 +335,7 @@ class Fund(Security):
     scrap.extend([buy_fee, ann_fee])
 
     cols = (
-      'bencmark_index',
+      'benchmark_index',
       'alfa_best_fit',
       'beta_best_fit',
       'price_to_earnings_ratio',

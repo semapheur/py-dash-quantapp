@@ -12,6 +12,7 @@ import httpx
 import bs4 as bs
 import pandas as pd
 from pandera.typing import DataFrame, Series
+from parsel import Selector
 
 # Local
 from lib.const import HEADERS
@@ -99,10 +100,10 @@ async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Serie
 async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
   url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{doc_id.replace('-', '')}/{doc_id}-index.html"
   async with httpx.AsyncClient() as client:
-    rs = await client.get(url, headers=HEADERS)
-    if rs.status_code != 200:
-      raise httpx.RequestError(f'Error: {rs.text}')
-    parse = bs.BeautifulSoup(rs.text, 'lxml')
+    response = await client.get(url, headers=HEADERS)
+    if response.status_code != 200:
+      raise httpx.RequestError(f'Error: {response.text}')
+    parse = bs.BeautifulSoup(response.text, 'lxml')
 
   data_files = cast(bs.Tag, parse.find('table', {'summary': 'Data Files'}))
   if doc_type == 'htm':
@@ -111,7 +112,7 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
     pattern = rf'_{doc_type}.xml$'
 
   a_node = data_files.find('a', href=re.compile(pattern))
-  assert a_node is not None, f'a tag containing XBRL href not found from {url}'
+  assert a_node is not None, f'anchor tag containing XBRL href not found from {url}'
 
   href = cast(bs.Tag, a_node).get('href')
   return f'https://www.sec.gov{href}'
@@ -246,8 +247,8 @@ async def parse_statement(url: str) -> FinStatement:
   async def fetch(url: str) -> et.Element:
     # cache_transport = hishel.AsyncCacheTransport(transport=httpx.AsyncHTTPTransport())
     async with hishel.AsyncCacheClient() as client:
-      rs = await client.get(url, headers=HEADERS)
-      return et.fromstring(rs.content)
+      response = await client.get(url, headers=HEADERS)
+      return et.fromstring(response.content)
 
   root = await fetch(url)
   if root.tag == 'Error':
@@ -376,8 +377,8 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
     return txt
 
   async with httpx.AsyncClient() as client:
-    rs = await client.get(url, headers=HEADERS)
-    root = et.fromstring(rs.content)
+    response = await client.get(url, headers=HEADERS)
+    root = et.fromstring(response.content)
 
   url_pattern = r'^https?://www\..+/'
   el_pattern = r'(?<=_)[A-Z][A-Za-z]+(?=_)?'
@@ -408,17 +409,40 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 
-def get_ciks() -> DataFrame[CikFrame]:
-  rnm = {'cik_str': 'cik', 'title': 'name'}
+async def get_isin(cik: str | int) -> str:
+  url = f'https://cik-isin.com/cik2isin.php?cik={cik}'
+
+  async with httpx.AsyncClient() as client:
+    response = await client.get(url, headers=HEADERS)
+    dom = Selector(response.text)
+
+  isin_text = dom.xpath(
+    'normalize-space(//p[b[text()="ISIN"]]/text()[normalize-space()])'
+  ).get()
+  isin_pattern = r'[A-Z]{2}[A-Z0-9]{9}[0-9]'
+  isin_match = re.search(isin_pattern, isin_text)
+
+  return isin_match.group() if isin_match else ''
+
+
+async def get_ciks() -> DataFrame[CikFrame]:
+  rename = {'cik_str': 'cik', 'title': 'name'}
 
   url = 'https://www.sec.gov/files/company_tickers.json'
 
-  with httpx.Client() as s:
-    rs = s.get(url, headers=HEADERS)
-    parse: dict[str, CikEntry] = rs.json()
+  with httpx.Client() as client:
+    response = client.get(url, headers=HEADERS)
+    parse: dict[str, CikEntry] = response.json()
 
   df = pd.DataFrame.from_dict(parse, orient='index')
-  df.rename(columns=rnm, inplace=True)
-  df.set_index('cik', inplace=True)
+  df.rename(columns=rename, inplace=True)
+
+  # tasks = [asyncio.create_task(get_isin(cik)) for cik in df['cik']]
+  # isins = await asyncio.gather(*tasks)
+  tasks = [partial(get_isin, cik) for cik in df['cik']]
+  isins = await aiometer.run_all(tasks, max_per_second=5)
+
+  df['isin'] = isins  # df['cik'].apply(get_isin)
+  df = df[['isin', 'cik', 'ticker', 'name']]
 
   return cast(DataFrame[CikFrame], df)

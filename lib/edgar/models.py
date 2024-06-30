@@ -96,6 +96,7 @@ class CikEntry(TypedDict):
 
 
 class CikFrame(DataFrameModel):
-  cik_str: Index[int]
+  cik: int
+  isin: str
   ticker: str
   title: str

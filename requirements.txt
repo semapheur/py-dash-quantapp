@@ -29,6 +29,7 @@ openturns
 ordered-set
 #orjson
 pandas
+parsel
 #polars
 protobuf==3.20
 pycountry
