@@ -1,3 +1,4 @@
+from itertools import combinations
 from typing import Optional
 
 import numpy as np
@@ -84,7 +85,10 @@ def fuzzy_threshold(str1: str, str2: str, base_threshold: float) -> float:
 
 
 def group_fuzzy_matches(
-  strings: list[str], threshold=90, trim_words: Optional[list[str]] = None
+  strings: list[str],
+  threshold=90,
+  scorer=fuzz.token_set_ratio,
+  trim_words: Optional[list[str]] = None,
 ) -> list[list[str]]:
   n = len(strings)
 
@@ -116,7 +120,7 @@ def group_fuzzy_matches(
     for i in range(len(block)):
       for j in range(i + 1, len(block)):
         if find(block[i]) != find(block[j]):
-          similarity = fuzz.token_set_ratio(trimmed[block[i]], trimmed[block[j]])
+          similarity = scorer(trimmed[block[i]], trimmed[block[j]])
           adjusted_threshold = fuzzy_threshold(
             trimmed[block[i]], trimmed[block[j]], threshold
           )
@@ -134,3 +138,24 @@ def group_fuzzy_matches(
   final_groups = {key: sorted(value) for key, value in final_groups.items()}
 
   return list(final_groups.values())
+
+
+def pairwise_fuzzy_match(nested_list: list[str]) -> dict[float, list[tuple[str, str]]]:
+  result: dict[float, list[tuple[str, str]]] = {}
+
+  for sublist in nested_list:
+    # Generate all unique pairs in the sublist
+    pairs = combinations(sublist, 2)
+
+    for str1, str2 in pairs:
+      # Calculate similarity score
+      score = fuzz.ratio(str1, str2)
+
+      # If this score is not in the result dict, add it
+      if score not in result:
+        result[score] = []
+
+      # Add the pair to the list for this score
+      result[score].append((str1, str2))
+
+  return dict(sorted(result.items()))
