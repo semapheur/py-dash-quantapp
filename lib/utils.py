@@ -248,4 +248,6 @@ def remove_words(
   pattern = r'(?!^)\b(?:{})\b'.format(
     '|'.join(map(re.escape, blacklist) if escape else blacklist)
   )
-  return [re.sub(pattern, '', s, flags=re.I).strip() for s in strings]
+  return [
+    re.sub('\s+', ' ', re.sub(pattern, '', s, flags=re.I).strip()) for s in strings
+  ]
