@@ -240,3 +240,12 @@ def get_constructor_args(class_obj) -> set[str]:
   # Get the constructor signature
   signature = inspect.signature(class_obj.__init__)
   return set(signature.parameters.keys())
+
+
+def remove_words(
+  strings: list[str], blacklist: list[str], escape: bool = False
+) -> list[str]:
+  pattern = r'(?!^)\b(?:{})\b'.format(
+    '|'.join(map(re.escape, blacklist) if escape else blacklist)
+  )
+  return [re.sub(pattern, '', s, flags=re.I).strip() for s in strings]
