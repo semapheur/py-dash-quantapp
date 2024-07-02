@@ -1,3 +1,5 @@
+from rapidfuzz import fuzz
+
 from lib.db.lite import insert_sqlite
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
@@ -22,7 +24,7 @@ trim_words = [  # (?!^)
   r'(one-(half)? )?cl(as)?s [a-z]',
   r'co(rp)?',
   r'dep(osits)?',
-  r'depository (interest|receipts?)',
+  r'deposit(a|o)ry (interest|receipts?)',
   r'exch(angeable)?',
   'fixed',
   'fltg',
@@ -70,9 +72,11 @@ trim_words = [  # (?!^)
   'sr',
   'sub',
   'tao',
+  'tbk',
   r'(unitary )?(144a/)?reg s',
   r'units?',
   r'undated( [a-z]{3})',
+  r'(un)?sponsored',
   r'(\d )?vote',
   r'(one(-half)? )?war(rant)?s?',
   'without',
@@ -92,7 +96,7 @@ async def seed_stock_tickers(group_companies: bool = False):
 
   if group_companies:
     companies = group_fuzzy_matches(
-      tickers['name'].sort_value().unique(), trim_words=trim_words
+      tickers['name'].sort_value().unique(), 95, fuzz.ratio, trim_words
     )
     tickers['company_id'] = tickers['name'].apply(lambda x: find_index(companies, x))
 
