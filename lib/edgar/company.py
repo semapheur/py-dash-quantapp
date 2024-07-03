@@ -136,7 +136,7 @@ class Company:
   def xbrls(self, date: Optional[dt] = None) -> Series[str]:
     filings = self.filings(['10-K', '10-Q', '20-F', '40-F'], date, True)
 
-    if filings['date'].max() < dt(2020, 7, 1):
+    if filings['date'].max() < dt(2020, 12, 31):
       raise Exception('Not possible to find XBRL names')
 
     prefix = 'https://www.sec.gov/Archives/edgar/data/'
@@ -144,13 +144,16 @@ class Company:
     filings.sort_values('date', ascending=False, inplace=True)
     filings.reset_index(inplace=True)
 
-    ticker: str = filings['primary_document'].iloc[0]
-    ticker = ticker.split('-')[0]
+    last_filing: str = filings['primary_document'].iloc[0]
+    pattern = r'([a-z]+)-?\d{8}'
+    ticker = re.search(pattern, last_filing).group(1)
 
     filings['xbrl'] = (
       prefix + str(self.cik) + '/' + filings['id'].str.replace('-', '') + '/'
     )
-    mask = filings['date'] >= dt(2020, 7, 1)
+    mask = (filings['date'] >= dt(2020, 7, 1)) & (
+      filings['form'].isin(['10-K', '10-Q'])
+    ) | ((filings['date'] > dt(2020, 12, 31)) & (filings['form'] == '20-F'))
     filings.loc[~mask, 'xbrl'] += (
       ticker + '-' + filings['date'].dt.strftime('%Y%m%d') + '.xml'
     )

@@ -202,8 +202,11 @@ def fiscal_quarter_monthly(month: int, fiscal_end_month: Optional[int] = None) -
   return ((month - 1) // 3) + 1
 
 
-def end_of_month(year, month):
+def month_end(year: int, month: int, unleap=True) -> int:
   import calendar
+
+  if unleap and month == 2 and calendar.isleap(year):
+    return 28
 
   return calendar.monthrange(year, month)[1]
 

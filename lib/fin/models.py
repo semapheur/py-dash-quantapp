@@ -1,4 +1,4 @@
-from datetime import date as Date
+from datetime import date as Date, datetime as dt
 import json
 import re
 from typing import cast, Literal, Optional, TypeAlias
@@ -24,7 +24,7 @@ class Meta(TypedDict):
   id: str
   scope: Scope
   date: Date
-  period: FiscalPeriod
+  fiscal_period: FiscalPeriod
   fiscal_end: str
   currency: list[str]
 
@@ -34,7 +34,7 @@ class Value(TypedDict, total=False):
   unit: str
 
 
-class Interval(BaseModel):
+class Interval(BaseModel, frozen=True):
   start_date: Date
   end_date: Date
   months: int
@@ -78,9 +78,9 @@ class FinStatement(BaseModel):
   url: Optional[str] = None
   scope: Scope
   date: Date
-  period: FiscalPeriod
+  fiscal_period: FiscalPeriod
   fiscal_end: str
-  # periods: set[Interval]
+  periods: set[Interval]
   currency: set[str]
   data: FinData  # dict[str, list[SerializedItem]]
 
@@ -90,6 +90,12 @@ class FinStatement(BaseModel):
     pattern = r'(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'
     if not re.match(pattern, value):
       raise ValueError(f'{value} does not match the format -%m-%d')
+
+    try:
+      # Add a dummy year to parse the date
+      _ = dt.strptime(f'2000-{value}', '%Y-%m-%d')
+    except ValueError:
+      raise ValueError(f'Invalid fiscal end: {value}')
 
     return value
 
@@ -121,6 +127,10 @@ class FinStatement(BaseModel):
   def serialize_date(self, date: Date):
     return date.strftime('%Y-%m-%d')
 
+  @field_serializer('periods')
+  def serialize_periods(self, periods: set[Interval]):
+    return json.dumps([interval.model_dump() for interval in periods])
+
   @field_serializer('currency')
   def serialize_currency(self, currency: set[str]):
     return json.dumps(list(currency))
@@ -150,7 +160,7 @@ class FinStatement(BaseModel):
       'url': self.url,
       'scope': self.scope,
       'date': self.date.strftime('%Y-%m-%d'),
-      'period': self.period,
+      'fiscal_period': self.period,
       'fiscal_end': self.fiscal_end,
       'currency': list(self.currency),
       'data': {key: [item_dict(i) for i in items] for key, items in self.data.items()},

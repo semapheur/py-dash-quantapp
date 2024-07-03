@@ -30,7 +30,7 @@ from lib.fin.statement import df_to_statements, load_statements, upsert_statemen
 from lib.utils import (
   insert_characters,
   month_difference,
-  end_of_month,
+  month_end,
   fiscal_quarter_monthly,
   validate_currency,
   replace_all,
@@ -120,7 +120,7 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
 
 async def parse_statements(urls: list[str]) -> list[FinStatement]:
   tasks = [partial(parse_statement, url) for url in urls]
-  financials = await aiometer.run_all(tasks, max_per_second=5)
+  financials = await aiometer.run_all(tasks, max_per_second=1)
 
   return financials
 
@@ -270,7 +270,7 @@ async def parse_statement(url: str) -> FinStatement:
     str, cast(et.Element, root.find('.{*}CurrentFiscalYearEndDate')).text
   )
   fiscal_end = re.sub('^-+', '', fiscal_end)
-  fiscal_pattern = r'(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01]))'
+  fiscal_pattern = r'(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01])'
 
   match = re.search(fiscal_pattern, fiscal_end)
   fiscal_end_month = int(cast(re.Match[str], match).group(1))
@@ -289,12 +289,13 @@ async def parse_statement(url: str) -> FinStatement:
   #  month = int(cast(re.Match[str], match).group(1))
   #  fiscal_period = cast(FiscalPeriod, f'Q{fiscal_quarter_monthly(date, month)}')
 
-  derived_quarter = fiscal_quarter_monthly(date, fiscal_end_month)
-  stated_quarter = int(fiscal_period[1])
-  if scope == 'quarterly' and derived_quarter != stated_quarter:
-    new_fiscal_month = (fiscal_end_month - 3 * stated_quarter) % 12
-    new_fiscal_day = end_of_month(date.year, new_fiscal_month)
-    fiscal_period = f'{new_fiscal_month}-{new_fiscal_day}'
+  if scope == 'quarterly':
+    derived_quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
+    stated_quarter = int(fiscal_period[1])
+    if derived_quarter != stated_quarter:
+      new_fiscal_month = (fiscal_end_month - 3 * stated_quarter) % 12
+      new_fiscal_day = month_end(date.year, new_fiscal_month)
+      fiscal_end = f'{new_fiscal_month}-{new_fiscal_day}'
 
   doc_id = url.split('/')[-2]
   currency: set[str] = set()

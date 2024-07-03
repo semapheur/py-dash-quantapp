@@ -118,15 +118,8 @@ def find_index(nested_list: list[list[str]], query: str) -> int:
   return -1
 
 
-async def seed_stock_tickers(group_companies: bool = False):
+async def seed_stock_tickers():
   tickers = await get_tickers('stock')
-
-  if group_companies:
-    companies = group_fuzzy_matches(
-      tickers['name'].sort_value().unique(), 95, fuzz.ratio, trim_words
-    )
-    tickers['company_id'] = tickers['name'].apply(lambda x: find_index(companies, x))
-
   insert_sqlite(tickers, 'ticker.db', 'stock', 'replace', False)
 
 

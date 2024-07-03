@@ -34,7 +34,7 @@ SCREENER_CURRENCIES = {'XOSL': 'NOK'}
 async def seed_edgar_financials(exchange: str) -> None:
   query = dedent(
     """
-    SELECT DISTINCT stock.company_id AS id, edgar.cik AS cik FROM stock
+    SELECT DISTINCT stock.company_id AS company_id, edgar.cik AS cik FROM stock
     INNER JOIN edgar ON edgar.isin = stock.isin
     WHERE stock.mic = :exchange OR stock.company_id IN (
       SELECT DISTINCT company_id FROM stock
@@ -47,7 +47,7 @@ async def seed_edgar_financials(exchange: str) -> None:
     raise ValueError(f'No tickers found for {exchange}')
 
   faulty: list[str] = []
-  for id, cik in zip(df['id'], df['cik']):
+  for id, cik in zip(df['company_id'], df['cik']):
     try:
       _ = await update_statements(int(cik), id)
       time.sleep(60)
