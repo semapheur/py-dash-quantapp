@@ -1,3 +1,4 @@
+import hashlib
 from rapidfuzz import fuzz
 
 from lib.db.lite import insert_sqlite
@@ -6,10 +7,11 @@ from lib.edgar.parse import get_ciks
 from lib.fuzz import group_fuzzy_matches
 
 trim_words = [  # (?!^)
-  r'\s[.-:]+\s' r'\d(\.\d+)?\s?%',
+  r'\s[.-:]+\s',
+  r'\d(\.\d+)?\s?%',
+  r'\d/\d+(th)?',
   r'-([a-z]|\d+?)-',
   r'd/d+(th)?',
-  r'1(/\d)? r(ig)?ht?s?',
   'ab',
   r'a\.?dr?',
   'ag',
@@ -18,26 +20,27 @@ trim_words = [  # (?!^)
   'bearer',
   'bhd',
   'brdr',
+  r'\(?buyback\)?',
   'cad',
   r'c?dr',
   'cedear',
-  r'(one-(half)? )?cl(as)?s [a-z]',
-  r'co(rp)?',
-  r'dep(osits)?',
-  r'deposit(a|o)ry (interest|receipts?)',
+  r'(one-(half)? )?cl(as)?s -?[a-z]-?',
+  r'dep(osits?)?',
+  r'(((brazili|canadi|kore)an|taiwan) )?deposit(a|o)ry (interests?|receipts?)',
   r'exch(angeable)?',
   'fixed',
   'fltg',
   'foreign',
+  'fxdfr ',
   'gbp',
   'gmbh',
   r'\(?[a-z]{3} hedged\)?',
   'inc',
+  r'int(terests?)?',
   'into',
   'jsc',
   r'kc?sc',
   'kgaa',
-  'ltd',
   'lp',
   'maturity',
   'na',
@@ -58,15 +61,16 @@ trim_words = [  # (?!^)
   'psc',
   'red',
   r'registere?d',
-  'repr',
+  r'repr(\.|esents)?',
   'restricted',
+  r'r(ig)?ht?s?',
   r'\(?rs\.\d{1,2}(\.\d{2})?\)?',
   'rt',
   r's\.?a\.?',
   'sae',
   'sak',
   'saog',
-  r'ser(ie)?s? [a-z0-9]',
+  r'ser(ies?)? -?[a-z0-9]-?',
   r'sh(are)?s?',
   'spa',
   'sr',
@@ -81,6 +85,29 @@ trim_words = [  # (?!^)
   r'(one(-half)? )?war(rant)?s?',
   'without',
 ]
+
+
+def hash_companies(companies: list[list[str]], hash_length=10) -> dict[str, list[str]]:
+  result: dict[str, list[str]] = {}
+  hashes: set[str] = set()
+
+  def generate_hash(company: str, suffix=''):
+    base = company + suffix
+    return hashlib.sha256(base.encode()).hexdigest()[:hash_length]
+
+  for company in companies:
+    name = min(company, key=len)
+    hash_value = generate_hash(name)
+    suffix = 0
+
+    while hash_value in result:
+      suffix += 1
+      hash_value = generate_hash(name, str(suffix))
+
+    hashes.add(hash_value)
+    result[hash_value] = company
+
+  return result
 
 
 def find_index(nested_list: list[list[str]], query: str) -> int:

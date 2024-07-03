@@ -11,6 +11,8 @@ from pydantic import BaseModel, Field
 from lib.const import HEADERS
 from lib.utils import replace_all
 
+# Morningstar API docs: https://developer.morningstar.com/direct-web-services/documentation/api-reference/screener/regulatory-screener#data-points
+
 
 class ApiParams(BaseModel):
   page: int = Field(default=1, gt=1)
@@ -51,9 +53,11 @@ async def get_tickers(
 ) -> pd.DataFrame:
   rename = {
     'SecId': 'id',
+    'EquityCompanyId': 'company_id',
     'LegalName': 'legal_name',
-    'ExchangeId': 'mic',
     'SectorName': 'sector',
+    'Domicile': 'domicile',
+    'IPODate': 'ipo_date',
     'IndustryName': 'industry',
     'CategoryName': 'category',
   }
@@ -61,11 +65,14 @@ async def get_tickers(
     'stock': (
       'isin',
       'SecId',
+      'mic',
+      'Currency',
       'Ticker',
+      'IPODate',
+      'EquityCompanyId',
       'Name',
       'LegalName',
-      'ExchangeId',
-      'Currency',
+      'Domicile',
       'SectorName',
       'IndustryName',
       'ClosePrice',
@@ -75,13 +82,22 @@ async def get_tickers(
       'SecId',
       'Ticker',
       'Name',
-      'ExchangeId',
+      'mic',
       'Currency',
       'CategoryName',
       'ClosePrice',
     ),
     'index': ('SecId', 'Name', 'Currency'),
-    'fund': ('isin', 'SecId', 'LegalName', 'Currency', 'CategoryName', 'ClosePrice'),
+    'fund': (
+      'fundId',
+      'isin',
+      'SecId',
+      'PrimaryBenchmarkId',
+      'LegalName',
+      'Currency',
+      'CategoryName',
+      'ClosePrice',
+    ),
     'func_category': ('name', 'id'),
   }
   universe = {
@@ -167,10 +183,10 @@ async def get_tickers(
   df.rename(columns=rename, inplace=True)
   df.columns = df.columns.str.lower()
 
-  if security == 'stock':
-    # Extract MIC
-    pattern = r'^EX(\$+|TP\$+)'
-    df['mic'] = df['mic'].str.replace(pattern, '', regex=True)
+  # Extract MIC
+  # if security == 'stock':
+  #  pattern = r'^EX(\$+|TP\$+)'
+  #  df['mic'] = df['mic'].str.replace(pattern, '', regex=True)
 
   return df
 
@@ -202,6 +218,7 @@ async def fund_data():
   )
   fields = {
     'isin': 'isin',
+    'fundId': 'fund_id',
     'SecId': 'id',
     'LegalName': 'name',
     'CategoryName': 'category',

@@ -2,9 +2,9 @@ from functools import partial
 import json
 import logging
 import time
+from textwrap import dedent
 
 import pandas as pd
-from sqlalchemy import text
 from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
@@ -32,13 +32,16 @@ SCREENER_CURRENCIES = {'XOSL': 'NOK'}
 
 
 async def seed_edgar_financials(exchange: str) -> None:
-  query = """
-    SELECT stock.id AS id, edgar.cik AS cik FROM stock
-    INNER JOIN edgar ON
-      edgar.ticker = stock.ticker
-    WHERE stock.mic = ":exchange" AND stock.ticker IN (SELECT ticker FROM edgar)
-  """
-
+  query = dedent(
+    """
+    SELECT DISTINCT stock.company_id AS id, edgar.cik AS cik FROM stock
+    INNER JOIN edgar ON edgar.isin = stock.isin
+    WHERE stock.mic = :exchange OR stock.company_id IN (
+      SELECT DISTINCT company_id FROM stock
+      WHERE mic = :exchange
+    )
+    """
+  )
   df = read_sqlite('ticker.db', query, {'exchange': exchange})
   if df is None:
     raise ValueError(f'No tickers found for {exchange}')
