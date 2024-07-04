@@ -100,7 +100,7 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
 
 
 async def calculate_fundamentals(
-  id: str,
+  ticker_ids: list[str],
   currency: str,
   financials: DataFrame,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
@@ -212,23 +212,23 @@ def load_fundamentals(
 
 
 async def update_fundamentals(
-  id: str,
+  company_id: str,
   currency: str,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_years: Optional[None] = None,
   cols: Optional[set[str]] = None,
 ) -> pd.DataFrame:
-  table = f'{id}_{currency}'
+  table = f'{company_id}_{currency}'
 
-  financials = await load_financials(id, currency)
+  financials = await load_financials(company_id, currency)
   if financials is None:
-    raise ValueError(f'Statements have not been seeded for {id}')
+    raise ValueError(f'Statements have not been seeded for {company_id}')
 
-  fundamentals = load_fundamentals(id, currency, cols)
+  fundamentals = load_fundamentals(company_id, currency, cols)
 
   if fundamentals is None:
     fundamentals = await calculate_fundamentals(
-      id, currency, financials, ohlcv_fetcher, beta_years
+      company_id, currency, financials, ohlcv_fetcher, beta_years
     )
 
     upsert_sqlite(fundamentals, 'fundamentals.db', table, {'date': Date})
@@ -255,7 +255,12 @@ async def update_fundamentals(
     )
 
   fundamentals_ = await calculate_fundamentals(
-    id, currency, fundamentals_, ohlcv_fetcher, beta_years=beta_years, update=True
+    company_id,
+    currency,
+    fundamentals_,
+    ohlcv_fetcher,
+    beta_years=beta_years,
+    update=True,
   )
   fundamentals_ = cast(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]

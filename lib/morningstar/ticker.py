@@ -52,7 +52,7 @@ class Stock(Security):
     async with httpx.AsyncClient() as client:
       response = await client.get(url, headers=HEADERS, params=params)
       if response.status_code != 200:
-        raise httpx.RequestError(f'Error fetching OHLCV for {self.id}: {rs}')
+        raise httpx.RequestError(f'Error fetching OHLCV for {self.id}: {response}')
       parse: list[list[float | int]] = response.json()
 
     scrap: list[Ohlcv] = []

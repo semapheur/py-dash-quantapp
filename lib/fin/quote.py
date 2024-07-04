@@ -12,8 +12,8 @@ from lib.utils import slice_df_by_date
 
 
 async def get_ohlcv(
-  id: str,
-  security: str,
+  ticker_ids: list[str],
+  security: Literal['stock', 'forex'],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: Optional[int] = 1,
   start_date: Optional[dt | Date] = None,

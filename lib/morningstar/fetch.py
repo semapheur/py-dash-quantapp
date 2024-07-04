@@ -321,33 +321,3 @@ def index_data(scope: Literal['country', 'region', 'sector-us', 'sector-global']
   df['country'] = df['name'].apply(alpha3)
 
   return df
-
-
-"""
-    # Trim tickers (for merging)
-    df['tickerTrim'] = df['ticker'].str.lower()
-    patterns = {
-      'XIST': r'\.e$',
-      'XCAI': r'\.ca\.?$',
-      'XTAE': r'(-|\.)(m|l)$',
-      'MISX': r'-rm(dr)?$',
-      'XCSE': r'\sdkk$',
-      'XBLB': r'-r-a$',
-      'XZIM': r'\.zw$',
-      'XHKG': r'(^0+(?=[1-9][0-9a-z]*))'
-    }
-    for k, v in patterns.items():
-      mask = df['mic'] == k
-      df.loc[mask, 'tickerTrim'] = df.loc[mask, 'tickerTrim'] \
-        .str.replace(v, '', regex=True)
-
-    # Trim ticker for suffixes and special characters 
-    pattern = (
-      r'((?<=\.p)r(?=\.?[a-z]$))|' # .PRx
-      r'((?<=\.w)i(?=\.?[a-z]$))|' #.WIx
-      r'((?<=\.(r|u|w))t(?=[a-z]?$))|' # .RT/UT/WT
-      r'((\.|/)?[inpx][047]{4}$)|'
-      r'(\s|\.|_|-|/|\')'
-    )
-    df['tickerTrim'] = df['tickerTrim'].str.replace(pattern, '', regex=True)
-"""

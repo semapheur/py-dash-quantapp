@@ -38817,6 +38817,16 @@
       "fill": "average_shares_outstanding"
     }
   },
+  "weighted_average_shares_outstanding_basic.": {
+    "unit": "shares",
+    "aggregate": "average",
+    "label": {
+      "long": "Weighted Average Number of Basic Shares Outstanding"
+    },
+    "gaap": [
+      "WeightedAverageNumberOfSharesOutstandingBasic.StatementClassOfStockAxis"
+    ]
+  },
   "weighted_average_shares_outstanding_diluted": {
     "unit": "shares",
     "aggregate": "average",

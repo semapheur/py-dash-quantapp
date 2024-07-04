@@ -47,7 +47,7 @@ def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
       url=row['url'],
       scope=row['scope'],
       date=row['date'],
-      period=row['period'],
+      fiscal_period=row['fiscal_period'],
       fiscal_end=row['fiscal_end'],
       currency=row['currency'],
       data=row['data'],
@@ -106,7 +106,7 @@ async def statement_to_df(
   fin_date = pd.to_datetime(financials.date)
   fiscal_end_month = int(financials.fiscal_end.split('-')[0])
   fin_scope = financials.scope
-  fin_period = financials.period
+  fin_period = financials.fiscal_period
   currencies = financials.currency.difference({currency})
 
   df_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, int | float]] = {}

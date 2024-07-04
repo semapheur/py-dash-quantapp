@@ -67,13 +67,13 @@ async def seed_edgar_financials(exchange: str) -> None:
 
 
 async def seed_fundamentals(exchange: str):
-  query = 'SELECT id, name FROM stock WHERE mic = :exchange'
+  query = 'SELECT id, company_id, name FROM stock WHERE mic = :exchange'
   tickers = read_sqlite('ticker.db', query, params={'exchange': exchange})
 
   if tickers is None:
     raise ValueError(f'No tickers found for {exchange}')
 
-  seeded_ids = set(tickers['id']).intersection(get_tables('financials.db'))
+  seeded_ids = set(tickers['company_id']).intersection(get_tables('financials.db'))
   if not seeded_ids:
     raise ValueError(f'No financials found for {exchange}')
 
