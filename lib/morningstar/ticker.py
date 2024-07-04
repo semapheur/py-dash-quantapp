@@ -29,7 +29,7 @@ FACTOR = {'tusener': 1e3, 'millioner': 1e6, 'milliarder': 1e9}
 @dataclass(slots=True)
 class Security:
   id: str
-  currency: Optional[str] = 'USD'
+  currency: Optional[str] = None
 
 
 class Stock(Security):
@@ -79,9 +79,6 @@ class Stock(Security):
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
     return cast(DataFrame[Quote], df)
-
-  def get_currency(self):
-    self.currency = fetch_currency(self.id)
 
   def financials(self) -> pd.DataFrame | None:
     def parse_sheet(sheet: Literal['is', 'bs', 'cf']):
@@ -406,15 +403,19 @@ async def batch_ohlcv(
   ids: list[str],
   start_date: Date | dt = Date(1950, 1, 1),
   end_date: Optional[Date | dt] = None,
-  currency: Optional[str] = None,
+  currencies: Optional[str | list[str]] = None,
 ) -> DataFrame:
-  if currency is None:
-    currency = 'USD'
+  if isinstance(currencies, str):
+    currencies = [currencies] * len(ids)
+  elif currencies is None:
+    currency_tasks = [asyncio.create_task(fetch_currency(id)) for id in ids]
+    currencies = await asyncio.gather(*currency_tasks)
 
-  tasks = [
-    asyncio.create_task(Stock(id, currency).ohlcv(start_date, end_date)) for id in ids
+  ohlcv_tasks = [
+    asyncio.create_task(Stock(id, currency).ohlcv(start_date, end_date))
+    for (id, currency) in zip(ids, currencies)
   ]
-  result = await asyncio.gather(*tasks)
+  result = await asyncio.gather(*ohlcv_tasks)
 
   for i, id in enumerate(ids):
     multi_columns = pd.MultiIndex.from_product([[id], result[i].columns])
