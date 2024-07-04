@@ -10,13 +10,13 @@ HEADERS = {
   'Accept-Language': 'en-US,en;q=0.5',
   'DNT': '1',
   'Connection': 'keep-alive',
-  #'Sec-Fetch-Dest': 'empty',
+  #'Sec-Fetch-Dest': 'document',
   #'Sec-Fetch-Mode': 'cors',
   #'Sec-Fetch-Site': 'none',
   #'Sec-GPC': '1',
   #'Cache-Control': 'no-cache',
   'Upgrade-Insecure-Requests': '1',
   'User-Agent': (
-    'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/112.0'
+    'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/127.0'
   ),
 }

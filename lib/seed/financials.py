@@ -50,7 +50,7 @@ async def seed_edgar_financials(exchange: str) -> None:
   for id, cik in zip(df['company_id'], df['cik']):
     try:
       _ = await update_statements(int(cik), id)
-      time.sleep(60)
+      time.sleep(1)
 
     except Exception as e:
       print(e)

@@ -80,7 +80,7 @@ class FinStatement(BaseModel):
   date: Date
   fiscal_period: FiscalPeriod
   fiscal_end: str
-  periods: set[Interval]
+  # periods: set[Interval]
   currency: set[str]
   data: FinData  # dict[str, list[SerializedItem]]
 
@@ -127,9 +127,9 @@ class FinStatement(BaseModel):
   def serialize_date(self, date: Date):
     return date.strftime('%Y-%m-%d')
 
-  @field_serializer('periods')
-  def serialize_periods(self, periods: set[Interval]):
-    return json.dumps([interval.model_dump() for interval in periods])
+  # @field_serializer('periods')
+  # def serialize_periods(self, periods: set[Interval]):
+  #  return json.dumps([interval.model_dump() for interval in periods])
 
   @field_serializer('currency')
   def serialize_currency(self, currency: set[str]):

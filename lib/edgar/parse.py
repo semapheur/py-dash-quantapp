@@ -1,5 +1,6 @@
 import asyncio
 from datetime import date as Date, datetime as dt
+import time
 from dateutil.relativedelta import relativedelta
 from functools import partial
 import re
@@ -40,27 +41,27 @@ from lib.utils import (
 Docs: TypeAlias = Literal['cal', 'def', 'htm', 'lab', 'pre']
 
 
-async def scrap_statements(cik: int, id_: str) -> list[FinStatement]:
+async def scrap_statements(cik: int, id: str) -> list[FinStatement]:
   from lib.edgar.company import Company
 
   company = Company(cik)
   filings = await company.xbrl_urls()
 
   financials = await parse_statements(filings.tolist())
-  upsert_statements('financials.db', id_, financials)
+  upsert_statements('financials.db', id, financials)
   return financials
 
 
 async def update_statements(
-  cik: int, id_: str, delta=120, date: Optional[Date] = None
+  cik: int, id: str, delta=120, date: Optional[Date] = None
 ) -> list[FinStatement]:
   from lib.edgar.company import Company
 
   company = Company(cik)
-  df = load_statements(id_, date)
+  df = load_statements(id, date)
 
   if df is None:
-    return await scrap_statements(cik, id_)
+    return await scrap_statements(cik, id)
 
   last_date = df['date'].max()
 
@@ -80,7 +81,7 @@ async def update_statements(
 
   new_fin = await parse_statements(new_filings.tolist())
   if new_fin:
-    upsert_statements('financials.db', id_, new_fin)
+    upsert_statements('financials.db', id, new_fin)
 
   return [*new_fin, *df_to_statements(df)]
 
@@ -118,10 +119,10 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
   return f'https://www.sec.gov{href}'
 
 
-async def parse_statements(urls: list[str], run_async=False) -> list[FinStatement]:
+async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement]:
   if run_async:
     tasks = [partial(parse_statement, url) for url in urls]
-    financials = await aiometer.run_all(tasks, max_per_second=1)
+    financials = await aiometer.run_all(tasks, max_per_second=5)
 
     return financials
 
@@ -188,7 +189,6 @@ async def parse_statement(url: str) -> FinStatement:
     months = month_difference(start_date, end_date)
 
     interval = Interval(start_date=start_date, end_date=end_date, months=months)
-    periods.add(interval)
 
     return Interval(start_date=start_date, end_date=end_date, months=months)
 
@@ -258,6 +258,7 @@ async def parse_statement(url: str) -> FinStatement:
   if root.tag == 'Error':
     cik, doc_id = url.split('/')[6:8]
     doc_id = insert_characters(doc_id, {'-': [10, 12]})
+    time.sleep(1)
     url = await parse_xbrl_url(int(cik), doc_id)
     root = await fetch(url)
 
@@ -283,16 +284,6 @@ async def parse_statement(url: str) -> FinStatement:
     str, cast(et.Element, root.find('.{*}DocumentFiscalPeriodFocus')).text
   )
 
-  # if (el := root.find('.{*}DocumentFiscalPeriodFocus')) is not None:
-  #  fiscal_period = cast(FiscalPeriod, el.text)
-  # elif scope == 'annual':
-  #  fiscal_period = 'FY'
-  # else:
-  #  fiscal_pattern = r'(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01]))'
-  #  match = re.search(fiscal_pattern, fiscal_end)
-  #  month = int(cast(re.Match[str], match).group(1))
-  #  fiscal_period = cast(FiscalPeriod, f'Q{fiscal_quarter_monthly(date, month)}')
-
   if scope == 'quarterly':
     derived_quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
     stated_quarter = int(fiscal_period[1])
@@ -303,7 +294,6 @@ async def parse_statement(url: str) -> FinStatement:
 
   doc_id = url.split('/')[-2]
   currency: set[str] = set()
-  periods: set[Interval] = set()
   data: FinData = {}
 
   name_pattern = (
@@ -361,7 +351,6 @@ async def parse_statement(url: str) -> FinStatement:
     scope=scope,
     fiscal_period=fiscal_period,
     fiscal_end=fiscal_end,
-    periods=periods,
     currency=currency,
     data=data,
   )

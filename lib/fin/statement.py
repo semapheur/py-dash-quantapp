@@ -420,15 +420,15 @@ def upsert_statements(
     url TEXT PRIMARY KEY,
     scope TEXT,
     date DATE,
-    period TEXT,
+    fiscal_period TEXT,
     fiscal_end TEXT,
-    currency TEXT,
-    data TEXT
+    currency JSON,
+    data JSON
   )"""
   )
 
   query = f"""INSERT INTO 
-    "{table}" VALUES (:url, :scope, :date, :period, :fiscal_end, :currency, :data)
+    "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :data)
     ON CONFLICT (url) DO UPDATE SET  
       data=json_patch(data, excluded.data),
       currency=(
