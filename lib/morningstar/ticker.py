@@ -1,4 +1,5 @@
 # import asyncio
+import asyncio
 from dataclasses import dataclass
 from datetime import date as Date, datetime as dt
 import re
@@ -395,3 +396,24 @@ class Etf(Security):
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
     return cast(DataFrame[Quote], df)
+
+
+async def batch_ohlcv(
+  ids: list[str],
+  start_date: Date | dt = Date(1950, 1, 1),
+  end_date: Optional[Date | dt] = None,
+  currency: Optional[str] = None,
+) -> DataFrame:
+  if currency is None:
+    currency = 'USD'
+
+  tasks = [
+    asyncio.create_task(Stock(id, currency).ohlcv(start_date, end_date)) for id in ids
+  ]
+  result = await asyncio.gather(*tasks)
+
+  for i, id in enumerate(ids):
+    multi_columns = pd.MultiIndex.from_product([[id], result[i].columns])
+    result[i].columns = multi_columns
+
+  return cast(DataFrame, pd.concat(result, axis=1))
