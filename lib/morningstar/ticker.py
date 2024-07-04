@@ -15,6 +15,7 @@ from lib.const import HEADERS
 from lib.utils import replace_all
 from lib.fin.models import Quote
 from lib.morningstar.models import Ohlcv, Close, Document, StockDocuments
+from lib.morningstar.fetch import fetch_currency
 
 
 SCREENER_API = (
@@ -78,6 +79,9 @@ class Stock(Security):
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.set_index('date', inplace=True)
     return cast(DataFrame[Quote], df)
+
+  def get_currency(self):
+    self.currency = fetch_currency(self.id)
 
   def financials(self) -> pd.DataFrame | None:
     def parse_sheet(sheet: Literal['is', 'bs', 'cf']):

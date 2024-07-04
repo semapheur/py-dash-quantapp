@@ -41,11 +41,11 @@ async def fetch_api(params: ApiParams, timeout: Optional[float | int] = None) ->
     return response.json()
 
 
-async def get_currency(id_: str) -> str:
-  params = ApiParams(term=id_)
+async def fetch_currency(id: str) -> str:
+  params = ApiParams(term=id, securityDataPoints='Currency')
 
   parse = await fetch_api(params)
-  return parse['rows'][0].get('PriceCurrency', 'USD')
+  return parse['rows'][0].get('Currency', 'USD')
 
 
 async def get_tickers(
