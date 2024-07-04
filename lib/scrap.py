@@ -1,24 +1,114 @@
 import asyncio
-from typing import cast
+import random
+from typing import cast, Literal
 
-import bs4 as bs
 import httpx
 import numpy as np
+from parsel import Selector
 import requests
 
 from lib.const import HEADERS
+
+
+def get_chrome_versions(
+  platform: Literal['android', 'chromeos', 'linux', 'mac', 'win'], number=10
+) -> list[str]:
+  url = f'https://versionhistory.googleapis.com/v1/chrome/platforms/{platform}/channels/stable/versions'
+  with httpx.Client() as client:
+    response = client.get(url, headers=HEADERS)
+    parse = response.json()
+
+  number = min(number, len(parse['versions']))
+  return [version['version'] for version in parse['versions'][:number]]
+
+
+def get_firefox_versions(number=10) -> list[str]:
+  url = 'https://product-details.mozilla.org/1.0/firefox_history_major_releases.json'
+  with httpx.Client() as client:
+    response = client.get(url, headers=HEADERS)
+    parse = response.json()
+
+  number = min(number, len(parse))
+  return list(parse.keys())[-number:]
+
+
+def get_opera_versions(number=10) -> list[str]:
+  def version_key(s):
+    return [int(n) for n in s.split('.')]
+
+  url = 'https://get.opera.com/pub/opera/desktop/'
+  with httpx.Client() as client:
+    response = client.get(url, headers=HEADERS)
+    dom = Selector(response.text)
+
+  versions = dom.xpath('//a[@href]/@href').getall()[1:]
+  versions = [version[:-1] for version in versions]
+  versions = sorted(versions, key=version_key, reverse=True)
+
+  number = min(number, len(versions))
+  return versions[:number]
+
+
+def generate_user_agents(num_agents=10):
+  def random_safari_version() -> str:
+    safari_versions = {
+      '16': (0, 6),
+      '17': (0, 5),
+    }
+    major = random.choice(list(safari_versions.keys()))
+    minor = random.randint(*safari_versions[major])
+
+    return f'{major}.{minor}'
+
+  browsers = ['Chrome', 'Firefox', 'Safari', 'Opera']
+  operating_systems = [
+    'Windows NT 10.0',
+    'Macintosh; Intel Mac OS X 10_15_7',
+    'X11; Linux x86_64',
+  ]
+
+  chrome_versions = get_chrome_versions('win', 10)
+  firefox_versions = get_firefox_versions(10)
+  opera_versions = get_opera_versions(10)
+
+  user_agents = set()
+
+  while len(user_agents) < num_agents:
+    browser = random.choice(browsers)
+    os = random.choice(operating_systems)
+
+    if browser == 'Chrome':
+      chrome = random.choice(chrome_versions)
+      user_agent = f'Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome} Safari/537.36'
+    elif browser == 'Firefox':
+      firefox = random.choice(firefox_versions)
+      user_agent = f'Mozilla/5.0 ({os}; rv:{firefox}) Gecko/20100101 Firefox/{firefox}'
+    elif browser == 'Safari':
+      safari = random_safari_version()
+      user_agent = f'Mozilla/5.0 ({os}) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{safari} Safari/605.1.15'
+    elif browser == 'Opera':
+      opera = random.choice(opera_versions)
+      chrome = random.choice(chrome_versions)
+      user_agent = f'Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome} Safari/537.36 OPR/{opera}'
+
+    user_agents.add(user_agent)
+
+  return user_agents
 
 
 def free_proxy_list() -> list[str]:
   url = 'https://free-proxy-list.net/#'
 
   with httpx.Client() as client:
-    rs = client.get(url)
-    soup = bs.BeautifulSoup(rs.text, 'lxml')
+    response = client.get(url)
+    dom = Selector(response.text)
 
-  proxies = cast(
-    bs.Tag, cast(bs.Tag, soup.find('div', {'id': 'raw'})).find('textarea')
-  ).text
+  proxies = dom.xpath('//div[@id="raw"]//textarea/text()').get()
+
+  if proxies is None:
+    return []
+
+  proxies = proxies.replace('\n', '')
   proxy_list = proxies.split('\n')[3:]
   return list(filter(None, proxy_list))
 

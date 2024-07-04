@@ -118,10 +118,14 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
   return f'https://www.sec.gov{href}'
 
 
-async def parse_statements(urls: list[str]) -> list[FinStatement]:
-  tasks = [partial(parse_statement, url) for url in urls]
-  financials = await aiometer.run_all(tasks, max_per_second=1)
+async def parse_statements(urls: list[str], run_async=False) -> list[FinStatement]:
+  if run_async:
+    tasks = [partial(parse_statement, url) for url in urls]
+    financials = await aiometer.run_all(tasks, max_per_second=1)
 
+    return financials
+
+  financials = [await parse_statement(url) for url in urls]
   return financials
 
 
