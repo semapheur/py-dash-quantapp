@@ -1,90 +1,9 @@
 import hashlib
-from rapidfuzz import fuzz
 
-from lib.db.lite import insert_sqlite
+from lib.db.lite import insert_sqlite, read_sqlite
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
-from lib.fuzz import group_fuzzy_matches
-
-trim_words = [  # (?!^)
-  r'\s[.-:]+\s',
-  r'\d(\.\d+)?\s?%',
-  r'\d/\d+(th)?',
-  r'-([a-z]|\d+?)-',
-  r'd/d+(th)?',
-  'ab',
-  r'a\.?dr?',
-  'ag',
-  'alien market',
-  r'a/?sa?',
-  'bearer',
-  'bhd',
-  'brdr',
-  r'\(?buyback\)?',
-  'cad',
-  r'c?dr',
-  'cedear',
-  r'(one-(half)? )?cl(as)?s -?[a-z]-?',
-  r'dep(osits?)?',
-  r'(((brazili|canadi|kore)an|taiwan) )?deposit(a|o)ry (interests?|receipts?)',
-  r'exch(angeable)?',
-  'fixed',
-  'fltg',
-  'foreign',
-  'fxdfr ',
-  'gbp',
-  'gmbh',
-  r'\(?[a-z]{3} hedged\)?',
-  'inc',
-  r'int(terests?)?',
-  'into',
-  'jsc',
-  r'kc?sc',
-  'kgaa',
-  'lp',
-  'maturity',
-  'na',
-  r'\(new\)',
-  r'(non)?-?conv(ert((a|i)ble)?)?',
-  r'(non)?-?cum',
-  r'(limited|non|sub(ord)?)?-?vo?t(in)?g',
-  r'nv(dr)?',
-  r'ord(inary)?',
-  'partly paid',
-  'pcl',
-  r'perp(etual)?( [a-z]{3})?',
-  'pfd',
-  'php',
-  'plc',
-  'pref',
-  'prf',
-  'psc',
-  'red',
-  r'registere?d',
-  r'repr(\.|esents)?',
-  'restricted',
-  r'r(ig)?ht?s?',
-  r'\(?rs\.\d{1,2}(\.\d{2})?\)?',
-  'rt',
-  r's\.?a\.?',
-  'sae',
-  'sak',
-  'saog',
-  r'ser(ies?)? -?[a-z0-9]-?',
-  r'sh(are)?s?',
-  'spa',
-  'sr',
-  'sub',
-  'tao',
-  'tbk',
-  r'(unitary )?(144a/)?reg s',
-  r'units?',
-  r'undated( [a-z]{3})',
-  r'(un)?sponsored',
-  r'(\d )?vote',
-  r'(one(-half)? )?war(rant)?s?',
-  'without',
-]
+from lib.mic import get_mics
 
 
 def hash_companies(companies: list[list[str]], hash_length=10) -> dict[str, list[str]]:
@@ -127,3 +46,17 @@ async def seed_ciks():
   ciks = await get_ciks()
 
   insert_sqlite(ciks, 'ticker.db', 'edgar', 'replace', False)
+
+
+async def seed_exchanges():
+  mics = get_mics()
+
+  query = 'SELECT DISTINCT mic, currency FROM stock'
+  currencies = read_sqlite('ticker.db', query)
+  if currencies is None:
+    await seed_stock_tickers()
+    currencies = read_sqlite('ticker.db', query)
+
+  mics = mics.merge(currencies, on='mic', how='left')
+
+  insert_sqlite(mics, 'ticker.db', 'exchange', 'replace', False)

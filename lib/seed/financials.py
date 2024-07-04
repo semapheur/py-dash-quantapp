@@ -3,6 +3,7 @@ import json
 import logging
 import time
 from textwrap import dedent
+from typing import cast
 
 import pandas as pd
 from tqdm import tqdm
@@ -18,17 +19,15 @@ from lib.morningstar.ticker import Stock
 setup_logging()
 logger = logging.getLogger(__name__)
 
-faulty = ['0P0000BV6H', '0P0001691U', '0P0000BRJU', '0P0000C80Q']
-empty = [
-  '0P0001O69E',
-  '0P0000J4UJ',
-  '0P0001PCD9',
-  '0P000X9JZ',
-  '0P0000AOB5',
-  '0P0001MX0L',
-]
 
-SCREENER_CURRENCIES = {'XOSL': 'NOK'}
+def get_currency(exchange: str) -> str:
+  query = 'SELECT currency FROM (SELECT DISTINCT mic, currency FROM stock WHERE mic = :exchange)'
+  currency = read_sqlite('ticker.db', query, {'exchange': exchange})
+
+  if currency is None:
+    raise ValueError(f'No currency found for {exchange}')
+
+  return cast(str, currency.loc[0, 'currency'])
 
 
 async def seed_edgar_financials(exchange: str) -> None:
@@ -77,7 +76,7 @@ async def seed_fundamentals(exchange: str):
   if not seeded_ids:
     raise ValueError(f'No financials found for {exchange}')
 
-  currency = SCREENER_CURRENCIES['XOSL']
+  currency = get_currency(exchange)
   faulty: list[str] = []
   stored: list[dict[str, str]] = []
   for id in tqdm(seeded_ids):

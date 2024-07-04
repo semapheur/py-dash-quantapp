@@ -228,13 +228,12 @@ def download_file(url: str, file_path: str | Path):
 
 
 def validate_currency(code: str) -> bool:
-  from iso4217 import Currency
+  import pycountry
 
-  try:
-    _ = Currency(code.upper())
-    return True
-  except Exception:
+  if pycountry.currencies.get(alpha_3=code) is None:
     return False
+
+  return True
 
 
 def get_constructor_args(class_obj) -> set[str]:
