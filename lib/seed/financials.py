@@ -1,4 +1,3 @@
-from functools import partial
 import json
 import logging
 import time
@@ -13,7 +12,6 @@ from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
 
 from lib.log.setup import setup_logging
-from lib.morningstar.ticker import Stock
 
 
 setup_logging()
@@ -84,9 +82,7 @@ async def seed_fundamentals(exchange: str):
   for company in tqdm(seeded_companies):
     try:
       ticker_ids = tickers.loc[tickers["company_id"] == company, "id"].tolist()
-
-      ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
-      _ = await update_fundamentals(company, ticker_ids, currency, ohlcv_fetcher)
+      _ = await update_fundamentals(company, ticker_ids, currency)
       stored.append({"id": company, "currency": currency})
 
     except Exception as e:

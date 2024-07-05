@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
 import json
-from typing import cast, Any, Coroutine, Optional
+from typing import cast, Optional
 from sqlalchemy.types import Date
 
 from ordered_set import OrderedSet
@@ -19,7 +19,7 @@ from lib.fin.metrics import (
   beta,
   weighted_average_cost_of_capital,
 )
-from lib.fin.models import Quote, CloseQuote
+from lib.fin.models import CloseQuote
 from lib.fin.statement import load_financials, stock_splits
 from lib.fin.quote import get_ohlcv
 from lib.fin.taxonomy import TaxonomyCalculation
@@ -248,7 +248,6 @@ async def update_fundamentals(
   company_id: str,
   ticker_ids: list[str],
   currency: str,
-  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   beta_years: Optional[None] = None,
   cols: Optional[set[str]] = None,
 ) -> pd.DataFrame:
