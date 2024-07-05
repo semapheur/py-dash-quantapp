@@ -11,7 +11,7 @@ explicit_package_bases = true
 indent-width = 2
 
 [tool.ruff.format]
-quote-style = "single"
+quote-style = "double"
 
 [project]
 dependencies = [

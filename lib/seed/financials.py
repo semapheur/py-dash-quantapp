@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_currency(exchange: str) -> str:
-  query = 'SELECT currency FROM (SELECT DISTINCT mic, currency FROM stock WHERE mic = :exchange)'
-  currency = read_sqlite('ticker.db', query, {'exchange': exchange})
+  query = "SELECT currency FROM (SELECT DISTINCT mic, currency FROM stock WHERE mic = :exchange)"
+  currency = read_sqlite("ticker.db", query, {"exchange": exchange})
 
   if currency is None:
-    raise ValueError(f'No currency found for {exchange}')
+    raise ValueError(f"No currency found for {exchange}")
 
-  return cast(str, currency.loc[0, 'currency'])
+  return cast(str, currency.loc[0, "currency"])
 
 
 async def seed_edgar_financials(exchange: str) -> None:
@@ -41,12 +41,12 @@ async def seed_edgar_financials(exchange: str) -> None:
     )
     """
   )
-  df = read_sqlite('ticker.db', query, {'exchange': exchange})
+  df = read_sqlite("ticker.db", query, {"exchange": exchange})
   if df is None:
-    raise ValueError(f'No tickers found for {exchange}')
+    raise ValueError(f"No tickers found for {exchange}")
 
   faulty: list[str] = []
-  for id, cik in zip(df['company_id'], df['cik']):
+  for id, cik in zip(df["company_id"], df["cik"]):
     try:
       _ = await update_statements(int(cik), id)
       time.sleep(1)
@@ -54,50 +54,54 @@ async def seed_edgar_financials(exchange: str) -> None:
     except Exception as e:
       print(e)
       faulty.append(id)
-      print(f'{id} failed')
+      print(f"{id} failed")
 
   if not faulty:
     return
 
-  with open('logs/seed_fail.json', 'w+') as f:
+  with open("logs/seed_fail.json", "w+") as f:
     content: dict = json.load(f)
-    content[f'{exchange}_financials'] = faulty
+    content[f"{exchange}_financials"] = faulty
     json.dump(content, f)
 
 
 async def seed_fundamentals(exchange: str):
-  query = 'SELECT id, company_id, name FROM stock WHERE mic = :exchange'
-  tickers = read_sqlite('ticker.db', query, params={'exchange': exchange})
+  query = "SELECT id, company_id, name FROM stock WHERE mic = :exchange"
+  tickers = read_sqlite("ticker.db", query, params={"exchange": exchange})
 
   if tickers is None:
-    raise ValueError(f'No tickers found for {exchange}')
+    raise ValueError(f"No tickers found for {exchange}")
 
-  seeded_ids = set(tickers['company_id']).intersection(get_tables('financials.db'))
-  if not seeded_ids:
-    raise ValueError(f'No financials found for {exchange}')
+  seeded_companies = set(tickers["company_id"]).intersection(
+    get_tables("financials.db")
+  )
+  if not seeded_companies:
+    raise ValueError(f"No financials found for {exchange}")
 
   currency = get_currency(exchange)
   faulty: list[str] = []
   stored: list[dict[str, str]] = []
-  for id in tqdm(seeded_ids):
+  for company in tqdm(seeded_companies):
     try:
+      ticker_ids = tickers.loc[tickers["company_id"] == company, "id"].tolist()
+
       ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
-      _ = await update_fundamentals(id, currency, ohlcv_fetcher)
-      stored.append({'id': id, 'currency': currency})
+      _ = await update_fundamentals(company, ticker_ids, currency, ohlcv_fetcher)
+      stored.append({"id": company, "currency": currency})
 
     except Exception as e:
       logger.error(e, exc_info=True)
-      print(f'{id} failed')
+      print(f"{id} failed")
 
   if stored:
     df = pd.DataFrame.from_records(stored)
-    df.set_index(('id', 'currency'), inplace=True)
-    upsert_sqlite(df, 'tickers.db', 'fundamentals')
+    df.set_index(("id", "currency"), inplace=True)
+    upsert_sqlite(df, "tickers.db", "fundamentals")
 
   if not faulty:
     return
 
-  with open('logs/seed_fail.json', 'r+') as f:
+  with open("logs/seed_fail.json", "r+") as f:
     content: dict = json.load(f)
-    content[f'{exchange}_financials'] = faulty
+    content[f"{exchange}_financials"] = faulty
     json.dump(content, f)

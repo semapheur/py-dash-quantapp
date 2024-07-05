@@ -12,36 +12,36 @@ from lib.utils import slice_df_by_date
 
 
 async def get_ohlcv(
-  ticker_ids: list[str],
-  security: Literal['stock', 'forex'],
+  id: str,
+  security: Literal["stock", "forex", "index"],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: Optional[int] = 1,
   start_date: Optional[dt | Date] = None,
   end_date: Optional[dt | Date] = None,
-  cols: Optional[list[Literal['open', 'high', 'low', 'close', 'volume']]] = None,
+  cols: Optional[list[Literal["open", "high", "low", "close", "volume"]]] = None,
 ) -> DataFrame[Quote]:
-  col_text = '*'
+  col_text = "*"
   if cols is not None:
-    col_text = 'date, ' + ', '.join(cols)
+    col_text = "date, " + ", ".join(cols)
 
-  query = f'SELECT {col_text} FROM "{id}"'
+  query = f"SELECT {col_text} FROM '{id}'"
 
   if start_date is not None:
-    query += f' WHERE DATE(date) >= DATE("{start_date:%Y-%m-%d}")'
+    query += f" WHERE DATE(date) >= DATE('{start_date:%Y-%m-%d}')"
 
   if end_date is not None:
-    query += f'{" AND" if "WHERE" in query else " WHERE"} DATE(date) <= DATE("{end_date:%Y-%m-%d}")'
+    query += f"{' AND' if 'WHERE' in query else ' WHERE'} DATE(date) <= DATE('{end_date:%Y-%m-%d}')"
 
   ohlcv = read_sqlite(
-    f'{security}_quote.db',
+    f"{security}_quote.db",
     query,
-    index_col='date',
-    date_parser={'date': {'format': '%Y-%m-%d'}},
+    index_col="date",
+    date_parser={"date": {"format": "%Y-%m-%d"}},
   )
 
   if ohlcv is None:
     ohlcv = await ohlcv_fetcher()
-    upsert_sqlite(ohlcv, f'{security}_quote.db', id, {'date': SQLDate})
+    upsert_sqlite(ohlcv, f"{security}_quote.db", id, {"date": SQLDate})
     if cols is not None:
       ohlcv = cast(DataFrame[Quote], ohlcv.loc[:, list(cols)])
 
@@ -52,7 +52,7 @@ async def get_ohlcv(
 
   last_date: dt = ohlcv.index.max()
   if not isinstance(last_date, dt):
-    print(f'Last date: {last_date}')
+    print(f"Last date: {last_date}")
 
   if relativedelta(dt.now(), last_date).days <= delta:
     return cast(DataFrame[Quote], ohlcv)
@@ -62,12 +62,12 @@ async def get_ohlcv(
   if new_ohlcv is None:
     return ohlcv
 
-  upsert_sqlite(ohlcv, f'{security}_quote.db', id, {'date': SQLDate})
+  upsert_sqlite(ohlcv, f"{security}_quote.db", id, {"date": SQLDate})
   ohlcv = read_sqlite(
-    f'{security}_quote.db',
+    f"{security}_quote.db",
     query,
-    index_col='date',
-    date_parser={'date': {'format': '%Y-%m-%d'}},
+    index_col="date",
+    date_parser={"date": {"format": "%Y-%m-%d"}},
   )
 
   return cast(DataFrame[Quote], ohlcv)
