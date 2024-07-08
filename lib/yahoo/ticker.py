@@ -34,42 +34,42 @@ class Ticker:
     start_date: Optional[dt | Date] = None,
     end_date: Optional[dt | Date] = None,
     period: Optional[QuotePeriod] = None,
-    interval: QuoteInterval = '1d',
+    interval: QuoteInterval = "1d",
     adjusted_close=False,
   ) -> DataFrame[Quote]:
     async def parse_json(
       start_stamp: int, end_stamp: int, interval: QuoteInterval
     ) -> QuoteData:
       params = {
-        'formatted': 'true',
+        "formatted": "true",
         #'crumb': '0/sHE2JwnVF',
-        'lang': 'en-US',
-        'region': 'US',
-        'includeAdjustedClose': 'true',
-        'interval': interval,
-        'period1': str(start_stamp),
-        'period2': str(end_stamp),
-        'events': 'div|split',
-        'corsDomain': 'finance.yahoo.com',
+        "lang": "en-US",
+        "region": "US",
+        "includeAdjustedClose": "true",
+        "interval": interval,
+        "period1": str(start_stamp),
+        "period2": str(end_stamp),
+        "events": "div|split",
+        "corsDomain": "finance.yahoo.com",
       }
-      url = f'https://query2.finance.yahoo.com/v8/finance/chart/{self.ticker}'
+      url = f"https://query2.finance.yahoo.com/v8/finance/chart/{self.ticker}"
 
       async with httpx.AsyncClient() as client:
         response = await client.get(url, headers=HEADERS, params=params)
         data: dict = response.json()
 
-      return data['chart']['result'][0]
+      return data["chart"]["result"][0]
 
     if (start_date is not None) and (period is None):
       start_date = handle_date(start_date)
       start_stamp = int(start_date.replace(tzinfo=tz.utc).timestamp())
 
-    elif period == 'max':
+    elif period == "max":
       start_stamp = int(dt.today().timestamp())
       start_stamp -= 3600 * 24
 
     else:
-      start_stamp = int(dt(1900, 1, 1).replace(tzinfo=tz.utc).timestamp())
+      start_stamp = int(dt(1980, 1, 1).replace(tzinfo=tz.utc).timestamp())
 
     if end_date is not None:
       end_date = handle_date(end_date)
@@ -80,34 +80,34 @@ class Ticker:
 
     parse = await parse_json(start_stamp, end_stamp, interval)
 
-    if period == 'max':
-      start_stamp = parse['meta']['firstTradeDate']
+    if period == "max":
+      start_stamp = parse["meta"]["firstTradeDate"]
       parse = await parse_json(start_stamp, end_stamp, interval)
 
     # Index
-    ix = parse['timestamp']
+    ix = parse["timestamp"]
 
     # OHLCV
-    ohlcv = parse['indicators']['quote'][0]
+    ohlcv = parse["indicators"]["quote"][0]
 
     close = (
-      parse['indicators']['adjclose'][0]['adjclose']
+      parse["indicators"]["adjclose"][0]["adjclose"]
       if adjusted_close
-      else ohlcv['close']
+      else ohlcv["close"]
     )
 
     data = {
-      'open': ohlcv['open'],
-      'high': ohlcv['high'],
-      'low': ohlcv['low'],
-      'close': close,
-      'volume': ohlcv['volume'],
+      "open": ohlcv["open"],
+      "high": ohlcv["high"],
+      "low": ohlcv["low"],
+      "close": close,
+      "volume": ohlcv["volume"],
     }
 
     # Parse to DataFrame
-    df = pd.DataFrame.from_dict(data, orient='columns')
-    df.index = pd.to_datetime(ix, unit='s').floor('D')
-    df.index.rename('date', inplace=True)
+    df = pd.DataFrame.from_dict(data, orient="columns")
+    df.index = pd.to_datetime(ix, unit="s").floor("D")
+    df.index.rename("date", inplace=True)
 
     zero_columns = df.columns[(df.isin((0, np.nan))).all()]
     df.drop(zero_columns, axis=1, inplace=True)
@@ -119,20 +119,20 @@ class Ticker:
     return cast(DataFrame[Quote], df)
 
   def price_targets(self) -> pd.DataFrame:
-    url = f'https://finance.yahoo.com/quote/{self.ticker}/analysis'
+    url = f"https://finance.yahoo.com/quote/{self.ticker}/analysis"
     with httpx.Client() as client:
       rs = client.get(url, headers=HEADERS)
-      soup = bs.BeautifulSoup(rs.text, 'lxml')
+      soup = bs.BeautifulSoup(rs.text, "lxml")
 
-    div = cast(bs.Tag, soup.find('div', {'id': 'Col2-9-QuoteModule-Proxy'}))
+    div = cast(bs.Tag, soup.find("div", {"id": "Col2-9-QuoteModule-Proxy"}))
 
     scrap = cast(
-      str, cast(bs.Tag, div.find('div', {'aria-label': True})).get('aria-label')
+      str, cast(bs.Tag, div.find("div", {"aria-label": True})).get("aria-label")
     )
 
-    pt = scrap.split(' ')[1::2]
+    pt = scrap.split(" ")[1::2]
     pt.insert(0, self.ticker)
-    cols = ('ticker', 'low', 'current', 'average', 'high')
+    cols = ("ticker", "low", "current", "average", "high")
     df = pd.DataFrame(pt, columns=cols)
     return df
 
@@ -141,29 +141,29 @@ class Ticker:
       end_stamp = int(dt.now().timestamp()) + 3600 * 24
 
       params = {
-        'lang': 'en-US',
-        'region': 'US',
-        'symbol': self.ticker,
-        'padTimeSeries': 'true',
-        'type': ','.join([period + i for i in cast(DataFrame, items)['yahoo']]),
-        'merge': 'false',
-        'period1': '493590046',
-        'period2': str(end_stamp),
-        'corsDomain': 'finance.yahoo.com',
+        "lang": "en-US",
+        "region": "US",
+        "symbol": self.ticker,
+        "padTimeSeries": "true",
+        "type": ",".join([period + i for i in cast(DataFrame, items)["yahoo"]]),
+        "merge": "false",
+        "period1": "493590046",
+        "period2": str(end_stamp),
+        "corsDomain": "finance.yahoo.com",
       }
       url = (
-        'https://query2.finance.yahoo.com/ws/'
-        f'fundamentals-timeseries/v1/finance/timeseries/{self.ticker}'
+        "https://query2.finance.yahoo.com/ws/"
+        f"fundamentals-timeseries/v1/finance/timeseries/{self.ticker}"
       )
       with httpx.Client() as client:
         rs = client.get(url, headers=HEADERS, params=params)
         parse: dict = rs.json()
 
       dfs: list[pd.DataFrame] = []
-      pattern = r'^(annual|quarterly)'
-      financials = cast(Item, parse['timeseries']['result'])
+      pattern = r"^(annual|quarterly)"
+      financials = cast(Item, parse["timeseries"]["result"])
       for i in financials:
-        item = cast(ItemMeta, i['meta'])['type'][0]
+        item = cast(ItemMeta, i["meta"])["type"][0]
 
         if item not in i:
           continue
@@ -171,17 +171,17 @@ class Ticker:
         scrap: dict[dt, int] = {}
         records = list(filter(None, cast(list[ItemRecord], i[item])))
         for r in records:
-          date = dt.strptime(r['asOfDate'], '%Y-%m-%d')
-          scrap[date] = r['reportedValue']['raw']
+          date = dt.strptime(r["asOfDate"], "%Y-%m-%d")
+          scrap[date] = r["reportedValue"]["raw"]
 
         df = pd.DataFrame.from_dict(
-          scrap, orient='index', columns=[re.sub(pattern, '', item)]
+          scrap, orient="index", columns=[re.sub(pattern, "", item)]
         )
 
         dfs.append(df)
 
       df = pd.concat(dfs, axis=1)
-      df['period'] = period[0]
+      df["period"] = period[0]
 
       return df
 
@@ -190,20 +190,20 @@ class Ticker:
       JOIN JSON_EACH(yahoo) ON 1=1
       WHERE yahoo IS NOT NULL
     """
-    items = read_sqlite('taxonomy.db', query)
+    items = read_sqlite("taxonomy.db", query)
     if items is None:
-      raise ValueError('Yahoo financial items not seeded!')
+      raise ValueError("Yahoo financial items not seeded!")
 
     dfs = []
-    for p in ('annual', 'quarterly'):
+    for p in ("annual", "quarterly"):
       dfs.append(parse(p))
 
     df = pd.concat(dfs)
 
-    col_map = {k: v for k, v in zip(items['yahoo'], items['item'])}
+    col_map = {k: v for k, v in zip(items["yahoo"], items["item"])}
     df.rename(columns=col_map, inplace=True)
-    df.set_index('period', append=True, inplace=True)
-    df.index.names = ['date', 'period']
+    df.set_index("period", append=True, inplace=True)
+    df.index.names = ["date", "period"]
 
     return df
 
@@ -212,7 +212,7 @@ class Ticker:
       def get_entry(opt: dict, key: str):
         if key in opt:
           if isinstance(opt[key], dict):
-            entry = opt[key].get('raw')
+            entry = opt[key].get("raw")
           elif isinstance(opt[key], bool):
             entry = opt[key]
         else:
@@ -220,32 +220,32 @@ class Ticker:
 
         return entry
 
-      options = parse['optionChain']['result'][0]['options'][0]
+      options = parse["optionChain"]["result"][0]["options"][0]
 
       cols = (
-        'strike',
-        'impliedVolatility',
-        'openInterest',
-        'lastPrice',
-        'ask',
-        'bid',
-        'inTheMoney',
+        "strike",
+        "impliedVolatility",
+        "openInterest",
+        "lastPrice",
+        "ask",
+        "bid",
+        "inTheMoney",
       )
-      cells = np.zeros((len(cols), (len(options['calls']) + len(options['puts']))))
+      cells = np.zeros((len(cols), (len(options["calls"]) + len(options["puts"]))))
 
       # Calls
-      for i, opt in enumerate(options['calls']):
+      for i, opt in enumerate(options["calls"]):
         for j, c in enumerate(cols):
           cells[j, i] = get_entry(opt, c)
 
       # Puts
-      for i, opt in enumerate(options['puts']):
+      for i, opt in enumerate(options["puts"]):
         for j, c in enumerate(cols):
-          cells[j, i + len(options['calls'])] = get_entry(opt, c)
+          cells[j, i + len(options["calls"])] = get_entry(opt, c)
 
       data = {k: v for k, v in zip(cols, cells)}
-      data['optionType'] = np.array(
-        ['call'] * len(options['calls']) + ['put'] * len(options['puts'])
+      data["optionType"] = np.array(
+        ["call"] * len(options["calls"]) + ["put"] * len(options["puts"])
       )
 
       # Parse to data frame
@@ -253,25 +253,25 @@ class Ticker:
 
       # Add expiry date
       date = dt.utcfromtimestamp(stamp)
-      df['expiry'] = date
+      df["expiry"] = date
 
       return df
 
     params = {
-      'formatted': 'true',
+      "formatted": "true",
       #'crumb': '2ztQhfMEzsm',
-      'lang': 'en-US',
-      'region': 'US',
-      'corsDomain': 'finance.yahoo.com',
+      "lang": "en-US",
+      "region": "US",
+      "corsDomain": "finance.yahoo.com",
     }
 
-    url = f'https://query1.finance.yahoo.com/v7/finance/options/{self.ticker}'
+    url = f"https://query1.finance.yahoo.com/v7/finance/options/{self.ticker}"
     with httpx.Client() as client:
       rs = client.get(url, headers=HEADERS, params=params)
       parse = rs.json()
 
     # Maturity dates
-    stamps = parse['optionChain']['result'][0]['expirationDates']
+    stamps = parse["optionChain"]["result"][0]["expirationDates"]
 
     # Parse first option chain to dataframe
     dfs = []
@@ -281,7 +281,7 @@ class Ticker:
     for i in range(1, len(stamps)):
       time.sleep(1)
 
-      params['date'] = stamps[i]
+      params["date"] = stamps[i]
 
       # q = (i % 2) + 1
       # url = f'https://query{q}.finance.yahoo.com/v7/finance/options/{ticker}'
@@ -303,7 +303,7 @@ async def batch_ohlcv(
   start_date: Optional[dt] = None,
   end_date: Optional[dt] = None,
   period: Optional[QuotePeriod] = None,
-  interval: QuoteInterval = '1d',
+  interval: QuoteInterval = "1d",
 ):
   tasks: list[asyncio.Task] = []
 
@@ -321,8 +321,8 @@ async def batch_ohlcv(
 async def exchange_rate(
   ticker: str, start_date: dt, end_date: dt, interval: QuoteInterval
 ):
-  if not ticker.endswith('=X'):
-    ticker += '=X'
+  if not ticker.endswith("=X"):
+    ticker += "=X"
 
   quotes = await Ticker(ticker).ohlcv(start_date, end_date, None, interval)
-  return quotes['close'].mean()
+  return quotes["close"].mean()

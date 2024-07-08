@@ -62,10 +62,11 @@ async def fetch_exchange_rate(
 ) -> float:
   from numpy import nan
 
-  exchange_fetcher = partial(Ticker(ticker + "=X").ohlcv)
+  exchange_fetcher = partial(Ticker(ticker + "=X").ohlcv, start_date, end_date)
   rate = await get_ohlcv(
     ticker, "forex", exchange_fetcher, None, start_date, end_date, ["close"]
   )
+
   if rate.empty:
     return nan
 
@@ -102,6 +103,9 @@ async def statement_to_df(
 
     rate = await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
     return rate
+
+  if isinstance(currency, str):
+    currency = currency.lower()
 
   fin_date = pd.to_datetime(financials.date)
   fiscal_end_month = int(financials.fiscal_end.split("-")[0])
