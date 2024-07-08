@@ -1897,7 +1897,7 @@
       "AdvertisingAndPromotionCosts"
     ]
   },
-  "affiliate_costs": {
+  "cost_revenue_affiliate": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5847,7 +5847,7 @@
       "NoncurrentContractLiabilities"
     ]
   },
-  "cost_direct_material": {
+  "cost_revenue_materials": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5856,9 +5856,24 @@
     },
     "gaap": [
       "CostDirectMaterial"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_goods_materials + cost_revenue_services_materials"
+    }
+  },
+  "cost_revenue_services_materials": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Material used in Sales of Services"
+    },
+    "gaap": [
+      "CostOfServicesDirectMaterials"
     ]
   },
-  "cost_goods_services_sold": {
+  "cost_revenue_goods_services": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5870,10 +5885,10 @@
     ],
     "calculation": {
       "order": 1383,
-      "any": "cost_goods_services_sold_excluding_depreciation_amortization_depletion + depreciation_amortization_depletion_production"
+      "any": "cost_revenue_goods_services_excluding_depreciation_amortization_depletion + depreciation_amortization_depletion_production"
     }
   },
-  "cost_goods_services_sold_excluding_depreciation_amortization_depletion": {
+  "cost_revenue_goods_services_excluding_depreciation_amortization_depletion": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5885,42 +5900,481 @@
     ],
     "calculation": {
       "order": 1375,
-      "any": "cost_direct_material + cost_goods_sold_lease_sales_type + cost_goods_sold_lease_direct_financing + cost_leased_rented_property_equipment + cost_direct_labor + cost_goods_services_sold_overhead + cost_maintenance + direct_taxes_licenses_costs + cost_trust_assets_sold_to_pay_expenses + cost_property_repairs_maintenance + cost_other_property_operating_expense + direct_operating_costs + loss_contracts + affiliate_costs + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production",
+      "any": "cost_revenue_materials + cost_revenue_goods_lease_sales_type + cost_revenue_goods_lease_direct_financing + cost_revenue_leased_rented_property_equipment + cost_revenue_labor + cost_revenue_overhead + cost_revenue_maintenance + cost_revenue_taxes_licenses + cost_trust_assets_sold_to_pay_expenses + cost_property_repairs_maintenance + cost_property_operating_expense_other + cost_revenue_operating + loss_contracts + cost_revenue_affiliate + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production","cost_revenue_leased_rented_property_equipment",
       "CostOfGoodsSold + CostOfServices + CostOfRealEstateRevenue + ServiceManagementCosts + AssetManagementCosts + CostOfPropertyRepairsAndMaintenance + FacilityMembershipAndOperationsCosts + CostOfOtherPropertyOperatingExpense + CostOfGoodsAndServicesEnergyCommoditiesAndServices + CostOfUtilities + DirectOperatingCosts + CostOfGoodsSoldSubscription + AdvertisingRevenueCost + MaintenanceCosts + ContractRevenueCost + LossOnContracts + LicenseCosts + DirectOperatingCostRoyaltyExpense + HealthCareOrganizationMedicalSuppliesAndDrugsExpense + FranchiseCosts + AffiliateCosts + RelatedPartyCosts + CostOfReimbursableExpense + ExciseAndSalesTaxes + ProductionRelatedImpairmentsOrCharges"
     }
   },
-  "cost_goods_sold": {
+  "cost_revenue_reimbursable_expense": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Cost of Direct Materials Used in Goods Sold"
+      "long": "Cost of Reimbursable Expense"
     },
     "gaap": [
-      "CostOfGoodsSold"
+      "CostOfReimbursableExpense"
+    ]
+  },
+  "cost_revenue_related_parties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Related Party Costs"
+    },
+    "gaap": [
+      "RelatedPartyCosts"
+    ]
+  },
+  "cost_revenue_franchise": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Franchise Costs"
+    },
+    "gaap": [
+      "FranchiseCosts"
+    ]
+  },
+  "cost_revenue_medical_supplies_drugs": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Health Care Organization Medical Supplies and Drugs Expense"
+    },
+    "gaap": [
+      "HealthCareOrganizationMedicalSuppliesAndDrugsExpense"
+    ]
+  },
+  "cost_revenue_royalties": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Operating Cost Royalty Expense"
+    },
+    "gaap": [
+      "DirectOperatingCostRoyaltyExpense"
+    ]
+  },
+  "cost_revenue_license": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "License Costs"
+    },
+    "gaap": [
+      "LicenseCosts"
+    ]
+  },
+  "cost_revenue_overhead": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Overhead Revenue Cost"
+    },
+    "gaap": [
+      "CostOfGoodsAndServicesSoldOverhead"
     ],
     "calculation": {
       "order": 0,
-      "any": "cost_goods_sold_direct_materials + cost_goods_sold_direct_labor + cost_goods_sold_overhead + depreciation_amortization_depletion_goods + cost_goods_sold_direct_taxes_licenses_costs + cost_goods_sold_maintenance_cost + cost_trust_assets_sold_to_pay_expenses",cost_trust_assets_sold_to_pay_expenses
+      "any": "cost_revenue_goods_overhead + cost_revenue_services_overhead"
     }
   },
-  "cost_goods_sold_maintenance_cost": {
+  "cost_revenue_services_overhead": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Cost of Maintenance Used in Sales of Goods"
+      "long": "Cost of Services Overhead"
+    },
+    "gaap": [
+      "CostOfServicesOverhead"
+    ]
+  },
+  "cost_revenue_contract": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Advertising Revenue Cost"
+    },
+    "gaap": [
+      "AdvertisingRevenueCost"
+    ]
+  },
+  "cost_revenue_advertising": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Advertising Revenue Cost"
+    },
+    "gaap": [
+      "AdvertisingRevenueCost"
+    ]
+  },
+  "cost_revenue_goods_subscription": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Subscriptions"
+    },
+    "gaap": [
+      "CostOfGoodsSoldSubscription"
+    ]
+  },
+  "cost_revenue_energy_commodities_services": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Energy Commodities and Services"
+    },
+    "gaap": [
+      "CostOfGoodsAndServicesEnergyCommoditiesAndServices"
+    ]
+  },
+  "cost_facility_membership_operations": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Facility Membership and Operations Costs"
+    },
+    "gaap": [
+      "FacilityMembershipAndOperationsCosts"
+    ]
+  },
+  "cost_asset_management": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Asset Management Costs"
+    },
+    "gaap": [
+      "AssetManagementCosts"
+    ]
+  },
+  "cost_service_management": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Service Management Costs"
+    },
+    "gaap": [
+      "ServiceManagementCosts"
+    ]
+  },
+  "cost_revenue_real_estate": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Real Estate Revenue"
+    },
+    "gaap": [
+      "CostOfRealEstateRevenue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_construction_development + cost_real_estate_services_land_sales + cost_timeshare + timeshare_carrying_charges + cost_revenue_leased_rented_property_equipment + cost_owned_property_management + cost_real_estate_sales + cost_revenue_hotels + cost_concessions"
+    }
+  },
+  "cost_concessions": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Hotels"
+    },
+    "gaap": [
+      "ConcessionsCosts"
+    ]
+  },
+  "cost_revenue_hotels": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Hotels"
+    },
+    "gaap": [
+      "DirectCostsOfHotels"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_hotels_owned + cost_revenue_hotels_leased + cost_revenue_hotels_occupancy + cost_revenue_hotels_casino + cost_revenue_hotels_food_beverage + cost_revenue_hotels_retail + cost_revenue_hotels_other"
+    }
+  },
+  "cost_revenue_hotels_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Direct Costs of Hotels"
+    },
+    "gaap": [
+      "OtherDirectCostsOfHotels"
+    ]
+  },
+  "cost_revenue_hotels_retail": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Retails"
+    },
+    "gaap": [
+      "RetailExpenses"
+    ]
+  },
+  "cost_revenue_hotels_food_beverage": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Food and Beverages"
+    },
+    "gaap": [
+      "FoodAndBeverageCostOfSales"
+    ]
+  },
+  "cost_revenue_hotels_casino": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Casinos"
+    },
+    "gaap": [
+      "CasinoExpenses"
+    ]
+  },
+  "cost_revenue_hotels_occupancy": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Hotel Occupancy"
+    },
+    "gaap": [
+      "OccupancyCosts"
+    ]
+  },
+  "cost_revenue_hotels_leased": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Leased Hotels"
+    },
+    "gaap": [
+      "DirectCostsOfLeasedHotels"
+    ]
+  },
+  "cost_revenue_hotels_owned": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Owned Hotels"
+    },
+    "gaap": [
+      "DirectCostsOfOwnedHotels"
+    ]
+  },
+  "cost_real_estate_sales": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Real Estate Sales"
+    },
+    "gaap": [
+      "CostOfRealEstateSales"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_real_estate_sales_excluding_interes + cost_real_estate_sales_interest"
+    }
+  },
+  "cost_real_estate_sales_interest": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Real Estate Sales Interest"
+    },
+    "gaap": [
+      "CostOfRealEstateSalesInterest"
+    ]
+  },
+  "cost_real_estate_sales_excluding_interes": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Real Estate Sales Excluding Interest"
+    },
+    "gaap": [
+      "CostOfRealEstateSalesExcludingInterest"
+    ]
+  },
+  "cost_owned_property_management": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Owned Property Management Costs"
+    },
+    "gaap": [
+      "OwnedPropertyManagementCosts"
+    ]
+  },
+  "cost_revenue_leased_rented_property_equipment": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Direct Costs of Leased and Rented Property or Equipment"
+    },
+    "gaap": [
+      "DirectCostsOfLeasedAndRentedPropertyOrEquipment"
+    ]
+  },
+  "timeshare_carrying_charges": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Time Share Carrying Charges"
+    },
+    "gaap": [
+      "TimeShareCarryingCharges"
+    ]
+  },
+  "cost_timeshare": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Time Share Costs"
+    },
+    "gaap": [
+      "TimeShareCosts"
+    ]
+  },
+  "cost_real_estate_services_land_sales": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Costs of Real Estate Services and Land Sales"
+    },
+    "gaap": [
+      "CostsOfRealEstateServicesAndLandSales"
+    ]
+  },
+  "cost_construction_development": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Construction and Development Costs"
+    },
+    "gaap": [
+      "ConstructionAndDevelopmentCosts"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_home_building + cost_general_contractor + cost_construction_other + cost_utilities"
+    }
+  },
+  "cost_utilities": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Utilities"
+    },
+    "gaap": [
+      "CostOfUtilities"
+    ]
+  },
+  "cost_construction_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Construction Costs"
+    },
+    "gaap": [
+      "OtherConstructionCosts"
+    ]
+  },
+  "cost_general_contractor": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "General Contractor Costs"
+    },
+    "gaap": [
+      "GeneralContractorCosts"
+    ]
+  },
+  "cost_home_building": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Home Building Costs"
+    },
+    "gaap": [
+      "HomeBuildingCosts"
+    ]
+  },
+  "cost_revenue_goods": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Goods Sold"
+    },
+    "gaap": [
+      "CostOfGoodsSold",
+      "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Product"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_goods_direct_materials + cost_revenue_goods_labor + cost_revenue_goods_overhead + depreciation_amortization_depletion_goods + cost_revenue_goods_taxes_licenses + cost_revenue_goods_maintenance + cost_trust_assets_sold_to_pay_expenses"
+    }
+  },
+  "cost_revenue_goods_maintenance": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Maintenance Related to Sales of Goods"
     },
     "gaap": [
       "CostOfGoodsSoldMaintenanceCosts"
     ]
   },
-  "cost_goods_sold_direct_taxes_licenses_costs": {
+  "cost_revenue_goods_taxes_licenses": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Cost of Direct Taxes and Licenses Used in Sales of Goods"
+      "long": "Direct Taxes and Licenses Costs Related to Sales of Goods"
     },
     "gaap": [
       "CostOfGoodsSoldDirectTaxesAndLicensesCosts"
@@ -5931,7 +6385,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Depreciation, Amortization and Depletion of Tangible Asset Used in Sales of Goods"
+      "long": "Depreciation, Amortization and Depletion Related to Sales of Goods"
     },
     "gaap": [
       "CostOfGoodsSoldDepreciationDepletionAndAmortization"
@@ -5978,7 +6432,7 @@
       "CostOfGoodsSoldAmortization"
     ]
   },
-  "cost_goods_sold_overhead": {
+  "cost_revenue_goods_overhead": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -5989,18 +6443,18 @@
       "CostOfGoodsSoldOverhead"
     ]
   },
-  "cost_goods_sold_direct_labor": {
+  "cost_revenue_goods_labor": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Cost of Direct Labor Used in Goods Sold"
+      "long": "Cost of Direct Labor Used in Sale of Goods"
     },
     "gaap": [
       "CostOfGoodsSoldDirectLabor"
     ]
   },
-  "cost_goods_sold_direct_materials": {
+  "cost_revenue_goods_materials": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -6011,7 +6465,7 @@
       "CostOfGoodsSoldDirectMaterials"
     ]
   },
-  "cost_goods_sold_lease_direct_financing": {
+  "cost_revenue_goods_lease_direct_financing": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -6022,7 +6476,7 @@
       "CostOfGoodsSoldDirectFinancingLease"
     ]
   },
-  "cost_goods_sold_lease_sales_type": {
+  "cost_revenue_goods_lease_sales_type": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -6044,26 +6498,31 @@
       "ProceedsFromIssuanceOfDebtDebtIssuanceCost"
     ]
   },
-  "cost_leased_rented_property_equipment": {
+  "cost_revenue_maintenance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Direc Cost of Leased and Rented Property or Equipment"
+      "long": "Maintenance Costs"
     },
     "gaap": [
-      "DirectCostsOfLeasedAndRentedPropertyOrEquipment"
-    ]
+      "CostMaintenance",
+      "MaintenanceCosts"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_goods_maintenance + cost_revenue_services_maintenance"
+    }
   },
-  "cost_maintenance": {
+  "cost_revenue_services_maintenance": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Maintenance Cost"
+      "long": "Maintenance Costs Related to Sales of Services"
     },
     "gaap": [
-      "CostMaintenance"
+      "CostOfServicesMaintenanceCosts"
     ]
   },
   "cost_noncash_project_abandonment": {
@@ -6077,7 +6536,7 @@
       "NoncashProjectAbandonmentCosts"
     ]
   },
-  "cost_other_property_operating_expense": {
+  "cost_property_operating_expense_other": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -6114,7 +6573,7 @@
     ],
     "calculation": {
       "order": 1391,
-      "any": "cost_goods_services_sold + financing_interest_expense + provision_losses + policyholder_benefits_claims_incurred + liability_future_policy_benefits_period_expense + interest_policyholders_account_balances + policyholder_dividends + amortization_deferred_sales_inducements + amortization_future_insurance_profits + amortization_mortgage_servicing_rights + amortization_deferred_policy_acquisition_expense + amortization_value_business_acquired + cost_revenue_other - merchant_marine_operating_differential_subsidy"
+      "any": "cost_revenue_goods_services + financing_interest_expense + provision_losses + policyholder_benefits_claims_incurred + liability_future_policy_benefits_period_expense + interest_policyholders_account_balances + policyholder_dividends + amortization_deferred_sales_inducements + amortization_future_insurance_profits + amortization_mortgage_servicing_rights + amortization_deferred_policy_acquisition_expense + amortization_value_business_acquired + cost_revenue_other - merchant_marine_operating_differential_subsidy"
     }
   },
   "cost_revenue_finance": {
@@ -6147,19 +6606,7 @@
       "all": "revenue_cost / days"
     }
   },
-  "cost_revenue_product": {
-    "unit": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Product Revenue Cost"
-    },
-    "gaap": [
-      "CostOfGoodsSold",
-      "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Product"
-    ]
-  },
-  "cost_revenue_service": {
+  "cost_revenue_services": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -6169,6 +6616,150 @@
     "gaap": [
       "CostOfServices",
       "CostOfGoodsAndServicesSold.ProductOrServiceAxis.Service"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_services_materials + cost_revenue_services_labor + cost_revenue_services_overhead + depreciation_amortization_services + cost_revenue_services_taxes_licenses + cost_revenue_services_maintenance + cost_revenue_services_licenses_services + cost_revenue_services_licenses_maintenance_agreements + cost_revenue_services_other + cost_revenue_services_technology + cost_revenue_services_energy_services + cost_revenue_services_embedded + cost_revenue_services_environmental_remediation"
+    }
+  },
+  "cost_revenue_services_embedded": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Embedded Service Costs"
+    },
+    "gaap": [
+      "EmbeddedServiceCosts"
+    ]
+  },
+  "cost_revenue_services_environmental_remediation": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Environmental Remediation"
+    },
+    "gaap": [
+      "CostOfServicesEnvironmentalRemediation"
+    ]
+  },
+  "cost_revenue_services_energy_services": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Energy Services"
+    },
+    "gaap": [
+      "CostOfServicesEnergyServices"
+    ]
+  },
+  "cost_revenue_services_technology": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Technology Services Costs"
+    },
+    "gaap": [
+      "TechnologyServicesCosts"
+    ]
+  },
+  "cost_revenue_services_other": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Cost of Services"
+    },
+    "gaap": [
+      "OtherCostOfServices"
+    ]
+  },
+  "cost_revenue_services_licenses_maintenance_agreements": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Services Licenses and Maintenance Agreements"
+    },
+    "gaap": [
+      "CostOfServicesLicensesAndServices"
+    ]
+  },
+  "cost_revenue_services_licenses_services": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Licenses and Services"
+    },
+    "gaap": [
+      "CostOfServicesLicensesAndServices"
+    ]
+  },
+  "cost_revenue_services_taxes_licenses": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Taxes and Licenses Costs related to Sale of Services"
+    },
+    "gaap": [
+      "CostOfServicesDirectTaxesAndLicensesCosts"
+    ]
+  },
+  "depreciation_amortization_services": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Depreciation and Amortization related to Sale of Services"
+    },
+    "gaap": [
+      "CostOfServicesDepreciationAndAmortization"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "depreciation_services + amortization_services"
+    }
+  },
+  "amortization_services": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Amortization related to Sale of Services"
+    },
+    "gaap": [
+      "CostOfServicesAmortization"
+    ]
+  },
+  "cost_revenue_labor": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Direct Labor"
+    },
+    "gaap": [
+      "CostDirectLabor"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_goods_labor + cost_revenue_services_labor"
+    }
+  },
+  "cost_revenue_services_labor": {
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Labor for Sale of Services"
+    },
+    "gaap": [
+      "CostOfServicesDirectLabor"
     ]
   },
   "cost_trust_assets_sold_to_pay_expenses": {
@@ -10053,7 +10644,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Depreciation of Tangible Asset Directly Used in Rendering of Services"
+      "long": "Depreciation Related to Sale of Services"
     },
     "gaap": [
       "CostOfServicesDepreciation"
@@ -10341,7 +10932,7 @@
       "DirectFinancingLeaseSellingLoss"
     ]
   },
-  "direct_operating_costs": {
+  "cost_revenue_operating": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -10356,7 +10947,7 @@
       "any": "ship_operating_expenses"
     }
   },
-  "direct_taxes_licenses_costs": {
+  "cost_revenue_taxes_licenses": {
     "unit": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -10365,7 +10956,11 @@
     },
     "gaap": [
       "DirectTaxesAndLicensesCosts"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": "cost_revenue_goods_taxes_licenses + cost_revenue_services_taxes_licenses"
+    }
   },
   "discontinued_application_specialized_accounting_regulate_operations": {
     "unit": "monetary",
