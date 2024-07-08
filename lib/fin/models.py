@@ -14,10 +14,18 @@ from pydantic import (
   field_validator,
 )
 
-Scope: TypeAlias = Literal['annual', 'quarterly']
-Quarter: TypeAlias = Literal['Q1', 'Q2', 'Q3', 'Q4']
-Ttm: TypeAlias = Literal['TTM1', 'TTM2', 'TTM3']
-FiscalPeriod: TypeAlias = Literal['FY'] | Quarter
+Scope: TypeAlias = Literal["annual", "quarterly"]
+Quarter: TypeAlias = Literal["Q1", "Q2", "Q3", "Q4"]
+Ttm: TypeAlias = Literal["TTM1", "TTM2", "TTM3"]
+FiscalPeriod: TypeAlias = Literal["FY"] | Quarter
+
+
+class SharePrice(TypedDict):
+  share_price_close: float
+  share_price_open: float
+  share_price_high: float
+  share_price_low: float
+  share_price_average: float
 
 
 class Meta(TypedDict):
@@ -39,17 +47,17 @@ class Interval(BaseModel, frozen=True):
   end_date: Date
   months: int
 
-  @field_serializer('start_date', 'end_date')
+  @field_serializer("start_date", "end_date")
   def serialize_date(self, date: Date):
-    return date.strftime('%Y-%m-%d')
+    return date.strftime("%Y-%m-%d")
 
 
 class Instant(BaseModel):
   instant: Date
 
-  @field_serializer('instant')
+  @field_serializer("instant")
   def serialize_date(self, date: Date):
-    return date.strftime('%Y-%m-%d')
+    return date.strftime("%Y-%m-%d")
 
 
 class Member(Value):
@@ -62,10 +70,10 @@ class Item(Value, total=False):
 
 
 def item_dict(v: Item):
-  obj = {'value': v['value'], 'unit': v['unit'], 'period': v['period'].model_dump()}
+  obj = {"value": v["value"], "unit": v["unit"], "period": v["period"].model_dump()}
 
-  if (members := v.get('members')) is not None:
-    obj['members'] = members
+  if (members := v.get("members")) is not None:
+    obj["members"] = members
 
   return obj
 
@@ -84,58 +92,58 @@ class FinStatement(BaseModel):
   currency: set[str]
   data: FinData  # dict[str, list[SerializedItem]]
 
-  @field_validator('fiscal_end', mode='before')
+  @field_validator("fiscal_end", mode="before")
   @classmethod
   def validate_fiscal_end(cls, value, info: ValidationInfo):
-    pattern = r'(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'
+    pattern = r"(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
     if not re.match(pattern, value):
-      raise ValueError(f'{value} does not match the format -%m-%d')
+      raise ValueError(f"{value} does not match the format -%m-%d")
 
     try:
       # Add a dummy year to parse the date
-      _ = dt.strptime(f'2000-{value}', '%Y-%m-%d')
+      _ = dt.strptime(f"2000-{value}", "%Y-%m-%d")
     except ValueError:
-      raise ValueError(f'Invalid fiscal end: {value}')
+      raise ValueError(f"Invalid fiscal end: {value}")
 
     return value
 
-  @field_validator('currency', mode='before')
+  @field_validator("currency", mode="before")
   @classmethod
   def validate_currency(cls, value, info: ValidationInfo):
     if isinstance(value, str):
       try:
         parsed_value = set(json.loads(value))
       except json.JSONDecodeError:
-        raise ValueError(f'{info.field_name} must be a valid JSON array string')
+        raise ValueError(f"{info.field_name} must be a valid JSON array string")
       return parsed_value
 
     return value
 
-  @field_validator('data', mode='before')
+  @field_validator("data", mode="before")
   @classmethod
   def validate_data(cls, value, info: ValidationInfo):
     if isinstance(value, str):
       try:
         parsed_value = json.loads(value)
       except json.JSONDecodeError:
-        raise ValueError(f'{info.field_name} must be a valid JSON dictionary string')
+        raise ValueError(f"{info.field_name} must be a valid JSON dictionary string")
       return parsed_value
 
     return value
 
-  @field_serializer('date')
+  @field_serializer("date")
   def serialize_date(self, date: Date):
-    return date.strftime('%Y-%m-%d')
+    return date.strftime("%Y-%m-%d")
 
   # @field_serializer('periods')
   # def serialize_periods(self, periods: set[Interval]):
   #  return json.dumps([interval.model_dump() for interval in periods])
 
-  @field_serializer('currency')
+  @field_serializer("currency")
   def serialize_currency(self, currency: set[str]):
     return json.dumps(list(currency))
 
-  @field_serializer('data')
+  @field_serializer("data")
   def serialize_data(self, data: FinData):
     obj = {}
 
@@ -143,9 +151,9 @@ class FinStatement(BaseModel):
       items_ = []
       for item in items:
         item_: dict[str, dict[str, str | int] | float | int | str | Member] = {
-          'period': item['period'].model_dump()
+          "period": item["period"].model_dump()
         }
-        for field in ('value', 'unit', 'members'):
+        for field in ("value", "unit", "members"):
           if (value := item.get(field)) is not None:
             item_[field] = cast(float | int | str | Member, value)
 
@@ -157,21 +165,21 @@ class FinStatement(BaseModel):
 
   def to_dict(self):
     return {
-      'url': self.url,
-      'scope': self.scope,
-      'date': self.date.strftime('%Y-%m-%d'),
-      'fiscal_period': self.period,
-      'fiscal_end': self.fiscal_end,
-      'currency': list(self.currency),
-      'data': {key: [item_dict(i) for i in items] for key, items in self.data.items()},
+      "url": self.url,
+      "scope": self.scope,
+      "date": self.date.strftime("%Y-%m-%d"),
+      "fiscal_period": self.period,
+      "fiscal_end": self.fiscal_end,
+      "currency": list(self.currency),
+      "data": {key: [item_dict(i) for i in items] for key, items in self.data.items()},
     }
 
 
 class FinStatementFrame(DataFrameModel):
   url: Optional[str] = Field(unique=True)
-  scope: str = Field(isin={'annual', 'quarterly'})
+  scope: str = Field(isin={"annual", "quarterly"})
   date: Timestamp
-  period: str = Field(isin={'FY', 'Q1'})
+  period: str = Field(isin={"FY", "Q1"})
   fiscal_end: Optional[str]
   periods: Optional[Object]
   currency: Object
@@ -180,7 +188,7 @@ class FinStatementFrame(DataFrameModel):
 
 class FinancialsIndex(DataFrameModel):
   date: Index[Timestamp]
-  period: Index[Literal['Q1', 'Q2', 'Q3', 'Q4', 'FY', 'TTM']]
+  period: Index[Literal["Q1", "Q2", "Q3", "Q4", "FY", "TTM"]]
   months: Index[int] = Field(ge=1, coerce=True)
   fiscal_end_month: Index[int] = Field(ge=1, le=12, coerce=True)
 

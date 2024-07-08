@@ -19,7 +19,7 @@ from lib.fin.metrics import (
   beta,
   weighted_average_cost_of_capital,
 )
-from lib.fin.models import CloseQuote
+from lib.fin.models import CloseQuote, SharePrice
 from lib.fin.statement import load_financials, stock_splits
 from lib.fin.quote import get_ohlcv
 from lib.fin.taxonomy import TaxonomyCalculation
@@ -79,18 +79,19 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
     return price_slice
 
   price_records = [
-    {
-      "share_price_close": nan,
-      "share_price_open": nan,
-      "share_price_high": nan,
-      "share_price_low": nan,
-      "share_price_average": nan,
-    }
+    SharePrice(
+      share_price_close=nan,
+      share_price_open=nan,
+      share_price_high=nan,
+      share_price_low=nan,
+      share_price_average=nan,
+    )
   ] * len(financials)
 
   if len(price.columns) == 1:
     price.rename(columns={price.columns[0]: "close"}, inplace=True)
 
+  price.sort_index(inplace=True)
   for i, ix in enumerate(cast(pd.MultiIndex, financials.index)):
     end_date = cast(dt, ix[0])
     start_date = end_date - relativedelta(months=cast(int, ix[2]))
@@ -102,11 +103,13 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
     if len(price.columns) > 1:
       price_ = weighted_share_price(price_)
 
-    price_records[i]["share_price_close"] = price_["close"].iloc[-1]
-    price_records[i]["share_price_open"] = price_["close"].iloc[0]
-    price_records[i]["share_price_high"] = price_["close"].max()
-    price_records[i]["share_price_low"] = price_["close"].min()
-    price_records[i]["share_price_average"] = price_["close"].mean()
+    price_records[i] = SharePrice(
+      share_price_close=price_["close"].iloc[-1],
+      share_price_open=price_["close"].iloc[0],
+      share_price_high=price_["close"].max(),
+      share_price_low=price_["close"].min(),
+      share_price_average=price_["close"].mean(),
+    )
 
   price_data = pd.DataFrame.from_records(price_records, index=financials.index)
 
