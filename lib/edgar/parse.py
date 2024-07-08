@@ -38,7 +38,7 @@ from lib.utils import (
 )
 
 
-Docs: TypeAlias = Literal['cal', 'def', 'htm', 'lab', 'pre']
+Docs: TypeAlias = Literal["cal", "def", "htm", "lab", "pre"]
 
 
 async def scrap_statements(cik: int, id: str) -> list[FinStatement]:
@@ -48,7 +48,7 @@ async def scrap_statements(cik: int, id: str) -> list[FinStatement]:
   filings = await company.xbrl_urls()
 
   financials = await parse_statements(filings.tolist())
-  upsert_statements('financials.db', id, financials)
+  upsert_statements("financials.db", id, financials)
   return financials
 
 
@@ -63,7 +63,7 @@ async def update_statements(
   if df is None:
     return await scrap_statements(cik, id)
 
-  last_date = df['date'].max()
+  last_date = df["date"].max()
 
   if relativedelta(dt.now(), last_date).days < delta:
     return df_to_statements(df)
@@ -73,7 +73,7 @@ async def update_statements(
   if not new_filings:
     return df_to_statements(df)
 
-  old_filings = set(df['id'])
+  old_filings = set(df["id"])
   filings_diff = set(new_filings.index).difference(old_filings)
 
   if not filings_diff:
@@ -81,7 +81,7 @@ async def update_statements(
 
   new_fin = await parse_statements(new_filings.tolist())
   if new_fin:
-    upsert_statements('financials.db', id, new_fin)
+    upsert_statements("financials.db", id, new_fin)
 
   return [*new_fin, *df_to_statements(df)]
 
@@ -98,25 +98,25 @@ async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Serie
   return result
 
 
-async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = 'htm') -> str:
+async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = "htm") -> str:
   url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{doc_id.replace('-', '')}/{doc_id}-index.html"
   async with httpx.AsyncClient() as client:
     response = await client.get(url, headers=HEADERS)
     if response.status_code != 200:
-      raise httpx.RequestError(f'Error: {response.text}')
-    parse = bs.BeautifulSoup(response.text, 'lxml')
+      raise httpx.RequestError(f"Error: {response.text}")
+    parse = bs.BeautifulSoup(response.text, "lxml")
 
-  data_files = cast(bs.Tag, parse.find('table', {'summary': 'Data Files'}))
-  if doc_type == 'htm':
-    pattern = r'(?<!_(cal|def|lab|pre)).xml$'
+  data_files = cast(bs.Tag, parse.find("table", {"summary": "Data Files"}))
+  if doc_type == "htm":
+    pattern = r"(?<!_(cal|def|lab|pre)).xml$"
   else:
-    pattern = rf'_{doc_type}.xml$'
+    pattern = rf"_{doc_type}.xml$"
 
-  a_node = data_files.find('a', href=re.compile(pattern))
-  assert a_node is not None, f'anchor tag containing XBRL href not found from {url}'
+  a_node = data_files.find("a", href=re.compile(pattern))
+  assert a_node is not None, f"anchor tag containing XBRL href not found from {url}"
 
-  href = cast(bs.Tag, a_node).get('href')
-  return f'https://www.sec.gov{href}'
+  href = cast(bs.Tag, a_node).get("href")
+  return f"https://www.sec.gov{href}"
 
 
 async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement]:
@@ -138,7 +138,7 @@ async def parse_statement(url: str) -> FinStatement:
       temp: list[Item] = []
 
       for item in data[k]:
-        if 'value' in item or (members := item.get('members')) is None:
+        if "value" in item or (members := item.get("members")) is None:
           temp.append(item)
           continue
 
@@ -146,9 +146,9 @@ async def parse_statement(url: str) -> FinStatement:
           member = next(iter(members.values()))
           temp.append(
             Item(
-              period=item['period'],
-              value=cast(float | int, member.get('value')),
-              unit=cast(str, member.get('unit')),
+              period=item["period"],
+              value=cast(float | int, member.get("value")),
+              unit=cast(str, member.get("unit")),
             )
           )
           continue
@@ -156,13 +156,13 @@ async def parse_statement(url: str) -> FinStatement:
         value = 0.0
         units = set()
         for m in members.values():
-          value += m.get('value', 0)
-          if (unit := m.get('unit')) is not None:
+          value += m.get("value", 0)
+          if (unit := m.get("unit")) is not None:
             units.add(unit)
 
         if len(units) == 1:
           temp.append(
-            Item(period=item['period'], value=value, unit=units.pop(), members=members)
+            Item(period=item["period"], value=value, unit=units.pop(), members=members)
           )
 
       fixed[k] = temp
@@ -171,60 +171,58 @@ async def parse_statement(url: str) -> FinStatement:
 
   def parse_period(period: et.Element) -> Instant | Interval:
     def parse_date(date_text: str):
-      m = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
+      m = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
       if m is None:
         raise ValueError(f'"{date_text}" does not match format "%Y-%m-%d"')
 
-      return dt.strptime(m.group(), '%Y-%m-%d').date()
+      return dt.strptime(m.group(), "%Y-%m-%d").date()
 
-    if (el := period.find('./{*}instant')) is not None:
+    if (el := period.find("./{*}instant")) is not None:
       instant_date = parse_date(cast(str, el.text))
       return Instant(instant=instant_date)
 
     start_date = parse_date(
-      cast(str, cast(et.Element, period.find('./{*}startDate')).text)
+      cast(str, cast(et.Element, period.find("./{*}startDate")).text)
     )
-    end_date = parse_date(cast(str, cast(et.Element, period.find('./{*}endDate')).text))
-
+    end_date = parse_date(cast(str, cast(et.Element, period.find("./{*}endDate")).text))
     months = month_difference(start_date, end_date)
-
     interval = Interval(start_date=start_date, end_date=end_date, months=months)
 
-    return Interval(start_date=start_date, end_date=end_date, months=months)
+    return interval
 
   def parse_unit(unit: str) -> str:
-    if re.match(r'^U(nit)?\d+$', unit) is not None:
+    if re.match(r"^U(nit)?\d+$", unit) is not None:
       unit_el = cast(et.Element, root.find(f'.{{*}}unit[@id="{unit}"]'))
 
       if unit_el is None:
         print(url)
 
-      if (measure_el := unit_el.find('.//{*}measure')) is not None:
-        unit_ = cast(str, measure_el.text).split(':')[-1].lower()
+      if (measure_el := unit_el.find(".//{*}measure")) is not None:
+        unit_ = cast(str, measure_el.text).split(":")[-1].lower()
 
-      elif (divide := unit_el.find('.//{*}divide')) is not None:
+      elif (divide := unit_el.find(".//{*}divide")) is not None:
         numerator = (
-          cast(str, cast(et.Element, divide.find('.//{*}unitNumerator/measure')).text)
-          .split(':')[-1]
+          cast(str, cast(et.Element, divide.find(".//{*}unitNumerator/measure")).text)
+          .split(":")[-1]
           .lower()
         )
         denominator = (
-          cast(str, cast(et.Element, divide.find('.//{*}unitDenominator/measure')).text)
-          .split(':')[-1]
+          cast(str, cast(et.Element, divide.find(".//{*}unitDenominator/measure")).text)
+          .split(":")[-1]
           .lower()
         )
-        unit_ = f'{numerator}/{denominator}'
+        unit_ = f"{numerator}/{denominator}"
 
     else:
-      pattern = r'^Unit_(Standard|Divide)_(\w+)_[A-Za-z0-9_-]{22}$'
+      pattern = r"^Unit_(Standard|Divide)_(\w+)_[A-Za-z0-9_-]{22}$"
       if (m := re.search(pattern, unit)) is not None:
         unit_ = m.group(2).lower()
       else:
-        unit_ = unit.split('_')[-1].lower()
+        unit_ = unit.split("_")[-1].lower()
 
-    unit_ = replace_all(unit_, {'iso4217': '', 'dollar': 'd'})
+    unit_ = replace_all(unit_, {"iso4217": "", "dollar": "d"})
 
-    pattern = r'^[a-z]{3}$'
+    pattern = r"^[a-z]{3}$"
     m = re.search(pattern, unit_, flags=re.I)
     if m is not None:
       if validate_currency(m.group()):
@@ -234,15 +232,15 @@ async def parse_statement(url: str) -> FinStatement:
 
   def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
     def parse_name(name: str) -> str:
-      name = re.sub(r'(Segment)?Member', '', name)
-      name = re.sub(name_pattern, '', name)
-      return name.split(':')[-1]
+      name = re.sub(r"(Segment)?Member", "", name)
+      name = re.sub(name_pattern, "", name)
+      return name.split(":")[-1]
 
-    unit = parse_unit(item.attrib['unitRef'])
+    unit = parse_unit(item.attrib["unitRef"])
 
     return {
       parse_name(cast(str, segment.text)): Member(
-        dim=segment.attrib['dimension'].split(':')[-1],
+        dim=segment.attrib["dimension"].split(":")[-1],
         value=float(cast(str, item.text)),
         unit=unit,
       )
@@ -255,88 +253,88 @@ async def parse_statement(url: str) -> FinStatement:
       return et.fromstring(response.content)
 
   root = await fetch(url)
-  if root.tag == 'Error':
-    cik, doc_id = url.split('/')[6:8]
-    doc_id = insert_characters(doc_id, {'-': [10, 12]})
+  if root.tag == "Error":
+    cik, doc_id = url.split("/")[6:8]
+    doc_id = insert_characters(doc_id, {"-": [10, 12]})
     time.sleep(1)
     url = await parse_xbrl_url(int(cik), doc_id)
     root = await fetch(url)
 
-  form = {'10-K': 'annual', '20-F': 'annual', '40-F': 'annual', '10-Q': 'quarterly'}
+  form = {"10-K": "annual", "20-F": "annual", "40-F": "annual", "10-Q": "quarterly"}
 
   scope = cast(
-    Scope, form[cast(str, cast(et.Element, root.find('.{*}DocumentType')).text)]
+    Scope, form[cast(str, cast(et.Element, root.find(".{*}DocumentType")).text)]
   )
   date = dt.strptime(
-    cast(str, cast(et.Element, root.find('.{*}DocumentPeriodEndDate')).text), '%Y-%m-%d'
+    cast(str, cast(et.Element, root.find(".{*}DocumentPeriodEndDate")).text), "%Y-%m-%d"
   )
 
   fiscal_end = cast(
-    str, cast(et.Element, root.find('.{*}CurrentFiscalYearEndDate')).text
+    str, cast(et.Element, root.find(".{*}CurrentFiscalYearEndDate")).text
   )
-  fiscal_end = re.sub('^-+', '', fiscal_end)
-  fiscal_pattern = r'(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01])'
+  fiscal_end = re.sub("^-+", "", fiscal_end)
+  fiscal_pattern = r"(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01])"
 
   match = re.search(fiscal_pattern, fiscal_end)
   fiscal_end_month = int(cast(re.Match[str], match).group(1))
 
   fiscal_period = cast(
-    str, cast(et.Element, root.find('.{*}DocumentFiscalPeriodFocus')).text
+    str, cast(et.Element, root.find(".{*}DocumentFiscalPeriodFocus")).text
   )
 
-  if scope == 'quarterly':
+  if scope == "quarterly":
     derived_quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
     stated_quarter = int(fiscal_period[1])
     if derived_quarter != stated_quarter:
       new_fiscal_month = (fiscal_end_month - 3 * stated_quarter) % 12
       new_fiscal_day = month_end(date.year, new_fiscal_month)
-      fiscal_end = f'{new_fiscal_month}-{new_fiscal_day}'
+      fiscal_end = f"{new_fiscal_month}-{new_fiscal_day}"
 
-  doc_id = url.split('/')[-2]
+  doc_id = url.split("/")[-2]
   currency: set[str] = set()
   data: FinData = {}
 
   name_pattern = (
-    r'((?<!Level)(Zero(?!Coupon)|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$'
+    r"((?<!Level)(Zero(?!Coupon)|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$"
   )
 
-  for item in root.findall('.//*[@unitRef]'):
+  for item in root.findall(".//*[@unitRef]"):
     if item.text is None:
       continue
 
     scrap = Item()
 
-    ctx = item.attrib['contextRef']
+    ctx = item.attrib["contextRef"]
     period_el = cast(
       et.Element,
-      cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find('./{*}period'),
+      cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find("./{*}period"),
     )
 
-    scrap['period'] = parse_period(period_el)
+    scrap["period"] = parse_period(period_el)
 
     segment = cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find(
-      './/{*}segment/{*}explicitMember'
+      ".//{*}segment/{*}explicitMember"
     )
 
     if segment is not None:
-      scrap['members'] = parse_member(item, segment)
+      scrap["members"] = parse_member(item, segment)
     else:
-      scrap['value'] = float(item.text)
-      unit = parse_unit(item.attrib['unitRef'])
-      scrap['unit'] = unit
+      scrap["value"] = float(item.text)
+      unit = parse_unit(item.attrib["unitRef"])
+      scrap["unit"] = unit
 
-    item_name = item.tag.split('}')[-1]
-    item_name = re.sub(name_pattern, '', item_name)
+    item_name = item.tag.split("}")[-1]
+    item_name = re.sub(name_pattern, "", item_name)
     if item_name not in data:
       data[item_name] = [scrap]
       continue
 
     try:
-      entry = next(i for i in data[item_name] if i['period'] == scrap['period'])
+      entry = next(i for i in data[item_name] if i["period"] == scrap["period"])
 
-      if 'members' in scrap:
-        cast(dict[str, Member], entry.setdefault('members', {})).update(
-          cast(dict[str, Member], scrap['members'])
+      if "members" in scrap:
+        cast(dict[str, Member], entry.setdefault("members", {})).update(
+          cast(dict[str, Member], scrap["members"])
         )
       else:
         entry.update(scrap)
@@ -358,12 +356,12 @@ async def parse_statement(url: str) -> FinStatement:
 
 async def parse_taxonomy(url: str) -> pd.DataFrame:
   namespace = {
-    'link': 'http://www.xbrl.org/2003/linkbase',
-    'xlink': 'http://www.w3.org/1999/xlink',
+    "link": "http://www.xbrl.org/2003/linkbase",
+    "xlink": "http://www.w3.org/1999/xlink",
   }
 
   def rename_sheet(txt: str) -> str:
-    pattern = r'income|balance|cashflow'
+    pattern = r"income|balance|cashflow"
     m = re.search(pattern, txt, flags=re.I)
     if m:
       txt = m.group().lower()
@@ -374,23 +372,23 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
     response = await client.get(url, headers=HEADERS)
     root = et.fromstring(response.content)
 
-  url_pattern = r'^https?://www\..+/'
-  el_pattern = r'(?<=_)[A-Z][A-Za-z]+(?=_)?'
+  url_pattern = r"^https?://www\..+/"
+  el_pattern = r"(?<=_)[A-Z][A-Za-z]+(?=_)?"
 
   taxonomy = []
-  for sheet in root.findall('.//link:calculationLink', namespaces=namespace):
-    sheet_label = re.sub(url_pattern, '', sheet.attrib[f'{{{namespace["xlink"]}}}role'])
+  for sheet in root.findall(".//link:calculationLink", namespaces=namespace):
+    sheet_label = re.sub(url_pattern, "", sheet.attrib[f'{{{namespace["xlink"]}}}role'])
     sheet_label = rename_sheet(sheet_label)
 
-    for el in sheet.findall('.//link:calculationArc', namespaces=namespace):
+    for el in sheet.findall(".//link:calculationArc", namespaces=namespace):
       taxonomy.append(
         {
-          'sheet': sheet_label,
-          'gaap': cast(
+          "sheet": sheet_label,
+          "gaap": cast(
             re.Match[str],
             re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}to']),
           ).group(),
-          'parent': cast(
+          "parent": cast(
             re.Match[str],
             re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}from']),
           ).group(),
@@ -398,13 +396,13 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
       )
 
   df = pd.DataFrame.from_records(taxonomy)
-  df.set_index('item', inplace=True)
+  df.set_index("item", inplace=True)
   df.drop_duplicates(inplace=True)
   return df
 
 
 async def get_isin(cik: str | int) -> str:
-  url = f'https://cik-isin.com/cik2isin.php?cik={cik}'
+  url = f"https://cik-isin.com/cik2isin.php?cik={cik}"
 
   async with httpx.AsyncClient() as client:
     response = await client.get(url, headers=HEADERS)
@@ -413,30 +411,30 @@ async def get_isin(cik: str | int) -> str:
   isin_text = dom.xpath(
     'normalize-space(//p[b[text()="ISIN"]]/text()[normalize-space()])'
   ).get()
-  isin_pattern = r'[A-Z]{2}[A-Z0-9]{9}[0-9]'
+  isin_pattern = r"[A-Z]{2}[A-Z0-9]{9}[0-9]"
   isin_match = re.search(isin_pattern, isin_text)
 
-  return isin_match.group() if isin_match else ''
+  return isin_match.group() if isin_match else ""
 
 
 async def get_ciks() -> DataFrame[CikFrame]:
-  rename = {'cik_str': 'cik', 'title': 'name'}
+  rename = {"cik_str": "cik", "title": "name"}
 
-  url = 'https://www.sec.gov/files/company_tickers.json'
+  url = "https://www.sec.gov/files/company_tickers.json"
 
   with httpx.Client() as client:
     response = client.get(url, headers=HEADERS)
     parse: dict[str, CikEntry] = response.json()
 
-  df = pd.DataFrame.from_dict(parse, orient='index')
+  df = pd.DataFrame.from_dict(parse, orient="index")
   df.rename(columns=rename, inplace=True)
 
   # tasks = [asyncio.create_task(get_isin(cik)) for cik in df['cik']]
   # isins = await asyncio.gather(*tasks)
-  tasks = [partial(get_isin, cik) for cik in df['cik']]
+  tasks = [partial(get_isin, cik) for cik in df["cik"]]
   isins = await aiometer.run_all(tasks, max_per_second=5)
 
-  df['isin'] = isins  # df['cik'].apply(get_isin)
-  df = df[['isin', 'cik', 'ticker', 'name']]
+  df["isin"] = isins  # df['cik'].apply(get_isin)
+  df = df[["isin", "cik", "ticker", "name"]]
 
   return cast(DataFrame[CikFrame], df)

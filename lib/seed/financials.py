@@ -87,7 +87,7 @@ async def seed_fundamentals(exchange: str):
 
     except Exception as e:
       logger.error(e, exc_info=True)
-      print(f"{id} failed")
+      print(f"{company} failed")
 
   if stored:
     df = pd.DataFrame.from_records(stored)

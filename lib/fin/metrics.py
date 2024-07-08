@@ -19,45 +19,45 @@ class BetaParams(DataFrameModel):
 
 
 def f_score(df: DataFrame) -> DataFrame:
-  ocf = df['cashflow_operating']
+  ocf = df["cashflow_operating"]
   slices = fin_slices(cast(pd.MultiIndex, df.index))
 
-  df['piotroski_f_score'] = (
-    np.heaviside(df['return_on_equity'], 0)
+  df["piotroski_f_score"] = (
+    np.heaviside(df["return_on_equity"], 0)
     + np.heaviside(
-      applier(cast(Series[float], df['return_on_assets']), 'diff', slices), 0
+      applier(cast(Series[float], df["return_on_assets"]), "diff", slices), 0
     )
     + np.heaviside(ocf, 0)
-    + np.heaviside(ocf / df['assets'] - df['return_on_assets'], 0)
-    + np.heaviside(applier(cast(Series[float], df['debt']), 'diff', slices), 0)
-    + np.heaviside(applier(cast(Series[float], df['quick_ratio']), 'diff', slices), 0)
+    + np.heaviside(ocf / df["assets"] - df["return_on_assets"], 0)
+    + np.heaviside(applier(cast(Series[float], df["debt"]), "diff", slices), 0)
+    + np.heaviside(applier(cast(Series[float], df["quick_ratio"]), "diff", slices), 0)
     + np.heaviside(
       -applier(
-        cast(Series[float], df['weighted_average_shares_outstanding_basic']),
-        'diff',
+        cast(Series[float], df["weighted_average_shares_outstanding_basic"]),
+        "diff",
         slices,
       ),
       1,
     )
     + np.heaviside(
-      applier(cast(Series[float], df['gross_profit_margin']), 'diff', slices), 0
+      applier(cast(Series[float], df["gross_profit_margin"]), "diff", slices), 0
     )
     + np.heaviside(
-      applier(cast(Series[float], df['asset_turnover']), 'diff', slices), 0
+      applier(cast(Series[float], df["asset_turnover"]), "diff", slices), 0
     )
   )
   return df
 
 
 def z_score(df: DataFrame) -> DataFrame:
-  assets = df['average_assets']
-  liabilities = df['average_liabilities']
+  assets = df["average_assets"]
+  liabilities = df["average_liabilities"]
 
-  df['altman_z_score'] = (
-    1.2 * df['average_operating_working_capital'] / assets
-    + 1.4 * df['retained_earnings_accumulated_deficit'] / assets
-    + 3.3 * df['cashflow_operating'] / assets
-    + 0.6 * df['market_capitalization'] / liabilities
+  df["altman_z_score"] = (
+    1.2 * df["average_operating_working_capital"] / assets
+    + 1.4 * df["retained_earnings_accumulated_deficit"] / assets
+    + 3.3 * df["cashflow_operating"] / assets
+    + 0.6 * df["market_capitalization"] / liabilities
     + assets / liabilities
   )
 
@@ -68,57 +68,57 @@ def m_score(df: DataFrame) -> DataFrame:
   slices = fin_slices(cast(pd.MultiIndex, df.index))
   # Days Sales in Receivables Index
   receivables = df.get(
-    'average_receivables_trade_current',
-    df.get('average_receivables_trade', df.get('average_receivables', None)),
+    "average_receivables_trade_current",
+    df.get("average_receivables_trade", df.get("average_receivables", None)),
   )
 
   dsri: float | pd.Series = 0.0
   if receivables is not None:
-    dsri = cast(Series[float], receivables) / df['revenue']
-    dsri.name = 'dsri'
-    dsri /= applier(cast(Series[float], dsri), 'shift', slices)
+    dsri = cast(Series[float], receivables) / df["revenue"]
+    dsri.name = "dsri"
+    dsri /= applier(cast(Series[float], dsri), "shift", slices)
 
   # Gross Margin Index
   gmi = (
-    applier(cast(Series[float], df['gross_profit_margin']), 'shift', slices)
-    / df['gross_profit_margin']
+    applier(cast(Series[float], df["gross_profit_margin"]), "shift", slices)
+    / df["gross_profit_margin"]
   )
 
   # Asset Quality Index
   aqi = (
     1
     - (
-      df['operating_working_capital']
-      + df['productive_assets']
-      + df['financial_assets_noncurrent']
+      df["operating_working_capital"]
+      + df["productive_assets"]
+      + df["financial_assets_noncurrent"]
     )
-    / df['assets']
+    / df["assets"]
   )
-  aqi.name = 'aqi'
-  aqi /= applier(cast(Series[float], aqi), 'shift', slices)
+  aqi.name = "aqi"
+  aqi /= applier(cast(Series[float], aqi), "shift", slices)
 
   # Sales Growth Index
-  sgi = df['revenue'] / applier(cast(Series[float], df['revenue']), 'shift', slices)
+  sgi = df["revenue"] / applier(cast(Series[float], df["revenue"]), "shift", slices)
 
   # Depreciation Index
-  depi = df['depreciation'] / (df['productive_assets'] - df['depreciation'])
-  depi.name = 'depi'
-  depi /= applier(cast(Series[float], depi), 'shift', slices)
+  depi = df["depreciation"] / (df["productive_assets"] - df["depreciation"])
+  depi.name = "depi"
+  depi /= applier(cast(Series[float], depi), "shift", slices)
 
   # Sales General and Administrative Expenses Index
-  sgai = df['selling_general_administrative_expense'] / df['revenue']
-  sgai /= applier(cast(Series[float], sgai), 'shift', slices)
+  sgai = df["selling_general_administrative_expense"] / df["revenue"]
+  sgai /= applier(cast(Series[float], sgai), "shift", slices)
 
   # Leverage Index
-  li = df['liabilities'] / df['assets']
-  li.name = 'li'
-  li /= applier(cast(Series[float], li), 'shift', slices)
+  li = df["liabilities"] / df["assets"]
+  li.name = "li"
+  li /= applier(cast(Series[float], li), "shift", slices)
 
   # Total Accruals to Total Assets
-  tata = (df['income_loss_operating'] - df['cashflow_operating']) / df['average_assets']
+  tata = (df["income_loss_operating"] - df["cashflow_operating"]) / df["average_assets"]
 
   # Beneish M-score
-  df['beneish_m_score'] = (
+  df["beneish_m_score"] = (
     -4.84
     + 0.92 * dsri
     + 0.528 * gmi
@@ -151,23 +151,23 @@ def calculate_beta(
     if temp.empty:
       continue
 
-    x = sm.add_constant(temp['market_return'])
-    model = sm.OLS(temp['equity_return'], x)
+    x = sm.add_constant(temp["market_return"])
+    model = sm.OLS(temp["equity_return"], x)
     ols_result = model.fit()
     beta_params[i, 0] = ols_result.params.iloc[-1]
 
-    beta_params[i, 1] = temp['market_return'].mean()
-    beta_params[i, 2] = temp['riskfree_rate'].mean()
+    beta_params[i, 1] = temp["market_return"].mean()
+    beta_params[i, 2] = temp["riskfree_rate"].mean()
 
   result = pd.DataFrame(
     data={
-      'date': dates,
-      'beta': beta_params[:, 0],
-      'market_return': beta_params[:, 1] * 252.0,
-      'riskfree_rate': beta_params[:, 2],
+      "date": dates,
+      "beta": beta_params[:, 0],
+      "market_return": beta_params[:, 1] * 252.0,
+      "riskfree_rate": beta_params[:, 2],
     }
   )
-  result['months'] = months
+  result["months"] = months
 
   return result
 
@@ -191,7 +191,7 @@ def beta(
   for s in slices:
     dates = cast(
       pd.DatetimeIndex,
-      fin_data.loc[s, :].sort_index(level='date').index.get_level_values('date'),
+      fin_data.loc[s, :].sort_index(level="date").index.get_level_values("date"),
     )
     betas.append(calculate_beta(dates, returns, s[2], years))
 
@@ -199,8 +199,8 @@ def beta(
   fin_data = cast(
     DataFrame,
     fin_data.reset_index()
-    .merge(beta, on=['date', 'months'], how='left')
-    .set_index(['date', 'period', 'months']),
+    .merge(beta, on=["date", "months"], how="left")
+    .set_index(["date", "period", "months"]),
   )
   return fin_data
 
@@ -209,60 +209,60 @@ def beta(
 def weighted_average_cost_of_capital(
   fin_data: DataFrame, debt_maturity: int = 10
 ) -> DataFrame:
-  if 'beta' not in set(fin_data.columns):
-    raise ValueError('Beta values missing in fundamentals data!')
+  if "beta" not in set(fin_data.columns):
+    raise ValueError("Beta values missing in fundamentals data!")
 
   try:
-    fin_data.loc[:, 'capitalization_class'] = fin_data['market_capitalization'].apply(
-      lambda x: 'small' if x < 2e9 else 'large'
+    fin_data.loc[:, "capitalization_class"] = fin_data["market_capitalization"].apply(
+      lambda x: "small" if x < 2e9 else "large"
     )
   except:
-    print(fin_data['weighted_average_shares_outstanding_basic_adjusted'])
-    print(fin_data['share_price_average'])
+    print(fin_data["weighted_average_shares_outstanding_basic_adjusted"])
+    print(fin_data["share_price_average"])
 
-  fin_data.loc[:, 'yield_spread'] = fin_data.apply(
-    lambda r: yield_spread(r['interest_coverage_ratio'], r['capitalization_class']),
+  fin_data.loc[:, "yield_spread"] = fin_data.apply(
+    lambda r: yield_spread(r["interest_coverage_ratio"], r["capitalization_class"]),
     axis=1,
   )
 
-  fin_data.loc[(slice(None), slice(None), 3), 'yield_spread'] /= 4
+  fin_data.loc[(slice(None), slice(None), 3), "yield_spread"] /= 4
 
-  fin_data['beta_levered'] = fin_data['beta'] * (
+  fin_data["beta_levered"] = fin_data["beta"] * (
     1
-    + (1 - fin_data['tax_rate']) * fin_data['average_debt'] / fin_data['average_equity']
+    + (1 - fin_data["tax_rate"]) * fin_data["average_debt"] / fin_data["average_equity"]
   )
 
   # Cost of equity
-  fin_data['equity_risk_premium'] = fin_data['beta_levered'] * (
-    fin_data['market_return'] - fin_data['riskfree_rate']
+  fin_data["equity_risk_premium"] = fin_data["beta_levered"] * (
+    fin_data["market_return"] - fin_data["riskfree_rate"]
   )
-  fin_data['cost_equity'] = fin_data['riskfree_rate'] + fin_data['equity_risk_premium']
+  fin_data["cost_equity"] = fin_data["riskfree_rate"] + fin_data["equity_risk_premium"]
 
   # Cost of debt
-  fin_data['cost_debt'] = fin_data['riskfree_rate'] + fin_data['yield_spread']
+  fin_data["cost_debt"] = fin_data["riskfree_rate"] + fin_data["yield_spread"]
 
   # Market value of debt
-  fin_data['market_value_debt'] = (
-    fin_data['interest_expense'] / fin_data['cost_debt']
-  ) * (1 - (1 / (1 + fin_data['cost_debt']) ** debt_maturity)) + (
-    fin_data['debt'] / (1 + fin_data['cost_debt']) ** debt_maturity
+  fin_data["market_value_debt"] = (
+    fin_data["interest_expense"] / fin_data["cost_debt"]
+  ) * (1 - (1 / (1 + fin_data["cost_debt"]) ** debt_maturity)) + (
+    fin_data["debt"] / (1 + fin_data["cost_debt"]) ** debt_maturity
   )
 
-  fin_data['equity_to_capital'] = fin_data['market_capitalization'] / (
-    fin_data['market_capitalization'] + fin_data['market_value_debt']
+  fin_data["equity_to_capital"] = fin_data["market_capitalization"] / (
+    fin_data["market_capitalization"] + fin_data["market_value_debt"]
   )
 
-  fin_data['weighted_average_cost_of_capital'] = fin_data['cost_equity'] * fin_data[
-    'equity_to_capital'
-  ] + fin_data['cost_debt'] * (1 - fin_data['tax_rate']) * (
-    fin_data['market_value_debt']
-    / (fin_data['market_capitalization'] + fin_data['market_value_debt'])
+  fin_data["weighted_average_cost_of_capital"] = fin_data["cost_equity"] * fin_data[
+    "equity_to_capital"
+  ] + fin_data["cost_debt"] * (1 - fin_data["tax_rate"]) * (
+    fin_data["market_value_debt"]
+    / (fin_data["market_capitalization"] + fin_data["market_value_debt"])
   )
-  excl = ['market_return', 'capitalization_class']
+  excl = ["market_return", "capitalization_class"]
   return cast(DataFrame, fin_data[fin_data.columns.difference(excl)])
 
 
-def yield_spread(icr: float, cap: Literal['small', 'large']):
+def yield_spread(icr: float, cap: Literal["small", "large"]):
   # ICR: Interest Coverage Ratio
 
   if np.isnan(icr):
@@ -275,7 +275,7 @@ def yield_spread(icr: float, cap: Literal['small', 'large']):
     return 0.4
 
   icr_intervals = {
-    'small': (
+    "small": (
       -1e5,
       0.5,
       0.8,
@@ -293,7 +293,7 @@ def yield_spread(icr: float, cap: Literal['small', 'large']):
       12.5,
       1e5,
     ),
-    'large': (
+    "large": (
       -1e5,
       0.2,
       0.65,
@@ -353,19 +353,19 @@ def discounted_cash_flow(
   df: pd.DataFrame, fc_period: int = 20, longterm_growth: float = 0.03
 ) -> pd.DataFrame:
   # Weighted average cost of capital
-  if df['weight_average_cost_of_capital'].isnull().all():
-    df['discounted_cashflow_value'] = np.nan
+  if df["weight_average_cost_of_capital"].isnull().all():
+    df["discounted_cashflow_value"] = np.nan
     return df
 
   else:
     wacc = (
-      df['weight_average_cost_of_capital']
-      .ewm(span=len(df['weight_average_cost_of_capital']))
+      df["weight_average_cost_of_capital"]
+      .ewm(span=len(df["weight_average_cost_of_capital"]))
       .mean()
     )
 
   # Free cash flow growth
-  fcf = df['free_cash_flow_firm']
+  fcf = df["free_cash_flow_firm"]
   fcf_roc = fcf.diff() / fcf.abs().shift(1)
 
   fcf_growth = fcf_roc.ewm(span=len(fcf_roc.dropna())).mean()
@@ -386,15 +386,15 @@ def discounted_cash_flow(
     if wacc[i] > longterm_growth:
       terminal = np.abs(present) * (1 + longterm_growth) / (wacc[i] - longterm_growth)
     else:
-      terminal = np.abs(df['ev'].iloc[i] * (1 + longterm_growth) ** fc_period)
+      terminal = np.abs(df["ev"].iloc[i] * (1 + longterm_growth) ** fc_period)
 
     terminal /= (1 + wacc[i]) ** fc_period
     dcf[i] += terminal
 
-  dcf += df['liquid_assets'] - df['debt']
+  dcf += df["liquid_assets"] - df["debt"]
 
-  df['discounted_cashflow_value'] = (
-    dcf / df['split_adjusted_weighted_average_shares_outstanding_basic']
+  df["discounted_cashflow_value"] = (
+    dcf / df["split_adjusted_weighted_average_shares_outstanding_basic"]
   )
   # df['price_to_discounted_cashflow'] = (
   # df['share_price'] / df['discounted_cashflow_value'])
@@ -404,41 +404,41 @@ def discounted_cash_flow(
 
 def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
   # Weighted average cost of capital
-  if df['weighted_average_cost_of_capital'].isnull().all():
-    df['earnings_power_value'] = np.nan
+  if df["weighted_average_cost_of_capital"].isnull().all():
+    df["earnings_power_value"] = np.nan
     return df
 
   else:
     wacc = (
-      df['weighted_average_cost_of_capital']
-      .ewm(span=len(df['weighted_average_cost_of_capital']))
+      df["weighted_average_cost_of_capital"]
+      .ewm(span=len(df["weighted_average_cost_of_capital"]))
       .mean()
     )
 
   # Sustainable revenue
-  rev = df['revenue'].dropna()
+  rev = df["revenue"].dropna()
   if len(rev) == 0:
-    df['earnings_power_value'] = np.nan
+    df["earnings_power_value"] = np.nan
     return df
 
   sust_rev = rev.ewm(span=len(rev)).mean()
 
   # Tax rate
-  tax = df['tax_rate']
+  tax = df["tax_rate"]
 
   # Adjusted depreciation
-  ad = 0.5 * tax * df['depreciation_depletion_amortization_accretion']
+  ad = 0.5 * tax * df["depreciation_depletion_amortization_accretion"]
 
   # Maintenance capex
   rev_growth = rev.diff() / rev.abs().shift(1)
 
   if rev_growth.dropna().empty:
-    maint_capex = df['depreciation_depletion_amortization_accretion'] / sust_rev
+    maint_capex = df["depreciation_depletion_amortization_accretion"] / sust_rev
 
   else:
     capex = (
-      df['payment_acquisition_productive_assets']
-      .ewm(span=len(df['payment_acquisition_productive_assets']))
+      df["payment_acquisition_productive_assets"]
+      .ewm(span=len(df["payment_acquisition_productive_assets"]))
       .mean()
     )
     capex_margin = capex / sust_rev
@@ -447,7 +447,7 @@ def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
     # maint_capex = capex - (capex_margin * rev_growth)
 
   # Operating margins
-  om = (df['pretax_income_loss'] + df['interest_expense']) / df['revenue']
+  om = (df["pretax_income_loss"] + df["interest_expense"]) / df["revenue"]
 
   om_mean = om.ewm(span=len(om.dropna())).mean()
 
@@ -457,9 +457,9 @@ def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
   # Earnings power
   epv = adj_earn / wacc
 
-  epv += df['liquid_assets'] - df['debt']
+  epv += df["liquid_assets"] - df["debt"]
 
   # Fair value
-  df['earnings_power_value'] = epv / df['weighted_average_shares_outstanding_diluted']
+  df["earnings_power_value"] = epv / df["weighted_average_shares_outstanding_diluted"]
 
   return df
