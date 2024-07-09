@@ -80,8 +80,8 @@ def m_score(df: DataFrame) -> DataFrame:
 
   # Gross Margin Index
   gmi = (
-    applier(cast(Series[float], df["gross_profit_margin"]), "shift", slices)
-    / df["gross_profit_margin"]
+    applier(cast(Series[float], df["operating_profit_margin"]), "shift", slices)
+    / df["operating_profit_margin"]
   )
 
   # Asset Quality Index
