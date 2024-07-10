@@ -169,7 +169,7 @@ async def calculate_fundamentals(
   financials = stock_split_adjust(financials, split_ratios)
   schema = load_schema()
   financials = calculate_items(financials, schema)
-  financials.to_csv("test.csv")
+  # financials.to_csv(f"{ticker_ids[0]}_financials.csv")
 
   market_fetcher = partial(Ticker("^GSPC").ohlcv)
   market_close = cast(

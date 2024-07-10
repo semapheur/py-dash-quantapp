@@ -1,8 +1,5 @@
 aiometer
 asyncstdlib
-#attrs
-branca
-bs4
 #camelot-py[base]
 dash
 dash-ag-grid
@@ -10,16 +7,13 @@ dash-ag-grid
 dash-extensions
 dash-leaflet
 #dash-mantine-components
+dashvis
 fathon
-#folium
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas
-#geobuf
-geopandas
 glom
 hishel
 httpx
 img2table
-iso4217
 #jpype1
 lxml
 matplotlib
@@ -31,11 +25,10 @@ ordered-set
 pandas
 parsel
 #polars
-protobuf==3.20
 pycountry
-#pydantic
+pydantic
 #pypdf2<3.0.0
-pypika
+#pypika
 python-dotenv
 #pyyaml
 rapidfuzz
@@ -43,11 +36,11 @@ requests
 scikit-learn
 scipy
 sqlalchemy
-sqlmodel
+#sqlmodel
 statsmodels
 #tabula-py
-tinydb
-tinydb-serialization
+#tinydb
+#tinydb-serialization
 topojson
 tqdm
 wbgapi

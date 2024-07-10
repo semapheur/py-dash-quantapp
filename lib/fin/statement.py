@@ -203,7 +203,7 @@ async def load_financials(id: str, currency: Optional[str] = None) -> DataFrame 
   df = cast(
     DataFrame, df.loc[df.index.get_level_values("months").isin((12, 9, 6, 3)), :]
   )
-  df.to_csv("test_.csv")
+  # df.to_csv(f"{id}_statement.csv")
   df = fix_financials(df)
 
   return df

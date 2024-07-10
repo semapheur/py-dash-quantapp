@@ -5,7 +5,6 @@ import re
 from typing import cast, Optional
 import time
 
-import bs4 as bs
 import httpx
 import numpy as np
 import pandas as pd
@@ -117,24 +116,6 @@ class Ticker:
     #  df.columns = cols
 
     return cast(DataFrame[Quote], df)
-
-  def price_targets(self) -> pd.DataFrame:
-    url = f"https://finance.yahoo.com/quote/{self.ticker}/analysis"
-    with httpx.Client() as client:
-      rs = client.get(url, headers=HEADERS)
-      soup = bs.BeautifulSoup(rs.text, "lxml")
-
-    div = cast(bs.Tag, soup.find("div", {"id": "Col2-9-QuoteModule-Proxy"}))
-
-    scrap = cast(
-      str, cast(bs.Tag, div.find("div", {"aria-label": True})).get("aria-label")
-    )
-
-    pt = scrap.split(" ")[1::2]
-    pt.insert(0, self.ticker)
-    cols = ("ticker", "low", "current", "average", "high")
-    df = pd.DataFrame(pt, columns=cols)
-    return df
 
   def financials(self) -> pd.DataFrame:
     def parse(period: str):

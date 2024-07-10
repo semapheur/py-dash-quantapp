@@ -1,3 +1,5 @@
+import textwrap
+
 from dash import (
   callback,
   dcc,
@@ -12,50 +14,73 @@ import dash_ag_grid as dag
 from pandas import DataFrame
 
 from lib.db.lite import read_sqlite, insert_sqlite, get_tables
-from lib.edgar.financials import financials_table
 
-EXCHANGES = [{'label': 'Oslo Stock Exchange (XOSL)', 'value': 'XOSL'}]
+exchanges = read_sqlite("ticker.db", "SELECT DISTINCT exchange FROM fundamentals")
 
-register_page(__name__, path_template='/screener/stock')
+register_page(__name__, path_template="/screener/stock")
 
 layout = html.Main(
-  className='h-full grid grid-cols-[1fr_4fr]',
+  className="h-full grid grid-cols-[1fr_4fr]",
   children=[
     html.Div(
-      className='h-full flex flex-col',
+      className="h-full flex flex-col",
       children=[
-        dcc.Dropdown(id='dropdown:screener-stock:exchange', options=EXCHANGES, value='')
+        dcc.Dropdown(
+          id="dropdown:screener-stock:exchange",
+          options=[] if exchanges is None else exchanges["exchange"].tolist(),
+          value="",
+        )
       ],
     ),
-    html.Div(id='div:screener-stock:table-wrap'),
+    html.Div(id="div:screener-stock:table-wrap"),
   ],
 )
 
 
 @callback(
-  Output('div:screener-stock:table-wrap', 'children'),
-  Input('dropdown:screener-stock:exchange', 'value'),
+  Output("div:screener-stock:table-wrap", "children"),
+  Input("dropdown:screener-stock:exchange", "value"),
 )
 async def update_table(exchange: str):
   if not exchange:
     return no_update
 
-  query = 'SELECT id, name FROM stock WHERE mic=:=exchange'
-  stocks = read_sqlite('ticker.db', query, params={'exchange': exchange})
+  query = "SELECT company_id, currency FROM fundamentals WHERE exchange= :=exchange"
+  companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
+  if companies is None:
+    return no_update
 
-  stock_ids = set(stocks['id']).intersection(get_tables('financials.db'))
-  currency = CURRENCIES.get(exchange)
+  companies["table"] = companies["company_id"] + "_" + companies["currency"]
 
-  table_ids = set(get_tables('financials.db'))
+  query_parts = [
+    textwrap.dedent(
+      f"""SELECT '{table}' AS company, * FROM {table}
+        WHERE date = (SELECT MAX(date) FROM {table} WHERE months = 12)    
+    """
+    )
+    for table in companies["table"]
+  ]
 
-  tables: list[DataFrame] = []
-  for i in stock_ids:
-    if (table := f'{i}_{currency}') in table_ids:
-      query = f'SELECT * FROM "{table}"'
-      tables.append(read_sqlite('financials.db', query))
-    else:
-      df = await financials_table(i, currency)
-      insert_sqlite(df.reset_index(), 'financials.db', table, '')
-      tables.append(df)
+  query = " UNION ALL ".join(query_parts)
+  df = read_sqlite("fundamentals.db", query)
+  if df is None:
+    return no_update
 
-  return
+  df.set_index("company", inplace=True)
+
+  column_defs = [
+    {
+      "field": col,
+      "type": "numericColumn",
+      "valueFormatter": {"function": 'd3.format("(,")(params.value)'},
+    }
+    for col in df.columns
+  ]
+
+  return dag.AgGrid(
+    id="table:screener-stock",
+    columnDefs=column_defs,
+    rowData=df.to_dict("records"),
+    columnSize="autoSize",
+    style={"height": "100%"},
+  )

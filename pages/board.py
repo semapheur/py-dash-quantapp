@@ -8,29 +8,20 @@ from lib.const import DB_DIR
 from lib.db.lite import insert_sqlite
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
-from lib.virdi import real_estate_price_data
 
-register_page(__name__, path='/board')
+register_page(__name__, path="/board")
 
-main_style = 'h-full grid grid-cols-[1fr_1fr] gap-2 p-2'
+main_style = "h-full grid grid-cols-[1fr_1fr] gap-2 p-2"
 layout = html.Main(
   className=main_style,
   children=[
     html.Div(
-      id='board-div:ticker',
-      className='flex flex-col',
+      id="board-div:ticker",
+      className="flex flex-col",
       children=[
-        html.H4('Update tickers'),
-        html.Button('Stocks', id='board-button:stock', n_clicks=0),
-        html.Button('SEC Edgar', id='board-button:cik', n_clicks=0),
-      ],
-    ),
-    html.Div(
-      id='board-div:real-estate',
-      className='flex flex-col',
-      children=[
-        html.H4('Update real estate data'),
-        html.Button('Hjemla', id='board-button:hjemla', n_clicks=0),
+        html.H4("Update tickers"),
+        html.Button("Stocks", id="board-button:stock", n_clicks=0),
+        html.Button("SEC Edgar", id="board-button:cik", n_clicks=0),
       ],
     ),
   ],
@@ -38,12 +29,12 @@ layout = html.Main(
 
 
 @callback(
-  Output('board-div:ticker', 'className'),
-  Input('board-button:stock', 'n_clicks'),
-  Input('board-button:cik', 'n_clicks'),
+  Output("board-div:ticker", "className"),
+  Input("board-button:stock", "n_clicks"),
+  Input("board-button:cik", "n_clicks"),
 )
 def update_tickers(n1: int, n2: int):
-  button_id = ctx.triggered_id if not None else ''
+  button_id = ctx.triggered_id if not None else ""
 
   if not button_id:
     return no_update
@@ -53,35 +44,19 @@ def update_tickers(n1: int, n2: int):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    df = loop.run_until_complete(get_tickers('stock'))
-    df.set_index('id', inplace=True)
-    df.sort_values('name', inplace=True)
-    insert_sqlite(df, 'ticker.db', 'stock', 'overwrite')
+    df = loop.run_until_complete(get_tickers("stock"))
+    df.set_index("id", inplace=True)
+    df.sort_values("name", inplace=True)
+    insert_sqlite(df, "ticker.db", "stock", "overwrite")
 
     loop.close()
 
-  if button_id == 'board-button:stock':
+  if button_id == "board-button:stock":
     thread = threading.Thread(target=run_coroutine)
     thread.start()
 
-  elif button_id == 'board-button:cik':
+  elif button_id == "board-button:cik":
     df = get_ciks()
-    insert_sqlite(df, 'ticker.db', 'edgar', 'replace')
-
-  return no_update
-
-
-@callback(
-  Output('board-div:real-estate', 'className'), Input('board-button:hjemla', 'n_clicks')
-)
-def update_real_estate(n_clicks: int):
-  if not n_clicks:
-    return no_update
-
-  gdf = real_estate_price_data()
-  path = DB_DIR / 'hjemla.json'
-  gdf.to_file(path, driver='GeoJSON', encoding='utf-8')
-
-  # choropleth_map()
+    insert_sqlite(df, "ticker.db", "edgar", "replace")
 
   return no_update

@@ -10,7 +10,6 @@ import xml.etree.ElementTree as et
 import aiometer
 import hishel
 import httpx
-import bs4 as bs
 import pandas as pd
 from pandera.typing import DataFrame, Series
 from parsel import Selector
@@ -104,18 +103,17 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = "htm") -> str:
     response = await client.get(url, headers=HEADERS)
     if response.status_code != 200:
       raise httpx.RequestError(f"Error: {response.text}")
-    parse = bs.BeautifulSoup(response.text, "lxml")
+    dom = Selector(response.text)
 
-  data_files = cast(bs.Tag, parse.find("table", {"summary": "Data Files"}))
+  data_files = dom.xpath("//table[@summary='Data Files']")
   if doc_type == "htm":
-    pattern = r"(?<!_(cal|def|lab|pre)).xml$"
+    href = data_files.xpath(
+      './/a[re:test(@href, "(?<!_(cal|def|lab|pre))\\.xml$")]//@href'
+    ).get()
+
   else:
-    pattern = rf"_{doc_type}.xml$"
+    href = data_files.xpath(f'.//a[re:test(@href, "_{doc_type}.xml$")]//@href').get()
 
-  a_node = data_files.find("a", href=re.compile(pattern))
-  assert a_node is not None, f"anchor tag containing XBRL href not found from {url}"
-
-  href = cast(bs.Tag, a_node).get("href")
   return f"https://www.sec.gov{href}"
 
 

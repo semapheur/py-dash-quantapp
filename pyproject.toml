@@ -17,8 +17,6 @@ quote-style = "double"
 dependencies = [
   "aiometer",
   "asyncstdlib",
-  "branca",
-  "bs4",
   "dash",
   "dash-ag-grid",
   "dash-extensions",
@@ -39,7 +37,6 @@ dependencies = [
   "ordered-set",
   "pandas",
   "parsel",
-  "protobuf==3.20",
   "pycountry",
   "pydantic",
   "pypika",
@@ -67,5 +64,6 @@ dev = [
   "ipykernel",
   "mypy",
   "pipreqs",
-  "ruff"
+  "ruff",
+  "uv"
 ]
