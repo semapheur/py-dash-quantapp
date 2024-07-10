@@ -40,7 +40,7 @@ def f_score(df: DataFrame) -> DataFrame:
       1,
     )
     + np.heaviside(
-      applier(cast(Series[float], df["gross_profit_margin"]), "diff", slices), 0
+      applier(cast(Series[float], df["operating_profit_margin"]), "diff", slices), 0
     )
     + np.heaviside(
       applier(cast(Series[float], df["asset_turnover"]), "diff", slices), 0

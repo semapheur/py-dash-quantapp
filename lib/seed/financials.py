@@ -83,7 +83,7 @@ async def seed_fundamentals(exchange: str):
     try:
       ticker_ids = tickers.loc[tickers["company_id"] == company, "id"].tolist()
       _ = await update_fundamentals(company, ticker_ids, currency)
-      stored.append({"id": company, "currency": currency})
+      stored.append({"company_id": company, "currency": currency})
 
     except Exception as e:
       logger.error(e, exc_info=True)
@@ -91,7 +91,7 @@ async def seed_fundamentals(exchange: str):
 
   if stored:
     df = pd.DataFrame.from_records(stored)
-    df.set_index(("id", "currency"), inplace=True)
+    df.set_index(["company_id", "currency"], inplace=True)
     upsert_sqlite(df, "tickers.db", "fundamentals")
 
   if not faulty:

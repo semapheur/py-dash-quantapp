@@ -1,4 +1,5 @@
 from datetime import date as Date, timedelta
+from dateutil.relativedelta import relativedelta
 from enum import Enum
 from functools import partial
 import json
@@ -120,7 +121,13 @@ async def statement_to_df(
       rate = 1.0
       date = pd.to_datetime(parse_date(entry["period"]))
 
-      if (date > fin_date) or ((not multiple) and date != fin_date):
+      months = relativedelta(fin_date, date).months
+
+      if (
+        (date > fin_date)
+        or (months % ScopeEnum[fin_scope].value != 0)
+        or ((not multiple) and date != fin_date)
+      ):
         continue
 
       if isinstance(entry["period"], Interval):
