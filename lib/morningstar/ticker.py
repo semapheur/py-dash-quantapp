@@ -116,7 +116,7 @@ class Stock(Security):
       dates: list[dt] = []
       headers = cast(list[Selector], tr[0].xpath("th"))[1:]
       for h in headers:
-        dates.append(dt(int(h.xpath("text()").get()), 12, 31))
+        dates.append(dt(int(cast(str, h.xpath("text()").get())), 12, 31))
 
       for row in tr[1:]:
         if row.xpath("@class")[0].get() == "majorGrouping":
@@ -131,7 +131,7 @@ class Stock(Security):
             data[item].append(np.nan)
           else:
             data[item].append(
-              float(replace_all(col.xpath("text()").get(), rpl)) * factor
+              float(replace_all(cast(str, col.xpath("text()").get()), rpl)) * factor
             )
 
       df = pd.DataFrame.from_dict(data, orient="columns")

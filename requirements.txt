@@ -4,8 +4,6 @@ asyncstdlib
 dash
 dash-ag-grid
 #dash-bootstrap-components
-dash-extensions
-dash-leaflet
 #dash-mantine-components
 dashvis
 fathon
@@ -16,7 +14,6 @@ httpx
 img2table
 #jpype1
 lxml
-matplotlib
 numba
 numpy
 openturns

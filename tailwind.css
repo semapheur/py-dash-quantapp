@@ -56,22 +56,6 @@
     overflow-wrap: break-word;
   }
 
-  article {
-    counter-reset: fig axiom theorem proposition lemma corollary definition example;
-  }
-
-  pre {
-    position: relative;
-  }
-
-  pre button {
-    @apply absolute p-1 top-4 right-4 border rounded;
-  }
-
-  pre[data-language]::before {
-    @apply absolute top-0 right-4 px-2 py-1 font-bold uppercase bg-secondary content-[attr(data-language)];
-  }
-
   /*Scrollbar*/
   ::-webkit-scrollbar {
     width: 0.75rem;

@@ -101,14 +101,6 @@ class XbrlLabel(TypedDict):
 
 
 def xbrl_namespaces(dom: Selector) -> dict:
-  # pattern = r'(?<=^xmlns:)[a-z\-]+$'
-  # namespaces = {}
-  # for ns, url in cast(bs.Tag, dom.find('xbrl')).attrs.items():
-  #  if match := re.search(pattern, ns):
-  #    namespaces[match.group()] = url
-  #
-  # return namespaces
-
   root = dom.xpath("/*")[0]
   namespaces = root.xpath("namespace-uri() | ./namespace::*")
   namespace_dict = {}

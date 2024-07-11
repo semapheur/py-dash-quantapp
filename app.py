@@ -2,7 +2,7 @@
 import logging
 from pathlib import Path
 
-from dash import Dash, dcc, html, page_container, Input, Output
+from dash import Dash, dcc, html, page_container, Input, Output  # page_registry
 
 from lib.log.setup import setup_queue_handler
 
@@ -12,7 +12,7 @@ from components.header import Header
 
 
 def cleanup():
-  temp = Path('temp')
+  temp = Path("temp")
 
   for file in temp.iterdir():
     file.unlink()
@@ -20,22 +20,22 @@ def cleanup():
 
 # atexit.register(cleanup)
 
-external_stylesheets = ['https://cdn.tailwindcss.com']
+external_stylesheets = ["https://cdn.tailwindcss.com"]
 
 app = Dash(
   __name__,
   use_pages=True,
-  title='Gelter',
+  title="Gelter",
   suppress_callback_exceptions=True,
-  external_stylesheets=external_stylesheets,
+  # external_stylesheets=external_stylesheets,
   # prevent_initial_callbacks='initial_duplicate'
 )  # run with 'python app.py'
 
 # print(page_registry)
 
 app.layout = html.Div(
-  id='app',
-  children=[Header(), page_container, dcc.Location(id='location:app', refresh=False)],
+  id="app",
+  children=[Header(), page_container, dcc.Location(id="location:app", refresh=False)],
 )
 
 app.clientside_callback(
@@ -45,11 +45,11 @@ app.clientside_callback(
     return theme
   }
   """,
-  Output('theme-toggle', 'value'),
-  Input('theme-toggle', 'value'),
+  Output("theme-toggle", "value"),
+  Input("theme-toggle", "value"),
 )
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   # cleanup()
 
   queue_handler = setup_queue_handler()

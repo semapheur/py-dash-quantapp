@@ -52,6 +52,7 @@ async def get_tickers(
   security: Literal["stock", "etf", "index", "fund", "fund_category", "ose"],
 ) -> pd.DataFrame:
   rename = {
+    "IsPrimary": "primary",
     "SecId": "security_id",
     "EquityCompanyId": "company_id",
     "FundId": "fund_id",
@@ -64,15 +65,16 @@ async def get_tickers(
   }
   fields = {
     "stock": (
-      "isin",
       "SecId",
+      "isin",
+      "IsPrimary",
       "mic",
       "Currency",
       "Ticker",
       "IPODate",
       "EquityCompanyId",
       "Name",
-      "LegalName",
+      # "LegalName",
       "Domicile",
       "SectorName",
       "IndustryName",
