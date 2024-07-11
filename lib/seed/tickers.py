@@ -49,7 +49,7 @@ async def seed_stock_tickers():
   def get_primary_tickers(group: DataFrame) -> str:
     domicile = group["domicile"].iloc[0]
 
-    if domicile not in group["country"]:
+    if domicile not in group["country"].tolist():
       primary_securities = group.loc[group["primary"], "security_id"].tolist()
 
     else:

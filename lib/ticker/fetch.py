@@ -113,13 +113,22 @@ def search_companies(
   search: str,
   limit: int = 10,
 ) -> DataFrame[TickerOptions]:
-  query = """
+  query = """ 
     SELECT
-      company.name AS label,
-      fundamentals.company_id AS value 
-    FROM fundamentals
-    JOIN company ON company.company_id = fundamentals.company_id
-    WHERE label LIKE :search
+      name || " (" || group_concat(ticker || ":" || mic, ", ") || ")" AS label,
+      company_id AS value
+    FROM (
+      SELECT 
+        c.company_id, 
+        c.name, 
+        t.ticker, 
+        t.mic 
+      FROM company c 
+      JOIN json_each(c.primary_security) ON 1=1
+      JOIN stock t ON json_each.value = t.security_id
+    )
+    GROUP BY company_id
+    HAVING label LIKE :search
     LIMIT :limit
   """
 

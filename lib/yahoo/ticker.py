@@ -168,7 +168,7 @@ class Ticker:
 
     query = """
       SELECT json_each.value AS yahoo, item FROM items 
-      JOIN JSON_EACH(yahoo) ON 1=1
+      JOIN json_each(yahoo) ON 1=1
       WHERE yahoo IS NOT NULL
     """
     items = read_sqlite("taxonomy.db", query)
