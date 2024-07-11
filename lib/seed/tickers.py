@@ -49,7 +49,7 @@ async def seed_stock_tickers():
   def get_primary_tickers(group: DataFrame) -> str:
     domicile = group["domicile"].iloc[0]
 
-    if domicile == "BM":
+    if domicile not in group["country"]:
       primary_securities = group.loc[group["primary"], "security_id"].tolist()
 
     else:
@@ -64,7 +64,7 @@ async def seed_stock_tickers():
     tickers.groupby("mic")
     .agg(
       {
-        "currency": "first",
+        "currency": lambda x: x.value_counts().index[0],
       }
     )
     .reset_index()
@@ -80,7 +80,7 @@ async def seed_stock_tickers():
     "creation_date",
   ]
   exchanges = exchanges.merge(mics[mics_columns], on="mic", how="left")
-  exchanges["city"] = exchanges["city"].str.capitalize()
+  exchanges["city"] = exchanges["city"].str.title()
   exchanges["url"] = exchanges["url"].str.lower()
 
   tickers.loc[:, "domicile"] = tickers["domicile"].apply(
@@ -102,9 +102,7 @@ async def seed_stock_tickers():
   )
 
   tickers = tickers[
-    tickers.columns.difference(
-      ["primary", "currency", "country", "domicile", "sector", "industry"]
-    )
+    tickers.columns.difference(["primary", "country", "domicile", "sector", "industry"])
   ]
 
   insert_sqlite(tickers, "ticker.db", "stock", "replace", False)

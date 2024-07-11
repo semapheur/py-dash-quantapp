@@ -56,6 +56,7 @@ async def get_tickers(
     "SecId": "security_id",
     "EquityCompanyId": "company_id",
     "FundId": "fund_id",
+    "ExchangeId": "mic",
     "LegalName": "legal_name",
     "SectorName": "sector",
     "Domicile": "domicile",
@@ -68,7 +69,7 @@ async def get_tickers(
       "SecId",
       "isin",
       "IsPrimary",
-      "mic",
+      "ExchangeId",
       "Currency",
       "Ticker",
       "IPODate",
@@ -186,10 +187,9 @@ async def get_tickers(
   df.rename(columns=rename, inplace=True)
   df.columns = df.columns.str.lower()
 
-  # Extract MIC
-  # if security == 'stock':
-  #  pattern = r'^EX(\$+|TP\$+)'
-  #  df['mic'] = df['mic'].str.replace(pattern, '', regex=True)
+  if security == "stock":
+    pattern = r"^EX(\$+|TP\$+)"
+    df["mic"] = df["mic"].str.replace(pattern, "", regex=True).replace("LTS", "XLON")
 
   return df
 
