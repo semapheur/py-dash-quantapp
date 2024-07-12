@@ -12,29 +12,29 @@ from typing_extensions import override
 from lib.utils import get_constructor_args
 
 LOG_RECORD_BUILTIN_ATTRS = {
-  'args',
-  'asctime',
-  'created',
-  'exc_info',
-  'exc_text',
-  'filename',
-  'funcName',
-  'levelname',
-  'levelno',
-  'lineno',
-  'module',
-  'msecs',
-  'message',
-  'msg',
-  'name',
-  'pathname',
-  'process',
-  'processName',
-  'relativeCreated',
-  'stack_info',
-  'thread',
-  'threadName',
-  'taskName',
+  "args",
+  "asctime",
+  "created",
+  "exc_info",
+  "exc_text",
+  "filename",
+  "funcName",
+  "levelname",
+  "levelno",
+  "lineno",
+  "module",
+  "msecs",
+  "message",
+  "msg",
+  "name",
+  "pathname",
+  "process",
+  "processName",
+  "relativeCreated",
+  "stack_info",
+  "thread",
+  "threadName",
+  "taskName",
 }
 
 
@@ -44,7 +44,7 @@ def setup_queue_handler():
   listener = logging.handlers.QueueListener(
     queue,
     logging.StreamHandler(),
-    logging.handlers.RotatingFileHandler('logs/app.log', maxBytes=10000, backupCount=3),
+    logging.handlers.RotatingFileHandler("logs/app.log", maxBytes=10000, backupCount=3),
   )
   listener.start()
   atexit.register(listener.stop)
@@ -53,9 +53,9 @@ def setup_queue_handler():
 
 
 def setup_logging():
-  config_file = Path('lib/log/logging_config.json')
+  config_file = Path("lib/log/logging_config.json")
 
-  with open(config_file, 'r') as f:
+  with open(config_file, "r") as f:
     config = json.load(f)
   dictConfig(config)
   # queue_handler = logging.getHandlerByName('queue_handler')
@@ -65,15 +65,15 @@ def setup_logging():
 
 
 def resolve_object(config: ConvertingDict):
-  if (resolved := config.get('__resolved_value')) is not None:
+  if (resolved := config.get("__resolved_value")) is not None:
     return resolved
 
-  constructor = config.configurator.resolve(config.pop('class', config.pop('()')))
+  constructor = config.configurator.resolve(config.pop("class", config.pop("()")))
   kwargs_set = get_constructor_args(constructor.__init__)
   kwargs = {k: config[k] for k in config if valid_ident(k) and k in kwargs_set}
   obj = constructor(**kwargs)
 
-  props = config.get('.')
+  props = config.get(".")
   if props is not None:
     for name, value in props.items():
       setattr(obj, name, value)
@@ -132,17 +132,17 @@ class LogJSONFormatter(logging.Formatter):
 
   def _prepare_log_dict(self, record: logging.LogRecord):
     always_fields = {
-      'message': record.getMessage(),
-      'timestamp': dt.datetime.fromtimestamp(
+      "message": record.getMessage(),
+      "timestamp": dt.datetime.fromtimestamp(
         record.created, tz=dt.timezone.utc
       ).isoformat(),
     }
 
     if record.exc_info is not None:
-      always_fields['exc_info'] = self.formatException(record.exc_info)
+      always_fields["exc_info"] = self.formatException(record.exc_info)
 
     if record.stack_info is not None:
-      always_fields['stack_info'] = self.formatStack(record.stack_info)
+      always_fields["stack_info"] = self.formatStack(record.stack_info)
 
     message = {
       key: msg_val

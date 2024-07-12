@@ -127,6 +127,27 @@ def sqlite_dtypes(df: pd.DataFrame) -> dict[str, Any]:
   return result
 
 
+def fetch_sqlite(db_name: str, query: str, params: Optional[dict[str, str]] = None):
+  db_path = sqlite_path(db_name)
+  engine = create_engine(f"sqlite+pysqlite:///{db_path}")
+  insp = inspect(engine)
+
+  table = sql_table(query)
+  tables = insp.get_table_names()
+
+  if tables == [] or table not in set(tables):
+    return None
+
+  query_text = text(query)
+  if params:
+    query_text = query_text.bindparams(**params)
+
+  with engine.begin() as con:
+    fetch = con.execute(query_text).fetchall()
+
+  return fetch
+
+
 def read_sqlite(
   db_name: str,
   query: str | TextClause,

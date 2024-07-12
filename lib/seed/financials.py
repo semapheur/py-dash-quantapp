@@ -1,16 +1,17 @@
 import json
 import logging
+import sqlite3
 import time
-from textwrap import dedent
 from typing import cast
 
 import pandas as pd
+from pandera.typing import DataFrame
 from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
 from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
-
+from lib.ticker.fetch import get_primary_securities
 from lib.log.setup import setup_logging
 
 
@@ -18,27 +19,54 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-def get_currency(exchange: str) -> str:
-  query = "SELECT currency FROM (SELECT DISTINCT mic, currency FROM stock WHERE mic = :exchange)"
-  currency = read_sqlite("ticker.db", query, {"exchange": exchange})
+def update_primary_securities(company_id: str, securities: list[str]) -> None:
+  from lib.const import DB_DIR
 
-  if currency is None:
-    raise ValueError(f"No currency found for {exchange}")
+  db_path = DB_DIR / "ticker.db"
+  conn = sqlite3.connect(db_path)
+  cursor = conn.cursor()
 
-  return cast(str, currency.loc[0, "currency"])
+  securities_json = json.dumps(securities)
+
+  # Replace the entire array
+  cursor.execute(
+    """
+      UPDATE company
+      SET primary_securities = json(?)
+      WHERE company_id = ?
+    """,
+    (securities_json, company_id),
+  )
+  conn.commit()
+  conn.close()
+
+
+def select_menu(options) -> list[int]:
+  for i, option in enumerate(options, 1):
+    print(f"{i}. {option}")
+
+  prompt = "Enter your choices: "
+  while True:
+    try:
+      choices = [int(choice.strip()) for choice in input(prompt).split(",")]
+
+      if all(1 <= choice <= len(options) for choice in choices):
+        return [choice - 1 for choice in choices]
+      else:
+        print("Invalid choice(s). Please try again.")
+    except ValueError:
+      print("Please enter valid numbers separated by commas.")
 
 
 async def seed_edgar_financials(exchange: str) -> None:
-  query = dedent(
-    """
-    SELECT DISTINCT stock.company_id AS company_id, edgar.cik AS cik FROM stock
+  query = """SELECT DISTINCT stock.company_id AS company_id, edgar.cik AS cik FROM stock
     INNER JOIN edgar ON edgar.isin = stock.isin
     WHERE stock.mic = :exchange OR stock.company_id IN (
       SELECT DISTINCT company_id FROM stock
       WHERE mic = :exchange
     )
-    """
-  )
+  """
+
   df = read_sqlite("ticker.db", query, {"exchange": exchange})
   if df is None:
     raise ValueError(f"No tickers found for {exchange}")
@@ -64,26 +92,51 @@ async def seed_edgar_financials(exchange: str) -> None:
 
 
 async def seed_fundamentals(exchange: str):
-  query = "SELECT id, company_id, name FROM stock WHERE mic = :exchange"
-  tickers = read_sqlite("ticker.db", query, params={"exchange": exchange})
+  query = "SELECT DISTINCT company_id FROM stock WHERE mic = :exchange"
+  companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
 
-  if tickers is None:
+  if companies is None:
     raise ValueError(f"No tickers found for {exchange}")
 
-  seeded_companies = set(tickers["company_id"]).intersection(
+  seeded_companies = set(companies["company_id"]).intersection(
     get_tables("financials.db")
   )
   if not seeded_companies:
-    raise ValueError(f"No financials found for {exchange}")
+    await seed_edgar_financials(exchange)
+    seeded_companies = set(companies["company_id"]).intersection(
+      get_tables("financials.db")
+    )
 
-  currency = get_currency(exchange)
   faulty: list[str] = []
   stored: list[dict[str, str]] = []
   for company in tqdm(seeded_companies):
+    securities = get_primary_securities(company)
+    currencies = securities["currency"].unique()
+
+    update = False
+    while len(securities) > 1 and len(currencies) > 1:
+      print(
+        f"{company} has multiple primary securities with different currencies. Select the correct ones."
+      )
+      options = [
+        f"{t}.{e} ({c})"
+        for t, e, c in zip(
+          securities["ticker"], securities["mic"], securities["currency"]
+        )
+      ]
+      ix = select_menu(options)
+      securities = cast(DataFrame, securities.iloc[ix])
+      currencies = securities["currency"].unique()
+      update = True
+
+    if update:
+      update_primary_securities(company, securities["security_id"].tolist())
+
     try:
-      ticker_ids = tickers.loc[tickers["company_id"] == company, "id"].tolist()
+      ticker_ids = securities["security_id"].tolist()
+      currency = cast(str, currencies[0])
       _ = await update_fundamentals(company, ticker_ids, currency)
-      stored.append({"company_id": company, "currency": currency, "exchange": exchange})
+      stored.append({"company_id": company, "currency": currency})
 
     except Exception as e:
       logger.error(e, exc_info=True)
@@ -92,7 +145,7 @@ async def seed_fundamentals(exchange: str):
   if stored:
     df = pd.DataFrame.from_records(stored)
     df.set_index(["company_id", "currency"], inplace=True)
-    upsert_sqlite(df, "ticker.db", "fundamentals")
+    upsert_sqlite(df, "ticker.db", "financials")
 
   if not faulty:
     return

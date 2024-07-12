@@ -3,7 +3,7 @@ from typing import cast
 from dash import callback, dcc, html, no_update, Input, Output, State
 from pandas import MultiIndex, DatetimeIndex
 
-from lib.ticker.fetch import find_cik, search_companies, company_currency
+from lib.ticker.fetch import search_companies, company_currency
 from lib.fin.fundamentals import load_fundamentals
 
 # from components.input import InputAIO
@@ -100,11 +100,6 @@ def id_store(path: str, id_store: dict[str, str]):
 def fincials_store(id_store: dict[str, str]):
   id = id_store.get("id")
   if id is None:
-    return no_update
-
-  cik = find_cik(id)
-
-  if cik is None:
     return no_update
 
   fundamentals = load_fundamentals(id, id_store["currency"])

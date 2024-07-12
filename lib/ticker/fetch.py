@@ -1,16 +1,11 @@
 import logging
 from functools import lru_cache
-from typing import cast, Optional, TypedDict
+from typing import cast
 
 from pandera import DataFrameModel
 from pandera.typing import DataFrame
-from sqlalchemy import create_engine, text
 
-from lib.const import DB_DIR
-from lib.db.lite import check_table, get_tables, read_sqlite
-
-db_path = DB_DIR / "ticker.db"
-ENGINE = create_engine(f"sqlite+pysqlite:///{db_path}")
+from lib.db.lite import get_tables, fetch_sqlite, read_sqlite
 
 logger = logging.getLogger(__name__)
 
@@ -20,97 +15,71 @@ class TickerOptions(DataFrameModel):
   value: str
 
 
-class Stock(TypedDict, total=False):
-  id: str
-  ticker: str
-  name: str
-  mic: str
-  currency: str
-  sector: str
-  industry: str
+def get_primary_securities(id: str) -> DataFrame:
+  query = "SELECT currency FROM (SELECT DISTINCT mic, currency FROM stock WHERE mic = :exchange)"
+
+  query = """
+    SELECT s.security_id, s.ticker, s.mic, s.currency
+    FROM stock s
+    JOIN company c ON s.company_id = c.company_id
+    JOIN json_each(c.primary_security) AS ps
+    WHERE 
+      s.company_id = :id AND 
+      s.security_id = ps.value
+  """
+
+  securities = read_sqlite("ticker.db", query, {"id": id})
+
+  if securities is None:
+    raise ValueError(f"No primary securities found for {id}")
+
+  return securities
 
 
-def company_currency(id: str) -> str:
-  query = text(
-    """
-      SELECT DISTINCT s.currency
-      FROM stock s
-      JOIN company c ON s.company_id = c.company_id
-      JOIN json_each(c.primary_security) AS ps
-      WHERE 
-        s.company_id = :id AND 
-        s.security_id = ps.value
-      LIMIT 1
-    """
-  ).bindparams(id=id)
+def company_currency(id: str) -> list[str]:
+  query = """
+    SELECT DISTINCT s.currency
+    FROM stock s
+    JOIN company c ON s.company_id = c.company_id
+    JOIN json_each(c.primary_security) AS ps
+    WHERE 
+      s.company_id = :id AND 
+      s.security_id = ps.value
+  """
 
-  with ENGINE.begin() as con:
-    fetch = con.execute(query)
+  currency = read_sqlite("ticker.db", query, {"id": id})
 
-  if (currency := fetch.first()) is None:
-    logger.warning(f"Could not retrieve currency for security {id}", extra={"id": id})
-    return "USD"
+  if currency is None:
+    raise ValueError(f"Could not retrieve currency for security {id}")
 
-  return currency[0]
+  return currency["currency"].tolist()
 
 
 def stock_label(id: str) -> str:
-  if not check_table({"stock"}, "ticker.db"):
-    logger.warning("Stock tickers have not been seeded!")
-    return ""
-
-  query = text(
-    """
+  query = """
     SELECT name || " (" || ticker || ":" || mic || ")" AS label 
     FROM stock WHERE id = :id
   """
-  ).bindparams(id=id)
 
-  with ENGINE.begin() as con:
-    fetch = con.execute(query)
+  fetch = fetch_sqlite("ticker.db", query, {"id": id})
 
-  if (label := fetch.first()) is None:
+  if (label := fetch[0]) is None:
     logger.warning(f"Could not retrieve stock label for {id}", extra={"id": id})
     return ""
 
   return label[0]
 
 
-def fetch_stock(id: str, cols: Optional[set[str]] = None) -> Stock | None:
-  cols = (
-    set(Stock.__optional_keys__)
-    if cols is None
-    else set(Stock.__optional_keys__).intersection(cols)
-  )
-  if not cols:
-    raise Exception(f"Columns must be from {Stock.__optional_keys__}")
-
-  query = text(f'SELECT {",".join(cols)} FROM stock WHERE id = ":id"').bindparams(id=id)
-
-  with ENGINE.begin() as con:
-    fetch = con.execute(query)
-
-  if (stock := fetch.first()) is not None:
-    return cast(Stock, {c: f for c, f in zip(cols, stock)})
-
-  return None
-
-
 def find_cik(id: str) -> int | None:
-  query = text(
-    """
-    SELECT  
-      edgar.cik AS cik FROM stock, edgar
-    WHERE 
-      stock.id = :id AND 
-      REPLACE(edgar.ticker, "-", "") = REPLACE(stock.ticker, ".", "")
+  query = """SELECT DISTINCT edgar.cik AS cik
+    FROM stock
+    JOIN edgar ON stock.isin = edgar.isin
+    WHERE stock.company_id = :id
   """
-  ).bindparams(id=id)
 
-  with ENGINE.begin() as con:
-    fetch = con.execute(query)
+  fetch = fetch_sqlite("ticker.db", query, {"id": id})
 
-  if (cik := fetch.first()) is not None:
+  if (cik := fetch[0]) is not None:
     return cik[0]
 
   return None
