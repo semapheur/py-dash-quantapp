@@ -1,5 +1,6 @@
 import hashlib
 import json
+from numpy import nan
 import re
 
 from pandera.typing import DataFrame
@@ -45,6 +46,19 @@ def find_index(nested_list: list[list[str]], query: str) -> int:
 async def seed_stock_tickers():
   blacklist = ["cedear", r"class \w"]
   pattern = r"(?!^)\b(?:{})\b".format("|".join(blacklist))
+
+  def get_primary_currency(group: DataFrame) -> str:
+    domicile = group["domicile"].iloc[0]
+
+    if domicile not in group["country"].tolist():
+      currencies = group.loc[group["primary"], "currency"]
+
+    else:
+      mask = (group["primary"]) & (group["country"] == domicile)
+      currencies = group.loc[mask, "currency"]
+
+    currency = currencies.unique()
+    return currency[0] if len(currency) == 1 else nan
 
   def get_primary_tickers(group: DataFrame) -> str:
     domicile = group["domicile"].iloc[0]
@@ -100,6 +114,7 @@ async def seed_stock_tickers():
   companies["primary_security"] = tickers.groupby("company_id").apply(
     get_primary_tickers
   )
+  companies["currency"] = tickers.groupby("company_id").apply(get_primary_currency)
 
   tickers = tickers[
     tickers.columns.difference(["primary", "country", "domicile", "sector", "industry"])

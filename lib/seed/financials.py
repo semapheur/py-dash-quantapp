@@ -19,7 +19,9 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-def update_primary_securities(company_id: str, securities: list[str]) -> None:
+def update_primary_securities(
+  company_id: str, securities: list[str], currency: str
+) -> None:
   from lib.const import DB_DIR
 
   db_path = DB_DIR / "ticker.db"
@@ -32,10 +34,10 @@ def update_primary_securities(company_id: str, securities: list[str]) -> None:
   cursor.execute(
     """
       UPDATE company
-      SET primary_securities = json(?)
-      WHERE company_id = ?
+      SET primary_securities = json(:securities), currency = :currency
+      WHERE company_id = :company_id?
     """,
-    (securities_json, company_id),
+    {"securities": securities_json, "currency": currency, "company_id": company_id},
   )
   conn.commit()
   conn.close()
@@ -102,13 +104,10 @@ async def seed_fundamentals(exchange: str):
     get_tables("financials.db")
   )
   if not seeded_companies:
-    await seed_edgar_financials(exchange)
-    seeded_companies = set(companies["company_id"]).intersection(
-      get_tables("financials.db")
-    )
+    raise ValueError(f"No companies seeded for {exchange}")
 
   faulty: list[str] = []
-  stored: list[dict[str, str]] = []
+  stored_company: list[dict[str, str]] = []
   for company in tqdm(seeded_companies):
     securities = get_primary_securities(company)
     currencies = securities["currency"].unique()
@@ -129,23 +128,25 @@ async def seed_fundamentals(exchange: str):
       currencies = securities["currency"].unique()
       update = True
 
+    ticker_ids = securities["security_id"].tolist()
+    currency = cast(str, currencies[0])
     if update:
-      update_primary_securities(company, securities["security_id"].tolist())
+      update_primary_securities(company, ticker_ids, currency)
 
     try:
-      ticker_ids = securities["security_id"].tolist()
-      currency = cast(str, currencies[0])
       _ = await update_fundamentals(company, ticker_ids, currency)
-      stored.append({"company_id": company, "currency": currency})
+      stored_company.append({"company_id": company})
 
     except Exception as e:
       logger.error(e, exc_info=True)
       print(f"{company} failed")
 
-  if stored:
-    df = pd.DataFrame.from_records(stored)
-    df.set_index(["company_id", "currency"], inplace=True)
+  if stored_company:
+    df = pd.DataFrame.from_records(stored_company, index="company_id")
     upsert_sqlite(df, "ticker.db", "financials")
+
+    df = pd.DataFrame.from_records({"mic": [exchange]}, index="mic")
+    upsert_sqlite(df, "ticker.db", "stored_exchanges")
 
   if not faulty:
     return

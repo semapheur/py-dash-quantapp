@@ -16,8 +16,6 @@ class TickerOptions(DataFrameModel):
 
 
 def get_primary_securities(id: str) -> DataFrame:
-  query = "SELECT currency FROM (SELECT DISTINCT mic, currency FROM stock WHERE mic = :exchange)"
-
   query = """
     SELECT s.security_id, s.ticker, s.mic, s.currency
     FROM stock s

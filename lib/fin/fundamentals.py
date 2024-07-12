@@ -262,12 +262,26 @@ async def update_fundamentals(
 
   fundamentals = load_fundamentals(company_id, currency, cols)
 
+  query = """SELECT item FROM items 
+    WHERE unit IN ("monetary_ratio", "price_ratio", "numeric_score")
+  """
+
+  ratio_items = read_sqlite("taxonomy.db", query)
+  if ratio_items is None:
+    raise ValueError("Ratio items not found")
+
+  ratio_cols = ratio_items["item"].tolist()
+
   if fundamentals is None:
     fundamentals = await calculate_fundamentals(
       ticker_ids, currency, financials, beta_years
     )
 
-    upsert_sqlite(fundamentals, "fundamentals.db", table, {"date": Date})
+    fundamentals_ratio = fundamentals[ratio_cols]
+    fundamentals_monetary = fundamentals.drop(ratio_cols, axis=1)
+
+    upsert_sqlite(fundamentals_monetary, "financials.db", table, {"date": Date})
+    upsert_sqlite(fundamentals_ratio, "fundamentals.db", table, {"date": Date})
     return fundamentals
 
   last_financials: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
@@ -300,5 +314,10 @@ async def update_fundamentals(
   fundamentals_ = cast(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
   )
-  upsert_sqlite(fundamentals_, "fundamentals.db", table)
+
+  fundamentals_ratio = fundamentals[ratio_cols]
+  fundamentals_monetary = fundamentals_.drop(ratio_cols, axis=1)
+
+  upsert_sqlite(fundamentals_monetary, "financials.db", table, {"date": Date})
+  upsert_sqlite(fundamentals_ratio, "fundamentals.db", table, {"date": Date})
   return cast(DataFrame, pd.concat((fundamentals, fundamentals_), axis=0))
