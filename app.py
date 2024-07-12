@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import os
 from pathlib import Path
 
 from dash import Dash, dcc, html, page_container, Input, Output  # page_registry
@@ -20,6 +21,22 @@ def cleanup():
 
 # atexit.register(cleanup)
 
+if "REDIS_URL" in os.environ:
+  from celery import Celery
+  from dash import CeleryManager
+
+  celery_app = Celery(
+    __name__, broker=os.environ["REDIS_URL"], backend=os.environ["REDIS_URL"]
+  )
+  background_callback_manager = CeleryManager(celery_app)
+
+else:
+  import diskcache
+  from dash import DiskcacheManager
+
+  cache = diskcache.Cache(".cache")
+  background_callback_manager = DiskcacheManager(cache)
+
 external_stylesheets = ["https://cdn.tailwindcss.com"]
 
 app = Dash(
@@ -27,6 +44,7 @@ app = Dash(
   use_pages=True,
   title="Gelter",
   suppress_callback_exceptions=True,
+  background_callback_manager=background_callback_manager,
   # external_stylesheets=external_stylesheets,
   # prevent_initial_callbacks='initial_duplicate'
 )  # run with 'python app.py'

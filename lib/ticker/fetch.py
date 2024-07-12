@@ -30,11 +30,18 @@ class Stock(TypedDict, total=False):
   industry: str
 
 
-def stock_currency(id: str) -> str:
+def company_currency(id: str) -> str:
   query = text(
     """
-    SELECT currency FROM stock WHERE id = :id
-  """
+      SELECT DISTINCT s.currency
+      FROM stock s
+      JOIN company c ON s.company_id = c.company_id
+      JOIN json_each(c.primary_security) AS ps
+      WHERE 
+        s.company_id = :id AND 
+        s.security_id = ps.value
+      LIMIT 1
+    """
   ).bindparams(id=id)
 
   with ENGINE.begin() as con:
@@ -119,16 +126,31 @@ def search_companies(
       company_id AS value
     FROM (
       SELECT 
-        c.company_id, 
+        f.company_id, 
         c.name, 
         t.ticker, 
         t.mic 
-      FROM company c 
+      FROM fundamentals f
+      JOIN company c ON f.company_id = c.company_id 
       JOIN json_each(c.primary_security) ON 1=1
       JOIN stock t ON json_each.value = t.security_id
     )
     GROUP BY company_id
     HAVING label LIKE :search
+    LIMIT :limit
+  """
+
+  df = read_sqlite("ticker.db", query, {"search": f"%{search}%", "limit": str(limit)})
+  return cast(DataFrame[TickerOptions], df)
+
+
+def search_stocks(search: str, limit: int = 10) -> DataFrame[TickerOptions]:
+  query = """ 
+    SELECT
+      name || " (" || ticker || ":" || mic || ")" AS label,
+      security_id || "." || currency AS value
+    FROM stock
+    WHERE label LIKE :search
     LIMIT :limit
   """
 

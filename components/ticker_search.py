@@ -3,15 +3,26 @@ from typing import cast
 from dash import callback, dcc, html, no_update, Input, Output, State
 from pandas import MultiIndex, DatetimeIndex
 
-from lib.ticker.fetch import find_cik, search_companies, stock_currency
+from lib.ticker.fetch import find_cik, search_companies, company_currency
 from lib.fin.fundamentals import load_fundamentals
 
-from components.input import InputAIO
+# from components.input import InputAIO
 
 link_style = "block text-text hover:text-secondary"
 nav_style = (
   "hidden peer-focus-within:flex hover:flex flex-col gap-1 "
   "absolute top-full left-1 p-1 bg-primary/50 backdrop-blur-sm shadow z-[1]"
+)
+input_style = (
+  "peer h-full w-full p-1 bg-primary text-text "
+  "rounded border border-text/10 hover:border-text/50 focus:border-secondary "
+  "placeholder-transparent"
+)
+label_style = (
+  "absolute left-1 -top-2 px-1 bg-primary text-text/50 text-xs "
+  "peer-placeholder-shown:text-base peer-placeholder-shown:text-text/50 "
+  "peer-placeholder-shown:top-1 peer-focus:-top-2 peer-focus:text-secondary "
+  "peer-focus:text-xs transition-all"
 )
 
 
@@ -19,7 +30,23 @@ def TickerSearch():
   return html.Div(
     className="relative h-full",
     children=[
-      InputAIO("ticker-search", "20vw", {"placeholder": "Ticker", "type": "text"}),
+      # InputAIO("ticker-search", "20vw", {"placeholder": "Ticker", "type": "text"}),
+      html.Form(
+        className="peer relative",
+        children=[
+          dcc.Input(
+            id="input:ticker-search",
+            className=input_style,
+            placeholder="Ticker",
+            type="text",
+          ),
+          html.Label(
+            htmlFor="input:ticker-search",
+            className=label_style,
+            children=["Ticker"],
+          ),
+        ],
+      ),
       html.Nav(id="nav:ticker-search", className=nav_style),
       dcc.Store(id="store:ticker-search:financials"),
       dcc.Store(id="store:ticker-search:id", data={}),
@@ -29,7 +56,7 @@ def TickerSearch():
 
 @callback(
   Output("nav:ticker-search", "children"),
-  Input(InputAIO.id("ticker-search"), "value"),
+  Input("input:ticker-search", "value"),
 )
 def ticker_results(search: str) -> list[dict[str, str]]:
   if search is None or len(search) < 2:
@@ -63,7 +90,7 @@ def id_store(path: str, id_store: dict[str, str]):
   if old_id == new_id:
     return no_update
 
-  return {"id": new_id, "currency": stock_currency(new_id)}
+  return {"id": new_id, "currency": company_currency(new_id)}
 
 
 @callback(

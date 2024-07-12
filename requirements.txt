@@ -1,7 +1,7 @@
 aiometer
 asyncstdlib
 #camelot-py[base]
-dash
+dash[celery]
 dash-ag-grid
 #dash-bootstrap-components
 #dash-mantine-components
@@ -36,8 +36,5 @@ sqlalchemy
 #sqlmodel
 statsmodels
 #tabula-py
-#tinydb
-#tinydb-serialization
-topojson
 tqdm
 wbgapi

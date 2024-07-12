@@ -25,6 +25,6 @@ def Header():
         ],
       ),
       ThemeToggle(),
-      # TickerSearch(),
+      TickerSearch(),
     ],
   )

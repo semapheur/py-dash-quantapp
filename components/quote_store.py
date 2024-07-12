@@ -1,3 +1,4 @@
+import asyncio
 from functools import partial
 from typing import Optional
 import uuid
@@ -24,13 +25,17 @@ class QuoteStoreAIO(dcc.Store):
 
     super().__init__(id=self.__class__.id(aio_id), **store_props)
 
-  @callback(Output(id(MATCH), "data"), Input(TickerSelectAIO.id(MATCH), "value"))
-  async def update_store(query: str):
+  @callback(
+    Output(id(MATCH), "data"),
+    Input(TickerSelectAIO.id(MATCH), "value"),
+    background=True,
+  )
+  def update_store(query: str):
     if not query:
       return no_update
 
-    id, currency = query.split("|")
+    id, currency = query.split(".")
     fetcher = partial(Stock(id, currency).ohlcv)
-    ohlcv = await get_ohlcv(id, "stock", fetcher)
+    ohlcv = asyncio.run(get_ohlcv(id, "stock", fetcher))
     ohlcv.reset_index(inplace=True)
     return ohlcv.to_dict("list")

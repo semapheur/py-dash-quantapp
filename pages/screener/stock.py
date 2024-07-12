@@ -8,12 +8,10 @@ from dash import (
   register_page,
   Output,
   Input,
-  State,
 )
 import dash_ag_grid as dag
-from pandas import DataFrame
 
-from lib.db.lite import read_sqlite, insert_sqlite, get_tables
+from lib.db.lite import read_sqlite
 
 exchanges = read_sqlite("ticker.db", "SELECT DISTINCT exchange FROM fundamentals")
 
@@ -41,11 +39,11 @@ layout = html.Main(
   Output("div:screener-stock:table-wrap", "children"),
   Input("dropdown:screener-stock:exchange", "value"),
 )
-async def update_table(exchange: str):
+def update_table(exchange: str):
   if not exchange:
     return no_update
 
-  query = "SELECT company_id, currency FROM fundamentals WHERE exchange= :=exchange"
+  query = "SELECT company_id, currency FROM fundamentals WHERE exchange = :exchange"
   companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
   if companies is None:
     return no_update
@@ -54,8 +52,8 @@ async def update_table(exchange: str):
 
   query_parts = [
     textwrap.dedent(
-      f"""SELECT '{table}' AS company, * FROM {table}
-        WHERE date = (SELECT MAX(date) FROM {table} WHERE months = 12)    
+      f"""SELECT '{table}' AS company, * FROM '{table}'
+        WHERE date = (SELECT MAX(date) FROM '{table}' WHERE months = 12)    
     """
     )
     for table in companies["table"]

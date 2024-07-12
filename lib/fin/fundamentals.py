@@ -237,7 +237,7 @@ def load_fundamentals(
     col_text = ", ".join(cols.union(index_col))
 
   table = f"{id}_{currency}"
-  query = f'SELECT {col_text} FROM "{table}"'
+  query = f"SELECT {col_text} FROM '{table}'"
   df = read_sqlite(
     "fundamentals.db",
     query,
