@@ -159,35 +159,21 @@ def read_sqlite(
   return None if df.empty else cast(DataFrame, df)
 
 
-def union_all(db_name: str) -> DataFrame | None:
+def get_table_columns(
+  db_name: str, tables: Optional[list[str]] = None
+) -> dict[str, list[str]]:
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
 
   inspector = inspect(engine)
 
-  tables = inspector.get_table_names()
+  if tables is None:
+    tables = inspector.get_table_names()
+
   table_columns = {
     table: [col["name"] for col in inspector.get_columns(table)] for table in tables
   }
-  common_columns = set.intersection(*[set(cols) for cols in table_columns.values()])
-
-  union_queries = []
-  for table in tables:
-    columns = table_columns[table]
-    select_columns = []
-    for col in common_columns:
-      if col in columns:
-        select_columns.append(f"'{col}'")
-      else:
-        select_columns.append(f"NULL as '{col}'")
-
-    select_clause = ", ".join(select_columns)
-    union_queries.append(f"SELECT {select_clause} FROM '{table}'")
-
-  full_query = " UNION ALL ".join(union_queries)
-
-  df = read_sqlite(db_name, full_query)
-  return df
+  return table_columns
 
 
 def insert_sqlite(

@@ -11,7 +11,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 
-from lib.db.lite import read_sqlite
+from lib.db.lite import get_table_columns, read_sqlite
 
 exchanges = read_sqlite("ticker.db", "SELECT DISTINCT exchange FROM fundamentals")
 
@@ -50,29 +50,45 @@ def update_table(exchange: str):
 
   companies["table"] = companies["company_id"] + "_" + companies["currency"]
 
-  query_parts = [
-    textwrap.dedent(
-      f"""SELECT '{table}' AS company, * FROM '{table}'
-        WHERE date = (SELECT MAX(date) FROM '{table}' WHERE months = 12)    
-    """
-    )
-    for table in companies["table"]
-  ]
+  table_columns = get_table_columns("fundamentals.db", companies["table"].tolist())
 
-  query = " UNION ALL ".join(query_parts)
-  df = read_sqlite("fundamentals.db", query)
+  common_columns = set.intersection(*[set(cols) for cols in table_columns.values()])
+
+  union_queries = []
+  for table, columns in table_columns.items():
+    select_columns = [f"'{table}' AS company"]
+    for col in common_columns:
+      if col in columns:
+        select_columns.append(f"{col}")
+      else:
+        select_columns.append(f"NULL as {col}")
+
+    select_clause = ", ".join(select_columns)
+    union_queries.append(
+      f"SELECT {select_clause} FROM '{table}' WHERE date = (SELECT MAX(date) FROM '{table}') AND months = 12"
+    )
+
+  full_query = " UNION ALL ".join(union_queries)
+
+  df = read_sqlite("fundamentals.db", full_query)
   if df is None:
     return no_update
 
-  df.set_index("company", inplace=True)
-
   column_defs = [
     {
+      "field": "company",
+      "type": "text",
+      "pinned": "left",
+      "lockPinned": True,
+      "cellClass": "lock-pinned",
+    }
+  ] + [
+    {
       "field": col,
-      "type": "numericColumn",
+      "type": "number",
       "valueFormatter": {"function": 'd3.format("(,")(params.value)'},
     }
-    for col in df.columns
+    for col in df.columns.difference(["company"])
   ]
 
   return dag.AgGrid(

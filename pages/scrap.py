@@ -40,126 +40,126 @@ from lib.fin.statement import upsert_statements
 from lib.morningstar.ticker import Stock
 from lib.utils import download_file
 
-register_page(__name__, path='/scrap')
+register_page(__name__, path="/scrap")
 
 
 def get_doc_id(url: str) -> str:
-  pattern = r'(?<=/)[a-z0-9]+(?=\.msdoc)'
+  pattern = r"(?<=/)[a-z0-9]+(?=\.msdoc)"
   match = re.search(pattern, url)
 
   if not match:
-    return ''
+    return ""
 
   return match.group()
 
 
-main_style = 'grid grid-cols-[1fr_2fr_2fr] h-full bg-primary'
-input_style = 'p-1 rounded-l border-l border-t border-b border-text/10'
-button_style = 'px-2 rounded bg-secondary/50 text-text'
-group_button_style = 'px-2 rounded-r bg-secondary/50 text-text'
+main_style = "grid grid-cols-[1fr_2fr_2fr] h-full bg-primary"
+input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
+button_style = "px-2 rounded bg-secondary/50 text-text"
+group_button_style = "px-2 rounded-r bg-secondary/50 text-text"
 layout = html.Main(
   className=main_style,
   children=[
     html.Aside(
-      className='flex flex-col gap-2 p-2',
+      className="flex flex-col gap-2 p-2",
       children=[
-        TickerSelectAIO(aio_id='scrap'),
-        dcc.Dropdown(id='dropdown:scrap:document', placeholder='Document'),
+        TickerSelectAIO(aio_id="scrap"),
+        dcc.Dropdown(id="dropdown:scrap:document", placeholder="Document"),
         html.Form(
-          className='flex',
-          action='',
+          className="flex",
+          action="",
           children=[
             dcc.Input(
-              id='input:scrap:pages',
+              id="input:scrap:pages",
               className=input_style,
-              placeholder='Pages',
-              type='text',
+              placeholder="Pages",
+              type="text",
             ),
             html.Button(
-              'Extract',
-              id='button:scrap:extract',
+              "Extract",
+              id="button:scrap:extract",
               className=group_button_style,
-              type='button',
+              type="button",
               n_clicks=0,
             ),
           ],
         ),
         dcc.Checklist(
-          id='checklist:scrap:options',
-          className='flex gap-4',
-          labelClassName='gap-1 text-text',
-          labelStyle={'display': 'flex'},
+          id="checklist:scrap:options",
+          className="flex gap-4",
+          labelClassName="gap-1 text-text",
+          labelStyle={"display": "flex"},
           options=[
-            {'label': 'Borderless', 'value': 'borderless'},
-            {'label': 'Implicit rows', 'value': 'implicit'},
+            {"label": "Borderless", "value": "borderless"},
+            {"label": "Implicit rows", "value": "implicit"},
           ],
           value=[],
         ),
         InputAIO(
-          'scrap:factor',
-          '100%',
-          {'value': 1e6, 'placeholder': 'Factor', 'type': 'number'},
+          "scrap:factor",
+          "100%",
+          {"value": 1e6, "placeholder": "Factor", "type": "number"},
         ),
         InputAIO(
-          'scrap:currency',
-          '100%',
-          {'value': 'NOK', 'placeholder': 'Currency', 'type': 'text'},
+          "scrap:currency",
+          "100%",
+          {"value": "NOK", "placeholder": "Currency", "type": "text"},
         ),
         html.Button(
-          'Delete rows',
-          id='button:scrap:delete',
+          "Delete rows",
+          id="button:scrap:delete",
           className=button_style,
-          type='button',
+          type="button",
           n_clicks=0,
         ),
         html.Button(
-          'Rename headers',
-          id=ModalAIO.open_id('scrap:headers'),
+          "Rename headers",
+          id=ModalAIO.open_id("scrap:headers"),
           className=button_style,
-          type='button',
+          type="button",
           n_clicks=0,
         ),
         html.Button(
-          'Export to JSON',
-          id='button:scrap:export',
+          "Export to JSON",
+          id="button:scrap:export",
           className=button_style,
-          type='button',
+          type="button",
           n_clicks=0,
         ),
-        InputAIO('scrap:id', '100%', {'type': 'text', 'placeholder': 'Ticker ID'}),
-        InputAIO('scrap:date', '100%', {'type': 'text', 'placeholder': 'Date'}),
+        InputAIO("scrap:id", "100%", {"type": "text", "placeholder": "Ticker ID"}),
+        InputAIO("scrap:date", "100%", {"type": "text", "placeholder": "Date"}),
         InputAIO(
-          'scrap:fiscal-end',
-          '100%',
-          {'type': 'text', 'placeholder': 'Date', 'value': '12-31'},
+          "scrap:fiscal-end",
+          "100%",
+          {"type": "text", "placeholder": "Date", "value": "12-31"},
         ),
         dcc.Dropdown(
-          id='dropdown:scrap:scope',
-          placeholder='Scope',
+          id="dropdown:scrap:scope",
+          placeholder="Scope",
           options=[
-            {'label': 'Annual', 'value': 'annual'},
-            {'label': 'Quarterly', 'value': 'quarterly'},
+            {"label": "Annual", "value": "annual"},
+            {"label": "Quarterly", "value": "quarterly"},
           ],
         ),
         dcc.Dropdown(
-          id='dropdown:scrap:period',
-          placeholder='Period',
-          options=['FY', 'Q1', 'Q2', 'Q3', 'Q4'],
+          id="dropdown:scrap:period",
+          placeholder="Period",
+          options=["FY", "Q1", "Q2", "Q3", "Q4"],
         ),
       ],
     ),
-    html.Div(id='div:scrap:pdf', className='h-full w-full'),
-    html.Div(className='h-full', id='div:scrap:table'),
+    html.Div(id="div:scrap:pdf", className="h-full w-full"),
+    html.Div(className="h-full", id="div:scrap:table"),
     ModalAIO(
-      'scrap:headers',
-      'Rename headers',
+      "scrap:headers",
+      "Rename headers",
       children=[
         html.Div(
-          className='flex flex-col',
+          className="flex flex-col",
           children=[
-            html.Form(id='form:scrap:headers', className='flex flex-col gap-1'),
+            html.Form(id="form:scrap:headers", className="flex flex-col gap-1"),
             html.Button(
-              'Update', id='button:scrap:headers:update', className=button_style
+              "Update", id="button:scrap:headers:update", className=button_style
             ),
           ],
         )
@@ -170,22 +170,22 @@ layout = html.Main(
 
 
 @callback(
-  Output('dropdown:scrap:document', 'options'),
-  Input(TickerSelectAIO.id('scrap'), 'value'),
+  Output("dropdown:scrap:document", "options"),
+  Input(TickerSelectAIO.id("scrap"), "value"),
 )
 def update_dropdown(ticker: str):
   if not ticker:
     return no_update
 
-  docs = Stock(*ticker.split('|')).documents()
-  docs.rename(columns={'link': 'value'}, inplace=True)
-  docs['label'] = docs['date'] + ' - ' + docs['type'] + ' (' + docs['language'] + ')'
+  docs = Stock(*ticker.split("|")).documents()
+  docs.rename(columns={"link": "value"}, inplace=True)
+  docs["label"] = docs["date"] + " - " + docs["type"] + " (" + docs["language"] + ")"
 
-  return docs[['label', 'value']].to_dict('records')
+  return docs[["label", "value"]].to_dict("records")
 
 
 @callback(
-  Output('div:scrap:pdf', 'children'), Input('dropdown:scrap:document', 'value')
+  Output("div:scrap:pdf", "children"), Input("dropdown:scrap:document", "value")
 )
 def update_object(url: str):
   if not url:
@@ -195,21 +195,21 @@ def update_object(url: str):
   if not doc_id:
     return []
 
-  pdf_path = Path(f'temp/{doc_id}.pdf')
+  pdf_path = Path(f"temp/{doc_id}.pdf")
   if not pdf_path.exists():
     download_file(url, pdf_path)
 
-  return html.ObjectEl(data=url, width='100%', height='100%')
+  return html.ObjectEl(data=url, width="100%", height="100%")
 
 
 @callback(
-  Output('div:scrap:table', 'children'),
-  Input('button:scrap:extract', 'n_clicks'),
-  State('dropdown:scrap:document', 'value'),
-  State('input:scrap:pages', 'value'),
-  State('checklist:scrap:options', 'value'),
-  State(InputAIO.id('scrap:factor'), 'value'),
-  State(InputAIO.id('scrap:currency'), 'value'),
+  Output("div:scrap:table", "children"),
+  Input("button:scrap:extract", "n_clicks"),
+  State("dropdown:scrap:document", "value"),
+  State("input:scrap:pages", "value"),
+  State("checklist:scrap:options", "value"),
+  State(InputAIO.id("scrap:factor"), "value"),
+  State(InputAIO.id("scrap:currency"), "value"),
 )
 def update_table(
   n_clicks: int,
@@ -223,60 +223,60 @@ def update_table(
     return no_update
 
   doc_id = get_doc_id(pdf_url)
-  pdf_path = Path(f'temp/{doc_id}.pdf')
+  pdf_path = Path(f"temp/{doc_id}.pdf")
   pdf_src = io.BytesIO()
   if pdf_path.exists():
-    with open(pdf_path, 'rb') as pdf_file:
+    with open(pdf_path, "rb") as pdf_file:
       pdf_src.write(pdf_file.read())
   else:
     response = httpx.get(url=pdf_url, headers=HEADERS)
     pdf_src.write(response.content)
 
-  pages = [int(p) - 1 for p in pages_text.split(',')]
+  pages = [int(p) - 1 for p in pages_text.split(",")]
   pdf = PDF(src=pdf_src, pages=pages)
 
-  ocr = TesseractOCR(lang='eng')
+  ocr = TesseractOCR(lang="eng")
 
   tables = pdf.extract_tables(
     ocr=ocr,
-    borderless_tables=True if 'borderless' in options else False,
-    implicit_rows=True if 'implicit' in options else False,
+    borderless_tables=True if "borderless" in options else False,
+    implicit_rows=True if "implicit" in options else False,
   )
 
   # TODO: merge tables
   df = tables[pages[0]][0].df
-  df['period'] = 'instant'
-  df['factor'] = factor
-  df['unit'] = currency
-  diff = ['period', 'factor', 'unit']
+  df["period"] = "instant"
+  df["factor"] = factor
+  df["unit"] = currency
+  diff = ["period", "factor", "unit"]
   df = df[diff + list(df.columns.difference(diff))]
 
   columnDefs: list[dict[str, str | bool | dict]] = [
-    {'field': str(c)} for c in df.columns
+    {"field": str(c)} for c in df.columns
   ]
   columnDefs[0].update(
     {
-      'checkboxSelection': True,
-      'cellEditor': 'agSelectCellEditor',
-      'cellEditorParams': {'values': ['instant', 'duration']},
+      "checkboxSelection": True,
+      "cellEditor": "agSelectCellEditor",
+      "cellEditorParams": {"values": ["instant", "duration"]},
     }
   )
-  columnDefs[1].update({'type': 'numericColumn'})
+  columnDefs[1].update({"type": "numericColumn"})
 
   return dag.AgGrid(
-    id='table:scrap',
+    id="table:scrap",
     columnDefs=columnDefs,
-    rowData=df.to_dict('records'),
-    columnSize='autoSize',
-    defaultColDef={'editable': True},
-    dashGridOptions={'undoRedoCellEditing': True, 'undoRedoCellEditingLimit': 10},
-    style={'height': '100%'},
+    rowData=df.to_dict("records"),
+    columnSize="autoSize",
+    defaultColDef={"editable": True},
+    dashGridOptions={"undoRedoCellEditing": True, "undoRedoCellEditingLimit": 10},
+    style={"height": "100%"},
   )
 
 
 @callback(
-  Output('table:scrap', 'deleteSelectedRows'),
-  Input('button:scrap:delete', 'n_clicks'),
+  Output("table:scrap", "deleteSelectedRows"),
+  Input("button:scrap:delete", "n_clicks"),
   prevent_initial_call=True,
 )
 def selected(_: int):
@@ -284,30 +284,30 @@ def selected(_: int):
 
 
 @callback(
-  Output('form:scrap:headers', 'children'),
-  Input('table:scrap', 'columnDefs'),
+  Output("form:scrap:headers", "children"),
+  Input("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
 def update_form(cols: list[dict]):
   return [
     dcc.Input(
-      id={'type': 'input:scrap:headers', 'index': i},
-      className='px-1 rounded border border-text/10 hover:border-text/50 focus:border-secondary',
-      placeholder=f'Field {i}',
-      value=col['field'],
-      type='text',
+      id={"type": "input:scrap:headers", "index": i},
+      className="px-1 rounded border border-text/10 hover:border-text/50 focus:border-secondary",
+      placeholder=f"Field {i}",
+      value=col["field"],
+      type="text",
     )
     for (i, col) in enumerate(cols[3:])
   ]
 
 
 @callback(
-  Output('table:scrap', 'columnDefs'),
-  Output('table:scrap', 'rowData'),
-  Input('button:scrap:headers:update', 'n_clicks'),
-  State({'type': 'input:scrap:headers', 'index': ALL}, 'value'),
-  State('table:scrap', 'columnDefs'),
-  State('table:scrap', 'rowData'),
+  Output("table:scrap", "columnDefs"),
+  Output("table:scrap", "rowData"),
+  Input("button:scrap:headers:update", "n_clicks"),
+  State({"type": "input:scrap:headers", "index": ALL}, "value"),
+  State("table:scrap", "columnDefs"),
+  State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
 def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]):
@@ -315,80 +315,80 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
     return no_update
 
   df = pd.DataFrame.from_records(rows)
-  df = df[[col['field'] for col in cols]]
+  df = df[[col["field"] for col in cols]]
 
   col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
   df.rename(columns=col_map, inplace=True)
 
   for i, name in enumerate(new_names):
-    cols[i + 3]['field'] = name
+    cols[i + 3]["field"] = name
 
-  return cols, df.to_dict('records')
+  return cols, df.to_dict("records")
 
 
 @callback(
-  Output(InputAIO.id('scrap:id'), 'value'),
-  Input(TickerSelectAIO.id('scrap'), 'value'),
+  Output(InputAIO.id("scrap:id"), "value"),
+  Input(TickerSelectAIO.id("scrap"), "value"),
 )
 def update_input(ticker: str):
   if not ticker:
     return no_update
 
-  return ticker.split('|')[0]
+  return ticker.split("|")[0]
 
 
 @callback(
-  Output(InputAIO.id('scrap:date'), 'value'),
-  Input('dropdown:scrap:document', 'value'),
-  State('dropdown:scrap:document', 'options'),
+  Output(InputAIO.id("scrap:date"), "value"),
+  Input("dropdown:scrap:document", "value"),
+  State("dropdown:scrap:document", "options"),
 )
 def update_document_dropdown(doc: str, options: list[dict[str, str]]):
   if not doc:
     return no_update
 
-  label = [x['label'] for x in options if x['value'] == doc][0]
+  label = [x["label"] for x in options if x["value"] == doc][0]
 
-  pattern = r'\d{4}-\d{2}-\d{2}'
+  pattern = r"\d{4}-\d{2}-\d{2}"
   match = re.search(pattern, label)
 
   if not match:
-    return ''
+    return ""
 
   return match.group()
 
 
 @callback(
-  Output('dropdown:scrap:scope', 'value'),
-  Output('dropdown:scrap:period', 'value'),
-  Input('dropdown:scrap:document', 'value'),
-  State('dropdown:scrap:document', 'options'),
+  Output("dropdown:scrap:scope", "value"),
+  Output("dropdown:scrap:period", "value"),
+  Input("dropdown:scrap:document", "value"),
+  State("dropdown:scrap:document", "options"),
 )
 def update_scope_dropdown(doc: str, options: list[dict[str, str]]):
   if not doc:
     return no_update
 
-  label = [x['label'] for x in options if x['value'] == doc][0]
+  label = [x["label"] for x in options if x["value"] == doc][0]
 
-  pattern = r'(annual|quarterly)'
+  pattern = r"(annual|quarterly)"
   match = re.search(pattern, label, flags=re.I)
 
   if not match:
-    return '', ''
+    return "", ""
 
   scope = match.group().lower()
-  period = 'FY' if scope == 'annual' else ''
+  period = "FY" if scope == "annual" else ""
 
   return (scope, period)
 
 
 @callback(
-  Output('button:scrap:export', 'disabled'),
-  Input(InputAIO.id('scrap:fiscal-end'), 'value'),
+  Output("button:scrap:export", "disabled"),
+  Input(InputAIO.id("scrap:fiscal-end"), "value"),
 )
 def validate_fiscal_end(fiscal_end: str) -> bool:
   pattern = re.compile(
-    r'^(0[1-9]|1[0-2])-(0[1-9]|1\d|2[0-8])|(0[13-9]|'
-    r'1[0-2])-29|0[13-9]|1[0-2]-(29|30)|(0[13578]|1[02])-31$'
+    r"^(0[1-9]|1[0-2])-(0[1-9]|1\d|2[0-8])|(0[13-9]|"
+    r"1[0-2])-29|0[13-9]|1[0-2]-(29|30)|(0[13578]|1[02])-31$"
   )
 
   if pattern.match(fiscal_end):
@@ -398,15 +398,15 @@ def validate_fiscal_end(fiscal_end: str) -> bool:
 
 
 @callback(
-  Output('button:scrap:export', 'id'),
-  Input('button:scrap:export', 'n_clicks'),
-  State('table:scrap', 'rowData'),
-  State('dropdown:scrap:document', 'value'),
-  State(InputAIO.id('scrap:id'), 'value'),
-  State(InputAIO.id('scrap:date'), 'value'),
-  State('dropdown:scrap:scope', 'value'),
-  State('dropdown:scrap:period', 'value'),
-  State(InputAIO.id('scrap:fiscal-end'), 'value'),
+  Output("button:scrap:export", "id"),
+  Input("button:scrap:export", "n_clicks"),
+  State("table:scrap", "rowData"),
+  State("dropdown:scrap:document", "value"),
+  State(InputAIO.id("scrap:id"), "value"),
+  State(InputAIO.id("scrap:date"), "value"),
+  State("dropdown:scrap:scope", "value"),
+  State("dropdown:scrap:period", "value"),
+  State(InputAIO.id("scrap:fiscal-end"), "value"),
   prevent_initial_call=True,
 )
 def export(
@@ -420,18 +420,18 @@ def export(
   fiscal_end: str,
 ):
   def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
-    date = dt.strptime(date_text, '%Y-%m-%d').date()
+    date = dt.strptime(date_text, "%Y-%m-%d").date()
 
-    if row['period'] == 'instant':
+    if row["period"] == "instant":
       return Instant(instant=date)
 
-    start_date = dt.strptime(period, '%Y-%m-%d').date()
+    start_date = dt.strptime(period, "%Y-%m-%d").date()
 
-    if scope == 'annual':
+    if scope == "annual":
       start_date -= relativedelta(years=1)
       months = 12
 
-    elif scope == 'quarterly':
+    elif scope == "quarterly":
       start_date -= relativedelta(months=3)
       months = 3
 
@@ -443,22 +443,22 @@ def export(
   data: dict[str, list[Item]] = {}
 
   df = pd.DataFrame.from_records(rows)
-  if 'item' not in set(df.columns):
-    return 'button:scrap:export'
+  if "item" not in set(df.columns):
+    return "button:scrap:export"
 
-  dates = list(df.columns.difference(['period', 'factor', 'unit', 'item']))
-  df.loc[:, dates] = df[dates].replace(r'[^\d.]', '', regex=True).astype(float)
+  dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
+  df.loc[:, dates] = df[dates].replace(r"[^\d.]", "", regex=True).astype(float)
 
   currencies = set()
 
   for _, r in df.iterrows():
-    if r['unit'] != 'shares':
-      currencies.add(r['unit'])
+    if r["unit"] != "shares":
+      currencies.add(r["unit"])
 
-    data[r['item']] = [
+    data[r["item"]] = [
       Item(
-        value=r[d] * float(r['factor']),
-        unit=r['unit'],
+        value=r[d] * float(r["factor"]),
+        unit=r["unit"],
         period=parse_period(scope, d, r),
       )
       for d in dates
@@ -467,7 +467,7 @@ def export(
   records = [
     FinStatement(
       url=url,
-      date=dt.strptime(date, '%Y-%m-%d').date(),
+      date=dt.strptime(date, "%Y-%m-%d").date(),
       scope=scope,
       period=period,
       fiscal_end=fiscal_end,
@@ -476,6 +476,6 @@ def export(
     )
   ]
 
-  upsert_statements('financials.db', id, records)
+  upsert_statements("financials.db", id, records)
 
-  return 'button:scrap:export'
+  return "button:scrap:export"
