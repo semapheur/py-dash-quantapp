@@ -58,10 +58,10 @@ def setup_logging():
   with open(config_file, "r") as f:
     config = json.load(f)
   dictConfig(config)
-  # queue_handler = logging.getHandlerByName('queue_handler')
-  # if queue_handler is not None:
-  #  queue_handler.listener.start()
-  #  atexit.register(queue_handler.listener.stop)
+  queue_handler = logging.getHandlerByName("queue_handler")
+  if queue_handler is not None:
+    queue_handler.listener.start()
+    atexit.register(queue_handler.listener.stop)
 
 
 def resolve_object(config: ConvertingDict):

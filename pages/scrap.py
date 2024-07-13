@@ -476,6 +476,6 @@ def export(
     )
   ]
 
-  upsert_statements("financials.db", id, records)
+  upsert_statements("statements.db", id, records)
 
   return "button:scrap:export"

@@ -101,7 +101,7 @@ async def seed_fundamentals(exchange: str):
     raise ValueError(f"No tickers found for {exchange}")
 
   seeded_companies = set(companies["company_id"]).intersection(
-    get_tables("financials.db")
+    get_tables("statements.db")
   )
   if not seeded_companies:
     raise ValueError(f"No companies seeded for {exchange}")

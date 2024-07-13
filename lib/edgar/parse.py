@@ -47,7 +47,7 @@ async def scrap_statements(cik: int, id: str) -> list[FinStatement]:
   filings = await company.xbrl_urls()
 
   financials = await parse_statements(filings.tolist())
-  upsert_statements("financials.db", id, financials)
+  upsert_statements("statements.db", id, financials)
   return financials
 
 
@@ -80,7 +80,7 @@ async def update_statements(
 
   new_fin = await parse_statements(new_filings.tolist())
   if new_fin:
-    upsert_statements("financials.db", id, new_fin)
+    upsert_statements("statements.db", id, new_fin)
 
   return [*new_fin, *df_to_statements(df)]
 

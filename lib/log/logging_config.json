@@ -1,20 +1,10 @@
 {
   "version": 1,
   "disable_existing_loggers": false,
-  "objects": {
-    "queue": {
-      "class": "queue.Queue",
-      "maxsize": 1000
-    }
-  },
   "formatters": {
     "simple": {
-      "format": "[%(levelname)s | %(module)s | L%(lineno)d] %(asctime)s: %(message)s",
+      "format": "[%(levelname)s|%(module)s|L%(lineno)d] %(asctime)s: %(message)s",
       "datefmt": "%Y-%m-%dT%H:%M:%S%z"
-    },
-    "detailed": {
-      "format": "%(asctime)s | %(levelname)-8s | %(name)-12s | %(processName)s-%(module)s-%(funcName)-25s | %(message)s",
-      "datefmt": "%Y-%m-%d %H:%M:%S"
     },
     "json": {
       "()": "lib.log.setup.LogJSONFormatter",
@@ -31,7 +21,7 @@
     }
   },
   "handlers": {
-    "console": {
+    "stderr": {
       "class": "logging.StreamHandler",
       "level": "WARNING",
       "formatter": "simple",
@@ -45,22 +35,20 @@
       "maxBytes": 10000,
       "backupCount": 3
     },
-    "queue_listener": {
-      "class": "lib.log.setup.QueueListenerHandler",
+    "queue_handler": {
+      "class": "logging.handlers.QueueHandler",
       "handlers": [
-        "cfg://handlers.console",
-        "cfg://handlers.file_json"
+        "stderr",
+        "file_json"
       ],
-      "queue": "cfg://objects.queue",
-      "respect_handler_level": true,
-      "auto_run": true
+      "respect_handler_level": true
     }
   },
   "loggers": {
     "root": {
       "level": "DEBUG",
       "handlers": [
-        "queue_listener"
+        "queue_handler"
       ]
     }
   }

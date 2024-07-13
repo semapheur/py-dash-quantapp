@@ -6,7 +6,7 @@ from typing import cast, Optional
 from sqlalchemy.types import Date
 
 from ordered_set import OrderedSet
-from numpy import nan
+from numpy import inf, nan
 import pandas as pd
 from pandera.typing import DataFrame, Index, Series
 
@@ -313,8 +313,10 @@ async def update_fundamentals(
       ticker_ids, currency, statements, beta_years
     )
 
-    ratios = fundamentals[ratio_cols]
-    financials = fundamentals.drop(ratio_cols, axis=1)
+    fundamentals.replace([inf, -inf], nan, inplace=True)
+    ratio_cols_ = fundamentals.columns.intersection(ratio_cols)
+    ratios = fundamentals[ratio_cols_]
+    financials = fundamentals.drop(ratio_cols_, axis=1)
 
     upsert_sqlite(financials, "financials.db", table, {"date": Date})
     upsert_sqlite(ratios, "fundamentals.db", company_id, {"date": Date})
@@ -351,8 +353,10 @@ async def update_fundamentals(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
   )
 
-  ratios = fundamentals_[ratio_cols]
-  financials = fundamentals_.drop(ratio_cols, axis=1)
+  fundamentals_.replace([inf, -inf], nan, inplace=True)
+  ratio_cols_ = fundamentals_.columns.intersection(ratio_cols)
+  ratios = fundamentals_[ratio_cols_]
+  financials = fundamentals_.drop(ratio_cols_, axis=1)
 
   upsert_sqlite(financials, "financials.db", table, {"date": Date})
   upsert_sqlite(ratios, "fundamentals.db", company_id, {"date": Date})

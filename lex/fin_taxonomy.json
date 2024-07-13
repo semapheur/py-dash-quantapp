@@ -3058,6 +3058,7 @@
   "average_assets": {
     "unit": "monetary",
     "aggregate": "average",
+    "balance": "debit",
     "label": {
       "long": "Average Total Assets",
       "short": "Average Assets"
@@ -3069,6 +3070,7 @@
   },
   "average_capital_employed": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "average",
     "label": {
       "long": "Average Capital Employed"
@@ -3092,6 +3094,7 @@
   },
   "average_debt": {
     "unit": "monetary",
+    "balance": "credit",
     "aggregate": "average",
     "label": {
       "long": "Average Total Debt"
@@ -3104,6 +3107,7 @@
   "average_equity": {
     "unit": "monetary",
     "aggregate": "average",
+    "balance": "credit",
     "label": {
       "long": "Average Shareholder's Equity",
       "short": "Average Equity"
@@ -3115,6 +3119,7 @@
   },
   "average_inventory": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "average",
     "label": {
       "long": "Average Inventory"
@@ -3161,6 +3166,7 @@
   },
   "average_net_operating_assets": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "average",
     "label": {
       "long": "Average Net Operating Assets"
@@ -3172,6 +3178,7 @@
   },
   "average_operating_working_capital": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "recalc",
     "label": {
       "long": "Average Operating Working Capital"
@@ -3183,6 +3190,7 @@
   },
   "average_payables_trade_current": {
     "unit": "monetary",
+    "balance": "credit",
     "aggregate": "average",
     "label": {
       "long": "Average Accounts Payable"
@@ -3194,7 +3202,8 @@
   },
   "average_prepaid_expense_current": {
     "unit": "monetary",
-    "aggregate": "sum",
+    "balance": "debit",
+    "aggregate": "average",
     "label": {
       "long": "Average Prepaid Expenses"
     },
@@ -3204,8 +3213,9 @@
     }
   },
   "average_productive_assets": {
-    "unit": "monetary_ratio",
-    "aggregate": "recalc",
+    "unit": "monetary",
+    "balance": "debit",
+    "aggregate": "average",
     "label": {
       "long": "Average Fixed Assets"
     },
@@ -3216,6 +3226,7 @@
   },
   "average_receivables": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "average",
     "label": {
       "long": "Average Receivables"
@@ -3239,6 +3250,7 @@
   },
   "average_receivables_trade": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "average",
     "label": {
       "long": "Average Trade Receivables"
@@ -3250,6 +3262,7 @@
   },
   "average_receivables_trade_current": {
     "unit": "monetary",
+    "balance": "debit",
     "aggregate": "average",
     "label": {
       "long": "Average Current Trade Receivables"

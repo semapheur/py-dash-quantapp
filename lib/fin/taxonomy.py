@@ -22,7 +22,7 @@ class AggregateItems(ast.NodeVisitor):
     self.items = set()
 
   def visit_Name(self, node):
-    if node.id.startswith(('average_', 'change_')):
+    if node.id.startswith(("average_", "change_")):
       self.items.add(node.id)
 
     self.generic_visit(node)
@@ -58,21 +58,21 @@ class TaxonomyCalculation(TypedDict, total=False):
 
 class TaxonomyItem(BaseModel):
   unit: Literal[
-    'days',
-    'monetary',
-    'monetary_noncash',
-    'monetary_ratio',
-    'numeric_score',
-    'percent',
-    'per_day',
-    'per_share',
-    'personnel',
-    'price_ratio',
-    'ratio',
-    'shares',
+    "days",
+    "monetary",
+    "monetary_noncash",
+    "monetary_ratio",
+    "numeric_score",
+    "percent",
+    "per_day",
+    "per_share",
+    "personnel",
+    "price_ratio",
+    "ratio",
+    "shares",
   ]
-  balance: Optional[Literal['credit', 'debit']] = None
-  aggregate: Literal['average', 'recalc', 'sum', 'tail']
+  balance: Optional[Literal["credit", "debit"]] = None
+  aggregate: Literal["average", "recalc", "sum", "tail"]
   label: TaxonomyLabel
   gaap: Optional[list[str]] = None
   calculation: Optional[TaxonomyCalculation] = None
@@ -82,21 +82,21 @@ class TaxonomyItem(BaseModel):
 class TaxonomyRecord(TypedDict):
   item: str
   unit: Literal[
-    'days',
-    'monetary',
-    'monetary_noncash',
-    'monetary_ratio',
-    'numeric_score',
-    'percent',
-    'per_day',
-    'per_share',
-    'personnel',
-    'price_ratio',
-    'ratio',
-    'shares',
+    "days",
+    "monetary",
+    "monetary_noncash",
+    "monetary_ratio",
+    "numeric_score",
+    "percent",
+    "per_day",
+    "per_share",
+    "personnel",
+    "price_ratio",
+    "ratio",
+    "shares",
   ]
-  balance: Optional[Literal['credit', 'debit']]
-  aggregate: Literal['average', 'recalc', 'sum', 'tail']
+  balance: Optional[Literal["credit", "debit"]]
+  aggregate: Literal["average", "recalc", "sum", "tail"]
   long: str
   short: Optional[str]
   gaap: Optional[str]
@@ -123,7 +123,7 @@ class Taxonomy(BaseModel):
       if (calc := v.calculation) is None:
         continue
 
-      calc_value = calc.get('all', calc.get('any'))
+      calc_value = calc.get("all", calc.get("any"))
 
       if isinstance(calc_value, str):
         visitor.visit(ast.parse(calc_value))
@@ -139,35 +139,35 @@ class Taxonomy(BaseModel):
     missing_items = calc_items.difference(present_items)
 
     for i in missing_items:
-      prefix, base_item = i.split('_', 1)
+      prefix, base_item = i.split("_", 1)
 
       if base_item not in present_items:
-        print(f'{base_item} is missing in the taxonomy!')
+        print(f"{base_item} is missing in the taxonomy!")
         continue
 
       if (label := self.data[base_item].label) is None:
         continue
 
-      short = label.get('short')
+      short = label.get("short")
       base_item_calc = self.data[base_item].calculation
-      order = 0 if base_item_calc is None else max(0, base_item_calc['order'] - 1)
+      order = 0 if base_item_calc is None else max(0, base_item_calc["order"] - 1)
 
-      if prefix == 'average':
+      if prefix == "average":
         calc = TaxonomyCalculation(order=order, avg=base_item)
         label = TaxonomyLabel(
           long=f'Average {label.get("long")}',
-          short=None if short is None else f'Average {short}',
+          short=None if short is None else f"Average {short}",
         )
-      elif prefix == 'change':
+      elif prefix == "change":
         calc = TaxonomyCalculation(order=order, diff=base_item)
         label = TaxonomyLabel(
           long=f'Change in {label.get("long")}',
-          short=None if short is None else f'Change in {short}',
+          short=None if short is None else f"Change in {short}",
         )
 
       self.data[i] = TaxonomyItem(
         unit=self.data[base_item].unit,
-        aggregate='average' if prefix == 'average' else 'sum',
+        aggregate="average" if prefix == "average" else "sum",
         gaap=[],
         label=label,
         calculation=calc,
@@ -183,7 +183,7 @@ class Taxonomy(BaseModel):
       calc_values = [
         cast(str | dict[str, TaxonomyCalculationItem], calc.get(i))
         for i in calc.keys()
-        if i != 'order'
+        if i != "order"
       ]
 
       for calc_value in calc_values:
@@ -210,7 +210,7 @@ class Taxonomy(BaseModel):
 
     for k, v in self.data.items():
       if (calc := v.calculation) is not None:
-        calc['order'] = result.index(k)
+        calc["order"] = result.index(k)
 
   def select_items(self, target_key, target_value: tuple[str, str]) -> set[str]:
     result = {
@@ -232,11 +232,11 @@ class Taxonomy(BaseModel):
 
   def labels(self) -> pd.DataFrame:
     df_data = [
-      (k, v.label.get('long', ''), v.label.get('short', ''))
+      (k, v.label.get("long", ""), v.label.get("short", ""))
       for k, v in self.data.items()
       if v.label is not None
     ]
-    return pd.DataFrame(df_data, columns=['item', 'long', 'short'])
+    return pd.DataFrame(df_data, columns=["item", "long", "short"])
 
   def calculation_schema(
     self, select: Optional[set[str]] = None
@@ -269,26 +269,26 @@ class Taxonomy(BaseModel):
         unit=v.unit,
         balance=v.balance,
         aggregate=v.aggregate,
-        long=v.label['long'],
-        short=v.label.get('short'),
+        long=v.label["long"],
+        short=v.label.get("short"),
         gaap=None if v.gaap is None else json.dumps(v.gaap),
         calculation=None if v.calculation is None else json.dumps(v.calculation),
       )
       for k, v in self.data.items()
     ]
 
-  def to_sql(self, db_name='taxonomy.db'):
+  def to_sql(self, db_name="taxonomy.db"):
     data = self.to_records()
     df = pd.DataFrame(data)
 
-    insert_sqlite(df, db_name, 'items', 'replace', False)
+    insert_sqlite(df, db_name, "items", "replace", False)
 
   def to_sqlite(self, db_path: str):
     con = sqlite3.connect(db_path)
     cur = con.cursor()
 
     records = self.to_records()
-    cur.execute('DROP TABLE IF EXISTS items')
+    cur.execute("DROP TABLE IF EXISTS items")
     cur.execute(
       """CREATE TABLE IF NOT EXISTS items (
       item TEXT PRIMARY KEY',
@@ -327,9 +327,9 @@ def extract_items(calc_text: str) -> set[str]:
 
 
 def load_taxonomy(
-  path: str = 'lex/fin_taxonomy.json', filter_: Optional[set[str]] = None
+  path: str = "lex/fin_taxonomy.json", filter_: Optional[set[str]] = None
 ) -> Taxonomy:
-  with open(path, 'r') as file:
+  with open(path, "r") as file:
     data = json.load(file)
 
   taxonomy = Taxonomy(data=data)
@@ -340,61 +340,61 @@ def load_taxonomy(
 
 
 def load_template(cat: str) -> pd.DataFrame:
-  with open('lex/fin_template.json', 'r') as file:
+  with open("lex/fin_template.json", "r") as file:
     template = json.load(file)
 
   template = template[cat]
 
-  if cat == 'statement':
+  if cat == "statement":
     data: list = [
       (sheet, item, level)
       for sheet, values in template.items()
       for item, level in values.items()
     ]
-    cols: tuple = ('sheet', 'item', 'level')
+    cols: tuple = ("sheet", "item", "level")
 
-  elif cat == 'fundamentals':
+  elif cat == "fundamentals":
     data = [(sheet, item) for sheet, values in template.items() for item in values]
-    cols = ('sheet', 'item')
+    cols = ("sheet", "item")
 
-  elif cat == 'sankey':
+  elif cat == "sankey":
     data = [
-      (sheet, item, entry.get('color', ''), entry.get('links'))
+      (sheet, item, entry.get("color", ""), entry.get("links"))
       for sheet, values in template.items()
       for item, entry in values.items()
     ]
-    cols = ('sheet', 'item', 'color', 'links')
+    cols = ("sheet", "item", "color", "links")
 
-  elif cat == 'dupont':
+  elif cat == "dupont":
     data = template
-    cols = ('item',)
+    cols = ("item",)
 
   return pd.DataFrame(data, columns=cols)
 
 
 def template_to_sql(db_path: str):
-  engine = create_engine(f'sqlite+pysqlite:///{db_path}')
+  engine = create_engine(f"sqlite+pysqlite:///{db_path}")
 
-  for template in ('statement', 'fundamentals', 'sankey', 'dupont'):
+  for template in ("statement", "fundamentals", "sankey", "dupont"):
     df = load_template(template)
 
-    if template == 'sankey':
-      mask = df['links'].notnull()
-      df.loc[mask, 'links'] = df.loc[mask, 'links'].apply(lambda x: json.dumps(x))
+    if template == "sankey":
+      mask = df["links"].notnull()
+      df.loc[mask, "links"] = df.loc[mask, "links"].apply(lambda x: json.dumps(x))
 
     with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(template, con=con, if_exists='replace', index=False)
+      df.to_sql(template, con=con, if_exists="replace", index=False)
 
 
 def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
-  template = template.merge(taxonomy.labels(), on='item', how='left')
-  mask = template['short'] == ''
-  template.loc[mask, 'short'] = template.loc[mask, 'long']
+  template = template.merge(taxonomy.labels(), on="item", how="left")
+  mask = template["short"] == ""
+  template.loc[mask, "short"] = template.loc[mask, "long"]
   return template
 
 
 def gaap_items(sort=False) -> set[str]:
-  db_path = DB_DIR / 'taxonomy.db'
+  db_path = DB_DIR / "taxonomy.db"
 
   con = sqlite3.connect(db_path)
   cur = con.cursor()
@@ -418,9 +418,9 @@ def gaap_items(sort=False) -> set[str]:
 
 
 def scraped_items(sort=False) -> set[str]:
-  tables = get_tables('financials.db')
+  tables = get_tables("statements.db")
 
-  db_path = DB_DIR / 'financials.db'
+  db_path = DB_DIR / "statements.db"
   con = sqlite3.connect(db_path)
   cur = con.cursor()
 
@@ -442,8 +442,8 @@ def backup_taxonomy():
   from pathlib import Path
   from shutil import copy
 
-  backup_dir = Path('lex/backup')
-  taxonomy_file = Path('lex/fin_taxonomy.json')
+  backup_dir = Path("lex/backup")
+  taxonomy_file = Path("lex/fin_taxonomy.json")
 
   if not backup_dir.exists():
     backup_dir.mkdir(exist_ok=True)
