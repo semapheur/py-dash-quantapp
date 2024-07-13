@@ -4,11 +4,10 @@ import sqlite3
 import time
 from typing import cast
 
-import pandas as pd
 from pandera.typing import DataFrame
 from tqdm import tqdm
 
-from lib.db.lite import read_sqlite, upsert_sqlite, upsert_strings, get_tables
+from lib.db.lite import read_sqlite, upsert_strings, get_tables
 from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
 from lib.ticker.fetch import get_primary_securities
@@ -143,8 +142,7 @@ async def seed_fundamentals(exchange: str):
 
   if stored_company:
     upsert_strings("ticker.db", "financials", "company_id", stored_company)
-
-    upsert_sqlite("ticker.db", "stored_exchanges", "mic", [exchange])
+    upsert_strings("ticker.db", "stored_exchanges", "mic", [exchange])
 
   if not faulty:
     return

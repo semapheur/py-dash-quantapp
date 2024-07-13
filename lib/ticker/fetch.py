@@ -68,7 +68,7 @@ def stock_label(id: str) -> str:
   return label[0]
 
 
-def find_cik(id: str) -> int | None:
+def get_cik(id: str) -> int | None:
   query = """SELECT DISTINCT edgar.cik AS cik
     FROM stock
     JOIN edgar ON stock.isin = edgar.isin
@@ -97,7 +97,7 @@ def search_companies(
         c.name, 
         t.ticker, 
         t.mic 
-      FROM fundamentals f
+      FROM financials f
       JOIN company c ON f.company_id = c.company_id 
       JOIN json_each(c.primary_security) ON 1=1
       JOIN stock t ON json_each.value = t.security_id

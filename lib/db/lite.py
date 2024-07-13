@@ -363,8 +363,8 @@ def upsert_json(
 
 
 def upsert_strings(db_path: str, table: str, column: str, values: list[str]):
-  conn = sqlite3.connect(db_path)
-  cursor = conn.cursor()
+  con = sqlite3.connect(db_path)
+  cursor = con.cursor()
 
   # Ensure the table exists
   cursor.execute(f"""
@@ -383,3 +383,6 @@ def upsert_strings(db_path: str, table: str, column: str, values: list[str]):
 
   # Execute the insert for each string
   cursor.executemany(insert_query, [(s,) for s in values])
+
+  con.commit()
+  con.close()

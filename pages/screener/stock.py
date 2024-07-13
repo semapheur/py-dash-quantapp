@@ -13,7 +13,7 @@ import dash_ag_grid as dag
 
 from lib.db.lite import get_table_columns, read_sqlite
 
-exchanges = read_sqlite("ticker.db", "SELECT DISTINCT exchange FROM fundamentals")
+exchanges = read_sqlite("ticker.db", "SELECT DISTINCT exchange FROM stored_exchanges")
 
 register_page(__name__, path_template="/screener/stock")
 
@@ -38,6 +38,7 @@ layout = html.Main(
 @callback(
   Output("div:screener-stock:table-wrap", "children"),
   Input("dropdown:screener-stock:exchange", "value"),
+  background=True,
 )
 def update_table(exchange: str):
   if not exchange:
