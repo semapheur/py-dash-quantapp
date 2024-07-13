@@ -8,7 +8,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 from tqdm import tqdm
 
-from lib.db.lite import read_sqlite, upsert_sqlite, get_tables
+from lib.db.lite import read_sqlite, upsert_sqlite, upsert_strings, get_tables
 from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
 from lib.ticker.fetch import get_primary_securities
@@ -107,7 +107,7 @@ async def seed_fundamentals(exchange: str):
     raise ValueError(f"No companies seeded for {exchange}")
 
   faulty: list[str] = []
-  stored_company: list[dict[str, str]] = []
+  stored_company: list[str] = []
   for company in tqdm(seeded_companies):
     securities = get_primary_securities(company)
     currencies = securities["currency"].unique()
@@ -135,18 +135,16 @@ async def seed_fundamentals(exchange: str):
 
     try:
       _ = await update_fundamentals(company, ticker_ids, currency)
-      stored_company.append({"company_id": company})
+      stored_company.append(company)
 
     except Exception as e:
       logger.error(e, exc_info=True)
       print(f"{company} failed")
 
   if stored_company:
-    df = pd.DataFrame.from_records(stored_company, index="company_id")
-    upsert_sqlite(df, "ticker.db", "financials")
+    upsert_strings("ticker.db", "financials", "company_id", stored_company)
 
-    df = pd.DataFrame.from_records({"mic": [exchange]}, index="mic")
-    upsert_sqlite(df, "ticker.db", "stored_exchanges")
+    upsert_sqlite("ticker.db", "stored_exchanges", "mic", [exchange])
 
   if not faulty:
     return

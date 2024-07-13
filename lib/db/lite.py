@@ -281,20 +281,19 @@ def upsert_sqlite(
         con.execute(text(f'ALTER TABLE "{tbl_name}" ADD COLUMN {c}'))
 
     # Upsert data to main table
-    query = text(
-      f"""
+    query = f"""
       INSERT INTO "{tbl_name}" ({headers_text})
       SELECT {headers_text} FROM temp WHERE true
       ON CONFLICT ({ix_cols_text}) DO UPDATE 
       SET {update_text}
     """
-    )
+
     con.execute(
       text(
         f'CREATE UNIQUE INDEX IF NOT EXISTS "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_text})'
       )
     )
-    con.execute(query)
+    con.execute(text(query))
     # con.execute(text('DROP TABLE temp')) # Delete temporary table
 
 
@@ -361,3 +360,26 @@ def upsert_json(
         {upsert_text}
     """
     cur.executemany(query, records)
+
+
+def upsert_strings(db_path: str, table: str, column: str, values: list[str]):
+  conn = sqlite3.connect(db_path)
+  cursor = conn.cursor()
+
+  # Ensure the table exists
+  cursor.execute(f"""
+    CREATE TABLE IF NOT EXISTS {table} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      {column} TEXT UNIQUE
+    )
+  """)
+
+  # Prepare the INSERT ... ON CONFLICT statement
+  insert_query = f"""
+    INSERT INTO {table} ({column})
+    VALUES (?)
+    ON CONFLICT({column}) DO NOTHING
+  """
+
+  # Execute the insert for each string
+  cursor.executemany(insert_query, [(s,) for s in values])
