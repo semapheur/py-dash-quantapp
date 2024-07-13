@@ -13,7 +13,12 @@ import dash_ag_grid as dag
 
 from lib.db.lite import get_table_columns, read_sqlite
 
-exchanges = read_sqlite("ticker.db", "SELECT DISTINCT exchange FROM stored_exchanges")
+query = """SELECT
+  e.market_name || " (" || se.mic || ":" || e.country || ")" AS label,
+  se.mic AS value FROM stored_exchanges se
+  JOIN exchange e ON se.mic = e.mic
+"""
+exchanges = read_sqlite("ticker.db", query)
 
 register_page(__name__, path_template="/screener/stock")
 
@@ -25,7 +30,7 @@ layout = html.Main(
       children=[
         dcc.Dropdown(
           id="dropdown:screener-stock:exchange",
-          options=[] if exchanges is None else exchanges["exchange"].tolist(),
+          options=[] if exchanges is None else exchanges.to_dict("records"),
           value="",
         )
       ],
@@ -44,14 +49,15 @@ def update_table(exchange: str):
   if not exchange:
     return no_update
 
-  query = "SELECT company_id, currency FROM fundamentals WHERE exchange = :exchange"
+  query = """SELECT f.company_id FROM financials f
+    JOIN stock s ON f.company_id = s.company_id
+    WHERE s.mic = :exchange
+  """
   companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
   if companies is None:
     return no_update
 
-  companies["table"] = companies["company_id"] + "_" + companies["currency"]
-
-  table_columns = get_table_columns("fundamentals.db", companies["table"].tolist())
+  table_columns = get_table_columns("fundamentals.db", companies["company_id"].tolist())
 
   common_columns = set.intersection(*[set(cols) for cols in table_columns.values()])
 
