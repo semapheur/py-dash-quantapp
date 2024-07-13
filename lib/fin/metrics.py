@@ -173,7 +173,7 @@ def calculate_beta(
 
 
 def beta(
-  fin_data: DataFrame,
+  financials: DataFrame,
   equity_return: pd.Series,
   market_return: pd.Series,
   riskfree_rate: pd.Series,  # yahoo: ^TNX/'^TYX; fred: DSG10
@@ -187,22 +187,22 @@ def beta(
   returns.dropna(inplace=True)
 
   betas: list[pd.DataFrame] = []
-  slices = fin_slices(cast(pd.MultiIndex, fin_data.index))
+  slices = fin_slices(cast(pd.MultiIndex, financials.index))
   for s in slices:
     dates = cast(
       pd.DatetimeIndex,
-      fin_data.loc[s, :].sort_index(level="date").index.get_level_values("date"),
+      financials.loc[s, :].sort_index(level="date").index.get_level_values("date"),
     )
     betas.append(calculate_beta(dates, returns, s[2], years))
 
   beta = pd.concat(betas)
-  fin_data = cast(
+  financials = cast(
     DataFrame,
-    fin_data.reset_index()
+    financials.reset_index()
     .merge(beta, on=["date", "months"], how="left")
     .set_index(["date", "period", "months"]),
   )
-  return fin_data
+  return financials
 
 
 # Weighted average cost of capital
@@ -212,13 +212,9 @@ def weighted_average_cost_of_capital(
   if "beta" not in set(fin_data.columns):
     raise ValueError("Beta values missing in fundamentals data!")
 
-  try:
-    fin_data.loc[:, "capitalization_class"] = fin_data["market_capitalization"].apply(
-      lambda x: "small" if x < 2e9 else "large"
-    )
-  except:
-    print(fin_data["weighted_average_shares_outstanding_basic_adjusted"])
-    print(fin_data["share_price_average"])
+  fin_data.loc[:, "capitalization_class"] = fin_data["market_capitalization"].apply(
+    lambda x: "small" if x < 2e9 else "large"
+  )
 
   fin_data.loc[:, "yield_spread"] = fin_data.apply(
     lambda r: yield_spread(r["interest_coverage_ratio"], r["capitalization_class"]),

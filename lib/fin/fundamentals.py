@@ -10,7 +10,7 @@ from numpy import nan
 import pandas as pd
 from pandera.typing import DataFrame, Index, Series
 
-from lib.db.lite import read_sqlite, upsert_sqlite
+from lib.db.lite import read_sqlite, upsert_sqlite, get_table_columns
 from lib.fin.calculation import calculate_items, trailing_twelve_months
 from lib.fin.metrics import (
   f_score,
@@ -20,7 +20,7 @@ from lib.fin.metrics import (
   weighted_average_cost_of_capital,
 )
 from lib.fin.models import CloseQuote, SharePrice
-from lib.fin.statement import load_financials, stock_splits
+from lib.fin.statement import load_statements, stock_splits
 from lib.fin.quote import get_ohlcv
 from lib.fin.taxonomy import TaxonomyCalculation
 from lib.morningstar.ticker import Stock
@@ -228,22 +228,66 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-def load_fundamentals(
-  id: str, currency: str, cols: Optional[set[str]] = None
+def load_financials(
+  id: str, currency: str, columns: Optional[set[str]] = None
 ) -> DataFrame | None:
   col_text = "*"
   index_col = OrderedSet(("date", "period", "months"))
-  if cols is not None:
-    col_text = ", ".join(cols.union(index_col))
-
   table = f"{id}_{currency}"
+  if columns is not None:
+    table_columns = get_table_columns("financials.db", [table])
+    select_columns = set(table_columns[table]).intersection(columns).union(index_col)
+    col_text = ", ".join(select_columns)
+
   query = f"SELECT {col_text} FROM '{table}'"
   df = read_sqlite(
-    "fundamentals.db",
+    "financials.db",
     query,
     index_col=list(index_col),
     date_parser={"date": {"format": "%Y-%m-%d"}},
   )
+  return df
+
+
+def load_ratios(id: str, columns: Optional[set[str]] = None) -> DataFrame | None:
+  col_text = "*"
+  index_col = OrderedSet(("date", "period", "months"))
+  if columns is not None:
+    table_columns = get_table_columns("financials.db", [id])
+    select_columns = set(table_columns[id]).intersection(columns).union(index_col)
+    col_text = ", ".join(select_columns)
+
+  query = f"SELECT {col_text} FROM '{id}'"
+  df = read_sqlite(
+    "ratios.db",
+    query,
+    index_col=list(index_col),
+    date_parser={"date": {"format": "%Y-%m-%d"}},
+  )
+  return df
+
+
+def load_fundamentals(
+  id: str,
+  currency: str,
+) -> DataFrame | None:
+  financials = load_financials(id, currency)
+  ratios = load_ratios(id)
+
+  if financials is None or ratios is None:
+    return None
+
+  return cast(DataFrame, pd.concat([financials, ratios], axis=1))
+
+
+def load_ratio_items() -> DataFrame:
+  query = """SELECT item FROM items 
+    WHERE unit IN ("monetary_ratio", "price_ratio", "numeric_score")
+  """
+  df = read_sqlite("taxonomy.db", query)
+  if df is None:
+    raise ValueError("Ratio items not found")
+
   return df
 
 
@@ -252,56 +296,48 @@ async def update_fundamentals(
   ticker_ids: list[str],
   currency: str,
   beta_years: Optional[None] = None,
-  cols: Optional[set[str]] = None,
 ) -> pd.DataFrame:
   table = f"{company_id}_{currency}"
 
-  financials = await load_financials(company_id, currency)
-  if financials is None:
+  statements = await load_statements(company_id, currency)
+  if statements is None:
     raise ValueError(f"Statements have not been seeded for {company_id}")
 
-  fundamentals = load_fundamentals(company_id, currency, cols)
+  fundamentals = load_fundamentals(company_id, currency)
 
-  query = """SELECT item FROM items 
-    WHERE unit IN ("monetary_ratio", "price_ratio", "numeric_score")
-  """
-
-  ratio_items = read_sqlite("taxonomy.db", query)
-  if ratio_items is None:
-    raise ValueError("Ratio items not found")
-
+  ratio_items = load_ratio_items()
   ratio_cols = ratio_items["item"].tolist()
 
   if fundamentals is None:
     fundamentals = await calculate_fundamentals(
-      ticker_ids, currency, financials, beta_years
+      ticker_ids, currency, statements, beta_years
     )
 
-    fundamentals_ratio = fundamentals[ratio_cols]
-    fundamentals_monetary = fundamentals.drop(ratio_cols, axis=1)
+    ratios = fundamentals[ratio_cols]
+    financials = fundamentals.drop(ratio_cols, axis=1)
 
-    upsert_sqlite(fundamentals_monetary, "financials.db", table, {"date": Date})
-    upsert_sqlite(fundamentals_ratio, "fundamentals.db", table, {"date": Date})
+    upsert_sqlite(financials, "financials.db", table, {"date": Date})
+    upsert_sqlite(ratios, "fundamentals.db", company_id, {"date": Date})
     return fundamentals
 
-  last_financials: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
+  last_statement: dt = cast(pd.MultiIndex, statements.index).levels[0].max()
   last_fundamentals: dt = cast(pd.MultiIndex, fundamentals.index).levels[0].max()
-  if last_fundamentals >= last_financials:
+  if last_fundamentals >= last_statement:
     return fundamentals
 
-  financials = cast(
+  statements = cast(
     DataFrame,
-    financials.loc[financials.index.get_level_values("date") > last_fundamentals],
+    statements.loc[statements.index.get_level_values("date") > last_fundamentals],
   )
 
   fundamentals.sort_index(level="date", inplace=True)
   props = {3: (None, 8), 12: ("FY", 1)}
-  months = cast(Index[int], cast(pd.MultiIndex, financials.index).levels[2].unique())
+  months = cast(Index[int], cast(pd.MultiIndex, statements.index).levels[2].unique())
   for m in months:
     mask = (slice(None), slice(props[m][0]), m)
     fundamentals_ = cast(
       DataFrame,
-      pd.concat((fundamentals.loc[mask, :].tail(props[m][1]), financials), axis=0),
+      pd.concat((fundamentals.loc[mask, :].tail(props[m][1]), statements), axis=0),
     )
 
   fundamentals_ = await calculate_fundamentals(
@@ -315,9 +351,9 @@ async def update_fundamentals(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
   )
 
-  fundamentals_ratio = fundamentals[ratio_cols]
-  fundamentals_monetary = fundamentals_.drop(ratio_cols, axis=1)
+  ratios = fundamentals_[ratio_cols]
+  financials = fundamentals_.drop(ratio_cols, axis=1)
 
-  upsert_sqlite(fundamentals_monetary, "financials.db", table, {"date": Date})
-  upsert_sqlite(fundamentals_ratio, "fundamentals.db", table, {"date": Date})
+  upsert_sqlite(financials, "financials.db", table, {"date": Date})
+  upsert_sqlite(ratios, "fundamentals.db", company_id, {"date": Date})
   return cast(DataFrame, pd.concat((fundamentals, fundamentals_), axis=0))
