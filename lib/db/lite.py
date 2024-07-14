@@ -362,7 +362,8 @@ def upsert_json(
     cur.executemany(query, records)
 
 
-def upsert_strings(db_path: str, table: str, column: str, values: list[str]):
+def upsert_strings(db_name: str, table: str, column: str, values: list[str]):
+  db_path = sqlite_path(db_name)
   con = sqlite3.connect(db_path)
   cursor = con.cursor()
 

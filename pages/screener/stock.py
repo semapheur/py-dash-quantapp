@@ -1,4 +1,4 @@
-import textwrap
+from typing import cast
 
 from dash import (
   callback,
@@ -10,8 +10,11 @@ from dash import (
   Input,
 )
 import dash_ag_grid as dag
+from pandera.typing import DataFrame
 
 from lib.db.lite import get_table_columns, read_sqlite
+
+link_style = "block text-text hover:text-secondary"
 
 query = """SELECT
   e.market_name || " (" || se.mic || ":" || e.country || ")" AS label,
@@ -36,6 +39,7 @@ layout = html.Main(
       ],
     ),
     html.Div(id="div:screener-stock:table-wrap"),
+    dcc.Store(id="store:screener-stock:fundamentals"),
   ],
 )
 
@@ -49,9 +53,24 @@ def update_table(exchange: str):
   if not exchange:
     return no_update
 
-  query = """SELECT f.company_id FROM financials f
+  def get_ratio_details() -> DataFrame:
+    query = """SELECT item, long, short FROM items 
+      WHERE unit IN ('monetary_ratio', 'price_ratio', 'numeric_score')
+    """
+
+    items = read_sqlite("taxonomy.db", query)
+    if items is None:
+      raise ValueError("Ratio items not found")
+
+    items.loc[:, "short"].fillna(items["long"], inplace=True)
+    items.set_index("item", inplace=True)
+    return items
+
+  query = """SELECT f.company_id, c.name, c.sector, GROUP_CONCAT(s.ticker, ',') AS tickers FROM financials f
+    JOIN company c ON f.company_id = c.company_id
     JOIN stock s ON f.company_id = s.company_id
     WHERE s.mic = :exchange
+    GROUP BY f.company_id, c.name, c.sector
   """
   companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
   if companies is None:
@@ -63,7 +82,7 @@ def update_table(exchange: str):
 
   union_queries = []
   for table, columns in table_columns.items():
-    select_columns = [f"'{table}' AS company"]
+    select_columns = [f"'{table}' AS company_id"]
     for col in common_columns:
       if col in columns:
         select_columns.append(f"{col}")
@@ -77,9 +96,25 @@ def update_table(exchange: str):
 
   full_query = " UNION ALL ".join(union_queries)
 
-  df = read_sqlite("fundamentals.db", full_query)
-  if df is None:
+  fundamentals = read_sqlite("fundamentals.db", full_query)
+  if fundamentals is None:
     return no_update
+
+  fundamentals = cast(DataFrame, fundamentals.merge(companies, on="company_id"))
+
+  fundamentals["company"] = (
+    fundamentals["name"]
+    + " ("
+    + fundamentals["tickers"]
+    + ")"
+    + "|"
+    + fundamentals["company_id"]
+  )
+  fundamentals.drop(
+    ["company_id", "name", "tickers", "period", "date", "months"], axis=1, inplace=True
+  )
+
+  items = get_ratio_details()
 
   column_defs = [
     {
@@ -88,20 +123,28 @@ def update_table(exchange: str):
       "pinned": "left",
       "lockPinned": True,
       "cellClass": "lock-pinned",
-    }
+      "cellRenderer": "CompanyLink",
+    },
+    {
+      "field": "sector",
+      "type": "text",
+    },
   ] + [
     {
       "field": col,
+      "headerName": items.at[col, "short"],
+      "headerTooltip": items.at[col, "long"],
       "type": "number",
-      "valueFormatter": {"function": 'd3.format("(,")(params.value)'},
+      "valueFormatter": {"function": "d3.format('(.2f')(params.value)"},
+      "filter": "agNumberColumnFilter",
     }
-    for col in df.columns.difference(["company"])
+    for col in fundamentals.columns.difference(["company", "sector"])
   ]
 
   return dag.AgGrid(
     id="table:screener-stock",
     columnDefs=column_defs,
-    rowData=df.to_dict("records"),
+    rowData=fundamentals.to_dict("records"),
     columnSize="autoSize",
     style={"height": "100%"},
   )

@@ -21,7 +21,7 @@ function open_dialog(dialog_id) {
   dialog = document.getElementById(dialog_id)
   dialog.showModal()
 
-  dialog.addEventListener('click', e => {
+  dialog.addEventListener("click", e => {
     const dialogDimensions = dialog.getBoundingClientRect()
     if (
       e.clientX < dialogDimensions.left ||
@@ -48,7 +48,7 @@ function close_dialog(dialog_id) {
  * @param {string|Object} id 
  */
 function check_id(id) {
-  if (typeof id !== 'object') { return id }
+  if (typeof id !== "object") { return id }
 
   sorted_keys = Object.keys(id).sort()
   const sorted_object = {}
@@ -66,7 +66,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
      * @returns {Object}
      */
     dcf_factor_modal: function(cell, dialog_id) {
-      if (cell === undefined || cell.colId != 'factor') { return cell }
+      if (cell === undefined || cell.colId != "factor") { return cell }
 
       dialog_id = check_id(dialog_id)
       open_modal(dialog_id)
