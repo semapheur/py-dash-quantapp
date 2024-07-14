@@ -24,7 +24,7 @@ import pandas as pd
 
 from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
-from components.modal import ModalAIO
+from components.modal import OpenCloseModalAIO
 
 from lib.db.lite import sqlite_path
 from lib.const import HEADERS
@@ -114,7 +114,7 @@ layout = html.Main(
         ),
         html.Button(
           "Rename headers",
-          id=ModalAIO.open_id("scrap:headers"),
+          # id=OpenCloseModalAIO.open_id("scrap:headers"),
           className=button_style,
           type="button",
           n_clicks=0,
@@ -150,7 +150,7 @@ layout = html.Main(
     ),
     html.Div(id="div:scrap:pdf", className="h-full w-full"),
     html.Div(className="h-full", id="div:scrap:table"),
-    ModalAIO(
+    OpenCloseModalAIO(
       "scrap:headers",
       "Rename headers",
       children=[

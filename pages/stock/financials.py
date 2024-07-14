@@ -17,12 +17,13 @@ import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
 
+from components.modal import CloseModalAIO
 from components.stock_header import StockHeader
 from lib.db.lite import read_sqlite
 from lib.ticker.fetch import stock_label
 # from lib.utils import load_json
 
-register_page(__name__, path_template="/stock/<id_>/financials", title=stock_label)
+register_page(__name__, path_template="/stock/<id>/financials", title=stock_label)
 
 modal_style = "relative m-auto rounded-md"
 radio_wrap_style = "flex divide-x rounded-sm shadow"
@@ -38,11 +39,11 @@ def row_indices(template: pd.DataFrame, level: int) -> str:
   # return str(index[index.isin(items)].index.to_list())
 
 
-def layout(id_: Optional[str] = None):
+def layout(id: Optional[str] = None):
   return html.Main(
     className="relative flex flex-col h-full",
     children=[
-      StockHeader(id_) if id_ is not None else None,
+      StockHeader(id) if id is not None else None,
       html.Div(
         className="flex justify-around",
         children=[
@@ -72,17 +73,9 @@ def layout(id_: Optional[str] = None):
         ],
       ),
       html.Div(id="div:stock-financials:table-wrap", className="flex-1 p-2"),
-      html.Dialog(
-        id="dialog:stock-financials",
-        className=modal_style,
-        children=[
-          dcc.Graph(id="graph:stock-financials"),
-          html.Button(
-            "x",
-            id="button:stock-financials:close-modal",
-            className="absolute top-0 left-2 text-3xl text-secondary hover:text-red-600",
-          ),
-        ],
+      CloseModalAIO(
+        aio_id="stock-financials",
+        children=[dcc.Graph(id="graph:stock-financials")],
       ),
     ],
   )
@@ -208,15 +201,9 @@ def update_store(row: list[dict]):
 
 
 clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="row_select_modal"),
-  Output("table:stock-financials", "selectedRows"),
-  Input("table:stock-financials", "selectedRows"),
-  State("dialog:stock-financials", "id"),
-)
-
-clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="close_modal"),
-  Output("dialog:stock-financials", "id"),
-  Input("button:stock-financials:close-modal", "n_clicks"),
-  State("dialog:stock-financials", "id"),
+  ClientsideFunction(namespace="clientside", function_name="cell_click_modal"),
+  Output("table:stock-financials", "id"),
+  Input("table:stock-financials", "cellClicked"),
+  State(CloseModalAIO.dialog_id("stock-financials"), "id"),
+  prevent_initial_call=True,
 )

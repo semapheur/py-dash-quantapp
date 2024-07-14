@@ -1,3 +1,4 @@
+from contextlib import closing
 from pathlib import Path
 import re
 import sqlite3
@@ -29,22 +30,20 @@ def sqlite_path(db_name: str) -> Path:
 def empty_tables(db_name: str) -> list[str]:
   db_path = sqlite_path(db_name)
 
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
 
-  cur.execute('SELECT name FROM sqlite_master WHERE type="table"')
-  tables = cur.fetchall()
+    cur.execute('SELECT name FROM sqlite_master WHERE type="table"')
+    tables = cur.fetchall()
 
-  result: list[str] = []
-  for table in tables:
-    table_name = table[0]
-    cur.execute(f'SELECT COUNT(*) FROM "{table_name}"')
-    row_count = cur.fetchone()[0]
+    result: list[str] = []
+    for table in tables:
+      table_name = table[0]
+      cur.execute(f'SELECT COUNT(*) FROM "{table_name}"')
+      row_count = cur.fetchone()[0]
 
-    if row_count == 0:
-      result.append(table[0])
-
-  con.close()
+      if row_count == 0:
+        result.append(table[0])
 
   return result
 
@@ -364,26 +363,22 @@ def upsert_json(
 
 def upsert_strings(db_name: str, table: str, column: str, values: list[str]):
   db_path = sqlite_path(db_name)
-  con = sqlite3.connect(db_path)
-  cursor = con.cursor()
 
-  # Ensure the table exists
-  cursor.execute(f"""
-    CREATE TABLE IF NOT EXISTS {table} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      {column} TEXT UNIQUE
-    )
-  """)
+  with closing(sqlite3.connect(db_path)) as con:
+    cursor = con.cursor()
 
-  # Prepare the INSERT ... ON CONFLICT statement
-  insert_query = f"""
-    INSERT INTO {table} ({column})
-    VALUES (?)
-    ON CONFLICT({column}) DO NOTHING
-  """
+    cursor.execute(f"""
+      CREATE TABLE IF NOT EXISTS {table} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        {column} TEXT UNIQUE
+      )
+    """)
 
-  # Execute the insert for each string
-  cursor.executemany(insert_query, [(s,) for s in values])
+    insert_query = f"""
+      INSERT INTO {table} ({column})
+      VALUES (?)
+      ON CONFLICT({column}) DO NOTHING
+    """
 
-  con.commit()
-  con.close()
+    cursor.executemany(insert_query, [(s,) for s in values])
+    con.commit()

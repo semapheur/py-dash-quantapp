@@ -1,3 +1,4 @@
+from contextlib import closing
 import json
 import logging
 import sqlite3
@@ -24,22 +25,21 @@ def update_primary_securities(
   from lib.const import DB_DIR
 
   db_path = DB_DIR / "ticker.db"
-  conn = sqlite3.connect(db_path)
-  cursor = conn.cursor()
+  with closing(sqlite3.connect(db_path)) as con:
+    cursor = con.cursor()
 
-  securities_json = json.dumps(securities)
+    securities_json = json.dumps(securities)
 
-  # Replace the entire array
-  cursor.execute(
-    """
-      UPDATE company
-      SET primary_securities = json(:securities), currency = :currency
-      WHERE company_id = :company_id?
-    """,
-    {"securities": securities_json, "currency": currency, "company_id": company_id},
-  )
-  conn.commit()
-  conn.close()
+    # Replace the entire array
+    cursor.execute(
+      """
+        UPDATE company
+        SET primary_securities = json(:securities), currency = :currency
+        WHERE company_id = :company_id?
+      """,
+      {"securities": securities_json, "currency": currency, "company_id": company_id},
+    )
+    con.close()
 
 
 def select_menu(options) -> list[int]:

@@ -1,5 +1,6 @@
 import ast
 from collections import defaultdict
+from contextlib import closing
 import json
 import sqlite3
 from typing import cast, Literal, Optional
@@ -284,31 +285,26 @@ class Taxonomy(BaseModel):
     insert_sqlite(df, db_name, "items", "replace", False)
 
   def to_sqlite(self, db_path: str):
-    con = sqlite3.connect(db_path)
-    cur = con.cursor()
+    with closing(sqlite3.connect(db_path)) as con:
+      cur = con.cursor()
 
-    records = self.to_records()
-    cur.execute("DROP TABLE IF EXISTS items")
-    cur.execute(
-      """CREATE TABLE IF NOT EXISTS items (
-      item TEXT PRIMARY KEY',
-      unit TEXT',
-      balance TEXT',
-      aggregate TEXT',
-      long TEXT',
-      short TEXT',
-      gaap TEXT',
-      calculation TEXT'       
-    )"""
-    )
-    con.commit()
-
-    query = """INSERT INTO items
-    VALUES (:item, :unit, :balance, :aggregate, :long, :short, :gaap, :calculation)
-    """
-    cur.executemany(query, records)
-    con.commit()
-    con.close()
+      records = self.to_records()
+      cur.execute("DROP TABLE IF EXISTS items")
+      cur.execute("""CREATE TABLE IF NOT EXISTS items (
+        item TEXT PRIMARY KEY,
+        unit TEXT,
+        balance TEXT,
+        aggregate TEXT,
+        long TEXT,
+        short TEXT,
+        gaap TEXT,
+        calculation TEXT)
+      """)
+      query = """INSERT INTO items
+        VALUES (:item, :unit, :balance, :aggregate, :long, :short, :gaap, :calculation)
+      """
+      cur.executemany(query, records)
+      con.commit()
 
 
 def extract_items(calc_text: str) -> set[str]:
@@ -396,18 +392,17 @@ def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
 def gaap_items(sort=False) -> set[str]:
   db_path = DB_DIR / "taxonomy.db"
 
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
 
-  query = """
-    SELECT json_each.value AS gaap FROM items 
-    JOIN json_each(gaap) ON 1=1
-    WHERE gaap IS NOT NULL
-  """
+    query = """
+      SELECT json_each.value AS gaap FROM items 
+      JOIN json_each(gaap) ON 1=1
+      WHERE gaap IS NOT NULL
+    """
 
-  cur.execute(query)
-  result = cur.fetchall()
-  con.close()
+    cur.execute(query)
+    result = cur.fetchall()
 
   items = {x[0] for x in result}
 
@@ -421,16 +416,14 @@ def scraped_items(sort=False) -> set[str]:
   tables = get_tables("statements.db")
 
   db_path = DB_DIR / "statements.db"
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
 
-  items: set[str] = set()
-  for t in tables:
-    cur.execute(f'SELECT DISTINCT key FROM "{t[0]}", json_each(data)')
-    result = cur.fetchall()
-    items = items.union({x[0] for x in result})
-
-  con.close()
+    items: set[str] = set()
+    for t in tables:
+      cur.execute(f'SELECT DISTINCT key FROM "{t[0]}", json_each(data)')
+      result = cur.fetchall()
+      items = items.union({x[0] for x in result})
 
   if sort:
     items = set(sorted(items))

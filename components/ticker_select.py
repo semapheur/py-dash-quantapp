@@ -1,6 +1,3 @@
-from typing import Optional
-import uuid
-
 from dash import callback, dcc, no_update, Input, Output, MATCH
 
 from lib.ticker.fetch import search_stocks
@@ -11,12 +8,7 @@ class TickerSelectAIO(dcc.Dropdown):
   def id(aio_id: str):
     return {"component": "TickerSelectAIO", "aio_id": aio_id}
 
-  def __init__(
-    self, aio_id: Optional[str] = None, dropdown_props: Optional[dict] = None
-  ):
-    if aio_id is None:
-      aio_id = str(uuid.uuid4())
-
+  def __init__(self, aio_id: str, dropdown_props: dict | None = None):
     dropdown_props = dropdown_props.copy() if dropdown_props else {}
     dropdown_props.setdefault("placeholder", "Ticker")
 

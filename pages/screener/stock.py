@@ -2,19 +2,25 @@ from typing import cast
 
 from dash import (
   callback,
+  clientside_callback,
+  ClientsideFunction,
   dcc,
   html,
   no_update,
   register_page,
   Output,
   Input,
+  State,
 )
 import dash_ag_grid as dag
 from pandera.typing import DataFrame
+import plotly.express as px
 
+from components.modal import CloseModalAIO
 from lib.db.lite import get_table_columns, read_sqlite
 
 link_style = "block text-text hover:text-secondary"
+modal_style = "relative m-auto rounded-md"
 
 query = """SELECT
   e.market_name || " (" || se.mic || ":" || e.country || ")" AS label,
@@ -39,7 +45,10 @@ layout = html.Main(
       ],
     ),
     html.Div(id="div:screener-stock:table-wrap"),
-    dcc.Store(id="store:screener-stock:fundamentals"),
+    CloseModalAIO(
+      aio_id="screener-stock",
+      children=[dcc.Graph(id="graph:screener-stock")],
+    ),
   ],
 )
 
@@ -145,6 +154,45 @@ def update_table(exchange: str):
     id="table:screener-stock",
     columnDefs=column_defs,
     rowData=fundamentals.to_dict("records"),
+    getRowId="params.data.company",
     columnSize="autoSize",
     style={"height": "100%"},
   )
+
+
+@callback(
+  Output("graph:screener-stock", "figure"),
+  Input("table:screener-stock", "cellClicked"),
+  # prevent_initial_call=True,
+  background=True,
+)
+def update_store(cell: dict):
+  if not cell:
+    return {}
+
+  metric = cell["colId"]
+  if metric in ["sector", "company"]:
+    return no_update
+
+  table = cast(str, cell["rowId"]).split("|")[1]
+
+  query = f"SELECT date, {metric} FROM '{table}' WHERE period = 'FY'"
+
+  df = read_sqlite("fundamentals.db", query, index_col="date")
+  if df is None:
+    return no_update
+
+  return px.line(
+    df,
+    title=metric,
+    labels={"x": "Date", "y": ""},
+  )
+
+
+clientside_callback(
+  ClientsideFunction(namespace="clientside", function_name="cell_click_modal"),
+  Output("table:screener-stock", "id"),
+  Input("table:screener-stock", "cellClicked"),
+  State(CloseModalAIO.dialog_id("screener-stock"), "id"),
+  prevent_initial_call=True,
+)

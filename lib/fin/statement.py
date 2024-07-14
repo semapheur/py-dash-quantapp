@@ -1,3 +1,4 @@
+from contextlib import closing
 from datetime import date as Date, timedelta
 from dateutil.relativedelta import relativedelta
 from enum import Enum
@@ -422,45 +423,41 @@ def upsert_statements(
 ):
   db_path = sqlite_path(db_name)
 
-  con = sqlite3.connect(db_path)
-  cur = con.cursor()
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
 
-  cur.execute(
-    f"""CREATE TABLE IF NOT EXISTS "{table}"(
-    url TEXT PRIMARY KEY,
-    scope TEXT,
-    date DATE,
-    fiscal_period TEXT,
-    fiscal_end TEXT,
-    currency JSON,
-    data JSON
-  )"""
-  )
+    cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
+      url TEXT PRIMARY KEY,
+      scope TEXT,
+      date DATE,
+      fiscal_period TEXT,
+      fiscal_end TEXT,
+      currency JSON,
+      data JSON)
+    """)
 
-  query = f"""INSERT INTO 
-    "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :data)
-    ON CONFLICT (url) DO UPDATE SET  
-      data=json_patch(data, excluded.data),
-      currency=(
-        SELECT json_group_array(value)
-        FROM (
-          SELECT json_each.value
-          FROM json_each(currency)
-          WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
+    query = f"""INSERT INTO 
+      "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :data)
+      ON CONFLICT (url) DO UPDATE SET  
+        data=json_patch(data, excluded.data),
+        currency=(
+          SELECT json_group_array(value)
+          FROM (
+            SELECT json_each.value
+            FROM json_each(currency)
+            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.currency))
+          )
         )
-      )
-  """
-  cur.executemany(query, [s.model_dump() for s in statements])
-
-  con.commit()
-  con.close()
+    """
+    cur.executemany(query, [s.model_dump() for s in statements])
+    con.commit()
 
 
 def select_statements(db_name: str, table: str) -> list[FinStatement]:
   db_path = sqlite_path(db_name)
 
-  with sqlite3.connect(db_path) as conn:
-    cur = conn.cursor()
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
     cur.row_factory = lambda _, row: FinStatement(**row)
 
     financials: list[FinStatement] = cur.execute(f'SELECT * FROM "{table}"').fetchall()
