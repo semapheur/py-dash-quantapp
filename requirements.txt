@@ -8,6 +8,7 @@ dash-ag-grid
 dashvis
 fathon
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas
+flask-caching
 glom
 hishel
 httpx

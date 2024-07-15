@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from dash import Dash, dcc, html, page_container, Input, Output  # page_registry
-from flask_caching import Cache
+# from flask_caching import Cache
 
 from lib.log.setup import setup_queue_handler
 
@@ -50,14 +50,14 @@ app = Dash(
   # prevent_initial_callbacks='initial_duplicate'
 )  # run with 'python app.py'
 
-cache = Cache(
-  app.server,
-  config={
-    "CACHE_TYPE": "FileSystemCache",
-    "CACHE_DIR": ".cache",
-    "CACHE_DEFAULT_TIMEOUT": 300,
-  },
-)
+# cache = Cache(
+#  app.server,
+#  config={
+#    "CACHE_TYPE": "FileSystemCache",
+#    "CACHE_DIR": ".cache",
+#    "CACHE_DEFAULT_TIMEOUT": 300,
+#  },
+# )
 
 # print(page_registry)
 

@@ -16,9 +16,8 @@ import dash_ag_grid as dag
 from pandera.typing import DataFrame
 import plotly.express as px
 
-from app import cache
 from components.modal import CloseModalAIO
-from lib.db.lite import get_table_columns, read_sqlite
+from lib.db.lite import get_table_columns, fetch_sqlite, read_sqlite
 
 link_style = "block text-text hover:text-secondary"
 modal_style = "relative m-auto rounded-md"
@@ -45,17 +44,28 @@ layout = html.Main(
         )
       ],
     ),
-    html.Div(id="div:screener-stock:table-wrap"),
+    dag.AgGrid(
+      id="table:screener-stock",
+      getRowId="params.data.company",
+      columnSize="autoSize",
+      style={"height": "100%"},
+    ),
     CloseModalAIO(
       aio_id="screener-stock",
-      children=[dcc.Graph(id="graph:screener-stock")],
+      children=[
+        dcc.Loading(
+          children=[dcc.Graph(id="graph:screener-stock")],
+          target_components={"graph:screener-stock": "figure"},
+        )
+      ],
     ),
   ],
 )
 
 
 @callback(
-  Output("div:screener-stock:table-wrap", "children"),
+  Output("table:screener-stock", "columnDefs"),
+  Output("table:screener-stock", "rowData"),
   Input("dropdown:screener-stock:exchange", "value"),
   background=True,
   prevent_initial_call=True,
@@ -158,14 +168,7 @@ def update_table(exchange: str):
     for col in fundamentals.columns.difference(["company", "sector"])
   ]
 
-  return dag.AgGrid(
-    id="table:screener-stock",
-    columnDefs=column_defs,
-    rowData=fundamentals.to_dict("records"),
-    getRowId="params.data.company",
-    columnSize="autoSize",
-    style={"height": "100%"},
-  )
+  return column_defs, fundamentals.to_dict("records")
 
 
 @callback(
@@ -179,48 +182,82 @@ def update_store(cell: dict, exchange: str):
   if not cell:
     return {}
 
+  def create_figure(data: DataFrame, title: str):
+    fig = px.bar(
+      company_data,
+      title=metric_label,
+      labels={"date": "Date", "value": "Value", "variable": "Entity"},
+      barmode="group",
+    )
+    fig.update_layout(
+      legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+
+    return fig
+
   metric = cell["colId"]
   if metric in ["sector", "company"]:
     return no_update
 
-  table, sector = cast(str, cell["rowId"]).split("|")[1:3]
+  name, table, sector = cast(str, cell["rowId"]).split("|")
 
-  query = f"SELECT date, {metric} FROM '{table}' WHERE period = 'FY'"
+  query = f"SELECT date, {metric} AS '{name}' FROM '{table}' WHERE period = 'FY'"
 
   company_data = read_sqlite("fundamentals.db", query, index_col="date")
   if company_data is None:
     return no_update
 
-  query = """SELECT f.company_id FROM financials f
-    JOIN stock s ON f.company_id = s.company_id
-    WHERE s.mic = :exchange AND s.sector = :sector
-  """
-  sector_companies = company_data = read_sqlite(
-    "fundamentals.db", query, {"exchange": exchange, "sector": sector}, index_col="date"
+  metric_label = fetch_sqlite(
+    "taxonomy.db", f"SELECT long FROM items WHERE item = '{metric}'"
   )
-  if sector_companies is None:
-    return no_update
+  if metric_label is not None:
+    metric_label = metric_label[0][0]
+
+  query = """SELECT f.company_id, c.sector FROM financials f
+    JOIN company c ON f.company_id = c.company_id
+    JOIN stock s ON f.company_id = s.company_id
+    WHERE s.mic = :exchange
+  """
+  exchange_companies = read_sqlite("ticker.db", query, {"exchange": exchange})
+  if exchange_companies is None:
+    return create_figure(company_data, metric_label)
 
   table_columns = get_table_columns(
-    "fundamentals.db", sector_companies["company_id"].tolist()
+    "fundamentals.db", exchange_companies["company_id"].tolist()
   )
 
-  union_queries = []
-  for table, columns in table_columns.items():
-    if metric not in columns:
-      continue
-
-    union_queries.append(f"SELECT date, metric FROM '{table}' WHERE period = FY")
-
-  union_query = " UNION ALL ".join(union_queries)
-  full_query = f"SELECT date, AVG(IFNULL(column_name, 0)) as {sector} FROM ({union_query}) GROUP BY date"
-  sector_data = read_sqlite("fundamentals.db", full_query, index_col="date")
-
-  return px.line(
-    company_data,
-    title=metric,
-    labels={"x": "Date", "y": ""},
+  union_queries = [
+    f"SELECT '{t}' as company_id, date, {metric} FROM '{t}' WHERE period = 'FY'"
+    for t in table_columns
+    if metric in table_columns[t]
+  ]
+  full_query = " UNION ALL ".join(union_queries)
+  exchange_data = read_sqlite(
+    "fundamentals.db", full_query, index_col=["company_id", "date"]
   )
+
+  if exchange_data is None:
+    return create_figure(company_data, metric_label)
+
+  mask = exchange_companies["sector"] == sector
+
+  sector_data = exchange_data.loc[
+    exchange_data.index.get_level_values("company_id").isin(
+      exchange_companies.loc[mask, "company_id"]
+    ),
+    :,
+  ]
+
+  exchange_data = cast(
+    DataFrame,
+    (exchange_data.groupby("date").mean().rename(columns={metric: exchange})),
+  )
+  sector_data = sector_data.groupby("date").mean().rename(columns={metric: sector})
+
+  company_data = cast(DataFrame, company_data.join(exchange_data, how="outer"))
+  company_data = cast(DataFrame, company_data.join(sector_data, how="outer"))
+
+  return create_figure(company_data, metric_label)
 
 
 clientside_callback(

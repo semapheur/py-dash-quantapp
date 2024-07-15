@@ -51,7 +51,7 @@ class CloseModalAIO(html.Dialog):
               className="grid grid-cols-[1fr_auto] gap-4",
               children=[
                 html.H1(
-                  title if title is not None else "Modal", className="m-auto text-text"
+                  title if title is not None else "", className="m-auto text-text"
                 ),
                 html.Button(
                   "X",
