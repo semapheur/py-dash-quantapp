@@ -181,7 +181,7 @@ def read_sqlite(
 
 def get_table_columns(
   db_name: str, tables: Optional[list[str]] = None
-) -> dict[str, list[str]]:
+) -> dict[str, set[str]]:
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
 
@@ -191,7 +191,7 @@ def get_table_columns(
     tables = inspector.get_table_names()
 
   table_columns = {
-    table: [col["name"] for col in inspector.get_columns(table)] for table in tables
+    table: {col["name"] for col in inspector.get_columns(table)} for table in tables
   }
   return table_columns
 

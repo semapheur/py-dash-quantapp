@@ -16,6 +16,7 @@ import dash_ag_grid as dag
 from pandera.typing import DataFrame
 import plotly.express as px
 
+from app import cache
 from components.modal import CloseModalAIO
 from lib.db.lite import get_table_columns, read_sqlite
 
@@ -57,10 +58,21 @@ layout = html.Main(
   Output("div:screener-stock:table-wrap", "children"),
   Input("dropdown:screener-stock:exchange", "value"),
   background=True,
+  prevent_initial_call=True,
 )
 def update_table(exchange: str):
   if not exchange:
     return no_update
+
+  def get_company_info(exchange: str) -> DataFrame | None:
+    query = """SELECT f.company_id, c.name, c.sector, GROUP_CONCAT(s.ticker, ',') AS tickers FROM financials f
+      JOIN company c ON f.company_id = c.company_id
+      JOIN stock s ON f.company_id = s.company_id
+      WHERE s.mic = :exchange
+      GROUP BY f.company_id, c.name, c.sector
+    """
+    companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
+    return companies
 
   def get_ratio_details() -> DataFrame:
     query = """SELECT item, long, short FROM items 
@@ -75,24 +87,18 @@ def update_table(exchange: str):
     items.set_index("item", inplace=True)
     return items
 
-  query = """SELECT f.company_id, c.name, c.sector, GROUP_CONCAT(s.ticker, ',') AS tickers FROM financials f
-    JOIN company c ON f.company_id = c.company_id
-    JOIN stock s ON f.company_id = s.company_id
-    WHERE s.mic = :exchange
-    GROUP BY f.company_id, c.name, c.sector
-  """
-  companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
+  companies = get_company_info(exchange)
   if companies is None:
     return no_update
 
   table_columns = get_table_columns("fundamentals.db", companies["company_id"].tolist())
 
-  common_columns = set.intersection(*[set(cols) for cols in table_columns.values()])
+  all_columns = set.union(*[cols for cols in table_columns.values()])
 
   union_queries = []
   for table, columns in table_columns.items():
     select_columns = [f"'{table}' AS company_id"]
-    for col in common_columns:
+    for col in all_columns:
       if col in columns:
         select_columns.append(f"{col}")
       else:
@@ -118,6 +124,8 @@ def update_table(exchange: str):
     + ")"
     + "|"
     + fundamentals["company_id"]
+    + "|"
+    + fundamentals["sector"]
   )
   fundamentals.drop(
     ["company_id", "name", "tickers", "period", "date", "months"], axis=1, inplace=True
@@ -163,10 +171,11 @@ def update_table(exchange: str):
 @callback(
   Output("graph:screener-stock", "figure"),
   Input("table:screener-stock", "cellClicked"),
+  State("dropdown:screener-stock:exchange", "value"),
   # prevent_initial_call=True,
   background=True,
 )
-def update_store(cell: dict):
+def update_store(cell: dict, exchange: str):
   if not cell:
     return {}
 
@@ -174,16 +183,41 @@ def update_store(cell: dict):
   if metric in ["sector", "company"]:
     return no_update
 
-  table = cast(str, cell["rowId"]).split("|")[1]
+  table, sector = cast(str, cell["rowId"]).split("|")[1:3]
 
   query = f"SELECT date, {metric} FROM '{table}' WHERE period = 'FY'"
 
-  df = read_sqlite("fundamentals.db", query, index_col="date")
-  if df is None:
+  company_data = read_sqlite("fundamentals.db", query, index_col="date")
+  if company_data is None:
     return no_update
 
+  query = """SELECT f.company_id FROM financials f
+    JOIN stock s ON f.company_id = s.company_id
+    WHERE s.mic = :exchange AND s.sector = :sector
+  """
+  sector_companies = company_data = read_sqlite(
+    "fundamentals.db", query, {"exchange": exchange, "sector": sector}, index_col="date"
+  )
+  if sector_companies is None:
+    return no_update
+
+  table_columns = get_table_columns(
+    "fundamentals.db", sector_companies["company_id"].tolist()
+  )
+
+  union_queries = []
+  for table, columns in table_columns.items():
+    if metric not in columns:
+      continue
+
+    union_queries.append(f"SELECT date, metric FROM '{table}' WHERE period = FY")
+
+  union_query = " UNION ALL ".join(union_queries)
+  full_query = f"SELECT date, AVG(IFNULL(column_name, 0)) as {sector} FROM ({union_query}) GROUP BY date"
+  sector_data = read_sqlite("fundamentals.db", full_query, index_col="date")
+
   return px.line(
-    df,
+    company_data,
     title=metric,
     labels={"x": "Date", "y": ""},
   )
