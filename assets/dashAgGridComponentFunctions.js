@@ -50,13 +50,12 @@ function BarUnderMarker(value, left, color, height="0.5rem") {
   }, [
     React.createElement("div", {
       key: `div.bar.marker.under.dot.${color}`,
-      className: "size-1 border border-text rounded-full bg-primary",
-      style: {borderColor: color}
+      className: "size-1 rounded-full bg-text"
     }),
     React.createElement("div", {
       key: `div.bar.marker.under.line.${color}`,
       className: "w-0.5 -translate-x-1/4 border-r border-text",
-      style: {height: height, borderColor: color}
+      style: {height: height}
     }),
     React.createElement("div", {key: `bar.marker.under.label.${color}`, className:"text-center"}, 
       React.createElement("span", {style: {color: color}}, value.toFixed(2))
@@ -83,12 +82,11 @@ function BarOverMarker(value, left, color, height="0.5rem") {
     React.createElement("div", {
       key: `div.bar.marker.over.line.${color}`,
       className: "w-0.5 -translate-x-1/4 border-r border-text",
-      style: {height: height, borderColor: color}
+      style: {height: height}
     }),
     React.createElement("div", {
       key: `div.bar.marker.over.dot.${color}`,
-      className: "size-1 border border-text rounded-full bg-primary",
-      style: {borderColor: color}
+      className: "size-1 rounded-full bg-text"
     })
   ])
 }
@@ -124,41 +122,54 @@ dagcomponentfuncs.ScreenerTooltip = (props) => {
   const regex = /(?<=\()(.+)(?=\))/
   const ticker = props.data.company.split("|")[0].match(regex)[0].split(",")[0]
   
-  const range = props.high - props.low
-  const companyLeft = ((props.value - props.low) / range) * 100
-  const exchangeLeft = ((props.exchangeValue - props.low) / range) * 100
-  const sectorValue = props.sectorValues[props.data.sector]
-  const sectorLeft = ((sectorValue - props.low) / range) * 100
+  const exchangeRange = props.exchangeMax - props.exchangeMin
+  const companyLeft = ((props.value - props.exchangeMin) / exchangeRange) * 100
+  const exchangeLeft = ((props.exchangeMean - props.exchangeMin) / exchangeRange) * 100
+  const sectorMean = props.sectorMean[props.data.sector]
+  const sectorLeft = ((sectorMean - props.exchangeMin) / exchangeRange) * 100
+  const sectorBarLeft = ((props.sectorMin[props.data.sector] - props.exchangeMin) / exchangeRange) * 100
+  const sectorBarWidth = ((props.sectorMax[props.data.sector] - props.sectorMin[props.data.sector]) / exchangeRange) * 100
 
   legend = {
     [props.exchange]: "orange",
     [props.data.sector]: "green",
     [ticker]: "red"
   }
+
   return React.createElement("div", {
       className: "w-44 h-[6.5rem] px-2 grid grid-rows-[1fr_auto] bg-primary rounded border border-secondary text-text text-xs font-bold"
     }, [
       React.createElement("div", {
+        key: "div.bar",
         className: "grid grid-cols-[auto_1fr_auto] gap-1 content-center"
       }, [
         React.createElement("span", {
           key: "span.bar.min",
-        }, props.low.toFixed(2)),
+        }, props.exchangeMin.toFixed(2)),
         React.createElement("div", {
           key: "div.bar.wrapper",
           className: "relative size-full"
         }, [
           React.createElement("div", {
-            key: "div.bar",
-            className: "absolute top-1/2 w-full h-0.5 bg-text/50 rounded"
+            key: "div.bar.exchange",
+            className: "absolute top-1/2 w-full h-0.5",
+            style: {backgroundColor: legend[props.exchange]}
+          }),
+          React.createElement("div", {
+            key: "div.bar.sector",
+            className: "absolute top-1/2 h-0.5",
+            style: {
+              left: `${sectorBarLeft}%`,
+              width: `${sectorBarWidth}%`,
+              backgroundColor: legend[props.data.sector]}
           }),
           BarUnderMarker(props.value, companyLeft, legend[ticker]),
-          BarOverMarker(props.exchangeValue, exchangeLeft, legend[props.exchange], "1.125rem"),
-          BarOverMarker(sectorValue, sectorLeft, legend[props.data.sector]),
+          BarOverMarker(props.exchangeMean, exchangeLeft, legend[props.exchange], "1.25rem"),
+          BarOverMarker(sectorMean, sectorLeft, legend[props.data.sector]),
         ]),
         React.createElement("span", {
           key: "span.bar.high",
-        }, props.high.toFixed(2)),
+        }, props.exchangeMax.toFixed(2)),
       ]
     ),
     BarLegend(legend)
