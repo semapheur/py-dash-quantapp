@@ -13,8 +13,10 @@ from dash import (
   State,
 )
 import dash_ag_grid as dag
+import pandas as pd
 from pandera.typing import DataFrame
 import plotly.express as px
+import plotly.graph_objects as go
 
 from components.modal import CloseModalAIO
 from lib.db.lite import get_table_columns, fetch_sqlite, read_sqlite
@@ -147,7 +149,7 @@ def update_table(exchange: str):
   column_defs = [
     {
       "field": "company",
-      "type": "text",
+      "cellDataType": "text",
       "pinned": "left",
       "lockPinned": True,
       "cellClass": "lock-pinned",
@@ -155,7 +157,7 @@ def update_table(exchange: str):
     },
     {
       "field": "sector",
-      "type": "text",
+      "cellDataType": "text",
     },
   ] + [
     {
@@ -171,7 +173,7 @@ def update_table(exchange: str):
         "low": fundamentals[col].min(),
         "high": fundamentals[col].max(),
       },
-      "type": "number",
+      "cellDataType": "number",
       "valueFormatter": {"function": "d3.format('(.2f')(params.value)"},
       "filter": "agNumberColumnFilter",
     }
@@ -194,8 +196,8 @@ def update_store(cell: dict, exchange: str):
 
   def create_figure(data: DataFrame, title: str):
     fig = px.bar(
-      company_data,
-      title=metric_label,
+      data,
+      title=title,
       labels={"date": "Date", "value": "Value", "variable": "Entity"},
       barmode="group",
     )
@@ -258,16 +260,101 @@ def update_store(cell: dict, exchange: str):
     :,
   ]
 
+  exchange_mean = (
+    exchange_data.groupby("date").mean().rename(columns={metric: exchange})
+  )
+  exchange_min = (
+    exchange_data.groupby("date").min().rename(columns={metric: f"{exchange}_min"})
+  )
+  exchange_max = (
+    exchange_data.groupby("date").max().rename(columns={metric: f"{exchange}_max"})
+  )
   exchange_data = cast(
     DataFrame,
-    (exchange_data.groupby("date").mean().rename(columns={metric: exchange})),
+    pd.concat(
+      [exchange_mean, exchange_min, exchange_max],
+      axis=1,
+    ).dropna(how="all"),
   )
-  sector_data = sector_data.groupby("date").mean().rename(columns={metric: sector})
 
-  company_data = cast(DataFrame, company_data.join(exchange_data, how="outer"))
-  company_data = cast(DataFrame, company_data.join(sector_data, how="outer"))
+  sector_mean = sector_data.groupby("date").mean().rename(columns={metric: sector})
+  sector_min = (
+    sector_data.groupby("date").min().rename(columns={metric: f"{sector}_min"})
+  )
+  sector_max = (
+    sector_data.groupby("date").max().rename(columns={metric: f"{sector}_max"})
+  )
+  sector_data = pd.concat(
+    [sector_mean, sector_min, sector_max],
+    axis=1,
+  ).dropna(how="all")
 
-  return create_figure(company_data, metric_label)
+  figure = go.Figure()
+
+  figure.add_bar(
+    x=exchange_data.index,
+    y=exchange_data[f"{exchange}_max"] - exchange_data[f"{exchange}_min"],
+    base=exchange_data[f"{exchange}_min"],
+    marker_color="red",
+    opacity=0.25,
+    name=f"{exchange} (range)",
+    legendrank=1,
+    hovertemplate=("<b>High:</b> %{y:.2f}<br>" "<b>Low:</b> %{base:.2f}<br>"),
+  )
+
+  figure.add_bar(
+    x=sector_data.index,
+    y=sector_data[f"{sector}_max"] - sector_data[f"{sector}_min"],
+    base=sector_data[f"{sector}_min"],
+    marker_color="blue",
+    opacity=0.25,
+    name=f"{sector} (range)",
+    legendrank=2,
+    hovertemplate=("<b>High:</b> %{y:.2f}<br>" "<b>Low:</b> %{base:.2f}<br>"),
+  )
+
+  figure.add_scatter(
+    x=exchange_data.index,
+    y=exchange_data[exchange],
+    mode="markers",
+    marker_color="red",
+    name=exchange,
+    legendrank=1,
+    hovertemplate="%{y:.2f}",
+  )
+
+  figure.add_scatter(
+    x=sector_data.index,
+    y=sector_data[sector],
+    mode="markers",
+    marker_color="blue",
+    name=sector,
+    legendrank=2,
+    hovertemplate="%{y:.2f}",
+  )
+
+  figure.add_scatter(
+    x=company_data.index,
+    y=company_data[name],
+    mode="markers",
+    marker_color="green",
+    name=name,
+    legendrank=3,
+    hovertemplate="%{y:.2f}",
+  )
+
+  figure.update_layout(
+    title=metric_label,
+    xaxis_title="Date",
+    yaxis_title="Value",
+    barmode="group",
+    bargap=0.75,
+    bargroupgap=0,
+    hovermode="x",
+    # legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+  )
+
+  return figure
 
 
 clientside_callback(

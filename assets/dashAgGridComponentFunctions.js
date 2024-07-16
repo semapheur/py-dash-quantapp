@@ -114,7 +114,6 @@ function BarLegend(items) {
 }
 
 dagcomponentfuncs.ScreenerTooltip = (props) => {
-  console.log(props)
 
   if (props.location === "header") {
     return React.createElement("div", {
