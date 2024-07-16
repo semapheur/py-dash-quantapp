@@ -4,6 +4,7 @@ module.exports = {
     './app.py',
     './pages/**/*.py',
     './components/**/*.py',
+    './assets/*.js',
   ],
   theme: {
     extend: {

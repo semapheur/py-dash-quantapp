@@ -48,6 +48,7 @@ layout = html.Main(
       id="table:screener-stock",
       getRowId="params.data.company",
       columnSize="autoSize",
+      dashGridOptions={"tooltipInteraction": True},
       style={"height": "100%"},
     ),
     CloseModalAIO(
@@ -161,6 +162,15 @@ def update_table(exchange: str):
       "field": col,
       "headerName": items.at[col, "short"],
       "headerTooltip": items.at[col, "long"],
+      "tooltipField": col,
+      "tooltipComponent": "ScreenerTooltip",
+      "tooltipComponentParams": {
+        "exchange": exchange,
+        "exchangeValue": fundamentals[col].mean(),
+        "sectorValues": fundamentals.groupby("sector")[col].mean().to_dict(),
+        "low": fundamentals[col].min(),
+        "high": fundamentals[col].max(),
+      },
       "type": "number",
       "valueFormatter": {"function": "d3.format('(.2f')(params.value)"},
       "filter": "agNumberColumnFilter",
