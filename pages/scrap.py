@@ -27,6 +27,7 @@ from components.input import InputAIO
 from components.modal import OpenCloseModalAIO
 
 from lib.const import HEADERS
+from lib.db.lite import fetch_sqlite
 from lib.fin.models import (
   FinStatement,
   Item,
@@ -113,7 +114,7 @@ layout = html.Main(
         ),
         html.Button(
           "Rename headers",
-          # id=OpenCloseModalAIO.open_id("scrap:headers"),
+          id=OpenCloseModalAIO.open_id("scrap:headers"),
           className=button_style,
           type="button",
           n_clicks=0,
@@ -125,7 +126,7 @@ layout = html.Main(
           type="button",
           n_clicks=0,
         ),
-        InputAIO("scrap:id", "100%", {"type": "text", "placeholder": "Ticker ID"}),
+        InputAIO("scrap:id", "100%", {"type": "text", "placeholder": "Company ID"}),
         InputAIO("scrap:date", "100%", {"type": "text", "placeholder": "Date"}),
         InputAIO(
           "scrap:fiscal-end",
@@ -156,7 +157,15 @@ layout = html.Main(
       ],
       target_components={"object:scrap:pdf": "data"},
     ),
-    html.Div(className="h-full", id="div:scrap:table"),
+    # html.Div(className="h-full", id="div:scrap:table"),
+    dag.AgGrid(
+      id="table:scrap",
+      getRowId="params.data.company",
+      columnSize="autoSize",
+      defaultColDef={"editable": True},
+      dashGridOptions={"undoRedoCellEditing": True, "undoRedoCellEditingLimit": 10},
+      style={"height": "100%"},
+    ),
     OpenCloseModalAIO(
       "scrap:headers",
       "Rename headers",
@@ -172,8 +181,19 @@ layout = html.Main(
         )
       ],
     ),
+    dcc.ConfirmDialog(
+      id="notification:scrap:table-error",
+      message="Unable to parse table",
+    ),
   ],
 )
+
+
+def doc_url(doc_id: str) -> str:
+  return (
+    f"https://doc.morningstar.com/document/{doc_id}.msdoc/"
+    "?clientid=euretailsite&key=9ab7c1c01e51bcec"
+  )
 
 
 @callback(
@@ -206,40 +226,44 @@ def update_object(doc_id: str):
 
   pdf_path = Path(f"assets/docs/{doc_id}.pdf")
   if not pdf_path.exists():
-    url = f"https://doc.morningstar.com/document/{doc_id}.msdoc/?clientid=euretailsite&key=9ab7c1c01e51bcec"
+    url = doc_url(doc_id)
     download_file(url, pdf_path)
 
   return str(pdf_path)
 
 
 @callback(
-  Output("div:scrap:table", "children"),
+  Output("table:scrap", "columnDefs"),
+  Output("table:scrap", "rowData"),
+  Output("notification:scrap:table-error", "displayed"),
   Input("button:scrap:extract", "n_clicks"),
   State("dropdown:scrap:document", "value"),
   State("input:scrap:pages", "value"),
   State("checklist:scrap:options", "value"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
+  prevent_initial_call=True,
+  background=True,
 )
 def update_table(
   n_clicks: int,
-  pdf_url: str,
+  doc_id: str,
   pages_text: str,
   options: list[str],
   factor: int,
   currency: str,
 ):
-  if not (n_clicks and pdf_url and pages_text):
+  if not (n_clicks and doc_id and pages_text):
     return no_update
 
-  doc_id = get_doc_id(pdf_url)
   pdf_path = Path(f"temp/{doc_id}.pdf")
   pdf_src = io.BytesIO()
   if pdf_path.exists():
     with open(pdf_path, "rb") as pdf_file:
       pdf_src.write(pdf_file.read())
   else:
-    response = httpx.get(url=pdf_url, headers=HEADERS)
+    url = doc_url(doc_id)
+    response = httpx.get(url=url, headers=HEADERS)
     pdf_src.write(response.content)
 
   pages = [int(p) - 1 for p in pages_text.split(",")]
@@ -254,6 +278,9 @@ def update_table(
   )
 
   # TODO: merge tables
+  if len(tables[pages[0]]) == 0:
+    return None, None, True
+
   df = tables[pages[0]][0].df
   df["period"] = "instant"
   df["factor"] = factor
@@ -273,15 +300,7 @@ def update_table(
   )
   columnDefs[1].update({"type": "numericColumn"})
 
-  return dag.AgGrid(
-    id="table:scrap",
-    columnDefs=columnDefs,
-    rowData=df.to_dict("records"),
-    columnSize="autoSize",
-    defaultColDef={"editable": True},
-    dashGridOptions={"undoRedoCellEditing": True, "undoRedoCellEditingLimit": 10},
-    style={"height": "100%"},
-  )
+  return columnDefs, df.to_dict("records"), False
 
 
 @callback(
@@ -299,6 +318,9 @@ def selected(_: int):
   prevent_initial_call=True,
 )
 def update_form(cols: list[dict]):
+  if not cols:
+    return no_update
+
   return [
     dcc.Input(
       id={"type": "input:scrap:headers", "index": i},
@@ -312,8 +334,8 @@ def update_form(cols: list[dict]):
 
 
 @callback(
-  Output("table:scrap", "columnDefs"),
-  Output("table:scrap", "rowData"),
+  Output("table:scrap", "columnDefs", allow_duplicate=True),
+  Output("table:scrap", "rowData", allow_duplicate=True),
   Input("button:scrap:headers:update", "n_clicks"),
   State({"type": "input:scrap:headers", "index": ALL}, "value"),
   State("table:scrap", "columnDefs"),
@@ -344,7 +366,14 @@ def update_input(ticker: str):
   if not ticker:
     return no_update
 
-  return ticker.split("|")[0]
+  security_id = ticker.split("|")[0]
+  query = "SELECT company_id FROM stock WHERE security_id = :security_id"
+  company_id = fetch_sqlite("ticker.db", query, {"security_id": security_id})[0][0]
+
+  if company_id is None:
+    return no_update
+
+  return company_id
 
 
 @callback(
