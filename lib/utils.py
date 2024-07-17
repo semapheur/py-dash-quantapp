@@ -22,7 +22,7 @@ def int_parser(value):
 
 
 def load_json(path: str | Path) -> dict:
-  with open(path, 'r') as f:
+  with open(path, "r") as f:
     return json.load(f)
 
 
@@ -30,11 +30,11 @@ def update_json(path: str | Path, data: dict):
   if isinstance(path, str):
     path = Path(path)
 
-  if path.suffix != '.json':
-    path = path.with_suffix('.json')
+  if path.suffix != ".json":
+    path = path.with_suffix(".json")
 
   try:
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
       file_data = json.load(f)
 
   except (FileNotFoundError, json.JSONDecodeError):
@@ -42,7 +42,7 @@ def update_json(path: str | Path, data: dict):
 
   file_data.update(data)
 
-  with open(path, 'w') as f:
+  with open(path, "w") as f:
     json.dump(file_data, f)
 
 
@@ -50,16 +50,16 @@ def minify_json(path: str | Path, new_name: Optional[str] = None):
   if isinstance(path, str):
     path = Path(path)
 
-  with open(path, 'r') as f:
+  with open(path, "r") as f:
     data = json.load(f)
 
   if not new_name:
-    new_path = path.with_name(f'{path.stem}_mini.json')
+    new_path = path.with_name(f"{path.stem}_mini.json")
   else:
-    new_path = path.with_name(new_name).with_suffix('.json')
+    new_path = path.with_name(new_name).with_suffix(".json")
 
-  with open(new_path, 'w') as f:
-    json.dump(data, f, separators=(',', ':'))
+  with open(new_path, "w") as f:
+    json.dump(data, f, separators=(",", ":"))
 
 
 def replace_all(text: str, replacements: dict[str, str]) -> str:
@@ -69,7 +69,7 @@ def replace_all(text: str, replacements: dict[str, str]) -> str:
 
 
 def camel_split(txt: str) -> list[str]:
-  pattern = r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))'
+  pattern = r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))"
   return re.findall(pattern, txt)
 
 
@@ -77,13 +77,13 @@ def camel_abbreviate(txt: str, chars: int = 2):
   words = camel_split(txt)
   words[0] = words[0].lower()
   words = [word[:chars] for word in words]
-  return ''.join(words)
+  return "".join(words)
 
 
 def snake_abbreviate(txt: str, chars: int = 2):
   words = camel_split(txt)
   words = [word[:chars].lower() for word in words]
-  return '_'.join(words)
+  return "_".join(words)
 
 
 # Rename DataFrame columns
@@ -97,13 +97,13 @@ class renamer:
       return x
     else:
       self.d[x] += 1
-      return '%s_%d' % (x, self.d[x])
+      return "%s_%d" % (x, self.d[x])
 
 
 def replace_dict_keys(pattern: str, replacement: str, data: dict) -> dict:
   new_data = {}
   for k, v in data.items():
-    new_key = re.sub(pattern, '', k)
+    new_key = re.sub(pattern, "", k)
     new_data[new_key] = v
 
   return new_data
@@ -149,7 +149,7 @@ def slice_df_by_date(
   end_date: Optional[dt | Date] = None,
 ) -> pd.DataFrame:
   if not isinstance(df.index, pd.DatetimeIndex):
-    raise ValueError('Data frame must have a datetime index!')
+    raise ValueError("Data frame must have a datetime index!")
 
   if start_date is not None:
     df = df.loc[df.index >= pd.Timestamp(start_date)]
@@ -166,22 +166,22 @@ def month_difference(date1: dt | Date, date2: dt | Date) -> int:
 
 
 def df_time_difference(
-  dates: pd.DatetimeIndex, periods: int = 30, freq: str = 'D'
+  dates: pd.DatetimeIndex, periods: int = 30, freq: str = "D"
 ) -> np.ndarray[float]:
   return np.round(
-    np.diff(dates.to_numpy(), prepend=[np.datetime64('nat', 'D')])
+    np.diff(dates.to_numpy(), prepend=[np.datetime64("nat", "D")])
     / np.timedelta64(periods, freq)
   )
 
 
 def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> Series[int]:
-  dates_ = dates.to_numpy().astype('datetime64[D]')
+  dates_ = dates.to_numpy().astype("datetime64[D]")
 
   values = np.concatenate((np.array([fill]), np.busday_count(dates_[:-1], dates_[1:])))
   return pd.Series(values)
 
 
-Quarter: TypeAlias = Literal['Q1', 'Q2', 'Q3', 'Q4']
+Quarter: TypeAlias = Literal["Q1", "Q2", "Q3", "Q4"]
 
 
 def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> Quarter:
@@ -192,7 +192,7 @@ def fiscal_quarter(date: dt, fiscal_month: int, fiscal_day: int) -> Quarter:
   fiscal_start = dt(fiscal_year, fiscal_month, fiscal_day)
   months = month_difference(date, fiscal_start)
 
-  return cast(Quarter, f'Q{math.ceil(months/3)}')
+  return cast(Quarter, f"Q{math.ceil(months/3)}")
 
 
 def fiscal_quarter_monthly(month: int, fiscal_end_month: Optional[int] = None) -> int:
@@ -212,14 +212,14 @@ def month_end(year: int, month: int, unleap=True) -> int:
 
 
 def download_file(url: str, file_path: str | Path):
-  with open(file_path, 'wb') as file:
-    with httpx.stream('GET', url=url, headers=HEADERS) as response:
-      total = int(response.headers.get('content-length', 0))
+  with open(file_path, "wb") as file:
+    with httpx.stream("GET", url=url, headers=HEADERS) as response:
+      total = int(response.headers.get("content-length", 0))
       if response.status_code != 200:
         print(response.headers)
-        raise Exception('Download failed!')
+        raise Exception("Download failed!")
 
-      with tqdm(total=total, unit_scale=True, unit_divisor=1024, unit='B') as progress:
+      with tqdm(total=total, unit_scale=True, unit_divisor=1024, unit="B") as progress:
         bytes_downloaded = response.num_bytes_downloaded
         for chunk in response.iter_bytes():
           file.write(chunk)
@@ -247,9 +247,9 @@ def get_constructor_args(class_obj) -> set[str]:
 def remove_words(
   strings: list[str], blacklist: list[str], escape: bool = False
 ) -> list[str]:
-  pattern = r'(?!^)\b(?:{})\b'.format(
-    '|'.join(map(re.escape, blacklist) if escape else blacklist)
+  pattern = r"(?!^)\b(?:{})\b".format(
+    "|".join(map(re.escape, blacklist) if escape else blacklist)
   )
   return [
-    re.sub('\s+', ' ', re.sub(pattern, '', s, flags=re.I).strip()) for s in strings
+    re.sub(r"\s+", " ", re.sub(pattern, "", s, flags=re.I).strip()) for s in strings
   ]

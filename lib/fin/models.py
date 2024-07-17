@@ -1,7 +1,7 @@
 from datetime import date as Date, datetime as dt
 import json
 import re
-from typing import cast, Literal, Optional, TypeAlias
+from typing import cast, Literal, TypeAlias
 from typing_extensions import TypedDict
 
 from pandera import DataFrameModel, Field
@@ -66,7 +66,7 @@ class Member(Value):
 
 class Item(Value, total=False):
   period: Instant | Interval
-  members: Optional[dict[str, Member]]
+  members: dict[str, Member] | None
 
 
 def item_dict(v: Item):
@@ -83,7 +83,7 @@ FinData: TypeAlias = dict[str, list[Item]]
 
 
 class FinStatement(BaseModel):
-  url: Optional[str] = None
+  url: str | None = None
   scope: Scope
   date: Date
   fiscal_period: FiscalPeriod
@@ -176,12 +176,12 @@ class FinStatement(BaseModel):
 
 
 class FinStatementFrame(DataFrameModel):
-  url: Optional[str] = Field(unique=True)
+  url: str | None = Field(unique=True)
   scope: str = Field(isin={"annual", "quarterly"})
   date: Timestamp
   period: str = Field(isin={"FY", "Q1"})
-  fiscal_end: Optional[str]
-  periods: Optional[Object]
+  fiscal_end: str | None
+  periods: Object | None
   currency: Object
   data: Object
 
@@ -203,10 +203,10 @@ class CloseQuote(DataFrameModel):
 
 
 class Quote(CloseQuote):
-  open: Optional[float]
-  high: Optional[float]
-  low: Optional[float]
-  volume: Optional[int] = Field(ge=0)
+  open: float | None
+  high: float | None
+  low: float | None
+  volume: int | None = Field(ge=0)
 
 
 class StockSplit(BaseModel):

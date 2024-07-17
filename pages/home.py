@@ -26,27 +26,27 @@ layout = html.Main(
         html.Form(
           className="grid grid-cols-[2fr_1fr_auto] gap-2 px-2 pt-2",
           children=[
-            TickerSelectAIO(aio_id="home"),
-            QuoteGraphTypeAIO(aio_id="home"),
-            QuoteDatePickerAIO(aio_id="home"),
+            TickerSelectAIO(id="home"),
+            QuoteGraphTypeAIO(id="home"),
+            QuoteDatePickerAIO(id="home"),
           ],
         ),
-        QuoteGraphAIO(aio_id="home"),
+        QuoteGraphAIO(id="home"),
       ],
     ),
-    QuoteStoreAIO(aio_id="home"),
+    QuoteStoreAIO(id="home"),
   ],
 )
 
 
 @callback(
-  Output(QuoteGraphAIO.id("home"), "figure"),
-  Input(QuoteStoreAIO.id("home"), "data"),
-  Input(QuoteGraphAIO.id("home"), "relayoutData"),
-  Input(QuoteGraphTypeAIO.id("home"), "value"),
-  Input(QuoteDatePickerAIO.id("home"), "start_date"),
-  Input(QuoteDatePickerAIO.id("home"), "end_date"),
-  State(QuoteGraphAIO.id("home"), "figure"),
+  Output(QuoteGraphAIO.aio_id("home"), "figure"),
+  Input(QuoteStoreAIO.aio_id("home"), "data"),
+  Input(QuoteGraphAIO.aio_id("home"), "relayoutData"),
+  Input(QuoteGraphTypeAIO.aio_id("home"), "value"),
+  Input(QuoteDatePickerAIO.aio_id("home"), "start_date"),
+  Input(QuoteDatePickerAIO.aio_id("home"), "end_date"),
+  State(QuoteGraphAIO.aio_id("home"), "figure"),
 )
 def update_graph(data, relayout, plot_type, start_date, end_date, fig):
   if not data:

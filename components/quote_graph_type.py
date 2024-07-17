@@ -1,17 +1,12 @@
-import uuid
-
 from dash import dcc
 
 
 class QuoteGraphTypeAIO(dcc.Dropdown):
   @staticmethod
-  def id(aio_id):
-    return {"component": "QuoteGraphTypeAIO", "aio_id": aio_id}
+  def aio_id(id):
+    return {"component": "QuoteGraphTypeAIO", "aio_id": id}
 
-  def __init__(self, aio_id: str | None = None, dropdown_props=None):
-    if aio_id is None:
-      aio_id = str(uuid.uuid4())
-
+  def __init__(self, id: str | None = None, dropdown_props=None):
     dropdown_props = dropdown_props.copy() if dropdown_props else {}
 
     dropdown_props["options"] = [
@@ -23,4 +18,4 @@ class QuoteGraphTypeAIO(dcc.Dropdown):
     if "value" not in dropdown_props:
       dropdown_props["value"] = "line"
 
-    super().__init__(id=self.__class__.id(aio_id), **dropdown_props)
+    super().__init__(id=self.__class__.aio_id(id), **dropdown_props)

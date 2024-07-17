@@ -1,7 +1,5 @@
 import asyncio
 from functools import partial
-from typing import Optional
-import uuid
 
 from dash import callback, dcc, no_update, Input, Output, MATCH
 
@@ -12,22 +10,19 @@ from components.ticker_select import TickerSelectAIO
 
 class QuoteStoreAIO(dcc.Store):
   @staticmethod
-  def id(aio_id):
-    return {"component": "QuoteStoreAIO", "aio_id": aio_id}
+  def aio_id(id: str):
+    return {"component": "QuoteStoreAIO", "aio_id": id}
 
-  def __init__(self, aio_id: Optional[str] = None, store_props: Optional[dict] = None):
-    if aio_id is None:
-      aio_id = str(uuid.uuid4())
-
+  def __init__(self, id: str, store_props: dict | None = None):
     store_props = store_props.copy() if store_props else {}
     if "storage_type" not in store_props:
       store_props["storage_type"] = "memory"
 
-    super().__init__(id=self.__class__.id(aio_id), **store_props)
+    super().__init__(id=self.__class__.aio_id(id), **store_props)
 
   @callback(
-    Output(id(MATCH), "data"),
-    Input(TickerSelectAIO.id(MATCH), "value"),
+    Output(aio_id(MATCH), "data"),
+    Input(TickerSelectAIO.aio_id(MATCH), "value"),
     background=True,
   )
   def update_store(query: str):

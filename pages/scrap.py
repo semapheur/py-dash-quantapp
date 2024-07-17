@@ -26,7 +26,6 @@ from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
 from components.modal import OpenCloseModalAIO
 
-from lib.db.lite import sqlite_path
 from lib.const import HEADERS
 from lib.fin.models import (
   FinStatement,
@@ -63,7 +62,7 @@ layout = html.Main(
     html.Aside(
       className="flex flex-col gap-2 p-2",
       children=[
-        TickerSelectAIO(aio_id="scrap"),
+        TickerSelectAIO(id="scrap"),
         dcc.Dropdown(id="dropdown:scrap:document", placeholder="Document"),
         html.Form(
           className="flex",
@@ -131,7 +130,7 @@ layout = html.Main(
         InputAIO(
           "scrap:fiscal-end",
           "100%",
-          {"type": "text", "placeholder": "Date", "value": "12-31"},
+          {"type": "text", "placeholder": "Fiscal end", "value": "12-31"},
         ),
         dcc.Dropdown(
           id="dropdown:scrap:scope",
@@ -148,7 +147,15 @@ layout = html.Main(
         ),
       ],
     ),
-    html.Div(id="div:scrap:pdf", className="h-full w-full"),
+    dcc.Loading(
+      parent_className="size-full",
+      children=[
+        html.ObjectEl(
+          id="object:scrap:pdf", type="application/pdf", width="100%", height="100%"
+        )
+      ],
+      target_components={"object:scrap:pdf": "data"},
+    ),
     html.Div(className="h-full", id="div:scrap:table"),
     OpenCloseModalAIO(
       "scrap:headers",
@@ -171,35 +178,38 @@ layout = html.Main(
 
 @callback(
   Output("dropdown:scrap:document", "options"),
-  Input(TickerSelectAIO.id("scrap"), "value"),
+  Input(TickerSelectAIO.aio_id("scrap"), "value"),
+  background=True,
 )
 def update_dropdown(ticker: str):
   if not ticker:
     return no_update
 
   docs = Stock(*ticker.split("|")).documents()
-  docs.rename(columns={"link": "value"}, inplace=True)
-  docs["label"] = docs["date"] + " - " + docs["type"] + " (" + docs["language"] + ")"
+  docs.rename(columns={"doc_id": "value"}, inplace=True)
+  docs["label"] = (
+    docs["date"] + " - " + docs["doc_type"] + " (" + docs["language"] + ")"
+  )
 
   return docs[["label", "value"]].to_dict("records")
 
 
 @callback(
-  Output("div:scrap:pdf", "children"), Input("dropdown:scrap:document", "value")
+  Output("object:scrap:pdf", "data"),
+  Input("dropdown:scrap:document", "value"),
+  prevent_initial_call=True,
+  background=True,
 )
-def update_object(url: str):
-  if not url:
+def update_object(doc_id: str):
+  if not doc_id:
     return no_update
 
-  doc_id = get_doc_id(url)
-  if not doc_id:
-    return []
-
-  pdf_path = Path(f"temp/{doc_id}.pdf")
+  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
   if not pdf_path.exists():
+    url = f"https://doc.morningstar.com/document/{doc_id}.msdoc/?clientid=euretailsite&key=9ab7c1c01e51bcec"
     download_file(url, pdf_path)
 
-  return html.ObjectEl(data=url, width="100%", height="100%")
+  return str(pdf_path)
 
 
 @callback(
@@ -208,8 +218,8 @@ def update_object(url: str):
   State("dropdown:scrap:document", "value"),
   State("input:scrap:pages", "value"),
   State("checklist:scrap:options", "value"),
-  State(InputAIO.id("scrap:factor"), "value"),
-  State(InputAIO.id("scrap:currency"), "value"),
+  State(InputAIO.aio_id("scrap:factor"), "value"),
+  State(InputAIO.aio_id("scrap:currency"), "value"),
 )
 def update_table(
   n_clicks: int,
@@ -327,8 +337,8 @@ def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]
 
 
 @callback(
-  Output(InputAIO.id("scrap:id"), "value"),
-  Input(TickerSelectAIO.id("scrap"), "value"),
+  Output(InputAIO.aio_id("scrap:id"), "value"),
+  Input(TickerSelectAIO.aio_id("scrap"), "value"),
 )
 def update_input(ticker: str):
   if not ticker:
@@ -338,7 +348,7 @@ def update_input(ticker: str):
 
 
 @callback(
-  Output(InputAIO.id("scrap:date"), "value"),
+  Output(InputAIO.aio_id("scrap:date"), "value"),
   Input("dropdown:scrap:document", "value"),
   State("dropdown:scrap:document", "options"),
 )
@@ -383,7 +393,7 @@ def update_scope_dropdown(doc: str, options: list[dict[str, str]]):
 
 @callback(
   Output("button:scrap:export", "disabled"),
-  Input(InputAIO.id("scrap:fiscal-end"), "value"),
+  Input(InputAIO.aio_id("scrap:fiscal-end"), "value"),
 )
 def validate_fiscal_end(fiscal_end: str) -> bool:
   pattern = re.compile(
@@ -402,11 +412,11 @@ def validate_fiscal_end(fiscal_end: str) -> bool:
   Input("button:scrap:export", "n_clicks"),
   State("table:scrap", "rowData"),
   State("dropdown:scrap:document", "value"),
-  State(InputAIO.id("scrap:id"), "value"),
-  State(InputAIO.id("scrap:date"), "value"),
+  State(InputAIO.aio_id("scrap:id"), "value"),
+  State(InputAIO.aio_id("scrap:date"), "value"),
   State("dropdown:scrap:scope", "value"),
   State("dropdown:scrap:period", "value"),
-  State(InputAIO.id("scrap:fiscal-end"), "value"),
+  State(InputAIO.aio_id("scrap:fiscal-end"), "value"),
   prevent_initial_call=True,
 )
 def export(

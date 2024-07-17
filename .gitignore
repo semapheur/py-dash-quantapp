@@ -9,6 +9,7 @@
 
 # json assets
 /assets/**/*.json
+/assets/docs
 
 # caches
 **/__pycache__/

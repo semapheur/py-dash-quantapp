@@ -5,16 +5,16 @@ from lib.ticker.fetch import search_stocks
 
 class TickerSelectAIO(dcc.Dropdown):
   @staticmethod
-  def id(aio_id: str):
-    return {"component": "TickerSelectAIO", "aio_id": aio_id}
+  def aio_id(id: str):
+    return {"component": "TickerSelectAIO", "aio_id": id}
 
-  def __init__(self, aio_id: str, dropdown_props: dict | None = None):
+  def __init__(self, id: str, dropdown_props: dict | None = None):
     dropdown_props = dropdown_props.copy() if dropdown_props else {}
     dropdown_props.setdefault("placeholder", "Ticker")
 
-    super().__init__(id=self.__class__.id(aio_id), **dropdown_props)
+    super().__init__(id=self.__class__.aio_id(id), **dropdown_props)
 
-  @callback(Output(id(MATCH), "options"), Input(id(MATCH), "search_value"))
+  @callback(Output(aio_id(MATCH), "options"), Input(aio_id(MATCH), "search_value"))
   def update_dropdown(search: str):
     if search is None or len(search) < 2:
       return no_update

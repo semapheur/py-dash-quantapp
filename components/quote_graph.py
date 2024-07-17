@@ -1,6 +1,4 @@
 import re
-from typing import Optional
-import uuid
 
 from dash import dcc
 import numpy as np
@@ -11,16 +9,13 @@ from plotly.subplots import make_subplots
 
 class QuoteGraphAIO(dcc.Graph):
   @staticmethod
-  def id(aio_id):
-    return {"component": "QuoteGraphAIO", "aio_id": aio_id}
+  def aio_id(id: str):
+    return {"component": "QuoteGraphAIO", "aio_id": id}
 
-  def __init__(self, aio_id: str | None = None, graph_props: dict | None = None):
-    if aio_id is None:
-      aio_id = str(uuid.uuid4())
-
+  def __init__(self, id: str, graph_props: dict | None = None):
     graph_props = graph_props.copy() if graph_props else {}
 
-    super().__init__(id=self.__class__.id(aio_id), **graph_props)
+    super().__init__(id=self.__class__.aio_id(id), **graph_props)
 
 
 def quote_rangeselector(
@@ -70,7 +65,7 @@ def quote_line(data: dict) -> go.Scatter:
 def quote_graph(
   data: dict[str, list[str | float | int]],
   plot="line",
-  rangeselector: Optional[tuple[str, ...]] = None,
+  rangeselector: tuple[str, ...] | None = None,
   rangeslider=False,
 ) -> go.Figure:
   xaxis = dict(type="date", rangeslider=dict(visible=False))
@@ -94,7 +89,7 @@ def quote_graph(
 def quote_volume_graph(
   data: dict[str, list[str | float | int]],
   plot="line",
-  rangeselector: Optional[tuple[str, ...]] = None,
+  rangeselector: tuple[str, ...] | None = None,
   rangeslider=False,
 ) -> go.Figure:
   if "volume" not in data.keys():

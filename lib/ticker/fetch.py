@@ -1,11 +1,10 @@
 import logging
-from functools import lru_cache
 from typing import cast
 
 from pandera import DataFrameModel
 from pandera.typing import DataFrame
 
-from lib.db.lite import get_tables, fetch_sqlite, read_sqlite
+from lib.db.lite import fetch_sqlite, read_sqlite
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +114,7 @@ def search_stocks(search: str, limit: int = 10) -> DataFrame[TickerOptions]:
   query = """ 
     SELECT
       name || " (" || ticker || ":" || mic || ")" AS label,
-      security_id || "." || currency AS value
+      security_id || "|" || currency AS value
     FROM stock
     WHERE label LIKE :search
     LIMIT :limit
@@ -123,9 +122,3 @@ def search_stocks(search: str, limit: int = 10) -> DataFrame[TickerOptions]:
 
   df = read_sqlite("ticker.db", query, {"search": f"%{search}%", "limit": str(limit)})
   return cast(DataFrame[TickerOptions], df)
-
-
-@lru_cache
-def get_stored_fundamentals() -> tuple[str, ...]:
-  stored_tickers = get_tables("fundamentals.db")
-  return tuple([t.split("_")[0] for t in stored_tickers])

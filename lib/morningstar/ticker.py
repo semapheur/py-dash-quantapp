@@ -3,7 +3,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import date as Date, datetime as dt
 import re
-from typing import cast, Literal, Optional
+from typing import cast, Literal
 
 import httpx
 import numpy as np
@@ -14,7 +14,7 @@ from parsel import Selector
 from lib.const import HEADERS
 from lib.utils import replace_all
 from lib.fin.models import Quote
-from lib.morningstar.models import Ohlcv, Close, Document, StockDocuments
+from lib.morningstar.models import Ohlcv, Close, Document, EquityDocuments
 from lib.morningstar.fetch import fetch_currency
 
 
@@ -23,20 +23,18 @@ SCREENER_API = (
 )
 #'https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security/screener'
 
-FACTOR = {"tusener": 1e3, "millioner": 1e6, "milliarder": 1e9}
-
 
 @dataclass(slots=True)
 class Security:
   id: str
-  currency: Optional[str] = None
+  currency: str | None = None
 
 
 class Stock(Security):
   async def ohlcv(
     self,
     start_date: Date | dt = Date(1950, 1, 1),
-    end_date: Optional[Date | dt] = None,
+    end_date: Date | dt | None = None,
   ) -> DataFrame[Quote]:
     params = {
       "id": f"{self.id}]3]0]",
@@ -82,6 +80,8 @@ class Stock(Security):
 
   def financials(self) -> pd.DataFrame | None:
     def parse_sheet(sheet: Literal["is", "bs", "cf"]):
+      FACTOR = {"tusener": 1e3, "millioner": 1e6, "milliarder": 1e9}
+
       params = {
         "tab": "10",
         "vw": sheet,
@@ -147,8 +147,12 @@ class Stock(Security):
     financials = pd.concat(sheets)
     return financials
 
-  def documents(self) -> DataFrame[StockDocuments]:
-    replacements = {"http:": "https:", "amp;": "", "?": "/?"}
+  def documents(self) -> DataFrame[EquityDocuments]:
+    document_types = {
+      201: "Quarterly Report",
+      202: "Annual Report",
+      211: "Financial Result",
+    }
 
     p = 0
     params = {
@@ -166,25 +170,22 @@ class Stock(Security):
     while True:
       with httpx.Client() as client:
         response = client.get(url, headers=HEADERS, params=params)
-        soup = Selector(response.text)
+        dom = Selector(response.text)
 
-      docs = soup.xpath("//document")
-      if not docs:
+      documents = dom.xpath("//document")
+      if not documents:
         break
 
-      for d in docs:
-        attr = d.xpath("attributes/text()").get()
-        rep_type = "N/A" if attr is None else attr.strip()
+      for document in documents:
+        doc_type_id = int(cast(str, document.xpath("documenttype/text()").get()))
 
         scrap.append(
           Document(
-            date=cast(str, d.xpath("effectivedate/text()").get()),
-            doc_type=rep_type,
-            language=cast(str, d.xpath("languageid/text()").get()).strip(),
-            doc_format=cast(str, d.xpath("format/text()").get()),
-            url=replace_all(
-              cast(str, d.xpath("downloadurl/text()").get()), replacements
-            ),
+            date=cast(str, document.xpath("effectivedate/text()").get()),
+            doc_id=cast(str, document.xpath("encodeddocumentid/text()").get()),
+            doc_type=document_types[doc_type_id],
+            language=cast(str, document.xpath("languageid/language/text()").get()),
+            doc_format=cast(str, document.xpath("format/text()").get()),
           )
         )
 
@@ -194,12 +195,12 @@ class Stock(Security):
     df = pd.DataFrame.from_records(scrap)
     df.drop_duplicates(ignore_index=True, inplace=True)
 
-    return cast(DataFrame[StockDocuments], df)
+    return cast(DataFrame[EquityDocuments], df)
 
 
 class Fund(Security):
   def price(
-    self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
+    self, start_date: Date | dt = Date(1970, 1, 1), end_date: Date | dt | None = None
   ) -> DataFrame[Quote]:
     params = {
       "id": f"{self.id}]2]1]",
@@ -342,7 +343,7 @@ class Fund(Security):
 
 class Etf(Security):
   def price(
-    self, start_date: Date | dt = Date(1970, 1, 1), end_date: Optional[Date | dt] = None
+    self, start_date: Date | dt = Date(1970, 1, 1), end_date: Date | dt | None = None
   ) -> DataFrame[Quote]:
     params = {
       "id": f"{self.id}]22]1]",
@@ -376,8 +377,8 @@ class Etf(Security):
 async def batch_ohlcv(
   ids: list[str],
   start_date: Date | dt = Date(1950, 1, 1),
-  end_date: Optional[Date | dt] = None,
-  currencies: Optional[str | list[str]] = None,
+  end_date: Date | dt | None = None,
+  currencies: str | list[str] | None = None,
 ) -> DataFrame:
   if isinstance(currencies, str):
     currencies = [currencies] * len(ids)

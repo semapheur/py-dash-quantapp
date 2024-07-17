@@ -6,7 +6,7 @@ from pandas import MultiIndex, DatetimeIndex
 from lib.ticker.fetch import search_companies, company_currency
 from lib.fin.fundamentals import load_fundamentals
 
-# from components.input import InputAIO
+from components.input import InputAIO
 
 link_style = "block text-text hover:text-secondary"
 nav_style = (
@@ -30,23 +30,7 @@ def TickerSearch():
   return html.Div(
     className="relative h-full",
     children=[
-      # InputAIO("ticker-search", "20vw", {"placeholder": "Ticker", "type": "text"}),
-      html.Form(
-        className="peer relative",
-        children=[
-          dcc.Input(
-            id="input:ticker-search",
-            className=input_style,
-            placeholder="Ticker",
-            type="text",
-          ),
-          html.Label(
-            htmlFor="input:ticker-search",
-            className=label_style,
-            children=["Ticker"],
-          ),
-        ],
-      ),
+      InputAIO("ticker-search", "20vw", {"placeholder": "Ticker", "type": "text"}),
       html.Nav(id="nav:ticker-search", className=nav_style),
       dcc.Store(id="store:ticker-search:financials"),
       dcc.Store(id="store:ticker-search:id", data={}),
@@ -56,7 +40,7 @@ def TickerSearch():
 
 @callback(
   Output("nav:ticker-search", "children"),
-  Input("input:ticker-search", "value"),
+  Input(InputAIO.aio_id("ticker-search"), "value"),
 )
 def ticker_results(search: str) -> list[dict[str, str]]:
   if search is None or len(search) < 2:

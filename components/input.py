@@ -1,6 +1,3 @@
-from typing import Optional
-import uuid
-
 from dash import dcc, html
 
 input_style = (
@@ -18,19 +15,16 @@ label_style = (
 
 class InputAIO(html.Form):
   @staticmethod
-  def id(aio_id: str):
-    return {"component": "input-aio", "aio_id": aio_id}
+  def aio_id(id: str):
+    return {"component": "input-aio", "aio_id": id}
 
   def __init__(
     self,
-    aio_id: Optional[str] = None,
-    width: Optional[str] = None,
-    input_props: Optional[dict] = None,
+    id: str,
+    width: str | None = None,
+    input_props: dict | None = None,
   ):
-    if aio_id is None:
-      aio_id = str(uuid.uuid4())
-
-    input_props = input_props.copy() if input_props else {}
+    input_props = input_props.copy() if input_props is not None else {}
 
     input_props.setdefault("className", input_style)
     input_props.setdefault("placeholder", "")
@@ -42,9 +36,9 @@ class InputAIO(html.Form):
       className="peer relative",
       style=form_style,
       children=[
-        dcc.Input(id=self.__class__.id(aio_id), **input_props),
+        dcc.Input(id=self.__class__.aio_id(id), **input_props),
         html.Label(
-          htmlFor=str(self.__class__.id(aio_id)),
+          htmlFor=str(self.__class__.aio_id(id)),
           className=label_style,
           children=[input_props["placeholder"]],
         ),

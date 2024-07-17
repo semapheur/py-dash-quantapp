@@ -41,7 +41,7 @@ layout = html.Main(
     html.Form(
       className=form_style,
       children=[
-        TickerSelectAIO(aio_id="stats"),
+        TickerSelectAIO(id="stats"),
         dcc.Input(
           id="input:stats:diff-order",
           type="number",
@@ -200,7 +200,7 @@ layout = html.Main(
 
 @callback(
   Output("store:stats:price", "data"),
-  Input(TickerSelectAIO.id("stats"), "value"),
+  Input(TickerSelectAIO.aio_id("stats"), "value"),
 )
 async def update_store(query: str):
   if not query:

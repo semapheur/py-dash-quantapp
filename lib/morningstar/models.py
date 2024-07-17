@@ -3,7 +3,7 @@ from pandera import DataFrameModel
 
 
 class Close(TypedDict):
-  date: Annotated[int, 'unix in milliseconds']
+  date: Annotated[int, "unix in milliseconds"]
   close: float | int
 
 
@@ -16,15 +16,15 @@ class Ohlcv(Close):
 
 class Document(TypedDict):
   date: str
+  doc_id: str
   doc_type: str
   language: str
   doc_format: str
-  url: str
 
 
-class StockDocuments(DataFrameModel):
+class EquityDocuments(DataFrameModel):
   date: str
+  doc_id: str
   doc_type: str
   language: str
   doc_format: str
-  url: str
