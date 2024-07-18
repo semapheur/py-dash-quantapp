@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+from typing import Literal
 from dateutil.relativedelta import relativedelta
 import io
 import re
@@ -21,6 +22,7 @@ import httpx
 from img2table.document import PDF
 from img2table.ocr import TesseractOCR
 import pandas as pd
+import pdfplumber
 
 from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
@@ -38,25 +40,26 @@ from lib.fin.models import (
 )
 from lib.fin.statement import upsert_statements
 from lib.morningstar.ticker import Stock
-from lib.utils import download_file
+from lib.utils import download_file, split_multiline
 
 register_page(__name__, path="/scrap")
-
-
-def get_doc_id(url: str) -> str:
-  pattern = r"(?<=/)[a-z0-9]+(?=\.msdoc)"
-  match = re.search(pattern, url)
-
-  if not match:
-    return ""
-
-  return match.group()
-
 
 main_style = "grid grid-cols-[1fr_2fr_2fr] h-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
 button_style = "px-2 rounded bg-secondary/50 text-text"
 group_button_style = "px-2 rounded-r bg-secondary/50 text-text"
+radio_style = (
+  "relative flex gap-4 px-2 py-1 border border-text/50 rounded "
+  "before:absolute before:left-1 before:top-0 before:-translate-y-1/2 "
+  "before:content-['Extract_method'] before:px-1 before:bg-primary before:text-xs"
+)
+
+text_options_style = (
+  "relative grid grid-cols-2 gap-x-1 border border-text/50 rounded px-1 pt-4 pb-1 "
+  "before:absolute before:left-1 before:top-0 before:-translate-y-1/2 "
+  "before:bg-primary before:px-1 before:text-text/50 before:text-xs"
+)
+
 layout = html.Main(
   className=main_style,
   children=[
@@ -84,26 +87,28 @@ layout = html.Main(
             ),
           ],
         ),
-        dcc.Checklist(
-          id="checklist:scrap:options",
-          className="flex gap-4",
-          labelClassName="gap-1 text-text",
-          labelStyle={"display": "flex"},
-          options=[
-            {"label": "Borderless", "value": "borderless"},
-            {"label": "Implicit rows", "value": "implicit"},
+        html.Form(
+          className="flex gap-1",
+          children=[
+            dcc.RadioItems(
+              id="radioitems:scrap:extract-method",
+              className=radio_style,
+              labelClassName="gap-1 text-text",
+              labelStyle={"display": "flex"},
+              options=[
+                {"label": "Text", "value": "text"},
+                {"label": "Image", "value": "image"},
+              ],
+              value="text",
+            ),
+            html.Button(
+              "Options",
+              id=OpenCloseModalAIO.open_id("scrap:text-options"),
+              className=button_style,
+              type="button",
+              n_clicks=0,
+            ),
           ],
-          value=[],
-        ),
-        InputAIO(
-          "scrap:factor",
-          "100%",
-          {"value": 1e6, "placeholder": "Factor", "type": "number"},
-        ),
-        InputAIO(
-          "scrap:currency",
-          "100%",
-          {"value": "NOK", "placeholder": "Currency", "type": "text"},
         ),
         html.Button(
           "Delete rows",
@@ -126,25 +131,52 @@ layout = html.Main(
           type="button",
           n_clicks=0,
         ),
-        InputAIO("scrap:id", "100%", {"type": "text", "placeholder": "Company ID"}),
-        InputAIO("scrap:date", "100%", {"type": "text", "placeholder": "Date"}),
-        InputAIO(
-          "scrap:fiscal-end",
-          "100%",
-          {"type": "text", "placeholder": "Fiscal end", "value": "12-31"},
-        ),
-        dcc.Dropdown(
-          id="dropdown:scrap:scope",
-          placeholder="Scope",
-          options=[
-            {"label": "Annual", "value": "annual"},
-            {"label": "Quarterly", "value": "quarterly"},
+        html.Form(
+          className="grid grid-cols-2 gap-x-1 gap-y-2",
+          children=[
+            InputAIO(
+              "scrap:id",
+              "100%",
+              {"className": "col-span-2"},
+              {"type": "text", "placeholder": "Company ID"},
+            ),
+            InputAIO(
+              "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
+            ),
+            InputAIO(
+              "scrap:fiscal-end",
+              "100%",
+              input_props={
+                "type": "text",
+                "placeholder": "Fiscal end",
+                "value": "12-31",
+              },
+            ),
+            dcc.Dropdown(
+              id="dropdown:scrap:scope",
+              className="outline-none",
+              placeholder="Scope",
+              options=[
+                {"label": "Annual", "value": "annual"},
+                {"label": "Quarterly", "value": "quarterly"},
+              ],
+            ),
+            dcc.Dropdown(
+              id="dropdown:scrap:period",
+              placeholder="Period",
+              options=["FY", "Q1", "Q2", "Q3", "Q4"],
+            ),
+            InputAIO(
+              "scrap:factor",
+              "100%",
+              input_props={"value": 1e6, "placeholder": "Factor", "type": "number"},
+            ),
+            InputAIO(
+              "scrap:currency",
+              "100%",
+              input_props={"value": "NOK", "placeholder": "Currency", "type": "text"},
+            ),
           ],
-        ),
-        dcc.Dropdown(
-          id="dropdown:scrap:period",
-          placeholder="Period",
-          options=["FY", "Q1", "Q2", "Q3", "Q4"],
         ),
       ],
     ),
@@ -165,6 +197,117 @@ layout = html.Main(
       defaultColDef={"editable": True},
       dashGridOptions={"undoRedoCellEditing": True, "undoRedoCellEditingLimit": 10},
       style={"height": "100%"},
+    ),
+    OpenCloseModalAIO(
+      "scrap:text-options",
+      "Table extract options",
+      children=[
+        html.Div(
+          className="grid grid-cols-2 gap-2 py-2",
+          children=[
+            html.Form(
+              className=text_options_style + " before:content-['Strategy']",
+              children=[
+                dcc.Dropdown(
+                  id="dropdown:scrap:text-options:vertical-strategy",
+                  placeholder="Vertical",
+                  options=["lines", "lines_strict", "text"],
+                  value="lines",
+                ),
+                dcc.Dropdown(
+                  id="dropdown:scrap:text-options:horizontal-strategy",
+                  placeholder="Horizontal",
+                  options=["lines", "lines_strict", "text"],
+                  value="lines",
+                ),
+              ],
+            ),
+            html.Form(
+              className=text_options_style + " before:content-['Minimum_words']",
+              children=[
+                InputAIO(
+                  "scrap:text-options:min-words-vertical",
+                  "100%",
+                  input_props={"placeholder": "Vertical", "type": "number", "value": 3},
+                ),
+                InputAIO(
+                  "scrap:text-options:min-words-horizontal",
+                  "100%",
+                  input_props={
+                    "placeholder": "Horizontal",
+                    "type": "number",
+                    "value": 1,
+                  },
+                ),
+              ],
+            ),
+            html.Form(
+              className=text_options_style + " before:content-['Snap_tolerance']",
+              children=[
+                InputAIO(
+                  "scrap:text-options:snap-x-tolerance",
+                  "100%",
+                  input_props={"placeholder": "x", "type": "number", "value": 3},
+                ),
+                InputAIO(
+                  "scrap:text-options:snap-y-tolerance",
+                  "100%",
+                  input_props={"placeholder": "y", "type": "number", "value": 3},
+                ),
+              ],
+            ),
+            html.Form(
+              className=text_options_style + " before:content-['Join_tolerance']",
+              children=[
+                InputAIO(
+                  "scrap:text-options:join-x-tolerance",
+                  "100%",
+                  input_props={"placeholder": "x", "type": "number", "value": 3},
+                ),
+                InputAIO(
+                  "scrap:text-options:join-y-tolerance",
+                  "100%",
+                  input_props={"placeholder": "y", "type": "number", "value": 3},
+                ),
+              ],
+            ),
+            html.Form(
+              className=text_options_style
+              + " before:content-['Intersection_tolerance']",
+              children=[
+                InputAIO(
+                  "scrap:text-options:intersection-x-tolerance",
+                  "100%",
+                  input_props={"placeholder": "x", "type": "number", "value": 3},
+                ),
+                InputAIO(
+                  "scrap:text-options:intersection-y-tolerance",
+                  "100%",
+                  input_props={"placeholder": "y", "type": "number", "value": 3},
+                ),
+              ],
+            ),
+            html.Form(
+              className=text_options_style + " before:content-['Text_tolerance']",
+              children=[
+                InputAIO(
+                  "scrap:text-options:text-x-tolerance",
+                  "100%",
+                  input_props={"placeholder": "x", "type": "number", "value": 3},
+                ),
+                InputAIO(
+                  "scrap:text-options:text-y-tolerance",
+                  "100%",
+                  input_props={"placeholder": "y", "type": "number", "value": 3},
+                ),
+              ],
+            ),
+            # html.Button(
+            #  "Update", id="button:scrap:text-options:update", className=button_style
+            # ),
+          ],
+        )
+      ],
     ),
     OpenCloseModalAIO(
       "scrap:headers",
@@ -239,9 +382,21 @@ def update_object(doc_id: str):
   Input("button:scrap:extract", "n_clicks"),
   State("dropdown:scrap:document", "value"),
   State("input:scrap:pages", "value"),
-  State("checklist:scrap:options", "value"),
+  State("radioitems:scrap:extract-method", "value"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
+  State("dropdown:scrap:text-options:vertical-strategy", "value"),
+  State("dropdown:scrap:text-options:horizontal-strategy", "value"),
+  State("scrap:text-options:min-words-vertical", "value"),
+  State("scrap:text-options:min-words-horizontal", "value"),
+  State("scrap:text-options:snap-x-tolerance", "value"),
+  State("scrap:text-options:snap-y-tolerance", "value"),
+  State("scrap:text-options:join-x-tolerance", "value"),
+  State("scrap:text-options:join-y-tolerance", "value"),
+  State("scrap:text-options:intersection-x-tolerance", "value"),
+  State("scrap:text-options:intersection-y-tolerance", "value"),
+  State("scrap:text-options:text-x-tolerance", "value"),
+  State("scrap:text-options:text-y-tolerance", "value"),
   prevent_initial_call=True,
   background=True,
 )
@@ -249,14 +404,26 @@ def update_table(
   n_clicks: int,
   doc_id: str,
   pages_text: str,
-  options: list[str],
+  method: Literal["text", "image"],
   factor: int,
   currency: str,
+  vertical_strategy: Literal["lines", "lines_strict", "text"],
+  horizontal_strategy: Literal["lines", "lines_strict", "text"],
+  min_words_vertical: float,
+  min_words_horizontal: float,
+  snap_x_tolerance: float,
+  snap_y_tolerance: float,
+  join_x_tolerance: float,
+  join_y_tolerance: float,
+  intersection_x_tolerance: float,
+  intersection_y_tolerance: float,
+  text_x_tolerance: float,
+  text_y_tolerance: float,
 ):
   if not (n_clicks and doc_id and pages_text):
     return no_update
 
-  pdf_path = Path(f"temp/{doc_id}.pdf")
+  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
   pdf_src = io.BytesIO()
   if pdf_path.exists():
     with open(pdf_path, "rb") as pdf_file:
@@ -267,21 +434,47 @@ def update_table(
     pdf_src.write(response.content)
 
   pages = [int(p) - 1 for p in pages_text.split(",")]
-  pdf = PDF(src=pdf_src, pages=pages)
 
-  ocr = TesseractOCR(lang="eng")
+  if method == "text":
+    settings = {
+      "vertical_strategy": vertical_strategy or "lines",
+      "horizontal_strategy": horizontal_strategy or "lines",
+      "snap_x_tolerance": snap_x_tolerance or 3,
+      "snap_y_tolerance": snap_y_tolerance or 3,
+      "join_x_tolerance": join_x_tolerance or 3,
+      "join_y_tolerance": join_y_tolerance or 3,
+      "min_words_vertical": min_words_vertical or 3,
+      "min_words_horizontal": min_words_horizontal or 1,
+      "intersection_x_tolerance": intersection_x_tolerance or 3,
+      "intersection_y_tolerance": intersection_y_tolerance or 3,
+      "text_x_tolerance": text_x_tolerance or 3,
+      "text_y_tolerance": text_y_tolerance or 3,
+    }
 
-  tables = pdf.extract_tables(
-    ocr=ocr,
-    borderless_tables=True if "borderless" in options else False,
-    implicit_rows=True if "implicit" in options else False,
-  )
+    with pdfplumber.open(pdf_path) as pdf_file:
+      table = pdf_file.pages[104].extract_table(table_settings=settings)
 
-  # TODO: merge tables
-  if len(tables[pages[0]]) == 0:
-    return None, None, True
+    df = pd.DataFrame(table)
+    result = df.apply(split_multiline, axis=1)
+    result = pd.concat(result.tolist(), ignore_index=True)
 
-  df = tables[pages[0]][0].df
+  elif method == "image":
+    pdf = PDF(src=pdf_src, pages=pages)
+
+    ocr = TesseractOCR(lang="eng")
+
+    tables = pdf.extract_tables(
+      ocr=ocr,
+      # borderless_tables=True if "borderless" in options else False,
+      # implicit_rows=True if "implicit" in options else False,
+    )
+
+    # TODO: merge tables
+    if len(tables[pages[0]]) == 0:
+      return None, None, True
+
+    df = tables[pages[0]][0].df
+
   df["period"] = "instant"
   df["factor"] = factor
   df["unit"] = currency

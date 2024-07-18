@@ -30,7 +30,9 @@ def TickerSearch():
   return html.Div(
     className="relative h-full",
     children=[
-      InputAIO("ticker-search", "20vw", {"placeholder": "Ticker", "type": "text"}),
+      InputAIO(
+        "ticker-search", "20vw", input_props={"placeholder": "Ticker", "type": "text"}
+      ),
       html.Nav(id="nav:ticker-search", className=nav_style),
       dcc.Store(id="store:ticker-search:financials"),
       dcc.Store(id="store:ticker-search:id", data={}),

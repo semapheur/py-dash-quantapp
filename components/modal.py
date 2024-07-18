@@ -45,7 +45,7 @@ class CloseModalAIO(html.Dialog):
       **dialog_props,
       children=[
         html.Div(
-          className="flex flex-col h-full px-2 pb-2",
+          className="flex flex-col h-full px-2 pb-2 bg-primary",
           children=[
             html.Header(
               className="grid grid-cols-[1fr_auto] gap-4",

@@ -114,7 +114,7 @@ input.DateInput_input {
 }
 
 /* Dropdown */
-div.drop-up > div.Select-menu-outer {
+.drop-up > .Select-menu-outer {
   top: 0;
    -webkit-transform: translateY(3px) translateY(-100%);
    transform: translateY(3px) translateY(-100%);
@@ -126,11 +126,23 @@ div.drop-up > div.Select-menu-outer {
    border-bottom: none;
 } 
 
-/*Tab*/
-div.tab-parent[class^=jsx-] {
+.Select.is-focused:not(.is-open) > .Select-control {
+  border-color: rgb(var(--color-secondary)) !important;
+  box-shadow: none !important;
+}
+
+.Select-control {
+  background-color: rgb(var(--color-primary)) !important;
+}
+
+.Select-value-label {
+  color: rgb(var(--color-text)) !important;
+}
+
+/*Tab*/tab-parent[class^=jsx-] {
   position: relative;
 }
-div.tab-container[class^=jsx-].inset-row {
+.tab-container[class^=jsx-].inset-row {
   position: absolute;
   top: 0;
   left: 0.5rem;
@@ -138,32 +150,32 @@ div.tab-container[class^=jsx-].inset-row {
   width: max-content;
   z-index: 1;
 }
-div.tab[class^=jsx-] {
+.tab[class^=jsx-] {
   min-width: min-content;
   padding: 0.25rem;
 }
-div.tab[class^=jsx-].inset-row {
+.tab[class^=jsx-].inset-row {
   border: none;
   border-bottom-left-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   font-size: 0.75rem;
 }
-div.tab--selected[class^=jsx-] {
+.tab--selected[class^=jsx-] {
   border-top: 2px solid rgb(var(--color-secondary));
 }
-div.tab--selected[class^=jsx-].inset-row, div.tab--selected[class^=jsx-].inset-row:last-of-type {
+.tab--selected[class^=jsx-].inset-row, .tab--selected[class^=jsx-].inset-row:last-of-type {
   border-top: 2px solid rgb(var(--color-secondary));
 }
 /* Dash Datatable */
-div.dash-table-container,
-div.dash-spreadsheet-inner {
+.dash-table-container,
+.dash-spreadsheet-inner {
   height: 100%;
   width: 100%;
 }
 
-div.dash-spreadsheet.dash-freeze-top, 
-div.dash-spreadsheet.dash-freeze-left {
+.dash-spreadsheet.dash-freeze-top, 
+.dash-spreadsheet.dash-freeze-left {
   height: 100%;
   width: 100%;
   max-height: 100%;
