@@ -10,10 +10,6 @@ from dash import (
   MATCH,
 )
 
-dialog_style = (
-  "m-auto max-h-[75%] max-w-[75%] rounded-md shadow-md dark:shadow-black/50"
-)
-
 
 class CloseModalAIO(html.Dialog):
   modal_type: Literal["close", "open-close"] = "close"
@@ -37,8 +33,15 @@ class CloseModalAIO(html.Dialog):
     children: list = [],
     dialog_props: dict | None = None,
   ):
+    dialog_class = "m-auto rounded-md shadow-md dark:shadow-black/50"
+    dialog_style = {
+      "maxHeight": "75%",
+      "maxWidth": "75%",
+    }
+
     dialog_props = dialog_props.copy() if dialog_props else {}
-    dialog_props.setdefault("className", dialog_style)
+    dialog_props.setdefault("className", dialog_class)
+    dialog_props.setdefault("style", dialog_style)
 
     super().__init__(
       id=self.__class__.dialog_id(aio_id),

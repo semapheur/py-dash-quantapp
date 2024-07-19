@@ -20,10 +20,12 @@ from dash import (
   Patch,
 )
 import dash_ag_grid as dag
+from dash_resizable_panels import PanelGroup, Panel, PanelResizeHandle
 import plotly.graph_objects as go
 import httpx
 from img2table.document import PDF
 from img2table.ocr import TesseractOCR
+import numpy as np
 import pandas as pd
 import pdfplumber
 
@@ -48,7 +50,7 @@ from lib.utils import download_file, split_multiline
 register_page(__name__, path="/scrap")
 
 main_style = (
-  "relative grid grid-cols-[minmax(min-content,20vw)_1fr_1fr] h-full bg-primary"
+  "relative h-full bg-primary"  # grid grid-cols-[minmax(min-content,20vw)_1fr_1fr]
 )
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
 button_style = "px-2 rounded bg-secondary/50 text-text"
@@ -65,10 +67,149 @@ text_options_style = (
   "before:bg-primary before:px-1 before:text-text/50 before:text-xs"
 )
 
+resize_handle_style = "h-full w-0.5 bg-text/50 hover:bg-secondary hover:w-1"
+
+scrap_options_sidebar = html.Aside(
+  className="relative flex flex-col grow gap-2 p-2",
+  children=[
+    TickerSelectAIO(id="scrap"),
+    dcc.Dropdown(id="dropdown:scrap:document", placeholder="Document"),
+    html.Form(
+      className="flex",
+      action="",
+      children=[
+        dcc.Input(
+          id="input:scrap:pages",
+          className=input_style,
+          placeholder="Pages",
+          type="text",
+        ),
+        html.Button(
+          "Extract",
+          id="button:scrap:extract",
+          className=group_button_style,
+          type="button",
+          n_clicks=0,
+        ),
+      ],
+    ),
+    html.Form(
+      className="flex gap-1",
+      children=[
+        dcc.RadioItems(
+          id="radioitems:scrap:extract-method",
+          className=radio_style,
+          labelClassName="gap-1 text-text",
+          labelStyle={"display": "flex"},
+          options=[
+            {"label": "Text", "value": "text"},
+            {"label": "Image", "value": "image"},
+          ],
+          value="text",
+        ),
+        html.Button(
+          "Options",
+          id="button:scrap:text-options",
+          className=button_style,
+          type="button",
+          n_clicks=0,
+        ),
+      ],
+    ),
+    html.Button(
+      "Extract words",
+      id=OpenCloseModalAIO.open_id("scrap:words"),
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Annotate page",
+      id="button:scrap:download-image",
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Delete rows",
+      id="button:scrap:delete",
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Rename headers",
+      id=OpenCloseModalAIO.open_id("scrap:headers"),
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Export to JSON",
+      id="button:scrap:export",
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Form(
+      className="grid grid-cols-2 gap-x-1 gap-y-2",
+      children=[
+        InputAIO(
+          "scrap:id",
+          "100%",
+          {"className": "col-span-2"},
+          {"type": "text", "placeholder": "Company ID"},
+        ),
+        InputAIO(
+          "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
+        ),
+        InputAIO(
+          "scrap:fiscal-end",
+          "100%",
+          input_props={
+            "type": "text",
+            "placeholder": "Fiscal end",
+            "value": "12-31",
+          },
+        ),
+        dcc.Dropdown(
+          id="dropdown:scrap:scope",
+          className="outline-none",
+          placeholder="Scope",
+          options=[
+            {"label": "Annual", "value": "annual"},
+            {"label": "Quarterly", "value": "quarterly"},
+          ],
+        ),
+        dcc.Dropdown(
+          id="dropdown:scrap:period",
+          placeholder="Period",
+          options=["FY", "Q1", "Q2", "Q3", "Q4"],
+        ),
+        InputAIO(
+          "scrap:factor",
+          "100%",
+          input_props={"value": 1e6, "placeholder": "Factor", "type": "number"},
+        ),
+        InputAIO(
+          "scrap:currency",
+          "100%",
+          input_props={"value": "NOK", "placeholder": "Currency", "type": "text"},
+        ),
+      ],
+    ),
+    dcc.Upload(
+      id="upload:scrap:image",
+      className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
+      accept="image/*",
+      children=[html.Div(["Upload image"])],
+    ),
+  ],
+)
+
 table_options_form = html.Div(
   id="div:scrap:text-options",
   className="absolute top-0 left-full w-1/5 h-full flex flex-col gap-2 py-2 bg-primary z-[999]",
-  # style={"width": 0},
   children=[
     html.H3("Table extraction options", className="text-text mb-2"),
     html.Form(
@@ -94,12 +235,24 @@ table_options_form = html.Div(
         InputAIO(
           "scrap:text-options:min-words-vertical",
           "100%",
-          input_props={"placeholder": "Vertical", "type": "number", "value": 3},
+          input_props={
+            "placeholder": "Vertical",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "value": 3,
+          },
         ),
         InputAIO(
           "scrap:text-options:min-words-horizontal",
           "100%",
-          input_props={"placeholder": "Horizontal", "type": "number", "value": 1},
+          input_props={
+            "placeholder": "Horizontal",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "value": 1,
+          },
         ),
       ],
     ),
@@ -109,12 +262,12 @@ table_options_form = html.Div(
         InputAIO(
           "scrap:text-options:snap-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "value": 3},
+          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
           "scrap:text-options:snap-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "value": 3},
+          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
@@ -124,12 +277,12 @@ table_options_form = html.Div(
         InputAIO(
           "scrap:text-options:join-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "value": 3},
+          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
           "scrap:text-options:join-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "value": 3},
+          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
@@ -139,12 +292,12 @@ table_options_form = html.Div(
         InputAIO(
           "scrap:text-options:intersection-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "value": 3},
+          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
           "scrap:text-options:intersection-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "value": 3},
+          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
@@ -154,12 +307,12 @@ table_options_form = html.Div(
         InputAIO(
           "scrap:text-options:text-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "value": 3},
+          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
           "scrap:text-options:text-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "value": 3},
+          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
@@ -169,146 +322,57 @@ table_options_form = html.Div(
 layout = html.Main(
   className=main_style,
   children=[
-    html.Aside(
-      className="relative flex flex-col grow gap-2 p-2 z-[1]",
+    PanelGroup(
+      id="panelgroup:scrap",
+      direction="horizontal",
+      className="size-full",
       children=[
-        TickerSelectAIO(id="scrap"),
-        dcc.Dropdown(id="dropdown:scrap:document", placeholder="Document"),
-        html.Form(
-          className="flex",
-          action="",
-          children=[
-            dcc.Input(
-              id="input:scrap:pages",
-              className=input_style,
-              placeholder="Pages",
-              type="text",
-            ),
-            html.Button(
-              "Extract",
-              id="button:scrap:extract",
-              className=group_button_style,
-              type="button",
-              n_clicks=0,
-            ),
-          ],
+        Panel(
+          id="panel:scrap:controls",
+          defaultSizePercentage=20,
+          minSizePixels=5,
+          children=[scrap_options_sidebar],
         ),
-        html.Form(
-          className="flex gap-1",
+        PanelResizeHandle(html.Div(className=resize_handle_style)),
+        Panel(
+          id="panel:scrap:pdf",
+          defaultSizePercentage=40,
+          minSizePixels=5,
           children=[
-            dcc.RadioItems(
-              id="radioitems:scrap:extract-method",
-              className=radio_style,
-              labelClassName="gap-1 text-text",
-              labelStyle={"display": "flex"},
-              options=[
-                {"label": "Text", "value": "text"},
-                {"label": "Image", "value": "image"},
+            dcc.Loading(
+              parent_className="size-full",
+              children=[
+                html.ObjectEl(
+                  id="object:scrap:pdf",
+                  type="application/pdf",
+                  width="100%",
+                  height="100%",
+                )
               ],
-              value="text",
-            ),
-            html.Button(
-              "Options",
-              id="button:scrap:text-options",
-              className=button_style,
-              type="button",
-              n_clicks=0,
+              target_components={"object:scrap:pdf": "data"},
             ),
           ],
         ),
-        html.Button(
-          "Annotate page",
-          id="button:scrap:download-image",
-          className=button_style,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Button(
-          "Delete rows",
-          id="button:scrap:delete",
-          className=button_style,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Button(
-          "Rename headers",
-          id=OpenCloseModalAIO.open_id("scrap:headers"),
-          className=button_style,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Button(
-          "Export to JSON",
-          id="button:scrap:export",
-          className=button_style,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Form(
-          className="grid grid-cols-2 gap-x-1 gap-y-2",
+        PanelResizeHandle(html.Div(className=resize_handle_style)),
+        Panel(
+          id="panel:scrap:table",
+          defaultSizePercentage=40,
+          minSizePixels=5,
           children=[
-            InputAIO(
-              "scrap:id",
-              "100%",
-              {"className": "col-span-2"},
-              {"type": "text", "placeholder": "Company ID"},
-            ),
-            InputAIO(
-              "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
-            ),
-            InputAIO(
-              "scrap:fiscal-end",
-              "100%",
-              input_props={
-                "type": "text",
-                "placeholder": "Fiscal end",
-                "value": "12-31",
+            dag.AgGrid(
+              id="table:scrap",
+              getRowId="params.data.company",
+              columnSize="autoSize",
+              defaultColDef={"editable": True},
+              dashGridOptions={
+                "undoRedoCellEditing": True,
+                "undoRedoCellEditingLimit": 10,
               },
-            ),
-            dcc.Dropdown(
-              id="dropdown:scrap:scope",
-              className="outline-none",
-              placeholder="Scope",
-              options=[
-                {"label": "Annual", "value": "annual"},
-                {"label": "Quarterly", "value": "quarterly"},
-              ],
-            ),
-            dcc.Dropdown(
-              id="dropdown:scrap:period",
-              placeholder="Period",
-              options=["FY", "Q1", "Q2", "Q3", "Q4"],
-            ),
-            InputAIO(
-              "scrap:factor",
-              "100%",
-              input_props={"value": 1e6, "placeholder": "Factor", "type": "number"},
-            ),
-            InputAIO(
-              "scrap:currency",
-              "100%",
-              input_props={"value": "NOK", "placeholder": "Currency", "type": "text"},
-            ),
+              style={"height": "100%"},
+            )
           ],
         ),
       ],
-    ),
-    dcc.Loading(
-      parent_className="size-full",
-      children=[
-        html.ObjectEl(
-          id="object:scrap:pdf", type="application/pdf", width="100%", height="100%"
-        )
-      ],
-      target_components={"object:scrap:pdf": "data"},
-    ),
-    dag.AgGrid(
-      id="table:scrap",
-      getRowId="params.data.company",
-      columnSize="autoSize",
-      defaultColDef={"editable": True},
-      dashGridOptions={"undoRedoCellEditing": True, "undoRedoCellEditingLimit": 10},
-      style={"height": "100%"},
     ),
     table_options_form,
     OpenCloseModalAIO(
@@ -326,11 +390,51 @@ layout = html.Main(
         )
       ],
     ),
+    OpenCloseModalAIO(
+      "scrap:words",
+      "PDF words",
+      children=[
+        html.Div(
+          className="size-full grid grid-cols-2",
+          children=[
+            dcc.Loading(
+              parent_className="size-full",
+              children=[
+                dcc.Graph(
+                  id="graph:scrap:words",
+                  className="size-full",
+                  config={"scrollZoom": True},
+                ),
+              ],
+              target_components={"graph:scrap:words": "figure"},
+            ),
+            dag.AgGrid(
+              id="table:scrap:words",
+              getRowId="params.data.company",
+              columnSize="autoSize",
+              defaultColDef={"editable": True},
+              dashGridOptions={
+                "undoRedoCellEditing": True,
+                "undoRedoCellEditingLimit": 10,
+              },
+              style={"height": "100%"},
+            ),
+          ],
+        )
+      ],
+      dialog_props={
+        "style": {
+          "height": "100%",
+          "width": "100%",
+        },
+      },
+    ),
     dcc.Download(id="download:scrap:image"),
     dcc.ConfirmDialog(
       id="notification:scrap:table-error",
       message="Unable to parse table",
     ),
+    dcc.Store(id="store:scrap:pixel-scale", data={}),
   ],
 )
 
@@ -395,6 +499,120 @@ def open_table_settings(n_clicks: int, className: str):
 
 
 @callback(
+  Output("graph:scrap:words", "figure", allow_duplicate=True),
+  Output("table:scrap:words", "columnDefs"),
+  Output("table:scrap:words", "rowData"),
+  Output("store:scrap:pixel-scale", "data"),
+  Input(OpenCloseModalAIO.open_id("scrap:words"), "n_clicks"),
+  State("dropdown:scrap:document", "value"),
+  State("input:scrap:pages", "value"),
+  prevent_initial_call=True,
+  background=True,
+)
+def extract_words(n_clicks: int, doc_id: str, pages_text: str):
+  if not (n_clicks and doc_id and pages_text):
+    return no_update
+
+  def create_hover_template(pdf_width, pdf_height, img_width, img_height):
+    # Create arrays for x and y coordinates
+    x = np.linspace(0, pdf_width, img_width)
+    y = np.linspace(pdf_height, 0, img_height)  # Reverse y-axis for PDF coordinates
+
+    # Create meshgrid
+    X, Y = np.meshgrid(x, y)
+
+    # Create hover template
+    hovertemplate = (
+      "<b>x:</b> %{customdata[0]:.2f}<br><b>y:</b> %{customdata[1]:.2f}<br>"
+    )
+
+    return X, Y, hovertemplate
+
+  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
+  pages = [int(p) - 1 for p in pages_text.split(",")]
+  with pdfplumber.open(pdf_path) as pdf:
+    page = pdf.pages[pages[0]]
+    words = page.extract_words()
+    img = pdf.pages[104].to_image(resolution=300, antialias=True)
+
+  df = pd.DataFrame.from_records(words)
+
+  prefix = "data:image/png;base64,"
+  with io.BytesIO() as stream:
+    img.original.save(stream, format="png")
+    base64_string = prefix + base64.b64encode(stream.getvalue()).decode("utf-8")
+
+  X, Y, hovertemplate = create_hover_template(
+    page.width, page.height, img.original.width, img.original.height
+  )
+  fig = go.Figure(
+    go.Image(
+      source=base64_string, customdata=np.dstack((X, Y)), hovertemplate=hovertemplate
+    )
+  )
+  pixel_scale = img.original.width / page.width
+
+  for x0, x1, top, bottom in zip(df["x0"], df["x1"], df["top"], df["bottom"]):
+    fig.add_shape(
+      type="rect",
+      x0=x0 * pixel_scale,
+      x1=x1 * pixel_scale,
+      y0=top * pixel_scale,
+      y1=bottom * pixel_scale,
+      xref="x",
+      yref="y",
+    )
+
+  fig.update_layout(margin=dict(b=10, t=10))
+  fig.update_xaxes(showticklabels=False).update_yaxes(showticklabels=False)
+
+  columnDefs = [
+    {
+      "field": c,
+      "cellDataType": "text" if df.dtypes.loc[c] in ("object", "bool") else "number",
+      "filter": True,
+    }
+    for c in df.columns
+  ]
+
+  return fig, columnDefs, df.to_dict("records"), {"pixel_scale": pixel_scale}
+
+
+@callback(
+  Output("graph:scrap:words", "figure"),
+  Input("table:scrap:words", "virtualRowData"),
+  State("store:scrap:pixel-scale", "data"),
+  prevent_initial_call=True,
+)
+def update_word_image(row_data: list[dict], pixel_data: dict[str, str]):
+  if not (row_data and pixel_data):
+    return no_update
+
+  fig: go.Figure = Patch()
+  pixel_scale = pixel_data["pixel_scale"]
+
+  df = pd.DataFrame.from_records(row_data)
+
+  shapes = []
+  for x0, x1, top, bottom in zip(df["x0"], df["x1"], df["top"], df["bottom"]):
+    shapes.append(
+      go.layout.Shape(
+        type="rect",
+        x0=x0 * pixel_scale,
+        x1=x1 * pixel_scale,
+        y0=top * pixel_scale,
+        y1=bottom * pixel_scale,
+        xref="x",
+        yref="y",
+      )
+    )
+
+  fig.layout.shapes = shapes
+
+  return fig
+
+
+@callback(
   Output("download:scrap:image", "data"),
   Input("button:scrap:download-image", "n_clicks"),
   State("dropdown:scrap:document", "value"),
@@ -407,16 +625,14 @@ def annotate_image(
   doc_id: str,
   pages_text: str,
 ):
-  if not n_clicks:
-    return no_update
-
   if not (n_clicks and doc_id and pages_text):
     return no_update
 
   pdf_path = Path(f"assets/docs/{doc_id}.pdf")
 
+  pages = [int(p) - 1 for p in pages_text.split(",")]
   with pdfplumber.open(pdf_path) as pdf:
-    img = pdf.pages[104].to_image(resolution=600)
+    img = pdf.pages[pages[0]].to_image(resolution=600)
 
   with io.BytesIO() as stream:
     img.original.save(stream, format="png")
