@@ -49,9 +49,7 @@ from lib.utils import download_file, split_multiline
 
 register_page(__name__, path="/scrap")
 
-main_style = (
-  "relative h-full bg-primary"  # grid grid-cols-[minmax(min-content,20vw)_1fr_1fr]
-)
+main_style = "h-full bg-primary"  # grid grid-cols-[minmax(min-content,20vw)_1fr_1fr]
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
 button_style = "px-2 rounded bg-secondary/50 text-text"
 group_button_style = "px-2 rounded-r bg-secondary/50 text-text"
@@ -61,15 +59,15 @@ radio_style = (
   "before:content-['Extract_method'] before:px-1 before:bg-primary before:text-xs"
 )
 
-text_options_style = (
-  "relative grid grid-cols-2 gap-x-1 border border-text/50 rounded px-1 pt-4 pb-1 "
+scrap_options_style = (
+  "relative grid grid-cols-2 gap-x-1 gap-y-2 border border-text/50 rounded px-1 pt-4 pb-1 "
   "before:absolute before:left-1 before:top-0 before:-translate-y-1/2 "
   "before:bg-primary before:px-1 before:text-text/50 before:text-xs"
 )
 
 resize_handle_style = "h-full w-0.5 bg-text/50 hover:bg-secondary hover:w-1"
 
-scrap_options_sidebar = html.Aside(
+scrap_controls_sidebar = html.Aside(
   className="relative flex flex-col grow gap-2 p-2",
   children=[
     TickerSelectAIO(id="scrap"),
@@ -109,19 +107,12 @@ scrap_options_sidebar = html.Aside(
         ),
         html.Button(
           "Options",
-          id="button:scrap:text-options",
+          id=OpenCloseModalAIO.open_id("scrap:options"),
           className=button_style,
           type="button",
           n_clicks=0,
         ),
       ],
-    ),
-    html.Button(
-      "Extract words",
-      id=OpenCloseModalAIO.open_id("scrap:words"),
-      className=button_style,
-      type="button",
-      n_clicks=0,
     ),
     html.Button(
       "Annotate page",
@@ -207,22 +198,62 @@ scrap_options_sidebar = html.Aside(
   ],
 )
 
-table_options_form = html.Div(
-  id="div:scrap:text-options",
-  className="absolute top-0 left-full w-1/5 h-full flex flex-col gap-2 py-2 bg-primary z-[999]",
+scrap_options_sidebar = html.Div(
+  id="div:scrap:options",
+  className="pr-2 flex flex-col gap-2 p-2 bg-primary",
   children=[
-    html.H3("Table extraction options", className="text-text mb-2"),
     html.Form(
-      className=text_options_style + " before:content-['Strategy']",
+      className=scrap_options_style + " before:content-['Bounding_box']",
+      children=[
+        InputAIO(
+          "scrap:options:bounding-box:x0",
+          "100%",
+          input_props={
+            "placeholder": "Left (x0)",
+            "type": "number",
+            "min": 0,
+          },
+        ),
+        InputAIO(
+          "scrap:options:bounding-box:y0",
+          "100%",
+          input_props={
+            "placeholder": "Top (y0)",
+            "type": "number",
+            "min": 0,
+          },
+        ),
+        InputAIO(
+          "scrap:options:bounding-box:x1",
+          "100%",
+          input_props={
+            "placeholder": "Right (x1)",
+            "type": "number",
+            "min": 0,
+          },
+        ),
+        InputAIO(
+          "scrap:options:bounding-box:y1",
+          "100%",
+          input_props={
+            "placeholder": "Bottom (y1)",
+            "type": "number",
+            "min": 0,
+          },
+        ),
+      ],
+    ),
+    html.Form(
+      className=scrap_options_style + " before:content-['Strategy']",
       children=[
         dcc.Dropdown(
-          id="dropdown:scrap:text-options:vertical-strategy",
+          id="dropdown:scrap:options:vertical-strategy",
           placeholder="Vertical",
           options=["lines", "lines_strict", "text"],
           value="lines",
         ),
         dcc.Dropdown(
-          id="dropdown:scrap:text-options:horizontal-strategy",
+          id="dropdown:scrap:options:horizontal-strategy",
           placeholder="Horizontal",
           options=["lines", "lines_strict", "text"],
           value="lines",
@@ -230,10 +261,10 @@ table_options_form = html.Div(
       ],
     ),
     html.Form(
-      className=text_options_style + " before:content-['Minimum_words']",
+      className=scrap_options_style + " before:content-['Minimum_words']",
       children=[
         InputAIO(
-          "scrap:text-options:min-words-vertical",
+          "scrap:options:min-words-vertical",
           "100%",
           input_props={
             "placeholder": "Vertical",
@@ -244,7 +275,7 @@ table_options_form = html.Div(
           },
         ),
         InputAIO(
-          "scrap:text-options:min-words-horizontal",
+          "scrap:options:min-words-horizontal",
           "100%",
           input_props={
             "placeholder": "Horizontal",
@@ -257,64 +288,69 @@ table_options_form = html.Div(
       ],
     ),
     html.Form(
-      className=text_options_style + " before:content-['Snap_tolerance']",
+      className=scrap_options_style + " before:content-['Snap_tolerance']",
       children=[
         InputAIO(
-          "scrap:text-options:snap-x-tolerance",
+          "scrap:options:snap-x-tolerance",
           "100%",
           input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
-          "scrap:text-options:snap-y-tolerance",
+          "scrap:options:snap-y-tolerance",
           "100%",
           input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
     html.Form(
-      className=text_options_style + " before:content-['Join_tolerance']",
+      className=scrap_options_style + " before:content-['Join_tolerance']",
       children=[
         InputAIO(
-          "scrap:text-options:join-x-tolerance",
+          "scrap:options:join-x-tolerance",
           "100%",
           input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
-          "scrap:text-options:join-y-tolerance",
+          "scrap:options:join-y-tolerance",
           "100%",
           input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
     html.Form(
-      className=text_options_style + " before:content-['Intersection_tolerance']",
+      className=scrap_options_style + " before:content-['Intersection_tolerance']",
       children=[
         InputAIO(
-          "scrap:text-options:intersection-x-tolerance",
+          "scrap:options:intersection-x-tolerance",
           "100%",
           input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
-          "scrap:text-options:intersection-y-tolerance",
+          "scrap:options:intersection-y-tolerance",
           "100%",
           input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
     ),
     html.Form(
-      className=text_options_style + " before:content-['Text_tolerance']",
+      className=scrap_options_style + " before:content-['Text_tolerance']",
       children=[
         InputAIO(
-          "scrap:text-options:text-x-tolerance",
+          "scrap:options:text-x-tolerance",
           "100%",
           input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
         ),
         InputAIO(
-          "scrap:text-options:text-y-tolerance",
+          "scrap:options:text-y-tolerance",
           "100%",
           input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
         ),
       ],
+    ),
+    html.Button(
+      "Preview",
+      id="button:scrap:preview",
+      className=button_style,
     ),
   ],
 )
@@ -331,7 +367,7 @@ layout = html.Main(
           id="panel:scrap:controls",
           defaultSizePercentage=20,
           minSizePixels=5,
-          children=[scrap_options_sidebar],
+          children=[scrap_controls_sidebar],
         ),
         PanelResizeHandle(html.Div(className=resize_handle_style)),
         Panel(
@@ -361,7 +397,6 @@ layout = html.Main(
           children=[
             dag.AgGrid(
               id="table:scrap",
-              getRowId="params.data.company",
               columnSize="autoSize",
               defaultColDef={"editable": True},
               dashGridOptions={
@@ -374,7 +409,6 @@ layout = html.Main(
         ),
       ],
     ),
-    table_options_form,
     OpenCloseModalAIO(
       "scrap:headers",
       "Rename headers",
@@ -391,36 +425,38 @@ layout = html.Main(
       ],
     ),
     OpenCloseModalAIO(
-      "scrap:words",
-      "PDF words",
+      "scrap:options",
+      "Table extraction options",
       children=[
         html.Div(
-          className="size-full grid grid-cols-2",
+          id="panelgroup:scrap:options",
+          className="size-full grid grid-cols-[1fr_2fr_2fr]",
           children=[
+            scrap_options_sidebar,
             dcc.Loading(
               parent_className="size-full",
               children=[
                 dcc.Graph(
-                  id="graph:scrap:words",
+                  id="graph:scrap:preview",
                   className="size-full",
                   config={"scrollZoom": True},
                 ),
               ],
-              target_components={"graph:scrap:words": "figure"},
+              target_components={"graph:scrap:preview": "figure"},
             ),
             dag.AgGrid(
-              id="table:scrap:words",
-              getRowId="params.data.company",
+              id="table:scrap:preview",
               columnSize="autoSize",
               defaultColDef={"editable": True},
               dashGridOptions={
+                "rowSelection": "single",
                 "undoRedoCellEditing": True,
                 "undoRedoCellEditingLimit": 10,
               },
               style={"height": "100%"},
             ),
           ],
-        )
+        ),
       ],
       dialog_props={
         "style": {
@@ -434,7 +470,7 @@ layout = html.Main(
       id="notification:scrap:table-error",
       message="Unable to parse table",
     ),
-    dcc.Store(id="store:scrap:pixel-scale", data={}),
+    dcc.Store(id="store:scrap:image-data", data={}),
   ],
 )
 
@@ -483,67 +519,112 @@ def update_object(doc_id: str):
 
 
 @callback(
-  Output("div:scrap:text-options", "className"),
-  Input("button:scrap:text-options", "n_clicks"),
-  State("div:scrap:text-options", "className"),
-  prevent_initial_call=True,
-)
-def open_table_settings(n_clicks: int, className: str):
-  if not n_clicks:
-    return no_update
-
-  if n_clicks % 2 == 0:
-    return className + " -translate-x-full"
-
-  return className.replace("-translate-x-full", "").strip()
-
-
-@callback(
-  Output("graph:scrap:words", "figure", allow_duplicate=True),
-  Output("table:scrap:words", "columnDefs"),
-  Output("table:scrap:words", "rowData"),
-  Output("store:scrap:pixel-scale", "data"),
-  Input(OpenCloseModalAIO.open_id("scrap:words"), "n_clicks"),
+  Output("graph:scrap:preview", "figure", allow_duplicate=True),
+  Output("table:scrap:preview", "columnDefs"),
+  Output("table:scrap:preview", "rowData"),
+  Output("store:scrap:image-data", "data"),
+  Input("button:scrap:preview", "n_clicks"),
   State("dropdown:scrap:document", "value"),
   State("input:scrap:pages", "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:x0"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:y0"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:x1"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:y1"), "value"),
+  State("dropdown:scrap:options:vertical-strategy", "value"),
+  State("dropdown:scrap:options:horizontal-strategy", "value"),
+  State(InputAIO.aio_id("scrap:options:min-words-vertical"), "value"),
+  State(InputAIO.aio_id("scrap:options:min-words-horizontal"), "value"),
+  State(InputAIO.aio_id("scrap:options:snap-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:snap-y-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:join-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:join-y-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:intersection-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:intersection-y-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:text-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:text-y-tolerance"), "value"),
   prevent_initial_call=True,
   background=True,
 )
-def extract_words(n_clicks: int, doc_id: str, pages_text: str):
+def preview_extraction(
+  n_clicks: int,
+  doc_id: str,
+  pages_text: str,
+  x0: float,
+  y0: float,
+  x1: float,
+  y1: float,
+  vertical_strategy: Literal["lines", "lines_strict", "text"],
+  horizontal_strategy: Literal["lines", "lines_strict", "text"],
+  min_words_vertical: float,
+  min_words_horizontal: float,
+  snap_x_tolerance: float,
+  snap_y_tolerance: float,
+  join_x_tolerance: float,
+  join_y_tolerance: float,
+  intersection_x_tolerance: float,
+  intersection_y_tolerance: float,
+  text_x_tolerance: float,
+  text_y_tolerance: float,
+):
   if not (n_clicks and doc_id and pages_text):
     return no_update
 
-  def create_hover_template(pdf_width, pdf_height, img_width, img_height):
-    # Create arrays for x and y coordinates
-    x = np.linspace(0, pdf_width, img_width)
-    y = np.linspace(pdf_height, 0, img_height)  # Reverse y-axis for PDF coordinates
+  def create_hover_template(
+    offset_x: float,
+    offset_y: float,
+    pdf_width: float,
+    pdf_height: float,
+    img_width: float,
+    img_height: float,
+  ):
+    x = np.linspace(offset_x, pdf_width + offset_x, img_width)
+    y = np.linspace(offset_y, pdf_height + offset_y, img_height)
 
-    # Create meshgrid
     X, Y = np.meshgrid(x, y)
 
-    # Create hover template
     hovertemplate = (
       "<b>x:</b> %{customdata[0]:.2f}<br><b>y:</b> %{customdata[1]:.2f}<br>"
     )
 
     return X, Y, hovertemplate
 
+  settings = {
+    "vertical_strategy": vertical_strategy or "lines",
+    "horizontal_strategy": horizontal_strategy or "lines",
+    "snap_x_tolerance": snap_x_tolerance or 3,
+    "snap_y_tolerance": snap_y_tolerance or 3,
+    "join_x_tolerance": join_x_tolerance or 3,
+    "join_y_tolerance": join_y_tolerance or 3,
+    "min_words_vertical": min_words_vertical or 3,
+    "min_words_horizontal": min_words_horizontal or 1,
+    "intersection_x_tolerance": intersection_x_tolerance or 3,
+    "intersection_y_tolerance": intersection_y_tolerance or 3,
+    "text_x_tolerance": text_x_tolerance or 3,
+    "text_y_tolerance": text_y_tolerance or 3,
+  }
+
   pdf_path = Path(f"assets/docs/{doc_id}.pdf")
   pages = [int(p) - 1 for p in pages_text.split(",")]
   with pdfplumber.open(pdf_path) as pdf:
     page = pdf.pages[pages[0]]
-    words = page.extract_words()
-    img = pdf.pages[104].to_image(resolution=300, antialias=True)
 
-  df = pd.DataFrame.from_records(words)
+    if x0 and y0 and x1 and y1:
+      page = page.crop((x0, y0, x1, y1))
+
+    debug = page.debug_tablefinder(settings)
+
+    df = pd.DataFrame.from_records(debug.edges)
+    img = page.to_image(resolution=300, antialias=True)
 
   prefix = "data:image/png;base64,"
   with io.BytesIO() as stream:
     img.original.save(stream, format="png")
     base64_string = prefix + base64.b64encode(stream.getvalue()).decode("utf-8")
 
+  offset_x = x0 or 0
+  offset_y = y0 or 0
   X, Y, hovertemplate = create_hover_template(
-    page.width, page.height, img.original.width, img.original.height
+    offset_x, offset_y, page.width, page.height, img.original.width, img.original.height
   )
   fig = go.Figure(
     go.Image(
@@ -552,15 +633,24 @@ def extract_words(n_clicks: int, doc_id: str, pages_text: str):
   )
   pixel_scale = img.original.width / page.width
 
-  for x0, x1, top, bottom in zip(df["x0"], df["x1"], df["top"], df["bottom"]):
+  df["line"] = df["orientation"] + (df.groupby("orientation").cumcount() + 1).astype(
+    str
+  )
+  df = df[["line", "x0", "top", "x1", "bottom"]]
+
+  for line, x0, y0, x1, y1 in zip(
+    df["line"], df["x0"], df["top"], df["x1"], df["bottom"]
+  ):
     fig.add_shape(
-      type="rect",
-      x0=x0 * pixel_scale,
-      x1=x1 * pixel_scale,
-      y0=top * pixel_scale,
-      y1=bottom * pixel_scale,
+      name=line,
+      type="line",
+      x0=(x0 - offset_x) * pixel_scale,
+      y0=(y0 - offset_y) * pixel_scale,
+      x1=(x1 - offset_x) * pixel_scale,
+      y1=(y1 - offset_y) * pixel_scale,
       xref="x",
       yref="y",
+      line_color="red",
     )
 
   fig.update_layout(margin=dict(b=10, t=10))
@@ -575,39 +665,54 @@ def extract_words(n_clicks: int, doc_id: str, pages_text: str):
     for c in df.columns
   ]
 
-  return fig, columnDefs, df.to_dict("records"), {"pixel_scale": pixel_scale}
+  image_data = {
+    "pixel_scale": pixel_scale,
+    "offset_x": offset_x,
+    "offset_y": offset_y,
+  }
+
+  return fig, columnDefs, df.to_dict("records"), image_data
 
 
 @callback(
-  Output("graph:scrap:words", "figure"),
-  Input("table:scrap:words", "virtualRowData"),
-  State("store:scrap:pixel-scale", "data"),
+  Output("graph:scrap:preview", "figure"),
+  Input("table:scrap:preview", "selectedRows"),
+  State("table:scrap:preview", "rowData"),
+  State("store:scrap:image-data", "data"),
   prevent_initial_call=True,
 )
-def update_word_image(row_data: list[dict], pixel_data: dict[str, str]):
-  if not (row_data and pixel_data):
+def update_preview(sel_row: list[dict], row_data: list[dict], image_data: dict):
+  if not (sel_row and row_data and image_data):
     return no_update
 
-  fig: go.Figure = Patch()
-  pixel_scale = pixel_data["pixel_scale"]
+  df_rows = pd.DataFrame.from_records(row_data)
 
-  df = pd.DataFrame.from_records(row_data)
+  sel_lines = {r["line"] for r in sel_row}
+
+  pixel_scale = image_data["pixel_scale"]
+  offset_x = image_data["offset_x"]
+  offset_y = image_data["offset_y"]
 
   shapes = []
-  for x0, x1, top, bottom in zip(df["x0"], df["x1"], df["top"], df["bottom"]):
+  for line, x0, y0, x1, y1 in zip(
+    df_rows["line"], df_rows["x0"], df_rows["top"], df_rows["x1"], df_rows["bottom"]
+  ):
     shapes.append(
       go.layout.Shape(
-        type="rect",
-        x0=x0 * pixel_scale,
-        x1=x1 * pixel_scale,
-        y0=top * pixel_scale,
-        y1=bottom * pixel_scale,
+        name=line,
+        type="line",
+        x0=(x0 - offset_x) * pixel_scale,
+        y0=(y0 - offset_y) * pixel_scale,
+        x1=(x1 - offset_x) * pixel_scale,
+        y1=(y1 - offset_y) * pixel_scale,
         xref="x",
         yref="y",
+        line_color="green" if line in sel_lines else "red",
       )
     )
 
-  fig.layout.shapes = shapes
+  fig = Patch()
+  fig["layout"]["shapes"] = shapes
 
   return fig
 
@@ -649,18 +754,18 @@ def annotate_image(
   State("radioitems:scrap:extract-method", "value"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
-  State("dropdown:scrap:text-options:vertical-strategy", "value"),
-  State("dropdown:scrap:text-options:horizontal-strategy", "value"),
-  State(InputAIO.aio_id("scrap:text-options:min-words-vertical"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:min-words-horizontal"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:snap-x-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:snap-y-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:join-x-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:join-y-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:intersection-x-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:intersection-y-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:text-x-tolerance"), "value"),
-  State(InputAIO.aio_id("scrap:text-options:text-y-tolerance"), "value"),
+  State("dropdown:scrap:options:vertical-strategy", "value"),
+  State("dropdown:scrap:options:horizontal-strategy", "value"),
+  State(InputAIO.aio_id("scrap:options:min-words-vertical"), "value"),
+  State(InputAIO.aio_id("scrap:options:min-words-horizontal"), "value"),
+  State(InputAIO.aio_id("scrap:options:snap-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:snap-y-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:join-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:join-y-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:intersection-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:intersection-y-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:text-x-tolerance"), "value"),
+  State(InputAIO.aio_id("scrap:options:text-y-tolerance"), "value"),
   prevent_initial_call=True,
   background=True,
 )

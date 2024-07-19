@@ -19,6 +19,7 @@ dependencies = [
   "asyncstdlib",
   "dash[celery]",
   "dash-ag-grid",
+  "dash-resizeable-panels",
   "dashvis",
   "flask-caching",
   "fathon",
