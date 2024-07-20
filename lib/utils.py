@@ -256,18 +256,19 @@ def remove_words(
 
 
 def split_multiline(row: Series[str]):
-  split_cells: list[list[str | None]] = [
-    [None] if pd.isna(cell) else cell.split("\n") for cell in row
-  ]
+  split_cells = []
+  max_lines = 0
+  for cell in row:
+    if pd.isna(cell):
+      split_cell = [None]
+    else:
+      split_cell = cell.split("\n")
+    split_cells.append(split_cell)
+    max_lines = max(max_lines, len(split_cell))
 
-  max_lines = max(len(cell) for cell in split_cells)
-  split_cells = [
-    cast(list[str | None], [None] * (max_lines - len(cell))) + cell
-    for cell in split_cells
-  ]
-  new_rows = []
-  for i in range(max_lines):
-    new_row = [cell[i] for cell in split_cells]
-    new_rows.append(new_row)
+  result = np.full((max_lines, len(row)), None, dtype=object)
 
-  return pd.DataFrame(new_rows, columns=row.index)
+  for i, cell in enumerate(split_cells):
+    result[-len(cell) :, i] = cell
+
+  return pd.DataFrame(result, columns=row.index)
