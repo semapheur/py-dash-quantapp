@@ -115,15 +115,15 @@ scrap_controls_sidebar = html.Aside(
       ],
     ),
     html.Button(
-      "Annotate page",
-      id="button:scrap:download-image",
+      "Delete rows",
+      id="button:scrap:delete-rows",
       className=button_style,
       type="button",
       n_clicks=0,
     ),
     html.Button(
-      "Delete rows",
-      id="button:scrap:delete",
+      "Add row",
+      id="button:scrap:add-rows",
       className=button_style,
       type="button",
       n_clicks=0,
@@ -131,6 +131,13 @@ scrap_controls_sidebar = html.Aside(
     html.Button(
       "Rename headers",
       id=OpenCloseModalAIO.open_id("scrap:headers"),
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Export to CSV",
+      id="button:scrap:export-csv",
       className=button_style,
       type="button",
       n_clicks=0,
@@ -351,6 +358,13 @@ scrap_options_sidebar = html.Div(
       "Preview",
       id="button:scrap:preview",
       className=button_style,
+    ),
+    html.Button(
+      "Download image",
+      id="button:scrap:download-image",
+      className=button_style,
+      type="button",
+      n_clicks=0,
     ),
   ],
 )
@@ -644,6 +658,7 @@ def preview_extraction(
     fig.add_shape(
       name=line,
       type="line",
+      editable=True,
       x0=(x0 - offset_x) * pixel_scale,
       y0=(y0 - offset_y) * pixel_scale,
       x1=(x1 - offset_x) * pixel_scale,
@@ -676,12 +691,15 @@ def preview_extraction(
 
 @callback(
   Output("graph:scrap:preview", "figure"),
+  Input("table:scrap:preview", "cellValueChanged"),
   Input("table:scrap:preview", "selectedRows"),
   State("table:scrap:preview", "rowData"),
   State("store:scrap:image-data", "data"),
   prevent_initial_call=True,
 )
-def update_preview(sel_row: list[dict], row_data: list[dict], image_data: dict):
+def update_preview(
+  _: dict, sel_row: list[dict], row_data: list[dict], image_data: dict
+):
   if not (sel_row and row_data and image_data):
     return no_update
 
@@ -701,6 +719,7 @@ def update_preview(sel_row: list[dict], row_data: list[dict], image_data: dict):
       go.layout.Shape(
         name=line,
         type="line",
+        editable=True,
         x0=(x0 - offset_x) * pixel_scale,
         y0=(y0 - offset_y) * pixel_scale,
         x1=(x1 - offset_x) * pixel_scale,
@@ -754,6 +773,10 @@ def annotate_image(
   State("radioitems:scrap:extract-method", "value"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:x0"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:y0"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:x1"), "value"),
+  State(InputAIO.aio_id("scrap:options:bounding-box:y1"), "value"),
   State("dropdown:scrap:options:vertical-strategy", "value"),
   State("dropdown:scrap:options:horizontal-strategy", "value"),
   State(InputAIO.aio_id("scrap:options:min-words-vertical"), "value"),
@@ -776,6 +799,10 @@ def update_table(
   method: Literal["text", "image"],
   factor: int,
   currency: str,
+  x0: float,
+  y0: float,
+  x1: float,
+  y1: float,
   vertical_strategy: Literal["lines", "lines_strict", "text"],
   horizontal_strategy: Literal["lines", "lines_strict", "text"],
   min_words_vertical: float,
@@ -792,58 +819,40 @@ def update_table(
   if not (n_clicks and doc_id and pages_text):
     return no_update
 
+  def all_empty(row):
+    return all(pd.isna(val) or (val.strip() == "") for val in row)
+
   pdf_path = Path(f"assets/docs/{doc_id}.pdf")
-  pdf_src = io.BytesIO()
-  if pdf_path.exists():
-    with open(pdf_path, "rb") as pdf_file:
-      pdf_src.write(pdf_file.read())
-  else:
-    url = doc_url(doc_id)
-    response = httpx.get(url=url, headers=HEADERS)
-    pdf_src.write(response.content)
 
   pages = [int(p) - 1 for p in pages_text.split(",")]
 
-  if method == "text":
-    settings = {
-      "vertical_strategy": vertical_strategy or "lines",
-      "horizontal_strategy": horizontal_strategy or "lines",
-      "snap_x_tolerance": snap_x_tolerance or 3,
-      "snap_y_tolerance": snap_y_tolerance or 3,
-      "join_x_tolerance": join_x_tolerance or 3,
-      "join_y_tolerance": join_y_tolerance or 3,
-      "min_words_vertical": min_words_vertical or 3,
-      "min_words_horizontal": min_words_horizontal or 1,
-      "intersection_x_tolerance": intersection_x_tolerance or 3,
-      "intersection_y_tolerance": intersection_y_tolerance or 3,
-      "text_x_tolerance": text_x_tolerance or 3,
-      "text_y_tolerance": text_y_tolerance or 3,
-    }
+  settings = {
+    "vertical_strategy": vertical_strategy or "lines",
+    "horizontal_strategy": horizontal_strategy or "lines",
+    "snap_x_tolerance": snap_x_tolerance or 3,
+    "snap_y_tolerance": snap_y_tolerance or 3,
+    "join_x_tolerance": join_x_tolerance or 3,
+    "join_y_tolerance": join_y_tolerance or 3,
+    "min_words_vertical": min_words_vertical or 3,
+    "min_words_horizontal": min_words_horizontal or 1,
+    "intersection_x_tolerance": intersection_x_tolerance or 3,
+    "intersection_y_tolerance": intersection_y_tolerance or 3,
+    "text_x_tolerance": text_x_tolerance or 3,
+    "text_y_tolerance": text_y_tolerance or 3,
+  }
 
-    with pdfplumber.open(pdf_path) as pdf_file:
-      table = pdf_file.pages[104].extract_table(table_settings=settings)
+  with pdfplumber.open(pdf_path) as pdf:
+    page = pdf.pages[pages[0]]
 
-    df = pd.DataFrame(table)
-    result = df.apply(split_multiline, axis=1)
-    df = pd.concat(result.tolist(), ignore_index=True)
-    df.dropna(how="all", inplace=True)
+    if x0 and y0 and x1 and y1:
+      page = page.crop((x0, y0, x1, y1))
 
-  elif method == "image":
-    pdf = PDF(src=pdf_src, pages=pages)
+    table = page.extract_table(table_settings=settings)
 
-    ocr = TesseractOCR(lang="eng")
-
-    tables = pdf.extract_tables(
-      ocr=ocr,
-      # borderless_tables=True if "borderless" in options else False,
-      # implicit_rows=True if "implicit" in options else False,
-    )
-
-    # TODO: merge tables
-    if len(tables[pages[0]]) == 0:
-      return None, None, True
-
-    df = tables[pages[0]][0].df
+  df = pd.DataFrame(table)
+  df = df.loc[:, (df.notna() & (df != "")).any()]
+  result = df.apply(split_multiline, axis=1)
+  df = pd.concat(result.tolist(), ignore_index=True)
 
   df["period"] = "instant"
   df["factor"] = factor
@@ -868,11 +877,24 @@ def update_table(
 
 @callback(
   Output("table:scrap", "deleteSelectedRows"),
-  Input("button:scrap:delete", "n_clicks"),
+  Input("button:scrap:delete-rows", "n_clicks"),
   prevent_initial_call=True,
 )
-def selected(_: int):
+def delete_rows(_: int):
   return True
+
+
+@callback(
+  Output("table:scrap", "rowTransaction"),
+  Input("button:scrap:add-rows", "n_clicks"),
+  State("table:scrap", "columnDefs"),
+  prevent_initial_call=True,
+)
+def add_rows(_: int, cols: list[dict]):
+  if not cols:
+    return no_update
+
+  return {"addIndex": 0, "add": [{col["field"]: None for col in cols}]}
 
 
 @callback(
@@ -997,6 +1019,16 @@ def validate_fiscal_end(fiscal_end: str) -> bool:
     return False
   else:
     return True
+
+
+@callback(
+  Output("table:scrap", "exportDataAsCsv"),
+  Input("button:scrap:export-csv", "n_clicks"),
+)
+def export_csv(n_clicks):
+  if n_clicks:
+    return True
+  return False
 
 
 @callback(
