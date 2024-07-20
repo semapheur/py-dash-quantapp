@@ -52,10 +52,20 @@ def company_currency(id: str) -> list[str]:
   return currency["currency"].tolist()
 
 
-def stock_label(id: str) -> str:
-  query = """
-    SELECT name || " (" || ticker || ":" || mic || ")" AS label 
-    FROM stock WHERE id = :id
+def company_label(id: str) -> str:
+  query = """ 
+    SELECT
+      name || " (" || group_concat(ticker, ", ") || ")" AS label
+    FROM (
+      SELECT
+        c.name, 
+        s.ticker
+      FROM company c 
+      JOIN json_each(c.primary_security) ON 1=1
+      JOIN stock s ON json_each.value = s.security_id
+      WHERE c.company_id = :id
+    )
+    GROUP BY name
   """
 
   fetch = fetch_sqlite("ticker.db", query, {"id": id})

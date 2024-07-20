@@ -4,7 +4,6 @@ from dateutil.relativedelta import relativedelta
 import io
 import re
 from pathlib import Path
-import sqlite3
 from typing import Literal
 
 from dash import (
@@ -22,9 +21,6 @@ from dash import (
 import dash_ag_grid as dag
 from dash_resizable_panels import PanelGroup, Panel, PanelResizeHandle
 import plotly.graph_objects as go
-import httpx
-from img2table.document import PDF
-from img2table.ocr import TesseractOCR
 import numpy as np
 import pandas as pd
 import pdfplumber
@@ -33,7 +29,6 @@ from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
 from components.modal import OpenCloseModalAIO
 
-from lib.const import HEADERS
 from lib.db.lite import fetch_sqlite
 from lib.fin.models import (
   FinStatement,
@@ -49,7 +44,7 @@ from lib.utils import download_file, split_multiline
 
 register_page(__name__, path="/scrap")
 
-main_style = "h-full bg-primary"  # grid grid-cols-[minmax(min-content,20vw)_1fr_1fr]
+main_style = "h-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
 button_style = "px-2 rounded bg-secondary/50 text-text"
 group_button_style = "px-2 rounded-r bg-secondary/50 text-text"
@@ -1103,7 +1098,7 @@ def export(
       url=url,
       date=dt.strptime(date, "%Y-%m-%d").date(),
       scope=scope,
-      period=period,
+      fiscal_period=period,
       fiscal_end=fiscal_end,
       currency=currencies,
       data=data,
