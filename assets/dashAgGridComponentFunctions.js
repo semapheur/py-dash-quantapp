@@ -18,14 +18,16 @@ dagcomponentfuncs.TrendLine = (props) => {
   //    setData(graphProps)
   //  }
   //}
+  console.log(props)
   return React.createElement(window.dash_core_components.Graph, {
     figure: {
       data: [{
         x: props.value.x,
         y: props.value.y,
-        type: 'scatter',
-        mode: 'lines',
-        line: { color: '#1f77b4' } 
+        type: "bar",
+        orientation: 'v',
+        //mode: 'lines',
+        marker: { color: "#1f77b4" } 
       }],
       layout: {
         showlegend: false,
@@ -38,7 +40,7 @@ dagcomponentfuncs.TrendLine = (props) => {
           showticklabels: false
         },
         margin: { l: 0, r: 0, t: 0, b: 0 },
-        template: 'plotly_white',
+        template: "plotly_white",
         autosize: true
       }
     },

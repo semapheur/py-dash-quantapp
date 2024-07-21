@@ -208,9 +208,18 @@ def layout(id: str | None = None):
     )
 
   column_defs = [
-    {"field": "item", "headerName": "Metric"},
-    {"field": "trend", "headerName": "Trend", "cellRenderer": "TrendLine"},
-    {"field": "current", "headerName": "Current (TTM)"},
+    {"field": "index", "headerName": "Metric"},
+    {
+      "field": "trend",
+      "headerName": "Trend",
+      "cellRenderer": "TrendLine",
+      "cellRendererParams": {"data": "params.data"},
+    },
+    {
+      "field": "current",
+      "headerName": "Current (TTM)",
+      "valueFormatter": {"function": 'd3.format(".2f")(params.value)'},
+    },
   ]
 
   currency = fetch_sqlite(
@@ -220,17 +229,17 @@ def layout(id: str | None = None):
   print(df)
 
   return html.Main(
-    className="flex flex-col h-full overflow-y-scroll",
+    className="grid grid-rows-[auto_1fr] h-full overflow-y-scroll",
     children=[
       StockHeader(id),
       html.Div(
-        className="grid gric-cols-2",
+        className="grid grid-cols-2",
         children=[
           html.Div(
             className="flex flex-col",
             children=[
               html.Div(
-                className="flex flex-col",
+                className="flex flex-col h-[100vh]",
                 children=[
                   html.H4("Financial Strength"),
                   dag.AgGrid(
