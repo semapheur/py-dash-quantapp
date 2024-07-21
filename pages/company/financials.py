@@ -15,6 +15,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 import pandas as pd
+from pandera.typing import DataFrame
 import plotly.express as px
 
 from components.modal import CloseModalAIO
@@ -81,6 +82,20 @@ def layout(id: Optional[str] = None):
   )
 
 
+def sheet_items(sheet: str) -> DataFrame | None:
+  query = """SELECT 
+    s.item, items.short, items.long, s.level FROM statement AS s 
+    LEFT JOIN items ON s.item = items.item
+    WHERE s.sheet = :sheet
+  """
+  template = read_sqlite("taxonomy.db", query, {"sheet": sheet})
+  if template is None:
+    return None
+
+  template.loc[:, "short"].fillna(template["long"], inplace=True)
+  return template
+
+
 @callback(
   Output("div:stock-financials:table-wrap", "children"),
   Input("store:ticker-search:financials", "data"),
@@ -91,17 +106,9 @@ def update_table(data: list[dict], sheet: str, scope: str):
   if not data:
     return no_update
 
-  query = """SELECT 
-    s.item, items.short, items.long, s.level FROM statement AS s 
-    LEFT JOIN items ON s.item = items.item
-    WHERE s.sheet = :sheet
-  """
-  param = {"sheet": sheet}
-  tmpl = read_sqlite("taxonomy.db", query, param)
-  if tmpl is None:
+  template = sheet_items(sheet)
+  if template is None:
     return no_update
-
-  tmpl.loc[:, "short"].fillna(tmpl["long"], inplace=True)
 
   fin = (
     pd.DataFrame.from_records(data)
@@ -110,11 +117,11 @@ def update_table(data: list[dict], sheet: str, scope: str):
     .sort_index(ascending=False)
   )
   cols = list(
-    OrderedSet(OrderedSet(tmpl["item"]).intersection(OrderedSet(fin.columns)))
+    OrderedSet(OrderedSet(template["item"]).intersection(OrderedSet(fin.columns)))
   )
   fin = fin[cols]
   fin = fin.T.reset_index()
-  tmpl = tmpl.set_index("item").loc[cols].reset_index()
+  template = template.set_index("item").loc[cols].reset_index()
 
   fin["trend"] = ""
   for i, r in fin.iterrows():
@@ -141,14 +148,14 @@ def update_table(data: list[dict], sheet: str, scope: str):
       "cellStyle": {
         "styleConditions": [
           {
-            "condition": (f"{row_indices(tmpl, lvl)}" ".includes(params.rowIndex)"),
+            "condition": (f"{row_indices(template, lvl)}" ".includes(params.rowIndex)"),
             "style": {"paddingLeft": f"{lvl + 1}rem"},
           }
-          for lvl in tmpl["level"].unique()
+          for lvl in template["level"].unique()
         ]
       },
       "tooltipField": "index",
-      "tooltipComponentParams": {"labels": tmpl["long"].to_list()},
+      "tooltipComponentParams": {"labels": template["long"].to_list()},
     },
     {"field": "trend", "headerName": "Trend", "cellRenderer": "TrendLine"},
   ] + [
@@ -162,12 +169,12 @@ def update_table(data: list[dict], sheet: str, scope: str):
 
   row_style = {
     "font-bold border-b border-text": (
-      f"{row_indices(tmpl, 0)}" ".includes(params.rowIndex)"
+      f"{row_indices(template, 0)}" ".includes(params.rowIndex)"
     )
   }
 
   fin.loc[:, "index"] = fin["index"].apply(
-    lambda x: tmpl.loc[tmpl["item"] == x, "short"].iloc[0]
+    lambda x: template.loc[template["item"] == x, "short"].iloc[0]
   )
 
   return dag.AgGrid(

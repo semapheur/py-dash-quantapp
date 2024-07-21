@@ -19,7 +19,29 @@ dagcomponentfuncs.TrendLine = (props) => {
   //  }
   //}
   return React.createElement(window.dash_core_components.Graph, {
-    figure: props.value,
+    figure: {
+      data: [{
+        x: props.value.x,
+        y: props.value.y,
+        type: 'scatter',
+        mode: 'lines',
+        line: { color: '#1f77b4' } 
+      }],
+      layout: {
+        showlegend: false,
+        xaxis: {
+          visible: false,
+          showticklabels: false
+        },
+        yaxis: {
+          visible: false,
+          showticklabels: false
+        },
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        template: 'plotly_white',
+        autosize: true
+      }
+    },
     style: {height: "100%"},
     config: {displayModeBar: false, staticPlot: true}
   })

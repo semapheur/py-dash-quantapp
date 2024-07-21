@@ -17,7 +17,7 @@ import dash_ag_grid as dag
 import numpy as np
 from ordered_set import OrderedSet
 import pandas as pd
-from pandera.typing import DataFrame
+from pandera.typing import DataFrame, Series
 import plotly.graph_objects as go
 import plotly.express as px
 from sqlalchemy import create_engine, text
@@ -125,18 +125,46 @@ def sheet_items(sheet: str) -> DataFrame | None:
   return template
 
 
+def trend_data(row: Series[float]):
+  return {"x": row.index.tolist(), "y": row.values.tolist()}
+  # fig = px.line(row)
+  # fig.update_layout(
+  #  showlegend=False,
+  #  xaxis=dict(autorange="reversed"),
+  #  xaxis_visible=False,
+  #  xaxis_showticklabels=False,
+  #  yaxis_visible=False,
+  #  yaxis_showticklabels=False,
+  #  margin=dict(l=0, r=0, t=0, b=0),
+  #  template="plotly_white",
+  # )
+  # return fig
+
+
 def financial_strength(fundamentals: pd.DataFrame) -> pd.DataFrame:
-  template = sheet_items("financial_strength")
+  items = (
+    "cash_to_debt",
+    "operating_cashflow_to_debt",
+    "equity_to_assets",
+    "debt_to_equity",
+    "interest_coverage_ratio",
+    "piotroski_f_score",
+    "altman_z_score",
+    "beneish_m_score",
+    "economic_profit_spread",
+  )
+  query = f"""SELECT item, short, long FROM items 
+    WHERE item IN {str(items)}
+  """
+  template = read_sqlite("taxonomy.db", query)
   if template is None:
-    raise ValueError("Financial strength template not found")
+    raise ValueError("Taxonomy items not found")
+
+  template.loc[:, "short"].fillna(template["long"], inplace=True)
 
   fundamentals = cast(
     DataFrame,
-    (
-      fundamentals.set_index(["date", "months"])
-      .xs(12, level="months")
-      .sort_index(ascending=False)
-    ),
+    (fundamentals.xs(12, level="months").sort_index(ascending=False)),
   )
   cols = list(
     OrderedSet(
@@ -144,24 +172,33 @@ def financial_strength(fundamentals: pd.DataFrame) -> pd.DataFrame:
     )
   )
   fundamentals = fundamentals[cols]
-  fundamentals = fundamentals.T.reset_index()
 
-  fundamentals["trend"] = {}
-  for i, r in fundamentals.iterrows():
-    fig = px.line(r.iloc[1:-1])
-    fig.update_layout(
-      showlegend=False,
-      xaxis=dict(autorange="reversed"),
-      xaxis_visible=False,
-      xaxis_showticklabels=False,
-      yaxis_visible=False,
-      yaxis_showticklabels=False,
-      margin=dict(l=0, r=0, t=0, b=0),
-      template="plotly_white",
-    )
-    fundamentals.at[i, "trend"] = fig
+  period = "TTM" if "TTM" in cast(pd.MultiIndex, fundamentals.index).levels[1] else "FY"
+  mask = fundamentals.index.get_level_values("period") == period
+  current_date = fundamentals.loc[mask, :].index.get_level_values("date").max()
 
-  return fundamentals
+  fundamentals = fundamentals.xs("FY", level="period").T.reset_index()
+
+  fundamentals["trend"] = fundamentals.iloc[:, 1:-1].apply(trend_data, axis=1)
+  # for i, r in fundamentals.iterrows():
+  #  fig = px.line(r.iloc[1:-1])
+  #  fig.update_layout(
+  #    showlegend=False,
+  #    xaxis=dict(autorange="reversed"),
+  #    xaxis_visible=False,
+  #    xaxis_showticklabels=False,
+  #    yaxis_visible=False,
+  #    yaxis_showticklabels=False,
+  #    margin=dict(l=0, r=0, t=0, b=0),
+  #    template="plotly_white",
+  #  )
+  #  fundamentals.at[i, "trend"] = fig
+
+  fundamentals.rename(columns={current_date: "current"}, inplace=True)
+  fundamentals.loc[:, "index"] = fundamentals["index"].apply(
+    lambda x: template.loc[template["item"] == x, "short"].iloc[0]
+  )
+  return fundamentals[["index", "trend", "current"]]
 
 
 def layout(id: str | None = None):
@@ -180,6 +217,7 @@ def layout(id: str | None = None):
     "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": id}
   )[0][0]
   df = load_fundamentals(id, currency)
+  print(df)
 
   return html.Main(
     className="flex flex-col h-full overflow-y-scroll",
@@ -198,6 +236,7 @@ def layout(id: str | None = None):
                   dag.AgGrid(
                     id="table:company-overview:financial-strength",
                     columnDefs=column_defs,
+                    rowData=financial_strength(df).to_dict("records"),
                     columnSize="autoSize",
                     style={"height": "100%"},
                   ),

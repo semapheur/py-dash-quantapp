@@ -259,7 +259,7 @@ def load_ratios(id: str, columns: Optional[set[str]] = None) -> DataFrame | None
 
   query = f"SELECT {col_text} FROM '{id}'"
   df = read_sqlite(
-    "ratios.db",
+    "fundamentals.db",
     query,
     index_col=list(index_col),
     date_parser={"date": {"format": "%Y-%m-%d"}},
