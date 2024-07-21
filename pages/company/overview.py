@@ -15,14 +15,17 @@ from dash import (
 )
 import dash_ag_grid as dag
 import numpy as np
+from ordered_set import OrderedSet
 import pandas as pd
+from pandera.typing import DataFrame
 import plotly.graph_objects as go
 import plotly.express as px
 from sqlalchemy import create_engine, text
 from components.dupont_chart import DupontChart
 
 from components.stock_header import StockHeader
-from lib.db.lite import read_sqlite
+from lib.db.lite import fetch_sqlite, read_sqlite
+from lib.fin.fundamentals import load_fundamentals
 from lib.ticker.fetch import company_label
 
 register_page(__name__, path_template="/company/<id>/overview", title=company_label)
@@ -108,17 +111,80 @@ def sankey_direction(sign: int) -> str:
       raise ValueError("Invalid sign")
 
 
-def layout(id: Optional[str] = None):
+def sheet_items(sheet: str) -> DataFrame | None:
+  query = """SELECT 
+    s.item, items.short, items.long, s.level FROM statement AS s 
+    LEFT JOIN items ON s.item = items.item
+    WHERE s.sheet = :sheet
+  """
+  template = read_sqlite("taxonomy.db", query, {"sheet": sheet})
+  if template is None:
+    return None
+
+  template.loc[:, "short"].fillna(template["long"], inplace=True)
+  return template
+
+
+def financial_strength(fundamentals: pd.DataFrame) -> pd.DataFrame:
+  template = sheet_items("financial_strength")
+  if template is None:
+    raise ValueError("Financial strength template not found")
+
+  fundamentals = cast(
+    DataFrame,
+    (
+      fundamentals.set_index(["date", "months"])
+      .xs(12, level="months")
+      .sort_index(ascending=False)
+    ),
+  )
+  cols = list(
+    OrderedSet(
+      OrderedSet(template["item"]).intersection(OrderedSet(fundamentals.columns))
+    )
+  )
+  fundamentals = fundamentals[cols]
+  fundamentals = fundamentals.T.reset_index()
+
+  fundamentals["trend"] = {}
+  for i, r in fundamentals.iterrows():
+    fig = px.line(r.iloc[1:-1])
+    fig.update_layout(
+      showlegend=False,
+      xaxis=dict(autorange="reversed"),
+      xaxis_visible=False,
+      xaxis_showticklabels=False,
+      yaxis_visible=False,
+      yaxis_showticklabels=False,
+      margin=dict(l=0, r=0, t=0, b=0),
+      template="plotly_white",
+    )
+    fundamentals.at[i, "trend"] = fig
+
+  return fundamentals
+
+
+def layout(id: str | None = None):
+  if id is None:
+    return html.Main(
+      className="size-full", children=[html.H1("404", className="md-auto")]
+    )
+
   column_defs = [
     {"field": "item", "headerName": "Metric"},
     {"field": "trend", "headerName": "Trend", "cellRenderer": "TrendLine"},
-    {"field": "current", "headerName": "Current"},
+    {"field": "current", "headerName": "Current (TTM)"},
   ]
+
+  currency = fetch_sqlite(
+    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": id}
+  )[0][0]
+  df = load_fundamentals(id, currency)
 
   return html.Main(
     className="flex flex-col h-full overflow-y-scroll",
     children=[
-      StockHeader(id) if id is not None else None,
+      StockHeader(id),
       html.Div(
         className="grid gric-cols-2",
         children=[
@@ -130,7 +196,7 @@ def layout(id: Optional[str] = None):
                 children=[
                   html.H4("Financial Strength"),
                   dag.AgGrid(
-                    id="table:stock-overview:financial-strength",
+                    id="table:company-overview:financial-strength",
                     columnDefs=column_defs,
                     columnSize="autoSize",
                     style={"height": "100%"},
@@ -207,7 +273,7 @@ def layout(id: Optional[str] = None):
 
 
 @callback(
-  Output("table:stock-overview:financial-strength", "rowData"),
+  Output("table:company-overview:financial-strength", "rowData"),
   Input("store:ticker-search:financials", "data"),
 )
 def update_table(data: list[dict]):

@@ -3,7 +3,7 @@ from collections import defaultdict
 from contextlib import closing
 import json
 import sqlite3
-from typing import cast, Literal, Optional
+from typing import cast, Literal, Optional, TypeAlias
 from typing_extensions import TypedDict
 
 from glom import glom
@@ -13,6 +13,18 @@ from sqlalchemy import create_engine
 
 from lib.db.lite import get_tables, insert_sqlite
 from lib.const import DB_DIR
+
+TaxonomyType: TypeAlias = Literal[
+  "days",
+  "monetary",
+  "fundamental",
+  "percent",
+  "per_day",
+  "per_share",
+  "personnel",
+  "ratio",
+  "shares",
+]
 
 
 class AggregateItems(ast.NodeVisitor):
@@ -58,20 +70,7 @@ class TaxonomyCalculation(TypedDict, total=False):
 
 
 class TaxonomyItem(BaseModel):
-  unit: Literal[
-    "days",
-    "monetary",
-    "monetary_noncash",
-    "monetary_ratio",
-    "numeric_score",
-    "percent",
-    "per_day",
-    "per_share",
-    "personnel",
-    "price_ratio",
-    "ratio",
-    "shares",
-  ]
+  type: TaxonomyType
   balance: Optional[Literal["credit", "debit"]] = None
   aggregate: Literal["average", "recalc", "sum", "tail"]
   label: TaxonomyLabel
@@ -82,20 +81,7 @@ class TaxonomyItem(BaseModel):
 
 class TaxonomyRecord(TypedDict):
   item: str
-  unit: Literal[
-    "days",
-    "monetary",
-    "monetary_noncash",
-    "monetary_ratio",
-    "numeric_score",
-    "percent",
-    "per_day",
-    "per_share",
-    "personnel",
-    "price_ratio",
-    "ratio",
-    "shares",
-  ]
+  type: TaxonomyType
   balance: Optional[Literal["credit", "debit"]]
   aggregate: Literal["average", "recalc", "sum", "tail"]
   long: str
@@ -167,7 +153,7 @@ class Taxonomy(BaseModel):
         )
 
       self.data[i] = TaxonomyItem(
-        unit=self.data[base_item].unit,
+        type=self.data[base_item].type,
         aggregate="average" if prefix == "average" else "sum",
         gaap=[],
         label=label,
@@ -267,7 +253,7 @@ class Taxonomy(BaseModel):
     return [
       TaxonomyRecord(
         item=k,
-        unit=v.unit,
+        type=v.type,
         balance=v.balance,
         aggregate=v.aggregate,
         long=v.label["long"],
@@ -292,7 +278,7 @@ class Taxonomy(BaseModel):
       cur.execute("DROP TABLE IF EXISTS items")
       cur.execute("""CREATE TABLE IF NOT EXISTS items (
         item TEXT PRIMARY KEY,
-        unit TEXT,
+        type TEXT,
         balance TEXT,
         aggregate TEXT,
         long TEXT,
@@ -301,7 +287,7 @@ class Taxonomy(BaseModel):
         calculation TEXT)
       """)
       query = """INSERT INTO items
-        VALUES (:item, :unit, :balance, :aggregate, :long, :short, :gaap, :calculation)
+        VALUES (:item, :type, :balance, :aggregate, :long, :short, :gaap, :calculation)
       """
       cur.executemany(query, records)
       con.commit()

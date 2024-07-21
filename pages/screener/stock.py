@@ -87,9 +87,9 @@ def update_table(exchange: str):
     companies = read_sqlite("ticker.db", query, params={"exchange": exchange})
     return companies
 
-  def get_ratio_details() -> DataFrame:
+  def ratio_labels() -> DataFrame:
     query = """SELECT item, long, short FROM items 
-      WHERE unit IN ('monetary_ratio', 'price_ratio', 'numeric_score')
+      WHERE type = 'fundamental'
     """
 
     items = read_sqlite("taxonomy.db", query)
@@ -144,7 +144,7 @@ def update_table(exchange: str):
     ["company_id", "name", "tickers", "period", "date", "months"], axis=1, inplace=True
   )
 
-  items = get_ratio_details()
+  items = ratio_labels()
 
   column_defs = [
     {

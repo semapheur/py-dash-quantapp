@@ -1075,6 +1075,17 @@
       }
     }
   },
+  "financial_strength": [
+    "cash_to_debt",
+    "operating_cashflow_to_debt",
+    "equity_to_assets",
+    "debt_to_equity",
+    "interest_coverage_ratio",
+    "piotroski_f_score",
+    "altman_z_score",
+    "beneish_m_score",
+    "economic_profit_spread"
+  ],
   "dupont": [
     "return_on_equity",
     "net_profit_margin",

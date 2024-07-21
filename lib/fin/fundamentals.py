@@ -282,7 +282,7 @@ def load_fundamentals(
 
 def load_ratio_items() -> DataFrame:
   query = """SELECT item FROM items 
-    WHERE unit IN ('monetary_ratio', 'price_ratio', 'numeric_score')
+    WHERE type = 'fundamental'
   """
   df = read_sqlite("taxonomy.db", query)
   if df is None:
