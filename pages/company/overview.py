@@ -1,6 +1,6 @@
 from enum import Enum
 import json
-from typing import cast, Optional
+from typing import cast
 
 from dash import (
   callback,
@@ -20,11 +20,10 @@ import pandas as pd
 from pandera.typing import DataFrame, Series
 import plotly.graph_objects as go
 import plotly.express as px
-from sqlalchemy import create_engine, text
 from components.dupont_chart import DupontChart
 
 from components.stock_header import StockHeader
-from lib.db.lite import fetch_sqlite, read_sqlite
+from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
 from lib.fin.fundamentals import load_fundamentals
 from lib.ticker.fetch import company_label
 
@@ -125,17 +124,28 @@ def sheet_items(sheet: str) -> DataFrame | None:
   return template
 
 
+def get_currency(id: str) -> str | None:
+  currency = fetch_sqlite(
+    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": f"{id}"}
+  )
+
+  if currency is None:
+    return None
+
+  return currency[0][0]
+
+
 def trend_data(row: Series[float]):
   return {"x": row.index.tolist(), "y": row.values.tolist()}
 
 
-def select_ratios(fundamentals: pd.DataFrame, items: tuple[str, ...]) -> pd.DataFrame:
+def select_ratios(fundamentals: DataFrame, items: tuple[str, ...]) -> DataFrame | None:
   query = f"""SELECT item, short, long FROM items 
     WHERE item IN {str(items)}
   """
   template = read_sqlite("taxonomy.db", query)
   if template is None:
-    raise ValueError("Taxonomy items not found")
+    return None
 
   template.loc[:, "short"].fillna(template["long"], inplace=True)
 
@@ -148,13 +158,13 @@ def select_ratios(fundamentals: pd.DataFrame, items: tuple[str, ...]) -> pd.Data
       OrderedSet(template["item"]).intersection(OrderedSet(fundamentals.columns))
     )
   )
-  fundamentals = fundamentals[cols]
+  fundamentals = cast(DataFrame, fundamentals[cols])
 
   period = "TTM" if "TTM" in cast(pd.MultiIndex, fundamentals.index).levels[1] else "FY"
   mask = fundamentals.index.get_level_values("period") == period
   current_date = fundamentals.loc[mask, :].index.get_level_values("date").max()
 
-  fundamentals = fundamentals.xs("FY", level="period").T.reset_index()
+  fundamentals = cast(DataFrame, fundamentals.xs("FY", level="period").T.reset_index())
 
   fundamentals["trend"] = fundamentals.iloc[:, 1:-1].apply(trend_data, axis=1)
 
@@ -162,41 +172,66 @@ def select_ratios(fundamentals: pd.DataFrame, items: tuple[str, ...]) -> pd.Data
   fundamentals.loc[:, "index"] = fundamentals["index"].apply(
     lambda x: template.loc[template["item"] == x, "short"].iloc[0]
   )
-  return fundamentals[["index", "trend", "current"]]
+  return cast(DataFrame, fundamentals[["index", "trend", "current"]])
+
+
+def date_dropdown_params(ix: pd.MultiIndex) -> tuple[list[dict[str, str]], str]:
+  def priority_sort_key(pair):
+    date, period = pair
+    period_priority = {"TTM": 0, "FY": 1}
+    return (date, period_priority.get(period, 2))
+
+  date_level = ix.get_level_values("date")
+  period_level = ix.get_level_values("period")
+
+  date_period_pairs = pd.Series(list(zip(date_level, period_level)))
+
+  date_options = [
+    {
+      "label": f"{date.strftime("%Y-%m-%d")} ({period})",
+      "value": f"{date.strftime("%Y-%m-%d")}|{period}",
+    }
+    for date, period in zip(date_level, period_level)
+  ]
+
+  max_date_pair = max(date_period_pairs, key=priority_sort_key)
+  date_value = f"{max_date_pair[0].strftime("%Y-%m-%d")}|{max_date_pair[1]}"
+
+  return date_options, date_value
 
 
 def performance_section(fundamentals: pd.DataFrame):
-  financial_strength = (
-    "cash_to_debt",
-    "operating_cashflow_to_debt",
-    "equity_to_assets",
-    "debt_to_equity",
-    "interest_coverage_ratio",
-    "piotroski_f_score",
-    "altman_z_score",
-    "beneish_m_score",
-    "economic_profit_spread",
-  )
-
-  profitability = (
-    "gross_margin",
-    "operating_margin",
-    "net_margin",
-    "free_cashflow_margin",
-    "return_on_equity",
-    "return_on_assets",
-    "return_on_invested_capital",
-    "return_on_capital_employed",
-    "cash_return_on_invested_capital",
-  )
-
-  liquidity = (
-    "current_ratio",
-    "quick_ratio",
-    "cash_ratio",
-    "defensive_interval_ratio",
-    "cash_conversion_cycle",
-  )
+  ratios = {
+    "financial_strength": (
+      "cash_to_debt",
+      "operating_cashflow_to_debt",
+      "equity_to_assets",
+      "debt_to_equity",
+      "interest_coverage_ratio",
+      "piotroski_f_score",
+      "altman_z_score",
+      "beneish_m_score",
+      "economic_profit_spread",
+    ),
+    "profitability": (
+      "gross_margin",
+      "operating_margin",
+      "net_margin",
+      "free_cashflow_margin",
+      "return_on_equity",
+      "return_on_assets",
+      "return_on_invested_capital",
+      "return_on_capital_employed",
+      "cash_return_on_invested_capital",
+    ),
+    "liquidity": (
+      "current_ratio",
+      "quick_ratio",
+      "cash_ratio",
+      "defensive_interval_ratio",
+      "cash_conversion_cycle",
+    ),
+  }
 
   column_defs = [
     {"field": "index", "headerName": "Metric"},
@@ -218,42 +253,38 @@ def performance_section(fundamentals: pd.DataFrame):
       html.Div(
         className="flex flex-col h-full",
         children=[
-          html.H4("Financial Strength"),
+          html.H4(k.replace("_", " ").capitalize()),
           dag.AgGrid(
-            id="table:company-overview:financial-strength",
+            id=f"table:company-overview:{k.replace('_', '-')}",
             columnDefs=column_defs,
-            rowData=select_ratios(fundamentals, financial_strength).to_dict("records"),
+            rowData=select_ratios(fundamentals, v).to_dict("records"),
             columnSize="autoSize",
           ),
         ],
-      ),
-      html.Div(
-        className="flex flex-col h-full",
-        children=[
-          html.H4("Profitability"),
-          dag.AgGrid(
-            id="table:company-overview:financial-strength",
-            columnDefs=column_defs,
-            rowData=select_ratios(fundamentals, profitability).to_dict("records"),
-            columnSize="autoSize",
-          ),
-        ],
-      ),
+      )
+      for k, v in ratios.items()
     ],
   )
 
 
+not_found = html.Main(
+  className="size-full", children=[html.H1("404", className="md-auto")]
+)
+
+
 def layout(id: str | None = None):
   if id is None:
-    return html.Main(
-      className="size-full", children=[html.H1("404", className="md-auto")]
-    )
+    return not_found
 
-  currency = fetch_sqlite(
-    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": id}
-  )[0][0]
+  currency = get_currency(id)
+  if currency is None:
+    return not_found
+
   df = load_fundamentals(id, currency)
-  print(df)
+  if df is None:
+    return not_found
+
+  date_options, date_value = date_dropdown_params(cast(pd.MultiIndex, df.index))
 
   return html.Main(
     className="grid grid-rows-[auto_1fr] h-full",
@@ -270,7 +301,10 @@ def layout(id: str | None = None):
                 className="flex justify-around",
                 children=[
                   dcc.Dropdown(
-                    id={"type": "dropdown:stock:date", "id": "sankey"}, className="w-36"
+                    id={"type": "dropdown:stock:date", "id": "sankey"},
+                    className="w-max",
+                    options=date_options,
+                    value=date_value,
                   ),
                   dcc.RadioItems(
                     id="radio:stock:sheet",
@@ -282,17 +316,6 @@ def layout(id: str | None = None):
                       {"label": "Income", "value": "income"},
                       {"label": "Balance", "value": "balance"},
                       {"label": "Cash Flow", "value": "cashflow"},
-                    ],
-                  ),
-                  dcc.RadioItems(
-                    id={"type": "radio:stock:scope", "id": "sankey"},
-                    className=radio_wrap_style,
-                    inputClassName=radio_input_style,
-                    labelClassName=radio_label_style,
-                    value=12,
-                    options=[
-                      {"label": "Annual", "value": 12},
-                      {"label": "Quarterly", "value": 3},
                     ],
                   ),
                 ],
@@ -307,18 +330,10 @@ def layout(id: str | None = None):
                 className="flex justify-center",
                 children=[
                   dcc.Dropdown(
-                    id={"type": "dropdown:stock:date", "id": "dupont"}, className="w-36"
-                  ),
-                  dcc.RadioItems(
-                    id={"type": "radio:stock:scope", "id": "dupont"},
-                    className=radio_wrap_style,
-                    inputClassName=radio_input_style,
-                    labelClassName=radio_label_style,
-                    value=12,
-                    options=[
-                      {"label": "Annual", "value": 12},
-                      {"label": "Quarterly", "value": 3},
-                    ],
+                    id={"type": "dropdown:stock:date", "id": "dupont"},
+                    className="w-max",
+                    options=date_options,
+                    value=date_value,
                   ),
                 ],
               ),
@@ -349,32 +364,47 @@ def update_table(data: list[dict]):
   Output("graph:stock:sankey", "figure"),
   Input("radio:stock:sheet", "value"),
   Input({"type": "dropdown:stock:date", "id": "sankey"}, "value"),
-  State({"type": "radio:stock:scope", "id": "sankey"}, "value"),
-  State("store:ticker-search:financials", "data"),
+  State("location:app", "pathname"),
 )
-def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
-  if not (date and data):
+def update_sankey(sheet: str, date_period: str, slug: str):
+  if not (date_period and slug):
     return no_update
 
-  fin = pd.DataFrame.from_records(data).set_index(["date", "months"]).xs((date, scope))
-
-  engine = create_engine("sqlite+pysqlite:///data/taxonomy.db")
-  query = text(
-    """SELECT 
+  query = """SELECT 
     sankey.item, items.short, items.long, sankey.color, sankey.links FROM sankey 
     LEFT JOIN items ON sankey.item = items.item
       WHERE sankey.sheet = :sheet
   """
-  ).bindparams(sheet=sheet)
 
-  with engine.connect().execution_options(autocommit=True) as con:
-    tmpl = pd.read_sql(query, con=con)
+  template = read_sqlite("taxonomy.db", query, {"sheet": sheet})
+  if template is None:
+    return no_update
 
-  tmpl = tmpl.loc[tmpl["item"].isin(set(fin.index))]
-  tmpl.loc[:, "links"] = tmpl["links"].apply(lambda x: json.loads(x))
-  tmpl.loc[:, "short"].fillna(tmpl["long"], inplace=True)
+  id = slug.split("/")[2]
+  currency = get_currency(id)
+  if currency is None:
+    return no_update
 
-  Nodes = Enum("Node", tmpl["item"].tolist(), start=0)
+  table = f"{id}_{currency}"
+  columns = get_table_columns("financials.db", [table])[table]
+
+  sankey_columns = columns.intersection(template["item"].tolist())
+  column_text = ",".join(sankey_columns)
+
+  date, period = date_period.split("|")
+  query = (
+    f"""SELECT {column_text} FROM "{table}" WHERE date = :date AND period = :period"""
+  )
+  df = read_sqlite("financials.db", query, {"date": date, "period": period})
+
+  if df is None:
+    return no_update
+
+  template = cast(DataFrame, template.loc[template["item"].isin(set(df.index))])
+  template.loc[:, "links"] = template["links"].apply(lambda x: json.loads(x))
+  template.loc[:, "short"].fillna(template["long"], inplace=True)
+
+  Nodes = Enum("Node", template["item"].tolist(), start=0)
 
   sources = []
   targets = []
@@ -382,9 +412,11 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
   link_colors = []
   node_colors = []
 
-  for item, node_color, links in zip(tmpl["item"], tmpl["color"], tmpl["links"]):
+  for item, node_color, links in zip(
+    template["item"], template["color"], template["links"]
+  ):
     if not node_color:
-      node_color = sankey_color(np.sign(fin.loc[item]))
+      node_color = sankey_color(np.sign(df.loc[item]))
 
     node_colors.append(node_color)
 
@@ -392,10 +424,10 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
       continue
 
     for key, value in links.items():
-      if key not in set(tmpl["item"]):
+      if key not in set(template["item"]):
         continue
 
-      link_value = fin.loc[value.get("value", key)]
+      link_value = df.loc[value.get("value", key)]
 
       sign = value.get("sign", np.sign(link_value))
       if sign != np.sign(link_value):
@@ -428,7 +460,7 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
           pad=15,
           thickness=10,
           line=dict(color="black", width=0.5),
-          label=tmpl["short"].tolist(),
+          label=template["short"].tolist(),
           color=node_colors,
         ),
         link=dict(source=sources, target=targets, value=values, color=link_colors),
@@ -442,32 +474,33 @@ def update_graph(sheet: str, date: str, scope: str, data: list[dict]):
 @callback(
   [Output("span:dupont-chart:" + span_id, "children") for span_id in span_ids],
   Input({"type": "dropdown:stock:date", "id": "dupont"}, "value"),
-  State({"type": "radio:stock:scope", "id": "dupont"}, "value"),
-  State("store:ticker-search:financials", "data"),
+  State("location:app", "pathname"),
 )
-def update_dupont(date: str, scope: int, data: list[dict]):
-  if not (date and data):
+def update_dupont(date_period: str, slug: str):
+  if not (date_period and slug):
     return no_update
 
-  fin = pd.DataFrame.from_records(data).set_index(["date", "months"]).xs((date, scope))
-
-  return tuple(f"{fin.at[span_id.split(":")[-1]]:.3G}" for span_id in span_ids)
-
-
-@callback(
-  Output({"type": "dropdown:stock:date", "id": MATCH}, "options"),
-  Output({"type": "dropdown:stock:date", "id": MATCH}, "value"),
-  Input({"type": "radio:stock:scope", "id": MATCH}, "value"),
-  Input("store:ticker-search:financials", "data"),
-)
-def update_dropdown(scope: str, data: list[dict]):
-  if not data:
+  id = slug.split("/")[2]
+  currency = get_currency(id)
+  if currency is None:
     return no_update
 
-  fin = (
-    pd.DataFrame.from_records(data)
-    .set_index(["date", "months"])
-    .xs(scope, level=1)
-    .sort_index(ascending=False)
+  table = f"{id}_{currency}"
+  columns = get_table_columns("financials.db", [table])[table]
+  dupont_items = columns.intersection({span_id.split(":")[-1] for span_id in span_ids})
+  column_text = ",".join(dupont_items)
+
+  date, period = date_period.split("|")
+  query = (
+    f"""SELECT {column_text} FROM "{table}" WHERE date = :date AND period = :period"""
   )
-  return list(fin.index.get_level_values(0)), ""
+  df = read_sqlite("financials.db", query, {"date": date, "period": period})
+
+  if df is None:
+    return no_update
+
+  df.fillna(np.nan, inplace=True)
+  return tuple(
+    f"{df.at[0, item]:.3g}" if (item := si.split(":")[-1]) in dupont_items else "N/A"
+    for si in span_ids
+  )
