@@ -127,32 +127,9 @@ def sheet_items(sheet: str) -> DataFrame | None:
 
 def trend_data(row: Series[float]):
   return {"x": row.index.tolist(), "y": row.values.tolist()}
-  # fig = px.line(row)
-  # fig.update_layout(
-  #  showlegend=False,
-  #  xaxis=dict(autorange="reversed"),
-  #  xaxis_visible=False,
-  #  xaxis_showticklabels=False,
-  #  yaxis_visible=False,
-  #  yaxis_showticklabels=False,
-  #  margin=dict(l=0, r=0, t=0, b=0),
-  #  template="plotly_white",
-  # )
-  # return fig
 
 
-def financial_strength(fundamentals: pd.DataFrame) -> pd.DataFrame:
-  items = (
-    "cash_to_debt",
-    "operating_cashflow_to_debt",
-    "equity_to_assets",
-    "debt_to_equity",
-    "interest_coverage_ratio",
-    "piotroski_f_score",
-    "altman_z_score",
-    "beneish_m_score",
-    "economic_profit_spread",
-  )
+def select_ratios(fundamentals: pd.DataFrame, items: tuple[str, ...]) -> pd.DataFrame:
   query = f"""SELECT item, short, long FROM items 
     WHERE item IN {str(items)}
   """
@@ -180,19 +157,6 @@ def financial_strength(fundamentals: pd.DataFrame) -> pd.DataFrame:
   fundamentals = fundamentals.xs("FY", level="period").T.reset_index()
 
   fundamentals["trend"] = fundamentals.iloc[:, 1:-1].apply(trend_data, axis=1)
-  # for i, r in fundamentals.iterrows():
-  #  fig = px.line(r.iloc[1:-1])
-  #  fig.update_layout(
-  #    showlegend=False,
-  #    xaxis=dict(autorange="reversed"),
-  #    xaxis_visible=False,
-  #    xaxis_showticklabels=False,
-  #    yaxis_visible=False,
-  #    yaxis_showticklabels=False,
-  #    margin=dict(l=0, r=0, t=0, b=0),
-  #    template="plotly_white",
-  #  )
-  #  fundamentals.at[i, "trend"] = fig
 
   fundamentals.rename(columns={current_date: "current"}, inplace=True)
   fundamentals.loc[:, "index"] = fundamentals["index"].apply(
@@ -201,11 +165,38 @@ def financial_strength(fundamentals: pd.DataFrame) -> pd.DataFrame:
   return fundamentals[["index", "trend", "current"]]
 
 
-def layout(id: str | None = None):
-  if id is None:
-    return html.Main(
-      className="size-full", children=[html.H1("404", className="md-auto")]
-    )
+def performance_section(fundamentals: pd.DataFrame):
+  financial_strength = (
+    "cash_to_debt",
+    "operating_cashflow_to_debt",
+    "equity_to_assets",
+    "debt_to_equity",
+    "interest_coverage_ratio",
+    "piotroski_f_score",
+    "altman_z_score",
+    "beneish_m_score",
+    "economic_profit_spread",
+  )
+
+  profitability = (
+    "gross_margin",
+    "operating_margin",
+    "net_margin",
+    "free_cashflow_margin",
+    "return_on_equity",
+    "return_on_assets",
+    "return_on_invested_capital",
+    "return_on_capital_employed",
+    "cash_return_on_invested_capital",
+  )
+
+  liquidity = (
+    "current_ratio",
+    "quick_ratio",
+    "cash_ratio",
+    "defensive_interval_ratio",
+    "cash_conversion_cycle",
+  )
 
   column_defs = [
     {"field": "index", "headerName": "Metric"},
@@ -213,7 +204,6 @@ def layout(id: str | None = None):
       "field": "trend",
       "headerName": "Trend",
       "cellRenderer": "TrendLine",
-      "cellRendererParams": {"data": "params.data"},
     },
     {
       "field": "current",
@@ -222,6 +212,43 @@ def layout(id: str | None = None):
     },
   ]
 
+  return html.Section(
+    className="grid grid-cols-3 gap-2 h-full snap-start",
+    children=[
+      html.Div(
+        className="flex flex-col h-full",
+        children=[
+          html.H4("Financial Strength"),
+          dag.AgGrid(
+            id="table:company-overview:financial-strength",
+            columnDefs=column_defs,
+            rowData=select_ratios(fundamentals, financial_strength).to_dict("records"),
+            columnSize="autoSize",
+          ),
+        ],
+      ),
+      html.Div(
+        className="flex flex-col h-full",
+        children=[
+          html.H4("Profitability"),
+          dag.AgGrid(
+            id="table:company-overview:financial-strength",
+            columnDefs=column_defs,
+            rowData=select_ratios(fundamentals, profitability).to_dict("records"),
+            columnSize="autoSize",
+          ),
+        ],
+      ),
+    ],
+  )
+
+
+def layout(id: str | None = None):
+  if id is None:
+    return html.Main(
+      className="size-full", children=[html.H1("404", className="md-auto")]
+    )
+
   currency = fetch_sqlite(
     "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": id}
   )[0][0]
@@ -229,92 +256,76 @@ def layout(id: str | None = None):
   print(df)
 
   return html.Main(
-    className="grid grid-rows-[auto_1fr] h-full overflow-y-scroll",
+    className="grid grid-rows-[auto_1fr] h-full",
     children=[
       StockHeader(id),
       html.Div(
-        className="grid grid-cols-2",
+        className="h-full snap-y snap-mandatory overflow-y-scroll",
         children=[
-          html.Div(
-            className="flex flex-col",
+          performance_section(df),
+          html.Section(
+            className="h-full snap-start",
             children=[
-              html.Div(
-                className="flex flex-col h-[100vh]",
+              html.Form(
+                className="flex justify-around",
                 children=[
-                  html.H4("Financial Strength"),
-                  dag.AgGrid(
-                    id="table:company-overview:financial-strength",
-                    columnDefs=column_defs,
-                    rowData=financial_strength(df).to_dict("records"),
-                    columnSize="autoSize",
-                    style={"height": "100%"},
+                  dcc.Dropdown(
+                    id={"type": "dropdown:stock:date", "id": "sankey"}, className="w-36"
+                  ),
+                  dcc.RadioItems(
+                    id="radio:stock:sheet",
+                    className=radio_wrap_style,
+                    inputClassName=radio_input_style,
+                    labelClassName=radio_label_style,
+                    value="income",
+                    options=[
+                      {"label": "Income", "value": "income"},
+                      {"label": "Balance", "value": "balance"},
+                      {"label": "Cash Flow", "value": "cashflow"},
+                    ],
+                  ),
+                  dcc.RadioItems(
+                    id={"type": "radio:stock:scope", "id": "sankey"},
+                    className=radio_wrap_style,
+                    inputClassName=radio_input_style,
+                    labelClassName=radio_label_style,
+                    value=12,
+                    options=[
+                      {"label": "Annual", "value": 12},
+                      {"label": "Quarterly", "value": 3},
+                    ],
                   ),
                 ],
-              )
-            ],
-          )
-        ],
-      ),
-      html.Div(
-        id="div:stock:sankey",
-        children=[
-          html.Form(
-            className="flex justify-around",
-            children=[
-              dcc.Dropdown(
-                id={"type": "dropdown:stock:date", "id": "sankey"}, className="w-36"
               ),
-              dcc.RadioItems(
-                id="radio:stock:sheet",
-                className=radio_wrap_style,
-                inputClassName=radio_input_style,
-                labelClassName=radio_label_style,
-                value="income",
-                options=[
-                  {"label": "Income", "value": "income"},
-                  {"label": "Balance", "value": "balance"},
-                  {"label": "Cash Flow", "value": "cashflow"},
-                ],
-              ),
-              dcc.RadioItems(
-                id={"type": "radio:stock:scope", "id": "sankey"},
-                className=radio_wrap_style,
-                inputClassName=radio_input_style,
-                labelClassName=radio_label_style,
-                value=12,
-                options=[
-                  {"label": "Annual", "value": 12},
-                  {"label": "Quarterly", "value": 3},
-                ],
-              ),
+              dcc.Graph(id="graph:stock:sankey", responsive=True),
             ],
           ),
-          dcc.Graph(id="graph:stock:sankey", responsive=True),
-        ],
-      ),
-      html.Div(
-        children=[
-          html.Form(
-            className="flex justify-center",
+          html.Section(
+            className="h-full snap-start",
             children=[
-              dcc.Dropdown(
-                id={"type": "dropdown:stock:date", "id": "dupont"}, className="w-36"
-              ),
-              dcc.RadioItems(
-                id={"type": "radio:stock:scope", "id": "dupont"},
-                className=radio_wrap_style,
-                inputClassName=radio_input_style,
-                labelClassName=radio_label_style,
-                value=12,
-                options=[
-                  {"label": "Annual", "value": 12},
-                  {"label": "Quarterly", "value": 3},
+              html.Form(
+                className="flex justify-center",
+                children=[
+                  dcc.Dropdown(
+                    id={"type": "dropdown:stock:date", "id": "dupont"}, className="w-36"
+                  ),
+                  dcc.RadioItems(
+                    id={"type": "radio:stock:scope", "id": "dupont"},
+                    className=radio_wrap_style,
+                    inputClassName=radio_input_style,
+                    labelClassName=radio_label_style,
+                    value=12,
+                    options=[
+                      {"label": "Annual", "value": 12},
+                      {"label": "Quarterly", "value": 3},
+                    ],
+                  ),
                 ],
               ),
+              DupontChart(),
             ],
           ),
-          DupontChart(),
-        ]
+        ],
       ),
     ],
   )
