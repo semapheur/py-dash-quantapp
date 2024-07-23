@@ -1,6 +1,7 @@
 import re
+from typing import Literal
 
-from dash import dcc
+from dash import dcc, Patch
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -64,7 +65,7 @@ def quote_line(data: dict) -> go.Scatter:
 
 def quote_graph(
   data: dict[str, list[str | float | int]],
-  plot="line",
+  plot: Literal["line", "candlestick"] = "line",
   rangeselector: tuple[str, ...] | None = None,
   rangeslider=False,
 ) -> go.Figure:
@@ -88,7 +89,7 @@ def quote_graph(
 
 def quote_volume_graph(
   data: dict[str, list[str | float | int]],
-  plot="line",
+  plot: Literal["line", "candlestick"] = "line",
   rangeselector: tuple[str, ...] | None = None,
   rangeslider=False,
 ) -> go.Figure:
@@ -131,52 +132,54 @@ def quote_volume_graph(
 
 
 def quote_graph_range(
-  data: dict[str, list[str | float | int]],
-  cols: list[str],
-  fig: go.Figure,
+  figure: go.Figure,
   start_date: str,
   end_date: str,
-) -> go.Figure:
-  ohlcv = pd.DataFrame.from_dict(data)
-  ohlcv.set_index("date", inplace=True)
-  ohlcv.index = pd.to_datetime(ohlcv.index)
+):
+  figure_patched = Patch()
 
-  ohlcv = ohlcv.loc[start_date:end_date, cols]
+  for key in figure["layout"]:
+    if key.startswith("xaxis"):
+      figure_patched["layout"][key]["range"] = [start_date, end_date]
 
-  fig["layout"]["xaxis"]["range"] = [start_date, end_date]
-  margin = np.abs(ohlcv[cols[0]].min() / 100)
-  fig["layout"]["yaxis"]["range"] = [
-    ohlcv[cols[0]].min() - margin,
-    ohlcv[cols[0]].max() + margin,
-  ]
-  fig["layout"]["yaxis"]["autorange"] = False
+    elif key.startswith("yaxis"):
+      axis_label = key.replace("yaxis", "")
 
-  for i in range(1, len(cols)):
-    margin = np.abs(ohlcv[cols[i]].min() / 100)
-    fig["layout"][f"yaxis{i+1}"]["range"] = [
-      ohlcv[cols[i]].min() - margin,
-      ohlcv[cols[i]].max() + margin,
-    ]
-    fig["layout"][f"yaxis{i+1}"]["autorange"] = False
+      y_min = []
+      y_max = []
+      for trace in figure["data"]:
+        if trace["yaxis"] != axis_label:
+          continue
 
-  return fig
+        data = pd.Series(data=trace["y"], index=trace["x"])
+        data = data.between_time(start_date, end_date)
+
+        y_min.append(data.min())
+        y_max.append(data.max())
+
+      figure_patched["layout"][key]["range"] = [min(y_min), max(y_max)]
+      figure_patched["layout"][key]["autorange"] = False
+
+      figure_patched["layout"][key]["autorange"] = False
+
+  return figure_patched
 
 
 def quote_graph_relayout(
   relayout: dict,
-  data: dict[str, list[str | float | int]],
-  cols: list[str],
-  fig: go.Figure,
-) -> go.Figure:
+  figure: go.Figure,
+):
+  def get_axes(relayout: dict) -> set[str]:
+    return {x.split(".")[0] for x in relayout.keys()}
+
   if all(x in relayout.keys() for x in ["xaxis.range[0]", "xaxis.range[1]"]):
-    fig = quote_graph_range(
-      data, cols, fig, relayout["xaxis.range[0]"], relayout["xaxis.range[1]"]
+    figure_patched = quote_graph_range(
+      figure, relayout["xaxis.range[0]"], relayout["xaxis.range[1]"]
     )
   elif "xaxis.autorange" in relayout.keys():
-    fig["layout"]["xaxis"]["autorange"] = True
-    fig["layout"]["yaxis"]["autorange"] = True
+    figure_patched = Patch()
 
-    for i in range(1, len(cols)):
-      fig["layout"][f"yaxis{i+1}"]["autorange"] = True
+    for axis in get_axes(relayout):
+      figure_patched["layout"][axis]["autorange"] = True
 
-  return fig
+  return figure_patched

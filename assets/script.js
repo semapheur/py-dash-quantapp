@@ -14,11 +14,11 @@ function removeAllEventListeners(el, withChildren = false) {
 }
 
 /**
- * @param {string} dialog_id 
+ * @param {string} dialogId 
  */
-function open_dialog(dialog_id) {
-  dialog_id = check_id(dialog_id)
-  dialog = document.getElementById(dialog_id)
+function openDialog(dialogId) {
+  dialogId = checkId(dialogId)
+  const dialog = document.getElementById(dialogId)
   dialog.showModal()
 
   dialog.addEventListener("click", e => {
@@ -36,11 +36,11 @@ function open_dialog(dialog_id) {
 }
 
 /**
- * @param {string} dialog_id 
+ * @param {string} dialogId 
  */
-function close_dialog(dialog_id) {
-  dialog_id = check_id(dialog_id)
-  dialog = document.getElementById(dialog_id)
+function closeDialog(dialogId) {
+  dialogId = checkId(dialogId)
+  const dialog = document.getElementById(dialogId)
   dialog.close()
   removeAllEventListeners(dialog, false)
 }
@@ -49,7 +49,7 @@ function close_dialog(dialog_id) {
  * @param {string|Object} id
  * @returns {string}
  */
-function check_id(id) {
+function checkId(id) {
   if (typeof id !== "object") { return id }
 
   sorted_keys = Object.keys(id).sort()
@@ -60,71 +60,165 @@ function check_id(id) {
   return JSON.stringify(sorted_object)
 }
 
+/**
+ * @param {string} str
+ * @return {boolean}
+ */
+function isNumber(str) {
+  return !Number.isNaN(Number(str))
+}
+
+function checkKeys(obj, patterns) {
+  const keys = Object.keys(obj)
+  return patterns.some(pattern => keys.some(key => key.includes(pattern)))
+}
+
+/**
+ * @param {Object} data
+ * @param {string} startDate
+ * @param {string} endDate
+ * @return {Object}
+ */
+function sliceTimeSeries(data, startDate, endDate) {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+
+  const indices = data.x.reduce((acc, dateStr, index) => {
+    const date = new Date(dateStr)
+    if (date >= start && date <= end) {
+      acc.push(index)
+    }
+    return acc
+  }, [])
+
+  return {
+    x: indices.map(i => data.x[i]),
+    y: indices.map(i => data.y[i])
+  }
+}
+
+function quoteGraphRange(figure, startDate, endDate) {
+  for (const key in figure.layout) {
+    if (key.startsWith("xaxis")) {
+      figure["layout"][key]["range"] = [startDate, endDate]
+    } 
+    else if (key.startsWith("yaxis")) 
+      let axisLabel = key.replace("axis", "")
+      
+      const yMin = []
+      const yMax = []
+      for (const trace of figure.data) {
+        if (trace.yaxis !== axisLabel) { continue }
+
+        let data = {x: trace.x, y: trace.y}
+        data = sliceTimeSeries(data, startDate, endDate)
+
+        yMin.push(Math.min(...data.y))
+        yMax.push(Math.max(...data.y))
+
+      }
+      figure["layout"][key]["range"] = [Math.min(...yMin), Math.max(...yMax)]
+      figure["layout"][key]["autorange"] = false
+    }
+  }
+  return figure
+}
+
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
     /**
      * @param {Object} cell
-     * @param {string|Object} dialog_id
+     * @param {string|Object} dialogId
      * @returns {Object}
      */
-    dcf_factor_modal: function(cell, dialog_id) {
+    dcf_factor_modal: function(cell, dialogId) {
       if (cell === undefined || cell.colId != "factor") { return cell }
 
-      open_modal(dialog_id)
+      openModal(dialogId)
       return cell
     },
     /**
      * @param {Object} cell
-     * @param {string} dialog_id
+     * @param {string} dialogId
      * @returns {string}
      */
-    cell_click_modal: function(table_cell, dialog_id) {
-      if (table_cell !== undefined) { open_dialog(dialog_id) }
+    cellClickModal: function(table_cell, dialogId) {
+      if (table_cell !== undefined) { openDialog(dialogId) }
       
       return window.dash_clientside.no_update
     },
     /**
-     * @param {number} n_clicks
-     * @param {Object|string} dialog_id
+     * @param {number} nClicks
+     * @param {Object|string} dialogId
      * @returns {string}
      */
-    open_modal: function(n_clicks, dialog_id) {
-      if (n_clicks > 0) { open_dialog(dialog_id) }
+    openModal: function(nClicks, dialogId) {
+      if (nClicks > 0) { openDialog(dialogId) }
         
       return window.dash_clientside.no_update
     },
     /**
-     * @param {number} n_clicks
-     * @param {string} dialog_id
+     * @param {number} nClicks
+     * @param {string} dialogId
      * @returns {string}
      */
-    close_modal: function(n_clicks, dialog_id) {
-      if (n_clicks > 0) {close_dialog(dialog_id)}
+    closeModal: function(nClicks, dialogId) {
+      if (nClicks > 0) {closeDialog(dialogId)}
 
       return window.dash_clientside.no_update
     },
     /**
-     * @param {number} open_stamp
-     * @param {number} close_stamp
-     * @param {Object} dialog_id
+     * @param {number} openStamp
+     * @param {number} closeStamp
+     * @param {Object} dialogId
      * @returns {string}
      */
-    handle_modal: function(open_stamp, close_stamp, dialog_id) {
+    handleModal: function(openStamp, closeStamp, dialogId) {
       
-      if (open_stamp === undefined && close_stamp === undefined) {
+      if (openStamp === undefined && closeStamp === undefined) {
         return window.dash_clientside.no_update
       }
 
-      if (close_stamp === undefined) {
-        open_dialog(dialog_id)
-      } else if (open_stamp === undefined) {
-        close_dialog(dialog_id)
-      } else if (open_stamp > close_stamp) {
-        open_dialog(dialog_id)
-      } else if (close_stamp > open_stamp) {
-        close_dialog(dialog_id)
+      if (closeStamp === undefined) {
+        openDialog(dialogId)
+      } else if (openStamp === undefined) {
+        closeDialog(dialogId)
+      } else if (openStamp > closeStamp) {
+        openDialog(dialogId)
+      } else if (closeStamp > openStamp) {
+        closeDialog(dialogId)
       }
       return window.dash_clientside.no_update
+    },
+    updateQuoteGraph: function(relayoutData, figure) {
+      function getAxes(obj) {
+        const pattern = /^(x|y)axis\d?/
+        const axes = new Set()
+      
+        for (const key in obj) {
+          const match = key.match(pattern)
+          if (match) {
+            axes.add(match[0])
+          }
+        }
+        return Array.from(axes)
+      }
+
+      if (figure === undefined) { return window.dash_clientside.no_update }
+
+      const axes = getAxes(figure.layout)
+      if (checkKeys(relayoutData, ["range[0]", "range[1]"])) {
+        figure = quoteGraphRange(figure, relayoutData["xaxis.range[0]"], relayoutData["xaxis.range[1]"])
+      }
+      else if (checkKeys(relayoutData, ["autorange", "showspikes"])) {
+        for (const axis of axes) {
+          figure.layout[axis].autorange = true
+        }
+      }
+
+      return {data: figure.data, layout: figure.layout}
     }
   }
 })
+
+

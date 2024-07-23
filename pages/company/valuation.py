@@ -330,7 +330,7 @@ clientside_callback(
 )
 
 clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="close_modal"),
+  ClientsideFunction(namespace="clientside", function_name="closeModal"),
   Output({"type": "dialog:stock-valuation", "id": MATCH}, "id"),
   Input({"type": "button:stock-valuation:close-modal", "id": MATCH}, "n_clicks"),
   State({"type": "dialog:stock-valuation", "id": MATCH}, "id"),

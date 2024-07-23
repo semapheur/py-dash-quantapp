@@ -208,7 +208,7 @@ def update_store(row: list[dict]):
 
 
 clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="cell_click_modal"),
+  ClientsideFunction(namespace="clientside", function_name="cellClickModal"),
   Output("table:stock-financials", "id"),
   Input("table:stock-financials", "cellClicked"),
   State(CloseModalAIO.dialog_id("stock-financials"), "id"),

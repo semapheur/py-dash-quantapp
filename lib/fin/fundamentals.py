@@ -21,7 +21,7 @@ from lib.fin.metrics import (
 )
 from lib.fin.models import CloseQuote, SharePrice
 from lib.fin.statement import load_statements, stock_splits
-from lib.fin.quote import get_ohlcv
+from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import TaxonomyCalculation
 from lib.morningstar.ticker import Stock
 from lib.yahoo.ticker import Ticker
@@ -133,7 +133,7 @@ async def calculate_fundamentals(
 
     price = cast(
       DataFrame[CloseQuote],
-      await get_ohlcv(
+      await load_ohlcv(
         f"{id}_{currency}",
         "stock",
         ohlcv_fetcher,
@@ -174,14 +174,14 @@ async def calculate_fundamentals(
   market_fetcher = partial(Ticker("^GSPC").ohlcv)
   market_close = cast(
     DataFrame[CloseQuote],
-    await get_ohlcv(
+    await load_ohlcv(
       "GSPC", "index", market_fetcher, start_date=start_date, cols=["close"]
     ),
   )
   riskfree_fetcher = partial(Ticker("^TNX").ohlcv)
   riskfree_rate = cast(
     DataFrame[CloseQuote],
-    await get_ohlcv(
+    await load_ohlcv(
       "TNX", "index", riskfree_fetcher, start_date=start_date, cols=["close"]
     ),
   )

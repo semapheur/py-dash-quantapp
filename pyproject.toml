@@ -20,6 +20,7 @@ dependencies = [
   "dash[celery]",
   "dash-ag-grid",
   "dash-resizeable-panels",
+  "dash-tvlwc",
   "dashvis",
   "flask-caching",
   "fathon",

@@ -1,9 +1,12 @@
+import asyncio
 from enum import Enum
+from functools import partial
 import json
 from typing import cast
 
 from dash import (
   callback,
+  ctx,
   dcc,
   html,
   no_update,
@@ -11,7 +14,6 @@ from dash import (
   Output,
   Input,
   State,
-  MATCH,
 )
 import dash_ag_grid as dag
 import numpy as np
@@ -19,12 +21,14 @@ from ordered_set import OrderedSet
 import pandas as pd
 from pandera.typing import DataFrame, Series
 import plotly.graph_objects as go
-import plotly.express as px
 from components.dupont_chart import DupontChart
 
+from components.quote_graph import quote_volume_graph
 from components.stock_header import StockHeader
 from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
+from lib.morningstar.ticker import Stock
 from lib.fin.fundamentals import load_fundamentals
+from lib.fin.quote import load_ohlcv
 from lib.ticker.fetch import company_label
 
 register_page(__name__, path_template="/company/<id>/overview", title=company_label)
@@ -84,6 +88,18 @@ def sheet_items(sheet: str) -> DataFrame | None:
 
   template.loc[:, "short"].fillna(template["long"], inplace=True)
   return template
+
+
+def get_primary_security(id: str) -> str | None:
+  query = """SELECT json_extract(primary_security, '$[0]') AS primary_security 
+  FROM company WHERE company_id = :id"""
+
+  ticker = fetch_sqlite("ticker.db", query, {"id": f"{id}"})
+
+  if ticker is None:
+    return None
+
+  return ticker[0][0]
 
 
 def get_currency(id: str) -> str | None:
@@ -229,6 +245,60 @@ def performance_section(fundamentals: pd.DataFrame):
   )
 
 
+def sankey_section(date_options: list[dict[str, str]], date_value: str):
+  return html.Section(
+    className="h-full snap-start",
+    children=[
+      html.H3("Sankey Chart"),
+      html.Form(
+        className="flex justify-around",
+        children=[
+          dcc.Dropdown(
+            id={"type": "dropdown:company:date", "id": "sankey"},
+            className="w-40",
+            options=date_options,
+            value=date_value,
+          ),
+          dcc.RadioItems(
+            id="radio:company:sheet",
+            className=radio_wrap_style,
+            inputClassName=radio_input_style,
+            labelClassName=radio_label_style,
+            value="income",
+            options=[
+              {"label": "Income", "value": "income"},
+              {"label": "Balance", "value": "balance"},
+              {"label": "Cash Flow", "value": "cashflow"},
+            ],
+          ),
+        ],
+      ),
+      dcc.Graph(id="graph:company:sankey", responsive=True),
+    ],
+  )
+
+
+def dupont_section(date_options: list[dict[str, str]], date_value: str):
+  return html.Section(
+    className="h-full snap-start",
+    children=[
+      html.H3("Dupont Chart"),
+      html.Form(
+        className="flex justify-center",
+        children=[
+          dcc.Dropdown(
+            id={"type": "dropdown:company:date", "id": "dupont"},
+            className="w-40",
+            options=date_options,
+            value=date_value,
+          ),
+        ],
+      ),
+      DupontChart(),
+    ],
+  )
+
+
 not_found = html.Main(
   className="size-full", children=[html.H1("404", className="md-auto")]
 )
@@ -242,11 +312,22 @@ def layout(id: str | None = None):
   if currency is None:
     return not_found
 
-  df = load_fundamentals(id, currency)
-  if df is None:
+  fundamentals = load_fundamentals(id, currency)
+  if fundamentals is None:
     return not_found
 
-  date_options, date_value = date_dropdown_params(cast(pd.MultiIndex, df.index))
+  query = """SELECT 
+    ticker || ' (' || mic || ':' || currency || ')' AS label, 
+    security_id || '|' || currency AS value 
+  FROM stock WHERE company_id = :id
+  """
+  ticker_options = read_sqlite("ticker.db", query, {"id": id})
+  ticker_value = f"{get_primary_security(id)}|{currency}"
+  print(ticker_value)
+
+  date_options, date_value = date_dropdown_params(
+    cast(pd.MultiIndex, fundamentals.index)
+  )
 
   return html.Main(
     className="grid grid-rows-[auto_1fr] h-full",
@@ -255,53 +336,27 @@ def layout(id: str | None = None):
       html.Div(
         className="h-full snap-y snap-mandatory overflow-y-scroll",
         children=[
-          performance_section(df),
           html.Section(
             className="h-full snap-start",
             children=[
               html.Form(
-                className="flex justify-around",
+                className="grid grid-cols-[2fr_1fr_auto] gap-2 px-2 pt-2",
                 children=[
                   dcc.Dropdown(
-                    id={"type": "dropdown:stock:date", "id": "sankey"},
-                    className="w-max",
-                    options=date_options,
-                    value=date_value,
-                  ),
-                  dcc.RadioItems(
-                    id="radio:stock:sheet",
-                    className=radio_wrap_style,
-                    inputClassName=radio_input_style,
-                    labelClassName=radio_label_style,
-                    value="income",
-                    options=[
-                      {"label": "Income", "value": "income"},
-                      {"label": "Balance", "value": "balance"},
-                      {"label": "Cash Flow", "value": "cashflow"},
-                    ],
-                  ),
+                    id="dropdown:company:quote",
+                    options=cast(DataFrame, ticker_options).to_dict("records"),
+                    value=ticker_value,
+                  )
                 ],
               ),
-              dcc.Graph(id="graph:stock:sankey", responsive=True),
-            ],
-          ),
-          html.Section(
-            className="h-full snap-start",
-            children=[
-              html.Form(
-                className="flex justify-center",
-                children=[
-                  dcc.Dropdown(
-                    id={"type": "dropdown:stock:date", "id": "dupont"},
-                    className="w-max",
-                    options=date_options,
-                    value=date_value,
-                  ),
-                ],
+              dcc.Graph(
+                id="graph:company:quote",
               ),
-              DupontChart(),
             ],
           ),
+          performance_section(fundamentals),
+          sankey_section(date_options, date_value),
+          dupont_section(date_options, date_value),
         ],
       ),
     ],
@@ -309,10 +364,63 @@ def layout(id: str | None = None):
 
 
 @callback(
-  Output("graph:stock:sankey", "figure"),
-  Input("radio:stock:sheet", "value"),
-  Input({"type": "dropdown:stock:date", "id": "sankey"}, "value"),
+  Output("graph:company:quote", "figure"),
+  Input("dropdown:company:quote", "value"),
+  Input("graph:company:quote", "relayoutData"),
+  State("graph:company:quote", "figure"),
+  background=True,
+)
+def update_quote(id_currency: str, relayout: dict, fig: go.Figure):
+  if not id_currency:
+    return no_update
+
+  triggered_id = ctx.triggered_id
+  if triggered_id == "dropdown:company:quote":
+    id, currency = id_currency.split("|")
+    ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
+    ohlcv = asyncio.run(load_ohlcv(id, "stock", ohlcv_fetcher, cols=["open", "close"]))
+
+    if ohlcv is None:
+      return no_update
+
+    return quote_volume_graph(
+      ohlcv.reset_index().to_dict("list"),
+      "line",
+      rangeselector=("1M", "6M", "YTD", "1Y", "All"),
+    )
+
+  # elif triggered_id == "graph:company:quote" and relayout and fig:
+  #  return quote_graph_relayout(relayout, fig["data"], ["open", "close"])
+
+  return no_update
+
+
+def quote_graph_relayout(
+  relayout: dict,
+  data: dict[str, list[str | float | int]],
+  cols: list[str],
+  fig: go.Figure,
+) -> go.Figure:
+  if all(x in relayout.keys() for x in ["xaxis.range[0]", "xaxis.range[1]"]):
+    fig = quote_graph_range(
+      data, cols, fig, relayout["xaxis.range[0]"], relayout["xaxis.range[1]"]
+    )
+  elif "xaxis.autorange" in relayout.keys():
+    fig["layout"]["xaxis"]["autorange"] = True
+    fig["layout"]["yaxis"]["autorange"] = True
+
+    for i in range(1, len(cols)):
+      fig["layout"][f"yaxis{i+1}"]["autorange"] = True
+
+  return fig
+
+
+@callback(
+  Output("graph:company:sankey", "figure"),
+  Input("radio:company:sheet", "value"),
+  Input({"type": "dropdown:company:date", "id": "sankey"}, "value"),
   State("location:app", "pathname"),
+  background=True,
 )
 def update_sankey(sheet: str, date_period: str, slug: str):
   if not (date_period and slug):
@@ -421,8 +529,9 @@ def update_sankey(sheet: str, date_period: str, slug: str):
 
 @callback(
   [Output("span:dupont-chart:" + span_id, "children") for span_id in span_ids],
-  Input({"type": "dropdown:stock:date", "id": "dupont"}, "value"),
+  Input({"type": "dropdown:company:date", "id": "dupont"}, "value"),
   State("location:app", "pathname"),
+  background=True,
 )
 def update_dupont(date_period: str, slug: str):
   if not (date_period and slug):

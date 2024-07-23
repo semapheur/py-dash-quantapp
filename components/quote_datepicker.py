@@ -28,6 +28,6 @@ class QuoteDatePickerAIO(dcc.DatePickerRange):
     Input(QuoteStoreAIO.aio_id(MATCH), "data"),
   )
   def update_datepicker(data):
-    dates = cast(pd.DatetimeIndex, pd.to_datetime(data["date"], format="%Y-%m-%d"))
+    dates = cast(pd.DatetimeIndex, pd.to_datetime(data["date"], format="ISO8601"))
 
     return dates.min(), dates.max()

@@ -1,4 +1,15 @@
-from dash import callback, ctx, html, no_update, register_page, Input, Output, State
+from dash import (
+  callback,
+  clientside_callback,
+  ClientsideFunction,
+  ctx,
+  html,
+  no_update,
+  register_page,
+  Input,
+  Output,
+  State,
+)
 
 from components.ticker_select import TickerSelectAIO
 from components.quote_graph import (
@@ -40,15 +51,15 @@ layout = html.Main(
 
 
 @callback(
-  Output(QuoteGraphAIO.aio_id("home"), "figure"),
+  Output(QuoteGraphAIO.aio_id("home"), "figure", allow_duplicate=True),
   Input(QuoteStoreAIO.aio_id("home"), "data"),
   Input(QuoteGraphAIO.aio_id("home"), "relayoutData"),
   Input(QuoteGraphTypeAIO.aio_id("home"), "value"),
   Input(QuoteDatePickerAIO.aio_id("home"), "start_date"),
   Input(QuoteDatePickerAIO.aio_id("home"), "end_date"),
-  State(QuoteGraphAIO.aio_id("home"), "figure"),
+  prevent_initial_call=True,
 )
-def update_graph(data, relayout, plot_type, start_date, end_date, fig):
+def update_graph(data, relayout, plot_type, start_date, end_date):
   if not data:
     return no_update
 
@@ -56,12 +67,21 @@ def update_graph(data, relayout, plot_type, start_date, end_date, fig):
 
   if triggered_id.get("component", "") in ("QuoteStoreAIO", "QuoteGraphTypeAIO"):
     return quote_volume_graph(
-      data, plot_type, rangeselector=["1M", "6M", "YTD", "1Y", "All"], rangeslider=False
+      data, plot_type, rangeselector=("1M", "6M", "YTD", "1Y", "All"), rangeslider=False
     )
-  elif triggered_id.get("component", "") == "QuoteGraphAIO" and relayout:
-    return quote_graph_relayout(relayout, data, ["close", "volume"], fig)
+  # elif triggered_id.get("component", "") == "QuoteGraphAIO" and relayout:
+  #  return quote_graph_relayout(relayout, data, ["close", "volume"])
 
   elif triggered_id.get("component", "") == "QuoteDatePickerAIO":
-    return quote_graph_range(data, ["close", "volume"], fig, start_date, end_date)
+    return quote_graph_range(data, ["close", "volume"], start_date, end_date)
 
-  return fig
+  return no_update
+
+
+clientside_callback(
+  ClientsideFunction(namespace="clientside", function_name="updateQuoteGraph"),
+  Output(QuoteGraphAIO.aio_id("home"), "figure"),
+  Input(QuoteGraphAIO.aio_id("home"), "relayoutData"),
+  State(QuoteGraphAIO.aio_id("home"), "figure"),
+  prevent_initial_call=True,
+)

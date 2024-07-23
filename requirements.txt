@@ -6,6 +6,7 @@ dash-ag-grid
 #dash-bootstrap-components
 #dash-mantine-components
 dash-resizeable-panels
+dash-tvlwc
 dashvis
 fathon
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas

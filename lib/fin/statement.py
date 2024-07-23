@@ -21,7 +21,7 @@ from lib.fin.models import (
   FiscalPeriod,
   FinData,
 )
-from lib.fin.quote import get_ohlcv
+from lib.fin.quote import load_ohlcv
 from lib.utils import (
   fiscal_quarter_monthly,
   combine_duplicate_columns,
@@ -65,7 +65,7 @@ async def fetch_exchange_rate(
   from numpy import nan
 
   exchange_fetcher = partial(Ticker(ticker + "=X").ohlcv, start_date, end_date)
-  rate = await get_ohlcv(
+  rate = await load_ohlcv(
     ticker, "forex", exchange_fetcher, None, start_date, end_date, ["close"]
   )
 

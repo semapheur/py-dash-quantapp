@@ -4,7 +4,7 @@ from functools import partial
 from dash import callback, dcc, no_update, Input, Output, MATCH
 
 from lib.morningstar.ticker import Stock
-from lib.fin.quote import get_ohlcv
+from lib.fin.quote import load_ohlcv
 from components.ticker_select import TickerSelectAIO
 
 
@@ -29,8 +29,8 @@ class QuoteStoreAIO(dcc.Store):
     if not query:
       return no_update
 
-    id, currency = query.split(".")
+    id, currency = query.split("|")
     fetcher = partial(Stock(id, currency).ohlcv)
-    ohlcv = asyncio.run(get_ohlcv(id, "stock", fetcher))
+    ohlcv = asyncio.run(load_ohlcv(id, "stock", fetcher))
     ohlcv.reset_index(inplace=True)
     return ohlcv.to_dict("list")

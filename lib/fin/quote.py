@@ -11,7 +11,7 @@ from lib.fin.models import Quote
 from lib.utils import slice_df_by_date
 
 
-async def get_ohlcv(
+async def load_ohlcv(
   id: str,
   security: Literal["stock", "forex", "index"],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],

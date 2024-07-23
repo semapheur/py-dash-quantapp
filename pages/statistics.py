@@ -24,7 +24,7 @@ from statsmodels.tsa.seasonal import STL
 
 from lib.fracdiff import fast_frac_diff as frac_diff
 from lib.morningstar.ticker import Stock
-from lib.fin.quote import get_ohlcv
+from lib.fin.quote import load_ohlcv
 from components.ticker_select import TickerSelectAIO
 from components.statistical_plots import acf_trace, qqplot_trace
 
@@ -209,7 +209,7 @@ async def update_store(query: str):
   id, currency = query.split("|")
 
   fetcher = partial(Stock(id, currency).ohlcv)
-  price = await get_ohlcv(id, "stock", fetcher, cols=["close"])
+  price = await load_ohlcv(id, "stock", fetcher, cols=["close"])
 
   price.reset_index(inplace=True)
   return price.to_dict("list")

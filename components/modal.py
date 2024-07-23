@@ -71,7 +71,7 @@ class CloseModalAIO(html.Dialog):
 
 
 clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="close_modal"),
+  ClientsideFunction(namespace="clientside", function_name="closeModal"),
   Output(CloseModalAIO.dialog_id(MATCH), "id"),
   Input(CloseModalAIO.close_id(MATCH), "n_clicks"),
   State(CloseModalAIO.dialog_id(MATCH), "id"),
@@ -103,7 +103,7 @@ class OpenCloseModalAIO(CloseModalAIO):
 
 
 clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="handle_modal"),
+  ClientsideFunction(namespace="clientside", function_name="handleModal"),
   Output(OpenCloseModalAIO.dialog_id(MATCH), "id"),
   Input(OpenCloseModalAIO.open_id(MATCH), "n_clicks_timestamp"),
   Input(OpenCloseModalAIO.close_id(MATCH), "n_clicks_timestamp"),
