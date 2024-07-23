@@ -12848,7 +12848,7 @@
     },
     "calculation": {
       "order": 2819,
-      "all": "assets / equity"
+      "all": "average_assets / average_equity"
     }
   },
   "equity_temporary": {

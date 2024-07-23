@@ -39,14 +39,14 @@ span_ids = (
   "return_on_equity",
   "net_profit_margin",
   "operating_profit_margin",
-  "operating_margin:operating_income_loss",
+  "operating_margin:income_loss_operating",
   "operating_margin:revenue",
   "tax_burden",
-  "net_income_loss",
-  "tax_burden:pretax_income_loss",
+  "income_loss_net",
+  "tax_burden:income_loss_pretax",
   "interest_burden",
-  "interest_burden:pretax_income_loss",
-  "interest_burden:operating_income_loss",
+  "interest_burden:income_loss_pretax",
+  "interest_burden:income_loss_operating",
   "asset_turnover",
   "asset_turnover:revenue",
   "asset_turnover:average_assets",
@@ -56,44 +56,6 @@ span_ids = (
 )
 
 dupont_items = {item.split(":")[1] if ":" in item else item for item in span_ids}
-
-
-def create_row_data(fin_data: pd.DataFrame, cols: list[str]) -> list[dict]:
-  fin_data.sort_values("date", inplace=True)
-
-  query = f"""SELECT item, short, long FROM items 
-    WHERE item IN {str(tuple(cols))}
-  """
-  # params = {'columns': str(tuple(cols))}
-  items = read_sqlite("taxonomy.db", query)
-  if items is None:
-    raise ValueError("Taxonomy items not found")
-
-  items.loc[:, "short"].fillna(items["long"], inplace=True)
-  items.set_index("item", inplace=True)
-
-  mask = fin_data["months"] == 12
-  row_data = cast(pd.DataFrame, fin_data.loc[mask, cols].T.iloc[:, -1])
-  row_data.index.name = "item"
-
-  row_data["trend"] = ""
-  for i in row_data.index:
-    fig = px.line(fin_data.loc[:, i])
-    fig.update_layout(
-      showlegend=False,
-      xaxis_visible=False,
-      xaxis_showticklabels=False,
-      yaxis_visible=False,
-      yaxis_showticklabels=False,
-      margin=dict(l=0, r=0, t=0, b=0),
-      template="plotly_white",
-    )
-    row_data.at[i, "trend"] = fig
-
-  row_data.reset_index(inplace=True)
-  row_data.loc[:, "item"] = items.loc[row_data["item"].tolist(), "short"]
-
-  return row_data.to_dict("records")
 
 
 def sankey_color(sign: int, opacity: float = 1) -> str:
@@ -347,20 +309,6 @@ def layout(id: str | None = None):
 
 
 @callback(
-  Output("table:company-overview:financial-strength", "rowData"),
-  Input("store:ticker-search:financials", "data"),
-)
-def update_table(data: list[dict]):
-  if not data:
-    return no_update
-
-  df = pd.DataFrame.from_records(data)
-  cols = ["piotroski_f_score", "altman_z_score", "beneish_m_score"]
-
-  return create_row_data(df, cols)
-
-
-@callback(
   Output("graph:stock:sankey", "figure"),
   Input("radio:stock:sheet", "value"),
   Input({"type": "dropdown:stock:date", "id": "sankey"}, "value"),
@@ -480,27 +428,31 @@ def update_dupont(date_period: str, slug: str):
   if not (date_period and slug):
     return no_update
 
+  def format_numbers(x: float | None):
+    if pd.isna(x):
+      return "N/A"
+
+    return f"{x:.3g}"
+
   id = slug.split("/")[2]
   currency = get_currency(id)
   if currency is None:
     return no_update
 
-  table = f"{id}_{currency}"
-  columns = get_table_columns("financials.db", [table])[table]
-  dupont_items = columns.intersection({span_id.split(":")[-1] for span_id in span_ids})
-  column_text = ",".join(dupont_items)
+  dupont_items = {span_id.split(":")[-1] for span_id in span_ids}
 
   date, period = date_period.split("|")
-  query = (
-    f"""SELECT {column_text} FROM "{table}" WHERE date = :date AND period = :period"""
-  )
-  df = read_sqlite("financials.db", query, {"date": date, "period": period})
+  where = f"WHERE date = '{date}' AND period = '{period}'"
+  df = load_fundamentals(id, currency, dupont_items, where)
 
   if df is None:
     return no_update
 
+  df.reset_index(drop=True, inplace=True)
   df.fillna(np.nan, inplace=True)
   return tuple(
-    f"{df.at[0, item]:.3g}" if (item := si.split(":")[-1]) in dupont_items else "N/A"
+    f"{format_numbers(df.at[0, item])}"
+    if (item := si.split(":")[-1]) in dupont_items
+    else "N/A"
     for si in span_ids
   )

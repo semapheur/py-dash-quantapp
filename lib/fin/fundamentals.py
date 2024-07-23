@@ -229,7 +229,7 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_financials(
-  id: str, currency: str, columns: Optional[set[str]] = None
+  id: str, currency: str, columns: Optional[set[str]] = None, where: str = ""
 ) -> DataFrame | None:
   col_text = "*"
   index_col = OrderedSet(("date", "period", "months"))
@@ -239,7 +239,7 @@ def load_financials(
     select_columns = set(table_columns[table]).intersection(columns).union(index_col)
     col_text = ", ".join(select_columns)
 
-  query = f"SELECT {col_text} FROM '{table}'"
+  query = f"SELECT {col_text} FROM '{table}' {where}".strip()
   df = read_sqlite(
     "financials.db",
     query,
@@ -249,15 +249,17 @@ def load_financials(
   return df
 
 
-def load_ratios(id: str, columns: Optional[set[str]] = None) -> DataFrame | None:
+def load_ratios(
+  id: str, columns: set[str] | None = None, where: str = ""
+) -> DataFrame | None:
   col_text = "*"
   index_col = OrderedSet(("date", "period", "months"))
   if columns is not None:
-    table_columns = get_table_columns("financials.db", [id])
+    table_columns = get_table_columns("fundamentals.db", [id])
     select_columns = set(table_columns[id]).intersection(columns).union(index_col)
     col_text = ", ".join(select_columns)
 
-  query = f"SELECT {col_text} FROM '{id}'"
+  query = f"SELECT {col_text} FROM '{id}' {where}".strip()
   df = read_sqlite(
     "fundamentals.db",
     query,
@@ -268,11 +270,10 @@ def load_ratios(id: str, columns: Optional[set[str]] = None) -> DataFrame | None
 
 
 def load_fundamentals(
-  id: str,
-  currency: str,
+  id: str, currency: str, columns: set[str] | None = None, where: str = ""
 ) -> DataFrame | None:
-  financials = load_financials(id, currency)
-  ratios = load_ratios(id)
+  financials = load_financials(id, currency, columns, where)
+  ratios = load_ratios(id, columns, where)
 
   if financials is None or ratios is None:
     return None
