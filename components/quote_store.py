@@ -25,11 +25,11 @@ class QuoteStoreAIO(dcc.Store):
     Input(TickerSelectAIO.aio_id(MATCH), "value"),
     background=True,
   )
-  def update_store(query: str):
-    if not query:
+  def update_store(id_currency: str):
+    if not id_currency:
       return no_update
 
-    id, currency = query.split("|")
+    id, currency = id_currency.split("|")
     fetcher = partial(Stock(id, currency).ohlcv)
     ohlcv = asyncio.run(load_ohlcv(id, "stock", fetcher))
     ohlcv.reset_index(inplace=True)

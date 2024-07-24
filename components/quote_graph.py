@@ -1,11 +1,58 @@
+import asyncio
+from functools import partial
 import re
 from typing import Literal
 
-from dash import dcc, Patch
-import numpy as np
+from dash import (
+  callback,
+  clientside_callback,
+  ClientsideFunction,
+  dcc,
+  no_update,
+  MATCH,
+  Input,
+  Output,
+  Patch,
+  State,
+)
 import pandas as pd
+from pandera.typing import DataFrame
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+from lib.fin.models import Quote
+from lib.fin.quote import load_ohlcv
+from lib.morningstar.ticker import Stock
+
+# from components.quote_store import QuoteStoreAIO
+from components.quote_graph_type import QuoteGraphTypeAIO
+from components.ticker_select import TickerSelectAIO
+
+
+class QuoteDatePickerAIO(dcc.DatePickerRange):
+  @staticmethod
+  def aio_id(id: str):
+    return {"component": "QuoteDatePickerAIO", "aio_id": id}
+
+  def __init__(self, id: str, datepicker_props: dict | None = None):
+    datepicker_props = datepicker_props.copy() if datepicker_props else {}
+
+    datepicker_props["clearable"] = True
+    datepicker_props["updatemode"] = "bothdates"
+
+    if "display_format" not in datepicker_props:
+      datepicker_props["display_format"] = "YYYY-M-D"
+
+    super().__init__(id=self.__class__.aio_id(id), **datepicker_props)
+
+  # @callback(
+  #  Output(aio_id(MATCH), "min_date_allowed"),
+  #  Output(aio_id(MATCH), "max_date_allowed"),
+  #  Input(QuoteStoreAIO.aio_id(MATCH), "data"),
+  # )
+  # def update_datepicker(data):
+  #  dates = cast(pd.DatetimeIndex, pd.to_datetime(data["date"], format="ISO8601"))
+  #  return dates.min(), dates.max()
 
 
 class QuoteGraphAIO(dcc.Graph):
@@ -17,6 +64,43 @@ class QuoteGraphAIO(dcc.Graph):
     graph_props = graph_props.copy() if graph_props else {}
 
     super().__init__(id=self.__class__.aio_id(id), **graph_props)
+
+  @callback(
+    Output(aio_id(MATCH), "figure", allow_duplicate=True),
+    Input(TickerSelectAIO.aio_id(MATCH), "value"),
+    State(QuoteGraphTypeAIO.aio_id(MATCH), "value"),
+    background=True,
+    prevent_initial_call=True,
+  )
+  def update_data(id_currency: str, plot_type: Literal["line", "candlestick"]):
+    if not id_currency:
+      return no_update
+
+    id, currency = id_currency.split("_")
+    fetcher = partial(Stock(id, currency).ohlcv)
+    ohlcv = asyncio.run(load_ohlcv(id_currency, "stock", fetcher))
+    return quote_volume_graph(
+      ohlcv, plot_type, rangeselector=("1M", "6M", "YTD", "1Y", "All")
+    )
+
+
+clientside_callback(
+  ClientsideFunction(namespace="clientside", function_name="updateQuoteGraph"),
+  Output(QuoteGraphAIO.aio_id(MATCH), "figure"),
+  Input(QuoteGraphTypeAIO.aio_id(MATCH), "data"),
+  Input(QuoteGraphAIO.aio_id(MATCH), "relayoutData"),
+  Input(QuoteDatePickerAIO.aio_id(MATCH), "start_date"),
+  Input(QuoteDatePickerAIO.aio_id(MATCH), "end_date"),
+  State(QuoteGraphAIO.aio_id(MATCH), "figure"),
+  prevent_initial_call=True,
+)
+
+clientside_callback(
+  ClientsideFunction(namespace="clientside", function_name="updateQuoteDatePicker"),
+  Output(QuoteDatePickerAIO.aio_id(MATCH), "min_date_allowed"),
+  Output(QuoteDatePickerAIO.aio_id(MATCH), "max_date_allowed"),
+  Input(QuoteGraphAIO.aio_id(MATCH), "figure"),
+)
 
 
 def quote_rangeselector(
@@ -45,26 +129,32 @@ def quote_rangeselector(
   return dict(buttons=buttons)
 
 
-def quote_candlestick(data: dict):
-  if not {"open", "high", "low", "close"}.issubset(data.keys()):
-    return {}
+def quote_candlestick(ohlcv: DataFrame[Quote]) -> go.Candlestick:
+  if not {"open", "high", "low", "close"}.issubset(ohlcv.columns):
+    return go.Candlestick()
 
   return go.Candlestick(
-    x=data["date"],
-    open=data["open"],
-    high=data["high"],
-    low=data["low"],
-    close=data["close"],
+    x=ohlcv.index,
+    open=ohlcv["open"],
+    high=ohlcv["high"],
+    low=ohlcv["low"],
+    close=ohlcv["close"],
     showlegend=False,
   )
 
 
-def quote_line(data: dict) -> go.Scatter:
-  return go.Scatter(x=data["date"], y=data["close"], mode="lines", showlegend=False)
+def quote_line(ohlcv: DataFrame[Quote]) -> go.Scatter:
+  return go.Scatter(
+    x=ohlcv.index,
+    y=ohlcv["close"],
+    customdata=ohlcv[["open", "high", "low", "close"]].to_numpy(),
+    mode="lines",
+    showlegend=False,
+  )
 
 
 def quote_graph(
-  data: dict[str, list[str | float | int]],
+  ohlcv: DataFrame[Quote],
   plot: Literal["line", "candlestick"] = "line",
   rangeselector: tuple[str, ...] | None = None,
   rangeslider=False,
@@ -78,23 +168,23 @@ def quote_graph(
 
   trace = []
   if plot == "line":
-    trace.append(quote_line(data))
+    trace.append(quote_line(ohlcv))
 
   elif plot == "candlestick":
-    trace.append(quote_candlestick(data))
+    trace.append(quote_candlestick(ohlcv))
 
   fig = go.Figure(data=trace, layout_xaxis=xaxis)
   return fig
 
 
 def quote_volume_graph(
-  data: dict[str, list[str | float | int]],
+  ohlcv: DataFrame[Quote],
   plot: Literal["line", "candlestick"] = "line",
   rangeselector: tuple[str, ...] | None = None,
   rangeslider=False,
 ) -> go.Figure:
-  if "volume" not in data.keys():
-    return quote_graph(data, plot, rangeselector, rangeslider)
+  if "volume" not in ohlcv.keys():
+    return quote_graph(ohlcv, plot, rangeselector, rangeslider)
 
   fig = make_subplots(
     rows=2,
@@ -104,14 +194,14 @@ def quote_volume_graph(
     shared_xaxes=True,
   )
   if plot == "line":
-    fig.add_trace(quote_line(data), row=1, col=1)
+    fig.add_trace(quote_line(ohlcv), row=1, col=1)
   elif plot == "candlestick":
-    fig.add_trace(quote_candlestick(data), row=1, col=1)
+    fig.add_trace(quote_candlestick(ohlcv), row=1, col=1)
 
   fig.add_trace(
     go.Bar(
-      x=data["date"],
-      y=data["volume"],
+      x=ohlcv.index,
+      y=ohlcv["volume"],
       showlegend=False,
       marker_color="orange",
     ),

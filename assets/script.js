@@ -102,7 +102,7 @@ function quoteGraphRange(figure, startDate, endDate) {
     if (key.startsWith("xaxis")) {
       figure["layout"][key]["range"] = [startDate, endDate]
     } 
-    else if (key.startsWith("yaxis")) 
+    else if (key.startsWith("yaxis")) {
       let axisLabel = key.replace("axis", "")
       
       const yMin = []
@@ -119,6 +119,80 @@ function quoteGraphRange(figure, startDate, endDate) {
       }
       figure["layout"][key]["range"] = [Math.min(...yMin), Math.max(...yMax)]
       figure["layout"][key]["autorange"] = false
+    }
+  }
+  return figure
+}
+
+/**
+ * @param {Object} figure
+ * @param {"line" | "candlestick"} plotType
+ * @return {Object}
+ */
+function updateQuoteGraphType(figure, plotType) {
+  const newFigure = {...figure}
+
+  if (plotType === 'line') {
+    if (figure.data[0].type === 'scatter') { return figure }
+
+    const {x, open, high, low, close} = figure.data[0]
+    const customdata = x.map((_, index) => {
+      [open[index], high[index], low[index]]
+    })
+
+    newFigure.data[0] = {
+      type: 'scatter',
+      mode: 'lines',
+      x: x,
+      y: close,
+      customdata: customdata
+    }
+  } else if (plotType === "candlestick") {
+    if (figure.data[0].type === 'candlestick') { return figure }
+
+    const {x, y, customdata} = figure.data[0]
+
+    newFigure.data[0] = {
+        type: 'candlestick',
+        x: x,
+        open: customdata.map(d => d[0]),
+        high: customdata.map(d => d[1]),
+        low: customdata.map(d => d[2]),
+        close: y,
+    }
+  } 
+  return newFigure
+}
+
+/**
+ * @param {Object} relayoutData
+ * @param {Object} figure
+ * @return {Object}
+ */
+function updateGraphRelayout(relayoutData, figure) {
+  function getAxes(obj) {
+    const pattern = /^(x|y)axis\d?/
+    const axes = new Set()
+  
+    for (const key in obj) {
+      const match = key.match(pattern)
+      if (match) {
+        axes.add(match[0])
+      }
+    }
+    return Array.from(axes)
+  }
+  
+  const triggered_id = dash_clientside.callback_context.triggered_id
+  console.log(triggered_id)
+
+  const axes = getAxes(figure.layout)
+  if (checkKeys(relayoutData, ["range[0]", "range[1]"])) {
+    figure = quoteGraphRange(figure, relayoutData["xaxis.range[0]"], relayoutData["xaxis.range[1]"])
+  }
+  else if (checkKeys(relayoutData, ["autorange", "showspikes"])) {
+    for (const axis of axes) {
+      figure.layout[axis].autorange = true
     }
   }
   return figure
@@ -190,33 +264,39 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       }
       return window.dash_clientside.no_update
     },
-    updateQuoteGraph: function(relayoutData, figure) {
-      function getAxes(obj) {
-        const pattern = /^(x|y)axis\d?/
-        const axes = new Set()
-      
-        for (const key in obj) {
-          const match = key.match(pattern)
-          if (match) {
-            axes.add(match[0])
-          }
-        }
-        return Array.from(axes)
-      }
+    updateQuoteGraph: function(plotType, relayoutData, startDate, endDate, figure) {
 
       if (figure === undefined) { return window.dash_clientside.no_update }
 
-      const axes = getAxes(figure.layout)
-      if (checkKeys(relayoutData, ["range[0]", "range[1]"])) {
-        figure = quoteGraphRange(figure, relayoutData["xaxis.range[0]"], relayoutData["xaxis.range[1]"])
+      const triggered_id = dash_clientside.callback_context.triggered_id
+      console.log(triggered_id)
+
+      if (triggered_id.component === "QuoteGraphTypeAIO") {
+        figure = updateQuoteGraphType(figure, plotType)
       }
-      else if (checkKeys(relayoutData, ["autorange", "showspikes"])) {
-        for (const axis of axes) {
-          figure.layout[axis].autorange = true
-        }
+      if ((triggered_id.component === "QuoteGraphAIO") && (relayoutData !== undefined)) {
+        figure = updateGraphRelayout(relayoutData, figure)
+      }
+      else if (triggered_id.component === "QuoteDatePickerAIO") {
+        figure = quoteGraphRange(figure, startDate, endDate)
       }
 
       return {data: figure.data, layout: figure.layout}
+    },
+    updateQuoteDatePicker: function(figure) {
+      if (figure === undefined) { return window.dash_clientside.no_update }
+
+      const minDates = []
+      const maxDates = []
+      for (const data of figure.data) {
+        const dates = data.x.map(dateString => new Date(dateString).getTime())
+        minDates.push(Math.min(...dates))
+        maxDates.push(Math.max(...dates))
+      }
+
+      const minDate = new Date(Math.min(...minDates))
+      const maxDate = new Date(Math.max(...maxDates))
+      return [minDate.toISOString(), maxDate.toISOString()]
     }
   }
 })

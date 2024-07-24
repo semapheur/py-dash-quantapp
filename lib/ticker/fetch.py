@@ -124,7 +124,7 @@ def search_stocks(search: str, limit: int = 10) -> DataFrame[TickerOptions]:
   query = """ 
     SELECT
       name || " (" || ticker || ":" || mic || ")" AS label,
-      security_id || "|" || currency AS value
+      security_id || "_" || currency AS value
     FROM stock
     WHERE label LIKE :search
     LIMIT :limit

@@ -20,4 +20,7 @@ class TickerSelectAIO(dcc.Dropdown):
       return no_update
 
     df = search_stocks(search)
+    if df is None:
+      return no_update
+
     return df.to_dict("records")

@@ -3,6 +3,7 @@ from dateutil.relativedelta import relativedelta
 from functools import partial
 from typing import cast, Any, Coroutine, Literal, Optional
 
+import pandas as pd
 from pandera.typing import DataFrame
 from sqlalchemy.types import Date as SQLDate
 
@@ -12,10 +13,10 @@ from lib.utils import slice_df_by_date
 
 
 async def load_ohlcv(
-  id: str,
+  table: str,
   security: Literal["stock", "forex", "index"],
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
-  delta: Optional[int] = 1,
+  delta: int = 1,
   start_date: Optional[dt | Date] = None,
   end_date: Optional[dt | Date] = None,
   cols: Optional[list[Literal["open", "high", "low", "close", "volume"]]] = None,
@@ -24,7 +25,7 @@ async def load_ohlcv(
   if cols is not None:
     col_text = "date, " + ", ".join(cols)
 
-  query = f"SELECT {col_text} FROM '{id}'"
+  query = f"SELECT {col_text} FROM '{table}'"
 
   if start_date is not None:
     query += f" WHERE DATE(date) >= DATE('{start_date:%Y-%m-%d}')"
@@ -41,7 +42,7 @@ async def load_ohlcv(
 
   if ohlcv is None:
     ohlcv = await ohlcv_fetcher()
-    upsert_sqlite(ohlcv, f"{security}_quote.db", id, {"date": SQLDate})
+    upsert_sqlite(ohlcv, f"{security}_quote.db", table, {"date": SQLDate})
     if cols is not None:
       ohlcv = cast(DataFrame[Quote], ohlcv.loc[:, list(cols)])
 
@@ -62,12 +63,16 @@ async def load_ohlcv(
   if new_ohlcv is None:
     return ohlcv
 
-  upsert_sqlite(ohlcv, f"{security}_quote.db", id, {"date": SQLDate})
-  ohlcv = read_sqlite(
-    f"{security}_quote.db",
-    query,
-    index_col="date",
-    date_parser={"date": {"format": "%Y-%m-%d"}},
+  upsert_sqlite(new_ohlcv, f"{security}_quote.db", table, {"date": SQLDate})
+  ohlcv = cast(
+    DataFrame[Quote], pd.concat([ohlcv, new_ohlcv], axis=0).drop_duplicates()
   )
+
+  # ohlcv = read_sqlite(
+  #  f"{security}_quote.db",
+  #  query,
+  #  index_col="date",
+  #  date_parser={"date": {"format": "%Y-%m-%d"}},
+  # )
 
   return cast(DataFrame[Quote], ohlcv)
