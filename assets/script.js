@@ -98,6 +98,7 @@ function sliceTimeSeries(data, startDate, endDate) {
 }
 
 function quoteGraphRange(figure, startDate, endDate) {
+
   for (const key in figure.layout) {
     if (key.startsWith("xaxis")) {
       figure["layout"][key]["range"] = [startDate, endDate]
@@ -109,13 +110,23 @@ function quoteGraphRange(figure, startDate, endDate) {
       const yMax = []
       for (const trace of figure.data) {
         if (trace.yaxis !== axisLabel) { continue }
+        
+        if (trace.type === "candlestick") {
+          let low = {x: trace.x, y: trace.low}
+          let high  = {x: trace.x, y: trace.high}
 
-        let data = {x: trace.x, y: trace.y}
-        data = sliceTimeSeries(data, startDate, endDate)
+          low = sliceTimeSeries(low, startDate, endDate)
+          high = sliceTimeSeries(high, startDate, endDate)
 
-        yMin.push(Math.min(...data.y))
-        yMax.push(Math.max(...data.y))
+          yMin.push(Math.min(...low.y))
+          yMax.push(Math.max(...high.y))
+        } else if (trace.type === "scatter" || trace.type === "bar") {
+          let data = {x: trace.x, y: trace.y}
+          data = sliceTimeSeries(data, startDate, endDate)
 
+          yMin.push(Math.min(...data.y))
+          yMax.push(Math.max(...data.y))
+        }
       }
       figure["layout"][key]["range"] = [Math.min(...yMin), Math.max(...yMax)]
       figure["layout"][key]["autorange"] = false
@@ -130,38 +141,45 @@ function quoteGraphRange(figure, startDate, endDate) {
  * @return {Object}
  */
 function updateQuoteGraphType(figure, plotType) {
-  const newFigure = {...figure}
+  const xaxis = figure.data[0].xaxis
+  const yaxis = figure.data[0].yaxis
 
-  if (plotType === 'line') {
-    if (figure.data[0].type === 'scatter') { return figure }
+  if (plotType === "line") {
+    if (figure.data[0].type === "scatter") { return figure }
 
     const {x, open, high, low, close} = figure.data[0]
     const customdata = x.map((_, index) => {
       [open[index], high[index], low[index]]
     })
 
-    newFigure.data[0] = {
-      type: 'scatter',
-      mode: 'lines',
+    figure.data[0] = {
+      type: "scatter",
+      mode: "lines",
       x: x,
       y: close,
-      customdata: customdata
+      customdata: customdata,
+      showlegend: false,
+      xaxis: xaxis,
+      yaxis: yaxis
     }
   } else if (plotType === "candlestick") {
-    if (figure.data[0].type === 'candlestick') { return figure }
+    if (figure.data[0].type === "candlestick") { return figure }
 
     const {x, y, customdata} = figure.data[0]
 
-    newFigure.data[0] = {
-        type: 'candlestick',
+    figure.data[0] = {
+        type: "candlestick",
         x: x,
         open: customdata.map(d => d[0]),
         high: customdata.map(d => d[1]),
         low: customdata.map(d => d[2]),
         close: y,
+        showlegend: false,
+        xaxis: xaxis,
+        yaxis: yaxis
     }
   } 
-  return newFigure
+  return figure
 }
 
 /**
@@ -183,9 +201,6 @@ function updateGraphRelayout(relayoutData, figure) {
     return Array.from(axes)
   }
   
-  const triggered_id = dash_clientside.callback_context.triggered_id
-  console.log(triggered_id)
-
   const axes = getAxes(figure.layout)
   if (checkKeys(relayoutData, ["range[0]", "range[1]"])) {
     figure = quoteGraphRange(figure, relayoutData["xaxis.range[0]"], relayoutData["xaxis.range[1]"])
@@ -269,8 +284,8 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       if (figure === undefined) { return window.dash_clientside.no_update }
 
       const triggered_id = dash_clientside.callback_context.triggered_id
-      console.log(triggered_id)
-
+      console.log(figure.data)
+      
       if (triggered_id.component === "QuoteGraphTypeAIO") {
         figure = updateQuoteGraphType(figure, plotType)
       }

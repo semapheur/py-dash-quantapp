@@ -87,7 +87,7 @@ class QuoteGraphAIO(dcc.Graph):
 clientside_callback(
   ClientsideFunction(namespace="clientside", function_name="updateQuoteGraph"),
   Output(QuoteGraphAIO.aio_id(MATCH), "figure"),
-  Input(QuoteGraphTypeAIO.aio_id(MATCH), "data"),
+  Input(QuoteGraphTypeAIO.aio_id(MATCH), "value"),
   Input(QuoteGraphAIO.aio_id(MATCH), "relayoutData"),
   Input(QuoteDatePickerAIO.aio_id(MATCH), "start_date"),
   Input(QuoteDatePickerAIO.aio_id(MATCH), "end_date"),
@@ -149,6 +149,7 @@ def quote_line(ohlcv: DataFrame[Quote]) -> go.Scatter:
     y=ohlcv["close"],
     customdata=ohlcv[["open", "high", "low", "close"]].to_numpy(),
     mode="lines",
+    name="Close",
     showlegend=False,
   )
 
@@ -204,6 +205,7 @@ def quote_volume_graph(
       y=ohlcv["volume"],
       showlegend=False,
       marker_color="orange",
+      name="Volume",
     ),
     row=2,
     col=1,
@@ -216,7 +218,7 @@ def quote_volume_graph(
   if rangeslider:
     xaxis["rangeslider"] = dict(visible=True)
 
-  fig.update_layout(xaxis=xaxis)
+  fig.update_layout(xaxis=xaxis, hovermode="x")
 
   return fig
 
