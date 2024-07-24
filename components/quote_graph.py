@@ -243,11 +243,21 @@ def quote_graph_range(
         if trace["yaxis"] != axis_label:
           continue
 
-        data = pd.Series(data=trace["y"], index=trace["x"])
-        data = data.between_time(start_date, end_date)
+        if trace["type"] == "candlestick":
+          data = pd.DataFrame(
+            {"x": trace["x"], "low": trace["low"], "high": trace["high"]}
+          )
 
-        y_min.append(data.min())
-        y_max.append(data.max())
+          data = data.between_time(start_date, end_date)
+          y_min.append(data["low"].min())
+          y_max.append(data["high"].max())
+
+        else:
+          data = pd.Series(data=trace["y"], index=trace["x"])
+          data = data.between_time(start_date, end_date)
+
+          y_min.append(data.min())
+          y_max.append(data.max())
 
       figure_patched["layout"][key]["range"] = [min(y_min), max(y_max)]
       figure_patched["layout"][key]["autorange"] = False
