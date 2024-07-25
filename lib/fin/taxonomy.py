@@ -11,7 +11,7 @@ import pandas as pd
 from pydantic import BaseModel, model_serializer
 from sqlalchemy import create_engine
 
-from lib.db.lite import get_tables, insert_sqlite
+from lib.db.lite import get_tables, insert_sqlite, read_sqlite
 from lib.const import DB_DIR
 
 TaxonomyType: TypeAlias = Literal[
@@ -159,6 +159,27 @@ class Taxonomy(BaseModel):
         label=label,
         calculation=calc,
       )
+
+  def fix_balance(self) -> None:
+    query = """
+      SELECT i.item, g.balance FROM items i
+      JOIN json_each(i.gaap)
+      JOIN (
+        SELECT name, balance, deprecated, MAX(year) as max_year
+        FROM gaap
+        GROUP BY name
+      ) g ON json_each.value = g.name
+      WHERE json_each.value IS NOT NULL 
+        AND g.deprecated IS NULL 
+        AND i.balance != g.balance
+    """
+
+    df = read_sqlite("taxonomy.db", query)
+    if df is None or df.empty:
+      return
+
+    for item, balance in zip(df["item"], df["balance"]):
+      self.data[item].balance = balance
 
   def resolve_calculation_order(self) -> None:
     order_dict = defaultdict(set)
@@ -415,6 +436,23 @@ def scraped_items(sort=False) -> set[str]:
     items = set(sorted(items))
 
   return items
+
+
+def fix_balance():
+  query = """
+    SELECT i.item, json_each.value AS gaap, i.balance AS balance, g.balance AS gaap_balance FROM items i
+    JOIN json_each(i.gaap)
+    JOIN (
+      SELECT name, balance, deprecated, MAX(year) as max_year
+      FROM gaap
+      GROUP BY name
+    ) g ON json_each.value = g.name
+    WHERE json_each.value IS NOT NULL 
+      AND g.deprecated IS NULL 
+      AND i.balance != g.balance
+  """
+
+  return read_sqlite("taxonomy.db", query)
 
 
 def backup_taxonomy():
