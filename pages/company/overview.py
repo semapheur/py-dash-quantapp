@@ -24,7 +24,7 @@ import plotly.graph_objects as go
 from components.dupont_chart import DupontChart
 
 from components.quote_graph import quote_volume_graph
-from components.stock_header import StockHeader
+from components.company_header import CompanyHeader
 from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
 from lib.morningstar.ticker import Stock
 from lib.fin.fundamentals import load_fundamentals
@@ -332,7 +332,7 @@ def layout(id: str | None = None):
   return html.Main(
     className="grid grid-rows-[auto_1fr] h-full",
     children=[
-      StockHeader(id),
+      CompanyHeader(id),
       html.Div(
         className="h-full snap-y snap-mandatory overflow-y-scroll",
         children=[

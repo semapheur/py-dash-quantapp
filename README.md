@@ -68,6 +68,21 @@ from IPython.display import display
 
 # Accounting terms
 
+## Revenue
+- Revenues = 
+    - RevenueFromContractWithCustomerIncludingAssessedTax + RevenueNotFromContractWithCustomer
+    - InterestAndDividendIncomeOperating + RevenuesExcludingInterestAndDividends
+    - InterestIncomeExpenseAfterProvisionForLoanLoss + NoninterestIncome
+- SalesRevenueNet
+- RevenuesExcludingInterestAndDividends =
+  - BrokerageCommissionsRevenue + InvestmentBankingRevenue + UnderwritingIncomeLoss + PrincipalTransactionsRevenue + (FeesAndCommissions) + (InsuranceServicesRevenue) + MarketDataRevenue
+- FinancialServicesRevenue = 
+    - FeesAndCommissions + GainsLossesOnSalesOfAssets + PrincipalTransactionsRevenue + PremiumsEarnedNet + RevenueOtherFinancialServices
+- InsuranceServicesRevenue = 
+    - PremiumsEarnedNet + InsuranceInvestmentIncome + GainLossOnSaleOfInsuranceBlock + InsuranceAgencyManagementFee + InsuranceCommissionsAndFees
+
+revenue_noninterest = dividend_income_operating + investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_principal_transaction + revenue_premiums + gain_loss_sale_financial_assets + gain_loss_sale_leased_assets_operating + gain_loss_sale_stock_subsidiary + gain_loss_sale_property_plant_equipment + gain_loss_sale_business + gain_loss_derivative_intstruments_pretax + revenue_noninterest_other + gain_loss_venture_capital + income_bank_owned_life_insurance + income_loss_real_estate_operation + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + gain_loss_sale_stock_unissued + impairment_recovery_mortgage_servicing_rights + gain_loss_foreign_currency_transaction_pretax + gain_debt_conversion + gain_loss_extinguishment_debt + other_noninterest_operating_income
+
 ## Profit/Loss
 
 - IncomeLossFromContinuingOperationsIncludingPortionAttributableToNoncontrollingInterest = 

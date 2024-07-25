@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import cast
 from ordered_set import OrderedSet
 
 from dash import (
@@ -15,14 +15,14 @@ from dash import (
 )
 import dash_ag_grid as dag
 import pandas as pd
-from pandera.typing import DataFrame
+from pandera.typing import DataFrame, Series
 import plotly.express as px
 
 from components.modal import CloseModalAIO
-from components.stock_header import StockHeader
-from lib.db.lite import read_sqlite
+from components.company_header import CompanyHeader
+from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
+from lib.fin.fundamentals import load_financials
 from lib.ticker.fetch import company_label
-# from lib.utils import load_json
 
 register_page(__name__, path_template="/company/<id>/financials", title=company_label)
 
@@ -40,16 +40,21 @@ def row_indices(template: pd.DataFrame, level: int) -> str:
   # return str(index[index.isin(items)].index.to_list())
 
 
-def layout(id: Optional[str] = None):
+def layout(id: str | None = None):
+  if id is None:
+    return html.Main(
+      className="size-full", children=[html.H1("404", className="md-auto")]
+    )
+
   return html.Main(
     className="relative flex flex-col h-full",
     children=[
-      StockHeader(id) if id is not None else None,
+      CompanyHeader(id) if id is not None else None,
       html.Div(
         className="flex justify-around",
         children=[
           dcc.RadioItems(
-            id="radio:stock-financials:sheet",
+            id="radio:company-financials:sheet",
             className=radio_wrap_style,
             inputClassName=radio_input_style,
             labelClassName=radio_label_style,
@@ -61,7 +66,7 @@ def layout(id: Optional[str] = None):
             ],
           ),
           dcc.RadioItems(
-            id="radio:stock-financials:scope",
+            id="radio:company-financials:scope",
             className=radio_wrap_style,
             inputClassName=radio_input_style,
             labelClassName=radio_label_style,
@@ -73,10 +78,10 @@ def layout(id: Optional[str] = None):
           ),
         ],
       ),
-      html.Div(id="div:stock-financials:table-wrap", className="flex-1 p-2"),
+      html.Div(id="div:company-financials:table-wrap", className="flex-1 p-2"),
       CloseModalAIO(
         aio_id="stock-financials",
-        children=[dcc.Graph(id="graph:stock-financials")],
+        children=[dcc.Graph(id="graph:company-financials")],
       ),
     ],
   )
@@ -96,47 +101,51 @@ def sheet_items(sheet: str) -> DataFrame | None:
   return template
 
 
-@callback(
-  Output("div:stock-financials:table-wrap", "children"),
-  Input("store:ticker-search:financials", "data"),
-  Input("radio:stock-financials:sheet", "value"),
-  Input("radio:stock-financials:scope", "value"),
-)
-def update_table(data: list[dict], sheet: str, scope: str):
-  if not data:
-    return no_update
+def get_currency(id: str) -> str | None:
+  currency = fetch_sqlite(
+    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": f"{id}"}
+  )
 
+  if currency is None:
+    return None
+
+  return currency[0][0]
+
+
+def trend_data(row: Series[float]):
+  return {"x": row.index.tolist(), "y": row.values.tolist()}
+
+
+@callback(
+  Output("div:company-financials:table-wrap", "children"),
+  Input("radio:company-financials:sheet", "value"),
+  Input("radio:company-financials:scope", "value"),
+  State("location:app", "pathname"),
+  background=True,
+)
+def update_table(sheet: str, scope: str, pathname: str):
   template = sheet_items(sheet)
   if template is None:
     return no_update
 
-  fin = (
-    pd.DataFrame.from_records(data)
-    .set_index(["date", "months"])
-    .xs(scope, level="months")
-    .sort_index(ascending=False)
-  )
-  cols = list(
-    OrderedSet(OrderedSet(template["item"]).intersection(OrderedSet(fin.columns)))
-  )
-  fin = fin[cols]
-  fin = fin.T.reset_index()
-  template = template.set_index("item").loc[cols].reset_index()
+  company_id = pathname.split("/")[2]
+  currency = get_currency(company_id)
+  if currency is None:
+    return no_update
 
-  fin["trend"] = ""
-  for i, r in fin.iterrows():
-    fig = px.line(r.iloc[1:-1])
-    fig.update_layout(
-      showlegend=False,
-      xaxis=dict(autorange="reversed"),
-      xaxis_visible=False,
-      xaxis_showticklabels=False,
-      yaxis_visible=False,
-      yaxis_showticklabels=False,
-      margin=dict(l=0, r=0, t=0, b=0),
-      template="plotly_white",
-    )
-    fin.at[i, "trend"] = fig
+  table = f"{company_id}_{currency}"
+
+  table_columns = get_table_columns("financials.db", [table])[table]
+  fin_columns = table_columns.intersection(set(template["item"]))
+
+  where = f"WHERE period = '{scope}'"
+  financials = load_financials(company_id, currency, fin_columns, where)
+  if financials is None:
+    return no_update
+
+  financials = cast(DataFrame, financials.T.reset_index())
+  financials["trend"] = financials.iloc[:, 1:-1].apply(trend_data, axis=1)
+  template = template.set_index("item").loc[list(fin_columns)].reset_index()
 
   columnDefs = [
     {
@@ -164,7 +173,7 @@ def update_table(data: list[dict], sheet: str, scope: str):
       "type": "numericColumn",
       "valueFormatter": {"function": 'd3.format("(,")(params.value)'},
     }
-    for col in fin.columns[1:-1]
+    for col in financials.columns[1:-1]
   ]  # .difference(['index', 'trend'])
 
   row_style = {
@@ -173,14 +182,14 @@ def update_table(data: list[dict], sheet: str, scope: str):
     )
   }
 
-  fin.loc[:, "index"] = fin["index"].apply(
+  financials.loc[:, "index"] = financials["index"].apply(
     lambda x: template.loc[template["item"] == x, "short"].iloc[0]
   )
 
   return dag.AgGrid(
-    id="table:stock-financials",
+    id="table:company-financials",
     columnDefs=columnDefs,
-    rowData=fin.to_dict("records"),
+    rowData=financials.to_dict("records"),
     columnSize="autoSize",
     defaultColDef={"tooltipComponent": "FinancialsTooltip"},
     rowClassRules=row_style,
@@ -190,8 +199,8 @@ def update_table(data: list[dict], sheet: str, scope: str):
 
 
 @callback(
-  Output("graph:stock-financials", "figure"),
-  Input("table:stock-financials", "selectedRows"),
+  Output("graph:company-financials", "figure"),
+  Input("table:company-financials", "selectedRows"),
 )
 def update_store(row: list[dict]):
   if not row:
@@ -209,8 +218,8 @@ def update_store(row: list[dict]):
 
 clientside_callback(
   ClientsideFunction(namespace="clientside", function_name="cellClickModal"),
-  Output("table:stock-financials", "id"),
-  Input("table:stock-financials", "cellClicked"),
+  Output("table:company-financials", "id"),
+  Input("table:company-financials", "cellClicked"),
   State(CloseModalAIO.dialog_id("stock-financials"), "id"),
   prevent_initial_call=True,
 )

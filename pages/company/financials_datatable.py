@@ -1,4 +1,4 @@
-from typing import cast, Any, Optional
+from typing import cast, Any
 from ordered_set import OrderedSet
 
 from dash import (
@@ -16,11 +16,11 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from components.sparklines import make_sparkline
-from components.stock_header import StockHeader
+from components.company_header import CompanyHeader
 from lib.db.lite import read_sqlite
 # from lib.ticker.fetch import company_label
 
-# register_page(__name__, path_template="/company/<id_>/financials", title=company_label)
+# register_page(__name__, path_template="/company/<id>/financials", title=company_label)
 
 radio_wrap_style = "flex divide-x rounded-sm shadow"
 radio_input_style = (
@@ -66,11 +66,11 @@ def format_columns(columns: list[str], index: str) -> list[dict[str, Any]]:
   ]
 
 
-def layout(id_: Optional[str] = None):
+def layout(id: str | None = None):
   return html.Main(
     className="flex flex-col h-full",
     children=[
-      StockHeader(id_) if id_ is not None else None,
+      CompanyHeader(id) if id is not None else None,
       html.Div(
         className="flex justify-around",
         children=[

@@ -21,7 +21,7 @@ import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-from components.stock_header import StockHeader
+from components.company_header import CompanyHeader
 from lib.fin.dcf import (
   discount_cashflow,
   make_distribution,
@@ -30,7 +30,7 @@ from lib.fin.dcf import (
 )
 from lib.ticker.fetch import company_label
 
-register_page(__name__, path_template="/company/<id_>/valuation", title=company_label)
+register_page(__name__, path_template="/company/<id>/valuation", title=company_label)
 
 modal_style = (
   "relative left-1/2 top-1/2 " "-translate-x-1/2 -translate-y-1/2 rounded-md"
@@ -91,7 +91,7 @@ correlation = {
 }
 
 
-def layout(id_: Optional[str] = None):
+def layout(id: Optional[str] = None):
   dcf_columns = [
     {
       "field": "factor",
@@ -182,7 +182,7 @@ def layout(id_: Optional[str] = None):
   return html.Main(
     className="h-full flex flex-col",
     children=[
-      StockHeader(id_) if id_ is not None else None,
+      CompanyHeader(id) if id is not None else None,
       html.Div(
         children=[
           html.Button("Add", id="button:stock-valuation:dcf-add"),

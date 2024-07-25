@@ -6,14 +6,12 @@ import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
 
-from components.stock_header import StockHeader
+from components.company_header import CompanyHeader
 from lib.db.lite import read_sqlite
 from lib.ticker.fetch import company_label
 # from lib.utils import load_json
 
-register_page(
-  __name__, path_template="/company/<_id>/fundamentals", title=company_label
-)
+register_page(__name__, path_template="/company/<id>/fundamentals", title=company_label)
 
 radio_wrap_style = "flex divide-x rounded-sm shadow"
 radio_input_style = (
@@ -22,11 +20,11 @@ radio_input_style = (
 radio_label_style = "relative px-1"
 
 
-def layout(_id: Optional[str] = None):
+def layout(id: Optional[str] = None):
   return html.Main(
     className="flex flex-col h-full",
     children=[
-      StockHeader(_id),
+      CompanyHeader(id),
       html.Div(
         className="flex justify-around",
         children=[
