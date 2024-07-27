@@ -2,8 +2,10 @@
   {
     "income": {
       "revenue": 1,
-      "product_revenue": 2,
-      "service_revenue": 2,
+      "revenue_sales": 2,
+      "investment_income_operating": 2,
+      "interest_income_expense_operating_after_provision_losses": 2,
+      "noninterest_income_operating": 2,
       "revenue_cost": 1,
       "product_revenue_cost": 2,
       "service_revenue_cost": 2,

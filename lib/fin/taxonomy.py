@@ -8,7 +8,8 @@ from typing_extensions import TypedDict
 
 from glom import glom
 import pandas as pd
-from pydantic import BaseModel, model_serializer
+from pandera.typing import DataFrame
+from pydantic import BaseModel, field_validator, model_serializer
 from sqlalchemy import create_engine
 
 from lib.db.lite import get_tables, insert_sqlite, read_sqlite
@@ -59,8 +60,8 @@ class TaxonomyCalculationItem(TypedDict):
 
 class TaxonomyCalculation(TypedDict, total=False):
   order: int
-  all: Optional[str | dict[str, TaxonomyCalculationItem]]
-  any: Optional[str | dict[str, TaxonomyCalculationItem]]
+  all: Optional[list[str]]
+  any: Optional[list[str]]
   avg: Optional[str]
   diff: Optional[str]
   fill: Optional[str]
@@ -77,6 +78,20 @@ class TaxonomyItem(BaseModel):
   gaap: Optional[list[str]] = None
   calculation: Optional[TaxonomyCalculation] = None
   components: Optional[list[str]] = None
+
+  @field_validator("calculation", mode="before")
+  @classmethod
+  def validate_calculation(cls, value):
+    if value is None:
+      return value
+
+    if "all" in value and isinstance(value["all"], str):
+      value["all"] = [value["all"]]
+
+    if "any" in value and isinstance(value["any"], str):
+      value["any"] = [value["any"]]
+
+    return value
 
 
 class TaxonomyRecord(TypedDict):
@@ -182,24 +197,24 @@ class Taxonomy(BaseModel):
       self.data[item].balance = balance
 
   def resolve_calculation_order(self) -> None:
-    order_dict = defaultdict(set)
+    order_dict: defaultdict[str, set[str]] = defaultdict(set)
 
     for k, v in self.data.items():
       if (calc := v.calculation) is None:
         continue
 
-      calc_values = [
-        cast(str | dict[str, TaxonomyCalculationItem], calc.get(i))
-        for i in calc.keys()
-        if i != "order"
-      ]
+      for i, calc_values in calc.items():
+        if i == "order" or isinstance(calc_values, float):
+          continue
 
-      for calc_value in calc_values:
-        if isinstance(calc_value, str):
+        calc_values = (
+          [calc_values]
+          if isinstance(calc_values, str)
+          else cast(list[str], calc_values)
+        )
+
+        for calc_value in calc_values:
           order_dict[k].update(extract_items(calc_value))
-
-        elif isinstance(calc_value, dict):
-          order_dict[k].update(set(calc_value.keys()))
 
     visited: set[str] = set()
     result: list[str] = []
@@ -327,6 +342,53 @@ def extract_items(calc_text: str) -> set[str]:
   visitor = CalcItems()
   visitor.visit(tree)
   return visitor.items
+
+
+def item_hiearchy(items: str | list[str], levels=3):
+  def query(x: str | list[str]):
+    item_where = f"= '{x}'" if isinstance(x, str) else f"IN {str(tuple(x))}"
+    return f"""
+      SELECT item, json_extract(calculation, '$.any[0]') AS child FROM items 
+      WHERE child IS NOT NULL AND item {item_where}
+    """
+
+  def build_hierarchy(current_item: str, current_level: int) -> dict[str, dict]:
+    if current_level == 0 or not current_item:
+      return {}
+
+    df = read_sqlite("taxonomy.db", query(current_item))
+    if df is None or df.empty:
+      return {}
+
+    df.loc[:, "child"] = df["child"].apply(extract_items)
+    df = cast(DataFrame, df.explode("child"))
+    result = {child: build_hierarchy(child, current_level - 1) for child in df["child"]}
+
+    return result
+
+  def flatten_dict(nested_dict, level=1, flattened=None):
+    if flattened is None:
+      flattened = {}
+
+    for key, value in nested_dict.items():
+      flattened[key] = level
+      if isinstance(value, dict):
+        flatten_dict(value, level + 1, flattened)
+
+    return flattened
+
+  df = read_sqlite("taxonomy.db", query(items))
+  if df is None or df.empty:
+    raise ValueError(f"Item hierarchy not found for {items}")
+
+  df.loc[:, "child"] = df["child"].apply(extract_items)
+  df = cast(DataFrame, df.explode("child"))
+
+  result: dict[str, dict] = {item: {} for item in items}
+  for i, c in zip(df["item"], df["child"]):
+    result[i][c] = build_hierarchy(c, levels - 1)
+
+  return flatten_dict(result)
 
 
 def load_taxonomy(

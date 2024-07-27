@@ -81,8 +81,6 @@ from IPython.display import display
 - InsuranceServicesRevenue = 
     - PremiumsEarnedNet + InsuranceInvestmentIncome + GainLossOnSaleOfInsuranceBlock + InsuranceAgencyManagementFee + InsuranceCommissionsAndFees
 
-revenue_noninterest = dividend_income_operating + investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_principal_transaction + revenue_premiums + gain_loss_sale_financial_assets + gain_loss_sale_leased_assets_operating + gain_loss_sale_stock_subsidiary + gain_loss_sale_property_plant_equipment + gain_loss_sale_business + gain_loss_derivative_intstruments_pretax + revenue_noninterest_other + gain_loss_venture_capital + income_bank_owned_life_insurance + income_loss_real_estate_operation + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + gain_loss_sale_stock_unissued + impairment_recovery_mortgage_servicing_rights + gain_loss_foreign_currency_transaction_pretax + gain_debt_conversion + gain_loss_extinguishment_debt + other_noninterest_operating_income
-
 ## Profit/Loss
 
 - IncomeLossFromContinuingOperationsIncludingPortionAttributableToNoncontrollingInterest = 
@@ -96,11 +94,17 @@ revenue_noninterest = dividend_income_operating + investment_banking_advisory_br
 - IncomeLossBeforeExtraordinaryItemsAndCumulativeEffectOfChangeInAccountingPrinciple = IncomeLossFromContinuingOperationsIncludingPortionAttributableToNoncontrollingInterest + IncomeLossFromDiscontinuedOperationsNetOfTax
 - ProfitLoss = 
     - ExtraordinaryItemNetOfTax + IncomeLossBeforeExtraordinaryItemsAndCumulativeEffectOfChangeInAccountingPrinciple
-    - NetIncomeLossIncludingPortionAttributableToNonredeemableNoncontrollingInterest - NetIncomeLossAttributableToRedeemableNoncontrollingInterest
+    - NetIncomeLossIncludingPortionAttributableToNonredeemableNoncontrollingInterest - NetIncomeLossAttributableToRedeemableNoncontrollingInterest + ExtraordinaryItemGainOrLossNetOfTaxAttributableToReportingEntity
     - IncomeLossFromContinuingOperationsIncludingPortionAttributableToNoncontrollingInterest + IncomeLossFromDiscontinuedOperationsNetOfTax
+    - InvestmentIncomeOperatingAfterExpenseAndTax + RealizedAndUnrealizedGainLossInvestmentAndDerivativeOperatingAfterTax + ForeignCurrencyTransactionGainLossAfterTax
 - NetIncomeLoss = ProfitLoss - NetIncomeLossAttributableToNoncontrollingInterest
 - NetIncomeLossAvailableToCommonStockholdersBasic = NetIncomeLoss - PreferredStockDividendsAndOtherAdjustments
 - NetIncomeLossAvailableToCommonStockholdersDiluted = NetIncomeLossAvailableToCommonStockholdersBasic + InterestOnConvertibleDebtNetOfTax + ConvertiblePreferredDividendsNetOfTax + DilutiveSecurities
+
+## Investment Income
+
+NetInvestmentIncomeInsuranceEntity
+InvestmentIncomeOperatingAfterExpenseAndTax
 
 ## Marketable securities
 - Available for Sale (AFS) 
@@ -108,3 +112,26 @@ revenue_noninterest = dividend_income_operating + investment_banking_advisory_br
 - Held for Trading (HFT)
 - Fair Value through Net Income (FVNI)
 - Fair Value through Other Comprehensive Income (FVOCI)
+
+## Multi-step income statement
+- gross_profit
+    - revenue = revenue_sales + investment_income_operating + revenue_sales + investment_income_operating + interest_income_expense_operating + noninterest_income_operating + noninterest_income_operating + revenue_other
+    - -cost_revenue
+- income_loss_operating
+  - gross_profit
+  - -operating_expenses
+- income_loss_pretax_excluding_equity_method_investments
+  - income_loss_operating
+  - income_loss_nonoperating
+- income_loss_pretax
+  - income_loss_pretax_excluding_equity_method_investments
+  - income_loss_equity_method_investment 
+- income_loss_net_continuing_operations_including_minority_interest
+  - income_loss_pretax
+  - -tax_expense_benefit
+- income_loss_net_before_extraordinary_item
+  - income_loss_net_continuing_operations_including_minority_interest
+  - income_loss_net_dicontinued_operations
+- income_loss_net_including_minority_interest
+  - income_loss_net_before_extraordinary_item
+  - extraordinary_item

@@ -373,6 +373,37 @@ def calculate_items(
     df = insert_to_df(df, df_cols, result, col_name)
     return df
 
+  def handle_all_formulas(
+    df: DataFrame, df_cols: set[str], col_name: str, formulas: list[str]
+  ):
+    for formula in formulas:
+      all_visitor.reset_names()
+      expression = ast.parse(formula, mode="eval")
+      expression = cast(
+        ast.Expression, ast.fix_missing_locations(all_visitor.visit(expression))
+      )
+
+      if all_visitor.names.issubset(df_cols):
+        df = apply_formula(df, df_cols, col_name, expression)
+
+    return df
+
+  def handle_any_formulas(
+    df: DataFrame, df_cols: set[str], col_name: str, formulas: list[str]
+  ):
+    for formula in formulas:
+      any_visitor.reset_names()
+      any_visitor.set_columns(col_set)
+      expression = ast.parse(formula, mode="eval")
+      expression = cast(
+        ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
+      )
+
+      if any_visitor.names:
+        df = apply_formula(financials, df_cols, col_name, expression)
+
+    return df
+
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]["order"]))
   slices = fin_slices(cast(pd.MultiIndex, financials.index))
   financials.sort_index(level="date", inplace=True)
