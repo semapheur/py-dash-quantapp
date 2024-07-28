@@ -4,7 +4,6 @@ import threading
 from dash import callback, ctx, html, no_update, register_page, Input, Output
 
 # from components.map import choropleth_map
-from lib.const import DB_DIR
 from lib.db.lite import insert_sqlite
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
@@ -32,6 +31,7 @@ layout = html.Main(
   Output("board-div:ticker", "className"),
   Input("board-button:stock", "n_clicks"),
   Input("board-button:cik", "n_clicks"),
+  # background=True
 )
 def update_tickers(n1: int, n2: int):
   button_id = ctx.triggered_id if not None else ""
