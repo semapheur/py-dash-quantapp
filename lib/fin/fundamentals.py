@@ -229,14 +229,14 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_financials(
-  id: str, currency: str, columns: Optional[set[str]] = None, where: str = ""
+  id: str, currency: str, columns: set[str] | None = None, where: str = ""
 ) -> DataFrame | None:
   col_text = "*"
   index_col = OrderedSet(("date", "period", "months"))
   table = f"{id}_{currency}"
   if columns is not None:
     table_columns = get_table_columns("financials.db", [table])
-    select_columns = set(table_columns[table]).intersection(columns).union(index_col)
+    select_columns = columns.intersection(table_columns[table]).union(index_col)
     col_text = ", ".join(select_columns)
 
   query = f"SELECT {col_text} FROM '{table}' {where}".strip()
@@ -256,7 +256,7 @@ def load_ratios(
   index_col = OrderedSet(("date", "period", "months"))
   if columns is not None:
     table_columns = get_table_columns("fundamentals.db", [id])
-    select_columns = set(table_columns[id]).intersection(columns).union(index_col)
+    select_columns = columns.intersection(table_columns[id]).union(index_col)
     col_text = ", ".join(select_columns)
 
   query = f"SELECT {col_text} FROM '{id}' {where}".strip()

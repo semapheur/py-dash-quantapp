@@ -15,7 +15,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 import pandas as pd
-from pandera.typing import DataFrame, Series
+from pandera.typing import DataFrame, Index, Series
 import plotly.express as px
 
 from components.modal import CloseModalAIO
@@ -136,16 +136,25 @@ def update_table(sheet: str, scope: str, pathname: str):
   table = f"{company_id}_{currency}"
 
   table_columns = get_table_columns("financials.db", [table])[table]
-  fin_columns = table_columns.intersection(set(template["item"]))
+  fin_columns = OrderedSet(template["item"]).intersection(table_columns)
 
-  where = f"WHERE period = '{scope}'"
+  where = f"WHERE months = {scope}"
   financials = load_financials(company_id, currency, fin_columns, where)
   if financials is None:
     return no_update
 
+  financials = cast(
+    DataFrame,
+    financials.reset_index(level=["period", "months"], drop=True).sort_index(
+      ascending=False
+    ),
+  )
+  financials.index = cast(pd.DatetimeIndex, financials.index).strftime("%Y-%m-%d")
   financials = cast(DataFrame, financials.T.reset_index())
   financials["trend"] = financials.iloc[:, 1:-1].apply(trend_data, axis=1)
-  template = template.set_index("item").loc[list(fin_columns)].reset_index()
+  template = cast(
+    DataFrame, template.set_index("item").loc[list(fin_columns)].reset_index()
+  )
 
   columnDefs = [
     {

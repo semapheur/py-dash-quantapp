@@ -1,16 +1,6 @@
 import asyncio
 
-from dash import (
-  callback,
-  ctx,
-  dcc,
-  html,
-  no_update,
-  register_page,
-  Output,
-  Input,
-  State,
-)
+from dash import callback, dcc, html, no_update, register_page, Input, Output
 from plotly import graph_objects as go
 import pandas as pd
 
@@ -42,20 +32,33 @@ async def yield_curve():
 
 register_page(__name__, path_template="/bond/yield", title="Yield curve")
 
-df = asyncio.run(yield_curve())
-years = df.index.max().year - df.index.min().year
-
-figure = go.Figure(data=go.Surface(x=df.columns, y=df.index, z=df.to_numpy()))
-figure.update_layout(
-  scene={
-    "xaxis": {"autorange": "reversed"},
-    # "yaxis": {"nticks": years // 5},
-    # "camera_eye": {"x": 0, "y": -1, "z": 0.5},
-    "aspectratio": {"x": 1, "y": 3, "z": 1},
-  }
-)
-
 layout = html.Main(
   className="h-full",
-  children=[dcc.Graph(id="graph:yield_curve", className="h-full", figure=figure)],
+  children=[
+    dcc.Loading(
+      children=[dcc.Graph(id="graph:yield_curve", className="h-full")],
+      target_components={"graph:yield_curve": "figure"},
+    )
+  ],
 )
+
+
+@callback(
+  Output("graph:yield_curve", "figure"),
+  Input("location:app", "pathname"),
+  background=True,
+)
+def update_graph(path: str):
+  if path != "/bond/yield":
+    return no_update
+
+  df = asyncio.run(yield_curve())
+
+  figure = go.Figure(data=go.Surface(x=df.columns, y=df.index, z=df.to_numpy()))
+  figure.update_layout(
+    scene={
+      "xaxis": {"autorange": "reversed"},
+      "aspectratio": {"x": 1, "y": 3, "z": 1},
+    }
+  )
+  return figure

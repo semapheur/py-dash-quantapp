@@ -128,7 +128,7 @@ InvestmentIncomeOperatingAfterExpenseAndTax
   - income_loss_equity_method_investment 
 - income_loss_net_continuing_operations_including_minority_interest
   - income_loss_pretax
-  - -tax_expense_benefit
+  - -tax_income_expense_benefit
 - income_loss_net_before_extraordinary_item
   - income_loss_net_continuing_operations_including_minority_interest
   - income_loss_net_dicontinued_operations
