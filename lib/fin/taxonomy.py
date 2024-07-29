@@ -344,7 +344,7 @@ def extract_items(calc_text: str) -> set[str]:
   return visitor.items
 
 
-def item_hiearchy(items: str | list[str], levels=3):
+def item_hiearchy(items: str | list[str], levels=3, start_level=1):
   def query(x: str | list[str]):
     item_where = f"= '{x}'" if isinstance(x, str) else f"IN {str(tuple(x))}"
     return f"""
@@ -388,7 +388,7 @@ def item_hiearchy(items: str | list[str], levels=3):
   for i, c in zip(df["item"], df["child"]):
     result[i][c] = build_hierarchy(c, levels - 1)
 
-  return flatten_dict(result)
+  return flatten_dict(result, start_level)
 
 
 def load_taxonomy(
