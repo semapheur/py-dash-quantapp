@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import cast, Optional
+from typing import cast, Optional, TypedDict
 
 from dash import (
   callback,
@@ -23,6 +23,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 from components.company_header import CompanyHeader
+from components.modal import OpenCloseModalAIO
 from lib.fin.dcf import (
   discount_cashflow,
   make_distribution,
@@ -32,6 +33,13 @@ from lib.fin.dcf import (
 from lib.fin.fundamentals import load_fundamentals
 from lib.ticker.fetch import company_label, get_currency
 
+
+class Factor(TypedDict, total=False):
+  header: Optional[str]
+  initial: tuple[str, str]
+  terminal: tuple[str, str]
+
+
 register_page(__name__, path_template="/company/<id>/valuation", title=company_label)
 
 modal_style = (
@@ -40,7 +48,7 @@ modal_style = (
 
 distributions = ["Normal", "Skewnormal", "Triangular", "Uniform"]
 
-factors = {
+factors: dict[str, Factor] = {
   "years": {"initial": ("Uniform", "5, 10"), "terminal": ("∞", "")},
   "revenue_growth": {
     "initial": ("Normal", "0.15, 0.05"),
@@ -58,7 +66,8 @@ factors = {
     "initial": ("Normal", "0.10, 0.05"),
     "terminal": ("Normal", "0.10, 0.05"),
   },
-  "risk_free_rate": {
+  "riskfree_rate": {
+    "header": "Risk-free rate",
     "initial": ("Normal", "0.04, 0.01"),
     "terminal": ("Normal", "0.02, 0.05"),
   },
@@ -80,13 +89,15 @@ factors = {
   },
 }
 corr_factors: list[str] = list(factors.keys())[1:]
-corr_headers = [f.replace("_", " ").capitalize() for f in corr_factors]
+corr_headers = [
+  factors[f].get("header", f.replace("_", " ").capitalize()) for f in corr_factors
+]
 
 Factors = Enum("Factors", list(factors.keys()), start=0)
 
 correlation = {
-  ("risk_free_rate", "yield_spread"): 0.9,
-  ("risk_free_rate", "equity_risk_premium"): 0.9,
+  ("riskfree_rate", "yield_spread"): 0.9,
+  ("riskfree_rate", "equity_risk_premium"): 0.9,
   ("equity_risk_premium", "revenue_growth"): 0.4,
   ("reinvestment_rate", "operating_margin"): 0.8,
   ("yield_spread", "operating_margin"): 0.8,
@@ -182,24 +193,27 @@ def layout(id: Optional[str] = None):
   ).reset_index()
 
   return html.Main(
-    className="h-full flex flex-col",
+    className="h-full grid grid-rows-[auto_1fr]",
     children=[
       CompanyHeader(id) if id is not None else None,
       html.Div(
-        className="h-full grid grid-cols-[2fr_1fr]",
+        className="h-full min-h-0 grid grid-cols-[2fr_1fr]",
         children=[
           html.Div(
-            className="flex flex-col",
+            className="h-full min-h-0 grid grid-rows-[auto_1fr]",
             children=[
               html.Div(
                 children=[
-                  html.Button("Add", id="button:stock-valuation:dcf-add"),
-                  html.Button("Calc", id="button:stock-valuation:dcf-sim"),
-                  html.Button("Correlation", id="button:stock-valuation:correlation"),
+                  html.Button("Add", id="button:company-valuation:dcf-add"),
+                  html.Button("Calc", id="button:company-valuation:dcf-sim"),
+                  html.Button(
+                    "Correlation",
+                    id=OpenCloseModalAIO.open_id("company-valuation:correlation"),
+                  ),
                 ]
               ),
               dag.AgGrid(
-                id="table:stock-valuation:dcf",
+                id="table:company-valuation:dcf",
                 columnDefs=dcf_columns,
                 rowData=dcf_rows,
                 columnSize="autoSize",
@@ -210,60 +224,79 @@ def layout(id: Optional[str] = None):
             ],
           ),
           html.Div(
-            className="grid grid-rows-2",
+            className="h-full min-h-0 grid grid-rows-2",
             children=[
-              dcc.Graph(id="graph:stock-valuation:distribution"),
-              dcc.Graph(id="graph:stock-valuation:dcf"),
+              dcc.Graph(id="graph:company-valuation:distribution"),
+              dcc.Graph(id="graph:company-valuation:dcf"),
             ],
           ),
         ],
       ),
       html.Dialog(
-        id={"type": "dialog:stock-valuation", "id": "factor"},
+        id={"type": "dialog:company-valuation", "id": "factor"},
         className=modal_style,
         children=[
-          dcc.Graph(id="graph:stock-valuation:factor"),
+          dcc.Graph(id="graph:company-valuation:factor"),
           html.Button(
             "x",
-            id={"type": "button:stock-valuation:close-modal", "id": "factor"},
+            id={"type": "button:company-valuation:close-modal", "id": "factor"},
             className="absolute top-0 left-2 text-3xl text-secondary hover:text-red-600",
           ),
         ],
       ),
-      html.Dialog(
-        id={"type": "dialog:stock-valuation", "id": "correlation"},
-        className="w-3/4 pt-10 " + modal_style,
+      OpenCloseModalAIO(
+        "company-valuation:correlation",
+        "Correlation matrix",
         children=[
-          dag.AgGrid(
-            id="table:stock-valuation:correlation",
-            columnDefs=corr_cols,
-            rowData=corr_rows.to_dict("records"),
-            columnSize="autoSize",
-            defaultColDef={"editable": True},
-            dashGridOptions={"singleClickEdit": True},
-          ),
-          html.Button(
-            "x",
-            id={"type": "button:stock-valuation:close-modal", "id": "correlation"},
-            className="absolute top-0 left-2 text-3xl text-secondary hover:text-red-600",
-          ),
-          html.Button(
-            "Trend",
-            id="button:stock-valuation:correlation-trend",
-            className="absolute top-2 right-2",
-          ),
+          html.Div(
+            className="h-full flex flex-col",
+            children=[
+              dag.AgGrid(
+                id="table:company-valuation:correlation",
+                columnDefs=corr_cols,
+                rowData=corr_rows.to_dict("records"),
+                columnSize="autoSize",
+                defaultColDef={"editable": True},
+                dashGridOptions={"singleClickEdit": True},
+                style={"height": "100%"},
+              ),
+              html.Button(
+                "Trend",
+                id="button:company-valuation:correlation-trend",
+                className="",
+              ),
+            ],
+          )
         ],
+        dialog_props={
+          "style": {
+            "height": "100%",
+            "width": "100%",
+          },
+        },
       ),
     ],
   )
 
 
+def plot_pdf(
+  distribution: ot.Distribution, num_points=1000, quantile_range=(0.001, 0.999)
+):
+  lower_bound = distribution.computeQuantile(quantile_range[0])[0]
+  upper_bound = distribution.computeQuantile(quantile_range[1])[0]
+
+  x = np.linspace(lower_bound, upper_bound, num_points)
+  y = np.array([distribution.computePDF(i) for i in x])
+
+  return x, y
+
+
 @callback(
-  Output("table:stock-valuation:dcf", "columnDefs"),
-  Output("table:stock-valuation:dcf", "rowData"),
-  Input("button:stock-valuation:dcf-add", "n_clicks"),
-  State("table:stock-valuation:dcf", "columnDefs"),
-  State("table:stock-valuation:dcf", "rowData"),
+  Output("table:company-valuation:dcf", "columnDefs"),
+  Output("table:company-valuation:dcf", "rowData"),
+  Input("button:company-valuation:dcf-add", "n_clicks"),
+  State("table:company-valuation:dcf", "columnDefs"),
+  State("table:company-valuation:dcf", "rowData"),
 )
 def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
   if not n_clicks:
@@ -296,8 +329,8 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
 
 
 @callback(
-  Output("graph:stock-valuation:factor", "figure"),
-  Input("table:stock-valuation:dcf", "cellClicked"),
+  Output("graph:company-valuation:factor", "figure"),
+  Input("table:company-valuation:dcf", "cellClicked"),
   State("location:app", "pathname"),
 )
 def update_factor_graph(cell: dict[str, str | int], pathname: str):
@@ -335,40 +368,43 @@ def update_factor_graph(cell: dict[str, str | int], pathname: str):
 
 clientside_callback(
   ClientsideFunction(namespace="clientside", function_name="dcf_factor_modal"),
-  Output("table:stock-valuation:dcf", "cellClicked"),
-  Input("table:stock-valuation:dcf", "cellClicked"),
-  State({"type": "dialog:stock-valuation", "id": "factor"}, "id"),
+  Output("table:company-valuation:dcf", "cellClicked"),
+  Input("table:company-valuation:dcf", "cellClicked"),
+  State({"type": "dialog:company-valuation", "id": "factor"}, "id"),
 )
 
 clientside_callback(
   ClientsideFunction(namespace="clientside", function_name="closeModal"),
-  Output({"type": "dialog:stock-valuation", "id": MATCH}, "id"),
-  Input({"type": "button:stock-valuation:close-modal", "id": MATCH}, "n_clicks"),
-  State({"type": "dialog:stock-valuation", "id": MATCH}, "id"),
-)
-
-clientside_callback(
-  ClientsideFunction(namespace="clientside", function_name="modal"),
-  Output("button:stock-valuation:correlation", "id"),
-  Input("button:stock-valuation:correlation", "n_clicks"),
-  State({"type": "dialog:stock-valuation", "id": "correlation"}, "id"),
-  State("button:stock-valuation:correlation", "id"),
+  Output({"type": "dialog:company-valuation", "id": MATCH}, "id"),
+  Input({"type": "button:company-valuation:close-modal", "id": MATCH}, "n_clicks"),
+  State({"type": "dialog:company-valuation", "id": MATCH}, "id"),
 )
 
 
 @callback(
-  Output("table:stock-valuation:correlation", "rowData"),
-  Input("button:stock-valuation:correlation-trend", "n_clicks"),
-  State("store:ticker-search:financials", "data"),
+  Output("table:company-valuation:correlation", "rowData"),
+  Input("button:company-valuation:correlation-trend", "n_clicks"),
+  State("location:app", "pathname"),
+  background=True,
 )
-def update_correlation(n_clicks: int, data: list[dict]):
-  if not (data and n_clicks):
+def update_correlation(n_clicks: int, pathname: str):
+  if not n_clicks:
     return no_update
 
-  df = pd.DataFrame.from_records(data)
+  company_id = pathname.split("/")[2]
+  currency = get_currency(company_id)
+  if currency is None:
+    return no_update
+
   cols = corr_factors.copy()
   cols[0] = "revenue"
-  df = df.loc[df["months"] == 12, cols]
+
+  where = "WHERE months = 12"
+  df = load_fundamentals(company_id, currency, OrderedSet(cols), where)
+  if df is None:
+    return no_update
+
+  df.reset_index(drop=True, inplace=True)
 
   corr_mat = df.corr()
   corr_mat.index = pd.Index(corr_headers, name="factor")
@@ -379,9 +415,9 @@ def update_correlation(n_clicks: int, data: list[dict]):
 
 
 @callback(
-  Output("graph:stock-valuation:distribution", "figure"),
-  Input("table:stock-valuation:dcf", "cellClicked"),
-  State("table:stock-valuation:dcf", "selectedRows"),
+  Output("graph:company-valuation:distribution", "figure"),
+  Input("table:company-valuation:dcf", "cellClicked"),
+  State("table:company-valuation:dcf", "selectedRows"),
 )
 def update_graph(cell: dict[str, str | int], row: list[dict]):
   if not (cell and row) or cell["colId"] == "factor":
@@ -395,16 +431,20 @@ def update_graph(cell: dict[str, str | int], row: list[dict]):
   params = [float(num) for num in row[0][f"{col_id[0]}:parameters"].split(", ")]
 
   dist = make_distribution(cast(str, cell["value"]), params)
-  sample = np.array(dist.getSample(1000)).flatten()
+  x, y = plot_pdf(dist)
 
-  return px.histogram(x=sample, marginal="box")
+  fig = px.line(x=x, y=y, title="Probability density function")
+
+  fig.update_layout(xaxis_title="Value", yaxis_title="Density")
+
+  return fig
 
 
 @callback(
-  Output("graph:stock-valuation:dcf", "figure"),
-  Input("button:stock-valuation:dcf-sim", "n_clicks"),
-  State("table:stock-valuation:dcf", "rowData"),
-  State("table:stock-valuation:correlation", "rowData"),
+  Output("graph:company-valuation:dcf", "figure"),
+  Input("button:company-valuation:dcf-sim", "n_clicks"),
+  State("table:company-valuation:dcf", "rowData"),
+  State("table:company-valuation:correlation", "rowData"),
   State("store:ticker-search:financials", "data"),
 )
 def monte_carlo(
