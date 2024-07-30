@@ -3,14 +3,14 @@ from dateutil.relativedelta import relativedelta
 from functools import partial
 import json
 from typing import cast, Optional
+from ordered_set import OrderedSet
 from sqlalchemy.types import Date
 
-from ordered_set import OrderedSet
 from numpy import inf, nan
 import pandas as pd
 from pandera.typing import DataFrame, Index, Series
 
-from lib.db.lite import read_sqlite, upsert_sqlite, get_table_columns
+from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite
 from lib.fin.calculation import calculate_items, trailing_twelve_months
 from lib.fin.metrics import (
   f_score,
@@ -228,57 +228,25 @@ def load_ttm(df: pd.DataFrame) -> pd.DataFrame:
   return df
 
 
-def load_financials(
-  id: str, currency: str, columns: set[str] | None = None, where: str = ""
-) -> DataFrame | None:
-  col_text = "*"
-  index_col = OrderedSet(("date", "period", "months"))
-  table = f"{id}_{currency}"
-  if columns is not None:
-    table_columns = get_table_columns("financials.db", [table])
-    select_columns = columns.intersection(table_columns[table]).union(index_col)
-    col_text = ", ".join(select_columns)
-
-  query = f"SELECT {col_text} FROM '{table}' {where}".strip()
-  df = read_sqlite(
-    "financials.db",
-    query,
-    index_col=list(index_col),
-    date_parser={"date": {"format": "%Y-%m-%d"}},
-  )
-  return df
-
-
-def load_ratios(
-  id: str, columns: set[str] | None = None, where: str = ""
-) -> DataFrame | None:
-  col_text = "*"
-  index_col = OrderedSet(("date", "period", "months"))
-  if columns is not None:
-    table_columns = get_table_columns("fundamentals.db", [id])
-    select_columns = columns.intersection(table_columns[id]).union(index_col)
-    col_text = ", ".join(select_columns)
-
-  query = f"SELECT {col_text} FROM '{id}' {where}".strip()
-  df = read_sqlite(
-    "fundamentals.db",
-    query,
-    index_col=list(index_col),
-    date_parser={"date": {"format": "%Y-%m-%d"}},
-  )
-  return df
-
-
 def load_fundamentals(
-  id: str, currency: str, columns: set[str] | None = None, where: str = ""
+  id: str, currency: str, columns: OrderedSet[str] | None = None, where: str = ""
 ) -> DataFrame | None:
-  financials = load_financials(id, currency, columns, where)
-  ratios = load_ratios(id, columns, where)
+  index_columns = ["date", "period", "months"]
 
-  if financials is None or ratios is None:
+  db_table = (
+    ("financials.db", f"{id}_{currency}"),
+    ("fundamentals.db", id),
+  )
+
+  fundamentals = [
+    select_sqlite(db, table, columns, index_columns, where) for db, table in db_table
+  ]
+  fundamentals = [i for i in fundamentals if i is not None]
+
+  if not fundamentals:
     return None
 
-  return cast(DataFrame, pd.concat([financials, ratios], axis=1))
+  return cast(DataFrame, pd.concat(fundamentals, axis=1))
 
 
 def load_ratio_items() -> DataFrame:

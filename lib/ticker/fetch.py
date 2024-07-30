@@ -132,3 +132,14 @@ def search_stocks(search: str, limit: int = 10) -> DataFrame[TickerOptions]:
 
   df = read_sqlite("ticker.db", query, {"search": f"%{search}%", "limit": str(limit)})
   return cast(DataFrame[TickerOptions], df)
+
+
+def get_currency(id: str) -> str | None:
+  currency = fetch_sqlite(
+    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": f"{id}"}
+  )
+
+  if currency is None:
+    return None
+
+  return currency[0][0]

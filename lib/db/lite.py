@@ -4,6 +4,7 @@ import re
 import sqlite3
 from typing import cast, Any, Literal, Optional
 
+from ordered_set import OrderedSet
 import pandas as pd
 from pandas._typing import DtypeArg
 from pandera.typing import DataFrame
@@ -177,6 +178,40 @@ def read_sqlite(
     )
 
   return None if df.empty else cast(DataFrame, df)
+
+
+def select_sqlite(
+  db_name: str,
+  table: str,
+  columns: OrderedSet[str] | None = None,
+  index_columns: list[str] = [],
+  where: str = "",
+) -> DataFrame | None:
+  if columns is None:
+    query = f"SELECT * FROM '{table}' {where}".strip()
+    df = read_sqlite(
+      db_name,
+      query,
+      index_col=index_columns if index_columns else None,
+      date_parser={"date": {"format": "%Y-%m-%d"}},
+    )
+    return df
+
+  table_columns = get_table_columns(db_name, [table])
+  select_columns = columns.intersection(table_columns[table])
+  if not select_columns:
+    return None
+
+  column_text = ", ".join(select_columns.union(index_columns))
+
+  query = f"SELECT {column_text} FROM '{table}' {where}".strip()
+  df = read_sqlite(
+    db_name,
+    query,
+    index_col=index_columns if index_columns else None,
+    date_parser={"date": {"format": "%Y-%m-%d"}},
+  )
+  return df
 
 
 def get_table_columns(

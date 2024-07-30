@@ -29,7 +29,7 @@ from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
 from lib.morningstar.ticker import Stock
 from lib.fin.fundamentals import load_fundamentals
 from lib.fin.quote import load_ohlcv
-from lib.ticker.fetch import company_label
+from lib.ticker.fetch import company_label, get_currency
 
 register_page(__name__, path_template="/company/<id>/overview", title=company_label)
 
@@ -100,17 +100,6 @@ def get_primary_security(id: str) -> str | None:
     return None
 
   return ticker[0][0]
-
-
-def get_currency(id: str) -> str | None:
-  currency = fetch_sqlite(
-    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": f"{id}"}
-  )
-
-  if currency is None:
-    return None
-
-  return currency[0][0]
 
 
 def trend_data(row: Series[float]):

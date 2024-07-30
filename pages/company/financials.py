@@ -1,5 +1,4 @@
 from typing import cast
-from ordered_set import OrderedSet
 
 from dash import (
   callback,
@@ -14,15 +13,15 @@ from dash import (
   State,
 )
 import dash_ag_grid as dag
+from ordered_set import OrderedSet
 import pandas as pd
-from pandera.typing import DataFrame, Index, Series
+from pandera.typing import DataFrame, Series
 import plotly.express as px
 
 from components.modal import CloseModalAIO
 from components.company_header import CompanyHeader
-from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
-from lib.fin.fundamentals import load_financials
-from lib.ticker.fetch import company_label
+from lib.db.lite import read_sqlite, select_sqlite
+from lib.ticker.fetch import company_label, get_currency
 
 register_page(__name__, path_template="/company/<id>/financials", title=company_label)
 
@@ -78,9 +77,16 @@ def layout(id: str | None = None):
           ),
         ],
       ),
+      dag.AgGrid(
+        id="table:company-financials",
+        columnSize="autoSize",
+        defaultColDef={"tooltipComponent": "FinancialsTooltip"},
+        style={"height": "100%"},
+        dashGridOptions={"rowSelection": "single"},
+      ),
       html.Div(id="div:company-financials:table-wrap", className="flex-1 p-2"),
       CloseModalAIO(
-        aio_id="stock-financials",
+        aio_id="company-financials",
         children=[dcc.Graph(id="graph:company-financials")],
       ),
     ],
@@ -101,23 +107,14 @@ def sheet_items(sheet: str) -> DataFrame | None:
   return template
 
 
-def get_currency(id: str) -> str | None:
-  currency = fetch_sqlite(
-    "ticker.db", "SELECT currency FROM company WHERE company_id = :id", {"id": f"{id}"}
-  )
-
-  if currency is None:
-    return None
-
-  return currency[0][0]
-
-
 def trend_data(row: Series[float]):
   return {"x": row.index.tolist(), "y": row.values.tolist()}
 
 
 @callback(
-  Output("div:company-financials:table-wrap", "children"),
+  Output("table:company-financials", "columnDefs"),
+  Output("table:company-financials", "rowData"),
+  Output("table:company-financials", "rowClassRules"),
   Input("radio:company-financials:sheet", "value"),
   Input("radio:company-financials:scope", "value"),
   State("location:app", "pathname"),
@@ -134,26 +131,23 @@ def update_table(sheet: str, scope: str, pathname: str):
     return no_update
 
   table = f"{company_id}_{currency}"
-
-  table_columns = get_table_columns("financials.db", [table])[table]
-  fin_columns = OrderedSet(template["item"]).intersection(table_columns)
-
   where = f"WHERE months = {scope}"
-  financials = load_financials(company_id, currency, fin_columns, where)
+  financials = select_sqlite(
+    "financials.db", table, OrderedSet(template["item"]), ["data"], where
+  )
   if financials is None:
     return no_update
 
   financials = cast(
     DataFrame,
-    financials.reset_index(level=["period", "months"], drop=True).sort_index(
-      ascending=False
-    ),
+    financials.sort_index(ascending=False),
   )
   financials.index = cast(pd.DatetimeIndex, financials.index).strftime("%Y-%m-%d")
   financials = cast(DataFrame, financials.T.reset_index())
   financials["trend"] = financials.iloc[:, 1:-1].apply(trend_data, axis=1)
   template = cast(
-    DataFrame, template.set_index("item").loc[list(fin_columns)].reset_index()
+    DataFrame,
+    template.set_index("item").loc[financials["index"].tolist()].reset_index(),
   )
 
   columnDefs = [
@@ -195,25 +189,17 @@ def update_table(sheet: str, scope: str, pathname: str):
     lambda x: template.loc[template["item"] == x, "short"].iloc[0]
   )
 
-  return dag.AgGrid(
-    id="table:company-financials",
-    columnDefs=columnDefs,
-    rowData=financials.to_dict("records"),
-    columnSize="autoSize",
-    defaultColDef={"tooltipComponent": "FinancialsTooltip"},
-    rowClassRules=row_style,
-    style={"height": "100%"},
-    dashGridOptions={"rowSelection": "single"},
-  )
+  return columnDefs, financials.to_dict("records"), row_style
 
 
 @callback(
   Output("graph:company-financials", "figure"),
   Input("table:company-financials", "selectedRows"),
+  prevent_initial_call=True,
 )
-def update_store(row: list[dict]):
+def update_graph(row: list[dict]):
   if not row:
-    return []
+    return {}
 
   df = pd.DataFrame(row).drop(["index", "trend"], axis=1).T.sort_index()
 
@@ -229,6 +215,6 @@ clientside_callback(
   ClientsideFunction(namespace="clientside", function_name="cellClickModal"),
   Output("table:company-financials", "id"),
   Input("table:company-financials", "cellClicked"),
-  State(CloseModalAIO.dialog_id("stock-financials"), "id"),
+  State(CloseModalAIO.dialog_id("company-financials"), "id"),
   prevent_initial_call=True,
 )

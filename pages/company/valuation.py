@@ -16,6 +16,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 import numpy as np
+from ordered_set import OrderedSet
 import openturns as ot
 import pandas as pd
 import plotly.express as px
@@ -28,7 +29,8 @@ from lib.fin.dcf import (
   nearest_postive_definite_matrix,
   terminal_value,
 )
-from lib.ticker.fetch import company_label
+from lib.fin.fundamentals import load_fundamentals
+from lib.ticker.fetch import company_label, get_currency
 
 register_page(__name__, path_template="/company/<id>/valuation", title=company_label)
 
@@ -184,26 +186,36 @@ def layout(id: Optional[str] = None):
     children=[
       CompanyHeader(id) if id is not None else None,
       html.Div(
+        className="h-full grid grid-cols-[2fr_1fr]",
         children=[
-          html.Button("Add", id="button:stock-valuation:dcf-add"),
-          html.Button("Calc", id="button:stock-valuation:dcf-sim"),
-          html.Button("Correlation", id="button:stock-valuation:correlation"),
-        ]
-      ),
-      dag.AgGrid(
-        id="table:stock-valuation:dcf",
-        columnDefs=dcf_columns,
-        rowData=dcf_rows,
-        columnSize="autoSize",
-        defaultColDef={"editable": True},
-        dashGridOptions={"singleClickEdit": True, "rowSelection": "single"},
-        style={"height": "100%"},
-      ),
-      html.Div(
-        className="flex",
-        children=[
-          dcc.Graph(id="graph:stock-valuation:distribution"),
-          dcc.Graph(id="graph:stock-valuation:dcf"),
+          html.Div(
+            className="flex flex-col",
+            children=[
+              html.Div(
+                children=[
+                  html.Button("Add", id="button:stock-valuation:dcf-add"),
+                  html.Button("Calc", id="button:stock-valuation:dcf-sim"),
+                  html.Button("Correlation", id="button:stock-valuation:correlation"),
+                ]
+              ),
+              dag.AgGrid(
+                id="table:stock-valuation:dcf",
+                columnDefs=dcf_columns,
+                rowData=dcf_rows,
+                columnSize="autoSize",
+                defaultColDef={"editable": True},
+                dashGridOptions={"singleClickEdit": True, "rowSelection": "single"},
+                style={"height": "100%"},
+              ),
+            ],
+          ),
+          html.Div(
+            className="grid grid-rows-2",
+            children=[
+              dcc.Graph(id="graph:stock-valuation:distribution"),
+              dcc.Graph(id="graph:stock-valuation:dcf"),
+            ],
+          ),
         ],
       ),
       html.Dialog(
@@ -246,7 +258,6 @@ def layout(id: Optional[str] = None):
   )
 
 
-# DCF input table
 @callback(
   Output("table:stock-valuation:dcf", "columnDefs"),
   Output("table:stock-valuation:dcf", "rowData"),
@@ -287,37 +298,37 @@ def update_table(n_clicks: int, cols: list[dict], rows: list[dict]):
 @callback(
   Output("graph:stock-valuation:factor", "figure"),
   Input("table:stock-valuation:dcf", "cellClicked"),
-  State("store:ticker-search:financials", "data"),
+  State("location:app", "pathname"),
 )
-def update_factor_graph(cell: dict[str, str | int], fin_data: list[dict]):
-  if not (cell and fin_data) or cell["colId"] != "factor":
+def update_factor_graph(cell: dict[str, str | int], pathname: str):
+  if not cell or cell["colId"] != "factor" or cell["rowIndex"] == 0:
     return no_update
 
-  if cell["rowIndex"] == 0:
+  company_id = pathname.split("/")[2]
+  currency = get_currency(company_id)
+  if currency is None:
     return no_update
 
   factor = cast(str, cell["value"]).lower().replace(" ", "_")
 
-  fin_df = pd.DataFrame.from_records(fin_data)
-  fin_df.set_index("date", inplace=True)
-
   if factor == "revenue_growth":
     factor = "revenue"
 
-  fin_s = fin_df.loc[fin_df["months"] == 12, factor]
+  where = "WHERE months = 12"
+  df = load_fundamentals(company_id, currency, OrderedSet(factor), where)
+  if df is None:
+    return no_update
 
   fig = make_subplots(rows=2, cols=1)
 
   fig.add_scatter(
-    x=fin_s.index,
-    y=fin_s.pct_change() if factor == "revenue" else fin_s,
+    x=df.index,
+    y=df.pct_change() if factor == "revenue" else df,
     mode="lines",
     row=1,
     col=1,
   )
-  fig.add_histogram(
-    x=fin_s.pct_change() if factor == "revenue" else fin_s, row=2, col=1
-  )
+  fig.add_histogram(x=df.pct_change() if factor == "revenue" else df, row=2, col=1)
   fig.update_layout(title=cell["value"])
   return fig
 
