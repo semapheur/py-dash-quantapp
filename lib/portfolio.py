@@ -116,9 +116,9 @@ class Portfolio:
 
     data = np.zeros((self.num_assets + 3, num_samples))
 
-    gammaVals = np.linspace(0, 10, num=num_samples)
+    gamma_values = np.linspace(0, 10, num=num_samples)
     for i in range(num_samples):
-      gamma.value = gammaVals[i]
+      gamma.value = gamma_values[i]
       prob.solve()
 
       data[0, i] = returns.value * self.period

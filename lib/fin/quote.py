@@ -68,11 +68,4 @@ async def load_ohlcv(
     DataFrame[Quote], pd.concat([ohlcv, new_ohlcv], axis=0).drop_duplicates()
   )
 
-  # ohlcv = read_sqlite(
-  #  f"{security}_quote.db",
-  #  query,
-  #  index_col="date",
-  #  date_parser={"date": {"format": "%Y-%m-%d"}},
-  # )
-
   return cast(DataFrame[Quote], ohlcv)

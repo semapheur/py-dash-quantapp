@@ -28,6 +28,7 @@ parsel
 #polars
 pycountry
 pydantic
+#pyportfolioopt
 #pypdf2<3.0.0
 #pypika
 python-dotenv
@@ -36,6 +37,7 @@ rapidfuzz
 requests
 scikit-learn
 scipy
+skfolio
 sqlalchemy
 #sqlmodel
 statsmodels

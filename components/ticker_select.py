@@ -1,4 +1,4 @@
-from dash import callback, dcc, no_update, Input, Output, MATCH
+from dash import callback, dcc, no_update, Input, Output, State, MATCH
 
 from lib.ticker.fetch import search_stocks
 
@@ -14,8 +14,13 @@ class TickerSelectAIO(dcc.Dropdown):
 
     super().__init__(id=self.__class__.aio_id(id), **dropdown_props)
 
-  @callback(Output(aio_id(MATCH), "options"), Input(aio_id(MATCH), "search_value"))
-  def update_dropdown(search: str):
+  @callback(
+    Output(aio_id(MATCH), "options"),
+    Input(aio_id(MATCH), "search_value"),
+    State(aio_id(MATCH), "options"),
+    State(aio_id(MATCH), "multi"),
+  )
+  def update_dropdown(search: str, options: list[dict], multiple: bool):
     if search is None or len(search) < 2:
       return no_update
 
@@ -23,4 +28,9 @@ class TickerSelectAIO(dcc.Dropdown):
     if df is None:
       return no_update
 
-    return df.to_dict("records")
+    if not (multiple and options):
+      return df.to_dict("records")
+
+    options += df.to_dict("records")
+
+    return options
