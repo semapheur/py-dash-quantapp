@@ -17,6 +17,7 @@ quote-style = "double"
 dependencies = [
   "aiometer",
   "asyncstdlib",
+  "cvxpy",
   "dash[celery]",
   "dash-ag-grid",
   "dash-resizeable-panels",
