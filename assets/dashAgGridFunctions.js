@@ -94,12 +94,17 @@ distributions = {
 }
 dagfuncs.ParameterInput = class {
   init(params) {
-    const phase = params.colDef.field.split(":")[0]
+
+    let colId = "distribution"
+    if (params.colDef.field.includes(':')) {
+      const phase = params.colDef.field.split(":")[0]
+      colId = `${phase}:${colId}`
+    }
 
     this.eForm = document.createElement("form")
     this.eForm.className = "w-full flex gap-1"
 
-    const dist = params.data[`${phase}:distribution`].toLowerCase()
+    const dist = params.data[colId].toLowerCase()
     
     const distParams = distributions[dist]["parameters"]
     const width = `${(1 / Object.keys(distParams).length) * 100}%`

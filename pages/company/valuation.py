@@ -19,19 +19,16 @@ import numpy as np
 from ordered_set import OrderedSet
 import openturns as ot
 import pandas as pd
+from pandera.typing import DataFrame
 import plotly.express as px
 from plotly.subplots import make_subplots
 
 from components.company_header import CompanyHeader
 from components.modal import OpenCloseModalAIO
-from lib.fin.dcf import (
-  discount_cashflow,
-  make_distribution,
-  nearest_postive_definite_matrix,
-  terminal_value,
-)
+from lib.fin.dcf import discount_cashflow, terminal_value
 from lib.fin.fundamentals import load_fundamentals
 from lib.ticker.fetch import company_label, get_currency
+from lib.probability import make_distribution, nearest_postive_definite_matrix, plot_pdf
 
 
 class Factor(TypedDict, total=False):
@@ -104,7 +101,7 @@ correlation = {
 }
 
 
-def layout(id: Optional[str] = None):
+def layout(id: str | None = None):
   dcf_columns = [
     {
       "field": "factor",
@@ -279,18 +276,6 @@ def layout(id: Optional[str] = None):
   )
 
 
-def plot_pdf(
-  distribution: ot.Distribution, num_points=1000, quantile_range=(0.001, 0.999)
-):
-  lower_bound = distribution.computeQuantile(quantile_range[0])[0]
-  upper_bound = distribution.computeQuantile(quantile_range[1])[0]
-
-  x = np.linspace(lower_bound, upper_bound, num_points)
-  y = np.array([distribution.computePDF(i) for i in x])
-
-  return x, y
-
-
 @callback(
   Output("table:company-valuation:dcf", "columnDefs"),
   Output("table:company-valuation:dcf", "rowData"),
@@ -445,24 +430,39 @@ def update_graph(cell: dict[str, str | int], row: list[dict]):
   Input("button:company-valuation:dcf-sim", "n_clicks"),
   State("table:company-valuation:dcf", "rowData"),
   State("table:company-valuation:correlation", "rowData"),
-  State("store:ticker-search:financials", "data"),
+  State("location:app", "pathname"),
 )
 def monte_carlo(
-  n_clicks: int, dcf_input: list[dict], corr_mat: list[dict], fin_data: list[dict]
+  n_clicks: int,
+  dcf_input: list[dict],
+  corr_mat: list[dict],
+  pathname: str,
 ):
-  if not (n_clicks and fin_data):
+  if not n_clicks:
+    return no_update
+
+  company_id = pathname.split("/")[2]
+  currency = get_currency(company_id)
+  if currency is None:
     return no_update
 
   n = 1000
 
-  fin_df = pd.DataFrame.from_records(fin_data)
-  fin_df = fin_df.set_index(["date", "months"]).sort_index(level="date")
+  cols = corr_factors.copy()
+  cols[0] = "revenue"
 
-  mask = (slice(None), 12)
-  revenue = fin_df.loc[mask, "revenue"].iloc[-1]
+  where = "WHERE months = 12"
+  fin_df = load_fundamentals(company_id, currency, OrderedSet(cols), where)
+  if fin_df is None:
+    return no_update
+
+  fin_df = cast(
+    DataFrame, fin_df.reset_index(level=["period", "months"], drop=True).sort_index()
+  )
+
+  revenue = fin_df.loc["revenue"].iloc[-1]
 
   dcf_df = pd.DataFrame.from_records(dcf_input)
-
   corr_arr = pd.DataFrame.from_records(corr_mat).drop("factor", axis=1).to_numpy()
 
   # corr_mat = np.eye(len(factors))
@@ -514,9 +514,9 @@ def monte_carlo(
 
   dcf = dcf[:, 2] + tv
 
-  cash = fin_df.loc[mask, "liquid_assets"].iloc[-1]
-  debt = fin_df.loc[mask, "debt"].iloc[-1]
-  shares = fin_df.loc[mask, "weighted_average_shares_outstanding_diluted"].iloc[-1]
+  cash = fin_df["liquid_assets"].iloc[-1]
+  debt = fin_df["debt"].iloc[-1]
+  shares = fin_df["weighted_average_shares_outstanding_diluted"].iloc[-1]
   price = dcf + cash - debt / shares
 
   fig = px.histogram(price)

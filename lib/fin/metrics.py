@@ -412,24 +412,24 @@ def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
     )
 
   # Sustainable revenue
-  rev = df["revenue"].dropna()
-  if len(rev) == 0:
+  revenue = df["revenue"].dropna()
+  if len(revenue) == 0:
     df["earnings_power_value"] = np.nan
     return df
 
-  sust_rev = rev.ewm(span=len(rev)).mean()
+  sustainable_revenue = revenue.ewm(span=len(revenue)).mean()
 
-  # Tax rate
   tax = df["tax_rate"]
 
-  # Adjusted depreciation
-  ad = 0.5 * tax * df["depreciation_depletion_amortization_accretion"]
+  adjusted_ddaa = 0.5 * tax * df["depreciation_depletion_amortization_accretion"]
 
   # Maintenance capex
-  rev_growth = rev.diff() / rev.abs().shift(1)
+  revenue_growth = revenue.diff() / revenue.abs().shift(1)
 
-  if rev_growth.dropna().empty:
-    maint_capex = df["depreciation_depletion_amortization_accretion"] / sust_rev
+  if revenue_growth.dropna().empty:
+    maintenance_capex = (
+      df["depreciation_depletion_amortization_accretion"] / sustainable_revenue
+    )
 
   else:
     capex = (
@@ -437,25 +437,29 @@ def earnings_power_value(df: pd.DataFrame) -> pd.DataFrame:
       .ewm(span=len(df["payment_acquisition_productive_assets"]))
       .mean()
     )
-    capex_margin = capex / sust_rev
-    rev_growth = rev_growth.ewm(span=len(rev_growth.dropna())).mean()
-    maint_capex = capex_margin * (1 - rev_growth)
-    # maint_capex = capex - (capex_margin * rev_growth)
+    capex_margin = capex / sustainable_revenue
+    revenue_growth = revenue_growth.ewm(span=len(revenue_growth.dropna())).mean()
+    maintenance_capex = capex_margin * (1 - revenue_growth)
+    # maintenance_capex = capex - (capex_margin * revenue_growth)
 
-  # Operating margins
-  om = (df["pretax_income_loss"] + df["interest_expense"]) / df["revenue"]
+  operating_margin = (df["pretax_income_loss"] + df["interest_expense"]) / df["revenue"]
 
-  om_mean = om.ewm(span=len(om.dropna())).mean()
+  operating_margin_mean = operating_margin.ewm(
+    span=len(operating_margin.dropna())
+  ).mean()
 
-  # Adjusted earning
-  adj_earn = sust_rev * om_mean * (1 - tax) + ad - (maint_capex * sust_rev)
+  adjusted_earnings = (
+    sustainable_revenue * operating_margin_mean * (1 - tax)
+    + adjusted_ddaa
+    - (maintenance_capex * sustainable_revenue)
+  )
 
   # Earnings power
-  epv = adj_earn / wacc
+  epv = adjusted_earnings / wacc
 
   epv += df["liquid_assets"] - df["debt"]
 
   # Fair value
-  df["earnings_power_value"] = epv / df["weighted_average_shares_outstanding_diluted"]
+  df["earnings_power_value"] = epv / df["weighted_average_shares_outstanding_basic"]
 
   return df

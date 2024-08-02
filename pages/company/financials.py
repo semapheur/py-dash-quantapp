@@ -138,10 +138,7 @@ def update_table(sheet: str, scope: str, pathname: str):
   if financials is None:
     return no_update
 
-  financials = cast(
-    DataFrame,
-    financials.sort_index(ascending=False),
-  )
+  financials.sort_index(ascending=False, inplace=True)
   financials.index = cast(pd.DatetimeIndex, financials.index).strftime("%Y-%m-%d")
   financials = cast(DataFrame, financials.T.reset_index())
   financials["trend"] = financials.iloc[:, 1:-1].apply(trend_data, axis=1)
