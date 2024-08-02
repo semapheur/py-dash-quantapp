@@ -25,6 +25,7 @@ from plotly.subplots import make_subplots
 
 from components.company_header import CompanyHeader
 from components.modal import OpenCloseModalAIO
+from lib.db.lite import fetch_sqlite
 from lib.fin.dcf import discount_cashflow, terminal_value
 from lib.fin.fundamentals import load_fundamentals
 from lib.ticker.fetch import company_label, get_currency
@@ -451,16 +452,19 @@ def monte_carlo(
   cols = corr_factors.copy()
   cols[0] = "revenue"
 
-  where = "WHERE months = 12"
-  fin_df = load_fundamentals(company_id, currency, OrderedSet(cols), where)
-  if fin_df is None:
+  table = f"{company_id}_{currency}"
+  columns = [
+    "revenue",
+    "liquid_assets",
+    "debt",
+    "weighted_average_shares_outstanding_basic",
+  ]
+  query = f"SELECT {', '.join(columns)} FROM '{table}' WHERE months = 12 ORDER BY date DESC LIMIT 1"
+  valuation_items = fetch_sqlite("financials.db", query)
+  if valuation_items is None:
     return no_update
 
-  fin_df = cast(
-    DataFrame, fin_df.reset_index(level=["period", "months"], drop=True).sort_index()
-  )
-
-  revenue = fin_df.loc["revenue"].iloc[-1]
+  revenue, cash, debt, shares = valuation_items
 
   dcf_df = pd.DataFrame.from_records(dcf_input)
   corr_arr = pd.DataFrame.from_records(corr_mat).drop("factor", axis=1).to_numpy()
@@ -513,10 +517,6 @@ def monte_carlo(
   tv = np.apply_along_axis(lambda x: terminal_value(*x), 1, args)
 
   dcf = dcf[:, 2] + tv
-
-  cash = fin_df["liquid_assets"].iloc[-1]
-  debt = fin_df["debt"].iloc[-1]
-  shares = fin_df["weighted_average_shares_outstanding_diluted"].iloc[-1]
   price = dcf + cash - debt / shares
 
   fig = px.histogram(price)
