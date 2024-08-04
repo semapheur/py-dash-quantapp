@@ -27,7 +27,7 @@ layout = html.Main(
         InputAIO(
           "input:savings:rate",
           input_props={
-            "placeholder": "Nominal interest rate (%)",
+            "placeholder": "Annual interest rate (%)",
             "type": "number",
             "value": 5,
           },
@@ -35,7 +35,7 @@ layout = html.Main(
         InputAIO(
           "input:savings:compound-frequency",
           input_props={
-            "placeholder": "Compound frequency",
+            "placeholder": "Annual compound frequency",
             "type": "number",
             "value": 1,
           },
@@ -51,7 +51,7 @@ layout = html.Main(
         InputAIO(
           "input:savings:contribution-frequency",
           input_props={
-            "placeholder": "Contribution frequency",
+            "placeholder": "Annual contribution frequency",
             "type": "number",
             "value": 1,
           },
@@ -59,10 +59,19 @@ layout = html.Main(
         InputAIO(
           "input:savings:period",
           input_props={
-            "placeholder": "Period (years)",
+            "placeholder": "Savings period (years)",
             "type": "number",
             "min": 0,
             "value": 10,
+          },
+        ),
+        InputAIO(
+          "input:savings:inflation",
+          input_props={
+            "placeholder": "Annual inflation (%)",
+            "type": "number",
+            "min": 0,
+            "value": 0,
           },
         ),
       ],
@@ -79,6 +88,7 @@ layout = html.Main(
   Input(InputAIO.aio_id("input:savings:compound-frequency"), "value"),
   Input(InputAIO.aio_id("input:savings:contribution"), "value"),
   Input(InputAIO.aio_id("input:savings:contribution-frequency"), "value"),
+  Input(InputAIO.aio_id("input:savings:inflation"), "value"),
   Input(InputAIO.aio_id("input:savings:period"), "value"),
 )
 def update_graph(
@@ -87,6 +97,7 @@ def update_graph(
   compound_frequency: float | None,
   contribution: float | None,
   contribution_frequency: float | None,
+  inflation: float | None,
   years: float | None,
 ):
   if (
@@ -95,6 +106,7 @@ def update_graph(
     or compound_frequency is None
     or contribution is None
     or contribution_frequency is None
+    or inflation is None
     or years is None
   ):
     return no_update
@@ -110,14 +122,20 @@ def update_graph(
   )
   steps = int(years * steps_per_year) + 1
 
+  inflation_per_period = (
+    0 if inflation == 0 else (1 + (inflation / 100)) ** (1 / steps_per_year) - 1
+  )
+
   t = np.linspace(0, years, steps)
 
   principal_array = np.full(steps, principal)
   balance = np.zeros(steps)
   contributions = np.zeros(steps)
   interest = np.zeros(steps)
+  real_balance = np.zeros(steps)
 
   balance[0] = principal
+  real_balance[0] = principal
 
   contribution_period = steps_per_year / contribution_frequency
   compound_period = steps_per_year / compound_frequency
@@ -140,6 +158,7 @@ def update_graph(
       interest[step] = interest[step - 1]
 
     balance[step] = principal + contributions[step] + interest[step]
+    real_balance[step] = balance[step] / (1 + inflation_per_period) ** step
 
   # fig = px.line(x=t, y=balance, title="Accumulated return", line_shape="hv")
 
@@ -183,6 +202,13 @@ def update_graph(
     y=balance,
     mode="lines",
     name="Balance",
+    line_shape="hv",
+  )
+  fig.add_scatter(
+    x=t,
+    y=real_balance,
+    mode="lines",
+    name="Real balance",
     line_shape="hv",
   )
 

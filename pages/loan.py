@@ -58,6 +58,14 @@ layout = html.Main(
             "value": 12,
           },
         ),
+        InputAIO(
+          "input:loan:inflation",
+          input_props={
+            "placeholder": "Annual inflation (%)",
+            "type": "number",
+            "value": 0,
+          },
+        ),
       ],
     ),
     dcc.Graph(id="graph:loan", className="h-full"),
@@ -72,6 +80,7 @@ layout = html.Main(
   Input(InputAIO.aio_id("input:loan:compound-frequency"), "value"),
   Input(InputAIO.aio_id("input:loan:term"), "value"),
   Input(InputAIO.aio_id("input:loan:payment-frequency"), "value"),
+  Input(InputAIO.aio_id("input:loan:inflation"), "value"),
 )
 def update_graph(
   loan_amount: float | None,
@@ -79,6 +88,7 @@ def update_graph(
   compound_frequency: int | None,
   loan_term: int | None,
   payment_frequency: int | None,
+  inflation: float | None,
 ):
   if (
     loan_amount is None
@@ -86,8 +96,13 @@ def update_graph(
     or compound_frequency is None
     or loan_term is None
     or payment_frequency is None
+    or inflation is None
   ):
     return no_update
+
+  inflation_per_period = (
+    0 if inflation == 0 else (1 + (inflation / 100)) ** (1 / payment_frequency) - 1
+  )
 
   rate_per_period = (1 + (rate / 100) / compound_frequency) ** (
     compound_frequency / payment_frequency
@@ -102,6 +117,7 @@ def update_graph(
   balance = np.zeros(num_payments + 1)
   interest = np.zeros(num_payments + 1)
   principal = np.zeros(num_payments + 1)
+  real_payment = np.zeros(num_payments + 1)
 
   balance[0] = loan_amount
 
@@ -110,12 +126,15 @@ def update_graph(
     principal[period] = payment - interest[period]
     balance[period] = balance[period - 1] - principal[period]
 
+    real_payment[period] = payment / (1 + inflation_per_period) ** period
+
   balance[-1] = 0
   total_cost = principal.cumsum() + interest.cumsum()
+  real_cost = real_payment.cumsum()
 
   t = np.linspace(0, loan_term, num_payments + 1)
 
-  fig = make_subplots(rows=2, cols=1, subplot_titles=("Loan balance", "Loan payments"))
+  fig = make_subplots(rows=2, cols=1, subplot_titles=("Loan cost", "Loan payments"))
   fig.append_trace(
     go.Scatter(
       x=t,
@@ -141,7 +160,12 @@ def update_graph(
     col=1,
   )
   fig.append_trace(
-    go.Scatter(x=t, y=total_cost, mode="lines", line_shape="hv", name="Total cost"),
+    go.Scatter(x=t, y=total_cost, mode="lines", line_shape="hv", name="Nominal cost"),
+    row=1,
+    col=1,
+  )
+  fig.append_trace(
+    go.Scatter(x=t, y=real_cost, mode="lines", line_shape="hv", name="Real cost"),
     row=1,
     col=1,
   )
