@@ -41,6 +41,11 @@ async def fetch_api(params: ApiParams, timeout: Optional[float | int] = None) ->
     return response.json()
 
 
+def camel_to_snake(name):
+  pattern = re.compile(r"(?<!^)(?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])")
+  return pattern.sub("_", name).lower()
+
+
 async def fetch_currency(id: str) -> str:
   params = ApiParams(term=id, securityDataPoints="Currency")
 
@@ -58,11 +63,6 @@ async def get_tickers(
     "FundId": "fund_id",
     "ExchangeId": "mic",
     "LegalName": "legal_name",
-    "SectorName": "sector",
-    "Domicile": "domicile",
-    "IPODate": "ipo_date",
-    "IndustryName": "industry",
-    "CategoryName": "category",
   }
   fields = {
     "stock": (
@@ -93,14 +93,27 @@ async def get_tickers(
     ),
     "index": ("SecId", "Name", "Currency"),
     "fund": (
+      "SecId",
       "fundId",
       "isin",
-      "SecId",
       "PrimaryBenchmarkId",
+      "PrimaryBenchmarkName",
       "LegalName",
       "Currency",
+      "CategoryId",
       "CategoryName",
-      "ClosePrice",
+      "FundInceptionDate",
+      "AdministratorCompanyId",
+      "AdministratorCompanyName",
+      "AdvisorCompanyId",
+      "AdvisorCompanyName",
+      "BrandingCompanyId",
+      "BrandingCompanyName",
+      "CustodianCompanyId",
+      "CustodianCompanyName",
+      "Domicile",
+      "GlobalCategoryId",
+      "GlobalCategoryName",
     ),
     "func_category": ("name", "id"),
   }
@@ -185,7 +198,8 @@ async def get_tickers(
     df.drop("ClosePrice", axis=1, inplace=True)
 
   df.rename(columns=rename, inplace=True)
-  df.columns = df.columns.str.lower()
+  df.columns = df.columns.str.replace("Name", "", case=True)
+  df.columns = [camel_to_snake(col) for col in df.columns]
 
   if security == "stock":
     pattern = r"^EX(\$+|TP\$+)"
@@ -220,31 +234,59 @@ async def fund_data():
     "Lo CQ-Hi IS",
   )
   fields = {
-    "isin": "isin",
-    "fundId": "fund_id",
-    "SecId": "id",
-    "LegalName": "name",
-    "CategoryName": "category",
+    "SecId": "security_id",
     "PriceCurrency": "currency",
     "EquityStyleBox": "equity_style",
     "BondStyleBox": "bond_style",
-    "AverageCreditQualityCode": "avg_credit_quality",
+    "AverageCreditQualityCode": "average_credit_quality",
     "StarRatingM255": "rating",
     "SustainabilityRank": "sustainaility",
-    "GBRReturnM0": "return:ty",
-    "GBRReturnM12": "return:1y",
-    "GBRReturnM36": "return:3y",
-    "GBRReturnM60": "return:5y",
-    "GBRReturnM120": "return:10",
-    "InitialPurchase": "initial_purchase",
-    "AlphaM36": "alpha:3y",
-    "BetaM36": "beta:3y",
-    "R2M36": "r2:3y",
-    "StandardDeviationM36": "std:36",
-    "SharpeM36": "sharpe:3y",
-    "SortinoM36": "sortino:3y",
+    "GBRReturnM0": "return_ty",
+    "GBRReturnM12": "return_1y",
+    "GBRReturnM36": "return_3y",
+    "GBRReturnM60": "return_5y",
+    "GBRReturnM120": "return_10y",
+    "Yield_M12": "yield_1y",
+    "AlphaM12": "alpha_1y",
+    "AlphaM36": "alpha_3y",
+    "AlphaM60": "alpha_5y",
+    "AlphaM120": "alpha_10y",
+    "BetaM12": "beta_1y",
+    "BetaM36": "beta_3y",
+    "BetaM60": "beta_5y",
+    "BetaM120": "beta_10y",
+    "R2M12": "r2_1y",
+    "R2M36": "r2_3y",
+    "R2M60": "r2_5y",
+    "R2M120": "r2_10y",
+    "StandardDeviationM12": "standard_deviation_1y",
+    "StandardDeviationM36": "standard_deviation_3y",
+    "StandardDeviationM60": "standard_deviation_5y",
+    "StandardDeviationM120": "standard_deviation_10y",
+    "SharpeM12": "sharpe_1y",
+    "SharpeM36": "sharpe_3y",
+    "SharpeM60": "sharpe_5y",
+    "SharpeM120": "sharpe_10y",
+    "SortinoM12": "sortino_1y",
+    "SortinoM36": "sortino_3y",
+    "SortinoM60": "sortino_5y",
+    "SortinoM120": "sortino_10y",
+    "InformationRatioM12": "information_ratio_1y",
+    "InformationRatioM36": "information_ratio_3y",
+    "InformationRatioM60": "information_ratio_5y",
+    "InformationRatioM120": "information_ratio_10y",
     "PERatio": "pe_ratio",
     "PBRatio": "pb_ratio",
+    "SRRI": "srri",
+    "ExpenseRatio": "expense_ratio",
+    "InitialPurchase": "initial_purchase",
+    "ActualManagementFee": "actual_management_fee",
+    "InvestmentManagementFeePDS": "investment_management_fee",
+    "ManagementFee": "management_fee",
+    "MaximumExitFee": "maximum_exit_fee",
+    "MaxRedemptionFee": "max_redemption_fee",
+    "PerformanceFeeActual": "performance_fee",
+    "TransactionFeeActual": "transaction_fee",
   }
   params = ApiParams(
     pageSize=50000,

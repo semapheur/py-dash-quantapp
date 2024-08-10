@@ -125,6 +125,30 @@ async def seed_stock_tickers():
   insert_sqlite(exchanges, "ticker.db", "exchange", "replace", False)
 
 
+async def seed_funds():
+  funds = await get_tickers("fund")
+
+  attributes = {
+    "category",
+    "asset_class",
+    "administrator_company",
+    "advisor_company",
+    "branding_company",
+    "custodian_company",
+    "primary_benchmark",
+  }
+
+  for a in attributes:
+    a_id = f"{a}_id"
+    group = funds[[a_id, a]].groupby(a_id).first()
+    insert_sqlite(group, "fund.db", a, "replace", True)
+
+  cols = funds.columns.difference(attributes)
+  funds = funds[cols]
+
+  insert_sqlite(funds, "fund.db", "fund", "replace", False)
+
+
 async def seed_ciks():
   ciks = await get_ciks()
 
