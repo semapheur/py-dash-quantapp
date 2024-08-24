@@ -20,7 +20,7 @@ from pandera.typing import DataFrame
 from lib.db.lite import fetch_sqlite, insert_sqlite, read_sqlite
 from lib.morningstar.fetch import fund_data
 
-register_page(__name__, path_template="/screener/stock")
+register_page(__name__, path_template="/screener/fund")
 
 
 async def load_fund_data(

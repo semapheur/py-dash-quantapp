@@ -10,7 +10,7 @@ from pandera.typing import DataFrame, Series
 
 from lib.db.lite import read_sqlite
 from lib.fin.models import FiscalPeriod
-from lib.fin.taxonomy import TaxonomyCalculation, TaxonomyCalculationItem
+from lib.fin.taxonomy import TaxonomyCalculation
 from lib.utils import df_time_difference
 
 
@@ -341,34 +341,13 @@ def calculate_items(
     df: DataFrame,
     df_cols: set[str],
     col_name: str,
-    expression: ast.Expression | dict[str, TaxonomyCalculationItem],
+    expression: ast.Expression,
   ) -> DataFrame:
-    if isinstance(expression, ast.Expression):
-      code = compile(expression, "<string>", "eval")
-      result = eval(code)
+    code = compile(expression, "<string>", "eval")
+    result = eval(code)
 
-      if isinstance(result, int):
-        return df
-
-    elif isinstance(expression, dict):
-      result = pd.Series(0, index=df.index, dtype=float)
-
-      for key, value in expression.items():
-        if key not in df_cols:
-          continue
-
-        if isinstance(value, int):
-          result += df[key] * value
-
-        elif isinstance(value, dict):
-          weight = value.get("weight", 1)
-          sign = value.get("sign")
-
-          if sign is not None:
-            mask = df[key].apply(np.sign) == sign
-            result += df[key] * weight * mask
-          else:
-            result += df[key] * weight
+    if isinstance(result, int):
+      return df
 
     df = insert_to_df(df, df_cols, result, col_name)
     return df
@@ -434,37 +413,10 @@ def calculate_items(
       continue
 
     if (formula := schema.get("all")) is not None:
-      if isinstance(formula, str):
-        all_visitor.reset_names()
-        expression = ast.parse(formula, mode="eval")
-        expression = cast(
-          ast.Expression, ast.fix_missing_locations(all_visitor.visit(expression))
-        )
-
-        if all_visitor.names.issubset(col_set):
-          financials = apply_formula(financials, col_set, calculee, expression)
-
-      elif isinstance(formula, dict):
-        if set(formula.keys()).issubset(col_set):
-          financials = apply_formula(financials, col_set, calculee, formula)
+      financials = handle_all_formulas(financials, col_set, calculee, formula)
 
     if (formula := schema.get("any")) is not None:
-      if isinstance(formula, str):
-        any_visitor.reset_names()
-        any_visitor.set_columns(col_set)
-        expression = ast.parse(formula, mode="eval")
-        expression = cast(
-          ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
-        )
-
-        if any_visitor.names:
-          financials = apply_formula(financials, col_set, calculee, expression)
-      elif isinstance(formula, dict):
-        formula = {
-          key: formula[key] for key in set(formula.keys()).intersection(col_set)
-        }
-        if formula:
-          financials = apply_formula(financials, col_set, calculee, formula)
+      financials = handle_any_formulas(financials, col_set, calculee, formula)
 
     if (filler := schema.get("fill")) is not None and filler in col_set:
       financials = insert_to_df(financials, col_set, financials[filler], calculee)

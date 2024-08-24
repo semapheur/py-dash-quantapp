@@ -289,7 +289,7 @@
       "management_fee_expense": 2,
       "administrative_fee_expense": 2,
       "other_underwriting_expense": 2,
-      "operating_income_loss": 0,
+      "income_loss_operating": 0,
       "income_loss_nonoperating": 1,
       "gain_loss_sale_lease_financing": 2,
       "government_assistance_nonoperating_income": 2,
@@ -1167,17 +1167,146 @@
     ]
   },
   "sankey": {
-    "calculation": {
-      "sankey_operating_income_loss": {}
-    },
     "income": {
       "revenue": {
         "color": "rgba(0,0,255,1)",
         "links": {
-          "product_revenue": {
+          "revenue_goods": {
             "direction": "in",
             "color": "rgba(0,0,255,0.3)"},
-          "service_revenue": {
+          "revenue_services": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_shipping_handling": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_energy_commodities_services": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_utility": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_petroleum": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_steam": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_minerals": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_real_estate": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_lease_operating": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_hotels": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_franchisor": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_subscription": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_advertising": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_admissions": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_healthcare_organization": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_enrollment_registration_fees": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_membership_dues": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_licenses": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_royalty": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_sales_petroleum_prospects": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_clearing_fees": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_reimbursement": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_grants": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_other_manufactured_products": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_construction_materials": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_timber": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_recycling": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_related_parties": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_sales_other": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "sale_trust_assets": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_passenger": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_cargo_freight": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_secondary_processing": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_vehicle_toll": {
             "direction": "in",
             "color": "rgba(0,0,255,0.3)"
           },
@@ -1185,41 +1314,123 @@
             "direction": "out",
             "color": "rgba(0,255,0,0.3)"
           },
-          "revenue_cost": {
+          "cost_revenue": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "product_revenue": {
+      "revenue_goods": {
+        "color": "rgba(0,0,255,1)"},
+      "revenue_services": {
         "color": "rgba(0,0,255,1)"
       },
-      "service_revenue": {
+      "revenue_shipping_handling": {
         "color": "rgba(0,0,255,1)"
       },
-      "revenue_cost": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "product_revenue_cost": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "service_revenue_cost": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          }
-        }
+      "revenue_energy_commodities_services": {
+        "color": "rgba(0,0,255,1)"
       },
-      "product_revenue_cost": {
-        "color": "rgba(255,0,0,1)"
+      "revenue_utility": {
+        "color": "rgba(0,0,255,1)"
       },
-      "service_revenue_cost": {
+      "revenue_petroleum": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_steam": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_minerals": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_real_estate": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_lease_operating": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_hotels": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_franchisor": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_subscription": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_advertising": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_admissions": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_healthcare_organization": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_enrollment_registration_fees": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_membership_dues": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_licenses": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_royalty": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_sales_petroleum_prospects": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_clearing_fees": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_reimbursement": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_grants": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_other_manufactured_products": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_construction_materials": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_timber": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_recycling": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_related_parties": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_sales_other": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "sale_trust_assets": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_passenger": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_cargo_freight": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_secondary_processing": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_vehicle_toll": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "cost_revenue": {
         "color": "rgba(255,0,0,1)"
       },
       "gross_profit": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "operating_income_loss": {
+          "income_loss_operating": {
             "direction": "out",
             "color": ""
           },
@@ -1229,12 +1440,12 @@
           }
         }
       },
-      "operating_income_loss": {
+      "income_loss_operating": {
         "color": "",
         "links": {
-          "nonoperating_expenses": {
+          "interest_expense_nonoperating": {
             "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
+            "color": "rgba(255,0,0,1)"
           }
         }
       },
@@ -1245,89 +1456,74 @@
             "direction": "out", 
             "color": "rgba(255,0,0,0.3)"
           },
-          "reasearch_development_expense": {
+          "research_development_expense": {
+            "direction": "out", 
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "depreciation_depletion_amortization_nonproduction": {
             "direction": "out", 
             "color": "rgba(255,0,0,0.3)"
           }
-        },
-        "depreciation_depletion_amortization_accretion": {
-          "direction": "out", 
-          "color": "rgba(255,0,0,0.3)"
         }
       },
       "selling_general_administrative_expense": {
         "color": "rgba(255,0,0,1)"
       },
-      "reasearch_development_expense": {
+      "research_development_expense": {
         "color": "rgba(255,0,0,1)"
       },
-      "depreciation_depletion_amortization_accretion": {
+      "depreciation_depletion_amortization_nonproduction": {
         "color": "rgba(255,0,0,1)"
       },
-      "nonoperating_expenses": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "interest_expense": {
-            "direction": "out",
-            "color": "rgba(255,0,0,1)"
-          },
-          "impairment": {
-            "direction": "out",
-            "color": "rgba(255,0,0,1)"
-          }
-        }
-      },
-      "interest_expense": {
+      "interest_expense_nonoperating": {
         "color": "rgba(255,0,0,1)"
       },
       "impairment": {
         "color": "rgba(255,0,0,1)"
       },
-      "nonoperating_income": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
-          "investment_income": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
-          }
-        }
-      },
-      "investment_income": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "pretax_income_loss": {
+      "income_loss_pretax": {
         "color": "",
         "links": {
-          "operating_income_loss": {
+          "income_loss_operating": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
-            "value": "sankey_operating_income_loss"
+            "calculation": "income_loss_operating - interest_expense_nonoperating"
           },
-          "nonoperating_income": {
+          "investment_income_nonoperating": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "net_income_loss": {
+          "income_loss_equity_method_investment": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "income_loss_net": {
             "direction": "out",
             "color": ""
           },
-          "tax_expense_benefit": {
+          "tax_income_expense_benefit": {
             "direction": "out",
             "color": ""
           },
-          "net_income_loss_to_minority_interest": {
+          "income_loss_net_attributable_minority_interest": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "net_income_loss": {
+      "investment_income_nonoperating": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "income_loss_equity_method_investment": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "income_loss_net": {
         "color": ""
       },
-      "tax_expense_benefit": {
+      "tax_income_expense_benefit": {
         "color": ""
       },
-      "net_income_loss_to_minority_interest": {
+      "income_loss_net_attributable_minority_interest": {
         "color": ""
       }
     },
@@ -1741,7 +1937,7 @@
       "operating_cash_inflow": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "net_income_loss": {
+          "income_loss_net": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)",
             "sign": 1
@@ -1776,7 +1972,7 @@
       "operating_cash_outflow": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "net_income_loss": {
+          "income_loss_net": {
             "direction": "in",
             "color": "rgba(255,0,0,0.3)",
             "sign": -1
@@ -1803,7 +1999,7 @@
           }
         }
       },
-      "net_income_loss": {
+      "income_loss_net": {
         "color": ""
       },
       "depreciation_depletion_amortization_accretion": {
@@ -2009,11 +2205,11 @@
     "return_on_equity",
     "net_profit_margin",
     "operating_profit_margin",
-    "operating_income_loss",
+    "income_loss_operating",
     "revenue",
     "tax_burden",
-    "net_income_loss",
-    "pretax_income_loss",
+    "income_loss_net",
+    "income_loss_pretax",
     "interest_burden",
     "asset_turnover",
     "average_assets",

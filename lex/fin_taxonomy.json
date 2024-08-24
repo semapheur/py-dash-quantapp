@@ -39855,19 +39855,6 @@
       "SalesTypeLeaseSellingProfitLoss"
     ]
   },
-  "sankey_operating_income_loss": {
-    "type": "monetary",
-    "aggregate": "sum",
-    "label": {
-      "long": "Operating Income (Loss), Sankey"
-    },
-    "calculation": {
-      "order": 3580,
-      "all": [
-        "income_loss_operating - nonoperating_expenses"
-      ]
-    }
-  },
   "scurities_fvni_equity_own_noncurrent": {
     "type": "monetary",
     "balance": "debit",

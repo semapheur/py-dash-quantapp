@@ -18,7 +18,6 @@ dagcomponentfuncs.TrendLine = (props) => {
   //    setData(graphProps)
   //  }
   //}
-  console.log(props)
   return React.createElement(window.dash_core_components.Graph, {
     figure: {
       data: [{

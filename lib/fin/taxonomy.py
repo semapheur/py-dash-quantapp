@@ -10,7 +10,6 @@ from glom import glom
 import pandas as pd
 from pandera.typing import DataFrame
 from pydantic import BaseModel, field_validator, model_serializer
-from sqlalchemy import create_engine
 
 from lib.db.lite import get_tables, insert_sqlite, read_sqlite
 from lib.const import DB_DIR
@@ -437,9 +436,7 @@ def load_template(cat: str) -> pd.DataFrame:
   return pd.DataFrame(data, columns=cols)
 
 
-def template_to_sql(db_path: str):
-  engine = create_engine(f"sqlite+pysqlite:///{db_path}")
-
+def template_to_sql(db_name: str):
   for template in ("statement", "fundamentals", "sankey", "dupont"):
     df = load_template(template)
 
@@ -447,8 +444,7 @@ def template_to_sql(db_path: str):
       mask = df["links"].notnull()
       df.loc[mask, "links"] = df.loc[mask, "links"].apply(lambda x: json.dumps(x))
 
-    with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(template, con=con, if_exists="replace", index=False)
+    insert_sqlite(df, db_name, template, "replace", False)
 
 
 def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):

@@ -1,3 +1,4 @@
+import ast
 import asyncio
 from enum import Enum
 from functools import partial
@@ -26,6 +27,7 @@ from components.dupont_chart import DupontChart
 from components.quote_graph import quote_volume_graph
 from components.company_header import CompanyHeader
 from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
+from lib.fin.calculation import AnyTransformer
 from lib.morningstar.ticker import Stock
 from lib.fin.fundamentals import load_fundamentals
 from lib.fin.quote import load_ohlcv
@@ -312,7 +314,6 @@ def layout(id: str | None = None):
   """
   ticker_options = read_sqlite("ticker.db", query, {"id": id})
   ticker_value = f"{get_primary_security(id)}|{currency}"
-  print(ticker_value)
 
   date_options, date_value = date_dropdown_params(
     cast(pd.MultiIndex, fundamentals.index)
@@ -415,6 +416,19 @@ def update_sankey(sheet: str, date_period: str, slug: str):
   if not (date_period and slug):
     return no_update
 
+  def calculate_value(formula: str) -> float | None:
+    expression = ast.parse(formula, mode="eval")
+    expression = cast(
+      ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
+    )
+
+    if any_visitor.names:
+      code = compile(expression, "<string>", "eval")
+      return cast(Series, eval(code)).iloc[0]
+
+    else:
+      return None
+
   query = """SELECT 
     sankey.item, items.short, items.long, sankey.color, sankey.links FROM sankey 
     LEFT JOIN items ON sankey.item = items.item
@@ -445,8 +459,10 @@ def update_sankey(sheet: str, date_period: str, slug: str):
   if df is None:
     return no_update
 
-  template = cast(DataFrame, template.loc[template["item"].isin(set(df.index))])
-  template.loc[:, "links"] = template["links"].apply(lambda x: json.loads(x))
+  template = cast(DataFrame, template.loc[template["item"].isin(set(df.columns))])
+  template.loc[:, "links"] = template["links"].apply(
+    lambda x: json.loads(x) if x is not None else x
+  )
   template.loc[:, "short"].fillna(template["long"], inplace=True)
 
   Nodes = Enum("Node", template["item"].tolist(), start=0)
@@ -457,11 +473,16 @@ def update_sankey(sheet: str, date_period: str, slug: str):
   link_colors = []
   node_colors = []
 
+  any_visitor = AnyTransformer("df")
+  any_visitor.set_columns(set(df.columns))
+
   for item, node_color, links in zip(
     template["item"], template["color"], template["links"]
   ):
     if not node_color:
-      node_color = sankey_color(np.sign(df.loc[item]))
+      if not (value := df.at[0, item]):
+        continue
+      node_color = sankey_color(np.sign(value))
 
     node_colors.append(node_color)
 
@@ -472,7 +493,14 @@ def update_sankey(sheet: str, date_period: str, slug: str):
       if key not in set(template["item"]):
         continue
 
-      link_value = df.loc[value.get("value", key)]
+      formula = value.get("calculation")
+      if formula is not None:
+        link_value = calculate_value(formula)
+      else:
+        link_value = df.at[0, key]
+
+      if link_value is None:
+        continue
 
       sign = value.get("sign", np.sign(link_value))
       if sign != np.sign(link_value):
