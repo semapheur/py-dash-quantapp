@@ -1,0 +1,80 @@
+{
+  "level": "DEBUG",
+  "message": "receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'content-type', b'application/json;charset=utf-8'), (b'y-rid', b'0jc6bqhj951ij'), (b'vary', b'Origin,Accept-Encoding'), (b'cache-control', b'public, max-age=10, stale-while-revalidate=20'), (b'content-length', b'1526'), (b'x-envoy-upstream-service-time', b'4'), (b'date', b'Sat, 13 Jul 2024 13:51:57 GMT'), (b'server', b'ATS'), (b'x-envoy-decorator-operation', b'finance-chart-api--mtls-production-ir2.finance-k8s.svc.yahoo.local:4080/*'), (b'Age', b'0'), (b'Strict-Transport-Security', b'max-age=31536000'), (b'Referrer-Policy', b'no-referrer-when-downgrade'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Connection', b'keep-alive'), (b'Expect-CT', b'max-age=31536000, report-uri=\"http://csp.yahoo.com/beacon/csp?src=yahoocom-expect-ct-report-only\"'), (b'X-XSS-Protection', b'1; mode=block'), (b'X-Content-Type-Options', b'nosniff')])",
+  "timestamp": "2024-07-13T13:51:57.422023+00:00",
+  "logger": "httpcore.http11",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}
+{
+  "level": "INFO",
+  "message": "HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/%5ETNX?formatted=true&lang=en-US&region=US&includeAdjustedClose=true&interval=1d&period1=1720396800&period2=1720972316&events=div%7Csplit&corsDomain=finance.yahoo.com \"HTTP/1.1 200 OK\"",
+  "timestamp": "2024-07-13T13:51:57.422023+00:00",
+  "logger": "httpx",
+  "module": "_client",
+  "function": "_send_single_request",
+  "line": 1773,
+  "thread_name": "MainThread"
+}
+{
+  "level": "DEBUG",
+  "message": "receive_response_body.started request=<Request [b'GET']>",
+  "timestamp": "2024-07-13T13:51:57.422023+00:00",
+  "logger": "httpcore.http11",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}
+{
+  "level": "DEBUG",
+  "message": "receive_response_body.complete",
+  "timestamp": "2024-07-13T13:51:57.423011+00:00",
+  "logger": "httpcore.http11",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}
+{
+  "level": "DEBUG",
+  "message": "response_closed.started",
+  "timestamp": "2024-07-13T13:51:57.423011+00:00",
+  "logger": "httpcore.http11",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}
+{
+  "level": "DEBUG",
+  "message": "response_closed.complete",
+  "timestamp": "2024-07-13T13:51:57.423011+00:00",
+  "logger": "httpcore.http11",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}
+{
+  "level": "DEBUG",
+  "message": "close.started",
+  "timestamp": "2024-07-13T13:51:57.423011+00:00",
+  "logger": "httpcore.connection",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}
+{
+  "level": "DEBUG",
+  "message": "close.complete",
+  "timestamp": "2024-07-13T13:51:57.423011+00:00",
+  "logger": "httpcore.connection",
+  "module": "_trace",
+  "function": "atrace",
+  "line": 85,
+  "thread_name": "MainThread"
+}

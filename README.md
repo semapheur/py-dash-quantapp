@@ -1,3 +1,7 @@
+# Todo
+
+- Implement sqlc
+
 # Tips
 Clone this repository with 
 

@@ -1,0 +1,2219 @@
+{"statement":
+  {
+    "income": {
+      "revenue": 1,
+      "interest_income_expense_operating": 2,
+      "interest_income_operating": 3,
+      "interest_income_receivables_purchased": 4,
+      "interest_income_bankers_acceptance_certificates_deposits_commercial_paper": 4,
+      "interest_income_federal_funds_sold_securities_purchased_under_resell_agreements": 4,
+      "interest_income_deposits_financial_institutions": 4,
+      "interest_income_operating_other": 4,
+      "interest_income_loans_leases": 4,
+      "interest_expense_operating": 3,
+      "interest_expense_borrowing": 4,
+      "interest_expense_beneficial_interest": 4,
+      "interest_expense_securities_trust_preferred": 4,
+      "interest_expense_trade_liabilities": 4,
+      "interest_expense_deposit": 4,
+      "noninterest_income_operating": 2,
+      "revenue_premiums": 3,
+      "revenue_premiums_property_casualty": 4,
+      "revenue_premiums_other": 4,
+      "revenue_premiums_life": 4,
+      "revenue_premiums_financial_guarantee_insurance_contracts": 4,
+      "revenue_premiums_accident_health": 4,
+      "revenue_principal_transaction": 3,
+      "gain_loss_principal_investment": 4,
+      "gain_loss_trading": 4,
+      "investment_banking_advisory_brokerage_underwriting_fees_commissions": 3,
+      "revenue_investment_banking": 4,
+      "revenue_fees_commissions": 4,
+      "income_loss_underwriting": 4,
+      "gain_loss_sale_financial_assets": 3,
+      "gain_loss_realized_securities": 4,
+      "gain_loss_sale_other_financial_assets": 4,
+      "gain_loss_sale_mortgagebacked_securities": 4,
+      "gain_loss_sale_credit_card": 4,
+      "gain_loss_sale_loans": 4,
+      "gain_loss_sale_derivatives": 4,
+      "gain_loss_sale_insurance_block": 4,
+      "gain_loss_sale_securities": 4,
+      "gain_loss_securitization_financial_assets": 4,
+      "noninterest_income_operating_other": 3,
+      "investment_income_operating": 2,
+      "interest_dividend_income_other": 3,
+      "investment_income_insurance": 3,
+      "dividend_income_operating": 3,
+      "dividend_income_operating_cash": 4,
+      "dividend_income_operating_kind": 4,
+      "revenue_sales": 2,
+      "revenue_related_parties": 3,
+      "revenue_shipping_handling": 3,
+      "revenue_royalty": 3,
+      "revenue_services": 3,
+      "revenue_services_technology": 4,
+      "revenue_license_maintenance": 4,
+      "revenue_services_petroleum": 4,
+      "revenue_license_services": 4,
+      "revenue_services_environmental_remediation": 4,
+      "revenue_services_allowances": 4,
+      "revenue_services_gross": 4,
+      "revenue_services_discounts": 4,
+      "revenue_contract_other": 4,
+      "revenue_secondary_processing": 3,
+      "revenue_steam": 3,
+      "revenue_lease_operating": 3,
+      "revenue_lease_minimum": 4,
+      "revenue_sublease": 4,
+      "revenue_lease_contingent": 4,
+      "lease_percentage_rate": 4,
+      "revenue_advertising": 3,
+      "sale_trust_assets": 3,
+      "revenue_enrollment_registration_fees": 3,
+      "revenue_other_manufactured_products": 3,
+      "revenue_franchisor": 3,
+      "revenue_franchisor_owned_outlets": 4,
+      "revenue_franchise": 4,
+      "revenue_recycling": 3,
+      "revenue_timber": 3,
+      "revenue_minerals": 3,
+      "revenue_gold": 4,
+      "revenue_chemicals": 4,
+      "revenue_coal": 4,
+      "revenue_real_estate": 3,
+      "tenant_reimbursements": 4,
+      "revenue_management_fees": 4,
+      "revenue_real_estate_other": 4,
+      "revenue_signage": 4,
+      "sales_real_estate": 4,
+      "amortization_lease_incentives_benefit": 4,
+      "revenue_timeshare": 4,
+      "revenue_construction": 4,
+      "revenue_concessions": 4,
+      "revenue_parking": 4,
+      "revenue_facility_membership_operations": 4,
+      "revenue_cargo_freight": 3,
+      "revenue_freight_rail": 4,
+      "revenue_admissions": 3,
+      "revenue_subscription": 3,
+      "revenue_petroleum": 3,
+      "revenue_sales_petroleum": 4,
+      "revenue_natural_gas_midstream": 4,
+      "revenue_sales_synthetic_fuel": 4,
+      "revenue_refining_marketing": 4,
+      "revenue_sales_alternative_energy": 4,
+      "revenue_gas_gathering_transportation_marketing_processing": 4,
+      "revenue_exploration_production": 4,
+      "revenue_marine_services": 4,
+      "revenue_purchased_petroleum": 4,
+      "revenue_natural_gas_production": 4,
+      "revenue_propane": 4,
+      "revenue_brokered_natural_gas_margin": 4,
+      "revenue_sales_binder": 4,
+      "revenue_oil_condensate": 4,
+      "revenue_construction_materials": 3,
+      "revenue_sales_other": 3,
+      "revenue_sales_petroleum_prospects": 3,
+      "revenue_vehicle_toll": 3,
+      "revenue_membership_dues": 3,
+      "revenue_hotels": 3,
+      "revenue_hotels_owned": 4,
+      "revenue_retail": 4,
+      "revenue_occupancy": 4,
+      "revenue_casino": 4,
+      "promotional_allowances": 4,
+      "revenue_hotels_leased": 4,
+      "revenue_hotel_other": 4,
+      "revenue_food_beverages": 4,
+      "revenue_utility": 3,
+      "revenue_gas_domestic_regulated": 4,
+      "revenue_utility_electric": 4,
+      "revenue_utility_other": 4,
+      "revenue_goods": 3,
+      "revenue_goods_discounts_returns_allowances": 4,
+      "revenue_goods_gross": 4,
+      "revenue_clearing_fees": 3,
+      "revenue_reimbursement": 3,
+      "revenue_licenses": 3,
+      "revenue_passenger": 3,
+      "revenue_passenger_regional": 4,
+      "revenue_passenger_mainline": 4,
+      "revenue_energy_commodities_services": 3,
+      "revenue_services_energy": 4,
+      "revenue_healthcare_organization": 3,
+      "revenue_healthcare_organization_other": 4,
+      "revenue_healthcare_organization_patient_service": 4,
+      "revenue_healthcare_organization_resident_service": 4,
+      "revenue_healthcare_organization_premium": 4,
+      "revenue_healthcare_organization_capitation": 4,
+      "revenue_grants": 3,
+      "cost_revenue": 1,
+      "merchant_marine_operating_differential_subsidy": 2,
+      "provision_losses": 2,
+      "provision_other_credit_losses": 3,
+      "provision_other_losses": 3,
+      "provision_loan_lease_losses": 3,
+      "provision_lease_losses": 4,
+      "provision_loan_losses_expensed": 4,
+      "amortization_deferred_policy_acquisition_expense": 2,
+      "amortization_deferred_policy_acquisition_expense_excluding_accrued_interest": 3,
+      "amortization_deferred_policy_acquisition_effect_adjustment_estimated_gross_profit": 4,
+      "amortization_deferred_policy_acquisition_expense_assumption_change": 4,
+      "amortization_deferred_policy_acquisition_expense_unrealized_investment_gain_loss": 4,
+      "amortization_deferred_policy_acquisition_expense_other": 4,
+      "amortization_deferred_policy_acquisition_expense_investment_gain_loss": 4,
+      "amortization_deferred_policy_acquisition_expense_accrued_interest": 3,
+      "financing_interest_expense": 2,
+      "amortization_mortgage_servicing_rights": 2,
+      "interest_policyholders_account_balances": 2,
+      "cost_revenue_other": 2,
+      "liability_future_policy_benefits_period_expense": 2,
+      "amortization_value_business_acquired": 2,
+      "policyholder_dividends": 2,
+      "policyholder_benefits_claims_incurred": 2,
+      "incurred_claims_financial_guarantee_insurance_contracts": 3,
+      "incurred_claims_property_casualty_liability": 3,
+      "policyholder_benefits_claims_incurred_life_annuity": 3,
+      "policyholder_benefits_claims_incurred_health_care": 3,
+      "policyholder_benefits_claims_incurred_other": 3,
+      "cost_revenue_goods_services": 2,
+      "cost_revenue_goods_services_excluding_depreciation_amortization_depletion": 3,
+      "cost_revenue_property_operating_expense_other": 4,
+      "cost_revenue_energy_commodities_services": 4,
+      "inventory_firm_purchase_commitment_loss": 4,
+      "cost_revenue_overhead": 4,
+      "cost_revenue_real_estate": 4,
+      "cost_revenue_related_party": 4,
+      "cost_revenue_facility_membership_operations": 4,
+      "cost_revenue_property_repairs_maintenance": 4,
+      "cost_revenue_goods_lease_direct_financing": 4,
+      "cost_revenue_medical_supplies_drugs": 4,
+      "cost_trust_assets_sold_to_pay_expenses": 4,
+      "cost_revenue_royalties": 4,
+      "cost_revenue_reimbursable_expense": 4,
+      "cost_revenue_taxes_licenses": 4,
+      "cost_revenue_franchise": 4,
+      "cost_revenue_license": 4,
+      "cost_revenue_materials": 4,
+      "loss_contracts": 4,
+      "cost_revenue_affiliate": 4,
+      "cost_revenue_asset_management": 4,
+      "cost_revenue_maintenance": 4,
+      "impairment_production": 4,
+      "tax_excise_sales": 4,
+      "cost_revenue_labor": 4,
+      "cost_revenue_direct": 4,
+      "cost_revenue_service_management": 4,
+      "cost_revenue_goods_lease_sales_type": 4,
+      "depreciation_amortization_depletion_production": 3,
+      "depreciation_amortization_production": 4,
+      "depletion_production": 4,
+      "amortization_future_insurance_profits": 2,
+      "amortization_deferred_sales_inducements": 2,
+      "gross_profit": 0,
+      "operating_expenses": 1,
+      "brokerage_exchange_clearance_fees": 2,
+      "operating_expenses_core": 2,
+      "accretion_expense": 3,
+      "pre_opening_costs": 3,
+      "property_exploration_rights_carrying_costs": 3,
+      "sponsor_fees": 3,
+      "professional_contract_services_expense": 3,
+      "custody_fees": 3,
+      "malpractice_loss_contingency": 3,
+      "insurance_recoveries": 3,
+      "restructuring_settlement_impairment_provisions": 3,
+      "recapitalization_costs": 3,
+      "exploration_expense": 3,
+      "gain_loss_litigation_settlement": 3,
+      "litigation_settlement_expense": 4,
+      "gain_litigation_settlement": 4,
+      "litigation_settlement_interest": 4,
+      "loss_litigation_settlement": 4,
+      "unsolicited_tender_offer_costs": 3,
+      "other_operating_expenses": 3,
+      "trustee_fees": 3,
+      "research_development_expense": 3,
+      "business_combination_integration_costs": 3,
+      "loan_portfolio_expense": 3,
+      "depreciation_depletion_amortization_nonproduction": 3,
+      "other_depreciation_amortization": 4,
+      "depreciation_nonproduction": 4,
+      "amortization_deferred_costs": 4,
+      "depletion_nonproduction": 4,
+      "royalty_expense": 3,
+      "provision_doubtful_accounts": 2,
+      "other_general_expense": 2,
+      "lease_rental_expense": 2,
+      "gain_loss_sale_assets": 2,
+      "gain_loss_sale_leaseback_transaction": 3,
+      "gain_loss_sale_business": 3,
+      "gain_loss_sale_other_assets": 3,
+      "gain_loss_sale_property_plant_equipment": 3,
+      "gain_loss_sale_other_property": 4,
+      "gain_loss_sale_resource_property": 4,
+      "gain_loss_sale_intangible_assets": 3,
+      "gain_loss_termination_lease": 3,
+      "direct_financing_lease_selling_loss": 2,
+      "insurance_commissions": 2,
+      "demutualization_cost": 2,
+      "incentive_fee_expense": 2,
+      "selling_general_administrative_expense": 2,
+      "selling_marketing_expense": 3,
+      "marketing_advertising_expense": 4,
+      "selling_expense": 4,
+      "sales_commissions_fees": 4,
+      "product_warranty_expense": 4,
+      "other_selling_marketing_expense": 4,
+      "franchisor_costs": 4,
+      "general_administrative_expense": 3,
+      "tax_excluding_income_excise_taxes": 4,
+      "business_development": 4,
+      "general_insurance_expense": 4,
+      "salaries_wages_officers_compensation": 4,
+      "other_general_administrative_expense": 4,
+      "loss_contingency_expense": 4,
+      "real_estate_insurance": 4,
+      "supplies_postage_expense": 4,
+      "other_labor_related_expenses": 4,
+      "operating_lease_expense": 4,
+      "allocated_sharebased_compensation_expense": 4,
+      "tax_insurance": 4,
+      "communications_information_technology_occupancy": 4,
+      "travel_entertainment_expense": 4,
+      "professional_fees": 4,
+      "other_selling_general_administrative_expense": 3,
+      "government_assistance_operating_expense": 2,
+      "sales_type_lease_selling_profit_loss": 2,
+      "management_fee_expense": 2,
+      "administrative_fee_expense": 2,
+      "other_underwriting_expense": 2,
+      "income_loss_operating": 0,
+      "income_loss_nonoperating": 1,
+      "gain_loss_sale_lease_financing": 2,
+      "government_assistance_nonoperating_income": 2,
+      "lease_operating_initial_direct_cost_expense_term": 2,
+      "interest_income_health_care_trust_fund": 2,
+      "gain_loss_foreign_currency_transaction_pretax": 2,
+      "allowance_funds_construction_additions_capitalized_cost_equity": 2,
+      "income_bank_owned_life_insurance": 2,
+      "allowance_funds_construction_additions": 2,
+      "expense_administrative_health_care_trust_fund": 2,
+      "gain_loss_condemnation": 2,
+      "revenue_real_estate_investment_partnership": 2,
+      "income_loss_real_estate_operation": 2,
+      "expense_reversal_benefit_plan_excluding_service_cost": 2,
+      "benefit_plan_amortization_prior_service_cost_credit": 3,
+      "benefit_plan_interest_cost": 3,
+      "benefit_plan_other_cost": 3,
+      "benefit_plan_expected_return_plan_assets": 3,
+      "benefit_plan_interest_gain_loss_settlements_curtailments": 3,
+      "benefit_plan_interest_gain_loss_curtailments": 4,
+      "benefit_plan_interest_gain_loss_settlements": 4,
+      "benefit_plan_amortization_gains_losses": 3,
+      "benefit_plan_amortization_transition_asset_obligation": 3,
+      "impairment_recovery_mortgage_servicing_rights": 2,
+      "gain_loss_investment_health_care_trust_fund": 2,
+      "gain_loss_sale_real_estate_other": 2,
+      "gain_loss_conversion_investments_foreign": 2,
+      "gain_loss_contract_termination": 2,
+      "investment_income_nonoperating": 2,
+      "development_profits_nonoperating": 3,
+      "investment_income_nonoperating_other": 3,
+      "investment_income_interest_dividend": 4,
+      "investment_expense": 4,
+      "investment_income_net_amortization_discount_premium": 4,
+      "recovery_stranded_costs": 3,
+      "rental_income_nonoperating": 3,
+      "leveraged_lease_income_net": 3,
+      "leveraged_lease_income": 4,
+      "tax_expense_leveraged_lease": 4,
+      "tax_credit_leveraged_lease": 4,
+      "royalty_income_nonoperating": 3,
+      "gain_loss_investment_nonoperating": 3,
+      "gain_loss_disposal_not_discontinued_operation": 4,
+      "gain_loss_venture_capital": 4,
+      "gain_loss_investment": 4,
+      "gain_loss_sale_stock_subsidiary": 4,
+      "gain_business_combination_bargain_purchase": 4,
+      "gain_loss_nonoperating_other": 4,
+      "gain_loss_sale_stock_unissued": 4,
+      "gain_loss_sale_interest_projects": 4,
+      "gain_loss_derivative_instruments_pretax": 4,
+      "gain_loss_deconsolidation": 4,
+      "income_nonoperating_asset_related_other": 3,
+      "loss_gain_unusual_infrequent_item": 2,
+      "unusual_infrequent_item_net_insurance_proceeds": 3,
+      "loss_unusual_infrequent_item": 4,
+      "unusual_infrequent_item_insurance_proceeds": 4,
+      "gain_unusual_infrequent_item": 3,
+      "other_nonoperating_income_expense": 2,
+      "other_nonoperating_expense": 3,
+      "other_nonoperating_income": 3,
+      "loss_catastrophes": 2,
+      "gain_debt_conversion": 2,
+      "gain_loss_sale_leased_assets_operating": 2,
+      "interest_expense_nonoperating": 2,
+      "interest_expense_deposit_customer": 3,
+      "interest_expense_debt": 3,
+      "interest_expense_leases_financial": 3,
+      "interest_expense_financing": 3,
+      "lease_salestype_initial_direct_cost_expense_commencement": 2,
+      "government_assistance_nonoperating_expense": 2,
+      "income_loss_pretax_excluding_equity_method_investments": 0,
+      "income_loss_equity_method_investment": 1,
+      "income_loss_equity_method_investment_tax": 2,
+      "income_loss_equity_method_investment_pretax": 2,
+      "income_loss_pretax": 0,
+      "tax_income_expense_benefit": 1,
+      "tax_expense_benefit_deferred_other": 2,
+      "tax_adjustments_settlements_unusual_provisions": 2,
+      "tax_income_expense_benefit_deferred": 2,
+      "tax_income_expense_benefit_deferred_foreign": 3,
+      "tax_income_expense_benefit_deferred_domestic": 3,
+      "tax_income_expense_benefit_deferred_federal": 4,
+      "tax_income_expense_benefit_deferred_local": 4,
+      "tax_income_expense_benefit_deferred_other": 3,
+      "tax_income_expense_benefit_current": 2,
+      "tax_income_expense_benefit_current_foreign": 3,
+      "tax_income_expense_benefit_current_domestic": 3,
+      "tax_income_expense_benefit_current_local": 4,
+      "tax_income_expense_benefit_current_federal": 4,
+      "tax_income_benefit_unrecognized_penalties_interest_expense": 2,
+      "tax_income_benefit_unrecognized_penalties": 3,
+      "tax_income_benefit_unrecognized_interest_expense": 3,
+      "tax_expense_benefit_other": 2,
+      "income_loss_net_continuing_operations_including_minority_interest": 0,
+      "income_loss_net_dicontinued_operations": 1,
+      "discontinued_operation_gain_loss_disposal": 2,
+      "discontinued_operation_gain_loss_adjustment_disposal_prior_period": 2,
+      "discontinued_operation_gain_loss_adjustment_disposal_prior_period_pretax": 3,
+      "discontinued_operation_gain_loss_adjustment_disposal_prior_period_tax": 3,
+      "discontinued_operation_provision_loss_gain_disposal": 2,
+      "discontinued_operation_income_loss_other": 2,
+      "discontinued_operation_income_loss_phaseout_period": 2,
+      "income_loss_net_before_extraordinary_item": 0,
+      "extraordinary_item": 1,
+      "extraordinary_item_gross": 2,
+      "extraordinary_item_investee": 3,
+      "gain_loss_adjustment_prior_extraordinary_item": 3,
+      "discontinued_application_specialized_accounting_regulate_operations": 3,
+      "gain_purchase_business": 3,
+      "gain_loss_extraordinary_other": 3,
+      "extraordinary_item_tax": 2,
+      "income_loss_net_including_minority_interest": 0,
+      "income_loss_net_attributable_minority_interest": 1,
+      "income_loss_net_minority_interest_nonredeemable": 2,
+      "minority_interest_net_income_loss_joint_venture_partners_nonredeemable": 3,
+      "minority_interest_net_income_loss_operating_partnerships_nonredeemable": 3,
+      "minority_interest_net_income_loss_other_nonredeemable": 3,
+      "minority_interest_net_income_loss_preferred_unit_holders_nonredeemable": 3,
+      "minority_interest_net_income_loss_limited_partnerships_nonredeemable": 3,
+      "income_loss_net_minority_interest_redeemable": 2,
+      "minority_interest_net_income_loss_joint_venture_partners_redeemable": 3,
+      "minority_interest_net_income_loss_operating_partnerships_redeemable": 3,
+      "minority_interest_net_income_loss_limited_partnerships_redeemable": 3,
+      "minority_interest_net_income_loss_preferred_unit_holders_redeemable": 3,
+      "minority_interest_net_income_loss_other_redeemable": 3,
+      "income_loss_net": 0,
+      "earnings_per_share_basic": 0,
+      "weighted_average_shares_outstanding_basic": 1,
+      "earnings_per_share_diluted": 0,
+      "weighted_average_shares_outstanding_diluted": 1
+    },
+    "balance": {
+      "advance_royalties_current": 1,
+      "assets_heldintrust_current": 1,
+      "costs_excess_billings_uncomplete_contracts_programs_current": 1,
+      "prepaid_expense_other_assets_current": 1,
+      "other_assets_current": 2,
+      "prepaid_expense_current": 2,
+      "prepaid_royalties": 3,
+      "prepaid_expense_other_current": 3,
+      "prepaid_advertising": 3,
+      "prepaid_insurance": 3,
+      "prepaid_taxes": 3,
+      "prepaid_rent": 3,
+      "prepaid_interest": 3,
+      "prepaid_supplies": 3,
+      "intangible_assets_current": 1,
+      "deposits_assets_current": 1,
+      "derivatives_hedges_current": 1,
+      "derivative_assets_current": 2,
+      "hedging_assets_current": 2,
+      "commodity_contract_asset_current": 2,
+      "energy_marketing_contracts_assets_current": 2,
+      "deferred_rent_asset_current": 1,
+      "receivables_current": 1,
+      "receivables_trade_securitization": 2,
+      "receivables_related_parties_current": 2,
+      "receivables_trade_related_parties_current": 3,
+      "receivables_affiliates_current": 3,
+      "receivables_officers_stockholders_current": 3,
+      "receivables_employees_current": 3,
+      "receivables_other_related_parties_current": 3,
+      "receivables_notes_related_parties_current": 3,
+      "receivables_joint_ventures_current": 3,
+      "receivables_trade_notes_loans_current": 2,
+      "receivables_notes_loans_current": 3,
+      "receivables_trade_current": 3,
+      "receivables_nontrade_current": 2,
+      "receivables_petroleum_interest_billing_current": 3,
+      "receivables_lease_incentive_current": 3,
+      "receivables_interest_current": 3,
+      "receivables_tax_valueadded_current": 3,
+      "receivables_insurance_malpractice_current": 3,
+      "receivables_recovery_import_duties_current": 3,
+      "receivables_grants_current": 3,
+      "receivables_tax_income_current": 1,
+      "receivables_unbilled_current": 2,
+      "receivables_longterm_contracts_programs_current": 2,
+      "receivables_other_current": 2,
+      "inventory_net_allowances_customer_advances_progress_billings": 1,
+      "inventory": 2,
+      "inventory_current": 3,
+      "inventory_noncurrent": 1,
+      "progress_payments_net_inventory_longterm_contracts_programs": 2,
+      "health_care_trust_fund_assets": 1,
+      "cumulative_government_assistance_current": 1,
+      "customer_contract_asset_current": 1,
+      "cash_cash_equivalents_shortterm_investments": 1,
+      "investments_shortterm": 2,
+      "securities_marketable_current": 3,
+      "investments_shortterm_other": 3,
+      "cash_cash_equivalents": 2,
+      "regulatory_assets_current": 1,
+      "deferred_costs_current": 1,
+      "deferred_storm_property_reserve_deficiency_current": 2,
+      "deferred_costs_setup_current": 2,
+      "deferred_costs_finance_current": 2,
+      "deferred_costs_finance_current_accumulated_amortization": 3,
+      "deferred_costs_finance_current_gross": 3,
+      "deferred_costs_subscriber_acquisition_current": 2,
+      "deferred_costs_leasing_current": 2,
+      "deferred_costs_fuel": 2,
+      "deferred_gas_cost": 3,
+      "deferred_electric_cost": 3,
+      "deferred_costs_other_current": 2,
+      "deferred_costs_offering": 2,
+      "assets_disposal_current": 1,
+      "financial_assets_accrued_interest": 1,
+      "receivables_financing_accrued_interest": 2,
+      "securities_heldtomaturity_debt_accrued_interest": 2,
+      "receivables_trade_noncurrent_accrued_interest": 2,
+      "business_combination_contingent_consideration_asset_current": 1,
+      "funds_heldforclients": 1,
+      "restricted_cash_investments_current": 1,
+      "other_restricted_assets_current": 2,
+      "investments_restricted_current": 2,
+      "cash_cash_equivalents_restricted_current": 2,
+      "assets_heldforsale_current": 1,
+      "other_assets_heldforsale_current": 2,
+      "inventories_property_heldforsale_current": 2,
+      "receivables_heldforsale": 2,
+      "receivables_loans_heldforsale": 3,
+      "receivables_trade_heldforsale": 3,
+      "advance_inventory_purchases": 1,
+      "deferred_tax_assets_current": 1,
+      "deferred_tax_liabilities_valuation_allowance_current": 2,
+      "deferred_tax_assets_current_gross": 2,
+      "capitalized_contract_cost_current": 1,
+      "investments_lease_current": 1,
+      "investments_lease_direct_financing_current": 2,
+      "investments_lease_direct_financing_current_preallowance": 3,
+      "investments_lease_direct_financing_current_allowance": 3,
+      "investments_lease_sales_type_current": 2,
+      "investments_lease_sales_type_current_allowance": 3,
+      "investments_lease_sales_type_current_preallowance": 3,
+      "assets_current": 0,
+      "advance_royalties_noncurrent": 1,
+      "capitalized_contract_cost_noncurrent": 1,
+      "business_combination_contingent_asset_noncurrent": 1,
+      "deferred_tax_assets_noncurrent": 1,
+      "deferred_tax_assets_noncurrent_allowance": 2,
+      "deferred_tax_assets_noncurrent_gross": 2,
+      "deferred_costs_noncurrent": 1,
+      "deferred_costs_leasing_noncurrent": 2,
+      "lessee_incentive": 2,
+      "deferred_advertising_costs": 2,
+      "deferred_compensation_plan_assets": 2,
+      "deferred_costs_subscriber_acquisition_noncurrent": 2,
+      "deferred_sales_commission": 2,
+      "capitalized_software_development_costs": 2,
+      "deferred_costs_finance_noncurrent": 2,
+      "deferred_costs_finance_noncurrent_accumulated_amortization": 3,
+      "deferred_costs_finance_noncurrent_gross": 3,
+      "deferred_costs_setup_noncurrent": 2,
+      "disposal_assets_noncurrent": 1,
+      "disposal_deferred_tax_assets_noncurrent": 2,
+      "disposal_property_plant_equipment_noncurrent": 2,
+      "disposal_capital_leased_assets_noncurrent": 2,
+      "disposal_other_assets_noncurrent": 2,
+      "disposal_intangible_assets_noncurrent": 2,
+      "disposal_goodwill_noncurrent": 2,
+      "disposal_inventory_noncurrent": 2,
+      "receivables_deferred_rent_noncurrent": 1,
+      "derivatives_hedges_noncurrent": 1,
+      "derivative_assets_noncurrent": 2,
+      "hedging_assets_noncurrent": 2,
+      "gas_purchase_contract_noncurrent": 2,
+      "commodity_contract_asset_noncurrent": 2,
+      "energy_marketing_contracts_assets_noncurrent": 2,
+      "estimated_insurance_recoveries": 1,
+      "receivables_nontrade_noncurrent": 1,
+      "receivables_insurance_settlements_noncurrent": 2,
+      "receivables_insurance_malpractice_noncurrent": 2,
+      "receivables_interest_noncurrent": 2,
+      "receivables_tax_valueadded_noncurrent": 2,
+      "receivables_tax_income_noncurrent": 2,
+      "receivables_petroleum_interest_billing_noncurrent": 2,
+      "receivables_lease_incentive_noncurrent": 2,
+      "receivables_recovery_import_duties_noncurrent": 2,
+      "receivables_grants_noncurrent": 2,
+      "investments_lease_noncurrent": 1,
+      "investments_lease_direct_financing_noncurrent": 2,
+      "investments_lease_sales_type_noncurrent": 2,
+      "assets_heldintrust_noncurrent": 1,
+      "securities_availableforsale_debt_accrued_interest_noncurrent_postallowance": 1,
+      "intangible_assets_goodwill": 1,
+      "lease_assets_finance": 3,
+      "lease_assets_finance_gross": 2,
+      "lease_assets_finance_accumulated_amortization": 2,
+      "petroleum_property_successful_effort_method": 1,
+      "petroleum_property_successful_effort_method_accumulated_depletion_amortization_impairment": 2,
+      "petroleum_property_successful_effort_method_gross": 2,
+      "petroleum_property_successful_effort_method_other": 2,
+      "customer_contract_asset_noncurrent": 1,
+      "longterm_investments_receivables": 1,
+      "restricted_cash_investments_noncurrent": 1,
+      "restricted_cash_cash_equivalents_noncurrent": 2,
+      "restricted_cash_noncurrent": 3,
+      "restricted_cash_equivalents_noncurrent": 3,
+      "restricted_investments_noncurrent": 2,
+      "other_restricted_assets_noncurrent": 2,
+      "inventory_real_estate": 1,
+      "inventory_real_estate_timeshare_availableforsale": 2,
+      "inventor_real_estate_improvements": 2,
+      "inventory_real_estate_mortgage_loans_heldininventory": 2,
+      "inventory_real_estate_heldforsale": 2,
+      "inventory_real_estate_land_land_development_costs": 2,
+      "inventory_operative_builders": 2,
+      "inventory_homes_finished": 3,
+      "inventory_homes_under_construction": 3,
+      "inventory_operative_builders_other": 3,
+      "land_under_purchase_options_recorded": 3,
+      "inventory_land_heldforsale": 3,
+      "inventory_real_estate_capitalized_interest_costs": 3,
+      "inventory_real_estate_construction_materials": 3,
+      "inventory_buildings_improvements": 3,
+      "inventory_land_heldfor_development_sale": 3,
+      "inventory_real_estate_construction_inprocess": 2,
+      "inventory_real_estate_other": 2,
+      "cumulative_government_assistance_noncurrent": 1,
+      "prepaid_expense_other_assets_noncurrent": 1,
+      "prepaid_expense_noncurrent": 2,
+      "prepaid_expense_other_noncurrent": 3,
+      "prepaid_mineral_royalties_noncurrent": 3,
+      "other_assets_noncurrent": 2,
+      "receivables_other_noncurrent": 1,
+      "receivables_other_noncurrent_allowance": 2,
+      "receivables_other_noncurrent_gross": 2,
+      "inventory_drilling_noncurrent": 2,
+      "inventory_other_noncurrent": 2,
+      "inventory_gas_storage_noncurrent": 2,
+      "property_plant_equipment_collections_noncapitalized": 1,
+      "customer_funds": 1,
+      "investments_lease_leveraged": 1,
+      "investments_lease_leveraged_residual_value": 2,
+      "investments_lease_leveraged_rental_receivables": 2,
+      "investments_lease_leveraged_rental_receivables_gross": 3,
+      "investments_lease_leveraged_nonrecourse_debt_service": 3,
+      "investments_lease_leveraged_deferred_income": 2,
+      "investments_lease_leveraged_tax_credit_receivable": 2,
+      "investments_lease_leveraged_deferred_taxes": 2,
+      "lease_assets_operating": 3,
+      "investment_qualified_affordable_housing_project": 1,
+      "costs_excess_billings_uncomplete_contracts_programs_noncurrent": 1,
+      "productive_assets": 1,
+      "property_plant_equipment": 2,
+      "capitalized_software": 2,
+      "capitalized_software_accumulated_amortization": 3,
+      "capitalized_software_gross": 3,
+      "lease_assets": 2,
+      "regulated_entity_other_assets_noncurrent": 1,
+      "asset_recovery_damaged_property_costs_noncurrent": 2,
+      "phase_in_plan_amount_costs_deferred_for_rate_making_purposes": 2,
+      "securitized_regulatory_transition_assets_noncurrent": 2,
+      "unamortized_debt_issuance_expense": 2,
+      "deferred_storm_property_reserve_deficiency_noncurrent": 2,
+      "investments_power_distribution_projects": 2,
+      "demand_side_management_program_costs_noncurrent": 2,
+      "regulatory_assets_noncurrent": 2,
+      "investments_decommissioning_fund": 2,
+      "unamortized_loss_reacquired_debt_noncurrent": 2,
+      "deposit_assets_noncurrent": 1,
+      "petroleum_property_full_cost_method": 1,
+      "petroleum_property_fill_cost_method_gross": 2,
+      "petroleum_property_full_cost_method_depletion": 2,
+      "prepaid_pension_costs": 1,
+      "assets_noncurrent": 0,
+      "assets": 0,
+      "liabilities_business_transferred_under_contractual_arrangement_current": 1,
+      "billings_excess_cost_current": 1,
+      "accrued_environmental_loss_contingencies_current": 1,
+      "self_insurance_reserve_current": 1,
+      "mandatory_redemption_shares_current": 1,
+      "derivative_hedge_liabilities_current": 1,
+      "hedging_liabilities_current": 2,
+      "derivative_liabilities_current": 2,
+      "energy_marketing_contract_liabilities_current": 2,
+      "accrued_reclamation_costs_current": 1,
+      "debt_current": 1,
+      "debt_shortterm": 2,
+      "debt_shortterm_other": 3,
+      "securities_sold_under_repurchase_agreement": 3,
+      "shortterm_bank_loans_notes_payable": 3,
+      "warehouse_agreement_borrowings": 3,
+      "loan_construction": 3,
+      "loan_bridge": 3,
+      "bank_overdrafts": 3,
+      "loan_home_federal_bank_advances_maturities_current": 3,
+      "shortterm_nonbank_loans_notes_payable": 3,
+      "commercial_paper": 3,
+      "longterm_debt_capital_lease_obligations_current": 2,
+      "lease_liabilities_finance_current": 3,
+      "debt_longterm_current": 3,
+      "payables_accrued_expenses_current": 1,
+      "government_assistance_liability_current": 1,
+      "provision_contract_loss": 1,
+      "deferred_compensation_liability_current": 1,
+      "deferred_compensation_liability_cashbased_current": 2,
+      "deferred_compensation_liability_sharebased_current": 2,
+      "deferred_compensation_liability_other_current": 2,
+      "accrued_capping_closure_post_closure_environmental_costs": 1,
+      "deferred_revenue_credits_current": 1,
+      "other_deferred_credits_current": 2,
+      "deferred_air_traffic_revenue": 2,
+      "frequent_flier_liability_current": 3,
+      "air_traffic_liability_current": 3,
+      "deferred_rent_credit_current": 2,
+      "customer_loyalty_program_liability_current": 2,
+      "deferred_revenue_current": 2,
+      "customer_contract_liability_current": 3,
+      "deferred_income_current": 3,
+      "deferred_revenue_leases_current": 2,
+      "liability_uncertain_tax_position_current": 1,
+      "business_combination_contingent_consideration_liability_current": 1,
+      "litigation_reserve_current": 1,
+      "other_liabilities_current": 1,
+      "regulatory_liability_current": 1,
+      "restructuring_reserve_current": 1,
+      "customer_refund_liability_current": 1,
+      "securities_loaned": 1,
+      "securities_loaned_with_master_netting_arrangement": 2,
+      "securities_loaned_asset": 3,
+      "securities_loaned_gross": 3,
+      "securities_loaned_without_master_netting_arrangement": 2,
+      "program_rights_obligations_current": 1,
+      "disposal_liabilities_current": 1,
+      "disposal_postretirement_plan_benefit_obligation_current": 2,
+      "disposal_trade_payables_accrued_liabilities_current": 2,
+      "disposal_payables_trade_current": 3,
+      "disposal_accrued_liabilities_current": 3,
+      "disposal_other_liabilities_current": 2,
+      "disposal_accrued_income_tax_payables_current": 2,
+      "disposal_pension_plan_benefit_obligation_current": 2,
+      "disposal_deferred_tax_liabilities_current": 2,
+      "disposal_deferred_revenue_current": 2,
+      "deferred_gas_purchases_current": 1,
+      "deferred_tax_liabilities_current": 1,
+      "customer_advances_deposits_current": 1,
+      "customer_deposits_current": 2,
+      "customer_advances_current": 2,
+      "asset_retirement_obligation_current": 1,
+      "liabilities_current": 0,
+      "longterm_debt_capital_lease_obligations": 1,
+      "debt_longterm_noncurrent": 2,
+      "loan_construction_noncurrent": 3,
+      "debt_secured_longterm": 3,
+      "bond_pollution_control_longterm": 3,
+      "debt_convertible_subordinated_noncurrent": 3,
+      "debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent": 3,
+      "debt_subordinated_longterm": 3,
+      "debt_convertible_noncurrent": 3,
+      "debt_longterm_other_noncurrent": 3,
+      "credit_line_longterm": 3,
+      "commercial_paper_noncurrent": 3,
+      "bond_transition_longterm": 3,
+      "longterm_notes_loans": 3,
+      "bond_special_assessment_noncurrent": 3,
+      "debt_unsecured_longterm": 3,
+      "loan_home_longterm_bank_advances_noncurrent": 3,
+      "lease_liabilities_finance_noncurrent": 2,
+      "liabilities_otherthan_longterm_debt_noncurrent": 1,
+      "coal_supply_agreement_obligation_noncurrent": 2,
+      "derivatives_hedges_liabilities_noncurrent": 2,
+      "derivative_liabilities_noncurrent": 3,
+      "hedging_liabilities_noncurrent": 3,
+      "energy_marketing_contract_liabilities_noncurrent": 3,
+      "deferred_compensation_liability_noncurrent": 2,
+      "deferred_compensation_liability_other_noncurrent": 3,
+      "deferred_compensation_liability_sharebased_noncurrent": 3,
+      "deferred_compensation_liability_cashbased_noncurrent": 3,
+      "mandatory_redemption_shares_noncurrent": 2,
+      "restructuring_reserve_noncurrent": 2,
+      "liabilities_business_transferred_contractual_arrangement_noncurrent": 2,
+      "program_rights_obligations_noncurrent": 2,
+      "litigation_reserve_noncurrent": 2,
+      "accrued_environmental_loss_contingencies_noncurrent": 2,
+      "qualified_affordable_housing_project_investments_commitment": 2,
+      "customer_refund_liability_noncurrent": 2,
+      "asset_retirement_obligation_noncurrent": 2,
+      "spent_nuclear_fuel_obligation_noncurrent": 3,
+      "decommissioning_liability_noncurrent": 3,
+      "mine_reclamation_closing_liability_noncurrent": 3,
+      "petroleum_reclamation_liability_noncurrent": 3,
+      "accrued_capping_closure_post_closure_environmental_costs_noncurrent": 3,
+      "liability_uncertain_tax_positions_noncurrent": 2,
+      "pension_postretirement_postemployment_benefits_liability_noncurrent": 2,
+      "postemployment_benefits_liability_noncurrent": 3,
+      "pension_postretirement_benefits_liability_noncurrent": 3,
+      "offmarket_lease_unfavorable": 2,
+      "lease_deposit_liability": 2,
+      "deferred_tax_liabilities_noncurrent": 2,
+      "disposal_liabilities_noncurrent": 2,
+      "disposal_pension_plan_benefit_obligation_noncurrent": 3,
+      "disposal_deferred_tax_liabilities_noncurrent": 3,
+      "disposal_deferred_revenue_noncurrent": 3,
+      "disposal_accrued_income_tax_payables_noncurrent": 3,
+      "disposal_other_liabilities_noncurrent": 3,
+      "disposal_postretirement_plan_benefit_obligation_noncurrent": 3,
+      "self_insurance_reserve_noncurrent": 2,
+      "government_assistance_liability_noncurrent": 2,
+      "customer_advances_deposits_noncurrent": 2,
+      "customer_advances_noncurrent": 3,
+      "customer_deposits_noncurrent": 3,
+      "customer_advances_construction": 3,
+      "other_liabilities_noncurrent": 2,
+      "billings_excess_cost_noncurrent": 2,
+      "trade_payables_accrued_liabilities_noncurrent": 2,
+      "deferred_revenue_credits_noncurrent": 2,
+      "other_deferred_credits_noncurrent": 3,
+      "customer_loyalty_program_liability_noncurrent": 3,
+      "deferred_gain_sale_property": 3,
+      "accumulated_deferred_investment_tax_credit": 3,
+      "deferred_rent_credit_noncurrent": 3,
+      "deferred_revenue_leases_noncurrent": 3,
+      "incentive_lessor": 3,
+      "deferred_revenue_noncurrent": 3,
+      "lease_liability_operating_noncurrent": 2,
+      "business_combination_contingent_consideration_liabilities_noncurrent": 2,
+      "regulatory_liabilities_noncurrent": 2,
+      "liabilities_noncurrent": 0,
+      "liabilities": 0,
+      "stock_treasury_deferred_employee_stockownership_plan": 1,
+      "warrants_rights_outstanding": 1,
+      "receivables_stockholders_equity_note_subscription": 1,
+      "retained_earnings_accumulated_deficit": 1,
+      "accumulated_appreciation_depreciation": 2,
+      "accumulated_temporary_difference_other": 2,
+      "accumulated_ordinary_income_loss": 2,
+      "accumulated_gain_loss_longterm_capital": 2,
+      "accumulated_capital_loss_carryforward": 2,
+      "additional_paidin_capital": 1,
+      "additional_paidin_capital_preferred_stock": 2,
+      "additional_paidin_capital_common_stock": 2,
+      "accumulated_distributions_excess_net_income": 1,
+      "cumulative_dividends": 2,
+      "cumulative_earnings_deficit": 2,
+      "stock_common_subsidiary": 1,
+      "receivables_subscription_stock_common_unissued": 1,
+      "equity_deferred_compensation": 1,
+      "additional_capital_other": 1,
+      "receivables_shareholders_affiliates_issuance_capital_stock": 1,
+      "receivables_officers_directors_issuance_capital_stock": 1,
+      "stock_preferred": 1,
+      "accumulated_other_comprehensive_income_loss": 1,
+      "accumulated_gain_loss_foreign_currency_transaction_translation": 2,
+      "accumulated_gain_loss_derivative_qualifying_hedge_excluded_component": 2,
+      "accumulated_gain_loss_financial_liability_fair_value": 2,
+      "accumulated_gain_loss_pension_postretirement_benefit_plan": 2,
+      "accumulated_gain_loss_benefit_plan_minimum_pension_liability_posttax": 3,
+      "accumulated_gain_loss_benefit_plan_transition_assets_obligations_posttax": 3,
+      "accumulated_gain_loss_benefit_plan_prior_service_cost_credit_posttax": 3,
+      "accumulated_gain_loss_pension_postretirement_benefit_plan_posttax": 3,
+      "accumulated_gain_loss_unrealized_securities_availableforsale": 2,
+      "accumulated_impairment_securities_debt": 2,
+      "accumulated_impairment_securities_availableforsale_debt": 3,
+      "accumulated_impairment_securities_heldtomaturity_debt": 3,
+      "accumulated_gain_loss_cashflow_hedges_effect": 2,
+      "unearned_esop_shares": 1,
+      "subscription_stock_common": 1,
+      "receivables_subscription_stock_preferred_unissued": 1,
+      "stock_treasury": 1,
+      "stock_treasury_preferred": 2,
+      "stock_treasury_common": 2,
+      "stock_common": 1,
+      "equity": 0,
+      "liabilities_equity": 0
+    },
+    "cashflow": {
+      "cashflow_operations_continuing": 1,
+      "proceed_operating_activities": 2,
+      "proceed_sale_mortgage_loans_heldforsale": 3,
+      "proceed_deposit_customer": 3,
+      "proceed_collection_mortgage_loans_heldforsale": 3,
+      "proceed_interest_dividend": 3,
+      "proceed_grantors": 3,
+      "proceed_commissions": 3,
+      "proceed_sale_real_estate": 3,
+      "proceed_collaborators": 3,
+      "proceed_crypto_assets_operating": 3,
+      "proceed_refund_supplier_material": 3,
+      "proceed_loans": 3,
+      "proceed_maturity_prepayment_call_securities_operating": 3,
+      "proceed_sale_trust_assets": 3,
+      "proceed_insurance_premiums": 3,
+      "tax_expense_deferred_stock_options_exercised": 3,
+      "proceed_fees_license": 3,
+      "proceed_lease_payments": 3,
+      "proceed_deposits_time": 3,
+      "proceeds_management_program": 3,
+      "proceed_other_operating_activities": 3,
+      "proceed_insurance_settlement": 3,
+      "proceed_customer": 3,
+      "proceed_sale_assets_other": 3,
+      "proceed_tax_income_refund": 3,
+      "proceed_tax_income_refund_federal": 4,
+      "proceed_tax_income_refund_foreign": 4,
+      "proceed_tax_income_refund_state": 4,
+      "proceed_deposits_other_institutions": 3,
+      "proceed_financing_lease": 3,
+      "proceed_fees": 3,
+      "proceed_royalties": 3,
+      "proceed_legal_settlements": 3,
+      "proceed_rents": 3,
+      "proceed_customer_progress_payments": 3,
+      "proceed_sale_securities_operating": 3,
+      "payment_operating_activities": 2,
+      "payment_loss_adjustment": 3,
+      "payment_deposits_time": 3,
+      "payment_deposits_other_institutions": 3,
+      "payment_purchase_securities_operating": 3,
+      "payment_asset_retirement_obligation": 3,
+      "payment_demand_side_management_program": 3,
+      "payment_finance_lease_interest": 3,
+      "payment_loans": 3,
+      "payment_royalties": 3,
+      "payment_interest": 3,
+      "payment_interest_net": 4,
+      "payment_interest_capitalized": 4,
+      "payment_other_operating_activities": 3,
+      "payment_purchase_mortgage_loans_heldforsale": 3,
+      "payment_tax_income": 3,
+      "payment_tax_income_foreign": 4,
+      "payment_tax_income_federal": 4,
+      "payment_tax_income_state": 4,
+      "payment_postemployment_benefits": 3,
+      "payment_reinsurance": 3,
+      "payment_pension_postretirement_benefit_contributions": 3,
+      "payment_postretirement_benefits": 4,
+      "payment_pension_contributions": 4,
+      "payment_commissions": 3,
+      "payment_legal_settlements": 3,
+      "payment_fees": 3,
+      "payment_fees_incentive": 4,
+      "payment_fees_management": 4,
+      "payment_fees_administrative": 4,
+      "payment_lease_shortterm": 3,
+      "payment_lease_operating": 3,
+      "payment_lease_variable": 3,
+      "payment_contingent_consideration_liability": 3,
+      "payment_restructuring": 3,
+      "payment_suppliers_employees": 3,
+      "payment_suppliers": 4,
+      "payment_employees": 4,
+      "payment_tax_other": 3,
+      "payment_fees_brokerage": 3,
+      "excess_tax_benefit_sharebased_compensation": 3,
+      "payment_purchase_assets_other": 3,
+      "payment_environmental_liabilities": 3,
+      "payment_underwriting_expense": 3,
+      "payment_rent": 3,
+      "payment_merger_related_costs": 3,
+      "payment_origination_mortgage_loans_heldforsale": 3,
+      "payment_deposits": 3,
+      "cashflow_operations_discontinued": 1,
+      "cashflow_operating": 0,
+      "cashflow_investing_discontinued_operations": 1,
+      "cashflow_investing_continuing_operations": 1,
+      "cashflow_life_insurance_policies": 2,
+      "payment_acquisition_life_insurance_policies": 3,
+      "proceed_life_insurance_policies": 3,
+      "cashflow_investing_other": 2,
+      "cashflow_federal_home_loan_bank_stock": 2,
+      "proceed_sale_federal_home_loan_bank_stock": 3,
+      "payment_acquisition_federal_home_loan_bank_stock": 3,
+      "repayment_receivables_notes_related_parties": 2,
+      "change_lease_acquisition_costs": 2,
+      "proceed_disposal_crypto_asset": 2,
+      "payment_use_lease_operating": 2,
+      "proceed_contribution_aid_construction": 2,
+      "proceed_sale_real_estate_wholly_owned_acquired_settlement_loans": 2,
+      "payment_acquisition_royalty_interests_mining_properties": 2,
+      "repayment_advances_construction": 2,
+      "cashflow_other_interest_earning_assets": 2,
+      "cashflow_businesses_affiliates": 2,
+      "proceed_divestiture_businesses_affiliates": 3,
+      "payment_acquisition_businesses_affiliates": 3,
+      "cashflow_federal_funds_sold_securities_purchased_resell_agreement": 2,
+      "cashflow_nuclear_fuel": 2,
+      "payment_nuclear_fuel": 3,
+      "proceed_nuclear_fuel": 3,
+      "cashflow_loans_longterm_related_parties": 2,
+      "proceed_collection_loans_longterm_related_parties": 3,
+      "payment_fund_loans_longterm_related_parties": 3,
+      "cashflow_hedge_investing_activities": 2,
+      "payment_hedge_investing_activities": 3,
+      "proceed_hedge_investing_activities": 3,
+      "payment_contingent_consideration_liability_investing_activities": 2,
+      "proceed_sale_foreclosed_assets": 2,
+      "use_restricted_cash_acquisition_petroleum_property": 2,
+      "proceed_distribution_restricted_cash_pollution_control_bond": 2,
+      "cashflow_loans_leases": 2,
+      "proceed_recovery_loan_previously_charged_off": 3,
+      "proceed_sale_loans_leases_heldforinvestment": 3,
+      "proceed_loans_leases_originations_principal_collections": 3,
+      "cashflow_loans_leases_other": 3,
+      "payment_acquisition_loans_leases_heldforinvestment": 3,
+      "cashflow_interest_bearing_bank_deposits": 2,
+      "change_deferred_charges_investing": 2,
+      "proceed_advances_construction": 2,
+      "proceed_insurance_settlement_investing_activities": 2,
+      "cashflow_restricted_cash_investments": 2,
+      "cashflow_cash_restricted": 3,
+      "cashflow_investments_restricted": 3,
+      "cashflow_derivative_instrument_investing_activities": 2,
+      "payment_derivative_instrument_investing_activities": 3,
+      "proceed_derivative_instrument_investing_activities": 3,
+      "cashflow_central_bank_reserve_stock": 2,
+      "proceed_sale_central_bank_reserve_stock": 3,
+      "payment_acquisition_central_bank_reserve_stock": 3,
+      "cashflow_removal_cost": 2,
+      "proceed_removal_costs": 3,
+      "payment_removal_costs": 3,
+      "cashflow_mortgage_servicing_rights": 2,
+      "proceed_sale_mortgage_servicing_rights": 3,
+      "payment_acquisition_mortgage_servicing_rights": 3,
+      "cashflow_real_estate_partnership_investment": 2,
+      "distribution_payables_real_estate_partnership": 3,
+      "proceed_distribution_real_estate_partnership": 3,
+      "proceed_divestiture_real_estate_partnership": 3,
+      "cashflow_real_estate_partnership_other": 3,
+      "payment_acquisition_real_estate_partnership_interest": 3,
+      "payment_investment_restricted_cash_pollution_control_bond": 2,
+      "payment_leasing_costs_commissions_tenant_improvements": 2,
+      "payment_lease_commissions": 3,
+      "payment_leasing_costs": 3,
+      "payment_tenant_improvements": 3,
+      "cashflow_collateral_securities_lending": 2,
+      "origination_receivables_notes_related_parties": 2,
+      "cashflow_investments": 2,
+      "payment_acquisition_investments": 3,
+      "proceed_sale_maturity_collection_investment": 3,
+      "allowance_funds_construction_investing_activities": 2,
+      "cashflow_equity_method_investing_dividends_distributions": 2,
+      "payment_acquisition_management_contract_rights": 2,
+      "cashflow_deposits_real_estate_acquisitions": 2,
+      "cashflow_productive_assets": 2,
+      "payment_acquisition_productive_assets": 3,
+      "proceed_sale_productive_assets": 3,
+      "proceed_lease_financing": 2,
+      "cashflow_investing": 0,
+      "cashflow_financing_discontinued_operations": 1,
+      "cashflow_financing_continuing_operations": 1,
+      "origination_loans_purchase_common_stock": 2,
+      "payment_dividends": 2,
+      "payment_capital_distribution": 3,
+      "payment_dividends_ordinary": 3,
+      "payment_debt_restructuring_costs": 2,
+      "payment_merger_related_costs_financing_activities": 2,
+      "cashflow_securities_trust_preferred": 2,
+      "payment_repurchase_securities_trust_preferred": 3,
+      "proceed_issuance_securities_trust_preferred": 3,
+      "payment_debt_extinguishment_costs": 2,
+      "payment_derivative_issuance_costs": 2,
+      "cashflow_hedge_financing_activities": 2,
+      "payment_hedge_financing_activities": 3,
+      "proceed_hedge_financing_activities": 3,
+      "proceed_contributions_affiliates": 2,
+      "cashflow_deposits_mortgage": 2,
+      "proceed_deposits_mortgage": 3,
+      "payment_deposits_mortgage": 3,
+      "proceed_contributions_parent": 2,
+      "payment_distribution_affiliates": 2,
+      "payment_contingent_consideration_liability_financing_activities": 2,
+      "cashflow_financing_other": 2,
+      "payment_distribution_limited_partner": 2,
+      "proceed_contributions_partnership": 2,
+      "origination_loans_employee_stock_ownership_plans": 2,
+      "cashflow_debt": 2,
+      "cashflow_debt_shortterm": 3,
+      "cashflow_annuities_investment_certificates": 3,
+      "change_contract_holders_funds": 3,
+      "cashflow_deposits_debt_retirements": 3,
+      "cashflow_longterm_debt_capital_securities": 3,
+      "repayment_loans_longterm_vendors": 3,
+      "cashflow_debt_other": 3,
+      "payment_advance_construction_financing_activity": 2,
+      "excess_tax_benefit_sharebased_compensation_financing_activities": 2,
+      "payment_financing_stock_issuance_cost": 2,
+      "payment_issuance_stock": 3,
+      "payment_financing_costs": 3,
+      "change_deposits": 2,
+      "change_deposits_savings": 3,
+      "change_deposits_demand": 3,
+      "change_deposits_other": 3,
+      "change_deposits_time": 3,
+      "payment_distribution_limited_liability_company": 2,
+      "change_advance_payments_borrowers_taxes_insurance": 2,
+      "cashflow_loans_purchase_common_stock": 2,
+      "cashflow_derivative_instrument_financing_activities": 2,
+      "proceed_derivative_instrument_financing_activities": 3,
+      "payment_derivative_instrument_financing_activities": 3,
+      "cashflow_loans_employee_stock_ownership_plans": 2,
+      "proceed_advance_contribution_aid_construction_financing_activity": 2,
+      "cashflow_minority_shareholders": 2,
+      "payment_minority_shareholders": 3,
+      "proceed_minority_shareholders": 3,
+      "cashflow_equity": 2,
+      "payment_repurchase_equity": 3,
+      "proceed_issuance_sale_equity": 3,
+      "payment_tax_withholding_sharebased_compensation": 2,
+      "cashflow_redeemable_minority_interest": 2,
+      "change_payables_securities_lending": 2,
+      "cashflow_financing": 0,
+      "exchange_rate_effect": 0,
+      "exchange_rate_effect_cash": 1,
+      "exchange_rate_effect_disposal": 1,
+      "cashflow": 0
+    },
+    "securities": {
+      "trade_securities": 0,
+      "trade_debt_securities": 1,
+      "trade_debt_securities_amortized_cost": 2,
+      "trade_asset_securities": 2,
+      "trade_asset_securities_amortized_cost": 3,
+      "trade_mortgage_securities": 2,
+      "trade_mortgage_securities_amortized_cost": 3,
+      "trade_equity_securities": 1,
+      "trade_equity_securities_amortized_cost": 2
+    },
+    "credit_loss": {
+      "allowance_credit_loss": 0,
+      "current_allowance_credit_loss": 1,
+      "current_loss_allowance_trade_receivables": 2,
+      "current_loss_allowance_nontrade_receivables": 2,
+      "current_loss_allowance_notes_receivables": 3,
+      "current_loss_allowance_receivables_related_parties": 3,
+      "current_loss_allowance_receivables_joint_operation": 3,
+      "current_loss_allowance_other_receivables": 3,
+      "current_loss_allowance_securities": 2,
+      "current_loss_allowance_debt_securities": 3,
+      "current_allowance_sales_returns": 2,
+      "noncurrent_allowance_credit_loss": 1,
+      "noncurrent_loss_allowance_trade_receivables": 2,
+      "noncurrent_loss_allowance_nontrade_receivables": 2,
+      "noncurrent_loss_allowance_notes_receivables": 3,
+      "noncurrent_loss_allowance_receivables_related_parties": 3,
+      "noncurrent_loss_allowance_receivables_joint_operation": 3,
+      "noncurrent_loss_allowance_other_receivables": 3,
+      "noncurrent_loss_allowance_securities": 2,
+      "noncurrent_loss_allowance_debt_securities": 3,
+      "noncurrent_allowance_sales_returns": 2
+    }
+  },
+  "fundamentals": {
+    "calculation": [
+      "market_capitalization"
+    ],
+    "valuation": [
+      "price_to_earnings",
+      "price_to_bookvalue",
+      "price_to_tangible_bookvalue",
+      "price_to_sales",
+      "price_to_operating_cashflow",
+      "price_to_free_cashflow"
+    ],
+    "profitability": [
+      "gross_profit_margin",
+      "operating_profit_margin",
+      "net_profit_margin",
+      "return_on_equity",
+      "return_on_equity_adjusted_to_bookvalue",
+      "return_on_assets",
+      "return_on_capital_employed",
+      "return_on_invested_capital"
+    ],
+    "liquidity": [
+      "current_ratio",
+      "quick_ratio",
+      "cash_ratio",
+      "interest_coverage_ratio"
+    ],
+    "efficiency": [
+
+    ]
+  },
+  "sankey": {
+    "income": {
+      "revenue": {
+        "color": "rgba(0,0,255,1)",
+        "links": {
+          "revenue_goods": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"},
+          "revenue_services": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_shipping_handling": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_energy_commodities_services": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_utility": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_petroleum": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_steam": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_minerals": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_real_estate": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_lease_operating": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_hotels": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_franchisor": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_subscription": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_advertising": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_admissions": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_healthcare_organization": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_enrollment_registration_fees": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_membership_dues": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_licenses": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_royalty": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_sales_petroleum_prospects": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_clearing_fees": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_reimbursement": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_grants": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_other_manufactured_products": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_construction_materials": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_timber": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_recycling": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_related_parties": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_sales_other": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "sale_trust_assets": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_passenger": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_cargo_freight": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_secondary_processing": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "revenue_vehicle_toll": {
+            "direction": "in",
+            "color": "rgba(0,0,255,0.3)"
+          },
+          "gross_profit": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cost_revenue": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "revenue_goods": {
+        "color": "rgba(0,0,255,1)"},
+      "revenue_services": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_shipping_handling": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_energy_commodities_services": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_utility": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_petroleum": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_steam": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_minerals": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_real_estate": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_lease_operating": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_hotels": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_franchisor": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_subscription": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_advertising": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_admissions": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_healthcare_organization": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_enrollment_registration_fees": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_membership_dues": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_licenses": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_royalty": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_sales_petroleum_prospects": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_clearing_fees": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_reimbursement": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_grants": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_other_manufactured_products": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_construction_materials": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_timber": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_recycling": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_related_parties": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_sales_other": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "sale_trust_assets": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_passenger": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_cargo_freight": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_secondary_processing": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "revenue_vehicle_toll": {
+        "color": "rgba(0,0,255,1)"
+      },
+      "cost_revenue": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "gross_profit": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "income_loss_operating": {
+            "direction": "out",
+            "color": ""
+          },
+          "operating_expenses": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "income_loss_operating": {
+        "color": "",
+        "links": {
+          "interest_expense_nonoperating": {
+            "direction": "out",
+            "color": "rgba(255,0,0,1)"
+          }
+        }
+      },
+      "operating_expenses": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "selling_general_administrative_expense": {
+            "direction": "out", 
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "research_development_expense": {
+            "direction": "out", 
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "depreciation_depletion_amortization_nonproduction": {
+            "direction": "out", 
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "selling_general_administrative_expense": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "research_development_expense": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "depreciation_depletion_amortization_nonproduction": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "interest_expense_nonoperating": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "impairment": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "income_loss_pretax": {
+        "color": "",
+        "links": {
+          "income_loss_operating": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "calculation": "income_loss_operating - interest_expense_nonoperating"
+          },
+          "investment_income_nonoperating": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "income_loss_equity_method_investment": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "income_loss_net": {
+            "direction": "out",
+            "color": ""
+          },
+          "tax_income_expense_benefit": {
+            "direction": "out",
+            "color": ""
+          },
+          "income_loss_net_attributable_minority_interest": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "investment_income_nonoperating": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "income_loss_equity_method_investment": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "income_loss_net": {
+        "color": ""
+      },
+      "tax_income_expense_benefit": {
+        "color": ""
+      },
+      "income_loss_net_attributable_minority_interest": {
+        "color": ""
+      }
+    },
+    "balance": {
+      "assets": {
+        "color": "rgba(0,0,255,1)",
+        "links": {
+          "assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "assets_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "equity": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "assets_current": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cash_cash_equivalents_marketable_securities": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cash_cash_equivalents_restricted": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "receivables_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "inventory": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "deferred_tax_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "prepaid_expense_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "assets_current_other": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cash_cash_equivalents_marketable_securities": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cash_cash_equivalents": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "securities_marketable": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cash_cash_equivalents": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "securities_marketable": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cash_cash_equivalents_restricted": {
+        "color": "rgba(0,255,0,0.3)",
+        "links": {
+          "restricted_cash": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "restricted_cash_equivalents": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "current_receivables": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "current_trade_receivables": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "current_nontrade_receivables": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "notes_receivable": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "other_receivables": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "current_trade_receivables": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "current_nontrade_receivables": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "notes_receivable": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "other_receivables": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "inventory": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "finished_goods": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "parts_components": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "work_in_progress_raw_materials": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "finished_goods": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "parts_components": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "work_in_progress_raw_materials": {
+        "color": "rgba(0,255,0,0.3)"
+      },
+      "current_tax_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "current_prepaid_expenses": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "other_current_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "noncurrent_assets": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "productive_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "intangible_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "goodwill": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "noncurrent_securities": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "other_noncurrent_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "productive_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "intangible_assets": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "finitelived_intangible_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "infinitelived_intangible_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "finitelived_intangible_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "infinitelived_intangible_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "goodwill": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "noncurrent_securities": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "other_noncurrent_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "liabilities": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "current_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "noncurrent_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "current_liabilities": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "accounts_payable": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "current_accrued_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "current_debt": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "current_deferred_revenue": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "other_current_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "accounts_payable": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "current_accrued_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "current_debt": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "commercial_paper": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "current_longterm_debt": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "other_current_debt": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "commercial_paper": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "current_longterm_debt": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "other_current_debt": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "current_deferred_revenue": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "other_current_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "noncurrent_liabilities": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "noncurrent_accrued_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "noncurrent_deferred_revenue": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "noncurrent_tax_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "noncurrent_longterm_debt": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "other_noncurrent_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "noncurrent_accrued_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "noncurrent_deferred_revenue": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "noncurrent_tax_liabilities": {
+        "direction": "out",
+        "color": "rgba(255,0,0,1)"
+      },
+      "noncurrent_longterm_debt": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "other_noncurrent_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "equity": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "common_stock_additional_paid_in_capital": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "minority_interest_stock": {
+            "direction": "out",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "retained_earnings_accumulated_deficit": {
+            "direction": "",
+            "color": ""
+          },
+          "accumulated_other_comprehensive_income_loss": {
+            "direction": "",
+            "color": ""
+          }
+        }
+      },
+      "common_stock_additional_paid_in_capital": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "minority_interest_stock": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "retained_earnings_accumulated_deficit": {
+        "color": ""
+      },
+      "accumulated_other_comprehensive_income_loss": {
+        "color": ""
+      }
+    },
+    "cashflow": {
+      "cashflow": {
+        "color": "",
+        "links": {
+          "operating_cashflow": {
+            "direction": "in",
+            "color": ""
+          },
+          "investing_cashflow": {
+            "direction": "in",
+            "color": ""
+          },
+          "financing_cashflow": {
+            "direction": "in",
+            "color": ""
+          }
+        }
+      },
+      "operating_cashflow": {
+        "color": "",
+        "links": {
+          "operating_cash_inflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "operating_cash_outflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "capital_expenditure": {
+            "direction": "out",
+            "color": ""
+          },
+          "free_cash_flow_firm": {
+            "direction": "out",
+            "color": ""
+          }
+        }
+      },
+      "capital_expenditure": {
+        "color": ""
+      },
+      "free_cash_flow_firm": {
+        "color": ""
+      },
+      "operating_cash_inflow": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "income_loss_net": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "depreciation_depletion_amortization_accretion": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "sharebased_compensation": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "deferred_tax": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": -1
+          },
+          "change_working_capital": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "other_noncash_income_expense": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          }
+        }
+      },
+      "operating_cash_outflow": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "income_loss_net": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "sharebased_compensation": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "deferred_tax": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": 1
+          },
+          "change_working_capital": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "other_noncash_income_expense": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          }
+        }
+      },
+      "income_loss_net": {
+        "color": ""
+      },
+      "depreciation_depletion_amortization_accretion": {
+        "color": ""
+      },
+      "sharebased_compensation": {
+        "color": ""
+      },
+      "deferred_tax": {
+        "color": ""
+      },
+      "change_working_capital": {
+        "color": ""
+      },
+      "other_noncash_income_expense": {
+        "color": ""
+      },
+      "investing_cashflow": {
+        "color": "",
+        "links": {
+          "investing_cash_inflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,1)"
+          },
+          "investing_cash_outflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,1)"
+          }
+        }
+      },
+      "investing_cash_inflow": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "productive_assets_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "intangible_assets_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "securities_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "acquisition_divestitures_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "other_investing_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          }
+        }
+      },
+      "investing_cash_outflow": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "productive_assets_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "intangible_assets_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "securities_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "acquisition_divestitures_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "other_investing_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          }
+        }
+      },
+      "productive_assets_cashflow": {
+        "color": ""
+      },
+      "intangible_assets_cashflow": {
+        "color": ""
+      },
+      "securities_cashflow": {
+        "color": ""
+      },
+      "acquisition_divestitures_cashflow": {
+        "color": ""
+      },
+      "other_investing_cashflow": {
+        "color": ""
+      },
+      "financing_cashflow": {
+        "color": "",
+        "links": {
+          "financing_cash_inflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "financing_cash_outflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)"
+          }
+        }
+      },
+      "financing_cash_inflow": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "common_stock_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "debt_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "shortterm_debt_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          },
+          "other_financing_cashflow": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)",
+            "sign": 1
+          }
+        }
+      },
+      "financing_cash_outflow": {
+        "color": "rgba(255,0,0,1)",
+        "links": {
+          "dividends_payment": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": 1
+          },
+          "common_stock_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "debt_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "shortterm_debt_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          },
+          "other_financing_cashflow": {
+            "direction": "in",
+            "color": "rgba(255,0,0,0.3)",
+            "sign": -1
+          }
+        }
+      },
+      "dividends_payment": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "common_stock_cashflow": {
+        "color": ""
+      },
+      "debt_cashflow": {
+        "color": ""
+      },
+      "shortterm_debt_cashflow": {
+        "color": ""
+      },
+      "other_financing_cashflow": {
+        "color": ""
+      }
+    }
+  },
+  "financial_strength": [
+    "cash_to_debt",
+    "operating_cashflow_to_debt",
+    "equity_to_assets",
+    "debt_to_equity",
+    "interest_coverage_ratio",
+    "piotroski_f_score",
+    "altman_z_score",
+    "beneish_m_score",
+    "economic_profit_spread"
+  ],
+  "dupont": [
+    "return_on_equity",
+    "net_profit_margin",
+    "operating_profit_margin",
+    "income_loss_operating",
+    "revenue",
+    "tax_burden",
+    "income_loss_net",
+    "income_loss_pretax",
+    "interest_burden",
+    "asset_turnover",
+    "average_assets",
+    "equity_multiplier",
+    "average_equity"
+  ]
+}

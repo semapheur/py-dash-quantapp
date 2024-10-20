@@ -6,9 +6,11 @@ dash[celery]
 dash-ag-grid
 #dash-bootstrap-components
 #dash-mantine-components
-dash-resizeable-panels
+dash-resizable-panels
+#dash-snap-grid
 dash-tvlwc
 dashvis
+diskcache
 fathon
 #fracdiff #(msys2): pacman -Ss mingw-w64-x86_64-openblas
 flask-caching
@@ -24,7 +26,9 @@ openturns
 ordered-set
 orjson
 pandas
+pandera
 parsel
+pdfplumber
 #polars
 pycountry
 pydantic

@@ -1,0 +1,550 @@
+{
+  "assets_current": {
+    "balance": "debit",
+    "children": [
+      "business_combination_contingent_consideration_asset_current",
+      "assets_heldforsale_current",
+      "assets_heldintrust_current",
+      "deferred_costs_current",
+      "capitalized_contract_cost_current",
+      "cash_cash_equivalents_shortterm_investments",
+      "advance_inventory_purchases",
+      "funds_heldforclients",
+      "prepaid_expense_other_assets_current",
+      "customer_contract_assets_current",
+      "disposal_assets_current",
+      "deferred_rent_asset_current",
+      "advance_royalties_current",
+      "health_care_trust_fund_assets",
+      "financial_assets_accrued_interest",
+      "restricted_cash_investments_current",
+      "receivables_tax_income_current",
+      "cumulative_government_assistance_current",
+      "regulatory_assets_current",
+      "receivables_current",
+      "derivatives_hedges_current",
+      "investments_lease_current",
+      "intangible_assets_current",
+      "deferred_tax_assets_current",
+      "costs_excess_billings_uncomplete_contracts_programs_current",
+      "deposits_assets_current",
+      "inventory_net_allowances_customer_advances_progress_billings"
+    ]
+  },
+  "business_combination_contingent_consideration_asset_current": {
+    "balance": "debit"
+  },
+  "assets_heldforsale_current": {
+    "balance": "debit",
+    "children": [
+      "receivables_heldforsale",
+      "other_assets_heldforsale_current",
+      "inventories_property_heldforsale_current"
+    ]
+  },
+  "receivables_heldforsale": {
+    "balance": "debit",
+    "children": [
+      "receivables_loans_heldforsale",
+      "receivables_trade_heldforsale"
+    ]
+  },
+  "receivables_loans_heldforsale": {
+    "balance": "debit",
+    "children": [
+      "loans_heldforsale_consumer_installment_student",
+      "loans_heldforsale_commercial_industrial",
+      "loans_heldforsale_commercial_real_estate",
+      "loans_heldforsale_consumer_home_equity",
+      "loans_heldforsale_mortgages",
+      "loans_heldforsale_other",
+      "loans_heldforsale_consumer_credit_card"
+    ]
+  },
+  "receivables_trade_heldforsale": {
+    "balance": "debit"
+  },
+  "other_assets_heldforsale_current": {
+    "balance": "debit"
+  },
+  "inventories_property_heldforsale_current": {
+    "balance": "debit"
+  },
+  "assets_heldintrust_current": {
+    "balance": "debit"
+  },
+  "deferred_costs_current": {
+    "balance": "debit",
+    "children": [
+      "deferred_costs_setup_current",
+      "deferred_storm_property_reserve_deficiency_current",
+      "deferred_costs_offering",
+      "deferred_costs_fuel",
+      "deferred_costs_finance_current",
+      "deferred_costs_other_current",
+      "deferred_costs_subscriber_acquisition_current",
+      "deferred_costs_leasing_current"
+    ]
+  },
+  "deferred_costs_setup_current": {
+    "balance": "debit"
+  },
+  "deferred_storm_property_reserve_deficiency_current": {
+    "balance": "debit"
+  },
+  "deferred_costs_offering": {
+    "balance": "debit"
+  },
+  "deferred_costs_fuel": {
+    "balance": "debit",
+    "children": [
+      "deferred_electric_cost",
+      "deferred_gas_cost"
+    ]
+  },
+  "deferred_electric_cost": {
+    "balance": "debit"
+  },
+  "deferred_gas_cost": {
+    "balance": "debit"
+  },
+  "deferred_costs_finance_current": {
+    "balance": "debit",
+    "children": [
+      "deferred_costs_finance_current_accumulated_amortization",
+      "deferred_costs_finance_current_gross"
+    ]
+  },
+  "deferred_costs_finance_current_accumulated_amortization": {
+    "balance": "credit"
+  },
+  "deferred_costs_finance_current_gross": {
+    "balance": "debit"
+  },
+  "deferred_costs_other_current": {
+    "balance": "debit"
+  },
+  "deferred_costs_subscriber_acquisition_current": {
+    "balance": "debit"
+  },
+  "deferred_costs_leasing_current": {
+    "balance": "debit"
+  },
+  "capitalized_contract_cost_current": {
+    "balance": "debit"
+  },
+  "cash_cash_equivalents_shortterm_investments": {
+    "balance": "debit",
+    "children": [
+      "investments_shortterm",
+      "cash_cash_equivalents"
+    ]
+  },
+  "investments_shortterm": {
+    "balance": "debit",
+    "children": [
+      "investments_shortterm_other",
+      "securities_marketable_current"
+    ]
+  },
+  "investments_shortterm_other": {
+    "balance": "debit"
+  },
+  "securities_marketable_current": {
+    "balance": "debit",
+    "children": [
+      "securities_marketable_equity_current",
+      "securities_marketable_other_current",
+      "securities_fixed_maturities_current",
+      "securities_heldtomaturity_current",
+      "securities_heldfortrading_other"
+    ]
+  },
+  "cash_cash_equivalents": {
+    "balance": "debit"
+  },
+  "advance_inventory_purchases": {
+    "balance": "debit"
+  },
+  "funds_heldforclients": {
+    "balance": "debit"
+  },
+  "prepaid_expense_other_assets_current": {
+    "balance": "debit",
+    "children": [
+      "other_assets_current",
+      "prepaid_expense_current"
+    ]
+  },
+  "other_assets_current": {
+    "balance": "debit"
+  },
+  "prepaid_expense_current": {
+    "balance": "debit",
+    "children": [
+      "prepaid_taxes",
+      "prepaid_interest",
+      "prepaid_supplies",
+      "prepaid_rent",
+      "prepaid_expense_other_current",
+      "prepaid_advertising",
+      "prepaid_royalties",
+      "prepaid_insurance"
+    ]
+  },
+  "prepaid_taxes": {
+    "balance": "debit"
+  },
+  "prepaid_interest": {
+    "balance": "debit"
+  },
+  "prepaid_supplies": {
+    "balance": "debit"
+  },
+  "prepaid_rent": {
+    "balance": "debit"
+  },
+  "prepaid_expense_other_current": {
+    "balance": "debit"
+  },
+  "prepaid_advertising": {
+    "balance": "debit"
+  },
+  "prepaid_royalties": {
+    "balance": "debit"
+  },
+  "prepaid_insurance": {
+    "balance": "debit"
+  },
+  "customer_contract_assets_current": {
+    "balance": "debit",
+    "children": [
+      "customer_contract_assets_current_allowance",
+      "customer_contract_assets_current_gross"
+    ]
+  },
+  "customer_contract_assets_current_allowance": {
+    "balance": "credit"
+  },
+  "customer_contract_assets_current_gross": {
+    "balance": "debit"
+  },
+  "disposal_assets_current": {
+    "balance": "debit",
+    "children": [
+      "disposal_capital_leased_assets_current",
+      "disposal_cash_cash_equivalents",
+      "disposal_goodwill_current",
+      "disposal_prepaid_expenses_other_assets_current",
+      "disposal_receivables",
+      "disposal_deferred_tax_assets_current",
+      "disposal_property_plant_equipment_current",
+      "disposal_inventory_current",
+      "disposal_intangible_assets_current"
+    ]
+  },
+  "disposal_capital_leased_assets_current": {
+    "balance": "debit"
+  },
+  "disposal_cash_cash_equivalents": {
+    "balance": "debit"
+  },
+  "disposal_goodwill_current": {
+    "balance": "debit"
+  },
+  "disposal_prepaid_expenses_other_assets_current": {
+    "balance": "debit",
+    "children": [
+      "disposal_other_assets_current"
+    ]
+  },
+  "disposal_other_assets_current": {
+    "balance": "debit"
+  },
+  "disposal_receivables": {
+    "balance": "debit"
+  },
+  "disposal_deferred_tax_assets_current": {
+    "balance": "debit"
+  },
+  "disposal_property_plant_equipment_current": {
+    "balance": "debit"
+  },
+  "disposal_inventory_current": {
+    "balance": "debit"
+  },
+  "disposal_intangible_assets_current": {
+    "balance": "debit"
+  },
+  "deferred_rent_asset_current": {
+    "balance": "debit"
+  },
+  "advance_royalties_current": {
+    "balance": "debit"
+  },
+  "health_care_trust_fund_assets": {
+    "balance": "debit"
+  },
+  "financial_assets_accrued_interest": {
+    "balance": "debit",
+    "children": [
+      "receivables_financing_accrued_interest",
+      "receivables_trade_noncurrent_accrued_interest",
+      "securities_heldtomaturity_debt_accrued_interest"
+    ]
+  },
+  "receivables_financing_accrued_interest": {
+    "balance": "debit"
+  },
+  "receivables_trade_noncurrent_accrued_interest": {
+    "balance": "debit"
+  },
+  "securities_heldtomaturity_debt_accrued_interest": {
+    "balance": "debit"
+  },
+  "restricted_cash_investments_current": {
+    "balance": "debit",
+    "children": [
+      "cash_cash_equivalents_restricted_current",
+      "other_restricted_assets_current",
+      "investments_restricted_current"
+    ]
+  },
+  "cash_cash_equivalents_restricted_current": {
+    "balance": "debit"
+  },
+  "other_restricted_assets_current": {
+    "balance": "debit"
+  },
+  "investments_restricted_current": {
+    "balance": "debit"
+  },
+  "receivables_tax_income_current": {
+    "balance": "debit"
+  },
+  "cumulative_government_assistance_current": {
+    "balance": "debit"
+  },
+  "regulatory_assets_current": {
+    "balance": "debit"
+  },
+  "receivables_current": {
+    "balance": "debit",
+    "children": [
+      "receivables_nontrade_current",
+      "receivables_longterm_contracts_programs_current",
+      "receivables_trade_securitization",
+      "receivables_other_current",
+      "receivables_unbilled_current",
+      "receivables_related_parties_current",
+      "receivables_trade_notes_loans_current"
+    ]
+  },
+  "receivables_nontrade_current": {
+    "balance": "debit",
+    "children": [
+      "receivables_tax_valueadded_current",
+      "receivables_lease_incentive_current",
+      "receivables_interest_current",
+      "receivables_recovery_import_duties_current",
+      "receivables_insurance_malpractice_current",
+      "receivables_tax_income_current",
+      "receivables_grants_current",
+      "receivables_petroleum_interest_billing_current"
+    ]
+  },
+  "receivables_tax_valueadded_current": {
+    "balance": "debit"
+  },
+  "receivables_lease_incentive_current": {
+    "balance": "debit"
+  },
+  "receivables_interest_current": {
+    "balance": "debit"
+  },
+  "receivables_recovery_import_duties_current": {
+    "balance": "debit"
+  },
+  "receivables_insurance_malpractice_current": {
+    "balance": "debit"
+  },
+  "receivables_grants_current": {
+    "balance": "debit"
+  },
+  "receivables_petroleum_interest_billing_current": {
+    "balance": "debit"
+  },
+  "receivables_longterm_contracts_programs_current": {
+    "balance": "debit"
+  },
+  "receivables_trade_securitization": {
+    "balance": "debit"
+  },
+  "receivables_other_current": {
+    "balance": "debit"
+  },
+  "receivables_unbilled_current": {
+    "balance": "debit"
+  },
+  "receivables_related_parties_current": {
+    "balance": "debit",
+    "children": [
+      "receivables_notes_related_parties_current",
+      "receivables_other_related_parties_current",
+      "receivables_officers_stockholders_current",
+      "receivables_affiliates_current",
+      "receivables_employees_current",
+      "receivables_trade_related_parties_current",
+      "receivables_joint_ventures_current"
+    ]
+  },
+  "receivables_notes_related_parties_current": {
+    "balance": "debit"
+  },
+  "receivables_other_related_parties_current": {
+    "balance": "debit"
+  },
+  "receivables_officers_stockholders_current": {
+    "balance": "debit"
+  },
+  "receivables_affiliates_current": {
+    "balance": "debit"
+  },
+  "receivables_employees_current": {
+    "balance": "debit"
+  },
+  "receivables_trade_related_parties_current": {
+    "balance": "debit"
+  },
+  "receivables_joint_ventures_current": {
+    "balance": "debit"
+  },
+  "receivables_trade_notes_loans_current": {
+    "balance": "debit",
+    "children": [
+      "receivables_notes_loans_current",
+      "receivables_trade_current"
+    ]
+  },
+  "receivables_notes_loans_current": {
+    "balance": "debit",
+    "children": [
+      "receivables_notes_current",
+      "receivables_loans_current"
+    ]
+  },
+  "receivables_trade_current": {
+    "balance": "debit"
+  },
+  "derivatives_hedges_current": {
+    "balance": "debit",
+    "children": [
+      "hedging_assets_current",
+      "derivative_assets_current",
+      "energy_marketing_contracts_assets_current",
+      "commodity_contract_asset_current"
+    ]
+  },
+  "hedging_assets_current": {
+    "balance": "debit"
+  },
+  "derivative_assets_current": {
+    "balance": "debit"
+  },
+  "energy_marketing_contracts_assets_current": {
+    "balance": "debit"
+  },
+  "commodity_contract_asset_current": {
+    "balance": "debit"
+  },
+  "investments_lease_current": {
+    "balance": "debit",
+    "children": [
+      "investments_lease_direct_financing_current",
+      "investments_lease_sales_type_current"
+    ]
+  },
+  "investments_lease_direct_financing_current": {
+    "balance": "debit",
+    "children": [
+      "investments_lease_direct_financing_current_allowance",
+      "investments_lease_direct_financing_current_preallowance"
+    ]
+  },
+  "investments_lease_direct_financing_current_allowance": {
+    "balance": "credit"
+  },
+  "investments_lease_direct_financing_current_preallowance": {
+    "balance": "debit"
+  },
+  "investments_lease_sales_type_current": {
+    "balance": "debit",
+    "children": [
+      "investments_lease_sales_type_current_preallowance",
+      "investments_lease_sales_type_current_allowance"
+    ]
+  },
+  "investments_lease_sales_type_current_preallowance": {
+    "balance": "debit"
+  },
+  "investments_lease_sales_type_current_allowance": {
+    "balance": "credit"
+  },
+  "intangible_assets_current": {
+    "balance": "debit"
+  },
+  "deferred_tax_assets_current": {
+    "balance": "debit",
+    "children": [
+      "deferred_tax_assets_current_gross",
+      "deferred_tax_liabilities_valuation_allowance_current"
+    ]
+  },
+  "deferred_tax_assets_current_gross": {
+    "balance": "debit"
+  },
+  "deferred_tax_liabilities_valuation_allowance_current": {
+    "balance": "credit"
+  },
+  "costs_excess_billings_uncomplete_contracts_programs_current": {
+    "balance": "debit"
+  },
+  "deposits_assets_current": {
+    "balance": "debit"
+  },
+  "inventory_net_allowances_customer_advances_progress_billings": {
+    "balance": "debit",
+    "children": [
+      "inventory",
+      "progress_payments_net_inventory_longterm_contracts_programs"
+    ]
+  },
+  "inventory": {
+    "balance": "debit",
+    "children": [
+      "inventory_noncurrent",
+      "inventory_current"
+    ]
+  },
+  "inventory_noncurrent": {
+    "balance": "debit",
+    "children": [
+      "inventory_gas_storage_noncurrent",
+      "inventory_other_noncurrent",
+      "inventory_drilling_noncurrent"
+    ]
+  },
+  "inventory_current": {
+    "balance": "debit",
+    "children": [
+      "inventory_parts_components",
+      "inventory_other",
+      "inventory_supplies",
+      "inventory_finished_goods_current",
+      "inventory_workinprocess_raw_materials"
+    ]
+  },
+  "progress_payments_net_inventory_longterm_contracts_programs": {
+    "balance": "credit"
+  }
+}

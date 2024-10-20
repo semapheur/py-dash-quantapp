@@ -20,7 +20,7 @@ dependencies = [
   "cvxpy",
   "dash[celery]",
   "dash-ag-grid",
-  "dash-resizeable-panels",
+  "dash-resizable-panels",
   "dash-tvlwc",
   "dashvis",
   "flask-caching",
