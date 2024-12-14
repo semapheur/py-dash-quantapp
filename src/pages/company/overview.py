@@ -116,7 +116,7 @@ def select_ratios(fundamentals: DataFrame, items: tuple[str, ...]) -> DataFrame 
   if template is None:
     return None
 
-  template.loc[:, "short"].fillna(template["long"], inplace=True)
+  template.loc[:, "short"] = template["short"].fillna(template["long"])
 
   fundamentals = cast(
     DataFrame,
@@ -423,8 +423,9 @@ def update_sankey(sheet: str, date_period: str, slug: str):
     )
 
     if any_visitor.names:
+      context = {"df": df}
       code = compile(expression, "<string>", "eval")
-      return cast(Series, eval(code)).iloc[0]
+      return cast(Series, eval(code, {}, context)).iloc[0]
 
     else:
       return None
@@ -447,6 +448,8 @@ def update_sankey(sheet: str, date_period: str, slug: str):
   table = f"{id}_{currency}"
   columns = get_table_columns("financials.db", [table])[table]
 
+  print(template.head(10))
+
   sankey_columns = columns.intersection(template["item"].tolist())
   column_text = ",".join(sankey_columns)
 
@@ -463,7 +466,7 @@ def update_sankey(sheet: str, date_period: str, slug: str):
   template.loc[:, "links"] = template["links"].apply(
     lambda x: json.loads(x) if x is not None else x
   )
-  template.loc[:, "short"].fillna(template["long"], inplace=True)
+  template.loc[:, "short"] = template["short"].fillna(template["long"])
 
   Nodes = Enum("Node", template["item"].tolist(), start=0)
 

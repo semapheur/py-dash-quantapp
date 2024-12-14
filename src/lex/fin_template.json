@@ -1552,19 +1552,83 @@
       "assets_current": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "cash_cash_equivalents_marketable_securities": {
+          "derivatives_hedges_current": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "cash_cash_equivalents_restricted": {
+          "cumulative_government_assistance_current": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "receivables_current": {
+          "capitalized_contract_cost_current": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "inventory": {
+          "regulatory_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "assets_heldintrust_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "deposits_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "business_combination_contingent_consideration_asset_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "advance_royalties_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "costs_excess_billings_uncomplete_contracts_programs_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "inventory_net_allowances_customer_advances_progress_billings": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "assets_heldforsale_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "deferred_rent_asset_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "advance_inventory_purchases": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "funds_heldforclients": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "prepaid_expense_other_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cash_cash_equivalents_shortterm_investments": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "investments_lease_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "intangible_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "receivables_tax_income_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "deferred_costs_current": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
@@ -1572,621 +1636,1518 @@
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "prepaid_expense_current": {
+          "financial_assets_accrued_interest": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "assets_current_other": {
+          "health_care_trust_fund_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "receivables_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "disposal_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "customer_contract_assets_current": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "restricted_cash_investments_current": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "cash_cash_equivalents_marketable_securities": {
+      "derivatives_hedges_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cumulative_government_assistance_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "capitalized_contract_cost_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "regulatory_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "assets_heldintrust_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deposits_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "business_combination_contingent_consideration_asset_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "advance_royalties_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "costs_excess_billings_uncomplete_contracts_programs_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "inventory_net_allowances_customer_advances_progress_billings": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "assets_heldforsale_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deferred_rent_asset_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "advance_inventory_purchases": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "funds_heldforclients": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "prepaid_expense_other_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cash_cash_equivalents_shortterm_investments": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "investments_lease_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "intangible_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "receivables_tax_income_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deferred_costs_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deferred_tax_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "financial_assets_accrued_interest": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "health_care_trust_fund_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "receivables_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "disposal_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "customer_contract_assets_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "restricted_cash_investments_current": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "assets_noncurrent": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "cash_cash_equivalents": {
+          "lease_assets_operating": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "securities_marketable": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
-          }
-        }
-      },
-      "cash_cash_equivalents": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "securities_marketable": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "cash_cash_equivalents_restricted": {
-        "color": "rgba(0,255,0,0.3)",
-        "links": {
-          "restricted_cash": {
+          "customer_funds": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "restricted_cash_equivalents": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
-          }
-        }
-      },
-      "current_receivables": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
-          "current_trade_receivables": {
+          "receivables_deferred_rent_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "current_nontrade_receivables": {
+          "prepaid_expense_other_assets_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "notes_receivable": {
+          "deferred_costs_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "other_receivables": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
-          }
-        }
-      },
-      "current_trade_receivables": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "current_nontrade_receivables": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "notes_receivable": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "other_receivables": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "inventory": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
-          "finished_goods": {
+          "cumulative_government_assistance_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "parts_components": {
+          "petroleum_property_successful_effort_method": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "work_in_progress_raw_materials": {
+          "restricted_cash_investments_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
-          }
-        }
-      },
-      "finished_goods": {
-        "color": "rgba(0,255,0,0.3)"
-      },
-      "parts_components": {
-        "color": "rgba(0,255,0,0.3)"
-      },
-      "work_in_progress_raw_materials": {
-        "color": "rgba(0,255,0,0.3)"
-      },
-      "current_tax_assets": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "current_prepaid_expenses": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "other_current_assets": {
-        "color": "rgba(0,255,0,1)"
-      },
-      "noncurrent_assets": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
+          },
+          "prepaid_pension_costs": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "goodwill_intangible_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "regulated_entity_other_assets_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "lease_assets_finance": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "capitalized_contract_cost_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "securities_availableforsale_debt_accrued_interest_noncurrent_postallowance": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "disposal_assets_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
           "productive_assets": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "intangible_assets": {
+          "receivables_nontrade_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "goodwill": {
+          "property_plant_equipment_collections_noncapitalized": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "noncurrent_securities": {
+          "customer_contract_assets_noncurrent": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "other_noncurrent_assets": {
+          "costs_excess_billings_uncomplete_contracts_programs_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "business_combination_contingent_asset_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "receivables_other_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "advance_royalties_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "inventory_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "estimated_insurance_recoveries": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "petroleum_property_full_cost_method": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "derivatives_hedges_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "deposit_assets_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "investments_lease_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "inventory_real_estate": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "deferred_tax_assets_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "financial_assets_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "investments_lease_leveraged": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "assets_heldintrust_noncurrent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "investment_qualified_affordable_housing_project": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           }
         }
+      },
+      "lease_assets_operating": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "customer_funds": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "receivables_deferred_rent_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "prepaid_expense_other_assets_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deferred_costs_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cumulative_government_assistance_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "petroleum_property_successful_effort_method": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "restricted_cash_investments_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "prepaid_pension_costs": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "goodwill_intangible_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "regulated_entity_other_assets_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "lease_assets_finance": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "capitalized_contract_cost_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "securities_availableforsale_debt_accrued_interest_noncurrent_postallowance": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "disposal_assets_noncurrent": {
+        "color": "rgba(0,255,0,1)"
       },
       "productive_assets": {
         "color": "rgba(0,255,0,1)"
       },
-      "intangible_assets": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
-          "finitelived_intangible_assets": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
-          },
-          "infinitelived_intangible_assets": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)"
-          }
-        }
-      },
-      "finitelived_intangible_assets": {
+      "receivables_nontrade_noncurrent": {
         "color": "rgba(0,255,0,1)"
       },
-      "infinitelived_intangible_assets": {
+      "property_plant_equipment_collections_noncapitalized": {
         "color": "rgba(0,255,0,1)"
       },
-      "goodwill": {
+      "customer_contract_assets_noncurrent": {
         "color": "rgba(0,255,0,1)"
       },
-      "noncurrent_securities": {
+      "costs_excess_billings_uncomplete_contracts_programs_noncurrent": {
         "color": "rgba(0,255,0,1)"
       },
-      "other_noncurrent_assets": {
+      "business_combination_contingent_asset_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "receivables_other_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "advance_royalties_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "inventory_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "estimated_insurance_recoveries": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "petroleum_property_full_cost_method": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "derivatives_hedges_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deposit_assets_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "investments_lease_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "inventory_real_estate": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "deferred_tax_assets_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "financial_assets_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "investments_lease_leveraged": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "assets_heldintrust_noncurrent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "investment_qualified_affordable_housing_project": {
         "color": "rgba(0,255,0,1)"
       },
       "liabilities": {
         "color": "rgba(255,0,0,1)",
         "links": {
-          "current_liabilities": {
+          "accrued_environmental_loss_contingencies": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           },
-          "noncurrent_liabilities": {
+          "asset_retirement_obligation": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "policyholder_funds": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "debt_capital_lease_obligations": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_distribution": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "servicing_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "security_deposit_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "federal_funds_purchased": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "deferred_revenue_credits": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "litigation_reserve": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "customer_contract_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_investment_purchase": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "lease_liability_operating": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "beneficial_interest": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_brokes_dealers_clearing_organizations": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "deposit_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "self_insurance_reserve": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "affordable_housing_program_obligation": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "pension_postretirement_postemployment_benefits_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "asset_acquisition_contingent_consideration_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_accrued_expenses": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "government_assistance_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "advance_payments_borrowers_taxes_insurance": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "supplier_finance_program_obligation": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "off_market_lease_unfavorable": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_stock_preferred_redeemed": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "unrecognized_tax_benefits": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_incentive_fee": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "mandatory_redemption_shares": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "separate_accounts_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "customer_advances_deposits": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_stock_common_redeemed": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "other_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "safeguarding_liability_platform_operator_crypto_asset": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "disposal_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "billings_excess_cost": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "qualified_affordable_housing_project_investments_commitment": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "restructuring_reserve": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "trading_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "derivative_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "deferred_compensation_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "business_combination_contingent_consideration_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "deferred_tax_liabilities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "lease_deposit_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "collaterized_financings": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "entertainment_license_agreement_program_material_liability": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "unearned_premiums": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "bank_acceptances_executed_outstanding": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payables_related_parties": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "notes_surplus": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "financial_instruments_sold_notyet_purchased_fairvalue": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "accrued_liabilities_commissions_expense_taxes": {
             "direction": "out",
             "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "current_liabilities": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "accounts_payable": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "current_accrued_liabilities": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "current_debt": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "current_deferred_revenue": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "other_current_liabilities": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          }
-        }
-      },
-      "accounts_payable": {
+      "accrued_environmental_loss_contingencies": {
         "color": "rgba(255,0,0,1)"
       },
-      "current_accrued_liabilities": {
+      "asset_retirement_obligation": {
         "color": "rgba(255,0,0,1)"
       },
-      "current_debt": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "commercial_paper": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "current_longterm_debt": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "other_current_debt": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          }
-        }
-      },
-      "commercial_paper": {
+      "policyholder_funds": {
         "color": "rgba(255,0,0,1)"
       },
-      "current_longterm_debt": {
+      "debt_capital_lease_obligations": {
         "color": "rgba(255,0,0,1)"
       },
-      "other_current_debt": {
+      "payables_distribution": {
         "color": "rgba(255,0,0,1)"
       },
-      "current_deferred_revenue": {
+      "servicing_liability": {
         "color": "rgba(255,0,0,1)"
       },
-      "other_current_liabilities": {
+      "security_deposit_liability": {
         "color": "rgba(255,0,0,1)"
       },
-      "noncurrent_liabilities": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "noncurrent_accrued_liabilities": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "noncurrent_deferred_revenue": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "noncurrent_tax_liabilities": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "noncurrent_longterm_debt": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "other_noncurrent_liabilities": {
-            "direction": "out",
-            "color": "rgba(255,0,0,0.3)"
-          }
-        }
-      },
-      "noncurrent_accrued_liabilities": {
+      "federal_funds_purchased": {
         "color": "rgba(255,0,0,1)"
       },
-      "noncurrent_deferred_revenue": {
+      "deferred_revenue_credits": {
         "color": "rgba(255,0,0,1)"
       },
-      "noncurrent_tax_liabilities": {
-        "direction": "out",
+      "litigation_reserve": {
         "color": "rgba(255,0,0,1)"
       },
-      "noncurrent_longterm_debt": {
+      "customer_contract_liability": {
         "color": "rgba(255,0,0,1)"
       },
-      "other_noncurrent_liabilities": {
+      "payables_investment_purchase": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "liability_future_policy_benefits_unpaid_claims_claims_adjustment_expense": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "lease_liability_operating": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "beneficial_interest": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payables_brokes_dealers_clearing_organizations": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "deposit_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "self_insurance_reserve": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "affordable_housing_program_obligation": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "pension_postretirement_postemployment_benefits_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "asset_acquisition_contingent_consideration_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payables_accrued_expenses": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "government_assistance_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "advance_payments_borrowers_taxes_insurance": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "supplier_finance_program_obligation": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "off_market_lease_unfavorable": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payables_stock_preferred_redeemed": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "unrecognized_tax_benefits": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payables_incentive_fee": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "mandatory_redemption_shares": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "separate_accounts_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "customer_advances_deposits": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payables_stock_common_redeemed": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "other_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "safeguarding_liability_platform_operator_crypto_asset": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "disposal_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "billings_excess_cost": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "qualified_affordable_housing_project_investments_commitment": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "restructuring_reserve": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "trading_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "derivative_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "deferred_compensation_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "business_combination_contingent_consideration_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "deferred_tax_liabilities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "lease_deposit_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "collaterized_financings": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "entertainment_license_agreement_program_material_liability": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "unearned_premiums": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "bank_acceptances_executed_outstanding": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payables_related_parties": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "notes_surplus": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "financial_instruments_sold_notyet_purchased_fairvalue": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "accrued_liabilities_commissions_expense_taxes": {
         "color": "rgba(255,0,0,1)"
       },
       "equity": {
-        "color": "rgba(0,255,0,1)",
+        "color": "rgba(255,0,0,1)",
         "links": {
-          "common_stock_additional_paid_in_capital": {
+          "warrants_rights_outstanding": {
             "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "stock_common": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "accumulated_other_comprehensive_income_loss": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "stock_common_subsidiary": {
+            "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "minority_interest_stock": {
+          "accumulated_distributions_excess_net_income": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "stock_treasury_deferred_employee_stock_ownership_plan": {
             "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "unearned_stock_employee_stockownership_plan_shares": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "stock_treasury": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "stock_preferred": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "receivables_subscription_stock_common_unissued": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "subscription_stock_common": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "equity_deferred_compensation": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "receivables_subscription_stock_preferred_unissued": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "additional_capital_other": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "additional_paidin_capital": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "receivables_shareholders_affiliates_issuance_capital_stock": {
+            "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
           "retained_earnings_accumulated_deficit": {
-            "direction": "",
-            "color": ""
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
           },
-          "accumulated_other_comprehensive_income_loss": {
-            "direction": "",
-            "color": ""
+          "receivables_officers_directors_issuance_capital_stock": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "receivables_stockholders_equity_note_subscription": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "common_stock_additional_paid_in_capital": {
+      "warrants_rights_outstanding": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "stock_common": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "accumulated_other_comprehensive_income_loss": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "stock_common_subsidiary": {
         "color": "rgba(0,255,0,1)"
       },
-      "minority_interest_stock": {
+      "accumulated_distributions_excess_net_income": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "stock_treasury_deferred_employee_stock_ownership_plan": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "unearned_stock_employee_stockownership_plan_shares": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "stock_treasury": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "stock_preferred": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "receivables_subscription_stock_common_unissued": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "subscription_stock_common": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "equity_deferred_compensation": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "receivables_subscription_stock_preferred_unissued": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "additional_capital_other": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "additional_paidin_capital": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "receivables_shareholders_affiliates_issuance_capital_stock": {
         "color": "rgba(0,255,0,1)"
       },
       "retained_earnings_accumulated_deficit": {
-        "color": ""
+        "color": "rgba(255,0,0,1)"
       },
-      "accumulated_other_comprehensive_income_loss": {
-        "color": ""
+      "receivables_officers_directors_issuance_capital_stock": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "receivables_stockholders_equity_note_subscription": {
+        "color": "rgba(0,255,0,1)"
       }
     },
     "cashflow": {
       "cashflow": {
         "color": "",
         "links": {
-          "operating_cashflow": {
+          "cashflow_operating": {
             "direction": "in",
             "color": ""
           },
-          "investing_cashflow": {
+          "cashflow_investing": {
             "direction": "in",
             "color": ""
           },
-          "financing_cashflow": {
+          "cashflow_financing": {
             "direction": "in",
             "color": ""
           }
         }
       },
-      "operating_cashflow": {
-        "color": "",
+      "cashflow_operating": {
+        "color": "rgba(0,255,0,1)",
         "links": {
-          "operating_cash_inflow": {
+          "cashflow_operations_discontinued": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
           },
-          "operating_cash_outflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)"
-          },
-          "capital_expenditure": {
-            "direction": "out",
-            "color": ""
-          },
-          "free_cash_flow_firm": {
-            "direction": "out",
-            "color": ""
-          }
-        }
-      },
-      "capital_expenditure": {
-        "color": ""
-      },
-      "free_cash_flow_firm": {
-        "color": ""
-      },
-      "operating_cash_inflow": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
-          "income_loss_net": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "depreciation_depletion_amortization_accretion": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "sharebased_compensation": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "deferred_tax": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": -1
-          },
-          "change_working_capital": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "other_noncash_income_expense": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          }
-        }
-      },
-      "operating_cash_outflow": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "income_loss_net": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "sharebased_compensation": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "deferred_tax": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": 1
-          },
-          "change_working_capital": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "other_noncash_income_expense": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          }
-        }
-      },
-      "income_loss_net": {
-        "color": ""
-      },
-      "depreciation_depletion_amortization_accretion": {
-        "color": ""
-      },
-      "sharebased_compensation": {
-        "color": ""
-      },
-      "deferred_tax": {
-        "color": ""
-      },
-      "change_working_capital": {
-        "color": ""
-      },
-      "other_noncash_income_expense": {
-        "color": ""
-      },
-      "investing_cashflow": {
-        "color": "",
-        "links": {
-          "investing_cash_inflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,1)"
-          },
-          "investing_cash_outflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,1)"
-          }
-        }
-      },
-      "investing_cash_inflow": {
-        "color": "rgba(0,255,0,1)",
-        "links": {
-          "productive_assets_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "intangible_assets_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "securities_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "acquisition_divestitures_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          },
-          "other_investing_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
-          }
-        }
-      },
-      "investing_cash_outflow": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "productive_assets_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "intangible_assets_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "securities_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "acquisition_divestitures_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "other_investing_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          }
-        }
-      },
-      "productive_assets_cashflow": {
-        "color": ""
-      },
-      "intangible_assets_cashflow": {
-        "color": ""
-      },
-      "securities_cashflow": {
-        "color": ""
-      },
-      "acquisition_divestitures_cashflow": {
-        "color": ""
-      },
-      "other_investing_cashflow": {
-        "color": ""
-      },
-      "financing_cashflow": {
-        "color": "",
-        "links": {
-          "financing_cash_inflow": {
+          "cashflow_operations_continuing": {
             "direction": "in",
             "color": "rgba(0,255,0,0.3)"
-          },
-          "financing_cash_outflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)"
           }
         }
       },
-      "financing_cash_inflow": {
+      "cashflow_operations_discontinued": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_operations_continuing": {
         "color": "rgba(0,255,0,1)",
         "links": {
-          "common_stock_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
+          "income_loss_net_including_minority_interest": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
           },
-          "debt_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
+          "extraordinary_item": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
           },
-          "shortterm_debt_cashflow": {
-            "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
+          "income_loss_net_dicontinued_operations": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
           },
-          "other_financing_cashflow": {
+          "cashflow_operating_noncash_adjustments": {
             "direction": "in",
-            "color": "rgba(0,255,0,0.3)",
-            "sign": 1
+            "color": "rgba(0,255,0,0.3)"
           }
         }
       },
-      "financing_cash_outflow": {
-        "color": "rgba(255,0,0,1)",
-        "links": {
-          "dividends_payment": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": 1
-          },
-          "common_stock_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "debt_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "shortterm_debt_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          },
-          "other_financing_cashflow": {
-            "direction": "in",
-            "color": "rgba(255,0,0,0.3)",
-            "sign": -1
-          }
-        }
-      },
-      "dividends_payment": {
+      "income_loss_net_including_minority_interest": {
         "color": "rgba(255,0,0,1)"
       },
-      "common_stock_cashflow": {
-        "color": ""
+      "extraordinary_item": {
+        "color": "rgba(255,0,0,1)"
       },
-      "debt_cashflow": {
-        "color": ""
+      "income_loss_net_dicontinued_operations": {
+        "color": "rgba(255,0,0,1)"
       },
-      "shortterm_debt_cashflow": {
-        "color": ""
+      "cashflow_operating_noncash_adjustments": {
+        "color": "rgba(0,255,0,1)"
       },
-      "other_financing_cashflow": {
-        "color": ""
+      "cashflow_investing": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cashflow_investing_discontinued_operations": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_investing_continuing_operations": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cashflow_investing_discontinued_operations": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_investing_continuing_operations": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cashflow_other_interest_earning_assets": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_investments": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_investing_other": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "origination_receivables_notes_related_parties": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_hedge_investing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_acquisition_management_contract_rights": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "proceed_advances_construction": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_interest_bearing_bank_deposits": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_deposits_real_estate_acquisitions": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "proceed_contribution_aid_construction": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_leasing_costs_commissions_tenant_improvements": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_real_estate_partnership_investment": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_use_lease_operating": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "allowance_funds_construction_investing_activities": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_central_bank_reserve_stock": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_collateral_securities_lending": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "repayment_receivables_notes_related_parties": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "proceed_disposal_crypto_asset": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_derivative_instrument_investing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "proceed_insurance_settlement_investing_activities": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "proceed_sale_real_estate_wholly_owned_acquired_settlement_loans": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "proceed_lease_financing": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_acquisition_royalty_interests_mining_properties": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_businesses_affiliates": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_investment_restricted_cash_pollution_control_bond": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "repayment_advances_construction": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_contingent_consideration_liability_investing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_life_insurance_policies": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "change_deferred_charges_investing": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_productive_assets": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_mortgage_servicing_rights": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "use_restricted_cash_acquisition_petroleum_property": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_restricted_cash_investments": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "change_lease_acquisition_costs": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "proceed_sale_foreclosed_assets": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_federal_funds_sold_securities_purchased_under_resell_agreements": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_loans_leases": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_removal_cost": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_equity_method_investing_dividends_distributions": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_federal_home_loan_bank_stock": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_nuclear_fuel": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_loans_longterm_related_parties": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "proceed_distribution_restricted_cash_pollution_control_bond": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cashflow_other_interest_earning_assets": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_investments": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_investing_other": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "origination_receivables_notes_related_parties": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_hedge_investing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_acquisition_management_contract_rights": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "proceed_advances_construction": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_interest_bearing_bank_deposits": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_deposits_real_estate_acquisitions": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "proceed_contribution_aid_construction": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_leasing_costs_commissions_tenant_improvements": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_real_estate_partnership_investment": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_use_lease_operating": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "allowance_funds_construction_investing_activities": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_central_bank_reserve_stock": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_collateral_securities_lending": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "repayment_receivables_notes_related_parties": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "proceed_disposal_crypto_asset": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_derivative_instrument_investing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "proceed_insurance_settlement_investing_activities": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "proceed_sale_real_estate_wholly_owned_acquired_settlement_loans": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "proceed_lease_financing": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_acquisition_royalty_interests_mining_properties": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_businesses_affiliates": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_investment_restricted_cash_pollution_control_bond": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "repayment_advances_construction": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_contingent_consideration_liability_investing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_life_insurance_policies": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "change_deferred_charges_investing": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_productive_assets": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_mortgage_servicing_rights": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "use_restricted_cash_acquisition_petroleum_property": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_restricted_cash_investments": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "change_lease_acquisition_costs": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "proceed_sale_foreclosed_assets": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_federal_funds_sold_securities_purchased_under_resell_agreements": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_loans_leases": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_removal_cost": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_equity_method_investing_dividends_distributions": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_federal_home_loan_bank_stock": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_nuclear_fuel": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_loans_longterm_related_parties": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "proceed_distribution_restricted_cash_pollution_control_bond": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_financing": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "cashflow_financing_continuing_operations": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_financing_discontinued_operations": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cashflow_financing_continuing_operations": {
+        "color": "rgba(0,255,0,1)",
+        "links": {
+          "proceed_contributions_partnership": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_equity": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_debt_restructuring_costs": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "proceed_advance_contribution_aid_construction_financing_activity": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "origination_loans_employee_stock_ownership_plans": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "change_deposits": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_distribution_limited_liability_company": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_loans_purchase_common_stock": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_debt_extinguishment_costs": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_contingent_consideration_liability_financing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_minority_shareholders": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_redeemable_minority_interest": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_hedge_financing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_distribution_affiliates": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "proceed_contributions_parent": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_dividends": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_derivative_instrument_financing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_merger_related_costs_financing_activities": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "excess_tax_benefit_sharebased_compensation_financing_activities": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_securities_trust_preferred": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "change_payables_securities_lending": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "proceed_contributions_affiliates": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_advance_construction_financing_activity": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_financing_other": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "cashflow_loans_employee_stock_ownership_plans": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_financing_stock_issuance_cost": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "origination_loans_purchase_common_stock": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_derivative_issuance_costs": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_deposits_mortgage": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "cashflow_debt": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          },
+          "payment_tax_withholding_sharebased_compensation": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "payment_distribution_limited_partner": {
+            "direction": "out",
+            "color": "rgba(255,0,0,0.3)"
+          },
+          "change_advance_payments_borrowers_taxes_insurance": {
+            "direction": "in",
+            "color": "rgba(0,255,0,0.3)"
+          }
+        }
+      },
+      "cashflow_financing_discontinued_operations": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "proceed_contributions_partnership": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_equity": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_debt_restructuring_costs": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "proceed_advance_contribution_aid_construction_financing_activity": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "origination_loans_employee_stock_ownership_plans": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "change_deposits": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_distribution_limited_liability_company": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_loans_purchase_common_stock": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_debt_extinguishment_costs": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_contingent_consideration_liability_financing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_minority_shareholders": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_redeemable_minority_interest": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_hedge_financing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_distribution_affiliates": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "proceed_contributions_parent": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_dividends": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_derivative_instrument_financing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_merger_related_costs_financing_activities": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "excess_tax_benefit_sharebased_compensation_financing_activities": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_securities_trust_preferred": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "change_payables_securities_lending": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "proceed_contributions_affiliates": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_advance_construction_financing_activity": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_financing_other": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "cashflow_loans_employee_stock_ownership_plans": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_financing_stock_issuance_cost": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "origination_loans_purchase_common_stock": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_derivative_issuance_costs": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_deposits_mortgage": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "cashflow_debt": {
+        "color": "rgba(0,255,0,1)"
+      },
+      "payment_tax_withholding_sharebased_compensation": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "payment_distribution_limited_partner": {
+        "color": "rgba(255,0,0,1)"
+      },
+      "change_advance_payments_borrowers_taxes_insurance": {
+        "color": "rgba(0,255,0,1)"
       }
     }
   },

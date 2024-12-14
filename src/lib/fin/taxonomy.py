@@ -41,10 +41,25 @@ class AggregateItems(ast.NodeVisitor):
     self.generic_visit(node)
 
 
+class Item(TypedDict, total=False):
+  balance: Literal["debit", "credit"]
+  children: list[str]
+
+
 class Template(TypedDict):
   income: dict[str, int]
   balance: dict[str, int]
   cashflow: dict[str, int]
+
+
+class SankeyLink(TypedDict):
+  direction: Literal["in", "out"]
+  color: str
+
+
+class SankeyNode(TypedDict, total=False):
+  color: str
+  links: Optional[dict[str, SankeyLink]]
 
 
 class TaxonomyLabel(TypedDict, total=False):
@@ -391,17 +406,15 @@ def flatten_hierarchy(nested_dict, level=1, flattened=None):
   return flattened
 
 
-def sankey_hierarchy(root: str):
-  class Item(TypedDict, total=False):
-    balance: Literal["debit", "credit"]
-    children: list[str]
-
+def sankey_hierarchy(root: str, depth: int) -> dict[str, Item]:
   result: dict[str, Item] = {}
 
   def query(x: str | list[str]):
     item_where = f"= '{x}'" if isinstance(x, str) else f"IN {str(tuple(x))}"
     return f"""
-      SELECT item, balance, json_extract(calculation, '$.any[0]') AS child FROM items 
+      SELECT item, balance, 
+        COALESCE(json_extract(calculation, '$.any[0]'), json_extract(calculation, '$.all[0]')) AS child 
+      FROM items 
       WHERE item {item_where}
     """
 
@@ -428,17 +441,17 @@ def sankey_hierarchy(root: str):
     for child in df["child"]:
       build_hierarchy(child, current_level - 1)
 
-  build_hierarchy(root, 3)
+  build_hierarchy(root, depth)
 
   return result
 
 
-def sankey_graph_dict(root: str) -> dict:
-  items = sankey_hierarchy(root)
+def sankey_graph_dict(root: str, depth: int) -> dict:
+  items = sankey_hierarchy(root, depth)
 
   def build_hierarchy(current_item: str):
     balance = items[current_item]["balance"]
-    node = {
+    node: SankeyNode = {
       "color": "rgba(0,255,0,1)" if balance == "debit" else "rgba(255,0,0,1)",
     }
     children = items.get(current_item, {}).get("children", [])
@@ -475,6 +488,43 @@ def sankey_graph_dict(root: str) -> dict:
     return graph
 
   return build_graph(root)
+
+
+def sankey_balance(depth: int) -> dict:
+  sankey = {
+    "assets": {
+      "color": "rgba(0,0,255,1)",
+      "links": {
+        "assets_current": {"direction": "in", "color": "rgba(0,255,0,0.3)"},
+        "assets_noncurrent": {"direction": "in", "color": "rgba(0,255,0,0.3)"},
+        "liabilities": {"direction": "out", "color": "rgba(255,0,0,0.3)"},
+        "equity": {"direction": "out", "color": "rgba(0,255,0,0.3)"},
+      },
+    }
+  }
+
+  for item in sankey["assets"]["links"]:
+    sankey |= sankey_graph_dict(item, depth)
+
+  return sankey
+
+
+def sankey_cashflow(depth: int) -> dict:
+  sankey = {
+    "cashflow": {
+      "color": "",
+      "links": {
+        "cashflow_operating": {"direction": "in", "color": ""},
+        "cashflow_investing": {"direction": "in", "color": ""},
+        "cashflow_financing": {"direction": "in", "color": ""},
+      },
+    }
+  }
+
+  for item in sankey["cashflow"]["links"]:
+    sankey |= sankey_graph_dict(item, depth)
+
+  return sankey
 
 
 def load_taxonomy(
