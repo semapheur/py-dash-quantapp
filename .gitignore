@@ -2,7 +2,7 @@
 .env
 
 # logs
-/logs
+src/logs
 
 # data
 src/data/*.db
@@ -10,7 +10,7 @@ src/data/*.csv
 
 # json assets
 /assets/**/*.json
-/assets/docs
+src/assets/docs
 
 # caches
 **/__pycache__/

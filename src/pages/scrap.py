@@ -29,6 +29,7 @@ from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
 from components.modal import OpenCloseModalAIO
 
+from lib.const import ASSETS_DIR
 from lib.db.lite import fetch_sqlite
 from lib.fin.models import (
   FinStatement,
@@ -500,7 +501,7 @@ def update_dropdown(ticker: str):
   if not ticker:
     return no_update
 
-  docs = Stock(*ticker.split("|")).documents()
+  docs = Stock(*ticker.split("_")).documents()
   docs.rename(columns={"doc_id": "value"}, inplace=True)
   docs["label"] = (
     docs["date"] + " - " + docs["doc_type"] + " (" + docs["language"] + ")"
@@ -519,10 +520,17 @@ def update_object(doc_id: str):
   if not doc_id:
     return no_update
 
-  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
-  if not pdf_path.exists():
-    url = doc_url(doc_id)
-    download_file(url, pdf_path)
+  pdf_path = ASSETS_DIR / f"docs/{doc_id}.pdf"
+  url = doc_url(doc_id)
+  print(url)
+
+  try:
+    if not pdf_path.exists():
+      download_file(url, pdf_path)
+
+  except Exception as e:
+    print(e)
+    return url
 
   return str(pdf_path)
 
@@ -946,7 +954,7 @@ def update_input(ticker: str):
   if not ticker:
     return no_update
 
-  security_id = ticker.split("|")[0]
+  security_id = ticker.split("|")[0].split("_")[0]
   query = "SELECT company_id FROM stock WHERE security_id = :security_id"
   company_id = fetch_sqlite("ticker.db", query, {"security_id": security_id})[0][0]
 

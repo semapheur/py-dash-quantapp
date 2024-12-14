@@ -1,6 +1,7 @@
 from pathlib import Path
 
 WORK_DIR = Path(__file__).resolve().parent.parent
+ASSETS_DIR = WORK_DIR / "assets"
 DB_DIR = WORK_DIR / "data"
 LOG_DIR = WORK_DIR / "logs"
 
