@@ -14,7 +14,7 @@ from pandera.typing import DataFrame, Series
 from parsel import Selector
 
 from lib.db.lite import insert_sqlite, read_sqlite
-from lib.utils import download_file
+from lib.scrap import download_file
 
 NAMESPACE = {
   "link": "http://www.xbrl.org/2003/linkbase",

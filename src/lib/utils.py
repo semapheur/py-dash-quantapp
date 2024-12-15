@@ -6,12 +6,9 @@ import re
 from pathlib import Path
 from typing import cast, Literal, Optional, TypeAlias
 
-import httpx
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
-from tqdm import tqdm
-from lib.const import HEADERS
 
 
 def int_parser(value):
@@ -209,22 +206,6 @@ def month_end(year: int, month: int, unleap=True) -> int:
     return 28
 
   return calendar.monthrange(year, month)[1]
-
-
-def download_file(url: str, file_path: str | Path):
-  with open(file_path, "wb") as file:
-    with httpx.stream("GET", url=url, headers=HEADERS) as response:
-      total = int(response.headers.get("content-length", 0))
-      if response.status_code != 200:
-        print(response.headers)
-        raise Exception("Download failed!")
-
-      with tqdm(total=total, unit_scale=True, unit_divisor=1024, unit="B") as progress:
-        bytes_downloaded = response.num_bytes_downloaded
-        for chunk in response.iter_bytes():
-          file.write(chunk)
-          progress.update(response.num_bytes_downloaded - bytes_downloaded)
-          bytes_downloaded = response.num_bytes_downloaded
 
 
 def validate_currency(code: str) -> bool:

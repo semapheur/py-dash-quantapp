@@ -1,4 +1,6 @@
 import asyncio
+from io import BytesIO
+from pathlib import Path
 import random
 from typing import cast, Literal
 
@@ -6,24 +8,25 @@ import httpx
 import numpy as np
 from parsel import Selector
 import requests
+from tqdm import tqdm
 
 from lib.const import HEADERS
 
 
 def get_chrome_versions(
-  platform: Literal['android', 'chromeos', 'linux', 'mac', 'win'], number=10
+  platform: Literal["android", "chromeos", "linux", "mac", "win"], number=10
 ) -> list[str]:
-  url = f'https://versionhistory.googleapis.com/v1/chrome/platforms/{platform}/channels/stable/versions'
+  url = f"https://versionhistory.googleapis.com/v1/chrome/platforms/{platform}/channels/stable/versions"
   with httpx.Client() as client:
     response = client.get(url, headers=HEADERS)
     parse = response.json()
 
-  number = min(number, len(parse['versions']))
-  return [version['version'] for version in parse['versions'][:number]]
+  number = min(number, len(parse["versions"]))
+  return [version["version"] for version in parse["versions"][:number]]
 
 
 def get_firefox_versions(number=10) -> list[str]:
-  url = 'https://product-details.mozilla.org/1.0/firefox_history_major_releases.json'
+  url = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
   with httpx.Client() as client:
     response = client.get(url, headers=HEADERS)
     parse = response.json()
@@ -34,14 +37,14 @@ def get_firefox_versions(number=10) -> list[str]:
 
 def get_opera_versions(number=10) -> list[str]:
   def version_key(s):
-    return [int(n) for n in s.split('.')]
+    return [int(n) for n in s.split(".")]
 
-  url = 'https://get.opera.com/pub/opera/desktop/'
+  url = "https://get.opera.com/pub/opera/desktop/"
   with httpx.Client() as client:
     response = client.get(url, headers=HEADERS)
     dom = Selector(response.text)
 
-  versions = dom.xpath('//a[@href]/@href').getall()[1:]
+  versions = dom.xpath("//a[@href]/@href").getall()[1:]
   versions = [version[:-1] for version in versions]
   versions = sorted(versions, key=version_key, reverse=True)
 
@@ -52,22 +55,22 @@ def get_opera_versions(number=10) -> list[str]:
 def generate_user_agents(num_agents=10):
   def random_safari_version() -> str:
     safari_versions = {
-      '16': (0, 6),
-      '17': (0, 5),
+      "16": (0, 6),
+      "17": (0, 5),
     }
     major = random.choice(list(safari_versions.keys()))
     minor = random.randint(*safari_versions[major])
 
-    return f'{major}.{minor}'
+    return f"{major}.{minor}"
 
-  browsers = ['Chrome', 'Firefox', 'Safari', 'Opera']
+  browsers = ["Chrome", "Firefox", "Safari", "Opera"]
   operating_systems = [
-    'Windows NT 10.0',
-    'Macintosh; Intel Mac OS X 10_15_7',
-    'X11; Linux x86_64',
+    "Windows NT 10.0",
+    "Macintosh; Intel Mac OS X 10_15_7",
+    "X11; Linux x86_64",
   ]
 
-  chrome_versions = get_chrome_versions('win', 10)
+  chrome_versions = get_chrome_versions("win", 10)
   firefox_versions = get_firefox_versions(10)
   opera_versions = get_opera_versions(10)
 
@@ -77,19 +80,19 @@ def generate_user_agents(num_agents=10):
     browser = random.choice(browsers)
     os = random.choice(operating_systems)
 
-    if browser == 'Chrome':
+    if browser == "Chrome":
       chrome = random.choice(chrome_versions)
-      user_agent = f'Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome} Safari/537.36'
-    elif browser == 'Firefox':
+      user_agent = f"Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome} Safari/537.36"
+    elif browser == "Firefox":
       firefox = random.choice(firefox_versions)
-      user_agent = f'Mozilla/5.0 ({os}; rv:{firefox}) Gecko/20100101 Firefox/{firefox}'
-    elif browser == 'Safari':
+      user_agent = f"Mozilla/5.0 ({os}; rv:{firefox}) Gecko/20100101 Firefox/{firefox}"
+    elif browser == "Safari":
       safari = random_safari_version()
-      user_agent = f'Mozilla/5.0 ({os}) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{safari} Safari/605.1.15'
-    elif browser == 'Opera':
+      user_agent = f"Mozilla/5.0 ({os}) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{safari} Safari/605.1.15"
+    elif browser == "Opera":
       opera = random.choice(opera_versions)
       chrome = random.choice(chrome_versions)
-      user_agent = f'Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome} Safari/537.36 OPR/{opera}'
+      user_agent = f"Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome} Safari/537.36 OPR/{opera}"
 
     user_agents.add(user_agent)
 
@@ -97,7 +100,7 @@ def generate_user_agents(num_agents=10):
 
 
 def free_proxy_list() -> list[str]:
-  url = 'https://free-proxy-list.net/#'
+  url = "https://free-proxy-list.net/#"
 
   with httpx.Client() as client:
     response = client.get(url)
@@ -108,35 +111,35 @@ def free_proxy_list() -> list[str]:
   if proxies is None:
     return []
 
-  proxies = proxies.replace('\n', '')
-  proxy_list = proxies.split('\n')[3:]
+  proxies = proxies.replace("\n", "")
+  proxy_list = proxies.split("\n")[3:]
   return list(filter(None, proxy_list))
 
 
 def proxylist_geonode(limit: int = 500) -> list[str]:
-  url = 'https://proxylist.geonode.com/api/proxy-list'
+  url = "https://proxylist.geonode.com/api/proxy-list"
   params = {
-    'limit': str(limit),
-    'page': '1',
-    'sort_by': 'lastChecked',
-    'sort_type': 'desc',
+    "limit": str(limit),
+    "page": "1",
+    "sort_by": "lastChecked",
+    "sort_type": "desc",
   }
   with requests.Session() as client:
     rs = client.get(url, params=params, headers=HEADERS)
     parse = rs.json()
 
-  proxies = [''] * limit
-  for i, proxy in enumerate(parse['data']):
-    proxies[i] = proxy['ip']
+  proxies = [""] * limit
+  for i, proxy in enumerate(parse["data"]):
+    proxies[i] = proxy["ip"]
 
   return proxies
 
 
-async def check_proxies(proxies: list[str]) -> list[str]:
-  url = 'https://httpbin.org/ip'  # 'https://ipinfo.io/json'
+async def check_proxies(proxies: list[str]) -> list[bool]:
+  url = "https://httpbin.org/ip"  # 'https://ipinfo.io/json'
 
   async def fetch(proxy: str) -> bool:
-    proxies = {'http://': f'http://{proxy}', 'https://': f'https://{proxy}'}
+    proxies = {"http://": f"http://{proxy}", "https://": f"https://{proxy}"}
     client = httpx.AsyncClient(proxies=proxies)
 
     try:
@@ -152,3 +155,28 @@ async def check_proxies(proxies: list[str]) -> list[str]:
 
   result = np.array(proxies)[np.array(result)]
   return result
+
+
+def download_file(url: str, file_path: str | Path):
+  with open(file_path, "wb") as file:
+    with httpx.stream("GET", url=url, headers=HEADERS) as response:
+      total = int(response.headers.get("content-length", 0))
+      if response.status_code != 200:
+        print(response.headers)
+        raise Exception("Download failed!")
+
+      with tqdm(total=total, unit_scale=True, unit_divisor=1024, unit="B") as progress:
+        bytes_downloaded = response.num_bytes_downloaded
+        for chunk in response.iter_bytes():
+          file.write(chunk)
+          progress.update(response.num_bytes_downloaded - bytes_downloaded)
+          bytes_downloaded = response.num_bytes_downloaded
+
+
+async def download_file_memory(url: str) -> BytesIO:
+  async with httpx.AsyncClient() as client:
+    response = await client.get(url)
+    if response.status_code == 200:
+      return BytesIO(response.content)
+    else:
+      raise Exception(f"Failed to download PDF. Status code: {response.status_code}")

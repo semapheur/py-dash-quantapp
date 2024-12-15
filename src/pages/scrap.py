@@ -1,3 +1,4 @@
+import asyncio
 import base64
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
@@ -27,9 +28,9 @@ import pdfplumber
 
 from components.ticker_select import TickerSelectAIO
 from components.input import InputAIO
+from components.input_button import InputButtonAIO
 from components.modal import OpenCloseModalAIO
 
-from lib.const import ASSETS_DIR
 from lib.db.lite import fetch_sqlite
 from lib.fin.models import (
   FinStatement,
@@ -40,8 +41,8 @@ from lib.fin.models import (
   FiscalPeriod,
 )
 from lib.fin.statement import upsert_statements
-from lib.morningstar.ticker import Stock
-from lib.utils import download_file, split_multiline
+from lib.scrap import download_file_memory
+from lib.utils import split_multiline
 
 register_page(__name__, path="/scrap")
 
@@ -66,26 +67,21 @@ resize_handle_style = "h-full w-0.5 bg-text/50 hover:bg-secondary hover:w-1"
 scrap_controls_sidebar = html.Aside(
   className="relative flex flex-col grow gap-2 p-2",
   children=[
-    TickerSelectAIO(id="scrap"),
-    dcc.Dropdown(id="dropdown:scrap:document", placeholder="Document"),
-    html.Form(
-      className="flex",
-      action="",
-      children=[
-        dcc.Input(
-          id="input:scrap:pages",
-          className=input_style,
-          placeholder="Pages",
-          type="text",
-        ),
-        html.Button(
-          "Extract",
-          id="button:scrap:extract",
-          className=group_button_style,
-          type="button",
-          n_clicks=0,
-        ),
-      ],
+    dcc.Upload(
+      id="upload:scrap:pdf",
+      className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
+      accept="pdf",
+      children=[html.Span(["Upload PDF"])],
+    ),
+    InputButtonAIO(
+      "scrap:url",
+      input_props={"placeholder": "Document URL"},
+      button_props={"children": "Fetch"},
+    ),
+    InputButtonAIO(
+      "scrap:pages",
+      input_props={"placeholder": "Pages"},
+      button_props={"children": "Extract"},
     ),
     html.Form(
       className="flex gap-1",
@@ -485,54 +481,18 @@ layout = html.Main(
 )
 
 
-def doc_url(doc_id: str) -> str:
-  return (
-    f"https://doc.morningstar.com/document/{doc_id}.msdoc/"
-    "?clientid=euretailsite&key=9ab7c1c01e51bcec"
-  )
-
-
-@callback(
-  Output("dropdown:scrap:document", "options"),
-  Input(TickerSelectAIO.aio_id("scrap"), "value"),
-  background=True,
-)
-def update_dropdown(ticker: str):
-  if not ticker:
-    return no_update
-
-  docs = Stock(*ticker.split("_")).documents()
-  docs.rename(columns={"doc_id": "value"}, inplace=True)
-  docs["label"] = (
-    docs["date"] + " - " + docs["doc_type"] + " (" + docs["language"] + ")"
-  )
-
-  return docs[["label", "value"]].to_dict("records")
-
-
 @callback(
   Output("object:scrap:pdf", "data"),
-  Input("dropdown:scrap:document", "value"),
+  Input(InputButtonAIO.button_id("scrap:url"), "n_clicks"),
+  State(InputButtonAIO.input_id("scrap:url"), "value"),
   prevent_initial_call=True,
   background=True,
 )
-def update_object(doc_id: str):
-  if not doc_id:
+def update_object(n_clicks: int, url: str):
+  if not (url and n_clicks):
     return no_update
 
-  pdf_path = ASSETS_DIR / f"docs/{doc_id}.pdf"
-  url = doc_url(doc_id)
-  print(url)
-
-  try:
-    if not pdf_path.exists():
-      download_file(url, pdf_path)
-
-  except Exception as e:
-    print(e)
-    return url
-
-  return str(pdf_path)
+  return url
 
 
 @callback(
@@ -541,8 +501,8 @@ def update_object(doc_id: str):
   Output("table:scrap:preview", "rowData"),
   Output("store:scrap:image-data", "data"),
   Input("button:scrap:preview", "n_clicks"),
-  State("dropdown:scrap:document", "value"),
-  State("input:scrap:pages", "value"),
+  State("object:scrap:pdf", "data"),
+  State(InputButtonAIO.input_id("scrap:pages"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:x0"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:y0"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:x1"), "value"),
@@ -564,7 +524,7 @@ def update_object(doc_id: str):
 )
 def preview_extraction(
   n_clicks: int,
-  doc_id: str,
+  pdf_url: str,
   pages_text: str,
   x0: float,
   y0: float,
@@ -583,7 +543,7 @@ def preview_extraction(
   text_x_tolerance: float,
   text_y_tolerance: float,
 ):
-  if not (n_clicks and doc_id and pages_text):
+  if not (n_clicks and pdf_url and pages_text):
     return no_update
 
   def create_hover_template(
@@ -620,9 +580,10 @@ def preview_extraction(
     "text_y_tolerance": text_y_tolerance or 3,
   }
 
-  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
   pages = [int(p) - 1 for p in pages_text.split(",")]
-  with pdfplumber.open(pdf_path) as pdf:
+
+  pdf_stream = asyncio.run(download_file_memory(pdf_url))
+  with pdfplumber.open(pdf_stream) as pdf:
     page = pdf.pages[pages[0]]
 
     if x0 and y0 and x1 and y1:
@@ -743,7 +704,7 @@ def update_preview(
   Output("download:scrap:image", "data"),
   Input("button:scrap:download-image", "n_clicks"),
   State("dropdown:scrap:document", "value"),
-  State("input:scrap:pages", "value"),
+  State(InputButtonAIO.input_id("scrap:pages"), "value"),
   prevent_initial_call=True,
   background=True,
 )
@@ -770,9 +731,9 @@ def annotate_image(
   Output("table:scrap", "columnDefs"),
   Output("table:scrap", "rowData"),
   Output("notification:scrap:table-error", "displayed"),
-  Input("button:scrap:extract", "n_clicks"),
-  State("dropdown:scrap:document", "value"),
-  State("input:scrap:pages", "value"),
+  Input(InputButtonAIO.button_id("scrap:pages"), "n_clicks"),
+  State("object:scrap:pdf", "data"),
+  State(InputButtonAIO.input_id("scrap:pages"), "value"),
   State("radioitems:scrap:extract-method", "value"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
@@ -797,7 +758,7 @@ def annotate_image(
 )
 def update_table(
   n_clicks: int,
-  doc_id: str,
+  pdf_url: str,
   pages_text: str,
   method: Literal["text", "image"],
   factor: int,
@@ -819,13 +780,8 @@ def update_table(
   text_x_tolerance: float,
   text_y_tolerance: float,
 ):
-  if not (n_clicks and doc_id and pages_text):
+  if not (n_clicks and pdf_url and pages_text):
     return no_update
-
-  def all_empty(row):
-    return all(pd.isna(val) or (val.strip() == "") for val in row)
-
-  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
 
   pages = [int(p) - 1 for p in pages_text.split(",")]
 
@@ -844,7 +800,8 @@ def update_table(
     "text_y_tolerance": text_y_tolerance or 3,
   }
 
-  with pdfplumber.open(pdf_path) as pdf:
+  pdf_stream = asyncio.run(download_file_memory(pdf_url))
+  with pdfplumber.open(pdf_stream) as pdf:
     page = pdf.pages[pages[0]]
 
     if x0 and y0 and x1 and y1:
