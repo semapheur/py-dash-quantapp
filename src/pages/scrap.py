@@ -106,30 +106,42 @@ scrap_controls_sidebar = html.Aside(
         ),
       ],
     ),
-    html.Button(
-      "Add row",
-      id="button:scrap:add-rows",
-      className=button_style,
-      type="button",
-      n_clicks=0,
+    html.Form(
+      className="grid grid-cols-2",
+      children=[
+        html.Button(
+          "Add row",
+          id="button:scrap:add-rows",
+          className=button_style,
+          type="button",
+          n_clicks=0,
+        ),
+        html.Button(
+          "Delete rows",
+          id="button:scrap:delete-rows",
+          className=button_style,
+          type="button",
+          n_clicks=0,
+        ),
+        html.Button(
+          "Delete columns",
+          id=OpenCloseModalAIO.open_id("scrap:delete-columns"),
+          className=button_style,
+          type="button",
+          n_clicks=0,
+        ),
+        html.Button(
+          "Rename columns",
+          id=OpenCloseModalAIO.open_id("scrap:rename-columns"),
+          className=button_style,
+          type="button",
+          n_clicks=0,
+        ),
+      ],
     ),
     html.Button(
-      "Delete rows",
-      id="button:scrap:delete-rows",
-      className=button_style,
-      type="button",
-      n_clicks=0,
-    ),
-    html.Button(
-      "Delete columns",
-      id=OpenCloseModalAIO.open_id("scrap:delete-columns"),
-      className=button_style,
-      type="button",
-      n_clicks=0,
-    ),
-    html.Button(
-      "Rename headers",
-      id=OpenCloseModalAIO.open_id("scrap:rename-headers"),
+      "Record items",
+      id=OpenCloseModalAIO.open_id("scrap:record-items"),
       className=button_style,
       type="button",
       n_clicks=0,
@@ -483,15 +495,75 @@ layout = html.Main(
       ],
     ),
     OpenCloseModalAIO(
-      "scrap:rename-headers",
-      "Rename headers",
+      "scrap:rename-columns",
+      "Rename columns",
       children=[
         html.Div(
           className="flex flex-col",
           children=[
-            html.Form(id="form:scrap:rename-headers", className="flex flex-col gap-1"),
+            html.Form(id="form:scrap:rename-columns", className="flex flex-col gap-1"),
             html.Button(
-              "Update", id="button:scrap:rename-headers", className=button_style
+              "Update", id="button:scrap:rename-columns", className=button_style
+            ),
+          ],
+        )
+      ],
+    ),
+    OpenCloseModalAIO(
+      "scrap:record-items",
+      "Record items",
+      children=[
+        html.Div(
+          className="size-full",
+          children=[
+            html.Button(
+              "Record", id="button:scrap:record-items", className=button_style
+            ),
+            dag.AgGrid(
+              id="table:scrap:items",
+              columnDefs=[
+                {"field": "item", "cellDataType": "text", "editable": False},
+                {"field": "taxonomy", "cellDataType": "text"},
+                {"field": "label_long", "cellDataType": "text"},
+                {"field": "label_short", "cellDataType": "text"},
+                {
+                  "field": "type",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {
+                    "values": [
+                      "monetary",
+                      "fundamental",
+                      "percent",
+                      "per_day",
+                      "per_share",
+                      "personnel",
+                      "ratio",
+                      "shares",
+                    ]
+                  },
+                },
+                {
+                  "field": "balance",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["debit", "credit"]},
+                },
+                {
+                  "field": "aggregate",
+                  "cellDataType": "text",
+                  "cellEdito": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["average", "recalc", "sum", "tail"]},
+                },
+              ],
+              columnSize="autoSize",
+              defaultColDef={"editable": True},
+              dashGridOptions={
+                "rowSelection": "multiple",
+                "undoRedoCellEditing": True,
+                "undoRedoCellEditingLimit": 10,
+              },
+              style={"height": "100%"},
             ),
           ],
         )
@@ -951,7 +1023,7 @@ def delete_columns_form(cols: list[dict]):
 
 
 @callback(
-  Output("form:scrap:rename-headers", "children"),
+  Output("form:scrap:rename-columns", "children"),
   Input("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
@@ -975,7 +1047,7 @@ def update_form(cols: list[dict]):
   Output("table:scrap", "columnDefs", allow_duplicate=True),
   Output("table:scrap", "rowData", allow_duplicate=True),
   Input("button:scrap:delete-columns", "n_clicks"),
-  Input("button:scrap:rename-headers", "n_clicks"),
+  Input("button:scrap:rename-columns", "n_clicks"),
   State("checklist:scrap:columns", "value"),
   State({"type": "input:scrap:headers", "index": ALL}, "value"),
   State("table:scrap", "columnDefs"),
@@ -1002,7 +1074,7 @@ def update_columns(
 
     return new_cols, df.to_dict("records")
 
-  if ctx.triggered_id == "button:scrap:rename-headers":
+  if ctx.triggered_id == "button:scrap:rename-columns":
     col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
     df.rename(columns=col_map, inplace=True)
 
@@ -1038,6 +1110,28 @@ def export_csv(n_clicks: int):
   if n_clicks:
     return True
   return False
+
+
+@callback(
+  Output("table:scrap:items", "rowData"),
+  Input("table:scrap", "rowData"),
+  prevent_initial_call=True,
+)
+def record_items(rows: list[dict]):
+  if not rows:
+    return no_update
+
+  df = pd.DataFrame.from_records(rows)
+  df.loc[:, "item"] = df["item"].apply(lambda x: camel_case(x))
+
+  empty_columns = pd.DataFrame(
+    "",
+    index=df.index,
+    columns=["taxonomy", "label_long", "label_short", "type", "balance", "aggregate"],
+  )
+  row_data = pd.concat([df[["item"]], empty_columns], axis=1)
+
+  return row_data.to_dict("records")
 
 
 @callback(

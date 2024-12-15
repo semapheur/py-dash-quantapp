@@ -19,7 +19,6 @@ import numpy as np
 from ordered_set import OrderedSet
 import openturns as ot
 import pandas as pd
-from pandera.typing import DataFrame
 import plotly.express as px
 from plotly.subplots import make_subplots
 
