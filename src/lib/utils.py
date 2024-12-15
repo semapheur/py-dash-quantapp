@@ -65,22 +65,16 @@ def replace_all(text: str, replacements: dict[str, str]) -> str:
   return text
 
 
-def camel_split(txt: str) -> list[str]:
+def camel_split(text: str) -> list[str]:
   pattern = r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))"
-  return re.findall(pattern, txt)
+  return re.findall(pattern, text)
 
 
-def camel_abbreviate(txt: str, chars: int = 2):
-  words = camel_split(txt)
-  words[0] = words[0].lower()
-  words = [word[:chars] for word in words]
-  return "".join(words)
-
-
-def snake_abbreviate(txt: str, chars: int = 2):
-  words = camel_split(txt)
-  words = [word[:chars].lower() for word in words]
-  return "_".join(words)
+def camel_case(text: str) -> str:
+  text = re.sub(r"[^a-zA-Z0-9 ]", "", text)
+  words = text.split()
+  camel_case_text = words[0].lower() + "".join(word.capitalize() for word in words[1:])
+  return camel_case_text
 
 
 # Rename DataFrame columns

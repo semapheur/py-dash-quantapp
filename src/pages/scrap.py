@@ -10,6 +10,7 @@ from typing import Literal
 from dash import (
   ALL,
   callback,
+  ctx,
   dcc,
   html,
   no_update,
@@ -26,12 +27,11 @@ import numpy as np
 import pandas as pd
 import pdfplumber
 
-from components.ticker_select import TickerSelectAIO
+from components.company_select import CompanySelectAIO
 from components.input import InputAIO
 from components.input_button import InputButtonAIO
 from components.modal import OpenCloseModalAIO
 
-from lib.db.lite import fetch_sqlite
 from lib.fin.models import (
   FinStatement,
   Item,
@@ -42,7 +42,7 @@ from lib.fin.models import (
 )
 from lib.fin.statement import upsert_statements
 from lib.scrap import download_file_memory
-from lib.utils import split_multiline
+from lib.utils import split_multiline, camel_case
 
 register_page(__name__, path="/scrap")
 
@@ -107,13 +107,6 @@ scrap_controls_sidebar = html.Aside(
       ],
     ),
     html.Button(
-      "Delete rows",
-      id="button:scrap:delete-rows",
-      className=button_style,
-      type="button",
-      n_clicks=0,
-    ),
-    html.Button(
       "Add row",
       id="button:scrap:add-rows",
       className=button_style,
@@ -121,8 +114,22 @@ scrap_controls_sidebar = html.Aside(
       n_clicks=0,
     ),
     html.Button(
+      "Delete rows",
+      id="button:scrap:delete-rows",
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Delete columns",
+      id=OpenCloseModalAIO.open_id("scrap:delete-columns"),
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
       "Rename headers",
-      id=OpenCloseModalAIO.open_id("scrap:headers"),
+      id=OpenCloseModalAIO.open_id("scrap:rename-headers"),
       className=button_style,
       type="button",
       n_clicks=0,
@@ -136,20 +143,17 @@ scrap_controls_sidebar = html.Aside(
     ),
     html.Button(
       "Export to JSON",
-      id="button:scrap:export",
+      id="button:scrap:export-json",
       className=button_style,
       type="button",
       n_clicks=0,
     ),
+    CompanySelectAIO(
+      id="scrap:company-id",
+    ),
     html.Form(
       className="grid grid-cols-2 gap-x-1 gap-y-2",
       children=[
-        InputAIO(
-          "scrap:id",
-          "100%",
-          {"className": "col-span-2"},
-          {"type": "text", "placeholder": "Company ID"},
-        ),
         InputAIO(
           "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
         ),
@@ -194,6 +198,7 @@ scrap_controls_sidebar = html.Aside(
       accept="image/*",
       children=[html.Div(["Upload image"])],
     ),
+    dcc.Download(id="download:scrap:json"),
   ],
 )
 
@@ -244,6 +249,12 @@ scrap_options_sidebar = html.Div(
     ),
     html.Form(
       className=scrap_options_style + " before:content-['Strategy']",
+      title=(
+        '"lines": Use the page\'s graphical lines — including the sides of rectangle objects — as the borders of potential table-cells.\n'
+        '"lines_strict": Use the page\'s graphical lines — but not the sides of rectangle objects — as the borders of potential table-cells.\n'
+        '"text": For vertical_strategy: Deduce the (imaginary) lines that connect the left, right, or center of words on the page, and use those lines as the borders of potential table-cells. For horizontal_strategy, the same but using the tops of words.\n'
+        '"explicit": Only use the lines explicitly defined in explicit_vertical_lines / explicit_horizontal_lines.'
+      ),
       children=[
         dcc.Dropdown(
           id="dropdown:scrap:options:vertical-strategy",
@@ -265,6 +276,9 @@ scrap_options_sidebar = html.Div(
         InputAIO(
           "scrap:options:min-words-vertical",
           "100%",
+          form_props={
+            "title": 'When using "vertical_strategy": "text", at least min_words_vertical words must share the same alignment.'
+          },
           input_props={
             "placeholder": "Vertical",
             "type": "number",
@@ -276,6 +290,9 @@ scrap_options_sidebar = html.Div(
         InputAIO(
           "scrap:options:min-words-horizontal",
           "100%",
+          form_props={
+            "title": 'When using "horizontal_strategy": "text", at least min_words_horizontal words must share the same alignment.'
+          },
           input_props={
             "placeholder": "Horizontal",
             "type": "number",
@@ -288,51 +305,85 @@ scrap_options_sidebar = html.Div(
     ),
     html.Form(
       className=scrap_options_style + " before:content-['Snap_tolerance']",
+      title='Parallel lines within snap_tolerance points will be "snapped" to the same horizontal/vertical position',
       children=[
         InputAIO(
           "scrap:options:snap-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
+          input_props={
+            "placeholder": "x",
+            "type": "number",
+            "min": 0,
+            "value": 3,
+          },
         ),
         InputAIO(
           "scrap:options:snap-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
+          input_props={
+            "placeholder": "y",
+            "type": "number",
+            "min": 0,
+            "value": 3,
+          },
         ),
       ],
     ),
     html.Form(
       className=scrap_options_style + " before:content-['Join_tolerance']",
+      title="Line segments on the same infinite line, and whose ends are within join_tolerance of one another, will be joined into a single line segment.",
       children=[
         InputAIO(
           "scrap:options:join-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
+          input_props={
+            "placeholder": "x",
+            "type": "number",
+            "min": 0,
+            "value": 3,
+          },
         ),
         InputAIO(
           "scrap:options:join-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
+          input_props={
+            "placeholder": "y",
+            "type": "number",
+            "min": 0,
+            "value": 3,
+          },
         ),
       ],
     ),
     html.Form(
       className=scrap_options_style + " before:content-['Intersection_tolerance']",
+      title="When combining edges into cells, orthogonal edges must be within intersection_tolerance points to be considered intersecting",
       children=[
         InputAIO(
           "scrap:options:intersection-x-tolerance",
           "100%",
-          input_props={"placeholder": "x", "type": "number", "min": 0, "value": 3},
+          input_props={
+            "placeholder": "x",
+            "type": "number",
+            "min": 0,
+            "value": 3,
+          },
         ),
         InputAIO(
           "scrap:options:intersection-y-tolerance",
           "100%",
-          input_props={"placeholder": "y", "type": "number", "min": 0, "value": 3},
+          input_props={
+            "placeholder": "y",
+            "type": "number",
+            "min": 0,
+            "value": 3,
+          },
         ),
       ],
     ),
     html.Form(
       className=scrap_options_style + " before:content-['Text_tolerance']",
+      title="These text_-prefixed settings also apply to the table-identification algorithm when the text strategy is used. I.e., when that algorithm searches for words, it will expect the individual letters in each word to be no more than text_x_tolerance/text_y_tolerance points apart.",
       children=[
         InputAIO(
           "scrap:options:text-x-tolerance",
@@ -406,6 +457,7 @@ layout = html.Main(
               columnSize="autoSize",
               defaultColDef={"editable": True},
               dashGridOptions={
+                "rowSelection": "multiple",
                 "undoRedoCellEditing": True,
                 "undoRedoCellEditingLimit": 10,
               },
@@ -416,15 +468,30 @@ layout = html.Main(
       ],
     ),
     OpenCloseModalAIO(
-      "scrap:headers",
+      "scrap:delete-columns",
+      "Delete columns",
+      children=[
+        html.Div(
+          className="flex flex-col",
+          children=[
+            html.Form(id="form:scrap:columns", className="flex flex-col gap-1"),
+            html.Button(
+              "Delete", id="button:scrap:delete-columns", className=button_style
+            ),
+          ],
+        )
+      ],
+    ),
+    OpenCloseModalAIO(
+      "scrap:rename-headers",
       "Rename headers",
       children=[
         html.Div(
           className="flex flex-col",
           children=[
-            html.Form(id="form:scrap:headers", className="flex flex-col gap-1"),
+            html.Form(id="form:scrap:rename-headers", className="flex flex-col gap-1"),
             html.Button(
-              "Update", id="button:scrap:headers:update", className=button_style
+              "Update", id="button:scrap:rename-headers", className=button_style
             ),
           ],
         )
@@ -455,7 +522,7 @@ layout = html.Main(
               columnSize="autoSize",
               defaultColDef={"editable": True},
               dashGridOptions={
-                "rowSelection": "single",
+                "rowSelection": "multiple",
                 "undoRedoCellEditing": True,
                 "undoRedoCellEditingLimit": 10,
               },
@@ -587,7 +654,7 @@ def preview_extraction(
     page = pdf.pages[pages[0]]
 
     if x0 and y0 and x1 and y1:
-      page = page.crop((x0, y0, x1, y1))
+      page = page.crop((x0, y0, x1, y1), strict=True)
 
     debug = page.debug_tablefinder(settings)
 
@@ -635,14 +702,24 @@ def preview_extraction(
   fig.update_layout(margin=dict(b=10, t=10))
   fig.update_xaxes(showticklabels=False).update_yaxes(showticklabels=False)
 
-  columnDefs = [
+  column_defs = [
     {
       "field": c,
       "cellDataType": "text" if df.dtypes.loc[c] in ("object", "bool") else "number",
+      "valueFormatter": {
+        "function": "d3.format(',.2f')(params.value)"
+        if df.dtypes.loc[c] == "float"
+        else None
+      },
       "filter": True,
     }
     for c in df.columns
   ]
+  column_defs[0].update(
+    {
+      "checkboxSelection": True,
+    }
+  )
 
   image_data = {
     "pixel_scale": pixel_scale,
@@ -650,7 +727,7 @@ def preview_extraction(
     "offset_y": offset_y,
   }
 
-  return fig, columnDefs, df.to_dict("records"), image_data
+  return fig, column_defs, df.to_dict("records"), image_data
 
 
 @callback(
@@ -703,20 +780,20 @@ def update_preview(
 @callback(
   Output("download:scrap:image", "data"),
   Input("button:scrap:download-image", "n_clicks"),
-  State("dropdown:scrap:document", "value"),
+  State(InputButtonAIO.input_id("scrap:url"), "value"),
   State(InputButtonAIO.input_id("scrap:pages"), "value"),
   prevent_initial_call=True,
   background=True,
 )
 def annotate_image(
   n_clicks: int,
-  doc_id: str,
+  scrap_url: str,
   pages_text: str,
 ):
-  if not (n_clicks and doc_id and pages_text):
+  if not (n_clicks and scrap_url and pages_text):
     return no_update
 
-  pdf_path = Path(f"assets/docs/{doc_id}.pdf")
+  pdf_path = Path(f"assets/docs/{scrap_url}.pdf")
 
   pages = [int(p) - 1 for p in pages_text.split(",")]
   with pdfplumber.open(pdf_path) as pdf:
@@ -820,19 +897,19 @@ def update_table(
   diff = ["period", "factor", "unit"]
   df = df[diff + list(df.columns.difference(diff))]
 
-  columnDefs: list[dict[str, str | bool | dict]] = [
+  column_defs: list[dict[str, str | bool | dict]] = [
     {"field": str(c)} for c in df.columns
   ]
-  columnDefs[0].update(
+  column_defs[0].update(
     {
       "checkboxSelection": True,
       "cellEditor": "agSelectCellEditor",
       "cellEditorParams": {"values": ["instant", "duration"]},
     }
   )
-  columnDefs[1].update({"type": "numericColumn"})
+  column_defs[1].update({"type": "numericColumn"})
 
-  return columnDefs, df.to_dict("records"), False
+  return column_defs, df.to_dict("records"), False
 
 
 @callback(
@@ -858,7 +935,23 @@ def add_rows(_: int, cols: list[dict]):
 
 
 @callback(
-  Output("form:scrap:headers", "children"),
+  Output("form:scrap:columns", "children"),
+  Input("table:scrap", "columnDefs"),
+  prevent_initial_call=True,
+)
+def delete_columns_form(cols: list[dict]):
+  if not cols:
+    return no_update
+
+  return dcc.Checklist(
+    id="checklist:scrap:columns",
+    options=[col["field"] for col in cols[3:]],
+    value=[],
+  )
+
+
+@callback(
+  Output("form:scrap:rename-headers", "children"),
   Input("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
@@ -881,88 +974,44 @@ def update_form(cols: list[dict]):
 @callback(
   Output("table:scrap", "columnDefs", allow_duplicate=True),
   Output("table:scrap", "rowData", allow_duplicate=True),
-  Input("button:scrap:headers:update", "n_clicks"),
+  Input("button:scrap:delete-columns", "n_clicks"),
+  Input("button:scrap:rename-headers", "n_clicks"),
+  State("checklist:scrap:columns", "value"),
   State({"type": "input:scrap:headers", "index": ALL}, "value"),
   State("table:scrap", "columnDefs"),
   State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
-def toggle_cols(n: int, new_names: list[str], cols: list[dict], rows: list[dict]):
-  if not n:
+def update_columns(
+  n_delete: int,
+  n_update: int,
+  del_cols: list[str],
+  new_names: list[str],
+  cols: list[dict],
+  rows: list[dict],
+):
+  if not (cols and rows):
     return no_update
 
   df = pd.DataFrame.from_records(rows)
   df = df[[col["field"] for col in cols]]
 
-  col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
-  df.rename(columns=col_map, inplace=True)
+  if ctx.triggered_id == "button:scrap:delete-columns":
+    new_cols = [col for col in cols if col["field"] not in del_cols]
+    df.drop(columns=del_cols, inplace=True)
 
-  for i, name in enumerate(new_names):
-    cols[i + 3]["field"] = name
+    return new_cols, df.to_dict("records")
 
-  return cols, df.to_dict("records")
+  if ctx.triggered_id == "button:scrap:rename-headers":
+    col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
+    df.rename(columns=col_map, inplace=True)
 
+    for i, name in enumerate(new_names):
+      cols[i + 3]["field"] = name
 
-@callback(
-  Output(InputAIO.aio_id("scrap:id"), "value"),
-  Input(TickerSelectAIO.aio_id("scrap"), "value"),
-)
-def update_input(ticker: str):
-  if not ticker:
-    return no_update
+    return cols, df.to_dict("records")
 
-  security_id = ticker.split("|")[0].split("_")[0]
-  query = "SELECT company_id FROM stock WHERE security_id = :security_id"
-  company_id = fetch_sqlite("ticker.db", query, {"security_id": security_id})[0][0]
-
-  if company_id is None:
-    return no_update
-
-  return company_id
-
-
-@callback(
-  Output(InputAIO.aio_id("scrap:date"), "value"),
-  Input("dropdown:scrap:document", "value"),
-  State("dropdown:scrap:document", "options"),
-)
-def update_document_dropdown(doc: str, options: list[dict[str, str]]):
-  if not doc:
-    return no_update
-
-  label = [x["label"] for x in options if x["value"] == doc][0]
-
-  pattern = r"\d{4}-\d{2}-\d{2}"
-  match = re.search(pattern, label)
-
-  if not match:
-    return ""
-
-  return match.group()
-
-
-@callback(
-  Output("dropdown:scrap:scope", "value"),
-  Output("dropdown:scrap:period", "value"),
-  Input("dropdown:scrap:document", "value"),
-  State("dropdown:scrap:document", "options"),
-)
-def update_scope_dropdown(doc: str, options: list[dict[str, str]]):
-  if not doc:
-    return no_update
-
-  label = [x["label"] for x in options if x["value"] == doc][0]
-
-  pattern = r"(annual|quarterly)"
-  match = re.search(pattern, label, flags=re.I)
-
-  if not match:
-    return "", ""
-
-  scope = match.group().lower()
-  period = "FY" if scope == "annual" else ""
-
-  return (scope, period)
+  return no_update
 
 
 @callback(
@@ -985,18 +1034,18 @@ def validate_fiscal_end(fiscal_end: str) -> bool:
   Output("table:scrap", "exportDataAsCsv"),
   Input("button:scrap:export-csv", "n_clicks"),
 )
-def export_csv(n_clicks):
+def export_csv(n_clicks: int):
   if n_clicks:
     return True
   return False
 
 
 @callback(
-  Output("button:scrap:export", "id"),
-  Input("button:scrap:export", "n_clicks"),
+  Output("download:scrap:json", "data"),
+  Input("button:scrap:export-json", "n_clicks"),
   State("table:scrap", "rowData"),
-  State("dropdown:scrap:document", "value"),
-  State(InputAIO.aio_id("scrap:id"), "value"),
+  State(InputButtonAIO.input_id("scrap:url"), "value"),
+  State(CompanySelectAIO.aio_id("scrap:company-id"), "value"),
   State(InputAIO.aio_id("scrap:date"), "value"),
   State("dropdown:scrap:scope", "value"),
   State("dropdown:scrap:period", "value"),
@@ -1038,7 +1087,9 @@ def export(
 
   df = pd.DataFrame.from_records(rows)
   if "item" not in set(df.columns):
-    return "button:scrap:export"
+    return no_update
+
+  df.loc[:, "item"] = df["item"].apply(lambda x: camel_case(x))
 
   dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
   df.loc[:, dates] = df[dates].replace(r"[^\d.]", "", regex=True).astype(float)
@@ -1058,18 +1109,19 @@ def export(
       for d in dates
     ]
 
-  records = [
-    FinStatement(
-      url=url,
-      date=dt.strptime(date, "%Y-%m-%d").date(),
-      scope=scope,
-      fiscal_period=period,
-      fiscal_end=fiscal_end,
-      currency=currencies,
-      data=data,
-    )
-  ]
+  record = FinStatement(
+    url=url,
+    date=dt.strptime(date, "%Y-%m-%d").date(),
+    scope=scope,
+    fiscal_period=period,
+    fiscal_end=fiscal_end,
+    currency=currencies,
+    data=data,
+  )
 
-  upsert_statements("statements.db", id, records)
+  # upsert_statements("statements.db", id, records)
 
-  return "button:scrap:export"
+  return {
+    "content": record.model_dump_json(exclude_unset=True, indent=2),
+    "filename": f"{id}_{date}_{period}.json",
+  }

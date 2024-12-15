@@ -36,7 +36,7 @@ class InputAIO(html.Form):
     form_style = {"width": width or "auto"}
 
     super().__init__(
-      className=f"peer relative {form_props["className"]}".strip(),
+      className=f"peer relative {form_props.pop("className")}".strip(),
       style=form_style,
       children=[
         dcc.Input(id=self.__class__.aio_id(id), **input_props),
@@ -46,4 +46,5 @@ class InputAIO(html.Form):
           children=[input_props["placeholder"]],
         ),
       ],
+      **form_props,
     )

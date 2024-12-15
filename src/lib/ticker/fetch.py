@@ -94,20 +94,20 @@ def get_cik(id: str) -> int | None:
 
 def search_companies(
   search: str,
+  stored: bool = True,
   limit: int = 10,
 ) -> DataFrame[TickerOptions]:
-  query = """ 
+  query = f""" 
     SELECT
       name || " (" || group_concat(ticker || ":" || mic, ", ") || ")" AS label,
       company_id AS value
     FROM (
       SELECT 
-        f.company_id, 
+        {"f" if stored else "c"}.company_id, 
         c.name, 
         t.ticker, 
         t.mic 
-      FROM financials f
-      JOIN company c ON f.company_id = c.company_id 
+      {"FROM financials f JOIN company c ON f.company_id = c.company_id" if stored else "FROM company c"}
       JOIN json_each(c.primary_security) ON 1=1
       JOIN stock t ON json_each.value = t.security_id
     )
