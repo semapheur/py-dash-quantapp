@@ -77,6 +77,13 @@ def camel_case(text: str) -> str:
   return camel_case_text
 
 
+def pascal_case(text: str) -> str:
+  text = re.sub(r"[^a-zA-Z0-9 ]", "", text)
+  words = text.split()
+  pascal_case_text = "".join(word.capitalize() for word in words)
+  return pascal_case_text
+
+
 # Rename DataFrame columns
 class renamer:
   def __init__(self):

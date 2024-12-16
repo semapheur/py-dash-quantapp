@@ -42,7 +42,7 @@ from lib.fin.models import (
 )
 from lib.fin.statement import upsert_statements
 from lib.scrap import download_file_memory
-from lib.utils import split_multiline, camel_case
+from lib.utils import split_multiline, pascal_case
 
 register_page(__name__, path="/scrap")
 
@@ -107,7 +107,7 @@ scrap_controls_sidebar = html.Aside(
       ],
     ),
     html.Form(
-      className="grid grid-cols-2",
+      className="grid grid-cols-2 gap-1",
       children=[
         html.Button(
           "Add row",
@@ -512,12 +512,20 @@ layout = html.Main(
     OpenCloseModalAIO(
       "scrap:record-items",
       "Record items",
+      dialog_props={
+        "style": {
+          "height": "75%",
+          "width": "75%",
+        }
+      },
       children=[
         html.Div(
-          className="size-full",
+          className="size-full grid grid-rows-[auto_1fr] gap-1",
           children=[
             html.Button(
-              "Record", id="button:scrap:record-items", className=button_style
+              "Record",
+              id="button:scrap:record-items",
+              className=f"w-min {button_style}",
             ),
             dag.AgGrid(
               id="table:scrap:items",
@@ -552,7 +560,7 @@ layout = html.Main(
                 {
                   "field": "aggregate",
                   "cellDataType": "text",
-                  "cellEdito": "agSelectCellEditor",
+                  "cellEditor": "agSelectCellEditor",
                   "cellEditorParams": {"values": ["average", "recalc", "sum", "tail"]},
                 },
               ],
@@ -563,7 +571,7 @@ layout = html.Main(
                 "undoRedoCellEditing": True,
                 "undoRedoCellEditingLimit": 10,
               },
-              style={"height": "100%"},
+              style={"height": "100%", "width": "100%", "min-height": "100px"},
             ),
           ],
         )
@@ -959,7 +967,9 @@ def update_table(
     table = page.extract_table(table_settings=settings)
 
   df = pd.DataFrame(table)
+
   df = df.loc[:, (df.notna() & (df != "")).any()]
+  df = df.loc[(df.notna() & (df != "")).any(axis=1), :]
   result = df.apply(split_multiline, axis=1)
   df = pd.concat(result.tolist(), ignore_index=True)
 
@@ -1114,15 +1124,19 @@ def export_csv(n_clicks: int):
 
 @callback(
   Output("table:scrap:items", "rowData"),
-  Input("table:scrap", "rowData"),
+  Input(OpenCloseModalAIO.open_id("scrap:record-items"), "n_clicks"),
+  State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
-def record_items(rows: list[dict]):
+def record_items(n_clicks: int, rows: list[dict]):
   if not rows:
     return no_update
 
   df = pd.DataFrame.from_records(rows)
-  df.loc[:, "item"] = df["item"].apply(lambda x: camel_case(x))
+  if "item" not in set(df.columns):
+    return no_update
+
+  df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
 
   empty_columns = pd.DataFrame(
     "",
@@ -1183,7 +1197,7 @@ def export(
   if "item" not in set(df.columns):
     return no_update
 
-  df.loc[:, "item"] = df["item"].apply(lambda x: camel_case(x))
+  df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
 
   dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
   df.loc[:, dates] = df[dates].replace(r"[^\d.]", "", regex=True).astype(float)
