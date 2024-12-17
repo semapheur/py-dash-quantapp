@@ -417,3 +417,19 @@ def upsert_strings(db_name: str, table: str, column: str, values: list[str]):
 
     cursor.executemany(insert_query, [(s,) for s in values])
     con.commit()
+
+
+def create_fts_table(
+  db_name: str, table: str, columns: list[str], tokenizer: str = "porter"
+):
+  db_path = sqlite_path(db_name)
+
+  query = f"""
+    CREATE VIRTUAL TABLE IF NOT EXISTS {table}
+    USING fts5({",".join(columns)}, tokenize={tokenizer})
+  """
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+    cur.execute(query)
+    con.commit()

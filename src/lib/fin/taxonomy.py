@@ -2,6 +2,7 @@ import ast
 from collections import defaultdict
 from contextlib import closing
 import json
+import re
 import sqlite3
 from typing import cast, Literal, Optional, TypeAlias
 from typing_extensions import TypedDict
@@ -11,7 +12,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 from pydantic import BaseModel, field_validator, model_serializer
 
-from lib.db.lite import get_tables, insert_sqlite, read_sqlite
+from lib.db.lite import get_tables, insert_sqlite, read_sqlite, create_fts_table
 from lib.const import DB_DIR
 
 TaxonomyType: TypeAlias = Literal[
@@ -41,35 +42,9 @@ class AggregateItems(ast.NodeVisitor):
     self.generic_visit(node)
 
 
-class Item(TypedDict, total=False):
-  balance: Literal["debit", "credit"]
-  children: list[str]
-
-
-class Template(TypedDict):
-  income: dict[str, int]
-  balance: dict[str, int]
-  cashflow: dict[str, int]
-
-
-class SankeyLink(TypedDict):
-  direction: Literal["in", "out"]
-  color: str
-
-
-class SankeyNode(TypedDict, total=False):
-  color: str
-  links: Optional[dict[str, SankeyLink]]
-
-
 class TaxonomyLabel(TypedDict, total=False):
   long: str
   short: Optional[str]
-
-
-class TaxonomyCalculationItem(TypedDict):
-  weight: int | float
-  sign: Literal[-1, 1]
 
 
 class TaxonomyCalculation(TypedDict, total=False):
@@ -249,6 +224,25 @@ class Taxonomy(BaseModel):
       if (calc := v.calculation) is not None:
         calc["order"] = result.index(k)
 
+  def remove_duplicate_synonyms(self) -> None:
+    for k, v in self.data.items():
+      if (gaap := v.gaap) is None:
+        continue
+
+      unique_gaap: dict[str, tuple[str, int]] = {}
+
+      for g in gaap:
+        lower_g = g.lower()
+        capitals = len(re.findall(r"[A-Z]", g))
+
+        if lower_g not in unique_gaap:
+          unique_gaap[lower_g] = (g, capitals)
+        else:
+          if capitals > unique_gaap[lower_g][1]:
+            unique_gaap[lower_g] = (g, capitals)
+
+      self.data[k].gaap = [v[0] for v in unique_gaap.values()]
+
   def select_items(self, target_key, target_value: tuple[str, str]) -> set[str]:
     result = {
       k
@@ -406,127 +400,6 @@ def flatten_hierarchy(nested_dict, level=1, flattened=None):
   return flattened
 
 
-def sankey_hierarchy(root: str, depth: int) -> dict[str, Item]:
-  result: dict[str, Item] = {}
-
-  def query(x: str | list[str]):
-    item_where = f"= '{x}'" if isinstance(x, str) else f"IN {str(tuple(x))}"
-    return f"""
-      SELECT item, balance, 
-        COALESCE(json_extract(calculation, '$.any[0]'), json_extract(calculation, '$.all[0]')) AS child 
-      FROM items 
-      WHERE item {item_where}
-    """
-
-  def build_hierarchy(current_item: str, current_level: int):
-    df = read_sqlite("taxonomy.db", query(current_item))
-    if df is None or df.empty:
-      return
-
-    balance = df["balance"].iloc[0]
-    if current_level == 0 or df["child"].iloc[0] is None:
-      result[current_item] = {
-        "balance": balance,
-      }
-      return
-
-    df["child"] = df["child"].apply(extract_items)
-    df = df.explode("child")
-
-    result[current_item] = {
-      "balance": balance,
-      "children": df["child"].tolist(),
-    }
-
-    for child in df["child"]:
-      build_hierarchy(child, current_level - 1)
-
-  build_hierarchy(root, depth)
-
-  return result
-
-
-def sankey_graph_dict(root: str, depth: int) -> dict:
-  items = sankey_hierarchy(root, depth)
-
-  def build_hierarchy(current_item: str):
-    balance = items[current_item]["balance"]
-    node: SankeyNode = {
-      "color": "rgba(0,255,0,1)" if balance == "debit" else "rgba(255,0,0,1)",
-    }
-    children = items.get(current_item, {}).get("children", [])
-    if children:
-      node["links"] = {}
-
-    for child in children:
-      child_balance = items[child]["balance"]
-
-      node["links"][child] = {
-        "direction": "in" if child_balance == "debit" else "out",
-        "color": "rgba(0,255,0,0.3)"
-        if child_balance == "debit"
-        else "rgba(255,0,0,0.3)",
-      }
-
-    return node, children
-
-  def build_graph(item):
-    graph = {}
-    queue = [item]
-    visited = set()
-
-    while queue:
-      current_item = queue.pop(0)
-      if current_item in visited:
-        continue
-
-      visited.add(current_item)
-      node, children = build_hierarchy(current_item)
-      graph[current_item] = node
-      queue.extend(children)
-
-    return graph
-
-  return build_graph(root)
-
-
-def sankey_balance(depth: int) -> dict:
-  sankey = {
-    "assets": {
-      "color": "rgba(0,0,255,1)",
-      "links": {
-        "assets_current": {"direction": "in", "color": "rgba(0,255,0,0.3)"},
-        "assets_noncurrent": {"direction": "in", "color": "rgba(0,255,0,0.3)"},
-        "liabilities": {"direction": "out", "color": "rgba(255,0,0,0.3)"},
-        "equity": {"direction": "out", "color": "rgba(0,255,0,0.3)"},
-      },
-    }
-  }
-
-  for item in sankey["assets"]["links"]:
-    sankey |= sankey_graph_dict(item, depth)
-
-  return sankey
-
-
-def sankey_cashflow(depth: int) -> dict:
-  sankey = {
-    "cashflow": {
-      "color": "",
-      "links": {
-        "cashflow_operating": {"direction": "in", "color": ""},
-        "cashflow_investing": {"direction": "in", "color": ""},
-        "cashflow_financing": {"direction": "in", "color": ""},
-      },
-    }
-  }
-
-  for item in sankey["cashflow"]["links"]:
-    sankey |= sankey_graph_dict(item, depth)
-
-  return sankey
-
-
 def load_taxonomy(
   path: str = "lex/fin_taxonomy.json", filter_: Optional[set[str]] = None
 ) -> Taxonomy:
@@ -540,48 +413,40 @@ def load_taxonomy(
   return taxonomy
 
 
-def load_template(cat: str) -> pd.DataFrame:
-  with open("lex/fin_template.json", "r") as file:
-    template = json.load(file)
-
-  template = template[cat]
-
-  if cat == "statement":
-    data: list = [
-      (sheet, item, level)
-      for sheet, values in template.items()
-      for item, level in values.items()
-    ]
-    cols: tuple = ("sheet", "item", "level")
-
-  elif cat == "fundamentals":
-    data = [(sheet, item) for sheet, values in template.items() for item in values]
-    cols = ("sheet", "item")
-
-  elif cat == "sankey":
-    data = [
-      (sheet, item, entry.get("color", ""), entry.get("links"))
-      for sheet, values in template.items()
-      for item, entry in values.items()
-    ]
-    cols = ("sheet", "item", "color", "links")
-
-  elif cat == "dupont":
-    data = template
-    cols = ("item",)
-
-  return pd.DataFrame(data, columns=cols)
+def search_taxonomy(term: str):
+  query = """
+    SELECT item, type, balance, aggregate, long, short FROM items 
+    WHERE EXISTS (
+      SELECT 1 FROM json_each(items.gaap) WHERE lower(json_each.value) = :term
+    )
+  """
+  return read_sqlite("taxonomy.db", query, {"term": term.lower()})
 
 
-def template_to_sql(db_name: str):
-  for template in ("statement", "fundamentals", "sankey", "dupont"):
-    df = load_template(template)
+def fuzzy_search_taxonomy(term: str):
+  query = """
+    SELECT item, gaap
+    FROM items_fts
+    WHERE gaap MATCH :term
+  """
 
-    if template == "sankey":
-      mask = df["links"].notnull()
-      df.loc[mask, "links"] = df.loc[mask, "links"].apply(lambda x: json.dumps(x))
+  return read_sqlite("taxonomy.db", query, {"term": term.lower()})
 
-    insert_sqlite(df, db_name, template, "replace", False)
+
+def create_taxonomy_fts():
+  db_path = DB_DIR / "taxonomy.db"
+
+  create_fts_table("taxonomy.db", "items_fts", ["item", "gaap"], "unicode61")
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+    cur.execute("""
+      INSERT INTO items_fts (item, gaap)
+      SELECT item, json_each.value AS gaap FROM items 
+      JOIN json_each(gaap) ON 1=1
+      WHERE gaap IS NOT NULL;
+    """)
+    con.commit()
 
 
 def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
@@ -631,23 +496,6 @@ def scraped_items(sort=False) -> set[str]:
     items = set(sorted(items))
 
   return items
-
-
-def fix_balance():
-  query = """
-    SELECT i.item, json_each.value AS gaap, i.balance AS balance, g.balance AS gaap_balance FROM items i
-    JOIN json_each(i.gaap)
-    JOIN (
-      SELECT name, balance, deprecated, MAX(year) as max_year
-      FROM gaap
-      GROUP BY name
-    ) g ON json_each.value = g.name
-    WHERE json_each.value IS NOT NULL 
-      AND g.deprecated IS NULL 
-      AND i.balance != g.balance
-  """
-
-  return read_sqlite("taxonomy.db", query)
 
 
 def backup_taxonomy():

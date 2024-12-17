@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 import io
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypedDict
 
 from dash import (
   ALL,
@@ -41,10 +41,32 @@ from lib.fin.models import (
   FiscalPeriod,
 )
 from lib.fin.statement import upsert_statements
+from lib.fin.taxonomy import search_taxonomy
 from lib.scrap import download_file_memory
 from lib.utils import split_multiline, pascal_case
 
 register_page(__name__, path="/scrap")
+
+
+class ItemTable(TypedDict):
+  action: Literal["create", "update", "none"]
+  gaap: str
+  item: str
+  label_long: str
+  label_short: str
+  type: Literal[
+    "monetary",
+    "fundamental",
+    "percent",
+    "per_day",
+    "per_share",
+    "personnel",
+    "ratio",
+    "shares",
+  ]
+  balance: Literal["debit", "credit"]
+  aggregate: Literal["average", "recalc", "sum", "tail"]
+
 
 main_style = "h-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
@@ -522,18 +544,34 @@ layout = html.Main(
         html.Div(
           className="size-full grid grid-rows-[auto_1fr] gap-1",
           children=[
-            html.Button(
-              "Record",
-              id="button:scrap:record-items",
-              className=f"w-min {button_style}",
+            html.Form(
+              className="flex gap-1",
+              children=[
+                html.Button(
+                  "Search",
+                  id="button:scrap:search-items",
+                  className=button_style,
+                ),
+                html.Button(
+                  "Record",
+                  id="button:scrap:record-items",
+                  className=button_style,
+                ),
+              ],
             ),
             dag.AgGrid(
               id="table:scrap:items",
               columnDefs=[
-                {"field": "item", "cellDataType": "text", "editable": False},
-                {"field": "taxonomy", "cellDataType": "text"},
-                {"field": "label_long", "cellDataType": "text"},
-                {"field": "label_short", "cellDataType": "text"},
+                {
+                  "field": "action",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["create", "update", "none"]},
+                },
+                {"field": "gaap", "cellDataType": "text", "editable": False},
+                {"field": "item", "cellDataType": "text"},
+                {"field": "long", "header": "Label (long)", "cellDataType": "text"},
+                {"field": "short", "header": "Label (short)", "cellDataType": "text"},
                 {
                   "field": "type",
                   "cellDataType": "text",
@@ -1128,7 +1166,7 @@ def export_csv(n_clicks: int):
   State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
-def record_items(n_clicks: int, rows: list[dict]):
+def item_modal(n_clicks: int, rows: list[dict]):
   if not rows:
     return no_update
 
@@ -1146,6 +1184,27 @@ def record_items(n_clicks: int, rows: list[dict]):
   row_data = pd.concat([df[["item"]], empty_columns], axis=1)
 
   return row_data.to_dict("records")
+
+
+@callback(
+  Output("table:scrap:items", "rowData"),
+  Input("button:scrap:search-items", "n_clicks"),
+  State("table:scrap:items", "rowData"),
+)
+def search_items(n_clicks: int, rows: list[dict]):
+  if not (n_clicks and rows):
+    return no_update
+
+  df = pd.DataFrame.from_records(rows)
+
+  for i in range(len(rows)):
+    find = search_taxonomy(rows[i]["gaap"])
+    rows[i]["action"] = "create"
+    if find is not None:
+      rows[i]["action"] = "none"
+      rows[i]["item"] = find["item"]
+
+  return rows
 
 
 @callback(
