@@ -355,7 +355,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Accrued Liabilities"
+      "long": "Noncurrent Accrued Liabilities"
     },
     "gaap": [
       "AccruedLiabilitiesNoncurrent"
@@ -383,7 +383,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Other Non-current Accrued Liabilities"
+      "long": "Other Noncurrent Accrued Liabilities"
     },
     "gaap": [
       "OtherAccruedLiabilitiesNoncurrent"
@@ -649,7 +649,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Accrued Income Taxes"
+      "long": "Noncurrent Accrued Income Taxes"
     },
     "gaap": [
       "AccruedIncomeTaxesNoncurrent"
@@ -2465,7 +2465,7 @@
     "calculation": {
       "order": 1706,
       "any": [
-        "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_expense + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs + amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets - amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss"
+        "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_expense + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs + amortization_discounts_premiums_investments + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets - amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract_asset + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss"
       ]
     }
   },
@@ -3197,8 +3197,8 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Total Non-current Assets",
-      "short": "Non-current Assets"
+      "long": "Total Noncurrent Assets",
+      "short": "Noncurrent Assets"
     },
     "gaap": [
       "NoncurrentAssets",
@@ -4659,7 +4659,7 @@
       ]
     }
   },
-  "cashflow_acquisition_divestiture_business": {
+  "cashflow_acquisition_divestiture_businesses": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -4669,7 +4669,7 @@
     "calculation": {
       "order": 2867,
       "any": [
-        "proceed_divestiture_business - payment_acquisition_business"
+        "proceed_divestiture_businesses - payment_acquisition_businesses"
       ]
     }
   },
@@ -5753,7 +5753,7 @@
     "calculation": {
       "order": 2886,
       "any": [
-        "proceed_issuance_stock_preferred_redeemable + proceed_issuance_stock_preferred_redeemable_convertible - payment_repurchase_stock_preferred_redeemable - payment_repurchase_stock_preferred_redeemable_convertible"
+        "proceed_issuance_stock_preferred_redeemable + proceed_issuance_stock_preferred_convertible_redeemable - payment_repurchase_stock_preferred_redeemable - payment_repurchase_stock_preferred_redeemable_convertible"
       ]
     }
   },
@@ -6897,8 +6897,8 @@
     "calculation": {
       "order": 1871,
       "any": [
-        "cost_revenue_materials + cost_revenue_goods_lease_sales_type + cost_revenue_real_estate + cost_revenue_service_management + cost_revenue_asset_management + cost_revenue_energy_commodities_services + cost_revenue_goods_lease_direct_financing + cost_revenue_labor + cost_revenue_overhead + cost_revenue_maintenance + cost_revenue_taxes_licenses + cost_revenue_facility_membership_operations + cost_trust_assets_sold_to_pay_expenses + cost_revenue_property_repairs_maintenance + cost_revenue_property_operating_expense_other + cost_revenue_direct + loss_contracts + cost_revenue_affiliate + cost_revenue_license + cost_revenue_royalties + cost_revenue_medical_supplies_drugs + cost_revenue_franchise + cost_revenue_related_party + cost_revenue_reimbursable_expense + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production",
-        "cost_revenue_goods + cost_revenue_services + cost_revenue_real_estate + cost_revenue_service_management + cost_revenue_asset_management + cost_revenue_property_repairs_maintenance + cost_revenue_facility_membership_operations + cost_revenue_property_operating_expense_other + cost_revenue_energy_commodities_services + cost_revenue_direct + cost_revenue_advertising + cost_revenue_contract + loss_contracts + cost_revenue_license + cost_revenue_royalties + cost_revenue_medical_supplies_drugs + cost_revenue_franchise + cost_revenue_affiliate + cost_revenue_related_party + cost_revenue_reimbursable_expense + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production"
+        "cost_revenue_materials + cost_revenue_goods_lease_sales_type + cost_revenue_real_estate + cost_revenue_service_management + cost_revenue_asset_management + cost_revenue_energy_commodities_services + cost_revenue_goods_lease_direct_financing + cost_revenue_labor + cost_revenue_overhead + cost_revenue_maintenance + cost_revenue_taxes_licenses + cost_revenue_facility_membership_operations + cost_trust_assets_sold_to_pay_expenses + cost_revenue_property_repairs_maintenance + cost_revenue_property_operating_expense_other + cost_revenue_direct + loss_contracts + cost_revenue_affiliate + cost_revenue_license + cost_revenue_royalties + cost_revenue_medical_supplies_drugs + cost_revenue_franchise + cost_revenue_related_parties + cost_revenue_reimbursable_expense + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production",
+        "cost_revenue_goods + cost_revenue_services + cost_revenue_real_estate + cost_revenue_service_management + cost_revenue_asset_management + cost_revenue_property_repairs_maintenance + cost_revenue_facility_membership_operations + cost_revenue_property_operating_expense_other + cost_revenue_energy_commodities_services + cost_revenue_direct + cost_revenue_advertising + cost_revenue_contract + loss_contracts + cost_revenue_license + cost_revenue_royalties + cost_revenue_medical_supplies_drugs + cost_revenue_franchise + cost_revenue_affiliate + cost_revenue_related_parties + cost_revenue_reimbursable_expense + inventory_firm_purchase_commitment_loss + tax_excise_sales + impairment_production"
       ]
     }
   },
@@ -7927,8 +7927,8 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Allowance for Expected Credit Losses of Financial Assets",
-      "short": "Non-current Credit Loss Provision"
+      "long": "Noncurrent Allowance for Expected Credit Losses of Financial Assets",
+      "short": "Noncurrent Credit Loss Provision"
     },
     "gaap": [
       "AllowanceAccountForCreditLossesOfFinancialAssetsNonCurrent"
@@ -9651,7 +9651,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Deferred Income"
+      "long": "Noncurrent Deferred Income"
     },
     "gaap": [
       "DeferredIncomeNoncurrent"
@@ -11230,7 +11230,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Deferred Tax Liabilities"
+      "long": "Noncurrent Deferred Tax Liabilities"
     },
     "gaap": [
       "DeferredTaxLiabilitiesNoncurrent",
@@ -12176,7 +12176,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Derivative Liabilities"
+      "long": "Noncurrent Derivative Liabilities"
     },
     "gaap": [
       "DerivativeLiabilitiesNoncurrent"
@@ -13913,6 +13913,28 @@
       ]
     }
   },
+  "entertainment_license_agreement_program_material_liability_noncurrent": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Entertainment License Agreement for Program Material Liability"
+    },
+    "gaap": [
+      "EntertainmentLicenseAgreementForProgramMaterialLiabilityNoncurrent"
+    ]
+  },
+  "entertainment_license_agreement_program_material_liability_current": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Entertainment License Agreement for Program Material Liability"
+    },
+    "gaap": [
+      "EntertainmentLicenseAgreementForProgramMaterialLiabilityCurrent"
+    ]
+  },
   "environmental_expense_liabilities": {
     "type": "monetary",
     "balance": "debit",
@@ -14348,7 +14370,7 @@
       ]
     }
   },
-  "expense_tax_income_leases_leveraged": {
+  "tax_expense_income_leases_leveraged": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17425,7 +17447,7 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Impairment of Non-current Assets"
+      "long": "Impairment of Noncurrent Assets"
     },
     "gaap": [
       "ImpairmentOfNonCurrentAssets",
@@ -18075,7 +18097,7 @@
     "calculation": {
       "order": 2319,
       "any": [
-        "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + gain_loss_writedown_disposal_not_discontinued_operation"
+        "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + loss_gain_writedown_disposal_not_discontinued_operation"
       ]
     }
   },
@@ -18150,17 +18172,6 @@
         "income_loss_leases + income_interest_leases + income_lease_variable + income_lease_operating_payments"
       ]
     }
-  },
-  "income_leases_leveraged": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Income from Leveraged Leases"
-    },
-    "gaap": [
-      "LeveragedLeasesIncomeStatementIncomeFromLeveragedLeases"
-    ]
   },
   "income_lease_operating": {
     "type": "monetary",
@@ -18308,7 +18319,7 @@
     "calculation": {
       "order": 2190,
       "any": [
-        "income_loss_equity_method_investment_pretax - income_loss_equity_method_investment_tax"
+        "income_loss_equity_method_investments_pretax - income_loss_equity_method_investments_tax"
       ]
     }
   },
@@ -18325,11 +18336,11 @@
     "calculation": {
       "order": 2332,
       "any": [
-        "income_loss_equity_method_investments - dividend_distribution_equity_method_investment"
+        "income_loss_equity_method_investments_pretax - dividend_distribution_equity_method_investment"
       ]
     }
   },
-  "income_loss_equity_method_investment_pretax": {
+  "income_loss_equity_method_investments_pretax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18341,7 +18352,7 @@
       "IncomeLossFromEquityMethodInvestments"
     ]
   },
-  "income_loss_equity_method_investment_tax": {
+  "income_loss_equity_method_investments_tax": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -19109,7 +19120,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Intangible Assets"
+      "long": "Noncurrent Intangible Assets"
     },
     "gaap": [
       "IntangibleAssetsNoncurrent"
@@ -19322,7 +19333,7 @@
     "calculation": {
       "order": 217,
       "any": [
-        "interest_expense_borrowing_shortterm + interest_longterm_debt_capital_securities"
+        "interest_expense_borrowing_shortterm + interest_expense_longterm_debt_capital_securities"
       ]
     }
   },
@@ -19372,7 +19383,7 @@
     "calculation": {
       "order": 3229,
       "any": [
-        "interest_expense_notes_debentures_subordinated + interest_expense_debentures_subordinated_junior + interest_expense_notes_mediumterm + interest_expense_advances_government_bank_longterm + interest_expense_longterm_debt_other"
+        "interest_expense_notes_debentures_subordinated + interest_expense_debentures_subordinated_junior + interest_expense_notes_mediumterm + interest_expense_advances_government_bank_longterm + interest_expense_debt_longterm_other"
       ]
     }
   },
@@ -19577,7 +19588,7 @@
     "calculation": {
       "order": 2033,
       "any": [
-        "interest_expense_debt + interest_expense_leases_financial + interest_expense_deposit_customer +  interest_expense_financing"
+        "interest_expense_debt + interest_expense_leases_finance + interest_expense_deposit_customer +  interest_expense_financing"
       ]
     }
   },
@@ -20595,7 +20606,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Drilling Inventory"
+      "long": "Noncurrent Drilling Inventory"
     },
     "gaap": [
       "InventoryDrillingNoncurrent"
@@ -20678,7 +20689,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Gas in Storage Inventory"
+      "long": "Noncurrent Gas in Storage Inventory"
     },
     "gaap": [
       "InventoryGasInStorageUndergroundNoncurrent"
@@ -20811,7 +20822,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Net Inventory"
+      "long": "Noncurrent Net Inventory"
     },
     "gaap": [
       "InventoryNoncurrent"
@@ -20907,7 +20918,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Other Inventory"
+      "long": "Noncurrent Other Inventory"
     },
     "gaap": [
       "OtherInventoryNoncurrent"
@@ -21544,17 +21555,6 @@
       "AmortizationMethodQualifiedAffordableHousingProjectInvestments"
     ]
   },
-  "investment_tax_credit_leases_leveraged": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Investment Tax Credit Recognized on Leveraged Leases"
-    },
-    "gaap": [
-      "LeveragedLeasesIncomeStatementInvestmentTaxCreditRecognizedOnLeveragedLeases"
-    ]
-  },
   "investments": {
     "type": "monetary",
     "balance": "debit",
@@ -22149,6 +22149,28 @@
         "investments_lease_direct_financing_noncurrent + investments_lease_sales_type_noncurrent"
       ]
     }
+  },
+  "investments_lease_sales_type_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Investment in Sales Type Leases After Allowance"
+    },
+    "gaap": [
+      "CapitalLeasesLessorBalanceSheetNetInvestmentInSalesTypeLeasesNoncurrent"
+    ]
+  },
+  "investments_lease_direct_financing_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Investment in Direct Financing Leases After Allowance"
+    },
+    "gaap": [
+      "CapitalLeasesLessorBalanceSheetNetInvestmentInDirectFinancingLeasesNoncurrent"
+    ]
   },
   "investments_lease_noncurrent_allowance": {
     "type": "monetary",
@@ -23002,7 +23024,7 @@
       "IncentiveToLessee"
     ]
   },
-  "leveraged_lease_income": {
+  "income_leases_leveraged": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -23013,22 +23035,33 @@
       "LeveragedLeasesIncomeStatementIncomeFromLeveragedLeases"
     ]
   },
-  "leveraged_lease_income_net": {
+  "net_income_leases_leveraged": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Leveraged Lease Income"
+      "long": "Net Income from Leveraged Leases"
     },
     "gaap": [
       "LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases"
     ],
     "calculation": {
-      "order": 2154,
+      "order": 3378,
       "any": [
-        "leveraged_lease_income - tax_expense_leveraged_lease + tax_credit_leveraged_lease"
+        "income_leases_leveraged - tax_expense_income_leases_leveraged + tax_credit_investment_leases_leveraged"
       ]
     }
+  },
+  "tax_credit_investment_leases_leveraged": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investment Tax Credit Recognized on Leveraged Leases"
+    },
+    "gaap": [
+      "LeveragedLeasesIncomeStatementInvestmentTaxCreditRecognizedOnLeveragedLeases"
+    ]
   },
   "liabilities": {
     "type": "monetary",
@@ -23145,8 +23178,8 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Total Non-current Liabilities",
-      "short": "Non-current Liabilities"
+      "long": "Total Noncurrent Liabilities",
+      "short": "Noncurrent Liabilities"
     },
     "gaap": [
       "LiabilitiesNoncurrent",
@@ -24568,7 +24601,7 @@
       ]
     }
   },
-  "loans_longterm_bank": {
+  "loans_bank_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -24798,7 +24831,7 @@
     "calculation": {
       "order": 1365,
       "any": [
-        "payables_notes_longterm + payables_loans_longterm"
+        "payables_notes_noncurrent + payables_loans_noncurrent"
       ]
     }
   },
@@ -25516,23 +25549,6 @@
       ]
     }
   },
-  "net_income_leases_leveraged": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Net Income from Leveraged Leases"
-    },
-    "gaap": [
-      "LeveragedLeasesIncomeStatementNetIncomeFromLeveragedLeases"
-    ],
-    "calculation": {
-      "order": 3378,
-      "any": [
-        "income_leases_leveraged - expense_tax_income_leases_leveraged + investment_tax_credit_leases_leveraged"
-      ]
-    }
-  },
   "net_investments_lease_credit_loss_expense_reversal": {
     "type": "monetary",
     "balance": "debit",
@@ -25663,7 +25679,7 @@
       "JuniorSubordinatedNotesCurrent"
     ]
   },
-  "notes_junior_subordinated_longterm": {
+  "notes_junior_subordinated_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -25724,7 +25740,7 @@
       "SeniorNotesCurrent"
     ]
   },
-  "notes_senior_longterm": {
+  "notes_senior_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -26000,7 +26016,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Other Non-current Assets"
+      "long": "Other Noncurrent Assets"
     },
     "gaap": [
       "OtherAssetsNoncurrent",
@@ -26280,7 +26296,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Other Non-current Liabilities"
+      "long": "Other Noncurrent Liabilities"
     },
     "gaap": [
       "OtherLiabilitiesNoncurrent",
@@ -26644,7 +26660,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Payables and Accrued Expenses"
+      "long": "Noncurrent Payables and Accrued Expenses"
     },
     "gaap": [
       "AccountsPayableAndAccruedLiabilitiesNoncurrent"
@@ -26845,7 +26861,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Dividend Payables"
+      "long": "Noncurrent Dividend Payables"
     },
     "gaap": [
       "DividendsPayableNoncurrent"
@@ -27000,7 +27016,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Investment Payables"
+      "long": "Noncurrent Investment Payables"
     },
     "gaap": [
       "InterestPayableNoncurrent"
@@ -27041,7 +27057,7 @@
     "calculation": {
       "order": 2929,
       "any": [
-        "payables_loans_current + payables_loans_longterm"
+        "payables_loans_current + payables_loans_noncurrent"
       ]
     }
   },
@@ -27073,7 +27089,7 @@
       ]
     }
   },
-  "payables_loans_longterm": {
+  "payables_loans_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27086,7 +27102,7 @@
     "calculation": {
       "order": 1363,
       "any": [
-        "loans_longterm_bank + payables_loans_other_longterm"
+        "loans_bank_noncurrent + payables_loans_other_noncurrent"
       ]
     }
   },
@@ -27103,7 +27119,7 @@
     "calculation": {
       "order": 3403,
       "any": [
-        "payables_loans_other_current + payables_loans_other_longterm"
+        "payables_loans_other_current + payables_loans_other_noncurrent"
       ]
     }
   },
@@ -27118,7 +27134,7 @@
       "OtherLoansPayableCurrent"
     ]
   },
-  "payables_loans_other_longterm": {
+  "payables_loans_other_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27134,7 +27150,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Payables"
+      "long": "Noncurrent Payables"
     },
     "gaap": [
       "NoncurrentPayables"
@@ -27210,7 +27226,7 @@
       "ConvertibleNotesPayableCurrentNet"
     ]
   },
-  "payables_notes_convertible_longterm": {
+  "payables_notes_convertible_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27218,17 +27234,7 @@
       "long": "Long-term Convertible Notes Payable"
     },
     "gaap": [
-      "ConvertibleLongTermNotesPayable"
-    ]
-  },
-  "payables_notes_convertible_noncurrent": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Noncurrent Convertible Notes Payables"
-    },
-    "gaap": [
+      "ConvertibleLongTermNotesPayable",
       "ConvertibleNotesPayableNoncurrentNet"
     ]
   },
@@ -27281,7 +27287,7 @@
     "calculation": {
       "order": 2937,
       "any": [
-        "notes_mediumterm_noncurrent + notes_junior_subordinated_longterm + notes_senior_longterm + payables_notes_convertible_longterm + payables_notes_bank_noncurrent + payables_notes_other_longterm"
+        "notes_mediumterm_noncurrent + notes_junior_subordinated_noncurrent + notes_senior_noncurrent + payables_notes_convertible_noncurrent + payables_notes_bank_noncurrent + payables_notes_other_noncurrent"
       ]
     }
   },
@@ -27313,7 +27319,7 @@
       "OtherNotesPayableCurrent"
     ]
   },
-  "payables_notes_other_longterm": {
+  "payables_notes_other_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -27737,7 +27743,7 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Trade Payables"
+      "long": "Noncurrent Trade Payables"
     },
     "gaap": [
       "AccountsPayableTradeNoncurrent",
@@ -27906,9 +27912,31 @@
     "calculation": {
       "order": 2622,
       "any": [
-        "payment_acquisition_business_gross + payment_other_acquisition_business + cashflow_acquisition_previous + payment_acquisition_inprocess_research_development - acquistion_cash_acquired"
+        "payment_acquisition_businesses_gross + payment_acquisition_businesses_other + cashflow_acquisition_previous + payment_acquisition_inprocess_research_development - acquistion_cash_acquired"
       ]
     }
+  },
+  "cashflow_acquisition_previous": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Previous Acquisition"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromPreviousAcquisition"
+    ]
+  },
+  "payment_acquisition_businesses_other": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Payments to Acquire Businesses"
+    },
+    "gaap": [
+      "OtherPaymentsToAcquireBusinesses"
+    ]
   },
   "payment_acquisition_businesses_affiliates": {
     "type": "monetary",
@@ -28069,7 +28097,7 @@
     "calculation": {
       "order": 2617,
       "any": [
-        "payment_acquisition_interest_subsidiaries + payment_acquisition_interest_subsidiaries_additional + payment_acquisition_equity_method_investment + payment_acquisition_interest_joint_venture"
+        "payment_acquisition_interest_subsidiaries + payment_acquisition_interest_subsidiaries_additional + payment_acquisition_equity_method_investments + payment_acquisition_interest_joint_venture"
       ]
     }
   },
@@ -31922,7 +31950,7 @@
       "ProceedsFromDistributionOfRestrictedCashFromPollutionControlBond"
     ]
   },
-  "proceed_divestiture_business_financial": {
+  "proceed_divestiture_businesses_financial": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -32761,7 +32789,7 @@
       "ProceedsFromIssuanceOfLongTermDebtAndWarrants"
     ]
   },
-  "proceed_issuance_warrants_preferred_stock": {
+  "proceed_issuance_stock_preferred_warrants": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -33527,7 +33555,29 @@
       "ProceedsFromSaleOfInventory"
     ]
   },
-  "proceed_sale_investment": {
+  "proceed_sale_investments_projects": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Investment Projects"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfInvestmentProjects"
+    ]
+  },
+  "proceed_sale_investments_shortterm": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Sale of Investments"
+    },
+    "gaap": [
+      "ProceedsFromSaleOfShortTermInvestments"
+    ]
+  },
+    "proceed_sale_investments": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -33540,46 +33590,7 @@
     "calculation": {
       "order": 3508,
       "any": [
-        "proceeds_sale_investments_shortterm + proceeds_sale_investments_longterm"
-      ]
-    }
-  },
-  "proceed_sale_investment_projects": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Proceeds from Sale of Investment Projects"
-    },
-    "gaap": [
-      "ProceedsFromSaleOfInvestmentProjects"
-    ]
-  },
-  "proceed_sale_investment_shortterm": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Proceeds from Sale of Investments"
-    },
-    "gaap": [
-      "ProceedsFromSaleOfShortTermInvestments"
-    ]
-  },
-  "proceed_sale_investments": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Proceeds from Sale of Investments"
-    },
-    "gaap": [
-      "ProceedsFromSaleOfInvestments"
-    ],
-    "calculation": {
-      "order": 3512,
-      "all": [
-        "proceed_sale_investments_longterm + proceed_sale_investments_shortterm"
+        "proceed_sale_investments_shortterm + proceed_sale_investments_longterm"
       ]
     }
   },
@@ -33603,6 +33614,7 @@
     },
     "gaap": [
       "ProceedsFromSaleOfLongtermInvestments"
+      ProceedsFromSaleMaturityAndCollectionOfLongtermInvestments = ProceedsFromSaleOfLongtermInvestments + ProceedsFromMaturitiesPrepaymentsAndCallsOfLongtermInvestments
     ]
   },
   "proceed_sale_investments_other": {
@@ -33625,17 +33637,6 @@
     },
     "gaap": [
       "ProceedsFromSaleOfRestrictedInvestments"
-    ]
-  },
-  "proceed_sale_investments_shortterm": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Proceeds from Sale of Short-term Investments"
-    },
-    "gaap": [
-      "ProceedsFromSaleOfShorttermInvestments"
     ]
   },
   "proceed_sale_loans_heldforinvestment": {
@@ -35537,7 +35538,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Net Loans Receivable"
+      "long": "Noncurrent Net Loans Receivable"
     },
     "gaap": [
       "LoansReceivableNetNoncurrent"
@@ -35548,6 +35549,28 @@
         "receivables_loans_noncurrent_gross - receivables_loans_noncurrent_allowance"
       ]
     }
+  },
+  "receivables_loans_noncurrent_allowance": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Loans Receivable"
+    },
+    "gaap": [
+      "AllowanceForNotesReceivableNoncurrent"
+    ]
+  },
+  "receivables_loans_noncurrent_gross": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Loans Receivable"
+    },
+    "gaap": [
+      "LoansReceivableGrossNoncurrent"
+    ]
   },
   "receivables_longterm_contracts_programs_current": {
     "type": "monetary",
@@ -35565,8 +35588,8 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Net Total Receivables",
-      "short": "Non-current Net Receivables"
+      "long": "Noncurrent Net Total Receivables",
+      "short": "Noncurrent Net Receivables"
     },
     "gaap": [
       "LongTermAccountsNotesAndLoansReceivableNetNoncurrent"
@@ -35708,7 +35731,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Convertible Notes Receivable"
+      "long": "Noncurrent Convertible Notes Receivable"
     },
     "gaap": [
       "ConvertibleNotesReceivableNetOfCurrentPortion"
@@ -35732,6 +35755,28 @@
       ]
     }
   },
+  "receivables_notes_current_allowance": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gross Notes Receivable"
+    },
+    "gaap": [
+      "AllowanceForNotesReceivableCurrent"
+    ]
+  },
+  "receivables_notes_current_gross": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gross Notes Receivable"
+    },
+    "gaap": [
+      "NotesReceviableGrossCurrent"
+    ]
+  },
   "receivables_notes_gross": {
     "type": "monetary",
     "balance": "debit",
@@ -35742,7 +35787,13 @@
     },
     "gaap": [
       "NotesReceivableGross"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "all": [
+        "receivables_notes_loans_current_gross + receivables_notes_loans_noncurrent_gross"
+      ]
+    }
   },
   "receivables_notes_loans": {
     "type": "monetary",
@@ -35834,7 +35885,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Notes and Loans Receivable"
+      "long": "Noncurrent Notes and Loans Receivable"
     },
     "gaap": [
       "NoncurrentLoansAndReceivables",
@@ -35855,24 +35906,18 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Notes and Loans Receivable Allowance for Credit Loss"
+      "long": "Noncurrent Notes and Loans Receivable Allowance for Credit Loss"
     },
     "gaap": [
       "AllowanceForNotesAndLoansReceivableNoncurrent"
-    ],
-    "calculation": {
-      "order": 722,
-      "any": [
-        "receivables_notes_noncurrent_gross + receivables_loans_noncurrent_gross"
-      ]
-    }
+    ]
   },
   "receivables_notes_loans_noncurrent_gross": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Gross Notes and Loans Receivable"
+      "long": "Noncurrent Gross Notes and Loans Receivable"
     },
     "gaap": [
       "NotesAndLoansReceivableGrossNoncurrent"
@@ -35884,12 +35929,23 @@
       ]
     }
   },
+  "receivables_notes_noncurrent_gross": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Gross Notes Receivable"
+    },
+    "gaap": [
+      "NotesReceivableGrossNoncurrent"
+    ]
+  },
   "receivables_notes_noncurrent": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Net Notes Receivable",
+      "long": "Noncurrent Net Notes Receivable",
       "short": "Net Notes Receivable"
     },
     "gaap": [
@@ -35903,8 +35959,8 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Allowance for Expected Credit Loss of Non-current Notes Receivable",
-      "short": "Credit Loss Allowance for Non-current Notes Receivable"
+      "long": "Allowance for Expected Credit Loss of Noncurrent Notes Receivable",
+      "short": "Credit Loss Allowance for Noncurrent Notes Receivable"
     },
     "gaap": [
       "AllowanceForNotesAndLoansReceivableNoncurrent"
@@ -35955,7 +36011,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Net Notes Receivable",
+      "long": "Noncurrent Net Notes Receivable",
       "short": "Net Notes Receivable"
     },
     "gaap": [
@@ -36673,7 +36729,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Trade Receivables from Related Parties"
+      "long": "Noncurrent Trade Receivables from Related Parties"
     },
     "gaap": [
       "AccountsReceivableRelatedPartiesNoncurrent"
@@ -40600,7 +40656,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Available-For-Sale Debt Securities Excluding Accrued Interests"
+      "long": "Noncurrent Available-For-Sale Debt Securities Excluding Accrued Interests"
     },
     "gaap": [
       "DebtSecuritiesAvailableForSaleExcludingAccruedInterestNoncurrent"
@@ -40858,7 +40914,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Available-For-Sale Debt Securities"
+      "long": "Noncurrent Available-For-Sale Debt Securities"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
@@ -40994,7 +41050,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Available-For-Sale Equity Securities"
+      "long": "Noncurrent Available-For-Sale Equity Securities"
     },
     "gaap": [
       "AvailableForSaleSecuritiesEquitySecuritiesNoncurrent"
@@ -41027,7 +41083,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Available-For-Sale Securities"
+      "long": "Noncurrent Available-For-Sale Securities"
     },
     "gaap": [
       "AvailableForSaleSecuritiesNoncurrent",
@@ -41222,7 +41278,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Debt Securities"
+      "long": "Noncurrent Debt Securities"
     },
     "gaap": [
       "DebtSecuritiesNoncurrent"
@@ -42071,7 +42127,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Restricted Marketable Securities"
+      "long": "Noncurrent Restricted Marketable Securities"
     },
     "gaap": [
       "MarketableSecuritiesRestrictedNoncurrent"
@@ -42082,7 +42138,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Non-current Securities"
+      "long": "Noncurrent Securities"
     },
     "calculation": {
       "order": 682,
@@ -42356,9 +42412,48 @@
     "calculation": {
       "order": 1618,
       "any": [
-        "selling_expense + sales_commissions_fees + marketing_advertising_expense + franchisor_costs + product_warranty_expense + other_selling_marketing_expense"
+        "selling_expense + sales_commissions_fees + marketing_advertising_expense + cost_franchisor + product_warranty_expense + other_selling_marketing_expense"
       ]
     }
+  },
+  "cost_franchisor": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Franchisor Costs"
+    },
+    "gaap": [
+      "FranchisorCosts"
+    ],
+    "calculate": {
+      "order": 0,
+      "any": [
+        "cost_franchisor_owned_outlets + cost_franchised_outlets"
+      ]
+    }
+  },
+  "cost_franchised_outlets": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Franchised Outlets"
+    },
+    "gaap": [
+      "CostsOfFranchisedOutlets"
+    ]
+  },
+  "cost_franchisor_owned_outlets": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cost of Franchisor Owned Costs"
+    },
+    "gaap": [
+      "CostsOfFranchisorOwnedOutlets"
+    ]
   },
   "selling_expense": {
     "type": "monetary",
@@ -43050,17 +43145,6 @@
       "InvestmentTaxCredit"
     ]
   },
-  "tax_credit_leveraged_lease": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Tax Credit Recognized on Leveraged Leases"
-    },
-    "gaap": [
-      "LeveragedLeasesIncomeStatementInvestmentTaxCreditRecognizedOnLeveragedLeases"
-    ]
-  },
   "tax_excise_sales": {
     "type": "monetary",
     "balance": "debit",
@@ -43190,6 +43274,24 @@
       "long": "Income Tax Expense (Benefit) for Continuing Operations"
     },
     "gaap": [
+      "IncomeTaxExpenseBenefitContinuingOperations"
+    ],
+    "calculation": {
+      "order": 3637,
+      "any": [
+        "tax_expense_continuing_operations - tax_benefit_continuing_operations",
+        FederalIncomeTaxExpenseBenefitContinuingOperations + ForeignIncomeTaxExpenseBenefitContinuingOperations + StateAndLocalIncomeTaxExpenseBenefitContinuingOperations + OtherIncomeTaxExpenseBenefitContinuingOperations
+      ]
+    }
+  },
+  "tax_expense_continuing_operations": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income Tax Expense (Benefit) for Continuing Operations"
+    },
+    "gaap": [
       "IncomeTaxExpenseContinuingOperations"
     ],
     "calculation": {
@@ -43233,6 +43335,17 @@
         "tax_income_expense_benefit_current_federal + tax_income_expense_benefit_current_local"
       ]
     }
+  },
+  "tax_income_expense_benefit_current_federal": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Current Federal Income Tax Expense (Benefit)"
+    },
+    "gaap": [
+      "CurrentFederalTaxExpenseBenefit"
+    ]
   },
   "tax_income_expense_benefit_current_foreign": {
     "type": "monetary",
