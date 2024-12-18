@@ -352,7 +352,7 @@ def extract_items(calc_text: str) -> set[str]:
   return visitor.items
 
 
-def item_hiearchy(items: str | list[str], levels=3, start_level=1):
+def item_hiearchy(items: str | list[str], levels=3):
   def query(x: str | list[str]):
     item_where = f"= '{x}'" if isinstance(x, str) else f"IN {str(tuple(x))}"
     return f"""
@@ -398,6 +398,25 @@ def flatten_hierarchy(nested_dict, level=1, flattened=None):
       flatten_hierarchy(value, level + 1, flattened)
 
   return flattened
+
+
+def find_missing_items(taxonomy: Taxonomy) -> set[str]:
+  item_set = set(taxonomy.data.keys())
+
+  missing_items: set[str] = set()
+
+  for v in taxonomy.data.values():
+    if (calc := v.calculation) is None:
+      continue
+
+    calc_any = calc.get("any") or []
+
+    for calc_text in calc_any:
+      items = extract_items(calc_text)
+
+      missing_items.update(items.difference(item_set))
+
+  return missing_items
 
 
 def load_taxonomy(
