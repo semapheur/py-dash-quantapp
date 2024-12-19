@@ -2466,9 +2466,7 @@
     "calculation": {
       "order": 1706,
       "any": [
-        "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_expense + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets - amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract_asset + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss",
-        CostOfGoodsAndServicesSoldAmortization + PresentValueOfFutureInsuranceProfitsAmortizationExpense1 + AmortizationOfIntangibleAssets + DeferredPolicyAcquisitionCostAmortizationExpense + DeferredSalesInducementsAmortizationExpense + AmortizationOfValueOfBusinessAcquiredVOBA - AmortizationOfDeferredLoanOriginationFeesNet + AmortizationOfMortgageServicingRightsMSRs - AccretionAmortizationOfDiscountsAndPremiumsInvestments + AmortizationOfAcquisitionCosts + AmortizationOfDeferredSalesCommissions + FinanceLeaseRightOfUseAssetAmortization + OperatingLeaseRightOfUseAssetAmortizationExpense + AmortizationOfPowerContractsEmissionCredits + AmortizationOfNuclearFuelLease + AmortizationOfRegulatoryAsset + AmortizationOfAdvanceRoyalty + AmortizationOfDeferredPropertyTaxes + AmortizationOfRateDeferral + AmortizationOfDeferredHedgeGains + OtherAmortizationOfDeferredCharges + AmortizationOfFinancingCostsAndDiscounts + AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets,
-        CostOfServicesAmortization + CostOfGoodsSoldAmortization + AmortizationOfCapitalizedValueOfBusinessAcquiredAsset + AmortizationOfIntangibleAssets + DeferredPolicyAcquisitionCostAmortizationExpense + DeferredSalesInducementsAmortizationExpense + AmortizationOfValueOfBusinessAcquiredVOBA - AmortizationOfDeferredLoanOriginationFeesNet + AmortizationOfMortgageServicingRightsMSRs - AccretionAmortizationOfDiscountsAndPremiumsInvestments + AmortizationOfAcquisitionCosts + AmortizationOfDeferredSalesCommissions + AmortizationOfLeasedAsset + AmortizationOfDeferredLeasingFees + AmortizationOfPowerContractsEmissionCredits + AmortizationOfNuclearFuelLease + AmortizationOfRegulatoryAsset + AmortizationOfAdvanceRoyalty + AmortizationOfDeferredPropertyTaxes + AmortizationOfRateDeferral + AmortizationOfDeferredHedgeGains + OtherAmortizationOfDeferredCharges + AmortizationOfFinancingCostsAndDiscounts + AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets
+        "amortization_production + amortization_future_insurance_profits + amortization_deferred_policy_acquisition_expense + amortization_deferred_sales_inducements + amortization_value_business_acquired - amortization_deferred_loan_origination_fees + amortization_mortgage_servicing_rights - accretion_amortization_discounts_premiums_securities + amortization_financing_costs_discounts + amortization_deferred_costs + amortization_discount_investment_account_receivable + amortization_lease_incentives_benefit  + amortization_lease_assets + amortization_other_assets - amortization_intangible_liabilities + amortization_fairvalue_adjustment_assumed_debt + amortization_revenue_contract_asset + amortization_instore_displays + amortization_acquisition_price_adjustment + amortization_acquisition_other_fairvalue_adjustments + amortization_unrecognized_pension_loss"
       ]
     }
   },
@@ -2611,14 +2609,9 @@
     "gaap": [
       "AmortizationOfIntangibleAssets",
       "IntangibleAssetsAmortizationExpense",
-      "AmortisationIntangibleAssetsOtherThanGoodwill"
-    ],
-    "calculation": {
-      "order": 1667,
-      "any": [
-        "amortization_intangible_assets_finitelived + amortization_intangible_assets_indefinitelived"
-      ]
-    }
+      "AmortisationIntangibleAssetsOtherThanGoodwill",
+      "FiniteLivedIntangibleAssetsAmortizationExpense"
+    ]
   },
   "amortization_intangible_assets_disposal": {
     "type": "monetary",
@@ -2629,17 +2622,6 @@
     },
     "gaap": [
       "AmortisationIntangibleAssetsOtherThanGoodwillOnDisposalOfIntangibleAssets"
-    ]
-  },
-  "amortization_intangible_assets_finitelived": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Amortization of Finite-lived Intangible Assets"
-    },
-    "gaap": [
-      "FiniteLivedIntangibleAssetsAmortizationExpense"
     ]
   },
   "amortization_intangible_assets_liabilities": {
@@ -3871,7 +3853,7 @@
       "BusinessCombinationContingentConsiderationAssetCurrent"
     ]
   },
-  "business_combination_contingent_consideration_liabilities_noncurrent": {
+  "business_combination_contingent_consideration_liability_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -5281,8 +5263,7 @@
     "calculation": {
       "order": 2689,
       "any": [
-        "cashflow_investing_continuing_operations + cashflow_investing_discontinued_operations",
-        CashFlowsFromLosingControlOfSubsidiariesOrOtherBusinessesClassifiedAsInvestingActivities - CashFlowsUsedInObtainingControlOfSubsidiariesOrOtherBusinessesClassifiedAsInvestingActivities + OtherCashReceiptsFromSalesOfEquityOrDebtInstrumentsOfOtherEntitiesClassifiedAsInvestingActivities - OtherCashPaymentsToAcquireEquityOrDebtInstrumentsOfOtherEntitiesClassifiedAsInvestingActivities + OtherCashReceiptsFromSalesOfInterestsInJointVenturesClassifiedAsInvestingActivities - OtherCashPaymentsToAcquireInterestsInJointVenturesClassifiedAsInvestingActivities + ProceedsFromSalesOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities - PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities + ProceedsFromSalesOfIntangibleAssetsClassifiedAsInvestingActivities - PurchaseOfIntangibleAssetsClassifiedAsInvestingActivities + ProceedsFromOtherLongtermAssetsClassifiedAsInvestingActivities - PurchaseOfOtherLongtermAssetsClassifiedAsInvestingActivities - CashAdvancesAndLoansMadeToOtherPartiesClassifiedAsInvestingActivities + CashReceiptsFromRepaymentOfAdvancesAndLoansMadeToOtherPartiesClassifiedAsInvestingActivities - CashPaymentsForFutureContractsForwardContractsOptionContractsAndSwapContractsClassifiedAsInvestingActivities + CashReceiptsFromFutureContractsForwardContractsOptionContractsAndSwapContractsClassifiedAsInvestingActivities + DividendsReceivedClassifiedAsInvestingActivities - InterestPaidClassifiedAsInvestingActivities + InterestReceivedClassifiedAsInvestingActivities - IncomeTaxesPaidRefundClassifiedAsInvestingActivities + OtherInflowsOutflowsOfCashClassifiedAsInvestingActivities
+        "cashflow_investing_continuing_operations + cashflow_investing_discontinued_operations"
       ]
     }
   },
@@ -5340,7 +5321,41 @@
     "calculation": {
       "order": 2579,
       "any": [
-        "payment_acquisition_investments - proceed_sale_maturity_collection_investment"
+        "payment_acquisition_investments - proceed_sale_maturity_collection_investments"
+      ]
+    }
+  },
+  "cashflow_investments_longterm": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Long-term Investments"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromLongTermInvestments"
+    ],
+    "calculation": {
+      "order": 2579,
+      "any": [
+        "payment_acquisition_investments_longterm - proceed_sale_maturity_collection_investments_longterm"
+      ]
+    }
+  },
+  "cashflow_investments_shortterm": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Payments for (Proceeds from) Short-term Investments"
+    },
+    "gaap": [
+      "PaymentsForProceedsFromShortTermInvestments"
+    ],
+    "calculation": {
+      "order": 2579,
+      "any": [
+        "payment_acquisition_investments_shortterm - proceed_sale_maturity_collection_investments_shortterm"
       ]
     }
   },
@@ -7482,7 +7497,7 @@
     "calculation": {
       "order": 1766,
       "any": [
-        "cost_revenue_construction_development + cost_real_estate_services_land_sales + cost_revenue_timeshare + timeshare_carrying_charges + cost_revenue_leased_rented_property_equipment + cost_revenue_owned_property_management + cost_revenue_real_estate_sales + cost_revenue_hotels + cost_revenue_concessions"
+        "cost_revenue_construction_development + cost_revenue_real_estate_services_land_sales + cost_revenue_timeshare + timeshare_carrying_charges + cost_revenue_leased_rented_property_equipment + cost_revenue_owned_property_management + cost_revenue_real_estate_sales + cost_revenue_hotels + cost_revenue_concessions"
       ]
     }
   },
@@ -10095,7 +10110,7 @@
     "calculation": {
       "order": 1144,
       "any": [
-        "deferred_tax_assets_current_allowance + deferred_tax_assets_noncurrent_allowance"
+        "deferred_tax_assets_allowance_current + deferred_tax_assets_allowance_noncurrent"
       ]
     }
   },
@@ -10389,11 +10404,11 @@
     "calculation": {
       "order": 770,
       "any": [
-        "deferred_tax_assets_current_gross - deferred_tax_liabilities_valuation_allowance_current"
+        "deferred_tax_assets_gross_current - deferred_tax_assets_allowance_current"
       ]
     }
   },
-  "deferred_tax_assets_current_gross": {
+  "deferred_tax_assets_gross_current": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -10555,7 +10570,7 @@
     "calculation": {
       "order": 1142,
       "all": [
-        "deferred_tax_assets_current_gross + deferred_tax_assets_noncurrent_gross"
+        "deferred_tax_assets_gross_current + deferred_tax_assets_gross_noncurrent"
       ],
       "any": [
         "deferred_tax_assets_carryforwards_operating_loss + deferred_tax_assets_carryforwards_tax_credit + deferred_tax_assets_carryforwards_charitable_contribution + deferred_tax_assets_carryforwards_capital_loss + deferred_tax_assets_carryforwards_other_loss + deferred_tax_assets_carryforwards_other + deferred_tax_assets_deferred_expense + deferred_tax_assets_hedging_transactions + deferred_tax_assets_derivative_instruments + deferred_tax_assets_inventory + deferred_tax_assets_unrealized_loss_securities_heldfortrading + deferred_tax_assets_unrealized_loss_securities_availableforsale + deferred_tax_assets_regulatory_assets_liabilities + deferred_tax_assets_inprocess_research_development + deferred_tax_assets_deferred_income + deferred_tax_assets_unrealized_loss_currency + deferred_tax_assets_other_comprehensive_loss + deferred_tax_assets_deferred_gain_sale_leaseback_transaction + deferred_tax_assets_investment_subsidiaries + deferred_tax_assets_equity_method_investments + deferred_tax_assets_parents_basis_discontinued_operation + deferred_tax_assets_intra_entity_transfer_asset + deferred_tax_assets_other + deferred_tax_assets_frequent_flier_liability + deferred_tax_assets_carryforwards_interests + deferred_tax_assets_state_taxes + deferred_tax_assets_goodwill_intangible_assets + deferred_tax_assets_investments + deferred_tax_assets_property_plant_equipment"
@@ -10729,11 +10744,11 @@
     "calculation": {
       "order": 657,
       "any": [
-        "deferred_tax_assets_noncurrent_gross - deferred_tax_assets_noncurrent_allowance"
+        "deferred_tax_assets_gross_noncurrent - deferred_tax_assets_allowance_noncurrent"
       ]
     }
   },
-  "deferred_tax_assets_noncurrent_allowance": {
+  "deferred_tax_assets_allowance_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -10744,7 +10759,7 @@
       "DeferredTaxAssetsValuationAllowanceNoncurrent"
     ]
   },
-  "deferred_tax_assets_noncurrent_gross": {
+  "deferred_tax_assets_gross_noncurrent": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -11448,7 +11463,7 @@
       "DeferredTaxLiabilitiesUnrealizedGainsOnTradingSecurities"
     ]
   },
-  "deferred_tax_liabilities_valuation_allowance_current": {
+  "deferred_tax_assets_allowance_current": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -17600,6 +17615,7 @@
     "calculation": {
       "order": 3147,
       "any": [
+        "impairment_securities_heldtomaturity"
         OtherThanTemporaryImpairmentLossesInvestmentsHeldtomaturitySecurities + OtherThanTemporaryImpairmentLossDebtSecuritiesAvailableForSale
       ]
     }
@@ -17673,13 +17689,7 @@
     },
     "gaap": [
       "GoodwillAndOtherIntangibleAssetsImpairmentLossAfterTax"
-    ],
-    "calculation": {
-      "order": 3156,
-      "any": [
-        "impairment_goodwill_intangible_assets + tax_income_expense_benefit_impairment_goodwill_intangible_assets"
-      ]
-    }
+    ]
   },
   "impairment_goodwill_posttax": {
     "type": "monetary",
@@ -17694,7 +17704,7 @@
     "calculation": {
       "order": 3160,
       "all": [
-        "impairment_goodwill - tax_income_expense_benefit_impairment_goodwill"
+        "impairment_goodwill + impairment_goodwill_tax_effect"
       ]
     }
   },
@@ -17765,18 +17775,22 @@
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Net Impairment of Indefinite Lived Intangible Assets Excluding Goodwill",
-      "short": "Net Impairment of Intangible Assets"
+      "long": "Net Impairment of Indefinite Lived Intangible Assets Excluding Goodwill"
     },
     "gaap": [
       "ImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwillAfterTax"
-    ],
-    "calculation": {
-      "order": 3163,
-      "all": [
-        "impairment_intangible_assets_indefinitelived - tax_income_expense_benefit_impairment_intangible_assets_indefinitelived"
-      ]
-    }
+    ]
+  },
+  "impairment_intangible_assets_finitelived_posttax": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Impairment of Finite-lived Intangible Assets Excluding Goodwill"
+    },
+    "gaap": [
+      "ImpairmentOfIntangibleAssetsFiniteLivedExcludingGoodwillAfterTax"
+    ]
   },
   "impairment_intangible_assets_posttax": {
     "type": "monetary",
@@ -17792,7 +17806,7 @@
     "calculation": {
       "order": 3165,
       "any": [
-        "impairment_intangible_assets + tax_income_expense_benefit_impairment_intangible_assets"
+        "impairment_intangible_assets_finitelived_posttax + impairment_intangible_assets_indefinitelived_posttax"
       ]
     }
   },
@@ -17936,6 +17950,17 @@
         "impairment_buildings + impairment_construction_inprogess"
       ]
     }
+  },
+  "impairment_construction_inprogess": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Construction in Progress Assets"
+    },
+    "gaap": [
+      "ImpairmentChargesOfConstructionInProgressAssets"
+    ]
   },
   "impairment_real_estate": {
     "type": "monetary",
@@ -18159,7 +18184,24 @@
     "calculation": {
       "order": 2319,
       "any": [
-        "impairment_longlived_assets_tobedisposedof - impairment_longlived_assets_heldforuse + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + loss_gain_writedown_disposal_not_discontinued_operation"
+        "impairment_longlived_assets + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + loss_gain_writedown_disposal_not_discontinued_operation"
+      ]
+    }
+  },
+  "impairment_longlived_assets": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment of Long Lived Assets"
+    },
+    "gaap": [
+      "ImpairmentOfLong-LivedAssetsNet"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "impairment_longlived_assets_tobedisposedof + impairment_longlived_assets_heldforuse"
       ]
     }
   },
@@ -19000,7 +19042,7 @@
         "intangible_assets_gross - intangible_assets_finitelived_accumulated_amortization_impairment - intangible_assets_indefinitelived_accumulated_impairment"
       ],
       "any": [
-        "intangible_assets_finitelived + intangible_assets_infinitelived"
+        "intangible_assets_finitelived + intangible_assets_indefinitelived"
       ]
     }
   },
@@ -19117,7 +19159,7 @@
     "calculation": {
       "order": 537,
       "any": [
-        "intangible_assets_finitelived_gross + intangible_assets_infinitelived"
+        "intangible_assets_finitelived_gross + intangible_assets_indefinitelived_gross"
       ]
     }
   },
@@ -21010,15 +21052,15 @@
       "OtherInventoryNoncurrent"
     ]
   },
-  "inventory_parts_components": {
+  "inventory_parts_components_gross": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Components and Parts Net of Reserves"
+      "long": "Components and Parts Gross Inventory"
     },
     "gaap": [
-      "InventoryPartsAndComponentsNetOfReserves"
+      "InventoryPartsAndComponents"
     ]
   },
   "inventory_purchased_goods_gross": {
@@ -26725,7 +26767,7 @@
       "OtherUnderwritingExpense"
     ]
   },
-  "parts_components": {
+  "inventory_parts_components": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -28649,7 +28691,7 @@
     "calculation": {
       "order": 2011,
       "any": [
-        "payment_acquisition_real_estate_deposit + payment_acquisition_real_estate_commercial + payment_improvement_capital + payment_acquisition_real_estate_residential + payment_acquisition_land + payment_acquisition_land_hfu + payment_acquisition_real_estate_heldforsale + payment_acquisition_real_estate_other + payment_acquisition_real_estate_previously_leased"
+        "payment_acquisition_real_estate_deposit + payment_acquisition_real_estate_commercial + payment_capital_improvements + payment_acquisition_real_estate_residential + payment_acquisition_land + payment_acquisition_land_hfu + payment_acquisition_real_estate_heldforsale + payment_acquisition_real_estate_other + payment_acquisition_real_estate_previously_leased"
       ]
     }
   },
@@ -29076,7 +29118,7 @@
       "PaymentsOfCapitalDistribution"
     ]
   },
-  "payment_capital_improvement": {
+  "payment_capital_improvements": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -29795,7 +29837,7 @@
     "calculation": {
       "order": 2768,
       "any": [
-        "payment_financing_costs + payment_issuance_stock"
+        "payment_financing_costs + payment_issuance_equity"
       ]
     }
   },
@@ -30122,7 +30164,7 @@
       ]
     }
   },
-  "payment_management_program": {
+  "payment_demand_side_management_program": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -32435,7 +32477,7 @@
     "calculation": {
       "order": 3466,
       "any": [
-        "proceed_sale_productive_assets + proceed_sale_maturity_collection_investment + proceed_disposal_crypto_asset + proceed_divestiture_businesses_affiliates + proceed_sale_mortgage_servicing_rights + proceed_securities_purchased_under_resell_agreements + proceed_sale_federal_home_loan_bank_stock + proceed_sale_central_bank_reserve_stock + proceed_life_insurance_policies + proceed_removal_costs + proceed_nuclear_fuel + proceed_collection_loans_longterm_related_parties + proceed_hedge_investing_activities + proceed_derivative_instrument_investing_activities + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans + proceed_lease_financing + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities + proceed_insurance_settlement_investing_activities + proceed_divestiture_real_estate_partnership + proceed_distribution_real_estate_partnership + distribution_payables_real_estate_partnership + proceed_sale_loans_leases_heldforinvestment + proceed_loans_leases_originations_principal_collections + proceed_recovery_loan_previously_charged_off + repayment_receivables_notes_related_parties"
+        "proceed_sale_productive_assets + proceed_sale_maturity_collection_investments + proceed_disposal_crypto_asset + proceed_divestiture_businesses_affiliates + proceed_sale_mortgage_servicing_rights + proceed_securities_purchased_under_resell_agreements + proceed_sale_federal_home_loan_bank_stock + proceed_sale_central_bank_reserve_stock + proceed_life_insurance_policies + proceed_removal_costs + proceed_nuclear_fuel + proceed_collection_loans_longterm_related_parties + proceed_hedge_investing_activities + proceed_derivative_instrument_investing_activities + proceed_sale_foreclosed_assets + proceed_sale_real_estate_wholly_owned_acquired_settlement_loans + proceed_lease_financing + proceed_distribution_restricted_cash_pollution_control_bond + proceed_advances_construction + proceed_contribution_aid_construction + allowance_funds_construction_investing_activities + proceed_insurance_settlement_investing_activities + proceed_divestiture_real_estate_partnership + proceed_distribution_real_estate_partnership + distribution_payables_real_estate_partnership + proceed_sale_loans_leases_heldforinvestment + proceed_loans_leases_originations_principal_collections + proceed_recovery_loan_previously_charged_off + repayment_receivables_notes_related_parties"
       ]
     }
   },
@@ -33772,7 +33814,6 @@
     },
     "gaap": [
       "ProceedsFromSaleOfLongtermInvestments"
-      ProceedsFromSaleMaturityAndCollectionOfLongtermInvestments = ProceedsFromSaleOfLongtermInvestments + ProceedsFromMaturitiesPrepaymentsAndCallsOfLongtermInvestments
     ]
   },
   "proceed_sale_investments_other": {
@@ -33836,7 +33877,7 @@
       "ProceedsFromSaleOfMachineryAndEquipment"
     ]
   },
-  "proceed_sale_maturity_collection_investment": {
+  "proceed_sale_maturity_collection_investments": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -33854,7 +33895,7 @@
       ]
     }
   },
-  "proceed_sale_maturity_collection_investment_shortterm": {
+  "proceed_sale_maturity_collection_investments_shortterm": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -33874,6 +33915,23 @@
     },
     "gaap": [
       "ProceedsFromSaleMaturityAndCollectionOfLongtermInvestments"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "proceed_sale_investments_longterm + proceed_maturity_call_investments_longterm"
+      ]
+    }
+  },
+  "proceed_maturity_call_investments_longterm": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Proceeds from Maturities, Prepayments and Calls of Long-term Investments"
+    },
+    "gaap": [
+      "ProceedsFromMaturitiesPrepaymentsAndCallsOfLongtermInvestments"
     ]
   },
   "proceed_sale_maturity_investments_other": {
@@ -35988,6 +36046,23 @@
       ],
       "any": [
         "receivables_notes_current + receivables_loans_current"
+      ]
+    }
+  },
+  "receivables_loans_current": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans Receivable Net"
+    },
+    "gaap": [
+      "LoansReceivableNet"
+    ],
+    "calculation": {
+      "order": 3545,
+      "any": [
+        "loans_leases_receivables_uncovered + receivables_loans_heldforsale"
       ]
     }
   },
@@ -43380,7 +43455,7 @@
       "TaxesExcludingIncomeAndExciseTaxes"
     ]
   },
-  "tax_expense_benefit_other": {
+  "tax_income_expense_benefit_other": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -43388,7 +43463,8 @@
       "long": "Other Tax Expense (Benefit)"
     },
     "gaap": [
-      "OtherTaxExpenseBenefit"
+      "OtherTaxExpenseBenefit",
+      "OtherIncomeTaxExpenseBenefitContinuingOperations"
     ]
   },
   "tax_expense_deferred_stock_options_exercised": {
@@ -43467,50 +43543,39 @@
       "IncomeTaxProvision",
       "IncomeTaxExpenseBenefit",
       "IncomeTaxExpenseBenefits",
-      "IncomeTaxExpenseContinuingOperations"
+      "IncomeTaxExpenseContinuingOperations",
+      "IncomeTaxExpenseBenefitContinuingOperations"
     ],
     "calculation": {
       "order": 2114,
       "any": [
-        "tax_income_expense_benefit_current + tax_income_expense_benefit_deferred + tax_expense_benefit_other + tax_income_expense_benefit_deferred_other + tax_adjustments_settlements_unusual_provisions + tax_income_benefit_unrecognized_penalties_interest_expense",
-        "tax_income_reconciliation_federal_statutory_rate + tax_income_reconciliation_local + tax_income_reconciliation_foreign_rate_differential - tax_income_reconciliation_credits + tax_income_reconciliation_nondeductible_expense - tax_income_reconciliation_deductions + tax_income_reconciliation_settlements + tax_income_reconciliation_contingencies + tax_income_reconciliation_other - tax_income_reconciliation_exempt_income - tax_income_reconciliation_equity_earnings_losses_unconsolidated_subsidiary - tax_income_reconciliation_minority_interest_income_expense - tax_income_reconciliation_holidays + tax_income_reconciliation_disposition_business + tax_income_reconciliation_disposition_assets + tax_income_reconciliation_repatriation_foreign_earnings + tax_income_reconciliation_repatriation_foreign_earnings_act2004 + tax_income_reconciliation_change_enacted_rate + tax_income_reconciliation_prior_year + tax_income_reconciliation_change_deferred_tax_asset_valuation_allowance + tax_income_reconciliation_sharebased_compensation_excess_benefit + tax_income_reconciliation_other_adjustments + tax_income_reconciliation_crossborder_effect",
+        "tax_income_expense_benefit_federal + tax_income_expense_benefit_foreign + tax_income_expense_benefit_other + tax_income_expense_benefit_other",
+        "tax_income_expense_benefit_current + tax_income_expense_benefit_deferred + tax_income_expense_benefit_other + tax_adjustments_settlements_unusual_provisions + tax_income_benefit_unrecognized_penalties_interest_expense",
+        "tax_income_reconciliation_federal_statutory_rate + tax_income_reconciliation_local + tax_income_reconciliation_foreign_rate_differential - tax_income_reconciliation_credits + tax_income_reconciliation_nondeductible_expense - tax_income_reconciliation_deductions + tax_income_reconciliation_settlements + tax_income_reconciliation_contingencies + tax_income_reconciliation_other - tax_income_reconciliation_exempt_income - tax_income_reconciliation_equity_earnings_losses_unconsolidated_subsidiary - tax_income_reconciliation_minority_interest_income_expense - tax_income_reconciliation_holidays + tax_income_reconciliation_disposition_business + tax_income_reconciliation_disposition_assets + tax_income_reconciliation_repatriation_foreign_earnings + tax_income_reconciliation_repatriation_foreign_earnings_act2004 + tax_income_reconciliation_change_enacted_rate + tax_income_reconciliation_prior_year + tax_income_reconciliation_change_deferred_tax_asset_valuation_allowance + tax_income_reconciliation_sharebased_compensation_excess_benefit + tax_income_reconciliation_other_adjustments + tax_income_reconciliation_crossborder_effect"
       ]
     }
   },
-  "tax_income_expense_benefit_continuing_operations": {
+  "tax_income_expense_benefit_foreign": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Income Tax Expense (Benefit) for Continuing Operations"
+      "long": "Foreign Income Tax Expense (Benefit) Continuing Operations"
     },
     "gaap": [
-      "IncomeTaxExpenseBenefitContinuingOperations"
-    ],
-    "calculation": {
-      "order": 3637,
-      "any": [
-        "tax_expense_continuing_operations - tax_benefit_continuing_operations",
-        FederalIncomeTaxExpenseBenefitContinuingOperations + ForeignIncomeTaxExpenseBenefitContinuingOperations + StateAndLocalIncomeTaxExpenseBenefitContinuingOperations + OtherIncomeTaxExpenseBenefitContinuingOperations
-      ]
-    }
+      "ForeignIncomeTaxExpenseBenefitContinuingOperations"
+    ]
   },
-  "tax_expense_continuing_operations": {
+  "tax_income_expense_benefit_federal": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Income Tax Expense (Benefit) for Continuing Operations"
+      "long": "Federal Income Tax Expense (Benefit) Continuing Operations"
     },
     "gaap": [
-      "IncomeTaxExpenseContinuingOperations"
-    ],
-    "calculation": {
-      "order": 3637,
-      "any": [
-        "tax_expense_continuing_operations - tax_benefit_continuing_operations"
-      ]
-    }
+      "FederalIncomeTaxExpenseBenefitContinuingOperations"
+    ]
   },
   "tax_income_expense_benefit_current": {
     "type": "monetary",
@@ -43665,32 +43730,15 @@
       "DeferredOtherTaxExpenseBenefit"
     ]
   },
-  "tax_income_expense_benefit_impairment_goodwill": {
+  "impairment_goodwill_tax_effect": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
     "label": {
-      "long": "Income Tax Expense (Benefit) for Impairment of Goodwill"
+      "long": "Tax Effect of Impairment of Goodwill"
     },
     "gaap": [
-      "IncomeTaxExpenseBenefitGoodwillImpairment"
-    ],
-    "calculation": {
-      "order": 3159,
-      "any": [
-        "tax_expense_impairment_goodwill - tax_benefit_impairment_goodwill"
-      ]
-    }
-  },
-  "tax_income_expense_continuing_operations": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Income Tax Expense for Continuing Operations"
-    },
-    "gaap": [
-      "IncomeTaxExpenseContinuingOperations"
+      "TaxEffectOfImpairmentOfGoodwill"
     ]
   },
   "tax_income_expense_leveraged_lease": {
