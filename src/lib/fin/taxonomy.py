@@ -401,6 +401,17 @@ def flatten_hierarchy(nested_dict, level=1, flattened=None):
 
 
 def find_missing_items(taxonomy: Taxonomy) -> set[str]:
+  def iterate_schemas(calculation: TaxonomyCalculation):
+    for schema in ("all", "any"):
+      calc_schemas = cast(list[str] | None, calculation.get(schema))
+
+      if calc_schemas is None:
+        continue
+
+      for calc_text in calc_schemas:
+        items = extract_items(calc_text)
+        missing_items.update(items.difference(item_set))
+
   item_set = set(taxonomy.data.keys())
 
   missing_items: set[str] = set()
@@ -409,14 +420,55 @@ def find_missing_items(taxonomy: Taxonomy) -> set[str]:
     if (calc := v.calculation) is None:
       continue
 
-    calc_any = calc.get("any") or []
-
-    for calc_text in calc_any:
-      items = extract_items(calc_text)
-
-      missing_items.update(items.difference(item_set))
+    iterate_schemas(calc)
 
   return missing_items
+
+
+def duplicate_calculation_items(taxonomy: Taxonomy) -> dict[str, list[str]]:
+  def walk_calculation(item: str, duplicates: set[str], seen_items: set[str]):
+    if (calc := taxonomy.data[item].calculation) is None:
+      return
+
+    for schema in ("all", "any"):
+      calc_schemas = cast(list[str] | None, calc.get(schema))
+
+      if calc_schemas is None:
+        continue
+
+      for calc_text in calc_schemas:
+        items = extract_items(calc_text)
+        duplicates.update(seen_items.intersection(items))
+
+        seen_items.update(items)
+
+        for item in items:
+          walk_calculation(item, duplicates, seen_items)
+
+  result: dict[str, list[str]] = {}
+
+  for k, v in taxonomy.data.items():
+    if (calc := v.calculation) is None:
+      continue
+
+    duplicates: set[str] = set()
+
+    for schema in ("all", "any"):
+      calc_schemas = cast(list[str] | None, calc.get(schema))
+
+      if calc_schemas is None:
+        continue
+
+      for calc_text in calc_schemas:
+        seen_items = extract_items(calc_text)
+
+        for item in seen_items:
+          walk_calculation(item, duplicates, seen_items)
+
+    if duplicates:
+      result[k] = list(duplicates)
+
+  return result
 
 
 def load_taxonomy(
