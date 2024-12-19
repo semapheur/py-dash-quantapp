@@ -63,12 +63,6 @@ python app.py
 # XBRL taxonomy
 https://xbrl.us/home/filers/sec-reporting/taxonomies/
 
-# Jupyter
-
-DataFrame to HTML table
-```python
-from IPython.display import display
-```
 
 # Accounting terms
 
@@ -105,11 +99,6 @@ from IPython.display import display
 - NetIncomeLossAvailableToCommonStockholdersBasic = NetIncomeLoss - PreferredStockDividendsAndOtherAdjustments
 - NetIncomeLossAvailableToCommonStockholdersDiluted = NetIncomeLossAvailableToCommonStockholdersBasic + InterestOnConvertibleDebtNetOfTax + ConvertiblePreferredDividendsNetOfTax + DilutiveSecurities
 
-## Investment Income
-
-NetInvestmentIncomeInsuranceEntity
-InvestmentIncomeOperatingAfterExpenseAndTax
-
 ## Marketable securities
 - Available for Sale (AFS) 
 - Held to Maturity (HTM)
@@ -117,25 +106,11 @@ InvestmentIncomeOperatingAfterExpenseAndTax
 - Fair Value through Net Income (FVNI)
 - Fair Value through Other Comprehensive Income (FVOCI)
 
-## Multi-step income statement
-- gross_profit
-    - revenue = revenue_sales + investment_income_operating + revenue_sales + investment_income_operating + interest_income_expense_operating + noninterest_income_operating + noninterest_income_operating + revenue_other
-    - -cost_revenue
-- income_loss_operating
-  - gross_profit
-  - -operating_expenses
-- income_loss_pretax_excluding_equity_method_investments
-  - income_loss_operating
-  - income_loss_nonoperating
-- income_loss_pretax
-  - income_loss_pretax_excluding_equity_method_investments
-  - income_loss_equity_method_investment 
-- income_loss_net_continuing_operations_including_minority_interest
-  - income_loss_pretax
-  - -tax_income_expense_benefit
-- income_loss_net_before_extraordinary_item
-  - income_loss_net_continuing_operations_including_minority_interest
-  - income_loss_net_dicontinued_operations
-- income_loss_net_including_minority_interest
-  - income_loss_net_before_extraordinary_item
-  - extraordinary_item
+## Asset valuation
+
+- Accretion: unplanned book value increase of a liability 
+- Amortization: planned book value reduction of intangible assets
+- Depreciation: planned book value reduction of tangible assets
+- Impairment: unplanned book value reduction of an asset (when fair value falls below book value)
+
+Impairment of securities are classified as other than temporary (OTT) and are recognized either in earnings or comprehensive earnings.

@@ -904,29 +904,7 @@
       "AccumulatedImpairmentLosses"
     ]
   },
-  "accumulated_impairment_intangible_assets": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Accumulated Impairment of Intangible Assets"
-    },
-    "gaap": [
-      "AccumulatedImpairmentLossOfIntangibleAssets"
-    ]
-  },
-  "accumulated_impairment_intangible_assets_indefinitelived": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Accumulated Impairment of Indefinite-lived Intangible Assets"
-    },
-    "gaap": [
-      "AccumulatedImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwill"
-    ]
-  },
-  "accumulated_impairment_securities_availableforsale_debt": {
+  "accumulated_impairment_nonrecoverable_securities_availableforsale_debt": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -950,7 +928,7 @@
     "calculation": {
       "order": 96,
       "any": [
-        "accumulated_impairment_securities_availableforsale_debt + accumulated_impairment_securities_heldtomaturity_debt"
+        "accumulated_impairment_nonrecoveralrable_securities_availableforsale_debt + accumulated_impairment_securities_heldtomaturity_debt"
       ]
     }
   },
@@ -1322,7 +1300,7 @@
     "calculation": {
       "order": 170,
       "any": [
-        "impairment_securities_heldtomaturity_including_minority_interest - adjustment_accumulated_impairment_securities_heldtomaturity_accretion -  adjustment_accumulated_impairment_securities_heldtomaturity_realized"
+        "impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion - adjustment_accumulated_impairment_securities_heldtomaturity_accretion -  adjustment_accumulated_impairment_securities_heldtomaturity_realized"
       ]
     }
   },
@@ -5571,7 +5549,7 @@
     "calculation": {
       "order": 2353,
       "any": [
-        "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operation - gain_loss_sale_assets - gain_loss_investments_excluding_impairment + impairment_investment - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + expense_product_warranty - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_cost + amortization_lease_assets_operating + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
+        "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operation - gain_loss_sale_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + expense_product_warranty - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_cost + amortization_lease_assets_operating + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
       ]
     }
   },
@@ -15402,11 +15380,12 @@
     "calculation": {
       "order": 2138,
       "any": [
-        "gain_loss_investments_realized + gain_loss_investments_unrealized"
+        "gain_loss_investments_realized + gain_loss_investments_unrealized",
+        "gain_loss_investments_excluding_nonrecoverable_impairment - impairment_investments_nonrecoverable_earnings_portion"
       ]
     }
   },
-  "gain_loss_investments_excluding_impairment": {
+  "gain_loss_investments_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15419,7 +15398,7 @@
     "calculation": {
       "order": 2276,
       "any": [
-        "gain_loss_securities_marketable_excluding_impairment + gain_loss_realized_cost_method_investment_excluding_impairment + gain_loss_venture_capital"
+        "gain_loss_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_cost_method_investment_excluding_nonrecoverable_impairment + gain_loss_venture_capital"
       ]
     }
   },
@@ -15549,7 +15528,7 @@
       "PrincipalInvestmentGainsLosses"
     ]
   },
-  "gain_loss_realized_cost_method_investment_excluding_impairment": {
+  "gain_loss_realized_cost_method_investment_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15562,7 +15541,7 @@
     "calculation": {
       "order": 2260,
       "any": [
-        "gain_realized_cost_method_investment - loss_realized_cost_method_investment_excluding_impairment"
+        "gain_realized_cost_method_investment - loss_realized_cost_method_investment_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -15635,7 +15614,7 @@
       ]
     }
   },
-  "gain_loss_realized_securities_availableforsale_excluding_impairment": {
+  "gain_loss_realized_securities_availableforsale_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15648,7 +15627,7 @@
     "calculation": {
       "order": 2273,
       "any": [
-        "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_impairment"
+        "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -15665,7 +15644,7 @@
     "calculation": {
       "order": 454,
       "any": [
-        "gain_loss_realized_securities_debt_trade + gain_loss_realized_securities_availableforsale_debt + gain_loss_realized_securities_heldtomaturity_excluding_impairment"
+        "gain_loss_realized_securities_debt_trade + gain_loss_realized_securities_availableforsale_debt + gain_loss_realized_securities_heldtomaturity_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -15731,7 +15710,7 @@
       ]
     }
   },
-  "gain_loss_realized_securities_heldtomaturity_excluding_impairment": {
+  "gain_loss_realized_securities_heldtomaturity_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15744,7 +15723,7 @@
     "calculation": {
       "order": 2269,
       "any": [
-        "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_impairment"
+        "gain_realized_securities_availableforsale - loss_realized_securities_availableforsale_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -15765,7 +15744,7 @@
       ]
     }
   },
-  "gain_loss_realized_securities_marketable_cost_method_investment_excluding_impairment": {
+  "gain_loss_realized_securities_marketable_cost_method_investment_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15778,11 +15757,11 @@
     "calculation": {
       "order": 3098,
       "any": [
-        "gain_loss_realized_securities_marketable_excluding_impairment + gain_loss_realized_cost_method_investment_excluding_impairment"
+        "gain_loss_realized_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_cost_method_investment_excluding_nonrecoverable_impairment"
       ]
     }
   },
-  "gain_loss_realized_securities_marketable_excluding_impairment": {
+  "gain_loss_realized_securities_marketable_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15795,7 +15774,7 @@
     "calculation": {
       "order": 2274,
       "any": [
-        "gain_loss_realized_securities_heldfortrading + gain_loss_realized_securities_availableforsale_excluding_impairment + gain_loss_realized_securities_heldtomaturity_excluding_impairment"
+        "gain_loss_realized_securities_heldfortrading + gain_loss_realized_securities_availableforsale_excluding_nonrecoverable_impairment + gain_loss_realized_securities_heldtomaturity_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -16394,7 +16373,7 @@
       "MarketableSecuritiesGainLoss"
     ]
   },
-  "gain_loss_securities_marketable_excluding_impairment": {
+  "gain_loss_securities_marketable_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16407,7 +16386,7 @@
     "calculation": {
       "order": 2275,
       "any": [
-        "gain_loss_unrealized_securities_marketable_excluding_impairment + gain_loss_realized_securities_marketable_excluding_impairment"
+        "gain_loss_unrealized_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_securities_marketable_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -16650,7 +16629,7 @@
       "OtherComprehensiveIncomeUnrealizedHoldingGainLossOnSecuritiesArisingDuringPeriodTax"
     ]
   },
-  "gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_impairment": {
+  "gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16785,7 +16764,7 @@
       ]
     }
   },
-  "gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_impairment": {
+  "gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16813,7 +16792,7 @@
       ]
     }
   },
-  "gain_loss_unrealized_securities_marketable_excluding_impairment": {
+  "gain_loss_unrealized_securities_marketable_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16826,7 +16805,7 @@
     "calculation": {
       "order": 2266,
       "any": [
-        "gain_loss_unrealized_securities_heldfortrading + gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_impairment + gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_impairment"
+        "gain_loss_unrealized_securities_heldfortrading + gain_loss_unrealized_securities_availableforsale_transfer_to_trading_excluding_nonrecoverable_impairment + gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -17471,27 +17450,7 @@
       "HostingArrangementServiceContractImplementationCostCapitalizedBeforeAccumulatedAmortization"
     ]
   },
-  "impairment": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Impairment Loss"
-    },
-    "gaap": [
-      "Impairment",
-      "ImpairmentLoss",
-      "ImpairmentAdjustments",
-      "ImpairmentLossRecognisedInProfitOrLoss"
-    ],
-    "calculation": {
-      "order": 3151,
-      "any": [
-        "impairment_financial_assets + impairment_productive_assets + impairment_goodwill_intangible_assets"
-      ]
-    }
-  },
-  "impairment_asset": {
+  "impairment_assets": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17499,16 +17458,21 @@
       "long": "Asset Impairment Charges"
     },
     "gaap": [
-      "AssetImpairmentCharges"
+      "Impairment",
+      "ImpairmentLoss",
+      "ImpairmentAdjustments",
+      "AssetImpairmentCharges",
+      "ImpairmentLossRecognisedInProfitOrLoss",
+      "ImpairmentOfLongLivedAndIntangibleAssets"
     ],
     "calculation": {
       "order": 2327,
       "any": [
-        "impairment_goodwill_intangible_assets + impairment_tangible_assets + impairment_retained_interest + impairment_leasehold + impairment_real_estate_partnerships + impairment_equity_method_investment + net_investments_lease_credit_loss_expense_reversal + impairment_asset_other"
+        "impairment_goodwill_intangible_assets + impairment_tangible_assets + impairment_retained_interest + impairment_leasehold + impairment_real_estate_partnerships + net_investments_lease_credit_loss_expense_reversal + impairment_assets_other"
       ]
     }
   },
-  "impairment_asset_other": {
+  "impairment_assets_other": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17517,18 +17481,6 @@
     },
     "gaap": [
       "OtherAssetImpairmentCharges"
-    ]
-  },
-  "impairment_assets_noncurrent": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Impairment of Noncurrent Assets"
-    },
-    "gaap": [
-      "ImpairmentOfNonCurrentAssets",
-      "ImpairmentOfLongLivedAndIntangibleAssets"
     ]
   },
   "impairment_buildings": {
@@ -17554,7 +17506,7 @@
       "CapitalizedComputerSoftwareImpairments1"
     ]
   },
-  "impairment_cost_method_investment": {
+  "impairment_investments_cost_method_nonrecoverable": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17565,7 +17517,7 @@
       "CostmethodInvestmentsOtherThanTemporaryImpairment"
     ]
   },
-  "impairment_equity_method_investment": {
+  "impairment_investments_equity_method_nonrecoverable": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17598,7 +17550,7 @@
       "ExplorationAbandonmentAndImpairmentExpense"
     ]
   },
-  "impairment_financial_assets": {
+  "impairment_investments_nonrecoverable": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17615,8 +17567,82 @@
     "calculation": {
       "order": 3147,
       "any": [
-        "impairment_securities_heldtomaturity"
-        OtherThanTemporaryImpairmentLossesInvestmentsHeldtomaturitySecurities + OtherThanTemporaryImpairmentLossDebtSecuritiesAvailableForSale
+        "impairment_investments_nonrecoverable_earnings_portion + impairment_investments_nonrecoverable_comprehensive_portion"
+      ]
+    }
+  },
+  "impairment_securities_availableforsale_nonrecoverable": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment Loss of Available-for-Sale Securities"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsAvailableforsaleSecurities"
+    ],
+    "calculation": {
+      "order": 3147,
+      "any": [
+        "impairment_securities_availableforsale_nonrecoverable_earnings_portion + impairment_securities_availableforsale_nonrecoverable_comprehensive_portion",
+        "impairment_securities_availableforsale_debt_nonrecoverable"
+      ]
+    }
+  },
+  "impairment_securities_availableforsale_debt_nonrecoverable": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment Loss of Available-for-Sale Debt Securities"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleImpairmentLoss",
+      "OtherThanTemporaryImpairmentLossDebtSecuritiesAvailableForSale"
+    ],
+    "calculation": {
+      "order": 3147,
+      "any": [
+        "impairment_securities_availableforsale_debt_nonrecoverable_earnings_portion + impairment_securities_availableforsale_debt_nonrecoverable_comprehensive_portion"
+      ]
+    }
+  },
+  "impairment_securities_availableforsale_debt_nonrecoverable_comprehensive_portion": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment Loss of Available-for-Sale Debt Securities"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossBeforeTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecuritiesDebt"
+    ]
+  },
+  "impairment_securities_availableforsale_debt_nonrecoverable_earnings_portion": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Than Temporary Impairment Loss of Available-for-Sale Debt Securities Recognized in Earnings"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossDebtSecuritiesAvailableForSaleRecognizedInEarnings"
+    ]
+  },
+  "impairment_securities_heldtomaturity_nonrecoverable": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Impairment Loss of Financial Assets"
+    },
+    "gaap": [
+      "OtherThanTemporaryImpairmentLossesInvestmentsHeldtomaturitySecurities"
+    ],
+    "calculation": {
+      "order": 3147,
+      "any": [
+        "impairment_securities_heldtomaturity_nonrecoverable_earnings_portion + impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion"
       ]
     }
   },
@@ -17810,7 +17836,7 @@
       ]
     }
   },
-  "impairment_investment": {
+  "impairment_investments_nonrecoverable_earnings_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -17823,7 +17849,7 @@
     "calculation": {
       "order": 2242,
       "any": [
-        "impairment_securities_availableforsale + impairment_securities_heldtomaturity + impairment_cost_method_investment"
+        "impairment_securities_availableforsale_nonrecoverable_earnings_portion + impairment_securities_heldtomaturity_nonrecoverable_earnings_portion + impairment_investments_cost_method_nonrecoverable"
       ]
     }
   },
@@ -18006,7 +18032,7 @@
       "ImpairmentOfRetainedInterest"
     ]
   },
-  "impairment_securities_availableforsale": {
+  "impairment_securities_availableforsale_nonrecoverable_earnings_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18015,20 +18041,15 @@
     },
     "gaap": [
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNetAvailableforsaleSecurities"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "impairment_securities_availableforsale_debt_nonrecoverable_earnings_portion"
+      ]
+    }
   },
-  "impairment_securities_availableforsale_debt": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Impairment Loss of Available-For-Sale Debt Securities"
-    },
-    "gaap": [
-      "DebtSecuritiesAvailableForSaleImpairmentLoss"
-    ]
-  },
-  "impairment_securities_availableforsale_including_minority_interest": {
+  "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18041,11 +18062,11 @@
     "calculation": {
       "order": 3170,
       "any": [
-        "impairment_securities_availableforsale_including_minority_interest_pretax - impairment_securities_availableforsale_including_minority_interest_tax"
+        "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion_pretax - impairment_securities_availableforsale_nonrecoverable_comprehensive_portion_tax"
       ]
     }
   },
-  "impairment_securities_availableforsale_including_minority_interest_pretax": {
+  "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion_pretax": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18056,7 +18077,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossBeforeTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecurities"
     ]
   },
-  "impairment_securities_availableforsale_including_minority_interest_tax": {
+  "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion_tax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18067,7 +18088,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossTaxIncludingPortionAttributableToNoncontrollingInterestAvailableforsaleSecurities"
     ]
   },
-  "impairment_securities_heldtomaturity": {
+  "impairment_securities_heldtomaturity_nonrecoverable_earnings_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18078,7 +18099,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionRecognizedInEarningsNetHeldtomaturitySecurities"
     ]
   },
-  "impairment_securities_heldtomaturity_including_minority_interest": {
+  "impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18091,11 +18112,11 @@
     "calculation": {
       "order": 165,
       "any": [
-        "impairment_securities_heldtomaturity_including_minority_interest_pretax - impairment_securities_heldtomaturity_including_minority_interest_tax"
+        "impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion_pretax - impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion_tax"
       ]
     }
   },
-  "impairment_securities_heldtomaturity_including_minority_interest_pretax": {
+  "impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion_pretax": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18106,7 +18127,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossBeforeTaxIncludingPortionAttributableToNoncontrollingInterestHeldtomaturitySecurities"
     ]
   },
-  "impairment_securities_heldtomaturity_including_minority_interest_tax": {
+  "impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion_tax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18117,7 +18138,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossTaxIncludingPortionAttributableToNoncontrollingInterestHeldtomaturitySecurities"
     ]
   },
-  "impairment_securities_including_minority_interest": {
+  "impairment_securities_nonrecoverable_comprehensive_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18130,14 +18151,14 @@
     "calculation": {
       "order": 3173,
       "all": [
-        "impairment_securities_including_minority_interest_pretax - impairment_securities_including_minority_interest_tax"
+        "impairment_securities_nonrecoverable_comprehensive_portion_pretax - impairment_securities_nonrecoverable_comprehensive_portion_tax"
       ],
       "any": [
-        "impairment_securities_availableforsale_including_minority_interest + impairment_securities_heldtomaturity_including_minority_interest"
+        "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion + impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion"
       ]
     }
   },
-  "impairment_securities_including_minority_interest_pretax": {
+  "impairment_securities_nonrecoverable_comprehensive_portion_pretax": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18150,11 +18171,11 @@
     "calculation": {
       "order": 3172,
       "any": [
-        "impairment_securities_availableforsale_including_minority_interest_pretax + impairment_securities_heldtomaturity_including_minority_interest_pretax"
+        "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion_pretax + impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion"
       ]
     }
   },
-  "impairment_securities_including_minority_interest_tax": {
+  "impairment_securities_nonrecoverable_comprehensive_portion_tax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -18167,7 +18188,7 @@
     "calculation": {
       "order": 3171,
       "any": [
-        "impairment_securities_availableforsale_including_minority_interest_tax + impairment_securities_heldtomaturity_including_minority_interest_tax"
+        "impairment_securities_availableforsale_nonrecoverable_comprehensive_portion_tax + impairment_securities_heldtomaturity_nonrecoverable_comprehensive_portion_tax"
       ]
     }
   },
@@ -18184,7 +18205,7 @@
     "calculation": {
       "order": 2319,
       "any": [
-        "impairment_longlived_assets + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + loss_gain_writedown_disposal_not_discontinued_operation"
+        "impairment_longlived_assets + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + impairment_investments_equity_method_nonrecoverable + loss_gain_writedown_disposal_not_discontinued_operation"
       ]
     }
   },
@@ -18196,6 +18217,7 @@
       "long": "Impairment of Long Lived Assets"
     },
     "gaap": [
+      "ImpairmentOfNonCurrentAssets",
       "ImpairmentOfLong-LivedAssetsNet"
     ],
     "calculation": {
@@ -19039,25 +19061,30 @@
     "calculation": {
       "order": 542,
       "all": [
-        "intangible_assets_gross - intangible_assets_finitelived_accumulated_amortization_impairment - intangible_assets_indefinitelived_accumulated_impairment"
+        "intangible_assets_gross - intangible_assets_finitelived_accumulated_amortization_impairment - intangible_assets_indefinitelived_accumulated_impairment",
+        "intangible_assets_gross - intangible_assets_accumulated_impairment - intangible_assets_finitelived_accumulated_amortization"
       ],
       "any": [
         "intangible_assets_finitelived + intangible_assets_indefinitelived"
       ]
     }
   },
-  "intangible_assets_accumulated_amortization": {
+  "intangible_assets_accumulated_impairment": {
     "type": "monetary",
     "balance": "debit",
-    "aggregate": "tail",
+    "aggregate": "sum",
     "label": {
-      "long": "Intangible Assets Excluding Goodwill Accumulated Amortization",
-      "short": "Intangible Assets Accumulated Amortization"
+      "long": "Accumulated Impairment of Intangible Assets"
     },
     "gaap": [
-      "IntangibleAssetsAccumulatedAmortization",
-      "IntangibleAssetsAccumulatedAmortizationExcludingGoodwill"
-    ]
+      "AccumulatedImpairmentLossOfIntangibleAssets"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "intangible_assets_finitelived_accumulated_impairment + intangible_assets_indefinitelived_accumulated_impairment"
+      ]
+    }
   },
   "intangible_assets_current": {
     "type": "monetary",
@@ -19099,7 +19126,9 @@
       "short": "Accumulated Amortization"
     },
     "gaap": [
-      "FiniteLivedIntangibleAssetsAccumulatedAmortization"
+      "IntangibleAssetsAccumulatedAmortization",
+      "FiniteLivedIntangibleAssetsAccumulatedAmortization",
+      "IntangibleAssetsAccumulatedAmortizationExcludingGoodwill"
     ]
   },
   "intangible_assets_finitelived_accumulated_amortization_impairment": {
@@ -19116,7 +19145,7 @@
     "calculation": {
       "order": 540,
       "any": [
-        "intangible_assets_finitelived_accumulated_amortization + intangible_assets_finitelived_accumulated_impairment"
+        "intangible_assets_finitelived_accumulated_amortization + intangible_assets_finitelived_accumulated_impairment" 
       ]
     }
   },
@@ -19204,6 +19233,7 @@
     "gaap": [
       "IndefiniteLivedIntangibleAssetsAccumulatedAmortization",
       "IndefiniteLivedIntangibleAssetsAccumulatedImpairmentLoss",
+      "AccumulatedImpairmentOfIntangibleAssetsIndefiniteLivedExcludingGoodwill",
       "IndefiniteLivedIntangibleAssetsExcludingGoodwillAccumulatedImpairmentCharges"
     ]
   },
@@ -25135,7 +25165,7 @@
       "NetLoss"
     ]
   },
-  "loss_realized_cost_method_investment_excluding_impairment": {
+  "loss_realized_cost_method_investment_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -25168,7 +25198,7 @@
       "DebtSecuritiesAvailableForSaleRealizedLoss"
     ]
   },
-  "loss_realized_securities_availableforsale_excluding_impairment": {
+  "loss_realized_securities_availableforsale_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -26200,7 +26230,7 @@
         "other_comprehensive_income_loss_unadjusted - adjustment_accumulated_other_comprehensive_income_loss + income_loss_equity_method_investment"
       ],
       "any": [
-        "adjusted_gain_loss_unrealized_securities_availableforsale + adjusted_gain_loss_derivatives + adjusted_gain_loss_foreign_currency_transaction_translation - adjusted_loss_gain_pension_postretirement_benefit_plans - impairment_securities_availableforsale_including_minority_interest - adjusted_impairment_securities_heldtomaturity + adjusted_gain_loss_financial_liability_risk + adjusted_gain_loss_derivatives_excluded_component + adjusted_gain_loss_market_risk_benefit + adjusted_gain_loss_future_policy_benefit + income_loss_equity_method_investment"
+        "adjusted_gain_loss_unrealized_securities_availableforsale + adjusted_gain_loss_derivatives + adjusted_gain_loss_foreign_currency_transaction_translation - adjusted_loss_gain_pension_postretirement_benefit_plans - impairment_securities_nonrecoverable_comprehensive_portion - adjusted_impairment_securities_heldtomaturity + adjusted_gain_loss_financial_liability_risk + adjusted_gain_loss_derivatives_excluded_component + adjusted_gain_loss_market_risk_benefit + adjusted_gain_loss_future_policy_benefit + income_loss_equity_method_investment"
       ]
     }
   },
@@ -37983,7 +38013,7 @@
     "calculation": {
       "order": 2328,
       "any": [
-        "restructuring_cost + impairment_asset"
+        "restructuring_cost + impairment_assets"
       ]
     }
   },
@@ -38035,6 +38065,73 @@
     },
     "gaap": [
       "RestructuringSettlementAndImpairmentProvisions"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "restructuring_charges + business_combination_acquisition_related_costs - benefit_plan_interest_gain_loss_settlements + inventory_recall_expense - gain_business_interruption_insurance_recovery + environmental_remediation_expense_after_recovery + impairment_assets"
+      ]
+    }
+  },
+  "environmental_remediation_expense_after_recovery": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Environmental Remediation Expense After Recovery"
+    },
+    "gaap": [
+      "EnvironmentalRemediationExpenseAfterRecovery"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "environmental_remediation_expense - environmental_costs_recognized_recovery"
+      ]
+    }
+  },
+  "environmental_costs_recognized_recovery": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Environmental Costs Recognized Recovery Credited to Expense"
+    },
+    "gaap": [
+      "EnvironmentalCostsRecognizedRecoveryCreditedToExpense"
+    ]
+  },
+  "gain_business_interruption_insurance_recovery": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain on Business Interruption Insurance Recovery"
+    },
+    "gaap": [
+      "GainOnBusinessInterruptionInsuranceRecovery"
+    ]
+  },
+  "inventory_recall_expense": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Inventory Recall Expense"
+    },
+    "gaap": [
+      "InventoryRecallExpense"
+    ]
+  },
+  "business_combination_acquisition_related_costs": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Business Combination Acquisition Related Costs"
+    },
+    "gaap": [
+      "BusinessCombinationAcquisitionRelatedCosts"
     ]
   },
   "retained_earnings_accumulated_deficit": {
