@@ -99,18 +99,20 @@ https://xbrl.us/home/filers/sec-reporting/taxonomies/
 - NetIncomeLossAvailableToCommonStockholdersBasic = NetIncomeLoss - PreferredStockDividendsAndOtherAdjustments
 - NetIncomeLossAvailableToCommonStockholdersDiluted = NetIncomeLossAvailableToCommonStockholdersBasic + InterestOnConvertibleDebtNetOfTax + ConvertiblePreferredDividendsNetOfTax + DilutiveSecurities
 
-## Marketable securities
-- Available for Sale (AFS) 
-- Held to Maturity (HTM)
-- Held for Trading (HFT)
-- Fair Value through Net Income (FVNI)
-- Fair Value through Other Comprehensive Income (FVOCI)
-
 ## Asset valuation
 
-- Accretion: unplanned book value increase of a liability 
-- Amortization: planned book value reduction of intangible assets
-- Depreciation: planned book value reduction of tangible assets
-- Impairment: unplanned book value reduction of an asset (when fair value falls below book value)
+- Carrying value/amount: book value
+- Fair value: market value
+
+Valuation adjustment:
+- Accretion: unplanned increase in carrying value increase of a liability 
+- Amortization: planned reduction in carrying value of intangible assets
+- Depreciation: planned reducting in carrying value of tangible assets
+- Impairment: unplanned reducting in carrying value of an asset (when fair value falls below carrying value)
 
 Impairment of securities are classified as other than temporary (OTT) and are recognized either in earnings or comprehensive earnings.
+
+### Marketable securities
+- Available for Sale (AFS): fair value through other comprehensive income (FVOCI)
+- Held to Maturity (HTM): carrying value at amortized cost basis
+- Held for Trading (HFT): fair value through net income (FVNI)

@@ -233,6 +233,17 @@
       ]
     }
   },
+  "accrued_employee_benefits_noncurrent": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Accrued Employee Benefits"
+    },
+    "gaap": [
+      "AccruedEmployeeBenefitsNoncurrent"
+    ]
+  },
   "accrued_employee_benefits_current": {
     "type": "monetary",
     "balance": "credit",
@@ -928,7 +939,7 @@
     "calculation": {
       "order": 96,
       "any": [
-        "accumulated_impairment_nonrecoveralrable_securities_availableforsale_debt + accumulated_impairment_securities_heldtomaturity_debt"
+        "accumulated_impairment_nonrecoverable_securities_availableforsale_debt + accumulated_impairment_securities_heldtomaturity_debt"
       ]
     }
   },
@@ -1105,7 +1116,7 @@
       "AdditionalPaidInCapitalCostOfTreasuryShares"
     ]
   },
-  "adjusted_gain_loss_derivatives": {
+  "gain_loss_derivatives_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1124,7 +1135,7 @@
       ]
     }
   },
-  "adjusted_gain_loss_derivatives_excluded_component": {
+  "gain_loss_derivatives_excluded_component_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1180,7 +1191,7 @@
       "OtherComprehensiveIncomeLossDerivativeExcludedComponentIncreaseDecreaseAdjustmentsBeforeTax"
     ]
   },
-  "adjusted_gain_loss_financial_liability_risk": {
+  "gain_loss_financial_liability_risk_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1197,7 +1208,7 @@
       ]
     }
   },
-  "adjusted_gain_loss_foreign_currency_transaction_translation": {
+  "gain_loss_foreign_currency_transaction_translation_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1210,7 +1221,7 @@
     "calculation": {
       "order": 135,
       "all": [
-        "gain_loss_foreign_currency_transaction_translation - gain_loss_foreign_currency_transaction_translation_adjustment"
+        "gain_loss_foreign_currency_transaction_translation - adjustment_accumulated_gain_loss_foreign_currency_transaction_translation_sale"
       ]
     }
   },
@@ -1236,7 +1247,7 @@
       "OtherComprehensiveIncomeLossForeignCurrencyTranslationAdjustmentTax"
     ]
   },
-  "adjusted_gain_loss_future_policy_benefit": {
+  "gain_loss_future_policy_benefit_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1253,7 +1264,7 @@
       ]
     }
   },
-  "adjusted_gain_loss_market_risk_benefit": {
+  "gain_loss_market_risk_benefit_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1270,7 +1281,7 @@
       ]
     }
   },
-  "adjusted_gain_loss_unrealized_securities_availableforsale": {
+  "gain_loss_unrealized_securities_availableforsale_adjusted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -1287,7 +1298,7 @@
       ]
     }
   },
-  "adjusted_impairment_securities_heldtomaturity": {
+  "impairment_securities_heldtomaturity_adjusted": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -1304,7 +1315,7 @@
       ]
     }
   },
-  "adjusted_loss_gain_pension_postretirement_benefit_plans": {
+  "loss_gain_pension_postretirement_benefit_plans_adjusted": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -3221,6 +3232,18 @@
       "avg": "assets"
     }
   },
+  "average_retained_earnings_accumulated_deficit": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Average Retained Earnings (Accumulated Deficit)"
+    },
+    "calculation": {
+      "order": 1946,
+      "avg": "retained_earnings_accumulated_deficit"
+    }
+  },
   "average_capital_employed": {
     "type": "monetary",
     "balance": "debit",
@@ -4211,7 +4234,7 @@
     "calculation": {
       "order": 1372,
       "all": [
-        "cash_bound + interest_rate * debt"
+        "cash_bound + debt_interest_rate * debt"
       ],
       "fill": "cash_bound",
       "max": "cash_cash_equivalents_shortterm_investments"
@@ -4321,13 +4344,13 @@
       ]
     }
   },
-  "cash_cash_equivalents_restricted_cash_cash_equivalents": {
+  "cash_cash_equivalents_gross": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
       "long": "Cash, Cash Equivalents, Restricted Cash and Restricted Cash Equivalents",
-      "short": "CCE & RCRCE"
+      "short": "Gross CCE"
     },
     "gaap": [
       "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
@@ -4335,7 +4358,7 @@
     "calculation": {
       "order": 2443,
       "all": [
-        "cash_cash_equivalents + restricted_cash_cash_equivalents"
+        "cash_cash_equivalents + cash_cash_equivalents_restricted"
       ]
     }
   },
@@ -5549,7 +5572,7 @@
     "calculation": {
       "order": 2353,
       "any": [
-        "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operation - gain_loss_sale_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + expense_product_warranty - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_cost + amortization_lease_assets_operating + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
+        "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operation - gain_loss_sale_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + expense_product_warranty - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_inperiod + amortization_lease_assets_operating + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
       ]
     }
   },
@@ -6208,7 +6231,7 @@
     "calculation": {
       "order": 2900,
       "all": [
-        "common_stock + additional_paidin_capital"
+        "stock_common + additional_paidin_capital_common_stock"
       ]
     }
   },
@@ -6841,7 +6864,7 @@
     "calculation": {
       "order": 1862,
       "any": [
-        "cost_revenue_goods_direct_materials + cost_revenue_goods_labor + cost_revenue_goods_overhead + depreciation_amortization_depletion_goods + cost_revenue_goods_taxes_licenses + cost_revenue_goods_maintenance + cost_revenue_goods_subscription + cost_revenue_goods_lease_direct_financing + cost_trust_assets_sold_to_pay_expenses"
+        "cost_revenue_goods_materials + cost_revenue_goods_labor + cost_revenue_goods_overhead + depreciation_amortization_depletion_goods + cost_revenue_goods_taxes_licenses + cost_revenue_goods_maintenance + cost_revenue_goods_subscription + cost_revenue_goods_lease_direct_financing + cost_trust_assets_sold_to_pay_expenses"
       ]
     }
   },
@@ -6889,7 +6912,7 @@
       "CostOfGoodsSoldMaintenanceCosts"
     ]
   },
-  "cost_revenue_goods_direct_materials": {
+  "cost_revenue_goods_materials": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -7884,29 +7907,23 @@
       "CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedAfterOneYear"
     ]
   },
-  "credit_lines": {
+  "credit_lines_fair_value": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Lines of Credit"
+      "long": "Lines of Credit Fair Value Disclosure"
     },
     "gaap": [
       "LinesOfCreditFairValueDisclosure"
-    ],
-    "calculation": {
-      "order": 2921,
-      "any": [
-        "credit_lines_current + credit_lines_longterm"
-      ]
-    }
+    ]
   },
   "credit_lines_current": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Lines of Credit"
+      "long": "Current Portion of Long-term Lines of Credit"
     },
     "gaap": [
       "LinesOfCreditCurrent"
@@ -8183,7 +8200,7 @@
       "CustomerAdvancesNoncurrent"
     ]
   },
-  "customer_contract_asset_gross": {
+  "customer_contract_assets_gross": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -8595,8 +8612,7 @@
       "long": "Convertible Debt"
     },
     "gaap": [
-      "ConvertibleDebt",
-      "ConvertibleDebtFairValueDisclosures"
+      "ConvertibleDebt"
     ],
     "calculation": {
       "order": 2928,
@@ -8604,6 +8620,17 @@
         "debt_convertible_current + debt_convertible_noncurrent"
       ]
     }
+  },
+  "debt_convertible_fair_value": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Convertible Debt Fair Value Disclosure"
+    },
+    "gaap": [
+      "ConvertibleDebtFairValueDisclosures"
+    ]
   },
   "debt_convertible_current": {
     "type": "monetary",
@@ -8672,16 +8699,33 @@
     "balance": "credit",
     "aggregate": "tail",
     "label": {
-      "long": "Total Debt"
+      "long": "Debt Carrying Amount",
+      "short": "Total Debt"
     },
     "gaap": [
-      "DebtInstrumentFairValue",
       "DebtInstrumentCarryingAmount"
     ],
     "calculation": {
       "order": 2939,
       "any": [
-        "payables_notes + payables_loans + credit_lines + debt_convertible"
+        "payables_notes + payables_loans + credit_lines_longterm + debt_convertible"
+      ]
+    }
+  },
+  "debt_instrument_fair_value": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Debt Fair Value Disclosure"
+    },
+    "gaap": [
+      "DebtInstrumentFairValue"
+    ],
+    "calculation": {
+      "order": 2939,
+      "any": [
+        "payables_notes_fair_value + payables_loans_fair_value + credit_lines_fair_value + debt_convertible"
       ]
     }
   },
@@ -11203,6 +11247,30 @@
       ]
     }
   },
+  "deferred_tax_liabilities_noncurrent_gross": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Noncurrent Deferred Tax Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesNoncurrent",
+      "DeferredTaxLiabilitiesGrossNoncurrent"
+    ]
+  },
+  "deferred_tax_liabilities_current_gross": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gross Current Deferred Tax Liabilities"
+    },
+    "gaap": [
+      "DeferredTaxLiabilitiesCurrent",
+      "DeferredTaxLiabilitiesGrossCurrent"
+    ]
+  },
   "deferred_tax_liabilities_intangible_assets": {
     "type": "monetary",
     "balance": "credit",
@@ -13400,13 +13468,22 @@
     ],
     "calculation": {
       "order": 990,
-      "all": [
-        "disposal_prepaid_expenses_other_assets_current + disposal_prepaid_expenses_other_assets_noncurrent"
-      ],
       "any": [
+        "disposal_prepaid_expenses_other_assets_current + disposal_prepaid_expenses_other_assets_noncurrent",
         "disposal_other_assets"
       ]
     }
+  },
+  "disposal_prepaid_expenses_other_assets_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Leased Assets Disposal Group"
+    },
+    "gaap": [
+      "DisposalGroupIncludingDiscontinuedOperationPrepaidAndOtherAssetsNoncurrent"
+    ]
   },
   "disposal_prepaid_expenses_other_assets_current": {
     "type": "monetary",
@@ -13647,7 +13724,7 @@
     "calculation": {
       "order": 2997,
       "all": [
-        "payment_dividends / net_income"
+        "payment_dividends / income_loss_net"
       ]
     }
   },
@@ -13905,7 +13982,7 @@
     "calculation": {
       "order": 3042,
       "all": [
-        "market_capitalization + debt + stock_minority_interest - cash_cash_equivalents_shortterm_investments"
+        "market_capitalization + debt + equity_minority_interest - cash_cash_equivalents_shortterm_investments"
       ]
     }
   },
@@ -13923,7 +14000,7 @@
       ]
     }
   },
-  "enterprise_value_to_free_cash_flow_firm": {
+  "enterprise_value_to_free_cashflow_firm": {
     "type": "fundamental",
     "aggregate": "recalc",
     "label": {
@@ -13933,7 +14010,7 @@
     "calculation": {
       "order": 3047,
       "all": [
-        "enterprise_value / free_cash_flow_firm"
+        "enterprise_value / free_cashflow_firm"
       ]
     }
   },
@@ -14028,7 +14105,8 @@
     "gaap": [
       "Equity",
       "NetEquity",
-      "StockholdersEquity"
+      "StockholdersEquity",
+      "CommonStockholdersEquity"
     ],
     "calculation": {
       "order": 1952,
@@ -14814,7 +14892,7 @@
     "calculation": {
       "order": 3081,
       "all": [
-        "cashflow_operating - payment_acquisition_productive_assets + debt_cashflow"
+        "cashflow_operating - payment_acquisition_productive_assets + cashflow_debt"
       ]
     }
   },
@@ -15125,7 +15203,7 @@
       ]
     }
   },
-  "gain_loss_derivatives_excluded_component_pre_adjustments": {
+  "gain_loss_derivatives_excluded_component": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15545,7 +15623,7 @@
       ]
     }
   },
-  "gain_loss_realized_pretax_securities_availableforsale": {
+  "gain_loss_realized_securities_availableforsale_pretax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -15554,13 +15632,7 @@
     },
     "gaap": [
       "AvailableForSaleSecuritiesGrossRealizedGainLossBeforeTax"
-    ],
-    "calculation": {
-      "order": 3086,
-      "all": [
-        "gain_realized_pretax_securities_availableforsale - loss_realized_pretax_securities_availableforsale"
-      ]
-    }
+    ]
   },
   "gain_loss_realized_securities": {
     "type": "monetary",
@@ -15587,7 +15659,6 @@
       "long": "Available-For-Sale Securities Realized Gain (Loss)"
     },
     "gaap": [
-      "MarketableSecuritiesRealizedGainLoss",
       "AvailableForSaleSecuritiesGrossRealizedGainLossNet"
     ],
     "calculation": {
@@ -16303,13 +16374,7 @@
     },
     "gaap": [
       "AvailableForSaleSecuritiesGrossGainsLossesNetDerivatives"
-    ],
-    "calculation": {
-      "order": 3107,
-      "all": [
-        "gain_securities_availableforsale_derivatives - loss_securities_availableforsale_derivatives"
-      ]
-    }
+    ]
   },
   "gain_loss_securities_debt": {
     "type": "monetary",
@@ -16669,8 +16734,8 @@
     ],
     "calculation": {
       "order": 3110,
-      "all": [
-        "gain_unrealized_securities_debt - loss_unrealized_securities_debt"
+      "any": [
+        "gain_loss_unrealized_securities_heldfortrading_debt + gain_loss_unrealized_securities_availableforsale_debt + gain_loss_unrealized_securities_heldtomaturity_transfer_to_trading_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -16875,6 +16940,17 @@
       "EquitySecuritiesFvNiRealizedGain"
     ]
   },
+  "loss_realized_securities_heldfortrading": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Trade Securities Realized Loss"
+    },
+    "gaap": [
+      "TradingSecuritiesRealizedLoss"
+    ]
+  },
   "gain_realized_securities_heldfortrading": {
     "type": "monetary",
     "balance": "credit",
@@ -16973,6 +17049,17 @@
     },
     "gaap": [
       "DebtSecuritiesTradingAccumulatedGrossUnrealizedGainBeforeTax"
+    ]
+  },
+  "loss_unrealized_securities_availableforsale": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Available-For-Sale Securities Unrealized Loss"
+    },
+    "gaap": [
+      "AvailableforsaleSecuritiesGrossUnrealizedLoss"
     ]
   },
   "gain_unrealized_securities_availableforsale": {
@@ -17089,7 +17176,7 @@
     "calculation": {
       "order": 1635,
       "any": [
-        "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + tax_insurance + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_loss_in_period"
+        "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + tax_insurance + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_inperiod"
       ]
     }
   },
@@ -18138,7 +18225,7 @@
       "OtherThanTemporaryImpairmentLossesInvestmentsPortionInOtherComprehensiveIncomeLossTaxIncludingPortionAttributableToNoncontrollingInterestHeldtomaturitySecurities"
     ]
   },
-  "impairment_securities_nonrecoverable_comprehensive_portion": {
+  "impairment_investments_nonrecoverable_comprehensive_portion": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -18786,14 +18873,26 @@
       "OperatingIncomeLoss2",
       "OperatingIncomeLoss3",
       "OperatingIncomeLoss4",
-      "ProfitLossFromOperatingActivities"
+      "ProfitLossFromOperatingActivities",
+      "SegmentReportingInformationOperatingIncomeLoss"
     ],
     "calculation": {
       "order": 1898,
       "all": [
-        "gross_profit - operating_expenses + government_assistance_income_loss + other_operating_income_expense"
+        "gross_profit - operating_expenses + income_loss_operating_government_assistance + other_operating_income_expense"
       ]
     }
+  },
+  "income_loss_operating_government_assistance": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Income (Loss)"
+    },
+    "gaap": [
+      "GovernmentAssistanceOperatingIncome"
+    ]
   },
   "income_loss_pretax": {
     "type": "monetary",
@@ -21718,21 +21817,166 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Short-term Investments"
+      "long": "Investments"
     },
     "gaap": [
-      "Investments",
-      "InvestmentsFairValueDisclosure"
+      "Investments"
+    ],
+    "calculation": {
+      "order": 713,
+      "any": [
+        "investments_shortterm + investments_longterm",
+        "securities_marketable + investments_equity_method + investments_cost_method + life_insurance_corporate_bank_owned + investments_securities_other_atcost + investments_other"
+      ]
+    }
+  },
+  "securities_heldtomaturity": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Securities at Amortized Cost After Allowance for Credit Loss"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesNetCarryingAmount",
+      "DebtSecuritiesHeldToMaturityAmortizedCostAfterAllowanceForCreditLossDebtSecuritiesHeldToMaturityAmortizedCostAfterAllowanceForCreditLoss"
     ],
     "calculation": {
       "order": 713,
       "all": [
-        "investments_shorterm + investments_longterm"
+        "securities_heldtomaturity_gross - securities_heldtomaturity_allowance"
       ],
       "any": [
-        "securities_marketable + investments_equity_method + investments_cost_method + life_insurance_corporate_bank_owned + other_investments_securities_atcost + investments_other"
+        "securities_heldtomaturity_current + securities_heldtomaturity_noncurrent"
+      ],
+      "fill": "securities_heldtomaturity_gross"
+    }
+  },
+  "securities_heldtomaturity_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Held-to-Maturity Securities Amortized Cost After Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAmortizedCostAfterAllowanceForCreditLossNoncurrent"
+    ],
+    "calculation": {
+      "order": 713,
+      "any": [
+        "securities_heldtomaturity_gross_noncurrent - securities_heldtomaturity_allowance_noncurrent"
+      ],
+      "fill": "securities_heldtomaturity_gross_noncurrent"
+    }
+  },
+  "securities_heldtomaturity_allowance": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": " Allowance for Credit Loss for Held-to-Maturity Securities"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAllowanceForCreditLoss"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_heldtomaturity_allowance_current + securities_heldtomaturity_allowance_noncurrent"
       ]
     }
+  },
+  "securities_heldtomaturity_allowance_noncurrent": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": " Allowance for Credit Loss for Noncurrent Held-to-Maturity Securities"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAllowanceForCreditLossNoncurrent"
+    ]
+  },
+  "securities_heldtomaturity_current": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Held-to-Maturity Securities Amortized Cost After Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAmortizedCostAfterAllowanceForCreditLossCurrent"
+    ],
+    "calculation": {
+      "order": 713,
+      "all": [
+        "securities_heldtomaturity_gross_current - securities_heldtomaturity_allowance_current"
+      ],
+      "fill": "securities_heldtomaturity_gross_current"
+    }
+  },
+  "securities_heldtomaturity_allowance_current": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": " Allowance for Credit Loss for Current Held-to-Maturity Securities"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAllowanceForCreditLossCurrent"
+    ]
+  },
+  "investments_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Investments Fair Value Disclosure"
+    },
+    "gaap": [
+      "InvestmentsFairValueDisclosure"
+    ],
+    "calculation": {
+      "order": 713,
+      "any": [
+        "securities_heldfortrading + securities_availableforsale + securities_heldtomaturity_fair_value + investments_equity_method_fair_value + investments_cost_method_fair_value + investments_federal_home_loan_bank_stock_fair_value + federal_funds_sold_and_securities_borrowed_or_purchased_under_agreements_to_resell_fair_value + investments_alternative_fair_value"        
+      ]
+    }
+  },
+  "investments_alternative_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Alternative Investments Fair Value Disclosure"
+    },
+    "gaap": [
+      "AlternativeInvestment",
+      "AlternativeInvestmentsFairValueDisclosure"
+    ]
+  },
+  "federal_funds_sold_and_securities_borrowed_or_purchased_under_agreements_to_resell_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Federal Funds Sold and Securities Borrowed or Purchased Under Agreements To Resell Fair Value Disclosure"
+    },
+    "gaap": [
+      "FederalFundsSoldAndSecuritiesBorrowedOrPurchasedUnderAgreementsToResellFairValueDisclosure"
+    ]
+  },
+  "investments_federal_home_loan_bank_stock_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Investments in Affiliates, Subsidiaries, Associates and Joint Ventures"
+    },
+    "gaap": [
+      "InvestmentInFederalHomeLoanBankStockFairValueDisclosure"
+    ]
   },
   "investments_affiliates_subsidiaries_associates_joint_ventures": {
     "type": "monetary",
@@ -21773,7 +22017,7 @@
       "CostMethodInvestments"
     ]
   },
-  "investments_cost_method_fairvalue": {
+  "investments_cost_method_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -21824,7 +22068,7 @@
       "InvestmentsInAssociatesAccountedForUsingEquityMethod"
     ]
   },
-  "investments_equity_method_fairvalue": {
+  "investments_equity_method_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -22549,7 +22793,7 @@
         "investments - investments_shortterm"
       ],
       "any": [
-        "securities_noncurrent + investments_affiliates_subsidiaries_associates_joint_ventures + investments_physical_commodities + health_care_trust_fund_assets_noncurrent + investments_longterm_other + investments_leveraged_lease"
+        "securities_marketable_noncurrent + investments_affiliates_subsidiaries_associates_joint_ventures + investments_physical_commodities + health_care_trust_fund_assets_noncurrent + investments_leveraged_lease + securities_auctionrate_noncurrent + investments_longterm_other"
       ]
     }
   },
@@ -23363,7 +23607,7 @@
     "calculation": {
       "order": 1512,
       "any": [
-        "payables_accrued_expenses_noncurrent + deferred_revenue_credits_noncurrent + deferred_compensation_liability_noncurrent + asset_retirement_obligation_noncurrent + deferred_tax_liabilities_noncurrent + liability_uncertain_tax_positions_noncurrent + customer_advances_deposits_noncurrent + pension_postretirement_postemployment_benefits_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + mandatory_redemption_shares_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + lease_liability_operating_noncurrent + liabilities_business_transferred_under_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liabilities_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent + billings_excess_cost_noncurrent + coal_supply_agreement_obligation_noncurrent"
+        "payables_accrued_expenses_noncurrent + deferred_revenue_credits_noncurrent + deferred_compensation_liability_noncurrent + asset_retirement_obligation_noncurrent + deferred_tax_liabilities_noncurrent + liability_uncertain_tax_positions_noncurrent + customer_advances_deposits_noncurrent + pension_postretirement_postemployment_benefits_liability_noncurrent + accrued_environmental_loss_contingencies_noncurrent + customer_refund_liability_noncurrent + offmarket_lease_unfavorable + lease_deposit_liability + mandatory_redemption_shares_noncurrent + litigation_reserve_noncurrent + regulatory_liabilities_noncurrent + restructuring_reserve_noncurrent + disposal_liabilities_noncurrent + lease_liability_operating_noncurrent + liabilities_business_transferred_under_contractual_arrangement_noncurrent + other_liabilities_noncurrent + self_insurance_reserve_noncurrent + program_rights_obligations_noncurrent + business_combination_contingent_consideration_liability_noncurrent + derivatives_hedges_liabilities_noncurrent + qualified_affordable_housing_project_investments_commitment + government_assistance_liability_noncurrent + billings_excess_cost_noncurrent + coal_supply_agreement_obligation_noncurrent"
       ]
     }
   },
@@ -25015,7 +25259,7 @@
       "LossFromCatastrophes"
     ]
   },
-  "loss_contingency_loss_in_period": {
+  "loss_contingency_inperiod": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -25894,7 +26138,7 @@
     "calculation": {
       "order": 3382,
       "all": [
-        "notes_payable + warrant_liability"
+        "payables_notes + warrant_liabilities"
       ]
     }
   },
@@ -25973,7 +26217,7 @@
     "calculation": {
       "order": 2949,
       "all": [
-        "(cost_revenue + operating_expenses - depreciation_depletion_amortization_accrection) / days"
+        "(cost_revenue + operating_expenses - depreciation_depletion_amortization_accretion) / days"
       ]
     }
   },
@@ -26230,7 +26474,7 @@
         "other_comprehensive_income_loss_unadjusted - adjustment_accumulated_other_comprehensive_income_loss + income_loss_equity_method_investment"
       ],
       "any": [
-        "adjusted_gain_loss_unrealized_securities_availableforsale + adjusted_gain_loss_derivatives + adjusted_gain_loss_foreign_currency_transaction_translation - adjusted_loss_gain_pension_postretirement_benefit_plans - impairment_securities_nonrecoverable_comprehensive_portion - adjusted_impairment_securities_heldtomaturity + adjusted_gain_loss_financial_liability_risk + adjusted_gain_loss_derivatives_excluded_component + adjusted_gain_loss_market_risk_benefit + adjusted_gain_loss_future_policy_benefit + income_loss_equity_method_investment"
+        "gain_loss_unrealized_securities_availableforsale_adjusted + gain_loss_derivatives_adjusted + gain_loss_foreign_currency_transaction_translation_adjusted - loss_gain_pension_postretirement_benefit_plans_adjusted - impairment_investments_nonrecoverable_comprehensive_portion - impairment_securities_heldtomaturity_adjusted + gain_loss_financial_liability_risk_adjusted + gain_loss_derivatives_excluded_component_adjusted + gain_loss_market_risk_benefit_adjusted + gain_loss_future_policy_benefit_adjusted + income_loss_equity_method_investment"
       ]
     }
   },
@@ -26408,7 +26652,7 @@
       "OtherInterestEarningAssets"
     ]
   },
-  "other_investments_securities_atcost": {
+  "investments_securities_other_atcost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -27271,7 +27515,7 @@
       "long": "Loans Payable"
     },
     "gaap": [
-      "LoansPayableFairValueDisclosure"
+      "LoansPayable"
     ],
     "calculation": {
       "order": 2929,
@@ -27279,6 +27523,17 @@
         "payables_loans_current + payables_loans_noncurrent"
       ]
     }
+  },
+  "payables_loans_fair_value": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Loans Payable Fair Value Disclosure"
+    },
+    "gaap": [
+      "LoansPayableFairValueDisclosure"
+    ]
   },
   "payables_loans_bank_current": {
     "type": "monetary",
@@ -27384,8 +27639,7 @@
     },
     "gaap": [
       "NotesPayable",
-      "TotalNotesPayable",
-      "NotesPayableFairValueDisclosure"
+      "TotalNotesPayable"
     ],
     "calculation": {
       "order": 2938,
@@ -27393,6 +27647,17 @@
         "payables_notes_current + payables_notes_noncurrent"
       ]
     }
+  },
+  "payables_notes_fair_value": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Notes Payables Fair Value Disclosure"
+    },
+    "gaap": [
+      "NotesPayableFairValueDisclosure"
+    ]
   },
   "payables_notes_bank_current": {
     "type": "monetary",
@@ -28805,7 +29070,7 @@
     "calculation": {
       "order": 2009,
       "any": [
-        "payment_acquisition_real_estate_deposit + payment_acquisition_real_estate_commercial + payment_acquisition_buildings + payment_capital_improvement + payment_acquisition_real_estate_residential + payment_acquisition_land + payment_acquisition_land_hfu + payment_acquisition_real_estate_heldforsale + payment_acquisition_real_estate_other + payment_acquisition_real_estate_previously_leased"
+        "payment_acquisition_real_estate_deposit + payment_acquisition_real_estate_commercial + payment_acquisition_buildings + payment_capital_improvements + payment_acquisition_real_estate_residential + payment_acquisition_land + payment_acquisition_land_hfu + payment_acquisition_real_estate_heldforsale + payment_acquisition_real_estate_other + payment_acquisition_real_estate_previously_leased"
       ]
     }
   },
@@ -29601,7 +29866,7 @@
       "DividendsSharebasedCompensationStock"
     ]
   },
-  "payment_dividends_stock_preferred": {
+  "dividends_stock_preferred": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -33921,7 +34186,7 @@
     "calculation": {
       "order": 2578,
       "any": [
-        "proceed_limited_partneship_investment + proceed_sale_maturity_securities_marketable + proceed_sale_collection_receivables + proceed_sale_securities_fvni_equity + proceed_sale_real_estate_other + proceed_sale_investments_restricted + proceed_sale_investments_insurance + proceed_sale_real_estate_heldforinvestment + proceed_sale_investment_projects + proceed_decommissioning_fund + proceed_sale_maturity_investments_other"
+        "proceed_limited_partneship_investment + proceed_sale_maturity_securities_marketable + proceed_sale_collection_receivables + proceed_sale_securities_fvni_equity + proceed_sale_real_estate_other + proceed_sale_investments_restricted + proceed_sale_investments_insurance + proceed_sale_real_estate_heldforinvestment + proceed_sale_investments_projects + proceed_decommissioning_fund + proceed_sale_maturity_investments_other"
       ]
     }
   },
@@ -35613,23 +35878,44 @@
       "InterestReceivableNoncurrent"
     ]
   },
+  "receivables_joint_operation": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Net Receivables from Joint Operation"
+    },
+    "gaap": [
+      "OtherReceivablesFromJointOperation"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "receivables_joint_operation_current + receivables_joint_operation_noncurrent"
+      ]
+    }
+  },
   "receivables_joint_operation_current": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Net Receivables from Joint Operation",
-      "short": "Receivables from Joint Operation"
+      "long": "Current Net Receivables from Joint Operation"
     },
     "gaap": [
       "CurrentOtherReceivablesFromJointOperation"
-    ],
-    "calculation": {
-      "order": 3537,
-      "all": [
-        "receivables_joint_operation_current_gross - receivables_joint_operation_current_allowance"
-      ]
-    }
+    ]
+  },
+  "receivables_joint_operation_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Net Receivables from Joint Operation"
+    },
+    "gaap": [
+      "NonCurrentOtherReceivablesFromJointOperation"
+    ]
   },
   "receivables_joint_ventures": {
     "type": "monetary",
@@ -36559,13 +36845,7 @@
     },
     "gaap": [
       "PremiumsReceivableGross"
-    ],
-    "calculation": {
-      "order": 1036,
-      "all": [
-        "PremiumsReceivableGross - PremiumsReceivableAllowanceForDoubtfulAccounts"
-      ]
-    }
+    ]
   },
   "receivables_recovery_import_duties": {
     "type": "monetary",
@@ -36623,6 +36903,23 @@
       ],
       "any": [
         "receivables_trade_related_parties + receivables_notes_related_parties + receivables_loans_leases_related_parties + receivables_employees + receivables_officers_stockholders + receivables_affiliates + receivables_joint_ventures + receivables_other_related_parties"
+      ]
+    }
+  },
+  "receivables_related_parties_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Receivables Due from Related Parties"
+    },
+    "gaap": [
+      "DueFromRelatedPartiesNoncurrent"
+    ],
+    "calculation": {
+      "order": 827,
+      "any": [
+        "receivables_trade_related_parties_noncurrent + receivables_notes_related_parties_noncurrent + receivables_employees_noncurrent + receivables_officers_stockholders_noncurrent + receivables_affiliates_noncurrent + receivables_joint_ventures_noncurrent + receivables_other_related_parties_noncurrent"
       ]
     }
   },
@@ -36985,6 +37282,17 @@
         "receivables_trade_related_parties_current_gross - receivables_trade_related_parties_current_allowance"
       ]
     }
+  },
+  "receivables_trade_related_parties_current_gross": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Current Gross Receivables from Related Parties"
+    },
+    "gaap": [
+      "AccountsReceivableRelatedPartiesGrossCurrent"
+    ]
   },
   "receivables_trade_related_parties_current_allowance": {
     "type": "monetary",
@@ -40668,10 +40976,8 @@
     ],
     "calculation": {
       "order": 707,
-      "all": [
-        "securities_availableforsale_current + securities_availableforsale_noncurrent"
-      ],
       "any": [
+        "securities_availableforsale_current + securities_availableforsale_noncurrent",
         "securities_availableforsale_debt + securities_availableforsale_equity"
       ]
     }
@@ -40822,7 +41128,7 @@
     "aggregate": "tail",
     "label": {
       "long": "Allowance for Expected Credit Loss of Available-For-Sale Debt Securities",
-      "short": "Credit Loss Allowanse for AFS Debt Securities"
+      "short": "Credit Loss Allowance for AFS Debt Securities"
     },
     "gaap": [
       "DebtSecuritiesAvailableForSaleAllowanceForCreditLoss"
@@ -40830,9 +41136,21 @@
     "calculation": {
       "order": 3580,
       "all": [
-        "securities_availableforsale_debt_current_allowance + securities_availableforsale_debt_noncurrent_allowance"
+        "securities_availableforsale_debt_allowance_current + securities_availableforsale_debt_allowance_noncurrent"
       ]
     }
+  },
+  "securities_availableforsale_debt_allowance_noncurrent": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Allowance for Expected Credit Loss of Available-For-Sale Debt Securities",
+      "short": "Noncurrent Credit Loss Allowance for AFS Debt Securities"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAllowanceForCreditLossNoncurrent"
+    ]
   },
   "securities_availableforsale_debt_amortized_cost": {
     "type": "monetary",
@@ -40949,10 +41267,10 @@
       "long": "Current Available-For-Sale Debt Securities"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesDebtSecuritiesCurrent"
+      "AvailableForSaleSecuritiesDebtSecuritiesCurrent",
     ]
   },
-  "securities_availableforsale_debt_current_allowance": {
+  "securities_availableforsale_debt_allowance_current": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -41621,7 +41939,7 @@
     "calculation": {
       "order": 1062,
       "any": [
-        "securities_heldfortrading_debt + securities_availableforsale_debt_current + securities_heldtomaturity_debt_current"
+        "securities_heldfortrading_debt + securities_availableforsale_debt_current + securities_heldtomaturity_current"
       ]
     }
   },
@@ -41638,7 +41956,7 @@
     "calculation": {
       "order": 1063,
       "any": [
-        "securities_heldtomaturity_debt_noncurrent + securities_availableforsale_debt_noncurrent"
+        "securities_heldtomaturity_noncurrent + securities_availableforsale_debt_noncurrent"
       ]
     }
   },
@@ -41686,7 +42004,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Marketable Debt and Equity Securities Fair Value"
+      "long": "Marketable Debt and Equity Securities"
     },
     "gaap": [
       "MarketableSecuritiesFixedMaturitiesCurrent"
@@ -41709,7 +42027,7 @@
       "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLossMeasuredAsSuchInAccordanceWithExemptionForReacquisitionOfOwnEquityInstruments"
     ]
   },
-  "securities_fvni_equity": {
+  "securities_heldfortrading_equity": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -41723,11 +42041,11 @@
     "calculation": {
       "order": 3618,
       "any": [
-        "securities_heldfortrading_equity + securities_fvni_equity_noncurrent"
+        "securities_heldfortrading_equity_current + securities_heldfortrading_equity_noncurrent"
       ]
     }
   },
-  "securities_fvni_equity_noncurrent": {
+  "securities_heldfortrading_equity_noncurrent": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -41773,7 +42091,7 @@
     "calculation": {
       "order": 665,
       "any": [
-        "securities_heldfortrading_noncurrent + securities_fvni_equity_noncurrent + securities_fvni_initial_recognition_noncurrent + scurities_fvni_equity_own_noncurrent + securities_fvni_debt_own_noncurrent + securities_fvni_mandatorily_noncurrent"
+        "securities_heldfortrading_noncurrent + securities_heldfortrading_equity_noncurrent + securities_fvni_initial_recognition_noncurrent + scurities_fvni_equity_own_noncurrent + securities_fvni_debt_own_noncurrent + securities_fvni_mandatorily_noncurrent"
       ]
     }
   },
@@ -41827,34 +42145,45 @@
       "NoncurrentFinancialAssetsMeasuredAtFairValueThroughOtherComprehensiveIncome"
     ]
   },
-  "securities_heldformaturity_debt_maturing_1_to_5_years": {
+  "securities_heldtomaturity_debt_maturing_within_1_year_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Debt Securities Maturing After 1 Through 5 Years"
+      "long": "Held-to-Maturity Debt Securities Maturing Within 1 Year Fair Value"
     },
     "gaap": [
       "HeldToMaturitySecuritiesDebtMaturitiesWithinOneYearFairValue"
     ]
   },
-  "securities_heldformaturity_debt_maturing_5_to_10_years": {
+  "securities_heldtomaturity_debt_maturing_2_to_5_years_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Debt Securities Maturing After 5 Through 10 Years"
+      "long": "Held-to-Maturity Debt Securities Maturing After 1 Through 5 Years Fair Value"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesAfterOneThroughFiveYearsFairValue"
+    ]
+  },
+  "securities_heldtomaturity_debt_maturing_6_to_10_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Maturing After 5 Through 10 Years Fair Value"
     },
     "gaap": [
       "HeldToMaturitySecuritiesDebtMaturitiesAfterFiveThroughTenYearsFairValue"
     ]
   },
-  "securities_heldformaturity_debt_maturing_after_10_years": {
+  "securities_heldtomaturity_debt_maturing_after_10_years_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Debt Securities Maturing After 10 Years"
+      "long": "Held-to-Maturity Debt Securities Maturing After 10 Years Fair Value"
     },
     "gaap": [
       "HeldToMaturitySecuritiesDebtMaturitiesAfterTenYearsFairValue"
@@ -41865,12 +42194,14 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Held-for-Trading Securities"
+      "long": "Held-for-Trading Securities with Fair Value through Net Income",
+      "short": "Trading Securities"
     },
     "gaap": [
       "TradingSecurities",
       "TradingSecuritiesCurrent",
-      "TradingSecuritiesFairValueDisclosure"
+      "TradingSecuritiesFairValueDisclosure",
+      "TradingAccountAssetsFairValueDisclosure"
     ],
     "calculation": {
       "order": 695,
@@ -41890,7 +42221,13 @@
       "TradingSecuritiesDebt",
       "TradingSecuritiesDebtCurrent",
       "DebtSecuritiesAtFairValueThroughProfitAndLoss"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_heldfortrading_debt_amortized_cost"
+      ]
+    }
   },
   "securities_heldfortrading_debt_amortized_cost": {
     "type": "monetary",
@@ -41924,18 +42261,18 @@
       "DebtSecuritiesTradingRestricted"
     ]
   },
-  "securities_heldfortrading_debt_without_single_maturity_date": {
+  "securities_heldtomaturity_debt_without_single_maturity_date_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Debt Securities Without Single Maturity Date"
+      "long": "Debt Securities Without Single Maturity Date Fair Value"
     },
     "gaap": [
       "HeldToMaturitySecuritiesDebtMaturitiesWithoutSingleMaturityDateFairValue"
     ]
   },
-  "securities_heldfortrading_equity": {
+  "securities_heldfortrading_equity_current": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -41955,7 +42292,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Noncurrent Securities Held for Trading"
+      "long": "Noncurrent Held-for-Trading Securities"
     },
     "gaap": [
       "NoncurrentFinancialAssetsAtFairValueThroughProfitOrLossClassifiedAsHeldForTrading"
@@ -41989,7 +42326,39 @@
       ]
     }
   },
-  "securities_heldtomaturity": {
+  "securities_heldtomaturity_gross": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Securities Amortized Cost Before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "HeldToMaturitySecurities"
+    ],
+    "calculation": {
+      "order": 0,
+      "all": [
+        "securities_heldtomaturity_debt_excluding_accrued_interest_gross + securities_heldtomaturity_accrued_interest_gross"
+      ],
+      "any": [
+        "securities_heldtomaturity_debt_without_single_maturity_date_carrying_amount + securities_heldtomaturity_debt_single_maturity_date_amortized_cost"
+      ],
+      "fill": "securities_heldtomaturity_debt_excluding_accrued_interest_gross"
+    }
+  },
+  "securities_heldtomaturity_accrued_interest_gross": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accrued Interest on Held-to-Maturity Securities Before Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesHeldToMaturityAccruedInterestBeforeAllowanceForCreditLoss"
+    ]
+  },
+  "securities_heldtomaturity_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -41997,15 +42366,192 @@
       "long": "Held-to-Maturity Securities Fair Value"
     },
     "gaap": [
-      "HeldToMaturitySecurities"
-    ]
+      "HeldToMaturitySecuritiesFairValue",
+      "HeldToMaturitySecuritiesFairValueDisclosure",
+      "HeldToMaturitySecuritiesDebtMaturitiesFairValue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_heldtomaturity_debt_current_fair_value + securities_heldtomaturity_debt_noncurrent_fair_value",
+        "securities_heldtomaturity_debt_without_single_maturity_date_fair_value + securities_heldtomaturity_debt_single_maturity_date_fair_value"
+      ]
+    }
   },
-  "securities_heldtomaturity_current": {
+  "securities_heldtomaturity_debt_single_maturity_date_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Held-to-Maturity Securities"
+      "long": "Held-to-Maturity Debt Securities with Single Maturity Date Fair Value"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesSingleMaturityDateFairValue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_heldtomaturity_debt_rolling_1_year_fair_value + securities_heldtomaturity_debt_rolling_2_to_5_years_fair_value + securities_heldtomaturity_debt_rolling_6_to_10_years_fair_value + securities_heldtomaturity_debt_rolling_after_10_years_fair_value",
+        "securities_heldtomaturity_debt_maturing_within_1_year_fair_value + securities_heldtomaturity_debt_maturing_2_to_5_years_fair_value + securities_heldtomaturity_debt_maturing_6_to_10_years_fair_value + securities_heldtomaturity_debt_maturing_after_10_years_fair_value"
+      ]
+    }
+  },
+  "securities_heldtomaturity_debt_rolling_after_10_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Rolling After 10 Years Fair Value"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesRollingAfterTenYearsFairValue"
+    ]
+  },
+  "securities_heldtomaturity_debt_rolling_6_to_10_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Rolling Year 6 through 10 Fair Value"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesRollingYearSixThroughTenFairValue"
+    ]
+  },
+  "securities_heldtomaturity_debt_rolling_2_to_5_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Rolling Year 2 through 5 Fair Value"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue"
+    ]
+  },
+  "securities_heldtomaturity_debt_next_rolling_1_year_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Next Rolling 12 Months Fair Value"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesNextRollingTwelveMonthsFairValue"
+    ]
+  },
+  "securities_heldtomaturity_debt_single_maturity_date_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Single Maturity Date Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesSingleMaturityDateAmortizedCostBasis"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_heldtomaturity_debt_rolling_1_year_amortized_cost + securities_heldtomaturity_debt_rolling_2_to_5_years_amortized_cost + securities_heldtomaturity_debt_rolling_6_to_10_years_amortized_cost + securities_heldtomaturity_debt_rolling_after_10_years_amortized_cost",
+        "securities_heldtomaturity_debt_maturing_within_1_year_amortized_cost + securities_heldtomaturity_debt_maturing_1_to_5_years_amortized_cost + securities_heldtomaturity_debt_maturing_6_to_10_years_amortized_cost + securities_heldtomaturity_debt_maturing_after_10_years_amortized_cost"
+      ]
+    }
+  },
+  "securities_heldtomaturity_debt_maturing_after_10_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Maturing After 10 Years Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesAfterTenYearsNetCarryingAmount"
+    ]
+  },
+  "securities_heldtomaturity_debt_maturing_6_to_10_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Maturing 1 Through 5 Years Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesAfterFiveThroughTenYearsNetCarryingAmount"
+    ]
+  },
+  "securities_heldtomaturity_debt_maturing_1_to_5_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Maturing 1 Through 5 Years Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesAfterOneThroughFiveYearsNetCarryingAmount"
+    ]
+  },
+  "securities_heldtomaturity_debt_rolling_after_10_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Rolling After 10 Years Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesDebtMaturitiesRollingAfterTenYearsAmortizedCost"
+    ]
+  },
+  "securities_heldtomaturity_debt_rolling_6_to_10_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Rolling Year 6 Through 10 Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesDebtMaturitiesRollingYearSixThroughTenAmortizedCost"
+    ]
+  },
+  "securities_heldtomaturity_debt_rolling_2_to_5_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Rolling Year 2 Through 5 Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesDebtMaturitiesRollingYearTwoThroughFiveAmortizedCost"
+    ]
+  },
+  "securities_heldtomaturity_debt_rolling_1_year_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Next Rolling 12 Months Amortized Cost Basis"
+    },
+    "gaap": [
+      "HeldtomaturitySecuritiesDebtMaturitiesNextRollingTwelveMonthsAmortizedCost"
+    ]
+  },
+  "securities_heldtomaturity_debt_without_single_maturity_date_carrying_amount": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Debt Securities Without Single Maturity Date Net Carrying Amount"
+    },
+    "gaap": [
+      "HeldToMaturitySecuritiesDebtMaturitiesWithoutSingleMaturityDateNetCarryingAmount"
+    ]
+  },
+  "securities_heldtomaturity_gross_current": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Held-to-Maturity Securities After Allowance for Credit Loss"
     },
     "gaap": [
       "HeldToMaturitySecuritiesCurrent"
@@ -42013,7 +42559,8 @@
     "calculation": {
       "order": 697,
       "any": [
-        "securities_heldtomaturity_debt_current"
+        "securities_heldtomaturity_debt_rolling_1_year_amortized_cost",
+        "securities_heldtomaturity_debt_maturing_within_1_year_amortized_cost"
       ]
     }
   },
@@ -42051,23 +42598,23 @@
       "DebtSecuritiesHeldToMaturityAmortizedCost"
     ]
   },
-  "securities_heldtomaturity_debt_current": {
+  "securities_heldtomaturity_debt_current_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Held-to-Maturity Debt Securities"
+      "long": "Current Held-to-Maturity Debt Securities Fair Value Disclosure"
     },
     "gaap": [
       "DebtSecuritiesHeldToMaturityFairValueCurrent"
     ]
   },
-  "securities_heldtomaturity_debt_current_carryingamount": {
+  "securities_heldtomaturity_debt_maturing_within_1_year_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Held-to-Maturity Debt Securities Carrying Amount"
+      "long": "Held-to-Maturity Debt Securities Maturing Within 1 Year Amortized Cost Basis"
     },
     "gaap": [
       "HeldToMaturitySecuritiesDebtMaturitiesWithinOneYearNetCarryingAmount"
@@ -42112,7 +42659,7 @@
       "DebtSecuritiesHeldToMaturityAllowanceForCreditLossExcludingAccruedInterestNoncurrent"
     ]
   },
-  "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance": {
+  "securities_heldtomaturity_debt_excluding_accrued_interest_gross": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42121,9 +42668,15 @@
     },
     "gaap": [
       "DebtSecuritiesHeldToMaturityExcludingAccruedInterestBeforeAllowanceForCreditLoss"
-    ]
+    ],
+    "calculation": {
+      "order": 1163,
+      "any": [
+        "securities_heldtomaturity_debt_excluding_accrued_interest_gross_current + securities_heldtomaturity_debt_excluding_accrued_interest_gross_noncurrent"
+      ]
+    }
   },
-  "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_current": {
+  "securities_heldtomaturity_debt_excluding_accrued_interest_gross_current": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42134,7 +42687,7 @@
       "DebtSecuritiesHeldToMaturityExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
     ]
   },
-  "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_noncurrent": {
+  "securities_heldtomaturity_debt_excluding_accrued_interest_gross_noncurrent": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42158,7 +42711,7 @@
     "calculation": {
       "order": 1164,
       "any": [
-        "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_current - securities_heldtomaturity_debt_excluding_accrued_interest_allowance_current"
+        "securities_heldtomaturity_debt_excluprecrued_interest_before_allowance_current - securities_heldtomaturity_debt_excluding_accrued_interest_allowance_current"
       ]
     }
   },
@@ -42175,11 +42728,11 @@
     "calculation": {
       "order": 1161,
       "any": [
-        "securities_heldtomaturity_debt_excluding_accrued_interest_before_allowance_noncurrent - securities_heldtomaturity_debt_excluding_accrued_interest_allowance_noncurrent"
+        "securities_heldtomaturity_debt_excluprecrued_interest_before_allowance_noncurrent - securities_heldtomaturity_debt_excluding_accrued_interest_allowance_noncurrent"
       ]
     }
   },
-  "securities_heldtomaturity_debt_noncurrent": {
+  "securities_heldtomaturity_debt_noncurrent_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42188,20 +42741,14 @@
     },
     "gaap": [
       "DebtSecuritiesHeldToMaturityFairValueNoncurrent"
-    ],
-    "calculation": {
-      "order": 675,
-      "any": [
-        "securities_heldformaturity_debt_maturing_1_to_5_years + securities_heldformaturity_debt_maturing_5_to_10_years + securities_heldformaturity_debt_maturing_after_10_years + securities_heldfortrading_debt_without_single_maturity_date"
-      ]
-    }
+    ]
   },
-  "securities_heldtomaturity_noncurrent": {
+  "securities_heldtomaturity_gross_noncurrent": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Noncurrent Helt-to-Maturity Securities Fair Value"
+      "long": "Noncurrent Helt-to-Maturity Securities at Amortized Cost Before Allowance for Credit Loss"
     },
     "gaap": [
       "HeldToMaturitySecuritiesNoncurrent",
@@ -42210,7 +42757,8 @@
     "calculation": {
       "order": 676,
       "any": [
-        "securities_heldtomaturity_debt_noncurrent"
+        "securities_heldtomaturity_debt_rolling_2_to_5_years_amortized_cost + securities_heldtomaturity_debt_rolling_6_to_10_years_amortized_cost + securities_heldtomaturity_debt_rolling_after_10_years_amortized_cost",
+        "securities_heldtomaturity_debt_maturing_1_to_5_years_amortized_cost + securities_heldtomaturity_debt_maturing_6_to_10_years_amortized_cost + securities_heldtomaturity_debt_maturing_after_10_years_amortized_cost"
       ]
     }
   },
@@ -42325,7 +42873,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Marketable Securities Fair Value"
+      "long": "Marketable Securities"
     },
     "gaap": [
       "MarketableSecurities",
@@ -42333,10 +42881,8 @@
     ],
     "calculation": {
       "order": 708,
-      "all": [
-        "securities_marketable_current + securities_marketable_noncurrent"
-      ],
       "any": [
+        "securities_marketable_current + securities_marketable_noncurrent",
         "securities_availableforsale + securities_heldfortrading + securities_heldtomaturity"
       ]
     }
@@ -42364,7 +42910,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Marketable Debt and Equity Securities Fair Value"
+      "long": "Marketable Debt and Equity Securities"
     },
     "gaap": [
       "MarketableDebtAndEquitySecurities"
@@ -42375,6 +42921,17 @@
         "securities_marketable_debt + securities_marketable_equity"
       ]
     }
+  },
+   "securities_marketable_debt": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Marketable Debt Securities"
+    },
+    "gaap": [
+      "MarketableDebtSecurities"
+    ]
   },
   "securities_marketable_equity": {
     "type": "monetary",
@@ -42389,13 +42946,22 @@
     ],
     "calculation": {
       "order": 3627,
-      "all": [
-        "securities_marketable_equity_current + securities_marketable_equity_noncurrent"
-      ],
       "any": [
-        "securities_availableforsale_equity + securities_fvni_equity"
+        "securities_marketable_equity_current + securities_marketable_equity_noncurrent",
+        "securities_availableforsale_equity + securities_heldfortrading_equity"
       ]
     }
+  },
+  "securities_marketable_equity_noncurrent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Noncurrent Marketable Equity Securities"
+    },
+    "gaap": [
+      "MarketableSecuritiesEquitySecuritiesNoncurrent"
+    ]
   },
   "securities_marketable_equity_current": {
     "type": "monetary",
@@ -42428,7 +42994,8 @@
     "calculation": {
       "order": 677,
       "any": [
-        "securities_availableforsale_noncurrent + securities_heldtomaturity_noncurrent + securities_heldfortrading_noncurrent + securities_marketable_other_noncurrent"
+        "securities_availableforsale_noncurrent + securities_heldtomaturity_noncurrent + securities_heldfortrading_noncurrent + securities_marketable_other_noncurrent",
+        "securities_fvni_noncurrent + securities_fvoci_noncurrent + securities_amortized_noncurrent"
       ]
     }
   },
@@ -42495,20 +43062,6 @@
     "gaap": [
       "MarketableSecuritiesRestrictedNoncurrent"
     ]
-  },
-  "securities_noncurrent": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Noncurrent Securities"
-    },
-    "calculation": {
-      "order": 682,
-      "any": [
-        "securities_marketable_noncurrent + securities_fvni_noncurrent + securities_fvoci_noncurrent + securities_amortized_noncurrent + securities_auctionrate_noncurrent"
-      ]
-    }
   },
   "securities_purchased_under_resell_agreements": {
     "type": "monetary",
