@@ -4788,6 +4788,111 @@
     "gaap": [
       "CashEquivalents",
       "CashEquivalentsAtCarryingValue"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_asset_backed + certificates_of_deposits + commercial_paper + receivables_credit_debit_cards + money_market_funds + securities_debt_municipal + time_deposits + securities_us_government + securities_us_government_agencies + cash_equivalents_other"
+      ]
+    }
+  },
+  "cash_equivalents_other": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Other Cash Equivalents At Carrying Value"
+    },
+    "gaap": [
+      "OtherCashEquivalentsAtCarryingValue"
+    ]
+  },
+  "securities_us_government_agencies": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "US Government Agencies Securities at Carrying Value"
+    },
+    "gaap": [
+      "USGovernmentAgenciesSecuritiesAtCarryingValue"
+    ]
+  },
+  "securities_us_government": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "US Government Securities at Carrying Value"
+    },
+    "gaap": [
+      "USGovernmentSecuritiesAtCarryingValue"
+    ]
+  },
+  "time_deposits": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Time Deposits at Carrying Value"
+    },
+    "gaap": [
+      "TimeDepositsAtCarryingValue"
+    ]
+  },
+  "securities_debt_municipal": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Municipal Debt Securities at Carrying Value"
+    },
+    "gaap": [
+      "MunicipalDebtSecuritiesAtCarryingValue"
+    ]
+  },
+  "money_market_funds": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Money Market Funds at Carrying Value"
+    },
+    "gaap": [
+      "MoneyMarketFundsAtCarryingValue"
+    ]
+  },
+  "receivables_credit_debit_cards": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Credit and Debit Card Receivables At Carrying Value"
+    },
+    "gaap": [
+      "CreditAndDebitCardReceivablesAtCarryingValue"
+    ]
+  },
+  "certificates_of_deposits": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Certificates of Deposit at Carrying Value"
+    },
+    "gaap": [
+      "CertificatesOfDepositAtCarryingValue"
+    ]
+  },
+  "securities_asset_backed": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Asset-Backed Securities At Carrying Value"
+    },
+    "gaap": [
+      "AssetBackedSecuritiesAtCarryingValue"
     ]
   },
   "cash_excess": {
@@ -6473,8 +6578,26 @@
     },
     "gaap": [
       "CommercialPaper",
-      "CommercialPaperCurrent"
+      "CommercialPaperCurrent",
+      "CommercialPaperAtCarryingValue"
     ]
+  },
+  "commercial_paper_longterm": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Commercial Paper"
+    },
+    "gaap": [
+      "LongtermCommercialPaperCurrentAndNoncurrent"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "commercial_paper_longterm_current + commercial_paper_noncurrent"
+      ]
+    }
   },
   "commercial_paper_longterm_current": {
     "type": "monetary",
@@ -41330,7 +41453,7 @@
       "order": 707,
       "any": [
         "securities_availableforsale_current + securities_availableforsale_noncurrent",
-        "securities_availableforsale_debt + securities_availableforsale_equity"
+        "securities_availableforsale_debt_fair_value + securities_availableforsale_equity_fair_value"
       ]
     }
   },
@@ -41355,7 +41478,13 @@
     },
     "gaap": [
       "AvailableForSaleSecuritiesAmortizedCost"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_availableforsale_debt_amortized_cost + securities_availableforsale_equity_amortized_cost"
+      ]
+    }
   },
   "securities_availableforsale_assetbacked": {
     "type": "monetary",
@@ -41407,7 +41536,7 @@
       ]
     }
   },
-  "securities_availableforsale_debt": {
+  "securities_availableforsale_debt_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -41420,7 +41549,8 @@
     "calculation": {
       "order": 3576,
       "any": [
-        "securities_availableforsale_debt_current + securities_availableforsale_debt_noncurrent"
+        "securities_availableforsale_debt_current + securities_availableforsale_debt_noncurrent",
+        "securities_availableforsale_debt_without_single_maturity_date_fair_value + securities_availableforsale_debt_with_single_maturity_date_fair_value"
       ]
     }
   },
@@ -41514,7 +41644,13 @@
     "gaap": [
       "AvailableForSaleDebtSecuritiesAmortizedCostBasis",
       "AvailableForSaleSecuritiesDebtMaturitiesAmortizedCost"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_availableforsale_debt_without_single_maturity_date_amortized_cost + securities_availableforsale_debt_with_single_maturity_date_amortized_cost"
+      ]
+    }
   },
   "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest": {
     "type": "monetary",
@@ -41852,14 +41988,8 @@
       "long": "Current Available-For-Sale Debt Securities"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesDebtSecuritiesCurrent",
-    ],
-    "calculation": {
-      "order": 0,
-      "any": [
-
-      ]
-    }
+      "AvailableForSaleSecuritiesDebtSecuritiesCurrent"
+    ]
   },
   "securities_availableforsale_debt_allowance_current": {
     "type": "monetary",
@@ -41945,16 +42075,15 @@
       "AvailableForSaleSecuritiesDebtSecuritiesExcludingMoneyMarketFundsCurrent"
     ]
   },
-  "securities_availableforsale_debt_maturing_1_year": {
+  "securities_availableforsale_debt_maturing_1_year_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Available-For-Sale Maturing Debt Securities"
+      "long": "Available-For-Sale Maturing Debt Securities Maturing Within 1 Year Fair Value"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearFairValue",
-      "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsFairValue"
+      "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearFairValue"
     ]
   },
   "securities_availableforsale_debt_maturing_1_year_amortized_cost": {
@@ -41962,19 +42091,40 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Current Available-For-Sale Debt Securities Amortized Cost Basis"
+      "long": "Available-For-Sale Debt Securities Maturing within 1 Year Amortized Cost Basis"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearAmortizedCost",
-      "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsAmortizedCostBasis"
+      "AvailableForSaleSecuritiesDebtMaturitiesWithinOneYearAmortizedCost"
     ]
   },
-  "securities_availableforsale_debt_maturing_2_to_3_years": {
+  "securities_availableforsale_debt_rolling_1_year_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 1 Through 3 Years"
+      "long": "Available-For-Sale Debt Securities Rolling Next 12 Months Fair Value"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsFairValue"
+    ]
+  },
+  "securities_availableforsale_debt_rolling_1_year_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Maturing Next Rolling 12 Months Amortized Cost Basis"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesNextRollingTwelveMonthsAmortizedCostBasis"
+    ]
+  },
+  "securities_availableforsale_debt_rolling_2_to_3_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Rolling Year 2 Through 3 Fair Value"
     },
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeFairValue",
@@ -41982,12 +42132,12 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanOneYearThroughThreeYearsFairValue"
     ]
   },
-  "securities_availableforsale_debt_maturing_2_to_3_years_amortized_cost": {
+  "securities_availableforsale_debt_rolling_2_to_3_years_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 1 Through 3 Years Amortized Cost Basis"
+      "long": "Available-For-Sale Debt Securities Rolling Greater Than Year 2 Through 3 Amortized Cost Basis"
     },
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingYearTwoThroughThreeAmortizedCostBasis",
@@ -41995,7 +42145,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearOneThroughYearThreeAmortizedCostBasis"
     ]
   },
-  "securities_availableforsale_debt_maturing_2_to_5_years": {
+  "securities_availableforsale_debt_maturing_2_to_5_years_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42003,14 +42153,29 @@
       "long": "Available-For-Sale Debt Securities Maturing After 1 Through 5 Years"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsFairValue",
-      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue",
-      "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearThreeThroughFiveYearsFairValue"
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsFairValue"
     ],
     "calculation": {
       "order": 3593,
       "any": [
-        "securities_availableforsale_debt_maturing_2_to_3_years + securities_availableforsale_debt_maturing_4_to_5_years"
+        "securities_availableforsale_debt_maturing_2_to_3_years_fair_value + securities_availableforsale_debt_maturing_4_to_5_years_fair_value"
+      ]
+    }
+  },
+  "securities_availableforsale_debt_rolling_2_to_5_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Maturing After 1 Through 5 Years"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue"
+    ],
+    "calculation": {
+      "order": 3593,
+      "any": [
+        "securities_availableforsale_debt_rolling_2_to_3_years_fair_value + securities_availableforsale_debt_rolling_4_to_5_years_fair_value"
       ]
     }
   },
@@ -42022,8 +42187,7 @@
       "long": "Available-For-Sale Debt Securities Maturing After 1 Through 5 Years Amortized Cost Basis"
     },
     "gaap": [
-      "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsAmortizedCost",
-      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveAmortizedCostBasis"
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterOneThroughFiveYearsAmortizedCost"
     ],
     "calculation": {
       "order": 3595,
@@ -42032,24 +42196,42 @@
       ]
     }
   },
-  "securities_availableforsale_debt_maturing_4_to_5_years": {
+  "securities_availableforsale_debt_rolling_2_to_5_years_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 3 Through 5 Years"
+      "long": "Available-For-Sale Debt Securities Rolling Year 2 Through 5 Amortized Cost Basis"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearTwoThroughFiveAmortizedCostBasis"
+    ],
+    "calculation": {
+      "order": 3595,
+      "any": [
+        "securities_availableforsale_debt_rolling_2_to_3_years_amortized_cost + securities_availableforsale_debt_rolling_4_to_5_years_amortized_cost"
+      ]
+    }
+  },
+  "securities_availableforsale_debt_rolling_4_to_5_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Rolling Year 4 Through 5 Years Fair Value"
     },
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue",
-      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue"
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveFairValue",
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanYearThreeThroughFiveYearsFairValue"
     ]
   },
-  "securities_availableforsale_debt_maturing_4_to_5_years_amortized_cost": {
+  "securities_availableforsale_debt_rolling_4_to_5_years_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 3 Through 5 Years Amortized Cost Basis"
+      "long": "Available-For-Sale Debt Securities Rolling Year 3 Through 5 Amortized Cost Basis"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesRollingYearFourThroughFiveAmortizedCostBasis",
@@ -42057,7 +42239,7 @@
       "AvailableForSaleSecuritiesDebtMaturitiesRollingGreaterThanThreeYearsThroughYearFiveAmortizedCostBasis"
     ]
   },
-  "securities_availableforsale_debt_maturing_6_to_10_years": {
+  "securities_availableforsale_debt_maturing_6_to_10_years_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42068,18 +42250,62 @@
       "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsFairValue"
     ]
   },
+  "securities_availableforsale_debt_rolling_6_to_10_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-for-Sale Securities Debt Maturities Rolling Year 6 Through 10 Fair Value"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearSixThroughTenFairValue"
+    ]
+  },
   "securities_availableforsale_debt_maturing_6_to_10_years_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 5 Through 10 Years Amortized Cost"
+      "long": "Available-For-Sale Debt Securities Maturing After 5 Through 10 Years Amortized Cost Basis"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterFiveThroughTenYearsAmortizedCost"
     ]
   },
-  "securities_availableforsale_debt_maturing_after_10_years": {
+  "securities_availableforsale_debt_rolling_6_to_10_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-for-Sale Securities Debt Maturities Rolling Year 6 Through 10 Amortized Cost Basis"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingYearSixThroughTenAmortizedCostBasis"
+    ]
+  },
+  "securities_availableforsale_debt_rolling_after_10_years_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Rolling After Year 10 Fair Value"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearTenFairValue"
+    ]
+  },
+  "securities_availableforsale_debt_rolling_after_10_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Rolling After Year 10 Amortized Cost Basis"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearTenAmortizedCostBasis"
+    ]
+  },
+  "securities_availableforsale_debt_maturing_after_10_years_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42095,30 +42321,64 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 10 Years Amortized Cost"
+      "long": "Available-For-Sale Debt Securities Maturing After 10 Years Amortized Cost Basis"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterTenYearsAmortizedCost"
     ]
   },
-  "securities_availableforsale_debt_maturing_after_1_year": {
+  "securities_availableforsale_debt_rolling_after_1_year_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Securities Maturing After 1 Year"
+      "long": "Available-For-Sale Debt Securities Maturing After 1 Year Fair Value"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesAfterNextRollingTwelveMonthsFairValue"
     ],
     "calculation": {
-      "order": 3602,
+      "order": 3600,
       "any": [
-        "securities_availableforsale_debt_maturing_2_to_5_years + securities_availableforsale_debt_maturing_after_5_years"
+        "securities_availableforsale_debt_rolling_2_to_5_years_fair_value + securities_availableforsale_debt_rolling_after_5_years_fair_value"
       ]
     }
   },
-  "securities_availableforsale_debt_maturing_after_5_years": {
+  "securities_availableforsale_debt_rolling_after_1_year_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Maturing After 1 Year Amortized Cost Basis"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesAfterNextRollingTwelveMonthsAmortizedCostBasis"
+    ],
+    "calculation": {
+      "order": 3600,
+      "any": [
+        "securities_availableforsale_debt_rolling_2_to_5_years_amortized_cost + securities_availableforsale_debt_rolling_after_5_years_amortized_cost"
+      ]
+    }
+  },
+  "securities_availableforsale_debt_rolling_after_5_years_amortized_cost": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-For-Sale Debt Securities Maturing After 5 Years Amortized Cost Basis"
+    },
+    "gaap": [
+      "AvailableForSaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis"
+    ],
+    "calculation": {
+      "order": 3600,
+      "any": [
+        "securities_availableforsale_debt_rolling_6_to_10_years_amortized_cost + securities_availableforsale_debt_rolling_after_10_years_amortized_cost"
+      ]
+    }
+  },
+  "securities_availableforsale_debt_rolling_after_5_years_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42132,7 +42392,7 @@
     "calculation": {
       "order": 3600,
       "any": [
-        "securities_availableforsale_debt_maturing_6_to_10_years + securities_availableforsale_debt_maturing_after_10_years"
+        "securities_availableforsale_debt_rolling_6_to_10_years_fair_value + securities_availableforsale_debt_rolling_after_10_years_fair_value"
       ]
     }
   },
@@ -42141,7 +42401,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Security Maturing After 5 Years Amortized Cost"
+      "long": "Available-For-Sale Debt Security Maturing After 5 Years Amortized Cost Basis"
     },
     "gaap": [
       "AvailableforsaleSecuritiesDebtMaturitiesRollingAfterYearFiveAmortizedCostBasis",
@@ -42175,7 +42435,7 @@
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Noncurrent Available-For-Sale Debt Securities"
+      "long": "Noncurrent Available-For-Sale Debt Securities Fair Value"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent"
@@ -42204,18 +42464,25 @@
       "AvailableForSaleDebtSecuritiesInvestmentsInUnrealizedLoss"
     ]
   },
-  "securities_availableforsale_debt_with_maturity_date": {
+  "securities_availableforsale_debt_with_single_maturity_date_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-For-Sale Debt Security with Single Maturity Date"
+      "long": "Available-For-Sale Debt Security with Single Maturity Date Fair Value"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDate"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_availableforsale_debt_rolling_1_year_fair_value + securities_availableforsale_debt_rolling_after_1_year_fair_value ",
+        "securities_availableforsale_debt_maturing_1_year_fair_value + securities_availableforsale_debt_maturing_2_to_5_years_fair_value + securities_availableforsale_debt_maturing_6_to_10_years_fair_value + securities_availableforsale_debt_maturing_after_10_years_fair_value"
+      ]
+    }
   },
-  "securities_availableforsale_debt_with_maturity_date_amortized_cost": {
+  "securities_availableforsale_debt_with_single_maturity_date_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42225,9 +42492,16 @@
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDateAmortizedCost",
       "AvailableForSaleSecuritiesDebtMaturitiesSingleMaturityDateAmortizedCostBasis"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "securities_availableforsale_debt_rolling_1_year_amortized_cost + securities_availableforsale_debt_rolling_after_1_year_amortized_cost ",
+        "securities_availableforsale_debt_maturing_1_year_amortized_cost + securities_availableforsale_debt_maturing_2_to_5_years_amortized_cost + securities_availableforsale_debt_maturing_6_to_10_years_amortized_cost + securities_availableforsale_debt_maturing_after_10_years_amortized_cost"
+      ]
+    }
   },
-  "securities_availableforsale_debt_without_maturity_date": {
+  "securities_availableforsale_debt_without_single_maturity_date_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42244,12 +42518,12 @@
       ]
     }
   },
-  "securities_availableforsale_debt_without_maturity_date_amortized_cost": {
+  "securities_availableforsale_debt_without_single_maturity_date_amortized_cost": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-for-Sale Debt Security Maturities without Single Maturity Date Amortized Cost"
+      "long": "Available-for-Sale Debt Security Maturities without Single Maturity Date Amortized Cost Basis"
     },
     "gaap": [
       "AvailableForSaleSecuritiesDebtMaturitiesWithoutSingleMaturityDateAmortizedCost"
@@ -42267,7 +42541,7 @@
       "DebtSecuritiesAvailableForSaleWeightedAverageYield"
     ]
   },
-  "securities_availableforsale_equity": {
+  "securities_availableforsale_equity_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -42293,7 +42567,13 @@
     },
     "gaap": [
       "AvailableForSaleEquitySecuritiesAmortizedCostBasis"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "loss_unrealized_accumulated_pretax_securities_availableforsale_equity - gain_unrealized_accumulated_pretax_securities_availableforsale_equity + securities_availableforsale_equity_fair_value"
+      ]
+    }
   },
   "securities_availableforsale_equity_current": {
     "type": "monetary",
@@ -43020,7 +43300,7 @@
       "HeldToMaturitySecuritiesDebtMaturitiesRollingYearTwoThroughFiveFairValue"
     ]
   },
-  "securities_heldtomaturity_debt_next_rolling_1_year_fair_value": {
+  "securities_heldtomaturity_debt_rolling_1_year_fair_value": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -43539,7 +43819,7 @@
       "order": 3627,
       "any": [
         "securities_marketable_equity_current + securities_marketable_equity_noncurrent",
-        "securities_availableforsale_equity + securities_heldfortrading_equity"
+        "securities_availableforsale_equity_fair_value + securities_heldfortrading_equity"
       ]
     }
   },
