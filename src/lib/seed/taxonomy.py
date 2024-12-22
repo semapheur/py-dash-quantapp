@@ -15,6 +15,7 @@ def fix_taxonomy():
   taxonomy = Taxonomy(data=taxonomy_raw)
   taxonomy.add_missing_items()
   taxonomy.fix_balance()
+  taxonomy.remove_duplicate_synonyms()
   taxonomy.resolve_calculation_order()
   taxonomy_dict = taxonomy.model_dump(exclude_none=True)
 

@@ -425,49 +425,68 @@ def find_missing_items(taxonomy: Taxonomy) -> set[str]:
   return missing_items
 
 
-def duplicate_calculation_items(taxonomy: Taxonomy) -> dict[str, list[str]]:
-  def walk_calculation(item: str, duplicates: set[str], seen_items: set[str]):
-    if (calc := taxonomy.data[item].calculation) is None:
+def duplicate_calculation_items(taxonomy: Taxonomy) -> dict[str, dict[str, list[str]]]:
+  # Not working as intended
+
+  def get_calc_items(calculation: TaxonomyCalculation) -> set[str]:
+    items = set()
+    for schema in ("all", "any"):
+      calc_schemas = cast(list[str] | None, calculation.get(schema))
+      if calc_schemas is None:
+        continue
+
+      for calc_text in calc_schemas:
+        items.update(extract_items(calc_text))
+
+    return items
+
+  def walk_calculation(
+    item: str,
+    result: dict[str, dict[str, list[str]]],
+    seen_items: set[str],
+    visited: set[str],
+  ) -> None:
+    if item in visited:
       return
 
-    for schema in ("all", "any"):
-      calc_schemas = cast(list[str] | None, calc.get(schema))
+    visited.add(item)
 
-      if calc_schemas is None:
-        continue
+    if item not in taxonomy.data:
+      return
 
-      for calc_text in calc_schemas:
-        items = extract_items(calc_text)
-        duplicates.update(seen_items.intersection(items))
+    calc = taxonomy.data[item].calculation
+    if not calc:
+      return
 
-        seen_items.update(items)
+    new_items = get_calc_items(calc)
+    duplicates = list(seen_items.intersection(new_items))
+    if duplicates:
+      result[k].setdefault(item, []).extend(duplicates)
 
-        for item in items:
-          walk_calculation(item, duplicates, seen_items)
+    for new_item in new_items:
+      walk_calculation(new_item, result, seen_items, visited)
 
-  result: dict[str, list[str]] = {}
+  result: dict[str, dict[str, list[str]]] = {}
 
   for k, v in taxonomy.data.items():
-    if (calc := v.calculation) is None:
+    calc = v.calculation
+    if v.type != "monetary" or calc is None:
       continue
 
-    duplicates: set[str] = set()
+    result[k] = {}
 
     for schema in ("all", "any"):
       calc_schemas = cast(list[str] | None, calc.get(schema))
-
       if calc_schemas is None:
         continue
 
-      for calc_text in calc_schemas:
+      for i, calc_text in enumerate(calc_schemas):
         seen_items = extract_items(calc_text)
 
         for item in seen_items:
-          walk_calculation(item, duplicates, seen_items)
+          walk_calculation(item, result, seen_items, set())
 
-    if duplicates:
-      result[k] = list(duplicates)
-
+  result = {key: value for key, value in result.items() if value}
   return result
 
 
