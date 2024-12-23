@@ -15932,9 +15932,21 @@
     "calculation": {
       "order": 268,
       "all": [
-        "gain_loss_foreign_currency_transaction_translation_pretax - gain_loss_foreign_currency_transaction_translation_tax"
+        "adjusted_gain_loss_foreign_currency_transaction_translation_tax - gain_loss_foreign_currency_transaction_translation_reclassification_adjustment"
       ]
     }
+  },
+    "gain_loss_foreign_currency_transaction_translation_reclassification_adjustment": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Foreign Currency Translation Reclassification Adjustment Realized Upon Sale Or Liquidation Tax"
+    },
+    "gaap": [
+      "OtherComprehensiveIncomeLossForeignCurrencyTranslationReclassificationAdjustmentRealizedUponSaleOrLiquidationTax",
+      "OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationReclassificationAdjustmentFromAOCIRealizedUponSaleOrLiquidationTax"
+    ]
   },
   "gain_loss_foreign_currency_transaction_translation_unadjusted_pretax": {
     "type": "monetary",
@@ -23710,6 +23722,34 @@
       "LandAvailableForSale"
     ]
   },
+  "land_buildings": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Land and Buildings"
+    },
+    "gaap": [
+      "LandAndBuildings"
+    ],
+    "calculation": {
+      "order": 994,
+      "any": [
+        "land + buildings"
+      ]
+    }
+  },
+  "buildings": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Buildings"
+    },
+    "gaap": [
+      "Buildings"
+    ]
+  },
   "land_buildings_gross": {
     "type": "monetary",
     "balance": "debit",
@@ -23723,7 +23763,7 @@
     "calculation": {
       "order": 994,
       "any": [
-        "land_land_improvements + buildings_improvements_gross"
+        "land_land_improvements_gross + buildings_improvements_gross"
       ]
     }
   },
@@ -23738,12 +23778,12 @@
       "LandImprovements"
     ]
   },
-  "land_land_improvements": {
+  "land_land_improvements_gross": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Land and Land Improvements"
+      "long": "Gross Land and Land Improvements"
     },
     "gaap": [
       "LandAndLandImprovements"
@@ -26405,6 +26445,17 @@
     },
     "gaap": [
       "UnusualOrInfrequentItemLossGross"
+    ]
+  },
+  "machinery": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Machinery"
+    },
+    "gaap": [
+      "Machinery"
     ]
   },
   "machinery_equipment_gross": {
@@ -35481,8 +35532,9 @@
     "calculation": {
       "order": 1005,
       "all": [
-        "property_plant_equipment_gross - property_plant_equipment_accumulated_depreciation",
-        "property_for_operating_lease + property_plant_equipment_excluding_lessor_assets_under_operating_lease",
+        "property_plant_equipment_gross - property_plant_equipment_accumulated_depreciation"
+      ],
+      "any": [
         "property_plant_equipment_exluding_capital_leased_assets + capital_leased_assets"
       ]
     }
@@ -35500,7 +35552,6 @@
     "calculation": {
       "order": 1005,
       "all": [
-        "property_plant_equipment_exluding_capital_leased_assets_gross - property_plant_equipment_exluding_capital_leased_assets_accumulated_depreciation",
         "capital_leased_assets_gross - capital_leased_assets_accumulated_depreciation"
       ]
     }
@@ -35530,8 +35581,77 @@
       "order": 1005,
       "all": [
         "property_plant_equipment_exluding_capital_leased_assets_gross - property_plant_equipment_exluding_capital_leased_assets_accumulated_depreciation"
+      ],
+      "any": [
+        "land_buildings + machinery + vehicles + fixtures_equipment + office_equipment + tangible_exploration_evaluation_assets + construction_inprogress + capitalized_software + investment_property_without_reliable_fair_value + property_for_operating_lease + property_plant_equipment_excluding_lessor_assets_under_operating_lease + property_plant_equipment_other"
       ]
     }
+  },
+  "investment_property_without_reliable_fair_value": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Investment Property Whose Fair Value Cannot Be Measured Reliably Without Undue Cost or Effort on Ongoing Basis"
+    },
+    "gaap": [
+      "InvestmentPropertyWhoseFairValueCannotBeMeasuredReliablyWithoutUndueCostOrEffortOnOngoingBasis"
+    ]
+  },
+  "tangible_exploration_evaluation_assets": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Tangible Exploration and Evaluation Assets"
+    },
+    "gaap": [
+      "TangibleExplorationAndEvaluationAssets"
+    ]
+  },
+  "office_equipment": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Office Equipment"
+    },
+    "gaap": [
+      "OfficeEquipment"
+    ]
+  },
+  "construction_inprogress": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Construction in Progress"
+    },
+    "gaap": [
+      "ConstructionInProgress"
+    ]
+  },
+  "fixtures_equipment": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Fixtures and Fittings"
+    },
+    "gaap": [
+      "FixturesAndFittings"
+    ]
+  },
+  "vehicles": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Vehicles"
+    },
+    "gaap": [
+      "Vehicles"
+    ]
   },
   "property_plant_equipment_exluding_capital_leased_assets_accumulated_depreciation": {
     "type": "monetary",
@@ -35553,7 +35673,13 @@
     },
     "gaap": [
       "PropertyPlantAndEquipmentGrossExcludingCapitalLeasedAssets"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "land_buildings_gross + furniture_fixtures_gross + machinery_equipment_software_gross + fixtures_equipment_gross + construction_inprogress_gross + leasehold_improvements_gross + timber_timberlands + property_available_for_operating_lease_gross + property_plant_equipment_exclusing_lessor_assets_under_operating_lease_gross + property_plant_equipment_other_gross"
+      ]
+    }
   },
   "property_plant_equipment_excluding_lessor_assets_under_operating_lease": {
     "type": "monetary",
@@ -35705,10 +35831,7 @@
     "calculation": {
       "order": 1004,
       "all": [
-        "property_available_for_operating_lease_gross + property_plant_equipment_exclusing_lessor_assets_under_operating_lease_gross"
-      ],
-      "any": [
-        "land_buildings_gross + furniture_fixtures_gross + machinery_equipment_software_gross + fixtures_equipment_gross + construction_inprogress_gross + leasehold_improvements_gross + timber_timberlands + capital_leased_assets_gross + property_available_for_operating_lease_gross + property_plant_equipment_other_gross"
+        "property_plant_equipment_exluding_capital_leased_assets_gross + capital_leased_assets_gross"
       ]
     }
   },
@@ -35720,6 +35843,7 @@
       "long": "Other Property, Plant and Equipment"
     },
     "gaap": [
+      "OtherPropertyPlantAndEquipment",
       "PropertyPlantAndEquipmentOtherNet"
     ],
     "calculation": {
