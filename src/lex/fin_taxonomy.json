@@ -2847,7 +2847,7 @@
         "assets_current + assets_noncurrent"
       ],
       "any": [
-        "cash_and_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_leases_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loans_collateral + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivables_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease + receivables + receivables_related_parties + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + property_plant_equipment + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivables_net + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets + lease_assets_finance + lease_assets_operating + goodwill_intangible_assets + deferred_costs + hosting_arrangement_service_contract_implementation_cost_capitalized + other_interest_earning_assets + assets_heldintrust + receivables_deferred_rent + disposal_assets + assets_heldforsale + assets_under_management + indemnification_asset + recorded_third_party_environmental_recoveries + business_combination_contingent_consideration_asset + costs_excess_billings_uncomplete_contracts_programs + investment_qualified_affordable_housing_project + debt_issuance_costs_credit_lines_arrangements + healthcare_organization_trade_receivables_third_party_payor_retroactive_adjustments + safeguarding_asset_platform_operator_crypto_asset + defined_benefit_plan_assets + prepaid_pension_costs + prepaid_expense_other_assets + other_assets_miscellaneous + securities_debt + cumulative_government_assistance"
+        "cash_and_cash_equivalents_federal_funds_sold + restricted_assets_other + investments_leases_leveraged + bank_stock_home_loan_reserve + collateralized_agreements + loans_collateral + loan_home_federal_bank_advances + guaranty_assets + cash_surrender_value_life_insurance + due_customer_acceptances + receivables_financing_excluding_accrued_interest + securities_heldtomaturity_debt_excluding_accrued_interest + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + investments_lease + receivables + receivables_related_parties + customers_liability_for_acceptances + reinsurance_recoverables + customer_contract_assets + capitalized_contract_cost + funds_under_reinsurance_agreements_asset + value_business_acquired + productive_assets + inventory_real_estate + other_real_estate_foreclosed_assets + investments + investments_real_estate + deferred_tax_assets + real_estate_heldforsale + memberships_exchanges_owned + loans_leases_receivables_net + interest_heldbytransferor_fairvalue + servicing_asset + insurance_life_bank_owned + financial_assets_accrued_interest + securities_availableforsale_debt_accrued_interest_postallowance + separate_account_assets + securities_collateral_fairvalue + derivative_assets + lease_assets_rightofuse_finance + lease_assets_rightofuse_operating + goodwill_intangible_assets + deferred_costs + hosting_arrangement_service_contract_implementation_cost_capitalized + other_interest_earning_assets + assets_heldintrust + receivables_deferred_rent + disposal_assets + assets_heldforsale + assets_under_management + indemnification_asset + recorded_third_party_environmental_recoveries + business_combination_contingent_consideration_asset + costs_excess_billings_uncomplete_contracts_programs + investment_qualified_affordable_housing_project + debt_issuance_costs_credit_lines_arrangements + healthcare_organization_trade_receivables_third_party_payor_retroactive_adjustments + safeguarding_asset_platform_operator_crypto_asset + defined_benefit_plan_assets + prepaid_pension_costs + prepaid_expense_other_assets + other_assets_miscellaneous + securities_debt + cumulative_government_assistance"
       ]
     }
   },
@@ -3235,18 +3235,6 @@
     "calculation": {
       "order": 2211,
       "avg": "prepaid_expense_current"
-    }
-  },
-  "average_productive_assets": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "average",
-    "label": {
-      "long": "Average Fixed Assets"
-    },
-    "calculation": {
-      "order": 2212,
-      "avg": "productive_assets"
     }
   },
   "average_receivables": {
@@ -11971,6 +11959,21 @@
         "depreciation_property_plant_equipment + amortization_capitalized_software + amortization_lease_assets_operating"
       ],
       "diff": "productive_assets_accumulated_depreciation_amortization"
+    }
+  },
+  "productive_assets_accumulated_depreciation_amortization": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Accumulated Depreciation and Amortization of Productive Assets",
+      "short": "Accumulated D&A of Productive Assets"
+    },
+    "calculation": {
+      "order": 2605,
+      "any": [
+        "property_plant_equipment_accumulated_depreciation + capitalized_software_accumulated_amortization"
+      ]
     }
   },
   "depreciation_amortization_services": {
@@ -22244,7 +22247,7 @@
     "calculation": {
       "order": 2205,
       "all": [
-        "equity + debt + lease_assets - cash_excess"
+        "equity + debt + lease_assets_rightofuse - cash_excess"
       ],
       "any": [
         "working_capital_operating + productive_assets + goodwill_intangible_assets"
@@ -23806,7 +23809,7 @@
       "LandUnderPurchaseOptionsRecorded"
     ]
   },
-  "lease_assets": {
+  "lease_assets_rightofuse": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -23816,11 +23819,11 @@
     "calculation": {
       "order": 1009,
       "any": [
-        "lease_assets_finance + lease_assets_operating"
+        "lease_assets_rightofuse_finance + lease_assets_rightofuse_operating"
       ]
     }
   },
-  "lease_assets_finance": {
+  "lease_assets_rightofuse_finance": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -23859,7 +23862,7 @@
       "FinanceLeaseRightOfUseAssetBeforeAccumulatedAmortization"
     ]
   },
-  "lease_assets_operating": {
+  "lease_assets_rightofuse_operating": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -35402,28 +35405,10 @@
     "label": {
       "long": "Productive Assets"
     },
-    "gaap": [
-      "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet"
-    ],
     "calculation": {
       "order": 1012,
       "any": [
-        "property_plant_equipment + capitalized_software + lease_assets"
-      ]
-    }
-  },
-  "productive_assets_accumulated_depreciation_amortization": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Accumulated Depreciation and Amortization of Productive Assets",
-      "short": "Accumulated D&A of Productive Assets"
-    },
-    "calculation": {
-      "order": 2605,
-      "any": [
-        "property_plant_equipment_accumulated_depreciation + capitalized_software_accumulated_amortization"
+        "property_plant_equipment + lease_assets_rightofuse"
       ]
     }
   },
@@ -35527,7 +35512,8 @@
       "PropertyPlantAndEquipment",
       "PropertyPlantAndEquipmentNet",
       "PropertyPlantAndEquipmentNetTotal",
-      "PropertyPlantAndEquipmentAfterDepreciation"
+      "PropertyPlantAndEquipmentAfterDepreciation",
+      "PropertyPlantAndEquipmentAndCapitalizedSoftwareNet"
     ],
     "calculation": {
       "order": 1005,
@@ -39059,7 +39045,7 @@
     "calculation": {
       "order": 613,
       "any": [
-        "cash_and_cash_equivalents_restricted_current + investments_restricted_current + other_restricted_assets_current"
+        "cash_and_cash_equivalents_restricted_current + investments_restricted_current + restricted_assets_other_current"
       ]
     }
   },
