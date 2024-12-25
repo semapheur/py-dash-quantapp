@@ -41,9 +41,9 @@ from lib.fin.models import (
   FiscalPeriod,
 )
 from lib.fin.statement import upsert_statements
-from lib.fin.taxonomy import search_taxonomy
+from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.scrap import download_file_memory
-from lib.utils import split_multiline, pascal_case
+from lib.utils import split_multiline, pascal_case, split_pascal_case
 
 register_page(__name__, path="/scrap")
 
@@ -572,7 +572,12 @@ layout = html.Main(
                   "cellEditor": "agSelectCellEditor",
                   "cellEditorParams": {"values": ["create", "update", "none"]},
                 },
-                {"field": "taxonomy", "cellDataType": "text"},
+                {
+                  "field": "taxonomy",
+                  "cellDataType": "text",
+                  "tooltipField": "suggestions",
+                  "tooltipComponent": "TaxonomyTooltip",
+                },
                 {"field": "item", "cellDataType": "text", "editable": False},
                 {"field": "long", "header": "Label (long)", "cellDataType": "text"},
                 {"field": "short", "header": "Label (short)", "cellDataType": "text"},
@@ -1207,6 +1212,16 @@ def search_items(n_clicks: int, rows: list[dict]):
     if find is not None:
       rows[i]["action"] = "none"
       rows[i]["taxonomy"] = find["item"]
+
+    else:
+      fuzzy = fuzzy_search_taxonomy(split_pascal_case(rows[i]["item"]), 3)
+      if fuzzy is None:
+        continue
+
+      rows[i]["action"] = "update"
+      rows[i]["suggestions"] = [
+        f"{i} ({g})" for i, g in zip(fuzzy["item"], fuzzy["gaap"])
+      ]
 
   return rows
 

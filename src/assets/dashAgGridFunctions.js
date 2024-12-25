@@ -26,7 +26,7 @@ dagfuncs.DccDropdown = class {
       }
     }))
     // allows focus event
-    this.eInput.tabIndex = "0" 
+    this.eInput.tabIndex = "0"
 
     // set editor value to value from the cell
     this.value = params.value
@@ -105,7 +105,7 @@ dagfuncs.ParameterInput = class {
     this.eForm.className = "w-full flex gap-1"
 
     const dist = params.data[colId].toLowerCase()
-    
+
     const distParams = distributions[dist]["parameters"]
     const width = `${(1 / Object.keys(distParams).length) * 100}%`
     this.eInputs = []
@@ -125,7 +125,7 @@ dagfuncs.ParameterInput = class {
     return this.eForm
   }
   afterGuiAttached() {
-    this.eForm.focus();
+    this.eForm.focus()
   }
   getValue() {
     const values = []
@@ -133,7 +133,7 @@ dagfuncs.ParameterInput = class {
     for (const input of this.eInputs) {
       values.push(input.value)
     }
-    return values.join(", ");
+    return values.join(", ")
   }
 }
 dagfuncs.NumberInput = class {
@@ -141,19 +141,19 @@ dagfuncs.NumberInput = class {
     this.eInput = document.createElement("input")
     this.eInput.value = params.value
     this.eInput.type = "number"
-    this.eInput.min = params?.min,
-    this.eInput.max = params?.max,
-    this.eInput.step = params.step || "any";
-    this.eInput.placeholder =  params.placeholder || "";
+    this.eInput.min = params?.min
+    this.eInput.max = params?.max
+    this.eInput.step = params.step || "any"
+    this.eInput.placeholder = params.placeholder || ""
   }
   getGui() {
     return this.eInput
   }
   afterGuiAttached() {
-    this.eInput.focus();
-    this.eInput.select();
+    this.eInput.focus()
+    this.eInput.select()
   }
   getValue() {
-    return this.eInput.value;
+    return this.eInput.value
   }
 }

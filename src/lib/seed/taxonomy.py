@@ -1,6 +1,6 @@
 import json
 
-from lib.fin.taxonomy import Taxonomy
+from lib.fin.taxonomy import Taxonomy, create_taxonomy_fts
 
 
 def load_taxonomy(json_path="lex/fin_taxonomy.json") -> dict:
@@ -27,3 +27,4 @@ def seed_taxonomy(db_name="taxonomy.db"):
   taxonomy_raw = load_taxonomy()
   taxonomy = Taxonomy(data=taxonomy_raw)
   taxonomy.to_sql(db_name)
+  create_taxonomy_fts()

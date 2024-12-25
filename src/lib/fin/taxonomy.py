@@ -13,6 +13,7 @@ from pandera.typing import DataFrame
 from pydantic import BaseModel, field_validator, model_serializer
 
 from lib.db.lite import get_tables, insert_sqlite, read_sqlite, create_fts_table
+from lib.utils import split_pascal_case
 from lib.const import DB_DIR
 
 TaxonomyType: TypeAlias = Literal[
@@ -513,11 +514,13 @@ def search_taxonomy(term: str):
   return read_sqlite("taxonomy.db", query, {"term": term.lower()})
 
 
-def fuzzy_search_taxonomy(term: str):
-  query = """
+def fuzzy_search_taxonomy(term: str, limit: int = 10):
+  query = f"""
     SELECT item, gaap
     FROM items_fts
     WHERE gaap MATCH :term
+    ORDER BY rank
+    LIMIT {limit}
   """
 
   return read_sqlite("taxonomy.db", query, {"term": term.lower()})
@@ -526,16 +529,22 @@ def fuzzy_search_taxonomy(term: str):
 def create_taxonomy_fts():
   db_path = DB_DIR / "taxonomy.db"
 
-  create_fts_table("taxonomy.db", "items_fts", ["item", "gaap"], "unicode61")
+  create_fts_table("taxonomy.db", "items_fts", ["item", "gaap"], "porter")
 
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
-    cur.execute("""
-      INSERT INTO items_fts (item, gaap)
-      SELECT item, json_each.value AS gaap FROM items 
+
+    cur.execute(
+      """SELECT item, json_each.value AS gaap FROM items 
       JOIN json_each(gaap) ON 1=1
-      WHERE gaap IS NOT NULL;
-    """)
+      """
+    )
+    rows = cur.fetchall()
+
+    for item, gaap in rows:
+      gaap = split_pascal_case(gaap)
+      cur.execute("INSERT INTO items_fts (item, gaap) VALUES (?, ?)", (item, gaap))
+
     con.commit()
 
 

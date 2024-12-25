@@ -84,6 +84,12 @@ def pascal_case(text: str) -> str:
   return pascal_case_text
 
 
+def split_pascal_case(pascal_str: str) -> str:
+  pascal_str = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", pascal_str)
+  pascal_str = re.sub(r"([A-Z]+)([A-Z][a-z0-9])", r"\1 \2", pascal_str)
+  return pascal_str
+
+
 # Rename DataFrame columns
 class renamer:
   def __init__(self):
