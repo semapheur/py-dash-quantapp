@@ -551,11 +551,15 @@ layout = html.Main(
                   "Search",
                   id="button:scrap:search-items",
                   className=button_style,
+                  type="button",
+                  n_clicks=0,
                 ),
                 html.Button(
                   "Record",
                   id="button:scrap:record-items",
                   className=button_style,
+                  type="button",
+                  n_clicks=0,
                 ),
               ],
             ),
@@ -568,8 +572,8 @@ layout = html.Main(
                   "cellEditor": "agSelectCellEditor",
                   "cellEditorParams": {"values": ["create", "update", "none"]},
                 },
-                {"field": "gaap", "cellDataType": "text", "editable": False},
-                {"field": "item", "cellDataType": "text"},
+                {"field": "taxonomy", "cellDataType": "text"},
+                {"field": "item", "cellDataType": "text", "editable": False},
                 {"field": "long", "header": "Label (long)", "cellDataType": "text"},
                 {"field": "short", "header": "Label (short)", "cellDataType": "text"},
                 {
@@ -1167,7 +1171,7 @@ def export_csv(n_clicks: int):
   prevent_initial_call=True,
 )
 def item_modal(n_clicks: int, rows: list[dict]):
-  if not rows:
+  if not (n_clicks and rows):
     return no_update
 
   df = pd.DataFrame.from_records(rows)
@@ -1187,22 +1191,22 @@ def item_modal(n_clicks: int, rows: list[dict]):
 
 
 @callback(
-  Output("table:scrap:items", "rowData"),
+  Output("table:scrap:items", "rowData", allow_duplicate=True),
   Input("button:scrap:search-items", "n_clicks"),
   State("table:scrap:items", "rowData"),
+  prevent_initial_call=True,
+  background=True,
 )
 def search_items(n_clicks: int, rows: list[dict]):
   if not (n_clicks and rows):
     return no_update
 
-  df = pd.DataFrame.from_records(rows)
-
   for i in range(len(rows)):
-    find = search_taxonomy(rows[i]["gaap"])
+    find = search_taxonomy(rows[i]["item"])
     rows[i]["action"] = "create"
     if find is not None:
       rows[i]["action"] = "none"
-      rows[i]["item"] = find["item"]
+      rows[i]["taxonomy"] = find["item"]
 
   return rows
 
