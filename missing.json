@@ -1,0 +1,226 @@
+{
+  "assets": {
+    "investments_longterm": [
+      "investments"
+    ]
+  },
+  "assets_current_operating": {
+    "assets_current": [
+      "receivables_current",
+      "advance_inventory_purchases",
+      "customer_contract_assets_current",
+      "deposits_assets_current",
+      "prepaid_expense_other_assets_current",
+      "financial_assets_accrued_interest",
+      "deferred_costs_current",
+      "capitalized_contract_cost_current",
+      "inventory_net_allowances_customer_advances_progress_billings",
+      "derivatives_hedges_current",
+      "deferred_rent_asset_current",
+      "investments_lease_current",
+      "costs_excess_billings_uncomplete_contracts_programs_current",
+      "advance_royalties_current"
+    ]
+  },
+  "benefits_losses_expenses": {
+    "amortization_expense": [
+      "amortization_value_business_acquired",
+      "amortization_deferred_policy_acquisition_expense"
+    ]
+  },
+  "cash_and_cash_equivalents_investments": {
+    "investments_longterm": [
+      "investments"
+    ]
+  },
+  "cash_bound": {
+    "cash_excess": [
+      "cash_and_cash_equivalents_shortterm_investments"
+    ],
+    "cash_assets": [
+      "cash_and_cash_equivalents_shortterm_investments"
+    ],
+    "assets_current": [
+      "cash_and_cash_equivalents_shortterm_investments"
+    ]
+  },
+  "cash_excess": {
+    "cash_assets": [
+      "cash_and_cash_equivalents_shortterm_investments"
+    ],
+    "assets_current": [
+      "cash_and_cash_equivalents_shortterm_investments"
+    ]
+  },
+  "cashflow_investing_continuing_operations": {
+    "payment_acquisition_productive_assets": [
+      "payment_use_lease_operating"
+    ]
+  },
+  "cashflow_operating_noncash_adjustments": {
+    "depreciation_depletion_amortization_accretion": [
+      "accretion"
+    ],
+    "amortization_expense": [
+      "amortization_financing_costs_discounts"
+    ]
+  },
+  "cashflow_operations_continuing": {
+    "income_loss_net_including_minority_interest": [
+      "extraordinary_item"
+    ],
+    "income_loss_net_before_extraordinary_item": [
+      "income_loss_net_dicontinued_operations"
+    ]
+  },
+  "depreciation": {
+    "depreciation_depletion_amortization": [
+      "depreciation_production"
+    ],
+    "depreciation_depletion_amortization_nonproduction": [
+      "depreciation_nonproduction"
+    ]
+  },
+  "depreciation_amortization_productive_assets": {
+    "depreciation_nonproduction": [
+      "depreciation_property_plant_equipment"
+    ]
+  },
+  "depreciation_depletion_amortization": {
+    "depreciation_depletion_amortization_nonproduction": [
+      "amortization_deferred_costs"
+    ],
+    "depreciation_depletion_amortization": [
+      "depreciation_depletion_amortization_nonproduction",
+      "depreciation_production",
+      "depletion_production",
+      "amortization_expense",
+      "amortization_deferred_costs"
+    ],
+    "amortization_expense": [
+      "amortization_deferred_costs",
+      "amortization_deferred_costs"
+    ]
+  },
+  "depreciation_depletion_amortization_accretion": {
+    "depreciation_property_plant_equipment": [
+      "depreciation_depletion_amortization"
+    ]
+  },
+  "depreciation_depletion_amortization_nonproduction": {
+    "depreciation_depletion_amortization": [
+      "amortization_deferred_costs"
+    ],
+    "depreciation_depletion_amortization_nonproduction": [
+      "depletion_nonproduction",
+      "depreciation_nonproduction",
+      "other_depreciation_amortization",
+      "amortization_deferred_costs"
+    ],
+    "amortization_expense": [
+      "amortization_deferred_costs"
+    ]
+  },
+  "depreciation_nonproduction": {
+    "depreciation_nonproduction": [
+      "depreciation_property_plant_equipment",
+      "depreciation_investment_property"
+    ]
+  },
+  "depreciation_property_plant_equipment": {
+    "depreciation_property_plant_equipment": [
+      "depreciation_depletion_amortization",
+      "property_plant_equipment_accumulated_depreciation_reclassification",
+      "property_plant_equipment_accumulated_depreciation_sale"
+    ]
+  },
+  "extraordinary_item_attributable_minority_interest": {
+    "extraordinary_item_attributable_minority_interest": [
+      "extraordinary_item_attributable_minority_interest",
+      "extraordinary_item"
+    ]
+  },
+  "extraordinary_item_attributable_reporting_entity": {
+    "extraordinary_item_attributable_minority_interest": [
+      "extraordinary_item_attributable_minority_interest",
+      "extraordinary_item"
+    ]
+  },
+  "financial_assets_noncurrent": {
+    "investments": [
+      "investments_longterm"
+    ]
+  },
+  "free_cashflow_firm": {
+    "interest_tax_shield": [
+      "interest_expense"
+    ],
+    "income_loss_net_including_minority_interest": [
+      "interest_expense"
+    ]
+  },
+  "gain_loss_investments": {
+    "gain_loss_investments_unrealized": [
+      "gain_loss_investments_realized",
+      "gain_loss_investments_unrealized"
+    ]
+  },
+  "gain_loss_investments_nonoperating": {
+    "gain_loss_investments_excluding_nonrecoverable_impairment": [
+      "gain_loss_venture_capital"
+    ]
+  },
+  "gain_loss_investments_unrealized": {
+    "gain_loss_investments_unrealized": [
+      "gain_loss_investments_realized",
+      "gain_loss_investments_unrealized"
+    ]
+  },
+  "investments": {
+    "investments_longterm": [
+      "investments_shortterm"
+    ],
+    "investments": [
+      "investments_shortterm",
+      "investments_longterm"
+    ]
+  },
+  "investments_longterm": {
+    "investments": [
+      "investments_shortterm"
+    ],
+    "investments_longterm": [
+      "investments_shortterm",
+      "investments"
+    ]
+  },
+  "net_operating_assets": {
+    "assets_current": [
+      "cash_and_cash_equivalents_shortterm_investments"
+    ],
+    "debt_capital_lease_obligations": [
+      "debt"
+    ]
+  },
+  "net_operating_profit_after_tax": {
+    "income_loss_pretax_excluding_equity_method_investments": [
+      "income_loss_operating"
+    ]
+  },
+  "operating_expenses_core": {
+    "depreciation_depletion_amortization": [
+      "depreciation_depletion_amortization_nonproduction"
+    ]
+  },
+  "productive_assets": {
+    "property_plant_equipment_exluding_capital_leased_assets": [
+      "capitalized_software"
+    ]
+  },
+  "tangible_common_equity": {
+    "goodwill_intangible_assets": [
+      "intangible_assets",
+      "goodwill"
+    ]
+  }
+}
