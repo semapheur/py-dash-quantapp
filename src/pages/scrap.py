@@ -267,10 +267,10 @@ scrap_controls_sidebar = html.Aside(
       ],
     ),
     dcc.Upload(
-      id="upload:scrap:image",
+      id="upload:scrap:csv",
       className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
-      accept="image/*",
-      children=[html.Div(["Upload image"])],
+      accept=".csv,text/csv,application/vnd.ms-excel",
+      children=[html.Div(["Upload CSV"])],
     ),
     dcc.Download(id="download:scrap:json"),
   ],
@@ -988,11 +988,17 @@ def annotate_image(
 def prepare_scrap_table(
   df: pd.DataFrame, factor: int, currency: str
 ) -> tuple[list[dict[str, str | bool | dict]], list[dict[str, str | float]]]:
-  df["period"] = "instant"
-  df["factor"] = factor
-  df["unit"] = currency
-  diff = ["period", "factor", "unit"]
-  df = df[diff + list(df.columns.difference(diff))]
+  if "period" not in df.columns:
+    df["period"] = "instant"
+
+  if "factor" not in df.columns:
+    df["factor"] = factor
+
+  if "unit" not in df.columns:
+    df["unit"] = currency
+
+  diff = df.columns.intersection(["period", "factor", "unit", "item"])
+  df = df[diff.to_list() + df.columns.difference(diff).to_list()]
 
   column_defs: list[dict[str, str | bool | dict]] = [
     {"field": str(c)} for c in df.columns
@@ -1104,9 +1110,9 @@ def extract_pdf_table(
 
 
 @callback(
-  Output("table:scrap", "columnDefs"),
-  Output("table:scrap", "rowData"),
-  Output("notification:scrap:table-error", "displayed"),
+  Output("table:scrap", "columnDefs", allow_duplicate=True),
+  Output("table:scrap", "rowData", allow_duplicate=True),
+  Output("notification:scrap:table-error", "displayed", allow_duplicate=True),
   Input("button:scrap:extract-htm", "n_clicks"),
   State("iframe:scrap:htm", "srcDoc"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
@@ -1119,6 +1125,33 @@ def extract_htm_table(n_clicks: int, htm: str, factor: int, currency: str):
     return no_update
 
   df = pd.read_html(io.StringIO(htm))[0]
+  df = df.loc[:, (df.notna() & (df != "")).any()]
+  df = df.loc[(df.notna() & (df != "")).any(axis=1), :]
+
+  column_defs, row_data = prepare_scrap_table(df, factor, currency)
+
+  return column_defs, row_data, False
+
+
+@callback(
+  Output("table:scrap", "columnDefs"),
+  Output("table:scrap", "rowData"),
+  Output("notification:scrap:table-error", "displayed"),
+  Input("upload:scrap:csv", "contents"),
+  State("upload:scrap:csv", "filename"),
+  State(InputAIO.aio_id("scrap:factor"), "value"),
+  State(InputAIO.aio_id("scrap:currency"), "value"),
+  prevent_initial_call=True,
+  background=True,
+)
+def extract_csv_table(contents: str, filename: str, factor: int, currency: str):
+  if not contents or not filename.endswith(".csv"):
+    return no_update
+
+  _, content_string = contents.split(",")
+  decoded = base64.b64decode(content_string)
+
+  df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
   df = df.loc[:, (df.notna() & (df != "")).any()]
   df = df.loc[(df.notna() & (df != "")).any(axis=1), :]
 
