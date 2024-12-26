@@ -45,7 +45,7 @@ from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.scrap import download_file_memory
 from lib.utils import split_multiline, pascal_case, split_pascal_case
 
-register_page(__name__, path="/scrap/pdf", title="Scrap PDF")
+register_page(__name__, path="/scrap", title="Scrap PDF")
 
 
 class ItemTable(TypedDict):
@@ -89,42 +89,82 @@ resize_handle_style = "h-full w-0.5 bg-text/50 hover:bg-secondary hover:w-1"
 scrap_controls_sidebar = html.Aside(
   className="relative flex flex-col grow gap-2 p-2",
   children=[
-    dcc.Upload(
-      id="upload:scrap-pdf:pdf",
-      className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
-      accept="pdf",
-      children=[html.Span(["Upload PDF"])],
-    ),
-    InputButtonAIO(
-      "scrap:url",
-      input_props={"placeholder": "Document URL"},
-      button_props={"children": "Fetch"},
-    ),
-    InputButtonAIO(
-      "scrap:pages",
-      input_props={"placeholder": "Pages"},
-      button_props={"children": "Extract"},
-    ),
-    html.Form(
-      className="flex gap-1",
+    dcc.Tabs(
+      className="h-8",
+      content_className="pt-2 flex flex-col gap-2",
       children=[
-        dcc.RadioItems(
-          id="radioitems:scrap-pdf:extract-method",
-          className=radio_style,
-          labelClassName="gap-1 text-text",
-          labelStyle={"display": "flex"},
-          options=[
-            {"label": "Text", "value": "text"},
-            {"label": "Image", "value": "image"},
+        dcc.Tab(
+          label="PDF",
+          children=[
+            dcc.Upload(
+              id="upload:scrap:pdf",
+              className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
+              accept="pdf",
+              children=[html.Span(["Upload PDF"])],
+            ),
+            InputButtonAIO(
+              "scrap:url-pdf",
+              input_props={"placeholder": "Document URL"},
+              button_props={"children": "Fetch"},
+            ),
+            InputButtonAIO(
+              "scrap:pages",
+              input_props={"placeholder": "Pages"},
+              button_props={"children": "Extract"},
+            ),
+            html.Form(
+              className="flex gap-1",
+              children=[
+                dcc.RadioItems(
+                  id="radioitems:scrap:extract-method",
+                  className=radio_style,
+                  labelClassName="gap-1 text-text",
+                  labelStyle={"display": "flex"},
+                  options=[
+                    {"label": "Text", "value": "text"},
+                    {"label": "Image", "value": "image"},
+                  ],
+                  value="text",
+                ),
+                html.Button(
+                  "Options",
+                  id=OpenCloseModalAIO.open_id("scrap:options"),
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+              ],
+            ),
           ],
-          value="text",
         ),
-        html.Button(
-          "Options",
-          id=OpenCloseModalAIO.open_id("scrap:options"),
-          className=button_style,
-          type="button",
-          n_clicks=0,
+        dcc.Tab(
+          label="HTM",
+          children=[
+            dcc.Textarea(
+              id="textarea:scrap:htm",
+              className="rounded border border-text/10",
+              placeholder="HTML",
+            ),
+            html.Form(
+              className="grid grid-cols-2 gap-1",
+              children=[
+                html.Button(
+                  "Fetch",
+                  id="button:scrap:fetch-htm",
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+                html.Button(
+                  "Extract",
+                  id="button:scrap:extract-htm",
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
@@ -133,14 +173,14 @@ scrap_controls_sidebar = html.Aside(
       children=[
         html.Button(
           "Add row",
-          id="button:scrap-pdf:add-rows",
+          id="button:scrap:add-rows",
           className=button_style,
           type="button",
           n_clicks=0,
         ),
         html.Button(
           "Delete rows",
-          id="button:scrap-pdf:delete-rows",
+          id="button:scrap:delete-rows",
           className=button_style,
           type="button",
           n_clicks=0,
@@ -170,14 +210,14 @@ scrap_controls_sidebar = html.Aside(
     ),
     html.Button(
       "Export to CSV",
-      id="button:scrap-pdf:export-csv",
+      id="button:scrap:export-csv",
       className=button_style,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Export to JSON",
-      id="button:scrap-pdf:export-json",
+      id="button:scrap:export-json",
       className=button_style,
       type="button",
       n_clicks=0,
@@ -201,7 +241,7 @@ scrap_controls_sidebar = html.Aside(
           },
         ),
         dcc.Dropdown(
-          id="dropdown:scrap-pdf:scope",
+          id="dropdown:scrap:scope",
           className="outline-none",
           placeholder="Scope",
           options=[
@@ -210,7 +250,7 @@ scrap_controls_sidebar = html.Aside(
           ],
         ),
         dcc.Dropdown(
-          id="dropdown:scrap-pdf:period",
+          id="dropdown:scrap:period",
           placeholder="Period",
           options=["FY", "Q1", "Q2", "Q3", "Q4"],
         ),
@@ -227,17 +267,17 @@ scrap_controls_sidebar = html.Aside(
       ],
     ),
     dcc.Upload(
-      id="upload:scrap-pdf:image",
+      id="upload:scrap:image",
       className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
       accept="image/*",
       children=[html.Div(["Upload image"])],
     ),
-    dcc.Download(id="download:scrap-pdf:json"),
+    dcc.Download(id="download:scrap:json"),
   ],
 )
 
 scrap_options_sidebar = html.Div(
-  id="div:scrap-pdf:options",
+  id="div:scrap:options",
   className="pr-2 flex flex-col gap-2 p-2 bg-primary",
   children=[
     html.Form(
@@ -291,13 +331,13 @@ scrap_options_sidebar = html.Div(
       ),
       children=[
         dcc.Dropdown(
-          id="dropdown:scrap-pdf:options:vertical-strategy",
+          id="dropdown:scrap:options:vertical-strategy",
           placeholder="Vertical",
           options=["lines", "lines_strict", "text"],
           value="lines",
         ),
         dcc.Dropdown(
-          id="dropdown:scrap-pdf:options:horizontal-strategy",
+          id="dropdown:scrap:options:horizontal-strategy",
           placeholder="Horizontal",
           options=["lines", "lines_strict", "text"],
           value="lines",
@@ -433,12 +473,12 @@ scrap_options_sidebar = html.Div(
     ),
     html.Button(
       "Preview",
-      id="button:scrap-pdf:preview",
+      id="button:scrap:preview",
       className=button_style,
     ),
     html.Button(
       "Download image",
-      id="button:scrap-pdf:download-image",
+      id="button:scrap:download-image",
       className=button_style,
       type="button",
       n_clicks=0,
@@ -450,44 +490,39 @@ layout = html.Main(
   className=main_style,
   children=[
     PanelGroup(
-      id="panelgroup:scrap-pdf",
+      id="panelgroup:scrap",
       direction="horizontal",
       className="size-full",
       children=[
         Panel(
-          id="panel:scrap-pdf:controls",
+          id="panel:scrap:controls",
           defaultSizePercentage=20,
           minSizePixels=5,
           children=[scrap_controls_sidebar],
         ),
         PanelResizeHandle(html.Div(className=resize_handle_style)),
         Panel(
-          id="panel:scrap-pdf:pdf",
+          id="panel:scrap:pdf",
           defaultSizePercentage=40,
           minSizePixels=5,
           children=[
             dcc.Loading(
               parent_className="size-full",
               children=[
-                html.ObjectEl(
-                  id="object:scrap-pdf:pdf",
-                  type="application/pdf",
-                  width="100%",
-                  height="100%",
-                )
+                html.Div(id="div:scrap:document", className="size-full"),
               ],
-              target_components={"object:scrap-pdf:pdf": "data"},
+              target_components={"div:scrap:document": "children"},
             ),
           ],
         ),
         PanelResizeHandle(html.Div(className=resize_handle_style)),
         Panel(
-          id="panel:scrap-pdf:table",
+          id="panel:scrap:table",
           defaultSizePercentage=40,
           minSizePixels=5,
           children=[
             dag.AgGrid(
-              id="table:scrap-pdf",
+              id="table:scrap",
               columnSize="autoSize",
               defaultColDef={"editable": True},
               dashGridOptions={
@@ -508,9 +543,9 @@ layout = html.Main(
         html.Div(
           className="flex flex-col",
           children=[
-            html.Form(id="form:scrap-pdf:columns", className="flex flex-col gap-1"),
+            html.Form(id="form:scrap:columns", className="flex flex-col gap-1"),
             html.Button(
-              "Delete", id="button:scrap-pdf:delete-columns", className=button_style
+              "Delete", id="button:scrap:delete-columns", className=button_style
             ),
           ],
         )
@@ -523,11 +558,9 @@ layout = html.Main(
         html.Div(
           className="flex flex-col",
           children=[
-            html.Form(
-              id="form:scrap-pdf:rename-columns", className="flex flex-col gap-1"
-            ),
+            html.Form(id="form:scrap:rename-columns", className="flex flex-col gap-1"),
             html.Button(
-              "Update", id="button:scrap-pdf:rename-columns", className=button_style
+              "Update", id="button:scrap:rename-columns", className=button_style
             ),
           ],
         )
@@ -551,14 +584,14 @@ layout = html.Main(
               children=[
                 html.Button(
                   "Search",
-                  id="button:scrap-pdf:search-items",
+                  id="button:scrap:search-items",
                   className=button_style,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Record",
-                  id="button:scrap-pdf:record-items",
+                  id="button:scrap:record-items",
                   className=button_style,
                   type="button",
                   n_clicks=0,
@@ -566,7 +599,7 @@ layout = html.Main(
               ],
             ),
             dag.AgGrid(
-              id="table:scrap-pdf:items",
+              id="table:scrap:items",
               columnDefs=[
                 {
                   "field": "action",
@@ -631,7 +664,7 @@ layout = html.Main(
       "Table extraction options",
       children=[
         html.Div(
-          id="panelgroup:scrap-pdf:options",
+          id="panelgroup:scrap:options",
           className="size-full grid grid-cols-[1fr_2fr_2fr]",
           children=[
             scrap_options_sidebar,
@@ -639,15 +672,15 @@ layout = html.Main(
               parent_className="size-full",
               children=[
                 dcc.Graph(
-                  id="graph:scrap-pdf:preview",
+                  id="graph:scrap:preview",
                   className="size-full",
                   config={"scrollZoom": True},
                 ),
               ],
-              target_components={"graph:scrap-pdf:preview": "figure"},
+              target_components={"graph:scrap:preview": "figure"},
             ),
             dag.AgGrid(
-              id="table:scrap-pdf:preview",
+              id="table:scrap:preview",
               columnSize="autoSize",
               defaultColDef={"editable": True},
               dashGridOptions={
@@ -667,44 +700,63 @@ layout = html.Main(
         },
       },
     ),
-    dcc.Download(id="download:scrap-pdf:image"),
+    dcc.Download(id="download:scrap:image"),
     dcc.ConfirmDialog(
-      id="notification:scrap-pdf:table-error",
+      id="notification:scrap:table-error",
       message="Unable to parse table",
     ),
-    dcc.Store(id="store:scrap-pdf:image-data", data={}),
+    dcc.Store(id="store:scrap:image-data", data={}),
   ],
 )
 
 
 @callback(
-  Output("object:scrap-pdf:pdf", "data"),
-  Input(InputButtonAIO.button_id("scrap:url"), "n_clicks"),
-  State(InputButtonAIO.input_id("scrap:url"), "value"),
+  Output("div:scrap:document", "children"),
+  Input(InputButtonAIO.button_id("scrap:url-pdf"), "n_clicks"),
+  Input("button:scrap:fetch-htm", "n_clicks"),
+  State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
+  State("textarea:scrap:htm", "value"),
   prevent_initial_call=True,
   background=True,
 )
-def update_object(n_clicks: int, url: str):
-  if not (url and n_clicks):
+def update_object(n_pdf: int, n_htm: int, url_pdf: str, htm: str):
+  if not ((n_pdf and url_pdf) or (n_htm and htm)):
     return no_update
 
-  return url
+  if ctx.triggered_id == InputButtonAIO.button_id("scrap:url-pdf"):
+    return html.ObjectEl(
+      id="object:scrap:pdf",
+      type="application/pdf",
+      width="100%",
+      height="100%",
+      data=url_pdf,
+    )
+
+  if ctx.triggered_id == "button:scrap:fetch-htm":
+    return html.Iframe(
+      id="iframe:scrap:htm",
+      width="100%",
+      height="100%",
+      srcDoc=htm,
+    )
+
+  return no_update
 
 
 @callback(
-  Output("graph:scrap-pdf:preview", "figure", allow_duplicate=True),
-  Output("table:scrap-pdf:preview", "columnDefs"),
-  Output("table:scrap-pdf:preview", "rowData"),
-  Output("store:scrap-pdf:image-data", "data"),
-  Input("button:scrap-pdf:preview", "n_clicks"),
-  State("object:scrap-pdf:pdf", "data"),
+  Output("graph:scrap:preview", "figure", allow_duplicate=True),
+  Output("table:scrap:preview", "columnDefs"),
+  Output("table:scrap:preview", "rowData"),
+  Output("store:scrap:image-data", "data"),
+  Input("button:scrap:preview", "n_clicks"),
+  State("object:scrap:pdf", "data"),
   State(InputButtonAIO.input_id("scrap:pages"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:x0"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:y0"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:x1"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:y1"), "value"),
-  State("dropdown:scrap-pdf:options:vertical-strategy", "value"),
-  State("dropdown:scrap-pdf:options:horizontal-strategy", "value"),
+  State("dropdown:scrap:options:vertical-strategy", "value"),
+  State("dropdown:scrap:options:horizontal-strategy", "value"),
   State(InputAIO.aio_id("scrap:options:min-words-vertical"), "value"),
   State(InputAIO.aio_id("scrap:options:min-words-horizontal"), "value"),
   State(InputAIO.aio_id("scrap:options:snap-x-tolerance"), "value"),
@@ -860,11 +912,11 @@ def preview_extraction(
 
 
 @callback(
-  Output("graph:scrap-pdf:preview", "figure"),
-  Input("table:scrap-pdf:preview", "cellValueChanged"),
-  Input("table:scrap-pdf:preview", "selectedRows"),
-  State("table:scrap-pdf:preview", "rowData"),
-  State("store:scrap-pdf:image-data", "data"),
+  Output("graph:scrap:preview", "figure"),
+  Input("table:scrap:preview", "cellValueChanged"),
+  Input("table:scrap:preview", "selectedRows"),
+  State("table:scrap:preview", "rowData"),
+  State("store:scrap:image-data", "data"),
   prevent_initial_call=True,
 )
 def update_preview(
@@ -907,9 +959,9 @@ def update_preview(
 
 
 @callback(
-  Output("download:scrap-pdf:image", "data"),
-  Input("button:scrap-pdf:download-image", "n_clicks"),
-  State(InputButtonAIO.input_id("scrap:url"), "value"),
+  Output("download:scrap:image", "data"),
+  Input("button:scrap:download-image", "n_clicks"),
+  State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
   State(InputButtonAIO.input_id("scrap:pages"), "value"),
   prevent_initial_call=True,
   background=True,
@@ -933,22 +985,46 @@ def annotate_image(
     return dcc.send_bytes(stream.getvalue(), "page.png")
 
 
+def prepare_scrap_table(
+  df: pd.DataFrame, factor: int, currency: str
+) -> tuple[list[dict[str, str | bool | dict]], list[dict[str, str | float]]]:
+  df["period"] = "instant"
+  df["factor"] = factor
+  df["unit"] = currency
+  diff = ["period", "factor", "unit"]
+  df = df[diff + list(df.columns.difference(diff))]
+
+  column_defs: list[dict[str, str | bool | dict]] = [
+    {"field": str(c)} for c in df.columns
+  ]
+  column_defs[0].update(
+    {
+      "checkboxSelection": True,
+      "cellEditor": "agSelectCellEditor",
+      "cellEditorParams": {"values": ["instant", "duration"]},
+    }
+  )
+  column_defs[1].update({"type": "numericColumn"})
+
+  return column_defs, df.to_dict("records")
+
+
 @callback(
-  Output("table:scrap-pdf", "columnDefs"),
-  Output("table:scrap-pdf", "rowData"),
-  Output("notification:scrap-pdf:table-error", "displayed"),
+  Output("table:scrap", "columnDefs", allow_duplicate=True),
+  Output("table:scrap", "rowData", allow_duplicate=True),
+  Output("notification:scrap:table-error", "displayed", allow_duplicate=True),
   Input(InputButtonAIO.button_id("scrap:pages"), "n_clicks"),
-  State("object:scrap-pdf:pdf", "data"),
+  State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
   State(InputButtonAIO.input_id("scrap:pages"), "value"),
-  State("radioitems:scrap-pdf:extract-method", "value"),
+  State("radioitems:scrap:extract-method", "value"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:x0"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:y0"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:x1"), "value"),
   State(InputAIO.aio_id("scrap:options:bounding-box:y1"), "value"),
-  State("dropdown:scrap-pdf:options:vertical-strategy", "value"),
-  State("dropdown:scrap-pdf:options:horizontal-strategy", "value"),
+  State("dropdown:scrap:options:vertical-strategy", "value"),
+  State("dropdown:scrap:options:horizontal-strategy", "value"),
   State(InputAIO.aio_id("scrap:options:min-words-vertical"), "value"),
   State(InputAIO.aio_id("scrap:options:min-words-horizontal"), "value"),
   State(InputAIO.aio_id("scrap:options:snap-x-tolerance"), "value"),
@@ -962,7 +1038,7 @@ def annotate_image(
   prevent_initial_call=True,
   background=True,
 )
-def update_table(
+def extract_pdf_table(
   n_clicks: int,
   pdf_url: str,
   pages_text: str,
@@ -1022,30 +1098,38 @@ def update_table(
   result = df.apply(split_multiline, axis=1)
   df = pd.concat(result.tolist(), ignore_index=True)
 
-  df["period"] = "instant"
-  df["factor"] = factor
-  df["unit"] = currency
-  diff = ["period", "factor", "unit"]
-  df = df[diff + list(df.columns.difference(diff))]
+  column_defs, row_data = prepare_scrap_table(df, factor, currency)
 
-  column_defs: list[dict[str, str | bool | dict]] = [
-    {"field": str(c)} for c in df.columns
-  ]
-  column_defs[0].update(
-    {
-      "checkboxSelection": True,
-      "cellEditor": "agSelectCellEditor",
-      "cellEditorParams": {"values": ["instant", "duration"]},
-    }
-  )
-  column_defs[1].update({"type": "numericColumn"})
-
-  return column_defs, df.to_dict("records"), False
+  return column_defs, row_data, False
 
 
 @callback(
-  Output("table:scrap-pdf", "deleteSelectedRows"),
-  Input("button:scrap-pdf:delete-rows", "n_clicks"),
+  Output("table:scrap", "columnDefs"),
+  Output("table:scrap", "rowData"),
+  Output("notification:scrap:table-error", "displayed"),
+  Input("button:scrap:extract-htm", "n_clicks"),
+  State("iframe:scrap:htm", "srcDoc"),
+  State(InputAIO.aio_id("scrap:factor"), "value"),
+  State(InputAIO.aio_id("scrap:currency"), "value"),
+  prevent_initial_call=True,
+  background=True,
+)
+def extract_htm_table(n_clicks: int, htm: str, factor: int, currency: str):
+  if not (n_clicks and htm):
+    return no_update
+
+  df = pd.read_html(io.StringIO(htm))[0]
+  df = df.loc[:, (df.notna() & (df != "")).any()]
+  df = df.loc[(df.notna() & (df != "")).any(axis=1), :]
+
+  column_defs, row_data = prepare_scrap_table(df, factor, currency)
+
+  return column_defs, row_data, False
+
+
+@callback(
+  Output("table:scrap", "deleteSelectedRows"),
+  Input("button:scrap:delete-rows", "n_clicks"),
   prevent_initial_call=True,
 )
 def delete_rows(_: int):
@@ -1053,9 +1137,9 @@ def delete_rows(_: int):
 
 
 @callback(
-  Output("table:scrap-pdf", "rowTransaction"),
-  Input("button:scrap-pdf:add-rows", "n_clicks"),
-  State("table:scrap-pdf", "columnDefs"),
+  Output("table:scrap", "rowTransaction"),
+  Input("button:scrap:add-rows", "n_clicks"),
+  State("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
 def add_rows(_: int, cols: list[dict]):
@@ -1066,8 +1150,8 @@ def add_rows(_: int, cols: list[dict]):
 
 
 @callback(
-  Output("form:scrap-pdf:columns", "children"),
-  Input("table:scrap-pdf", "columnDefs"),
+  Output("form:scrap:columns", "children"),
+  Input("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
 def delete_columns_form(cols: list[dict]):
@@ -1075,15 +1159,15 @@ def delete_columns_form(cols: list[dict]):
     return no_update
 
   return dcc.Checklist(
-    id="checklist:scrap-pdf:columns",
+    id="checklist:scrap:columns",
     options=[col["field"] for col in cols[3:]],
     value=[],
   )
 
 
 @callback(
-  Output("form:scrap-pdf:rename-columns", "children"),
-  Input("table:scrap-pdf", "columnDefs"),
+  Output("form:scrap:rename-columns", "children"),
+  Input("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
 def update_form(cols: list[dict]):
@@ -1092,7 +1176,7 @@ def update_form(cols: list[dict]):
 
   return [
     dcc.Input(
-      id={"type": "input:scrap-pdf:headers", "index": i},
+      id={"type": "input:scrap:headers", "index": i},
       className="px-1 rounded border border-text/10 hover:border-text/50 focus:border-secondary",
       placeholder=f"Field {i}",
       value=col["field"],
@@ -1103,14 +1187,14 @@ def update_form(cols: list[dict]):
 
 
 @callback(
-  Output("table:scrap-pdf", "columnDefs", allow_duplicate=True),
-  Output("table:scrap-pdf", "rowData", allow_duplicate=True),
-  Input("button:scrap-pdf:delete-columns", "n_clicks"),
-  Input("button:scrap-pdf:rename-columns", "n_clicks"),
-  State("checklist:scrap-pdf:columns", "value"),
-  State({"type": "input:scrap-pdf:headers", "index": ALL}, "value"),
-  State("table:scrap-pdf", "columnDefs"),
-  State("table:scrap-pdf", "rowData"),
+  Output("table:scrap", "columnDefs", allow_duplicate=True),
+  Output("table:scrap", "rowData", allow_duplicate=True),
+  Input("button:scrap:delete-columns", "n_clicks"),
+  Input("button:scrap:rename-columns", "n_clicks"),
+  State("checklist:scrap:columns", "value"),
+  State({"type": "input:scrap:headers", "index": ALL}, "value"),
+  State("table:scrap", "columnDefs"),
+  State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
 def update_columns(
@@ -1127,13 +1211,13 @@ def update_columns(
   df = pd.DataFrame.from_records(rows)
   df = df[[col["field"] for col in cols]]
 
-  if ctx.triggered_id == "button:scrap-pdf:delete-columns":
+  if ctx.triggered_id == "button:scrap:delete-columns":
     new_cols = [col for col in cols if col["field"] not in del_cols]
     df.drop(columns=del_cols, inplace=True)
 
     return new_cols, df.to_dict("records")
 
-  if ctx.triggered_id == "button:scrap-pdf:rename-columns":
+  if ctx.triggered_id == "button:scrap:rename-columns":
     col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
     df.rename(columns=col_map, inplace=True)
 
@@ -1146,7 +1230,7 @@ def update_columns(
 
 
 @callback(
-  Output("button:scrap-pdf:export", "disabled"),
+  Output("button:scrap:export", "disabled"),
   Input(InputAIO.aio_id("scrap:fiscal-end"), "value"),
 )
 def validate_fiscal_end(fiscal_end: str) -> bool:
@@ -1162,8 +1246,8 @@ def validate_fiscal_end(fiscal_end: str) -> bool:
 
 
 @callback(
-  Output("table:scrap-pdf", "exportDataAsCsv"),
-  Input("button:scrap-pdf:export-csv", "n_clicks"),
+  Output("table:scrap", "exportDataAsCsv"),
+  Input("button:scrap:export-csv", "n_clicks"),
 )
 def export_csv(n_clicks: int):
   if n_clicks:
@@ -1172,9 +1256,9 @@ def export_csv(n_clicks: int):
 
 
 @callback(
-  Output("table:scrap-pdf:items", "rowData"),
+  Output("table:scrap:items", "rowData"),
   Input(OpenCloseModalAIO.open_id("scrap:record-items"), "n_clicks"),
-  State("table:scrap-pdf", "rowData"),
+  State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
 def item_modal(n_clicks: int, rows: list[dict]):
@@ -1198,9 +1282,9 @@ def item_modal(n_clicks: int, rows: list[dict]):
 
 
 @callback(
-  Output("table:scrap-pdf:items", "rowData", allow_duplicate=True),
-  Input("button:scrap-pdf:search-items", "n_clicks"),
-  State("table:scrap-pdf:items", "rowData"),
+  Output("table:scrap:items", "rowData", allow_duplicate=True),
+  Input("button:scrap:search-items", "n_clicks"),
+  State("table:scrap:items", "rowData"),
   prevent_initial_call=True,
   background=True,
 )
@@ -1229,14 +1313,14 @@ def search_items(n_clicks: int, rows: list[dict]):
 
 
 @callback(
-  Output("download:scrap-pdf:json", "data"),
-  Input("button:scrap-pdf:export-json", "n_clicks"),
-  State("table:scrap-pdf", "rowData"),
-  State(InputButtonAIO.input_id("scrap:url"), "value"),
+  Output("download:scrap:json", "data"),
+  Input("button:scrap:export-json", "n_clicks"),
+  State("table:scrap", "rowData"),
+  State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
   State(CompanySelectAIO.aio_id("scrap:company-id"), "value"),
   State(InputAIO.aio_id("scrap:date"), "value"),
-  State("dropdown:scrap-pdf:scope", "value"),
-  State("dropdown:scrap-pdf:period", "value"),
+  State("dropdown:scrap:scope", "value"),
+  State("dropdown:scrap:period", "value"),
   State(InputAIO.aio_id("scrap:fiscal-end"), "value"),
   prevent_initial_call=True,
 )
