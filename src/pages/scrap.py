@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Literal, TypedDict
 
 from dash import (
-  ALL,
   callback,
   ctx,
   dcc,
@@ -85,6 +84,13 @@ scrap_options_style = (
 )
 
 resize_handle_style = "h-full w-0.5 bg-text/50 hover:bg-secondary hover:w-1"
+
+table_style = {
+  "height": "100%",
+  "width": "100%",
+  "min-height": "min(300px, 75vh)",
+  "min-width": "min(300px, 75vw)",
+}
 
 scrap_controls_sidebar = html.Aside(
   className="relative flex flex-col grow gap-2 p-2",
@@ -173,7 +179,7 @@ scrap_controls_sidebar = html.Aside(
       children=[
         html.Button(
           "Add row",
-          id="button:scrap:add-rows",
+          id="button:scrap:add-row",
           className=button_style,
           type="button",
           n_clicks=0,
@@ -536,31 +542,91 @@ layout = html.Main(
         ),
       ],
     ),
-    OpenCloseModalAIO(
-      "scrap:delete-columns",
-      "Delete columns",
-      children=[
-        html.Div(
-          className="flex flex-col",
-          children=[
-            html.Form(id="form:scrap:columns", className="flex flex-col gap-1"),
-            html.Button(
-              "Delete", id="button:scrap:delete-columns", className=button_style
-            ),
-          ],
-        )
-      ],
-    ),
+    # OpenCloseModalAIO(
+    #  "scrap:delete-columns",
+    #  "Delete columns",
+    #  children=[
+    #    html.Div(
+    #      className="flex flex-col",
+    #      children=[
+    #        html.Form(id="form:scrap:columns", className="flex flex-col gap-1"),
+    #        html.Button(
+    #          "Delete", id="button:scrap:delete-columns", className=button_style
+    #        ),
+    #      ],
+    #    )
+    #  ],
+    # ),
     OpenCloseModalAIO(
       "scrap:rename-columns",
-      "Rename columns",
+      "Edit columns",
+      dialog_props={
+        "style": {
+          "height": "75%",
+          "width": "75%",
+        }
+      },
       children=[
         html.Div(
-          className="flex flex-col",
+          className="size-full grid grid-rows-[auto_1fr] gap-1",
           children=[
-            html.Form(id="form:scrap:rename-columns", className="flex flex-col gap-1"),
-            html.Button(
-              "Update", id="button:scrap:rename-columns", className=button_style
+            html.Form(
+              className="flex gap-1",
+              children=[
+                html.Button(
+                  "Update",
+                  id="button:scrap:edit-columns",
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+                html.Button(
+                  "Add columns",
+                  id="button:scrap:add-column",
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+                html.Button(
+                  "Delete columns",
+                  id="button:scrap:delete-column",
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+                html.Button(
+                  "Reset",
+                  id="button:scrap:reset-column",
+                  className=button_style,
+                  type="button",
+                  n_clicks=0,
+                ),
+              ],
+            ),
+            dag.AgGrid(
+              id="table:scrap:edit-columns",
+              columnDefs=[
+                {
+                  "field": "type",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["text", "number"]},
+                },
+                {
+                  "field": "old_name",
+                  "headerName": "Old name",
+                  "editable": False,
+                },
+                {"field": "new_name", "headerName": "New name"},
+              ],
+              columnSize="autoSize",
+              defaultColDef={"editable": True},
+              dashGridOptions={
+                "rowSelection": "multiple",
+                "undoRedoCellEditing": True,
+                "undoRedoCellEditingLimit": 10,
+              },
+              style=table_style,
             ),
           ],
         )
@@ -614,8 +680,12 @@ layout = html.Main(
                   "tooltipComponent": "TaxonomyTooltip",
                 },
                 {"field": "item", "cellDataType": "text", "editable": False},
-                {"field": "long", "header": "Label (long)", "cellDataType": "text"},
-                {"field": "short", "header": "Label (short)", "cellDataType": "text"},
+                {"field": "long", "headerName": "Label (long)", "cellDataType": "text"},
+                {
+                  "field": "short",
+                  "headerName": "Label (short)",
+                  "cellDataType": "text",
+                },
                 {
                   "field": "type",
                   "cellDataType": "text",
@@ -653,7 +723,7 @@ layout = html.Main(
                 "undoRedoCellEditing": True,
                 "undoRedoCellEditingLimit": 10,
               },
-              style={"height": "100%", "width": "100%", "min-height": "100px"},
+              style=table_style,
             ),
           ],
         )
@@ -1171,7 +1241,7 @@ def delete_rows(_: int):
 
 @callback(
   Output("table:scrap", "rowTransaction"),
-  Input("button:scrap:add-rows", "n_clicks"),
+  Input("button:scrap:add-row", "n_clicks"),
   State("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
@@ -1199,67 +1269,105 @@ def delete_columns_form(cols: list[dict]):
 
 
 @callback(
-  Output("form:scrap:rename-columns", "children"),
+  Output("table:scrap:edit-columns", "rowData", allow_duplicate=True),
   Input("table:scrap", "columnDefs"),
   prevent_initial_call=True,
 )
-def update_form(cols: list[dict]):
+def update_edit_columns_table(cols: list[dict]):
   if not cols:
     return no_update
 
-  return [
-    dcc.Input(
-      id={"type": "input:scrap:headers", "index": i},
-      className="px-1 rounded border border-text/10 hover:border-text/50 focus:border-secondary",
-      placeholder=f"Field {i}",
-      value=col["field"],
-      type="text",
-    )
-    for (i, col) in enumerate(cols[3:])
-  ]
+  return [{"index": i, "old_name": col["field"]} for i, col in enumerate(cols[3:])]
+
+
+@callback(
+  Output("table:scrap:edit-columns", "rowData", allow_duplicate=True),
+  Input("button:scrap:reset-column", "n_clicks"),
+  State("table:scrap", "columnDefs"),
+  prevent_initial_call=True,
+)
+def reset_edit_columns_table(n_clicks: int, cols: list[dict]):
+  if not (n_clicks and cols):
+    return no_update
+
+  return [{"index": i, "old_name": col["field"]} for i, col in enumerate(cols[3:])]
+
+
+@callback(
+  Output("table:scrap:edit-columns", "rowData"),
+  Input("button:scrap:add-column", "n_clicks"),
+  State("table:scrap:edit-columns", "rowData"),
+  State("table:scrap:edit-columns", "selectedRows"),
+  prevent_initial_call=True,
+)
+def add_columns(_: int, row_data: list[dict], selected_rows: list[dict]):
+  add_rows = selected_rows if selected_rows else [{"index": -1, "new_name": ""}]
+  for i, row in enumerate(add_rows):
+    row_data.insert(row["index"] + i + 1, {"index": row["index"], "new_name": ""})
+
+  for i in range(len(row_data)):
+    row_data[i]["index"] = i
+
+  return row_data
+
+
+@callback(
+  Output("table:scrap:edit-columns", "deleteSelectedRows"),
+  Input("button:scrap:delete-column", "n_clicks"),
+  prevent_initial_call=True,
+)
+def delete_columns(_: int):
+  return True
 
 
 @callback(
   Output("table:scrap", "columnDefs", allow_duplicate=True),
   Output("table:scrap", "rowData", allow_duplicate=True),
-  Input("button:scrap:delete-columns", "n_clicks"),
-  Input("button:scrap:rename-columns", "n_clicks"),
-  State("checklist:scrap:columns", "value"),
-  State({"type": "input:scrap:headers", "index": ALL}, "value"),
+  Input("button:scrap:edit-columns", "n_clicks"),
+  State("table:scrap:edit-columns", "rowData"),
   State("table:scrap", "columnDefs"),
   State("table:scrap", "rowData"),
   prevent_initial_call=True,
 )
 def update_columns(
-  n_delete: int,
-  n_update: int,
-  del_cols: list[str],
-  new_names: list[str],
+  n_click: int,
+  edit_data: list[dict],
   cols: list[dict],
   rows: list[dict],
 ):
   if not (cols and rows):
     return no_update
 
-  df = pd.DataFrame.from_records(rows)
-  df = df[[col["field"] for col in cols]]
+  df_rows = pd.DataFrame.from_records(rows)
+  df_rows = df_rows[[col["field"] for col in cols]]
 
-  if ctx.triggered_id == "button:scrap:delete-columns":
-    new_cols = [col for col in cols if col["field"] not in del_cols]
-    df.drop(columns=del_cols, inplace=True)
+  df_edit = pd.DataFrame.from_records(edit_data)
 
-    return new_cols, df.to_dict("records")
+  add_columns = df_edit[df_edit["old_name"] == ""].index
+  offset = 0
+  for i, r in df_edit.iterrows():
+    if r["old_name"] == "":
+      cols.insert(i + 3, {"field": r["new_name"], "cellDataType": r["type"]})
 
-  if ctx.triggered_id == "button:scrap:rename-columns":
-    col_map = {col: name for (col, name) in zip(df.columns[3:], new_names)}
-    df.rename(columns=col_map, inplace=True)
+  if add_columns:
+    for i in add_columns:
+      cols.insert(
+        i + 3,
+        {"field": df_edit.at[i, "new_name"], "cellDataType": df_edit.at[i, "type"]},
+      )
 
-    for i, name in enumerate(new_names):
-      cols[i + 3]["field"] = name
+  if "new_name" in df_edit.columns:
+    df_rename = df_edit[df_edit["old_name"] != ""]
 
-    return cols, df.to_dict("records")
+    col_map = {
+      old: new for (old, new) in zip(df_rename["old_name"], df_rename["new_name"])
+    }
+    df_rows.rename(columns=col_map, inplace=True)
 
-  return no_update
+    for i, edit in enumerate(edit_data):
+      cols[i + 3]["field"] = edit["new_name"]
+
+  return cols, df_rows.to_dict("records")
 
 
 @callback(
