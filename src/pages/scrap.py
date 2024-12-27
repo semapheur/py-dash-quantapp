@@ -1278,7 +1278,12 @@ def update_edit_columns_table(cols: list[dict]):
     return no_update
 
   return [
-    {"index": i, "type": col.get("cellDataType", "text"), "old_name": col["field"]}
+    {
+      "index": i,
+      "type": col.get("cellDataType", "text"),
+      "old_name": col["field"],
+      "new_name": "",
+    }
     for i, col in enumerate(cols[3:])
   ]
 
@@ -1294,7 +1299,12 @@ def reset_edit_columns_table(n_clicks: int, cols: list[dict]):
     return no_update
 
   return [
-    {"index": i, "type": col.get("cellDataType", "text"), "old_name": col["field"]}
+    {
+      "index": i,
+      "type": col.get("cellDataType", "text"),
+      "old_name": col["field"],
+      "new_name": "",
+    }
     for i, col in enumerate(cols[3:])
   ]
 
@@ -1309,7 +1319,9 @@ def reset_edit_columns_table(n_clicks: int, cols: list[dict]):
 def add_columns(_: int, row_data: list[dict], selected_rows: list[dict]):
   add_rows = selected_rows if selected_rows else [{"index": -1, "new_name": ""}]
   for i, row in enumerate(add_rows):
-    row_data.insert(row["index"] + i + 1, {"index": row["index"], "new_name": ""})
+    row_data.insert(
+      row["index"] + i + 1, {"index": row["index"], "old_name": "", "new_name": ""}
+    )
 
   for i in range(len(row_data)):
     row_data[i]["index"] = i
@@ -1344,27 +1356,36 @@ def update_columns(
   if not (old_columns and rows):
     return no_update
 
-  def field_name(index: int, row: pd.Series):
+  def field_name(index: int, row: pd.Series) -> str:
     if "new_name" in row and row["new_name"] != "":
       return row["new_name"]
 
     if row["old_name"] != "":
       return row["old_name"]
 
-    return index
+    return str(index)
+
+  def base_type(row: pd.Series) -> str | float:
+    if row["type"] == "text":
+      return ""
+
+    if row["type"] == "number":
+      return 0.0
+
+    return ""
 
   df_rows = pd.DataFrame.from_records(rows)
-  df_rows = df_rows[[col["field"] for col in old_columns]]
-
   df_edit = pd.DataFrame.from_records(edit_data)
+  df_edit = df_edit[~((df_edit["old_name"] == "") & (df_edit["new_name"] == ""))]
 
   # Delete columns
-  del_columns = df_rows.columns.difference(df_edit["old_name"])
+  keep = ["factor", "period", "unit"]
+  del_columns = df_rows.columns.difference(keep + df_edit["old_name"].to_list())
   df_rows.drop(columns=del_columns, inplace=True)
 
   # Rename columns
-  if "new_name" in df_edit.columns:
-    df_rename = df_edit[df_edit["old_name"] != ""]
+  df_rename = df_edit[(df_edit["old_name"] != "") & (df_edit["new_name"] != "")]
+  if not df_rename.empty:
     col_map = {
       old: new for (old, new) in zip(df_rename["old_name"], df_rename["new_name"])
     }
@@ -1379,14 +1400,13 @@ def update_columns(
         "cellDataType": r["type"],
       }
     )
-    if field in df_rows.columns:
-      df_rows[field] = "" if r["type"] == "text" else 0.0
+    if field not in df_rows.columns:
+      df_rows[field] = base_type(r)
 
     if r["type"] == "number":
       df_rows[field] = df_rows[field].replace(r"[^\d.]", "", regex=True).astype(float)
 
   columns = old_columns[:3] + new_columns
-  print(df_rows)
   return columns, df_rows.to_dict("records")
 
 
