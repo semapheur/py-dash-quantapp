@@ -1,0 +1,3 @@
+DAY_PATTERN = r"(0[1-9]|[12][0-9]|3[01])"
+MONTH_PATTERN = r"(0[1-9]|1[0-2])"
+DATE_PATTERN = f"\\d{{4}}-{MONTH_PATTERN}-{DAY_PATTERN}"

@@ -18,6 +18,14 @@ def int_parser(value):
     return value
 
 
+def valid_date(date_text: str, date_format: str = "%Y-%m-%d") -> bool:
+  try:
+    dt.strptime(date_text, date_format)
+    return True
+  except ValueError:
+    return False
+
+
 def load_json(path: str | Path) -> dict:
   with open(path, "r") as f:
     return json.load(f)

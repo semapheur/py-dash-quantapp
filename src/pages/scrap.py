@@ -42,7 +42,7 @@ from lib.fin.models import (
 from lib.fin.statement import upsert_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.scrap import download_file_memory
-from lib.utils import split_multiline, pascal_case, split_pascal_case
+from lib.utils import split_multiline, pascal_case, split_pascal_case, valid_date
 
 register_page(__name__, path="/scrap", title="Scrap PDF")
 
@@ -1404,7 +1404,7 @@ def update_columns(
       df_rows[field] = base_type(r)
 
     if r["type"] == "number":
-      df_rows[field] = df_rows[field].replace(r"[^\d.]", "", regex=True).astype(float)
+      df_rows[field] = df_rows[field].replace(r"[^-\d.]", "", regex=True).astype(float)
 
   columns = old_columns[:3] + new_columns
   return columns, df_rows.to_dict("records")
@@ -1515,6 +1515,9 @@ def export(
   period: FiscalPeriod,
   fiscal_end: str,
 ):
+  if not (n and rows and id and date and scope and period and fiscal_end):
+    return no_update
+
   def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
     date = dt.strptime(date_text, "%Y-%m-%d").date()
 
@@ -1533,9 +1536,6 @@ def export(
 
     return Interval(start_date=start_date, end_date=date, months=months)
 
-  if not n:
-    return no_update
-
   data: dict[str, list[Item]] = {}
 
   df = pd.DataFrame.from_records(rows)
@@ -1544,8 +1544,19 @@ def export(
 
   df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
 
-  dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
-  df.loc[:, dates] = df[dates].replace(r"[^\d.]", "", regex=True).astype(float)
+  dates = list(df.columns.difference({"period", "factor", "unit", "item"}))
+  if not all(valid_date(date) for date in dates):
+    return no_update
+
+  df[dates] = (
+    df[dates]
+    .apply(
+      lambda col: col.replace(r"[^-\d.]", "", regex=True)
+      if col.dtype == "object"
+      else col
+    )
+    .astype(float, errors="ignore")
+  )
 
   currencies = set()
 
@@ -1560,6 +1571,7 @@ def export(
         period=parse_period(scope, d, r),
       )
       for d in dates
+      if pd.notna(r[d])
     ]
 
   record = FinStatement(
