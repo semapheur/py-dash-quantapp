@@ -427,19 +427,31 @@ def upsert_statements(
     cur = con.cursor()
 
     cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
-      url TEXT PRIMARY KEY,
+      url TEXT,
       scope TEXT,
       date DATE,
       fiscal_period TEXT,
       fiscal_end TEXT,
-      currency JSON,
-      data JSON)
+      currency TEXT,
+      data TEXT)
     """)
+
+    cur.execute(
+      f"""CREATE INDEX IF NOT EXISTS idx_date_period ON "{table}" (date, fiscal_period)"""
+    )
 
     query = f"""INSERT INTO 
       "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :data)
-      ON CONFLICT (url) DO UPDATE SET  
+      ON CONFLICT (idx_date_period) DO UPDATE SET
         data=json_patch(data, excluded.data),
+        url=(
+          SELECT json_group_array(value)
+          FROM (
+            SELECT json_each.value
+            FROM json_each(url)
+            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.url))
+          )
+        )
         currency=(
           SELECT json_group_array(value)
           FROM (

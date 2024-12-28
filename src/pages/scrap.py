@@ -228,6 +228,9 @@ scrap_controls_sidebar = html.Aside(
       className="grid grid-cols-2 gap-x-1 gap-y-2",
       children=[
         InputAIO(
+          "scrap:url", "100%", input_props={"type": "text", "placeholder": "URL"}
+        ),
+        InputAIO(
           "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
         ),
         InputAIO(
@@ -765,12 +768,23 @@ layout = html.Main(
     ),
     dcc.Download(id="download:scrap:image"),
     dcc.ConfirmDialog(
-      id="notification:scrap:table-error",
-      message="Unable to parse table",
+      id="notification:scrap",
     ),
     dcc.Store(id="store:scrap:image-data", data={}),
   ],
 )
+
+
+@callback(
+  Output(InputAIO.aio_id("scrap:url"), "value"),
+  Input(InputButtonAIO.button_id("scrap:url-pdf"), "n_clicks"),
+  State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
+)
+def update_url(n: int, url: str):
+  if not (n and url):
+    return no_update
+
+  return url
 
 
 @callback(
@@ -1081,7 +1095,7 @@ def prepare_scrap_table(
 @callback(
   Output("table:scrap", "columnDefs", allow_duplicate=True),
   Output("table:scrap", "rowData", allow_duplicate=True),
-  Output("notification:scrap:table-error", "displayed", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
   Input(InputButtonAIO.button_id("scrap:pages"), "n_clicks"),
   State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
   State(InputButtonAIO.input_id("scrap:pages"), "value"),
@@ -1175,7 +1189,7 @@ def extract_pdf_table(
 @callback(
   Output("table:scrap", "columnDefs", allow_duplicate=True),
   Output("table:scrap", "rowData", allow_duplicate=True),
-  Output("notification:scrap:table-error", "displayed", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
   Input("button:scrap:extract-htm", "n_clicks"),
   State("iframe:scrap:htm", "srcDoc"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
@@ -1199,7 +1213,8 @@ def extract_htm_table(n_clicks: int, htm: str, factor: int, currency: str):
 @callback(
   Output("table:scrap", "columnDefs"),
   Output("table:scrap", "rowData"),
-  Output("notification:scrap:table-error", "displayed"),
+  Output("notification:scrap", "message"),
+  Output("notification:scrap", "displayed"),
   Input("upload:scrap:csv", "contents"),
   State("upload:scrap:csv", "filename"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
@@ -1208,8 +1223,16 @@ def extract_htm_table(n_clicks: int, htm: str, factor: int, currency: str):
   background=True,
 )
 def extract_csv_table(contents: str, filename: str, factor: int, currency: str):
-  if not contents or not filename.endswith(".csv"):
+  if not contents:
     return no_update
+
+  if not filename.endswith(".csv"):
+    return (
+      [],
+      [],
+      f"Only CSV files supported. Invalid file type: {filename}",
+      True,
+    )
 
   _, content_string = contents.split(",")
   decoded = base64.b64decode(content_string)
@@ -1506,10 +1529,12 @@ def record_items(n_clicks: int, rows: list[dict]):
 
 @callback(
   Output("download:scrap:json", "data"),
+  Output("notification:scrap", "message"),
+  Output("notification:scrap", "displayed"),
   Input("button:scrap:export-json", "n_clicks"),
   State("table:scrap", "rowData"),
-  State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
   State(CompanySelectAIO.aio_id("scrap:company-id"), "value"),
+  State(InputButtonAIO.input_id("scrap:url"), "value"),
   State(InputAIO.aio_id("scrap:date"), "value"),
   State("dropdown:scrap:scope", "value"),
   State("dropdown:scrap:period", "value"),
@@ -1519,15 +1544,49 @@ def record_items(n_clicks: int, rows: list[dict]):
 def export(
   n: int,
   rows: list[dict],
-  url: str,
   id: str,
+  url: str,
   date: str,
   scope: Scope,
   period: FiscalPeriod,
   fiscal_end: str,
 ):
-  if not (n and rows and id and date and scope and period and fiscal_end):
+  if not (n and rows):
     return no_update
+
+  def missing_metadata_message(
+    id: str,
+    url: str,
+    date: str,
+    scope: Scope,
+    period: FiscalPeriod,
+    fiscal_end: str,
+  ):
+    # Mapping of field names to their human-readable labels
+    fields = {
+      "id": "Company ID",
+      "url": "URL",
+      "date": "Date",
+      "scope": "Scope",
+      "period": "Period",
+      "fiscal_end": "Fiscal end",
+    }
+
+    # Find missing fields
+    missing_fields = [
+      label for field, label in fields.items() if not locals().get(field)
+    ]
+
+    if missing_fields:
+      message = "The following metadata are missing:\n" + "\n".join(
+        f"- {field}" for field in missing_fields
+      )
+      return message
+    return None
+
+  message = missing_metadata_message(id, url, date, scope, period, fiscal_end)
+  if message is not None:
+    return {}, message, True
 
   def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
     date = dt.strptime(date_text, "%Y-%m-%d").date()
@@ -1597,7 +1656,11 @@ def export(
 
   # upsert_statements("statements.db", id, records)
 
-  return {
-    "content": record.model_dump_json(exclude_unset=True, indent=2),
-    "filename": f"{id}_{date}_{period}.json",
-  }
+  return (
+    {
+      "content": record.model_dump_json(exclude_unset=True, indent=2),
+      "filename": f"{id}_{date}_{period}.json",
+    },
+    "",
+    False,
+  )

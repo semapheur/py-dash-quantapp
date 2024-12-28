@@ -1,7 +1,7 @@
 from datetime import date as Date, datetime as dt
 import json
 import re
-from typing import cast, Literal, TypeAlias
+from typing import cast, Literal
 from typing_extensions import TypedDict
 
 from pandera import DataFrameModel, Field
@@ -14,10 +14,10 @@ from pydantic import (
   field_validator,
 )
 
-Scope: TypeAlias = Literal["annual", "quarterly"]
-Quarter: TypeAlias = Literal["Q1", "Q2", "Q3", "Q4"]
-Ttm: TypeAlias = Literal["TTM1", "TTM2", "TTM3"]
-FiscalPeriod: TypeAlias = Literal["FY"] | Quarter
+type Scope = Literal["annual", "quarterly"]
+type Quarter = Literal["Q1", "Q2", "Q3", "Q4"]
+type Ttm = Literal["TTM1", "TTM2", "TTM3"]
+type FiscalPeriod = Literal["FY"] | Quarter
 
 
 class SharePrice(TypedDict):
@@ -78,19 +78,26 @@ def item_dict(v: Item):
   return obj
 
 
-# SerializedItem = Annotated[Item, PlainSerializer(item_serializer)]
-FinData: TypeAlias = dict[str, list[Item]]
+type FinData = dict[str, list[Item]]
 
 
 class FinStatement(BaseModel):
-  url: str | None = None
+  url: list[str] | None = None
   scope: Scope
   date: Date
   fiscal_period: FiscalPeriod
   fiscal_end: str
   # periods: set[Interval]
   currency: set[str]
-  data: FinData  # dict[str, list[SerializedItem]]
+  data: FinData
+
+  @field_validator("url", mode="before")
+  @classmethod
+  def validate_url(cls, value, info: ValidationInfo):
+    if isinstance(value, str):
+      return [value]
+
+    return value
 
   @field_validator("fiscal_end", mode="before")
   @classmethod
@@ -176,10 +183,10 @@ class FinStatement(BaseModel):
 
 
 class FinStatementFrame(DataFrameModel):
-  url: str | None = Field(unique=True)
+  url: Object | None
   scope: str = Field(isin={"annual", "quarterly"})
   date: Timestamp
-  period: str = Field(isin={"FY", "Q1"})
+  period: str = Field(isin={"FY", "Q1", "Q2", "Q3", "Q4"})
   fiscal_end: str | None
   periods: Object | None
   currency: Object
