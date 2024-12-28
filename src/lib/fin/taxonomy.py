@@ -84,6 +84,11 @@ class TaxonomyItem(BaseModel):
     return value
 
 
+class ItemGaapRecord(TypedDict):
+  item: str
+  gaap: str
+
+
 class TaxonomyRecord(TypedDict):
   item: str
   type: TaxonomyType
@@ -595,6 +600,29 @@ def scraped_items(sort=False) -> set[str]:
     items = set(sorted(items))
 
   return items
+
+
+def upsert_gaap(item_gaap: list[ItemGaapRecord]):
+  db_path = DB_DIR / "taxonomy.db"
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+
+    query = """INSERT INTO items (item, gaap)
+      VALUES (:item, :gaap) 
+      ON CONFLICT (item) DO UPDATE SET 
+        gaap=(
+          SELECT json_group_array(value)
+          FROM (
+            SELECT json_each.value
+            FROM json_each(gaap)
+            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.gaap))
+          )
+        )
+      )
+    """
+    cur.executemany(query, item_gaap)
+    con.commit()
 
 
 def backup_taxonomy():

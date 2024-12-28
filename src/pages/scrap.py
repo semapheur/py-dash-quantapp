@@ -40,11 +40,11 @@ from lib.fin.models import (
   FiscalPeriod,
 )
 from lib.fin.statement import upsert_statements
-from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
+from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, upsert_gaap
 from lib.scrap import download_file_memory
 from lib.utils import split_multiline, pascal_case, split_pascal_case, valid_date
 
-register_page(__name__, path="/scrap", title="Scrap PDF")
+register_page(__name__, path="/scrap", title="Scrap")
 
 
 class ItemTable(TypedDict):
@@ -192,16 +192,9 @@ scrap_controls_sidebar = html.Aside(
           n_clicks=0,
         ),
         html.Button(
-          "Delete columns",
-          id=OpenCloseModalAIO.open_id("scrap:delete-columns"),
-          className=button_style,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Button(
-          "Rename columns",
-          id=OpenCloseModalAIO.open_id("scrap:rename-columns"),
-          className=button_style,
+          "Edit columns",
+          id=OpenCloseModalAIO.open_id("scrap:edit-columns"),
+          className=f"{button_style} col-span-2",
           type="button",
           n_clicks=0,
         ),
@@ -558,7 +551,7 @@ layout = html.Main(
     #  ],
     # ),
     OpenCloseModalAIO(
-      "scrap:rename-columns",
+      "scrap:edit-columns",
       "Edit columns",
       dialog_props={
         "style": {
@@ -1491,6 +1484,24 @@ def search_items(n_clicks: int, rows: list[dict]):
       ]
 
   return rows
+
+
+@callback(
+  Output("button:scrap:record-items", "id"),
+  Input("button:scrap:record-items", "n_clicks"),
+  State("table:item:scrap", "rowData"),
+  prevent_initial_call=True,
+  background=True,
+)
+def record_items(n_clicks: int, rows: list[dict]):
+  if not (n_clicks and rows):
+    return no_update
+
+  df = pd.DataFrame.from_records(rows)
+  update = df.loc[df["action"] == "update", ["taxonomy", "item"]].to_dict("records")
+  upsert_gaap(update)
+
+  return no_update
 
 
 @callback(
