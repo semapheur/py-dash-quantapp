@@ -157,3 +157,45 @@ dagfuncs.NumberInput = class {
     return this.eInput.value
   }
 }
+dagfuncs.SuggestionInput = class {
+  init(params) {
+    this.value = params.value.value ?? ""
+    this.options = params.value.options ?? []
+
+    const listId = `datalist:${params.listId ?? ""}:${params.rowIndex}`
+
+    this.eForm = document.createElement("form")
+
+    this.eInput = document.createElement("input")
+    this.eInput.type = "text"
+    this.eInput.value = this.value
+    this.eInput.placeholder = params.placeholder || ""
+    this.eInput.setAttribute("style", "width: 100%")
+    this.eInput.setAttribute("list", listId);
+    this.eForm.appendChild(this.eInput)
+
+    const eDatalist = document.createElement("datalist")
+    eDatalist.id = listId
+
+    for (const option of this.options) {
+      const eOption = document.createElement("option")
+      eOption.value = option
+      eDatalist.appendChild(eOption)
+    }
+    this.eForm.appendChild(eDatalist)
+  }
+
+  getGui() {
+    return this.eForm
+  }
+  afterGuiAttached() {
+    this.eInput.focus()
+    this.eInput.select()
+  }
+  getValue() {
+    return {
+      value: this.eInput.value,
+      options: this.options
+    }
+  }
+}

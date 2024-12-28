@@ -671,9 +671,11 @@ layout = html.Main(
                 },
                 {
                   "field": "taxonomy",
-                  "cellDataType": "text",
-                  "tooltipField": "suggestions",
-                  "tooltipComponent": "TaxonomyTooltip",
+                  "cellDataType": "object",
+                  "cellEditor": {"function": "SuggestionInput"},
+                  "cellEditorParams": {"listId": "scrap:items"},
+                  "cellRenderer": "TaxonomyCell",
+                  # "valueFormatter": {"function": "params.value.value"},
                 },
                 {"field": "item", "cellDataType": "text", "editable": False},
                 {"field": "long", "headerName": "Label (long)", "cellDataType": "text"},
@@ -1213,8 +1215,8 @@ def extract_htm_table(n_clicks: int, htm: str, factor: int, currency: str):
 @callback(
   Output("table:scrap", "columnDefs"),
   Output("table:scrap", "rowData"),
-  Output("notification:scrap", "message"),
-  Output("notification:scrap", "displayed"),
+  Output("notification:scrap", "message", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
   Input("upload:scrap:csv", "contents"),
   State("upload:scrap:csv", "filename"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
@@ -1227,10 +1229,12 @@ def extract_csv_table(contents: str, filename: str, factor: int, currency: str):
     return no_update
 
   if not filename.endswith(".csv"):
+    message = f"Only CSV files supported. Invalid file type: {filename}"
+
     return (
-      [],
-      [],
-      f"Only CSV files supported. Invalid file type: {filename}",
+      None,
+      None,
+      message,
       True,
     )
 
@@ -1243,7 +1247,7 @@ def extract_csv_table(contents: str, filename: str, factor: int, currency: str):
 
   column_defs, row_data = prepare_scrap_table(df, factor, currency)
 
-  return column_defs, row_data, False
+  return column_defs, row_data, None, False
 
 
 @callback(
@@ -1468,12 +1472,20 @@ def item_modal(n_clicks: int, rows: list[dict]):
 
   df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
 
+  empty_taxonomy = pd.DataFrame(
+    {
+      "taxonomy": [{"value": "", "options": []}] * len(df.index),
+    },
+    index=df.index,
+  )
+
   empty_columns = pd.DataFrame(
     "",
     index=df.index,
-    columns=["taxonomy", "label_long", "label_short", "type", "balance", "aggregate"],
+    columns=["label_long", "label_short", "type", "balance", "aggregate"],
   )
-  row_data = pd.concat([df[["item"]], empty_columns], axis=1)
+
+  row_data = pd.concat([df[["item"]], empty_taxonomy, empty_columns], axis=1)
 
   return row_data.to_dict("records")
 
@@ -1494,7 +1506,7 @@ def search_items(n_clicks: int, rows: list[dict]):
     rows[i]["action"] = "create"
     if find is not None:
       rows[i]["action"] = "none"
-      rows[i]["taxonomy"] = find["item"]
+      rows[i]["taxonomy"] = {"value": find.at[0, "item"], "options": []}
 
     else:
       fuzzy = fuzzy_search_taxonomy(split_pascal_case(rows[i]["item"]), 3)
@@ -1502,9 +1514,7 @@ def search_items(n_clicks: int, rows: list[dict]):
         continue
 
       rows[i]["action"] = "update"
-      rows[i]["suggestions"] = [
-        f"{i} ({g})" for i, g in zip(fuzzy["item"], fuzzy["gaap"])
-      ]
+      rows[i]["taxonomy"] = {"value": "", "options": fuzzy["item"].to_list()}
 
   return rows
 
@@ -1529,8 +1539,8 @@ def record_items(n_clicks: int, rows: list[dict]):
 
 @callback(
   Output("download:scrap:json", "data"),
-  Output("notification:scrap", "message"),
-  Output("notification:scrap", "displayed"),
+  Output("notification:scrap", "message", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
   Input("button:scrap:export-json", "n_clicks"),
   State("table:scrap", "rowData"),
   State(CompanySelectAIO.aio_id("scrap:company-id"), "value"),

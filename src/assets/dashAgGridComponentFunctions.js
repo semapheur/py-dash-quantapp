@@ -211,3 +211,8 @@ dagcomponentfuncs.TaxonomyTooltip = (props) => {
     React.createElement("ul", null, ...listItems)
   )
 }
+
+dagcomponentfuncs.TaxonomyCell = (props) => {
+  console.log(props.value)
+  return props.value.value ?? ""
+}
