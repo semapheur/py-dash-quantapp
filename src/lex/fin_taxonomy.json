@@ -13859,7 +13859,8 @@
       "long": "Declared Dividends on Common Stock"
     },
     "gaap": [
-      "DividendsCommonStock"
+      "DividendsCommonStock",
+      "DividendsPaidOrdinaryShares"
     ],
     "calculation": {
       "order": 3170,
@@ -14085,7 +14086,8 @@
     },
     "gaap": [
       "EarningsPerShareBasic",
-      "BasicEarningsLossPerShare"
+      "BasicEarningsLossPerShare",
+      "NetIncomePerOrdinaryShare"
     ],
     "calculation": {
       "order": 3183,
@@ -19124,12 +19126,13 @@
       "long": "Income (Loss) from Continuing Operations Before Income Taxes, Interest, Extraordinary Items and Minority Interest"
     },
     "gaap": [
+      "IncomeBeforeFinancialItemsIncomeTaxesAndMinorityInterest",
       "IncomeLossFromContinuingOperationsBeforeInterestExpenseInterestIncomeIncomeTaxesExtraordinaryItemsNoncontrollingInterestsNet"
     ],
     "calculation": {
       "order": 3215,
       "any": [
-        "income_loss_pretax_excluding_equity_method_investments + income_loss_equity_method_investment"
+        "income_loss_operating + income_loss_nonoperating + income_loss_equity_method_investments_pretax"
       ]
     }
   },
@@ -21048,7 +21051,7 @@
       ]
     }
   },
-  "interest_income_expense_operating": {
+  "interest_income_expense": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -21056,10 +21059,28 @@
       "long": "Interest Income (Expense)"
     },
     "gaap": [
+      "NetFinancialItems",
+      "InterestRevenueExpenseNet"
+    ],
+    "calculation": {
+      "order": 1093,
+      "any": [
+        "interest_income_expense_operating + interest_income_expense_nonoperating",
+        "investment_income_interest - interest_expense"
+      ]
+    }
+  },
+  "interest_income_expense_operating": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Operating Interest Income (Expense)"
+    },
+    "gaap": [
       "InterestIncomeExpense",
       "InterestRevenueExpense",
-      "InterestIncomeExpenseNet",
-      "InterestRevenueExpenseNet"
+      "InterestIncomeExpenseNet"
     ],
     "calculation": {
       "order": 1093,
