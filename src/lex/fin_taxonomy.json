@@ -16120,7 +16120,7 @@
     "calculation": {
       "order": 2256,
       "any": [
-        "gain_loss_securitization_financial_assets + gain_loss_realized_securities + gain_loss_sale_properties + gain_loss_sale_investment_real_estate + gain_loss_sale_investment_other + gain_loss_sale_equity_method_investment"
+        "gain_loss_securitization_financial_assets + gain_loss_realized_securities + gain_loss_sale_properties_pretax + gain_loss_sale_investment_real_estate + gain_loss_sale_investment_other + gain_loss_sale_equity_method_investment"
       ]
     }
   },
@@ -16814,15 +16814,16 @@
       "GainLossOnSaleOfProject"
     ]
   },
-  "gain_loss_sale_properties": {
+  "gain_loss_sale_properties_pretax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Gain (Loss) on Sale of Properties"
+      "long": "Gain (Loss) on Sale of Properties Before Applicable Income Taxes"
     },
     "gaap": [
-      "GainLossOnSaleOfProperties"
+      "GainLossOnSaleOfProperties",
+      "GainLossOnSaleOfPropertiesBeforeApplicableIncomeTaxes"
     ]
   },
   "gain_loss_sale_property": {
@@ -19322,7 +19323,7 @@
       ]
     }
   },
-  "income_loss_net_before_extraordinary_item": {
+  "income_loss_before_extraordinary_items": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19335,7 +19336,52 @@
     "calculation": {
       "order": 2489,
       "any": [
-        "income_loss_net_continuing_operations_including_minority_interest + income_loss_net_dicontinued_operations"
+        "income_loss_before_extrordinary_items_excluding_sale_properties + gain_loss_sale_properties"
+      ]
+    }
+  },
+  "gain_loss_sale_properties": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Gain (Loss) on Sale of Properties Net of Applicable Income Taxes"
+    },
+    "gaap": [
+      "GainLossOnSaleOfPropertiesNetOfApplicableIncomeTaxes"
+    ],
+    "calculation": {
+      "order": 2489,
+      "any": [
+        "gain_loss_sale_properties_pretax + gain_loss_sale_properties_tax"
+      ]
+    }
+  },
+  "gain_loss_sale_properties_tax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Applicable Income Taxes for Gain (Loss) on Sale of Properties"
+    },
+    "gaap": [
+      "GainLossOnSaleOfPropertiesApplicableIncomeTaxes"
+    ]
+  },
+  "income_loss_before_extrordinary_items_excluding_sale_properties": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) Before Gain (Loss) on Sale of Properties, Extraordinary Items and Cumulative Effect of Change In Accounting Principle"
+    },
+    "gaap": [
+      "IncomeLossBeforeGainOrLossOnSaleOfPropertiesExtraordinaryItemsAndCumulativeEffectsOfAccountingChanges"
+    ],
+    "calculation": {
+      "order": 2489,
+      "any": [
+        "income_loss_net_continuing_operations_including_minority_interest + income_loss_net_dicontinued_operations",
       ]
     }
   },
@@ -19488,7 +19534,7 @@
         "revenue - cost_revenue + investment_income + other_income - interest_expense - other_operating_expenses"
       ],
       "any": [
-        "income_loss_net_before_extraordinary_item + extraordinary_item"
+        "income_loss_before_extraordinary_items + extraordinary_item"
       ]
     }
   },
