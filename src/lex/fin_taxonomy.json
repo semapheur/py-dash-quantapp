@@ -39361,7 +39361,7 @@
     "calculation": {
       "order": 1298,
       "any": [
-        "revenue_sales + investment_income_operating + interest_income_expense_operating + noninterest_income_operating",
+        "revenue_sales + interest_dividend_income_operating + interest_income_expense_operating_after_provision_losses + noninterest_income_operating + revenue_finance_excluding_interest_dividends",
         "revenue_contract + revenue_noncontract"
       ]
     }

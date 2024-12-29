@@ -67,6 +67,17 @@ https://xbrl.us/home/filers/sec-reporting/taxonomies/
 # Accounting terms
 
 ## Revenue
+
+- revenue_fees_commissions = revenue_fees_commissions_banking + revenue_commissions_brokerage + revenue_fees_servicing_financial_assets + revenue_fees_commissions_transfer_agent + revenue_fees_commissions_correspondent_clearing + revenue_fees_commissions_other + revenue_fees_commissions_insurance + revenue_fees_investment_advisory_management + revenue_fees_merchant_discount + revenue_fees_servicing_net
+- investment_banking_advisory_brokerage_underwriting_fees_commissions = revenue_investment_banking + income_loss_underwriting + revenue_fees_commissions
+- noninterest_income_operating = investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_principal_transaction + revenue_premiums + gain_loss_sale_financial_assets + noninterest_income_operating_other
+- revenue_services_financial = revenue_fees_commissions + gain_loss_sale_financial_assets + revenue_principal_transaction + revenue_premiums + revenue_services_financial_other
+- revenue_finance_excluding_interest_dividends = revenue_commissions_brokerage + revenue_investment_banking + income_loss_underwriting + revenue_principal_transaction + revenue_market_data
+- revenue = 
+    - revenue_sales + interest_dividend_income_operating + interest_income_expense_operating_after_provision_losses + noninterest_income_operating + revenue_finance_excluding_interest_dividends
+    - revenue_contract + revenue_noncontract
+
+### GAAP
 - Revenues = 
     - RevenueFromContractWithCustomerIncludingAssessedTax + RevenueNotFromContractWithCustomer
     - InterestAndDividendIncomeOperating + RevenuesExcludingInterestAndDividends
