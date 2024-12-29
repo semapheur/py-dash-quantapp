@@ -602,27 +602,43 @@ def scraped_items(sort=False) -> set[str]:
   return items
 
 
-def upsert_gaap(item_gaap: list[ItemGaapRecord]):
+def update_gaap(item_gaap: list[ItemGaapRecord]) -> list[str]:
   db_path = DB_DIR / "taxonomy.db"
+
+  missing_items: list[str] = []
 
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    query = """INSERT INTO items (item, gaap)
-      VALUES (:item, :gaap) 
-      ON CONFLICT (item) DO UPDATE SET 
-        gaap=(
+    check_query = "SELECT item FROM items WHERE item = ?"
+
+    for record in item_gaap:
+      cur.execute(check_query, (record["gaap"],))
+      if not cur.fetchone():
+        missing_items.append(record["gaap"])
+
+    query = """
+      UPDATE items 
+      SET gaap = CASE
+        WHEN gaap IS NULL THEN json_array(:gaap)
+        ELSE (
           SELECT json_group_array(value)
           FROM (
-            SELECT json_each.value
-            FROM json_each(gaap)
-            WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.gaap))
+            SELECT DISTINCT value
+            FROM (
+              SELECT value FROM json_each(gaap)
+              UNION ALL
+              SELECT :gaap
+            )
           )
         )
-      )
+      END
+      WHERE item = :item
     """
     cur.executemany(query, item_gaap)
     con.commit()
+
+  return missing_items
 
 
 def backup_taxonomy():

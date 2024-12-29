@@ -159,17 +159,14 @@ dagfuncs.NumberInput = class {
 }
 dagfuncs.SuggestionInput = class {
   init(params) {
-    this.value = params.value.value ?? ""
-    this.options = params.value.options ?? []
-
     const listId = `datalist:${params.listId ?? ""}:${params.rowIndex}`
 
     this.eForm = document.createElement("form")
 
     this.eInput = document.createElement("input")
     this.eInput.type = "text"
-    this.eInput.value = this.value
-    this.eInput.placeholder = params.placeholder || ""
+    this.eInput.value = params.value ?? ""
+    this.eInput.placeholder = params.placeholder ?? ""
     this.eInput.setAttribute("style", "width: 100%")
     this.eInput.setAttribute("list", listId);
     this.eForm.appendChild(this.eInput)
@@ -177,7 +174,8 @@ dagfuncs.SuggestionInput = class {
     const eDatalist = document.createElement("datalist")
     eDatalist.id = listId
 
-    for (const option of this.options) {
+    const suggestions = params.data.suggestions ?? []
+    for (const option of suggestions) {
       const eOption = document.createElement("option")
       eOption.value = option
       eDatalist.appendChild(eOption)
@@ -193,9 +191,6 @@ dagfuncs.SuggestionInput = class {
     this.eInput.select()
   }
   getValue() {
-    return {
-      value: this.eInput.value,
-      options: this.options
-    }
+    return this.eInput.value
   }
 }

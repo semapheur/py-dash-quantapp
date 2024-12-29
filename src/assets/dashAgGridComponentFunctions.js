@@ -213,6 +213,8 @@ dagcomponentfuncs.TaxonomyTooltip = (props) => {
 }
 
 dagcomponentfuncs.TaxonomyCell = (props) => {
-  console.log(props.value)
-  return props.value.value ?? ""
+
+  const className = (props.data.status === "bad") ? "text-red-100" : ""
+
+  return React.createElement("span", { className: className }, props.value)
 }

@@ -40,7 +40,7 @@ from lib.fin.models import (
   FiscalPeriod,
 )
 from lib.fin.statement import upsert_statements
-from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, upsert_gaap
+from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, update_gaap
 from lib.scrap import download_file_memory
 from lib.utils import split_multiline, pascal_case, split_pascal_case, valid_date
 
@@ -671,11 +671,21 @@ layout = html.Main(
                 },
                 {
                   "field": "taxonomy",
-                  "cellDataType": "object",
+                  "cellDataType": "text",
                   "cellEditor": {"function": "SuggestionInput"},
                   "cellEditorParams": {"listId": "scrap:items"},
-                  "cellRenderer": "TaxonomyCell",
-                  # "valueFormatter": {"function": "params.value.value"},
+                  "cellStyle": {
+                    "styleConditions": [
+                      {
+                        "condition": "params.data.status === 'bad'",
+                        "style": {"backgroundColor": "lightcoral"},
+                      },
+                      {
+                        "condition": "params.data.status === 'good'",
+                        "style": {"backgroundColor": "palegreen"},
+                      },
+                    ],
+                  },
                 },
                 {"field": "item", "cellDataType": "text", "editable": False},
                 {"field": "long", "headerName": "Label (long)", "cellDataType": "text"},
@@ -1472,20 +1482,21 @@ def item_modal(n_clicks: int, rows: list[dict]):
 
   df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
 
-  empty_taxonomy = pd.DataFrame(
-    {
-      "taxonomy": [{"value": "", "options": []}] * len(df.index),
-    },
-    index=df.index,
-  )
-
   empty_columns = pd.DataFrame(
     "",
     index=df.index,
-    columns=["label_long", "label_short", "type", "balance", "aggregate"],
+    columns=[
+      "taxonomy",
+      "label_long",
+      "label_short",
+      "type",
+      "balance",
+      "aggregate",
+      "status",
+    ],
   )
 
-  row_data = pd.concat([df[["item"]], empty_taxonomy, empty_columns], axis=1)
+  row_data = pd.concat([df[["item"]], empty_columns], axis=1)
 
   return row_data.to_dict("records")
 
@@ -1506,7 +1517,7 @@ def search_items(n_clicks: int, rows: list[dict]):
     rows[i]["action"] = "create"
     if find is not None:
       rows[i]["action"] = "none"
-      rows[i]["taxonomy"] = {"value": find.at[0, "item"], "options": []}
+      rows[i]["taxonomy"] = find.at[0, "item"]
 
     else:
       fuzzy = fuzzy_search_taxonomy(split_pascal_case(rows[i]["item"]), 3)
@@ -1514,13 +1525,13 @@ def search_items(n_clicks: int, rows: list[dict]):
         continue
 
       rows[i]["action"] = "update"
-      rows[i]["taxonomy"] = {"value": "", "options": fuzzy["item"].to_list()}
+      rows[i]["suggestions"] = fuzzy["item"].to_list()
 
   return rows
 
 
 @callback(
-  Output("button:scrap:record-items", "id"),
+  Output("table:item:scrap", "rowData", allow_duplicate=True),
   Input("button:scrap:record-items", "n_clicks"),
   State("table:item:scrap", "rowData"),
   prevent_initial_call=True,
@@ -1532,9 +1543,13 @@ def record_items(n_clicks: int, rows: list[dict]):
 
   df = pd.DataFrame.from_records(rows)
   update = df.loc[df["action"] == "update", ["taxonomy", "item"]].to_dict("records")
-  upsert_gaap(update)
+  bad_items = update_gaap(update)
 
-  return no_update
+  bad_rows = df["item"].isin(bad_items)
+  df.loc[bad_rows, "status"] = "bad"
+  df.loc[~bad_rows, "status"] = "good"
+
+  return df.to_dict("records")
 
 
 @callback(
