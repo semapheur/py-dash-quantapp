@@ -5569,7 +5569,7 @@
         "proceed_operating_activities - payment_operating_activities"
       ],
       "any": [
-        "income_loss_net_including_minority_interest - extraordinary_item - income_loss_net_dicontinued_operations + cashflow_operating_noncash_adjustments"
+        "income_loss_continuing_operations_net_including_minority_interest + cashflow_operating_noncash_adjustments"
       ]
     }
   },
@@ -14888,7 +14888,7 @@
     "calculation": {
       "order": 2497,
       "any": [
-        "extraordinary_item_gross - extraordinary_item_tax"
+        "extraordinary_item_pretax - tax_income_extraordinary_items"
       ]
     }
   },
@@ -14926,7 +14926,7 @@
       ]
     }
   },
-  "extraordinary_item_gross": {
+  "extraordinary_item_pretax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -14954,7 +14954,7 @@
       "ExtraordinaryItemOfInvestee"
     ]
   },
-  "extraordinary_item_tax": {
+  "tax_income_extraordinary_items": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -14962,7 +14962,8 @@
       "long": "Tax Effect of Extraordinary Item"
     },
     "gaap": [
-      "TaxEffectOfExtraordinaryItem"
+      "TaxEffectOfExtraordinaryItem",
+      "IncomeTaxExpenseBenefitExtraordinaryItems"
     ]
   },
   "fair_value_net_asset_liability": {
@@ -17799,7 +17800,7 @@
     "calculation": {
       "order": 887,
       "any": [
-        "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + tax_insurance + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_inperiod"
+        "allocated_sharebased_compensation_expense + salaries_wages_officers_compensation + labor_expense + other_labor_related_expenses + professional_fees + business_development + general_insurance_expense + real_estate_insurance + communications_information_technology_occupancy + operating_lease_expense + travel_entertainment_expense + supplies_postage_expense + tax_insurance + tax_excluding_income_excise_taxes + other_general_administrative_expense + loss_contingency_inperiod"
       ]
     }
   },
@@ -19119,7 +19120,24 @@
       "LeveragedLeasesIncomeStatementIncomeFromLeveragedLeases"
     ]
   },
-  "income_loss_before_interest_tax": {
+  "income_loss_pretax_including_minority_interest": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Pretax Income (Loss) from Continuing Operations, Discontinued Operations and Extraordinary Items Including Portion Attributable to Minority Interest"
+    },
+    "gaap": [
+      "IncomeLossIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "calculation": {
+      "order": 3215,
+      "any": [
+        "income_loss_continuing_operations_pretax + income_loss_discontinued_operations_pretax + extraordinary_items_gross"
+      ]
+    }
+  },
+  "income_loss_continuing_operations_pretax_excluding_interest_expense": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19133,7 +19151,7 @@
     "calculation": {
       "order": 3215,
       "any": [
-        "income_loss_operating + income_loss_nonoperating + income_loss_equity_method_investments_pretax"
+        "income_loss_operating + income_loss_nonoperating"
       ]
     }
   },
@@ -19147,7 +19165,7 @@
     "calculation": {
       "order": 3216,
       "all": [
-        "income_loss_before_interest_tax + depreciation_depletion_amortization_accretion"
+        "income_loss_continuing_operations_pretax_excluding_interest_expense + depreciation_depletion_amortization_accretion"
       ]
     }
   },
@@ -19175,7 +19193,19 @@
       "IncomeLossFromContinuingOperationsBeforeIncomeTaxesForeign"
     ]
   },
-  "income_loss_discontinued_operations": {
+  "income_loss_discontinued_operations_pretax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Discontinued Operations Before Income Taxes",
+      "short": "Pretax Income (Loss) from Discontinued Operations"
+    },
+    "gaap": [
+      "DiscontinuedOperationIncomeLossFromDiscontinuedOperationBeforeIncomeTax"
+    ]
+  },
+  "income_loss_discontinued_operations_net": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19184,9 +19214,15 @@
     },
     "gaap": [
       "NetIncomeLossFromDiscontinuedOperations"
-    ]
+    ],
+    "calculation": {
+      "order": 0,
+      "all": [
+        "income_loss_discontinued_operations_pretax - tax_income_discontinued_operations"
+      ]
+    }
   },
-  "income_loss_discontinued_operations_common_shareholders": {
+  "income_loss_discontinued_operations_net_common_shareholders": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19199,11 +19235,11 @@
     "calculation": {
       "order": 3392,
       "any": [
-        "income_loss_discontinued_operations - income_loss_discontinued_operations_minority_interest"
+        "income_loss_discontinued_operations_net - income_loss_discontinued_operations_net_minority_interest"
       ]
     }
   },
-  "income_loss_discontinued_operations_minority_interest": {
+  "income_loss_discontinued_operations_net_minority_interest": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -19323,20 +19359,21 @@
       ]
     }
   },
-  "income_loss_before_extraordinary_items": {
+  "income_loss_net_excluding_extraordinary_items": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Income (Loss) Before Extraordinary Items and Cumulative Effect of Change In Accounting Principle"
+      "long": "Net Income (Loss) Before Extraordinary Items and Cumulative Effect of Change In Accounting Principle"
     },
     "gaap": [
-      "IncomeLossBeforeExtraordinaryItemsAndCumulativeEffectOfChangeInAccountingPrinciple"
+      "IncomeLossBeforeExtraordinaryItemsAndCumulativeEffectOfChangeInAccountingPrinciple",
+      "IncomeLossBeforeGainOrLossOnSaleOfPropertiesExtraordinaryItemsAndCumulativeEffectsOfAccountingChanges"
     ],
     "calculation": {
       "order": 2489,
       "any": [
-        "income_loss_before_extrordinary_items_excluding_sale_properties + gain_loss_sale_properties"
+        "income_loss_continuing_operations_net_including_minority_interest + income_loss_discontinued_operations_net"
       ]
     }
   },
@@ -19367,23 +19404,6 @@
     "gaap": [
       "GainLossOnSaleOfPropertiesApplicableIncomeTaxes"
     ]
-  },
-  "income_loss_before_extrordinary_items_excluding_sale_properties": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
-      "long": "Income (Loss) Before Gain (Loss) on Sale of Properties, Extraordinary Items and Cumulative Effect of Change In Accounting Principle"
-    },
-    "gaap": [
-      "IncomeLossBeforeGainOrLossOnSaleOfPropertiesExtraordinaryItemsAndCumulativeEffectsOfAccountingChanges"
-    ],
-    "calculation": {
-      "order": 2489,
-      "any": [
-        "income_loss_net_continuing_operations_including_minority_interest + income_loss_net_dicontinued_operations",
-      ]
-    }
   },
   "income_loss_net_common_stockholders_basic": {
     "type": "monetary",
@@ -19419,7 +19439,7 @@
       ]
     }
   },
-  "income_loss_net_continuing_operations": {
+  "income_loss_continuing_operations_net": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19432,11 +19452,11 @@
     "calculation": {
       "order": 3410,
       "any": [
-        "income_loss_net_continuing_operations_including_minority_interest - income_loss_net_continuing_operations_minority_interest"
+        "income_loss_continuing_operations_net_including_minority_interest - income_loss_continuing_operations_net_minority_interest"
       ]
     }
   },
-  "income_loss_net_continuing_operations_common_stockholders_basic": {
+  "income_loss_continuing_operations_net_common_stockholders_basic": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19449,11 +19469,11 @@
     "calculation": {
       "order": 3411,
       "any": [
-        "income_loss_net_continuing_operations - preferred_stock_dividends_other_adjustments"
+        "income_loss_continuing_operations_net - preferred_stock_dividends_other_adjustments"
       ]
     }
   },
-  "income_loss_net_continuing_operations_common_stockholders_diluted": {
+  "income_loss_continuing_operations_net_common_stockholders_diluted": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19466,11 +19486,11 @@
     "calculation": {
       "order": 3412,
       "any": [
-        "income_loss_net_continuing_operations + interest_convertible_debt + dividends_preferred_convertible + securities_dilutive"
+        "income_loss_continuing_operations_net + interest_convertible_debt + dividends_preferred_convertible + securities_dilutive"
       ]
     }
   },
-  "income_loss_net_continuing_operations_including_minority_interest": {
+  "income_loss_continuing_operations_net_including_minority_interest": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19484,11 +19504,11 @@
     "calculation": {
       "order": 2460,
       "all": [
-        "income_loss_pretax - tax_income_expense_benefit"
+        "income_loss_continuing_operations_pretax - tax_income_continuing_operations"
       ]
     }
   },
-  "income_loss_net_continuing_operations_minority_interest": {
+  "income_loss_continuing_operations_net_minority_interest": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -19500,7 +19520,7 @@
       "ProfitLossFromContinuingOperationsAttributableToNoncontrollingInterests"
     ]
   },
-  "income_loss_net_dicontinued_operations": {
+  "income_loss_dicontinued_operations_net": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19519,6 +19539,7 @@
   },
   "income_loss_net_including_minority_interest": {
     "type": "monetary",
+    "balance": "credit",
     "aggregate": "sum",
     "label": {
       "long": "Net Income (Loss) Including Portion Attributable to Minority Interest"
@@ -19531,10 +19552,10 @@
     "calculation": {
       "order": 2500,
       "all": [
-        "revenue - cost_revenue + investment_income + other_income - interest_expense - other_operating_expenses"
+        "income_loss_pretax_including_minority_interest - tax_income_expense_benefit"
       ],
       "any": [
-        "income_loss_before_extraordinary_items + extraordinary_item"
+        "income_loss_net_excluding_extraordinary_items + extraordinary_item"
       ]
     }
   },
@@ -19585,7 +19606,7 @@
     "calculation": {
       "order": 2456,
       "any": [
-        "investment_income_nonoperating + gain_loss_contract_termination + gain_loss_condemnation + gain_loss_sale_lease_financing - loss_catastrophes + allowance_funds_construction_additions + gain_loss_foreign_currency_transaction_pretax - lease_salestype_initial_direct_cost_expense_commencement - lease_operating_initial_direct_cost_expense_term + gain_loss_sale_leased_assets_operating + gain_loss_sale_real_estate_other + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + income_loss_real_estate_operation - impairment_recovery_mortgage_servicing_rights + gain_debt_conversion + allowance_funds_construction_additions_capitalized_cost_equity - expense_reversal_benefit_plan_excluding_service_cost + government_assistance_nonoperating_income + government_assistance_nonoperating_expense + other_nonoperating_income_expense - loss_gain_unusual_infrequent_item + gain_loss_investments_health_care_trust_fund + interest_income_health_care_trust_fund - expense_administrative_health_care_trust_fund - interest_expense_nonoperating"
+        "investment_income_nonoperating + gain_loss_contract_termination + gain_loss_condemnation + gain_loss_sale_lease_financing - loss_catastrophes + allowance_funds_construction_additions + gain_loss_foreign_currency_transaction_pretax - lease_salestype_initial_direct_cost_expense_commencement - lease_operating_initial_direct_cost_expense_term + gain_loss_sale_leased_assets_operating + gain_loss_sale_real_estate_other + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + income_loss_real_estate_operation - impairment_recovery_mortgage_servicing_rights + gain_debt_conversion + allowance_funds_construction_additions_capitalized_cost_equity - expense_reversal_benefit_plan_excluding_service_cost + government_assistance_nonoperating_income + government_assistance_nonoperating_expense + other_nonoperating_income_expense - loss_gain_unusual_infrequent_item + gain_loss_investments_health_care_trust_fund + interest_income_health_care_trust_fund - expense_administrative_health_care_trust_fund"
       ]
     }
   },
@@ -19623,7 +19644,7 @@
       "GovernmentAssistanceOperatingIncome"
     ]
   },
-  "income_loss_pretax": {
+  "income_loss_continuing_operations_pretax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19647,11 +19668,11 @@
     "calculation": {
       "order": 2459,
       "any": [
-        "income_loss_pretax_excluding_equity_method_investments + income_loss_equity_method_investment"
+        "income_loss_continuing_operations_pretax_excluding_equity_method_investments + income_loss_equity_method_investment"
       ]
     }
   },
-  "income_loss_pretax_excluding_equity_method_investments": {
+  "income_loss_continuing_operations_pretax_excluding_equity_method_investments": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19665,10 +19686,10 @@
     "calculation": {
       "order": 2458,
       "all": [
-        "income_loss_continuing_operations_pretax_domestic + income_loss_continuing_operations_pretax_foreign"
+        "income_loss_continuing_operations_pretax_excluding_interest_expense - interest_debt_expense"
       ],
       "any": [
-        "income_loss_operating + income_loss_nonoperating"
+        "income_loss_continuing_operations_pretax_domestic + income_loss_continuing_operations_pretax_foreign"
       ]
     }
   },
@@ -20138,7 +20159,7 @@
     "calculation": {
       "order": 3415,
       "all": [
-        "income_loss_pretax / income_loss_operating"
+        "income_loss_continuing_operations_pretax / income_loss_operating"
       ]
     }
   },
@@ -20192,7 +20213,7 @@
     "calculation": {
       "order": 3417,
       "any": [
-        "interest_expense_nonoperating - gain_loss_extinguishment_debt + induced_conversion_convertible_debt_expense - gain_loss_restructuring_debt - gain_loss_recourse_debt - gain_loss_nonrecourse_debt - gain_loss_repurchase_debt_instrument - distributions_mandatorily_redeemable_securities"
+        "interest_expense_nonoperating + debt_expense - distributions_mandatorily_redeemable_securities"
       ]
     }
   },
@@ -22595,7 +22616,7 @@
       "GrossInvestmentIncomeOperating"
     ]
   },
-  "investment_income_operating_net_tax": {
+  "investment_income_operating_net": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -22608,7 +22629,7 @@
     "calculation": {
       "order": 3448,
       "all": [
-        "investment_income_operating - tax_income_investment_expense_benefit"
+        "investment_income_operating - tax_income_investments"
       ]
     }
   },
@@ -27029,9 +27050,20 @@
     "calculation": {
       "order": 1293,
       "any": [
-        "investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_principal_transaction + revenue_premiums + gain_loss_sale_financial_assets + noninterest_income_operating_other"
+        "investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_principal_transaction + revenue_premiums + gain_loss_sale_financial_assets + noninterest_income_operating_other + noninterest_income_other"
       ]
     }
+  },
+  "noninterest_income_other": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Noninterest Revenue"
+    },
+    "gaap": [
+      "NoninterestIncomeOther"
+    ]
   },
   "noninterest_income_operating_other": {
     "type": "monetary",
@@ -27242,6 +27274,34 @@
         "operating_expenses_core + selling_general_administrative_expense + provision_doubtful_accounts + other_general_expense - gain_loss_sale_assets - sales_type_lease_selling_profit_loss + lease_rental_expense + direct_financing_lease_selling_loss + other_underwriting_expense + demutualization_cost + insurance_commissions + brokerage_exchange_clearance_fees + administrative_fee_expense + incentive_fee_expense + management_fee_expense - government_assistance_operating_expense"
       ]
     }
+  },
+  "labor_expense": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Labor and Related Expense"
+    },
+    "gaap": [
+      "LaborAndRelatedExpense"
+    ],
+    "calculation": {
+      "order": 1043,
+      "any": [
+        "deferred_compensation_arrangement_with_individual_compensation_expense"
+      ]
+    }
+  },
+  "deferred_compensation_arrangement_with_individual_compensation_expense": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Deferred Compensation Arrangement with Individual Compensation Expense"
+    },
+    "gaap": [
+      "DeferredCompensationArrangementWithIndividualCompensationExpense"
+    ]
   },
   "operating_expenses_core": {
     "type": "monetary",
@@ -27562,7 +27622,15 @@
     },
     "gaap": [
       "OtherExpenses"
-    ],
+    ]
+  },
+  "debt_expense": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Debt Expenses"
+    },
     "calculation": {
       "order": 868,
       "any": [
@@ -45156,7 +45224,7 @@
     "calculation": {
       "order": 3677,
       "all": [
-        "income_loss_net / income_loss_pretax"
+        "income_loss_net / income_loss_continuing_operations_pretax"
       ]
     }
   },
@@ -45278,6 +45346,40 @@
     ]
   },
   "tax_income_expense_benefit": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income Tax Expense (Benefit) for Continuing Operations, Discontinued Operations, Extraordinary Items"
+    },
+    "gaap": [
+      "IncomeTaxExpenseBenefitContinuingOperationsDiscontinuedOperationsExtraordinaryItems"
+    ],
+    "calculation": {
+      "order": 2407,
+      "any": [
+        "tax_income_continuing_operations + tax_income_discontinued_operations + tax_income_extraordinary_items"
+      ]
+    }
+  },
+  "tax_income_discontinued_operations": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect of Discontinued Operation"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfDiscontinuedOperation"
+    ],
+    "calculation": {
+      "order": 2407,
+      "any": [
+        DiscontinuedOperationTaxEffectOfIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriod + DiscontinuedOperationTaxEffectOfIncomeLossFromDisposalOfDiscontinuedOperation - DiscontinuedOperationTaxExpenseBenefitFromProvisionForGainLossOnDisposal + DiscontinuedOperationTaxEffectOfAdjustmentToPriorPeriodGainLossOnDisposal + DiscontinuedOperationTaxEffectOfOtherIncomeLossFromDispositionOfDiscontinuedOperation
+      ]
+    }
+  },
+  "tax_income_continuing_operations": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -45501,7 +45603,7 @@
       "LeveragedLeasesIncomeStatementIncomeTaxExpenseOnLeveragedLeases"
     ]
   },
-  "tax_income_investment_expense_benefit": {
+  "tax_income_investments": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -46270,7 +46372,7 @@
     "calculation": {
       "order": 2673,
       "all": [
-        "tax_income_expense_benefit / income_loss_pretax"
+        "tax_income_continuing_operations / income_loss_continuing_operations_pretax"
       ],
       "any": [
         "tax_rate_reconciliation_federal_statutory + tax_rate_reconciliation_local + tax_rate_reconciliation_foreign_differential - tax_rate_reconciliation_credit + tax_rate_reconciliation_nondeductible_expense - tax_rate_reconciliation_deductions + tax_rate_reconciliation_settlements + tax_rate_reconciliation_contingencies - tax_rate_reconciliation_excempt_income - tax_rate_reconciliation_equity_earning_loss_unconsolidated_subsidiary - tax_rate_reconciliation_minority_interest_income_expense - tax_rate_reconciliation_holidays + tax_rate_reconciliation_disposition_business + tax_rate_reconciliation_disposition_assets + tax_rate_reconciliation_repatriation_foreign_earnings + tax_rate_reconciliation_repatriation_foreign_earnings_act2004 + tax_rate_reconciliation_change_enacted_rate + tax_rate_reconciliation_prior_year + tax_rate_reconciliation_change_deferred_tax_assets_valuation_allowance + tax_rate_reconciliation_sharebased_compensation_excess_benefit + tax_rate_reconciliation_other_adjustments + tax_rate_reconciliation_other + tax_rate_reconciliation_crossborder_effect"
