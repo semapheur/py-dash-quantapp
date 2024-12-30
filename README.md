@@ -81,6 +81,7 @@ https://xbrl.us/home/filers/sec-reporting/taxonomies/
 - InterestIncomeOperating = InterestIncomeOperatingPaidInCash + InterestIncomeOperatingPaidInKind
 - InterestExpenseOperating = InterestExpenseDeposits + InterestExpenseTradingLiabilities + InterestExpenseBorrowings + InterestExpenseBeneficialInterestsIssuedByConsolidatedVariableInterestEntities + InterestExpenseTrustPreferredSecurities
 - InterestIncomeExpenseNet = InterestAndFeeIncomeLoansAndLeases + InterestIncomeAndFeesBankersAcceptancesCertificatesOfDepositAndCommercialPaper + InterestIncomePurchasedReceivables + InterestIncomeDepositsWithFinancialInstitutions + InterestIncomeFederalFundsSoldAndSecuritiesPurchasedUnderAgreementsToResell + InterestIncomeOperating - InterestExpenseOperating
+- InterestIncomeExpenseAfterProvisionForLoanLoss = InterestIncomeExpenseNet - ProvisionForLoanLeaseAndOtherLosses
 
 ## Revenue
 
@@ -89,11 +90,11 @@ https://xbrl.us/home/filers/sec-reporting/taxonomies/
 - revenue_finance_excluding_interest_dividends
     - revenue_services_financial + revenue_market_data + noninterest_income_operating_other
     - noninterest_income_operating + revenue_market_data
-- revenue_financial_noninterest = 
+- revenue_finance_noninterest = 
     - investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_premiums + revenue_principal_transaction + revenue_market_data + gain_loss_sale_financial_assets + noninterest_income_operating_other + revenue_services_financial_other
     - noninterest_income_operating + revenue_market_data + revenue_services_financial_other
-    - revenue_finance_excluding_interest_dividends + revenue_market_data
-- revenue_financial = revenue_financial_noninterest + revenue_financial_interest_dividend
+    - revenue_finance_excluding_interest_dividends
+- revenue_finance = revenue_finance_noninterest + revenue_finance_interest_dividend
 
 ### Old
 - revenue_fees_commissions = revenue_fees_commissions_banking + revenue_commissions_brokerage + revenue_fees_servicing_financial_assets + revenue_fees_commissions_transfer_agent + revenue_fees_commissions_correspondent_clearing + revenue_fees_commissions_other + revenue_fees_commissions_insurance + revenue_fees_investment_advisory_management + revenue_fees_merchant_discount + revenue_fees_servicing_net
@@ -107,6 +108,7 @@ https://xbrl.us/home/filers/sec-reporting/taxonomies/
 
 ### GAAP
 
+- ClosedBlockOperationsRevenue
 + IncreaseDecreaseInCarryingValueOfAssetsReceivedAsConsiderationInDisposalOfBusiness + OperatingLeasesIncomeStatementLeaseRevenue + ForeignCurrencyTransactionGainLossBeforeTax
 - Revenues = 
     - RevenueFromContractWithCustomerIncludingAssessedTax + RevenueNotFromContractWithCustomer

@@ -20253,7 +20253,7 @@
       "long": "Interest and Dividend Income from Securities"
     },
     "gaap": [
-      "InterestAndDividendIncomeSecurities"
+      "InterestAndDividendIncomeSecurities",
     ],
     "calculation": {
       "order": 3424,
@@ -21295,7 +21295,7 @@
     "calculation": {
       "order": 1092,
       "any": [
-        "interest_fee_income_loans_leases + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables_purchased + interest_income_deposits_financial_institutions + interest_income_federal_funds_sold_securities_purchased_under_resell_agreements + interest_income_operating_other"
+        "interest_fee_income_loans_leases + interest_income_securities_debt_heldfortrade + interest_income_bankers_acceptance_certificates_deposits_commercial_paper + interest_income_receivables_purchased + interest_income_deposits_financial_institutions + interest_income_federal_funds_sold_securities_purchased_under_resell_agreements + interest_income_operating_other"
       ]
     }
   },
@@ -21379,7 +21379,35 @@
       "long": "Interest Income on Debt Securities"
     },
     "gaap": [
-      "InterestIncomeDebtSecuritiesOperating"
+      "InterestIncomeDebtSecuritiesOperating",
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "interest_income_securities_debt_availableforsale + interest_income_securities_debt_heldtomaturity + interest_income_securities_debt_heldfortrade"
+      ]
+    }
+  },
+  "interest_income_securities_debt_heldfortrade": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest and Dividend Income on Trading Securities"
+    },
+    "gaap": [
+      "InterestIncomeDebtSecuritiesTradingOperating"
+    ]
+  },
+  "interest_income_securities_debt_heldtomaturity": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest and Dividend Income on Held-to-Maturity Securities"
+    },
+    "gaap": [
+      "InterestAndDividendIncomeSecuritiesHeldToMaturity"
     ]
   },
   "interest_income_securities_debt_availableforsale": {
@@ -39430,7 +39458,7 @@
       "order": 1298,
       "any": [
         "revenue_sales + interest_dividend_income_operating + interest_income_expense_operating_after_provision_losses + noninterest_income_operating + revenue_finance_excluding_interest_dividends",
-        "revenue_contract + revenue_noncontract"
+        "revenue_contract + revenue_noncontract",
       ]
     }
   },
@@ -40120,12 +40148,56 @@
       "ServicingFeesNet"
     ]
   },
-  "revenue_finance_excluding_interest_dividends": {
+  "revenue_finance": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
       "long": "Finance Revenue"
+    },
+    "calculation": {
+      "order": 3616,
+      "any": [
+        "revenue_finance_interest + revenue_finance_noninterest"
+      ]
+    }
+  },
+  "revenue_finance_interest": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Interest Finance Revenue"
+    },
+    "calculation": {
+      "order": 3616,
+      "any": [
+        "interest_income_expense_operating_after_provision_losses + dividend_income_operating"
+      ]
+    }
+  },
+  "revenue_finance_noninterest": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Noninterest Finance Revenue"
+    },
+    "calculation": {
+      "order": 3616,
+      "any": [
+        "investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_premiums + revenue_principal_transaction + revenue_market_data + gain_loss_sale_financial_assets + noninterest_income_operating_other + revenue_services_financial_other",
+        "noninterest_income_operating + revenue_market_data + revenue_services_financial_other",
+        "revenue_finance_excluding_interest_dividends + revenue_market_data"
+      ]
+    }
+  },
+  "revenue_finance_excluding_interest_dividends": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Finance Revenue Excluding Interest and Dividends"
     },
     "gaap": [
       "RevenuesExcludingInterestAndDividends"
