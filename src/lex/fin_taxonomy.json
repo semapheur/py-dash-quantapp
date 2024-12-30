@@ -45375,9 +45375,64 @@
     "calculation": {
       "order": 2407,
       "any": [
-        DiscontinuedOperationTaxEffectOfIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriod + DiscontinuedOperationTaxEffectOfIncomeLossFromDisposalOfDiscontinuedOperation - DiscontinuedOperationTaxExpenseBenefitFromProvisionForGainLossOnDisposal + DiscontinuedOperationTaxEffectOfAdjustmentToPriorPeriodGainLossOnDisposal + DiscontinuedOperationTaxEffectOfOtherIncomeLossFromDispositionOfDiscontinuedOperation
+        "tax_income_discontinued_operations_during_phaseout_period + tax_income_discontinued_operations_disposal - tax_income_discontinued_operations_disposial_provisions + tax_income_discontinued_operation_disposial_prior_adjustment + tax_income_discontinued_operation_other"
       ]
     }
+  },
+  "tax_income_discontinued_operation_other": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect of Income (Loss) from Disposal of Discontinued Operation"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfOtherIncomeLossFromDispositionOfDiscontinuedOperation"
+    ]
+  },
+  "tax_income_discontinued_operation_disposial_prior_adjustment": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect of Adjustment to Prior Period Gain (Loss) on Disposal of Discontinued Operation"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfAdjustmentToPriorPeriodGainLossOnDisposal"
+    ]
+  },
+  "tax_income_discontinued_operations_disposial_provisions": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Expense (Benefit) from From Provision for Gain (Loss) on Disposal of Discontinued Operation"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxExpenseBenefitFromProvisionForGainLossOnDisposal"
+    ]
+  },
+  "tax_income_discontinued_operations_disposal": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect of Income (Loss) from Disposal of Discontinued Operation"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfIncomeLossFromDisposalOfDiscontinuedOperation"
+    ]
+  },
+  "tax_income_discontinued_operations_during_phaseout_period": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Tax Effect of Discontinued Operation During Phase Out Period"
+    },
+    "gaap": [
+      "DiscontinuedOperationTaxEffectOfIncomeLossFromDiscontinuedOperationDuringPhaseOutPeriod"
+    ]
   },
   "tax_income_continuing_operations": {
     "type": "monetary",
