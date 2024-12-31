@@ -14875,7 +14875,7 @@
       "ExplorationExpense"
     ]
   },
-  "extraordinary_item": {
+  "extraordinary_items": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -14888,11 +14888,11 @@
     "calculation": {
       "order": 2497,
       "any": [
-        "extraordinary_item_pretax - tax_income_extraordinary_items"
+        "extraordinary_items_pretax - tax_income_extraordinary_items"
       ]
     }
   },
-  "extraordinary_item_attributable_minority_interest": {
+  "extraordinary_items_attributable_minority_interest": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -14905,11 +14905,11 @@
     "calculation": {
       "order": 3235,
       "any": [
-        "extraordinary_item - extraordinary_item_attributable_minority_interest"
+        "extraordinary_items - extraordinary_items_attributable_minority_interest"
       ]
     }
   },
-  "extraordinary_item_attributable_reporting_entity": {
+  "extraordinary_items_attributable_reporting_entity": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -14922,11 +14922,11 @@
     "calculation": {
       "order": 3236,
       "any": [
-        "extraordinary_item - extraordinary_item_attributable_minority_interest"
+        "extraordinary_items - extraordinary_items_attributable_minority_interest"
       ]
     }
   },
-  "extraordinary_item_pretax": {
+  "extraordinary_items_pretax": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -17960,6 +17960,23 @@
       "GovernmentAssistanceLiabilityNoncurrent"
     ]
   },
+  "government_assistance_income_expense": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Government Assistance Income (Expense)"
+    },
+    "gaap": [
+      "GovernmentAssistanceAmount"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "government_assistance_nonoperating_income + government_assistance_nonoperating_expense"
+      ]
+    }
+  },
   "government_assistance_nonoperating_expense": {
     "type": "monetary",
     "balance": "credit",
@@ -19133,25 +19150,43 @@
     "calculation": {
       "order": 3215,
       "any": [
-        "income_loss_continuing_operations_pretax + income_loss_discontinued_operations_pretax + extraordinary_items_gross"
+        "income_loss_continuing_operations_pretax + income_loss_discontinued_operations_pretax + extraordinary_items_pretax"
       ]
     }
   },
-  "income_loss_continuing_operations_pretax_excluding_interest_expense": {
+  "income_loss_continuing_operations_pretax_excluding_financial_items": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Interest, Extraordinary Items and Minority Interest"
+      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Financial Items and Minority Interest"
     },
     "gaap": [
-      "IncomeBeforeFinancialItemsIncomeTaxesAndMinorityInterest",
-      "IncomeLossFromContinuingOperationsBeforeInterestExpenseInterestIncomeIncomeTaxesExtraordinaryItemsNoncontrollingInterestsNet"
+      "IncomeBeforeFinancialItemsIncomeTaxesAndMinorityInterest"
     ],
     "calculation": {
       "order": 3215,
       "any": [
-        "income_loss_operating + income_loss_nonoperating"
+        "income_loss_operating + income_loss_nonoperating - income_expense_finance",
+        "income_loss_continuing_operations_pretax_domestic + income_loss_continuing_operations_pretax_foreign"
+      ]
+    }
+  },
+  "income_loss_continuing_operations_pretax_excluding_equity_method_investments": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Continuing Operations Before Income Taxes, Minority Interest and Income (Loss) from Equity Method Investments"
+    },
+    "gaap": [
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
+    ],
+    "calculation": {
+      "order": 3215,
+      "any": [
+        "income_loss_operating + income_loss_nonoperating",
+        "income_loss_continuing_operations_pretax_domestic + income_loss_continuing_operations_pretax_foreign"
       ]
     }
   },
@@ -19165,7 +19200,7 @@
     "calculation": {
       "order": 3216,
       "all": [
-        "income_loss_continuing_operations_pretax_excluding_interest_expense + depreciation_depletion_amortization_accretion"
+        "income_loss_operating + depreciation_depletion_amortization_accretion"
       ]
     }
   },
@@ -19555,7 +19590,7 @@
         "income_loss_pretax_including_minority_interest - tax_income_expense_benefit"
       ],
       "any": [
-        "income_loss_net_excluding_extraordinary_items + extraordinary_item"
+        "income_loss_net_excluding_extraordinary_items + extraordinary_items"
       ]
     }
   },
@@ -19606,7 +19641,50 @@
     "calculation": {
       "order": 2456,
       "any": [
-        "investment_income_nonoperating + gain_loss_contract_termination + gain_loss_condemnation + gain_loss_sale_lease_financing - loss_catastrophes + allowance_funds_construction_additions + gain_loss_foreign_currency_transaction_pretax - lease_salestype_initial_direct_cost_expense_commencement - lease_operating_initial_direct_cost_expense_term + gain_loss_sale_leased_assets_operating + gain_loss_sale_real_estate_other + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + income_loss_real_estate_operation - impairment_recovery_mortgage_servicing_rights + gain_debt_conversion + allowance_funds_construction_additions_capitalized_cost_equity - expense_reversal_benefit_plan_excluding_service_cost + government_assistance_nonoperating_income + government_assistance_nonoperating_expense + other_nonoperating_income_expense - loss_gain_unusual_infrequent_item + gain_loss_investments_health_care_trust_fund + interest_income_health_care_trust_fund - expense_administrative_health_care_trust_fund"
+        "income_expense_finance + gain_loss_contract_termination + gain_loss_condemnation - loss_catastrophes + allowance_funds_construction_additions - lease_salestype_initial_direct_cost_expense_commencement - lease_operating_initial_direct_cost_expense_over_term + gain_loss_sale_leased_assets_operating + gain_loss_sale_real_estate_other + income_loss_real_estate_operation - impairment_recovery_mortgage_servicing_rights + allowance_funds_construction_additions_capitalized_cost_equity - expense_reversal_benefit_plan_excluding_service_cost + other_nonoperating_income_expense - loss_gain_unusual_infrequent_items - expense_administrative_health_care_trust_fund"
+      ]
+    }
+  },
+  "income_finance": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Finance Income"
+    },
+    "gaap": [
+      "FinanceIncomeCost"
+    ]
+  },
+  "expense_finance": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Finance Expense"
+    },
+    "gaap": [
+      "FinanceCost"
+    ]
+  },
+  "income_expense_finance": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Finance Income (Expense)"
+    },
+    "gaap": [
+      "FinanceIncomeCost",
+      "NetFinancialItems"
+    ],
+    "calculation": {
+      "order": 2456,
+      "all": [
+        "income_finance - expense_finance"
+      ],
+      "any": [
+        "investment_income_nonoperating - interest_debt_expense + gain_loss_sale_lease_financing + gain_loss_foreign_currency_transaction_pretax + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + gain_debt_conversion + government_assistance_income_expense + gain_loss_investments_health_care_trust_fund + interest_income_health_care_trust_fund"
       ]
     }
   },
@@ -19668,11 +19746,12 @@
     "calculation": {
       "order": 2459,
       "any": [
-        "income_loss_continuing_operations_pretax_excluding_equity_method_investments + income_loss_equity_method_investment"
+        "income_loss_continuing_operations_pretax_excluding_equity_method_investments + income_loss_equity_method_investment",
+        "income_loss_continuing_operations_pretax_excluding_interest + interest_income_expense_nonoperating + income_loss_equity_method_investment"
       ]
     }
   },
-  "income_loss_continuing_operations_pretax_excluding_equity_method_investments": {
+  "income_loss_continuing_operations_pretax_excluding_interest": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -19681,15 +19760,12 @@
       "short": "Pretax Income (Loss)"
     },
     "gaap": [
-      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
+      "IncomeLossFromContinuingOperationsBeforeInterestExpenseInterestIncomeIncomeTaxesExtraordinaryItemsNoncontrollingInterestsNet"
     ],
     "calculation": {
       "order": 2458,
       "all": [
-        "income_loss_continuing_operations_pretax_excluding_interest_expense - interest_debt_expense"
-      ],
-      "any": [
-        "income_loss_continuing_operations_pretax_domestic + income_loss_continuing_operations_pretax_foreign"
+        "income_loss_continuing_operations_pretax_excluding_equity_method_investments - interest_income_expense_nonoperating"
       ]
     }
   },
@@ -20253,7 +20329,7 @@
       "long": "Interest and Dividend Income from Securities"
     },
     "gaap": [
-      "InterestAndDividendIncomeSecurities",
+      "InterestAndDividendIncomeSecurities"
     ],
     "calculation": {
       "order": 3424,
@@ -21126,7 +21202,6 @@
       "long": "Interest Income (Expense)"
     },
     "gaap": [
-      "NetFinancialItems",
       "InterestRevenueExpenseNet"
     ],
     "calculation": {
@@ -21379,7 +21454,7 @@
       "long": "Interest Income on Debt Securities"
     },
     "gaap": [
-      "InterestIncomeDebtSecuritiesOperating",
+      "InterestIncomeDebtSecuritiesOperating"
     ],
     "calculation": {
       "order": 0,
@@ -24161,7 +24236,7 @@
       "OperatingLeaseLiabilityNoncurrent"
     ]
   },
-  "lease_operating_initial_direct_cost_expense_term": {
+  "lease_operating_initial_direct_cost_expense_over_term": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -26317,7 +26392,7 @@
       ]
     }
   },
-  "loss_gain_unusual_infrequent_item": {
+  "loss_gain_unusual_infrequent_items": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -27078,7 +27153,7 @@
     "calculation": {
       "order": 1293,
       "any": [
-        "investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_principal_transaction + revenue_premiums + gain_loss_sale_financial_assets + noninterest_income_operating_other + noninterest_income_other"
+        "investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_premiums + revenue_principal_transaction + gain_loss_sale_financial_assets + noninterest_income_operating_other + noninterest_income_other"
       ]
     }
   },
@@ -39457,8 +39532,8 @@
     "calculation": {
       "order": 1298,
       "any": [
-        "revenue_sales + interest_dividend_income_operating + interest_income_expense_operating_after_provision_losses + noninterest_income_operating + revenue_finance_excluding_interest_dividends",
-        "revenue_contract + revenue_noncontract",
+        "revenue_sales + revenue_finance",
+        "revenue_contract + revenue_noncontract"
       ]
     }
   },
@@ -40181,22 +40256,6 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Noninterest Finance Revenue"
-    },
-    "calculation": {
-      "order": 3616,
-      "any": [
-        "investment_banking_advisory_brokerage_underwriting_fees_commissions + revenue_premiums + revenue_principal_transaction + revenue_market_data + gain_loss_sale_financial_assets + noninterest_income_operating_other + revenue_services_financial_other",
-        "noninterest_income_operating + revenue_market_data + revenue_services_financial_other",
-        "revenue_finance_excluding_interest_dividends + revenue_market_data"
-      ]
-    }
-  },
-  "revenue_finance_excluding_interest_dividends": {
-    "type": "monetary",
-    "balance": "credit",
-    "aggregate": "sum",
-    "label": {
       "long": "Finance Revenue Excluding Interest and Dividends"
     },
     "gaap": [
@@ -40205,7 +40264,8 @@
     "calculation": {
       "order": 3616,
       "any": [
-        "revenue_commissions_brokerage + revenue_investment_banking + income_loss_underwriting + revenue_principal_transaction + revenue_market_data"
+        "revenue_services_financial + revenue_market_data + noninterest_income_operating_other",
+        "noninterest_income_operating + revenue_market_data + revenue_services_financial_other"
       ]
     }
   },
@@ -41536,7 +41596,7 @@
     "calculation": {
       "order": 3623,
       "any": [
-        "revenue_fees_commissions + gain_loss_sale_financial_assets + revenue_principal_transaction + revenue_premiums + revenue_services_financial_other"
+        "investment_banking_advisory_brokerage_underwriting_fees_commissions + gain_loss_sale_financial_assets + revenue_premiums + revenue_principal_transaction + revenue_services_financial_other"
       ]
     }
   },

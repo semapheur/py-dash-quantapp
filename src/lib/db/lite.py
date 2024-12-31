@@ -433,3 +433,19 @@ def create_fts_table(
     cur = con.cursor()
     cur.execute(query)
     con.commit()
+
+
+def drop_fts_table(db_name: str, table: str):
+  db_path = sqlite_path(db_name)
+
+  suffixes = ["_config", "_content", "_data", "_docsize", "_idx"]
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+    cur.execute(f"DROP TABLE IF EXISTS '{table}'")
+
+    for suffix in suffixes:
+      aux_table = table + suffix
+      cur.execute(f"DROP TABLE IF EXISTS '{aux_table}'")
+
+    con.commit()
