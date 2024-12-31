@@ -399,7 +399,7 @@ def load_raw_statements(
     query += f" WHERE DATE(date) >= DATE('{date:%Y-%m-%d}')"
 
   df = read_sqlite(
-    "statements.db",
+    "statements_.db",
     query,
     date_parser={"date": {"format": "%Y-%m-%d"}},
   )
@@ -433,16 +433,13 @@ def upsert_statements(
       fiscal_period TEXT,
       fiscal_end TEXT,
       currency TEXT,
-      data TEXT)
-    """)
-
-    cur.execute(
-      f"""CREATE INDEX IF NOT EXISTS idx_date_period ON "{table}" (date, fiscal_period)"""
-    )
+      data TEXT,
+      UNIQUE (date, fiscal_period)
+    )""")
 
     query = f"""INSERT INTO 
       "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :data)
-      ON CONFLICT (idx_date_period) DO UPDATE SET
+      ON CONFLICT (date, fiscal_period) DO UPDATE SET
         data=json_patch(data, excluded.data),
         url=(
           SELECT json_group_array(value)
@@ -451,7 +448,7 @@ def upsert_statements(
             FROM json_each(url)
             WHERE json_each.value IN (SELECT json_each.value FROM json_each(excluded.url))
           )
-        )
+        ),
         currency=(
           SELECT json_group_array(value)
           FROM (

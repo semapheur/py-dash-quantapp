@@ -138,6 +138,10 @@ class FinStatement(BaseModel):
 
     return value
 
+  @field_serializer("url")
+  def serialize_url(self, url: list[str]):
+    return json.dumps(url)
+
   @field_serializer("date")
   def serialize_date(self, date: Date):
     return date.strftime("%Y-%m-%d")

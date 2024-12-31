@@ -66,6 +66,8 @@ https://xbrl.us/home/filers/sec-reporting/taxonomies/
 
 # Accounting terms
 
+FloorBrokerageExchangeAndClearanceFees + MarketingAndAdvertisingExpense + DepreciationAndAmortization + AmortizationOfMortgageServicingRightsMSRs + RestructuringSettlementAndImpairmentProvisions + OtherNonrecurringIncomeExpense + OtherExpenses + RoyaltyExpense + AccretionExpenseIncludingAssetRetirementObligations + PreOpeningCosts + LegalFees - GainLossOnRepurchaseOfDebtInstrument + InducedConversionOfConvertibleDebtExpense + GeneralAndAdministrativeExpense - GainsLossesOnSalesOfAssets - GainLossOnSaleOfLeasedAssetsNetOperatingLeases - GainsLossesOnSalesOfOtherRealEstate - GainLossOnSaleOfStockInSubsidiaryOrEquityMethodInvestee - GainLossOnSaleOfPropertyPlantEquipment - GainLossOnSaleOfBusiness - GainsLossesOnExtinguishmentOfDebt - GainLossOnDerivativeInstrumentsNetPretax + BusinessCombinationIntegrationRelatedCosts
+
 ## Revenue
 
 ### GAAP
