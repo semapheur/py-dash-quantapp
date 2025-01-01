@@ -14236,7 +14236,8 @@
     },
     "gaap": [
       "NumberOfEmployees",
-      "AverageNumberOfEmployees"
+      "AverageNumberOfEmployees",
+      "AverageNumberOfFullTimeEmployees"
     ]
   },
   "energy_marketing_contract_liabilities_current": {
@@ -39606,6 +39607,7 @@
       "Revenue",
       "Revenues",
       "NetRevenue",
+      "TotalIncome",
       "TotalRevenue",
       "RevenueFromContractsWithCustomers",
       "RevenueFromContractWithCustomerExcludingAssessedTax"
@@ -47747,6 +47749,7 @@
       "long": "Weighted Average Number of Basic Shares Outstanding"
     },
     "gaap": [
+      "AverageNumberOfShares",
       "WeightedAverageShares",
       "WeightedAverageNumberOfSharesIssuedBasic",
       "WeightedAverageSharesOfCommonStockOutstanding",

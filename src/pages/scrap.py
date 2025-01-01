@@ -1,10 +1,12 @@
 import asyncio
 import base64
+from contextlib import closing
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import io
 import re
 from pathlib import Path
+import sqlite3
 from typing import Literal, TypedDict
 
 from dash import (
@@ -21,6 +23,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 from dash_resizable_panels import PanelGroup, Panel, PanelResizeHandle
+import htmlmin
 import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
@@ -39,7 +42,7 @@ from lib.fin.models import (
   Scope,
   FiscalPeriod,
 )
-from lib.fin.statement import upsert_statements
+from lib.fin.statement import sqlite_path, upsert_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, update_gaap
 from lib.scrap import download_file_memory
 from lib.utils import split_multiline, pascal_case, split_pascal_case, valid_date
@@ -96,10 +99,13 @@ scrap_controls_sidebar = html.Aside(
   className="relative flex flex-col grow gap-2 p-2",
   children=[
     dcc.Tabs(
+      id="tabs:scrap:controls",
+      value="tab:scrap:pdf",
       className="h-8",
       content_className="pt-2 flex flex-col gap-2",
       children=[
         dcc.Tab(
+          value="tab:scrap:pdf",
           label="PDF",
           children=[
             dcc.Upload(
@@ -144,10 +150,11 @@ scrap_controls_sidebar = html.Aside(
           ],
         ),
         dcc.Tab(
-          label="HTM",
+          value="tab:scrap:html",
+          label="HTML",
           children=[
             dcc.Textarea(
-              id="textarea:scrap:htm",
+              id="textarea:scrap:html",
               className="rounded border border-text/10",
               placeholder="HTML",
             ),
@@ -156,14 +163,14 @@ scrap_controls_sidebar = html.Aside(
               children=[
                 html.Button(
                   "Fetch",
-                  id="button:scrap:fetch-htm",
+                  id="button:scrap:fetch-html",
                   className=button_style,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Extract",
-                  id="button:scrap:extract-htm",
+                  id="button:scrap:extract-html",
                   className=button_style,
                   type="button",
                   n_clicks=0,
@@ -208,6 +215,13 @@ scrap_controls_sidebar = html.Aside(
       n_clicks=0,
     ),
     html.Button(
+      "Label training data",
+      id="button:scrap:training-label",
+      className=button_style,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
       "Export to CSV",
       id="button:scrap:export-csv",
       className=button_style,
@@ -228,7 +242,10 @@ scrap_controls_sidebar = html.Aside(
       className="grid grid-cols-2 gap-x-1 gap-y-2",
       children=[
         InputAIO(
-          "scrap:url", "100%", input_props={"type": "text", "placeholder": "URL"}
+          "scrap:url",
+          "100%",
+          form_props={"className": "col-span-2"},
+          input_props={"type": "text", "placeholder": "URL"},
         ),
         InputAIO(
           "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
@@ -787,6 +804,46 @@ layout = html.Main(
 )
 
 
+def parse_period(
+  scope: Scope, period: FiscalPeriod, date_text: str, row: pd.Series
+) -> Instant | Interval:
+  date = dt.strptime(date_text, "%Y-%m-%d").date()
+
+  if row["period"] == "instant":
+    return Instant(instant=date)
+
+  start_date = dt.strptime(period, "%Y-%m-%d").date()
+
+  if scope == "annual":
+    start_date -= relativedelta(years=1)
+    months = 12
+
+  elif scope == "quarterly":
+    start_date -= relativedelta(months=3)
+    months = 3
+
+  return Interval(start_date=start_date, end_date=date, months=months)
+
+
+def prepare_scrap_df(df: pd.DataFrame):
+  df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
+
+  dates = list(df.columns.difference({"period", "factor", "unit", "item"}))
+  if not all(valid_date(date) for date in dates):
+    return None, None
+
+  df[dates] = (
+    df[dates]
+    .apply(
+      lambda col: col.replace("–", "-").replace(r"[^-\d.]", "", regex=True)
+      if col.dtype == "object"
+      else col
+    )
+    .astype(float, errors="ignore")
+  )
+  return df, dates
+
+
 @callback(
   Output(InputAIO.aio_id("scrap:url"), "value"),
   Input(InputButtonAIO.button_id("scrap:url-pdf"), "n_clicks"),
@@ -802,14 +859,14 @@ def update_url(n: int, url: str):
 @callback(
   Output("div:scrap:document", "children"),
   Input(InputButtonAIO.button_id("scrap:url-pdf"), "n_clicks"),
-  Input("button:scrap:fetch-htm", "n_clicks"),
+  Input("button:scrap:fetch-html", "n_clicks"),
   State(InputButtonAIO.input_id("scrap:url-pdf"), "value"),
-  State("textarea:scrap:htm", "value"),
+  State("textarea:scrap:html", "value"),
   prevent_initial_call=True,
   background=True,
 )
-def update_object(n_pdf: int, n_htm: int, url_pdf: str, htm: str):
-  if not ((n_pdf and url_pdf) or (n_htm and htm)):
+def update_object(n_pdf: int, n_html: int, url_pdf: str, html: str):
+  if not ((n_pdf and url_pdf) or (n_html and html)):
     return no_update
 
   if ctx.triggered_id == InputButtonAIO.button_id("scrap:url-pdf"):
@@ -821,12 +878,12 @@ def update_object(n_pdf: int, n_htm: int, url_pdf: str, htm: str):
       data=url_pdf,
     )
 
-  if ctx.triggered_id == "button:scrap:fetch-htm":
+  if ctx.triggered_id == "button:scrap:fetch-html":
     return html.Iframe(
-      id="iframe:scrap:htm",
+      id="iframe:scrap:html",
       width="100%",
       height="100%",
-      srcDoc=htm,
+      srcDoc=html,
     )
 
   return no_update
@@ -888,8 +945,8 @@ def preview_extraction(
     offset_y: float,
     pdf_width: float,
     pdf_height: float,
-    img_width: float,
-    img_height: float,
+    img_width: int,
+    img_height: int,
   ):
     x = np.linspace(offset_x, pdf_width + offset_x, img_width)
     y = np.linspace(offset_y, pdf_height + offset_y, img_height)
@@ -1202,18 +1259,18 @@ def extract_pdf_table(
   Output("table:scrap", "columnDefs", allow_duplicate=True),
   Output("table:scrap", "rowData", allow_duplicate=True),
   Output("notification:scrap", "displayed", allow_duplicate=True),
-  Input("button:scrap:extract-htm", "n_clicks"),
-  State("iframe:scrap:htm", "srcDoc"),
+  Input("button:scrap:extract-html", "n_clicks"),
+  State("iframe:scrap:html", "srcDoc"),
   State(InputAIO.aio_id("scrap:factor"), "value"),
   State(InputAIO.aio_id("scrap:currency"), "value"),
   prevent_initial_call=True,
   background=True,
 )
-def extract_htm_table(n_clicks: int, htm: str, factor: int, currency: str):
-  if not (n_clicks and htm):
+def extract_htm_table(n_clicks: int, html: str, factor: int, currency: str):
+  if not (n_clicks and html):
     return no_update
 
-  df = pd.read_html(io.StringIO(htm))[0]
+  df = pd.read_html(io.StringIO(html))[0]
   df = df.loc[:, (df.notna() & (df != "")).any()]
   df = df.loc[(df.notna() & (df != "")).any(axis=1), :]
 
@@ -1409,7 +1466,7 @@ def update_columns(
   df_edit = df_edit[~((df_edit["old_name"] == "") & (df_edit["new_name"] == ""))]
 
   # Delete columns
-  keep = ["factor", "period", "unit"]
+  keep = ["factor", "period", "unit", "balance"]
   del_columns = df_rows.columns.difference(keep + df_edit["old_name"].to_list())
   df_rows.drop(columns=del_columns, inplace=True)
 
@@ -1434,7 +1491,12 @@ def update_columns(
       df_rows[field] = base_type(r)
 
     if r["type"] == "number":
-      df_rows[field] = df_rows[field].replace(r"[^-\d.]", "", regex=True).astype(float)
+      df_rows[field] = (
+        df_rows[field]
+        .replace("–", "-")
+        .replace(r"[^-\d.]", "", regex=True)
+        .astype(float)
+      )
 
   columns = old_columns[:3] + new_columns
   return columns, df_rows.to_dict("records")
@@ -1454,6 +1516,107 @@ def validate_fiscal_end(fiscal_end: str) -> bool:
     return False
   else:
     return True
+
+
+def insert_table_scrap_training_label(
+  values: dict[str, str], db_name: str = "training_data.db"
+):
+  db_path = sqlite_path(db_name)
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS fin_table (
+      url TEXT,
+      type TEXT,
+      page TEXT,
+      html TEXT,
+      output TEXT)
+    """)
+
+    query = """
+      INSERT INTO fin_table (url, type, page, html, output)
+      VALUES (:url, :type, :page, :html, :output)
+    """
+    cur.execute(query, values)
+    con.commit()
+
+
+@callback(
+  Output("notification:scrap", "message", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
+  Input("button:scrap:training-label", "n_clicks"),
+  State("table:scrap", "rowData"),
+  State("dropdown:scrap:scope", "value"),
+  State("dropdown:scrap:period", "value"),
+  State("tabs:scrap:controls", "value"),
+  State(InputAIO.aio_id("scrap:url"), "value"),
+  State(InputButtonAIO.input_id("scrap:pages"), "value"),
+  State("textarea:scrap:html", "value"),
+  prevent_initial_call=True,
+  background=True,
+)
+def label_training_data(
+  n_clicks: int,
+  rows: list[dict],
+  scope: Scope,
+  period: FiscalPeriod,
+  tab: str,
+  url: str,
+  pages: str,
+  html: str,
+):
+  if not (n_clicks and rows and scope and period and url):
+    return no_update
+
+  df = pd.DataFrame.from_records(rows)
+  if "item" not in set(df.columns):
+    return no_update
+
+  df, dates = prepare_scrap_df(df)
+  if dates is None:
+    message = "Invalid date format in table headers"
+    return message, True
+
+  data: dict[str, list[Item]] = {}
+
+  for _, r in df.iterrows():
+    data[r["item"]] = [
+      Item(
+        value=r[d] * float(r["factor"]),
+        unit=r["unit"],
+        period=parse_period(scope, period, d, r),
+      )
+      for d in dates
+      if pd.notna(r[d])
+    ]
+
+  data_json = FinStatement.serialize_data(data)
+  insert = {
+    "url": url,
+    "type": tab.split(":")[-1],
+    "page": None,
+    "html": None,
+    "output": data_json,
+  }
+
+  if tab == "tab:scrap:pdf":
+    if not pages:
+      return no_update
+
+    insert["page"] = pages
+
+  elif tab == "tab:scrap:html":
+    if not html:
+      return no_update
+
+    insert["html"] = htmlmin.minify(
+      html, remove_comments=True, reduce_empty_attributes=True
+    )
+
+  insert_table_scrap_training_label(insert)
+
+  return "", False
 
 
 @callback(
@@ -1613,46 +1776,15 @@ def export(
   if message is not None:
     return {}, message, True
 
-  def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
-    date = dt.strptime(date_text, "%Y-%m-%d").date()
-
-    if row["period"] == "instant":
-      return Instant(instant=date)
-
-    start_date = dt.strptime(period, "%Y-%m-%d").date()
-
-    if scope == "annual":
-      start_date -= relativedelta(years=1)
-      months = 12
-
-    elif scope == "quarterly":
-      start_date -= relativedelta(months=3)
-      months = 3
-
-    return Interval(start_date=start_date, end_date=date, months=months)
-
-  data: dict[str, list[Item]] = {}
-
   df = pd.DataFrame.from_records(rows)
   if "item" not in set(df.columns):
     return no_update
 
-  df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
-
-  dates = list(df.columns.difference({"period", "factor", "unit", "item"}))
-  if not all(valid_date(date) for date in dates):
+  df, dates = prepare_scrap_df(df)
+  if dates is None:
     return no_update
 
-  df[dates] = (
-    df[dates]
-    .apply(
-      lambda col: col.replace(r"[^-\d.]", "", regex=True)
-      if col.dtype == "object"
-      else col
-    )
-    .astype(float, errors="ignore")
-  )
-
+  data: dict[str, list[Item]] = {}
   currencies = set()
 
   for _, r in df.iterrows():
@@ -1663,7 +1795,7 @@ def export(
       Item(
         value=r[d] * float(r["factor"]),
         unit=r["unit"],
-        period=parse_period(scope, d, r),
+        period=parse_period(scope, period, d, r),
       )
       for d in dates
       if pd.notna(r[d])

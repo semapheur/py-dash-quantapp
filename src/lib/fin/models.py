@@ -155,7 +155,8 @@ class FinStatement(BaseModel):
     return json.dumps(list(currency))
 
   @field_serializer("data")
-  def serialize_data(self, data: FinData):
+  @classmethod
+  def serialize_data(cls, data: FinData):
     obj = {}
 
     for k, items in data.items():

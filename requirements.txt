@@ -16,6 +16,7 @@ fathon
 flask-caching
 glom
 hishel
+htmlmin
 httpx
 img2table
 #jpype1

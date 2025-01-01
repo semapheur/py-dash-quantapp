@@ -826,12 +826,6 @@ def twitterStream():
     except Exception as e:
       print(str(e))
 
-  # Twitter API keys
-  ckey = "FpVpgILWD8UhzzvuIMxDOTYs3"
-  csecret = "oIXr0dskMhMCFerzWgb6mmqzzOVIyWHlGBaIk4Yg8reM1DiOzm"
-  atoken = "1257725628020936707-DydLSUTCLjJqStSUX3vWHwExRU4ptK"
-  asecret = "HtQ9yeZibBhY0T9PcEXxDxcWRUZ4yRRqs1OnYkC0Eilvm"
-
   # Create database
   path = r"C:\Users\danfy\OneDrive\FinAnly\data\twitter.db"
   conn = sqlite3.connect(path, isolation_level=None, check_same_thread=False)
