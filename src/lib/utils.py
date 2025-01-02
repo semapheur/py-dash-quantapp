@@ -86,8 +86,9 @@ def camel_case(text: str) -> str:
 
 
 def pascal_case(text: str) -> str:
+  text = text.replace("/", " ")
   text = re.sub(r"[^a-zA-Z0-9 ]", "", text)
-  words = text.split()
+  words = text.split(" ")
   pascal_case_text = "".join(word.capitalize() for word in words)
   return pascal_case_text
 

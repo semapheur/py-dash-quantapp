@@ -835,9 +835,19 @@ def prepare_scrap_df(df: pd.DataFrame):
   df[dates] = (
     df[dates]
     .apply(
-      lambda col: col.replace("–", "-").replace(r"[^-\d.]", "", regex=True)
-      if col.dtype == "object"
-      else col
+      lambda col: (
+        col.replace("–", "-")
+        .replace(r"[^-\d.%]", "", regex=True)
+        .apply(
+          lambda x: (
+            float(x.replace("%", "").strip()) / 100
+            if isinstance(x, str) and "%" in x
+            else float(x)
+          )
+        )
+        if col.dtype == "object"
+        else col
+      )
     )
     .astype(float, errors="ignore")
   )
@@ -865,8 +875,8 @@ def update_url(n: int, url: str):
   prevent_initial_call=True,
   background=True,
 )
-def update_object(n_pdf: int, n_html: int, url_pdf: str, html: str):
-  if not ((n_pdf and url_pdf) or (n_html and html)):
+def update_object(n_pdf: int, n_htm: int, url_pdf: str, htm: str):
+  if not ((n_pdf and url_pdf) or (n_htm and htm)):
     return no_update
 
   if ctx.triggered_id == InputButtonAIO.button_id("scrap:url-pdf"):
@@ -883,7 +893,7 @@ def update_object(n_pdf: int, n_html: int, url_pdf: str, html: str):
       id="iframe:scrap:html",
       width="100%",
       height="100%",
-      srcDoc=html,
+      srcDoc=htm,
     )
 
   return no_update
@@ -1494,8 +1504,10 @@ def update_columns(
       df_rows[field] = (
         df_rows[field]
         .replace("–", "-")
-        .replace(r"[^-\d.]", "", regex=True)
-        .astype(float)
+        .replace(r"[^-\d.%]", "", regex=True)
+        .apply(
+          lambda x: (float(x.replace("%", "").strip()) / 100 if "%" in x else float(x))
+        )
       )
 
   columns = old_columns[:3] + new_columns

@@ -12,7 +12,13 @@ import pandas as pd
 from pandera.typing import DataFrame
 from pydantic import BaseModel, field_validator, model_serializer
 
-from lib.db.lite import get_tables, insert_sqlite, read_sqlite, create_fts_table
+from lib.db.lite import (
+  get_tables,
+  insert_sqlite,
+  read_sqlite,
+  create_fts_table,
+  drop_fts_table,
+)
 from lib.utils import split_pascal_case
 from lib.const import DB_DIR
 
@@ -534,6 +540,7 @@ def fuzzy_search_taxonomy(term: str, limit: int = 10):
 def create_taxonomy_fts():
   db_path = DB_DIR / "taxonomy.db"
 
+  drop_fts_table("taxonomy.db", "items_fts")
   create_fts_table("taxonomy.db", "items_fts", ["item", "gaap"], "porter")
 
   with closing(sqlite3.connect(db_path)) as con:

@@ -35,7 +35,7 @@ def fetch_wdi(end_year=0, start_year=1960) -> DataFrame:
   return df
 
 
-def load_wdi(cols: str | list[str] = "*", years=0, delta=1) -> DataFrame:
+def load_wdi(cols: str | list[str] = "*", years=0, delta=2) -> DataFrame:
   if isinstance(cols, list):
     cols = ",".join(cols)
 

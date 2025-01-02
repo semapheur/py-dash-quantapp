@@ -24,7 +24,10 @@ def parse_period(type: Literal["instant", "interval"], start_date: str, end_date
 def parse_financial_statements(
   organization_number: str, year: int, type: Literal["SELSKAP", "KONSERN"] = "SELSKAP"
 ):
-  url = f"https://data.brreg.no/regnskapsregisteret/regnskap/{organization_number}?%C3%A5r={year}&regnskapstype={type}"
+  url = (
+    "https://data.brreg.no/regnskapsregisteret/regnskap/"
+    f"{organization_number}?%C3%A5r={year}&regnskapstype={type}"
+  )
 
   with httpx.Client() as client:
     rs = client.get(url, headers=HEADERS)
@@ -63,4 +66,4 @@ def parse_financial_statements(
           }
         ]
 
-    return xml
+  return data
