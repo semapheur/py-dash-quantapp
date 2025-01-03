@@ -152,3 +152,7 @@ Impairment of securities are classified as other than temporary (OTT) and are re
 - Available for Sale (AFS): fair value through other comprehensive income (FVOCI)
 - Held to Maturity (HTM): carrying value at amortized cost basis
 - Held for Trading (HFT): fair value through net income (FVNI)
+
+# PDF table scrap training data
+
+Registered period (duration/instant) reflects whether the financial date is reported over an interval or on an instant date.

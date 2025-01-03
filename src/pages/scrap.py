@@ -812,15 +812,15 @@ def parse_period(
   if row["period"] == "instant":
     return Instant(instant=date)
 
-  start_date = dt.strptime(period, "%Y-%m-%d").date()
-
   if scope == "annual":
-    start_date -= relativedelta(years=1)
+    delta = relativedelta(years=1)
     months = 12
 
   elif scope == "quarterly":
-    start_date -= relativedelta(months=3)
+    delta = relativedelta(months=3)
     months = 3
+
+  start_date = date - delta
 
   return Interval(start_date=start_date, end_date=date, months=months)
 
@@ -840,9 +840,9 @@ def prepare_scrap_df(df: pd.DataFrame):
         .replace(r"[^-\d.%]", "", regex=True)
         .apply(
           lambda x: (
-            float(x.replace("%", "").strip()) / 100
+            float(x.replace(" ", "").replace("%", "e-2").strip())
             if isinstance(x, str) and "%" in x
-            else float(x)
+            else (float(x) if x is not None else np.nan)
           )
         )
         if col.dtype == "object"

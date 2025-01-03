@@ -79,6 +79,7 @@ def camel_split(text: str) -> list[str]:
 
 
 def camel_case(text: str) -> str:
+  text = text.replace("/", " ")
   text = re.sub(r"[^a-zA-Z0-9 ]", "", text)
   words = text.split()
   camel_case_text = words[0].lower() + "".join(word.capitalize() for word in words[1:])
@@ -88,7 +89,7 @@ def camel_case(text: str) -> str:
 def pascal_case(text: str) -> str:
   text = text.replace("/", " ")
   text = re.sub(r"[^a-zA-Z0-9 ]", "", text)
-  words = text.split(" ")
+  words = text.split()
   pascal_case_text = "".join(word.capitalize() for word in words)
   return pascal_case_text
 
