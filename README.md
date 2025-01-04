@@ -153,6 +153,6 @@ Impairment of securities are classified as other than temporary (OTT) and are re
 - Held to Maturity (HTM): carrying value at amortized cost basis
 - Held for Trading (HFT): fair value through net income (FVNI)
 
-# PDF table scrap training data
+# PDF/HTML table scrap training data
 
 Registered period (duration/instant) reflects whether the financial date is reported over an interval or on an instant date.
