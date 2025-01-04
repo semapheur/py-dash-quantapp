@@ -1,13 +1,16 @@
-from datetime import datetime as dt
-from datetime import timezone as tz
-from dateutil.relativedelta import relativedelta
+from datetime import datetime as dt, date as Date
+import json
+import re
+from typing import Literal
 
 import httpx
-import numpy as np
 import pandas as pd
 from parsel import Selector
 
 from lib.const import HEADERS
+from lib.fin.models import FinStatement, Item, Interval, Instant
+from lib.fin.statement import upsert_statements
+from lib.utils import pascal_case, month_difference
 
 
 def get_company_slugs():
@@ -64,205 +67,80 @@ def get_company_slugs():
   return pd.DataFrame(result)
 
 
-def get_income_and_balance(slug: str):
-  url = f"https://proff.no/regnskap/{slug}"
+def get_financials(slug: str):
+  def fetch_data(slug: str) -> dict:
+    url = f"https://proff.no/regnskap/{slug}"
 
-  with httpx.Client() as client:
-    response = client.get(url, headers=HEADERS)
-    selector = Selector(response.text)
+    with httpx.Client() as client:
+      response = client.get(url, headers=HEADERS)
+      selector = Selector(response.text)
 
-  period_table = selector.css('table[aria-label="AccountingTable dates"]')
+    script = selector.xpath("//*[@id='__NEXT_DATA__']/text()").get()
+    data = json.loads(script)
+    return data
 
+  def fix_account_name(text: str) -> str:
+    text = re.sub(r"\(.*?\)", "", text)
+    text = text.replace("%", "prosent")
+    return pascal_case(text)
 
-class Ticker:
-  def __init__(self, ticker, link):
-    self._ticker = ticker
-    self._link = link
+  def parse_period(
+    start_date: Date, end_date: Date, period: Literal["duration", "instant"]
+  ) -> Instant | Interval:
+    if period == "instant":
+      return Instant(instant=start_date)
 
-  def financials(self):
-    def scrapTbl(tbl, nanAppend, cashFlow=False):
-      tr0 = 1 if cashFlow else 2
+    if period == "duration":
+      months = month_difference(start_date, end_date)
+      return Interval(start_date=start_date, end_date=date, months=months)
 
-      scrap = {}
-      for row in tbl.findAll("tr")[tr0:]:
-        if "graphic-row" not in row.get("class", []):
-          scrapRow = []
-          key = row.find("th").text.replace("\n", "")
+  def parse_statement(statement: dict) -> dict[str, Item]:
+    start_date = statement["periodStart"]
+    end_date = statement["periodEnd"]
+    currency = statement["currency"]
 
-          for col in row.findAll("td")[:-1]:
-            if col.text == "-":
-              entry = np.nan
-            else:
-              entry = float(col.text.replace("\xa0", "")) * 1e3
+    result: dict[str, Item] = {}
 
-            scrapRow.append(entry)
+    for account in statement["accounts"]:
+      meta = account_lex[account["code"]]
+      unit = meta["unit"]
+      period: Literal["duration", "instant"] = meta["period"]
 
-          if nanAppend > 0:
-            for n in range(nanAppend):
-              scrapRow.append(np.nan)
+      result[meta["label"]] = [
+        Item(
+          value=account["amount"],
+          unit=currency if unit == "currency" else unit,
+          period=parse_period(start_date, end_date, period),
+        )
+      ]
 
-          scrap.update({key: scrapRow})
+    return result
 
-      return scrap
+  data = fetch_data(slug)
 
-    url = [
-      f"https://proff.no/regnskap/{self._link}",  # Income and balance sheet
-      f"https://proff.no/nokkeltall/{self._link}",  # Cash sheet
-    ]
+  # account_map = data["props"]["i18n"]["initialStore"]["no"]["common"]["AccountingFigures"]["figures"]["NO"]
+  # account_map = {k: fix_account_name(v) for k, v in account_map.items()}
 
-    soup = []
-    for u in url:
-      with requests.Session() as s:
-        rc = s.get(u, headers=self._headers)
-        soup.append(bs.BeautifulSoup(rc.text, "lxml"))
+  with open("lex/proff_accounts.json") as f:
+    account_lex = json.load(f)
 
-    tbls1 = soup[0].findAll("table", {"class": "account-table years-account-table"})
+  statements: list[dict] = data["props"]["pageProps"]["company"]["companyAccounts"]
 
-    tbls2 = soup[1].findAll("table", {"class": "account-table years-account-table"})
+  records: list[FinStatement] = []
+  for statement in statements:
+    currency = set(statement["currency"])
+    date = dt.strptime(statement["periodEnd"], "%Y-%m-%d").date()
 
-    # Check for corporate statement
-    if len(tbls1) == 8:
-      tblIter = tbls1[5:]
-
-      if len(tbls2) == 4:
-        tbl = tbls2[3]
-
-    else:
-      tblIter = tbls1[1:4]
-      tbl = tbls2[1]
-
-    # Dates
-    dates1 = []
-    dates2 = []
-
-    for d in tblIter[0].findAll("tr")[0].findAll("th")[1:-1]:
-      date = dt(year=int(d.text), month=12, day=31)
-      dates1.append(date)
-
-    for d in tbl.findAll("tr")[0].findAll("th")[1:-1]:
-      date = dt(year=int(d.text), month=12, day=31)
-      dates2.append(date)
-
-    # Currency
-    currency = []
-
-    for c in tblIter[0].findAll("tr")[1].findAll("td")[:-1]:
-      currency.append(c.text)
-
-    if len(dates1) > len(dates2):
-      cols = dates1
-      nans = (0, len(dates1) - len(dates2))
-
-    elif len(dates1) < len(dates2):
-      cols = dates2
-      nans = (len(dates2) - len(dates1), 0)
-      # Extend currencies
-      currency += [currency[-1]] * (len(dates2) - len(dates1))
-
-    else:
-      cols = dates1
-      nans = (0, 0)
-
-    # Scrap
-    parse = {}
-
-    # Executive salary, and income & balance sheet
-    for t in tblIter:
-      parse.update(scrapTbl(t, nans[0]))
-
-    # Cash sheet
-    parse.update(scrapTbl(tbl, nans[1], True))
-
-    df = pd.DataFrame.from_dict(parse, orient="index", columns=cols)
-    df = df.T
-    df.index.rename("date", inplace=True)
-    df.sort_index(ascending=True, inplace=True)
-
-    # Rename columns
-    df.rename(columns=renamer(), inplace=True)  # Rename duplicate columns
-    rnm = finItemRenameDict("Proff")  # Rename dictionary
-    df.rename(columns=rnm, inplace=True)
-
-    # Remove excess columns
-    rmv = df.filter(regex="_1").columns
-    # df = df[df.columns.difference(rmv)]
-    df.drop(rmv, axis=1, inplace=True)
-    df.drop(["Lønn", "Leder annen godtgjørelse"], axis=1, inplace=True)
-
-    # Add currencies
-    df["currency"] = currency[::-1]
-
-    # Check for other currencies than NOK
-    forex = df["currency"].str.contains("NOK")
-
-    # Convert foreign currency values to NOK
-    if not forex.all():
-      df["exchange"] = np.nan
-      df["exRate"] = 1
-
-      df.loc[~forex, "exchange"] = df.loc[~forex, "currency"].apply(
-        lambda x: "NOK=X" if x == "USD" else x + "NOK=X"
+    records.append(
+      FinStatement(
+        url=f"https://proff.no/selskap/{slug}",
+        date=date,
+        scope="annual",
+        fiscal_period="FY",
+        fiscal_end=f"{date.month}-{date.day}",
+        currency=currency,
+        data=parse_statement(statement),
       )
-
-      startDate = df.index[0] + relativedelta(years=-1)
-      ex = df["exchange"].dropna().unique()
-      exRates = yf.download(
-        tickers=ex.tolist(),
-        start=startDate.strftime("%Y-%m-%d"),
-        end=dt.now().strftime("%Y-%m-%d"),
-        group_by="column",
-        auto_adjust=True,
-        threads=True,
-      )["Close"]
-
-      exRates = exRates.fillna(method="ffill").resample("D").ffill()
-
-      if len(ex) == 1:
-        df.loc[~forex, "exRate"] = exRates.reindex(index=df.index[~forex])
-
-      else:
-        for er in exRates.columns:
-          mask = df["exchange"] == er
-          df.loc[mask, "exRate"] = exRates.loc[df.index[mask], er]
-
-      # Convert forex to NOK
-      for c in df.select_dtypes(include="number").columns[:-1]:
-        df[c] *= df["exRate"]
-
-      # Remove excess columns
-      df.drop(["currency", "exchange", "exRate"], axis=1, inplace=True)
-
-    # df.fillna(0, inplace=True)
-    for c in ["div", "da", "imp", "invnt", "stInv", "rcv"]:
-      df[c].fillna(0, inplace=True)
-
-    df["totDbt"] = df["stDbt"] + df["ltDbt"]
-    df["opEx"] = df["rvn"] - df["opInc"]
-    df["ebitda"] = df["opInc"] + df["invInc"] + df["da"]
-    df["taxRate"] = df["taxEx"] / df["ebt"]
-
-    # Interest coverage ratio
-    df["intCvg"] = df["opInc"] / df["intEx"]
-
-    df["capEx"] = df["ppe"].diff() + df["da"]
-
-    df["wrkCap"] = (
-      df["totCrtAst"].rolling(2, min_periods=0).mean()
-      - df["totCrtLiab"].rolling(2, min_periods=0).mean()
     )
 
-    if df["chgWrkCap"].isnull().all():
-      wc = df["wrkCap"].diff()
-
-    else:
-      wc = df["chgWrkCap"]
-
-    df["freeCfFirm"] = (
-      df["netInc"] + df["da"] + df["intEx"] * (1 - df["taxRate"]) - wc - df["capEx"]
-    )
-
-    df["freeCf"] = (
-      df["freeCfFirm"] + df["totDbt"].diff() - df["intEx"] * (1 - df["taxRate"])
-    )
-
-    return df
+  upsert_statements("statements.db", "statements", records)
