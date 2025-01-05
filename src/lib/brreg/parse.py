@@ -3,9 +3,43 @@ from typing import cast, Literal
 import xml.etree.ElementTree as et
 
 import httpx
+import pandas as pd
 
 from lib.const import HEADERS
 from lib.utils import month_difference
+
+
+def get_company_data() -> dict:
+  url = "https://data.brreg.no/enhetsregisteret/api/enheter"
+  params = {
+    "organisasjonsform": [
+      "ASA",
+      "SPA",
+    ],
+    "size": 10000,
+  }
+
+  with httpx.Client() as client:
+    response = client.get(url, params=params, headers=HEADERS)
+    return response.json()
+
+
+def get_company_ids() -> pd.DataFrame:
+  data = get_company_data()
+
+  companies: list[dict] = data["_embedded"]["enheter"]
+
+  result: list[dict[str, str]] = []
+
+  for company in companies:
+    result.append(
+      {
+        "brreg_id": company["organisasjonsnummer"],
+        "name": company["navn"],
+      }
+    )
+
+  return pd.DataFrame.from_records(result)
 
 
 def parse_period(type: Literal["instant", "interval"], start_date: str, end_date: str):

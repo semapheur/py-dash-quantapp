@@ -44,7 +44,7 @@ def find_index(nested_list: list[list[str]], query: str) -> int:
 
 
 async def seed_stock_tickers():
-  blacklist = ["cedear", r"class \w"]
+  blacklist = ["cedear", r"class \w", "ordinary shares", "shs"]
   pattern = r"(?!^)\b(?:{})\b".format("|".join(blacklist))
 
   def get_primary_currency(group: DataFrame) -> str:
