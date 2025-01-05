@@ -6,10 +6,12 @@ import re
 from pandera.typing import DataFrame
 import pycountry
 
-from lib.db.lite import insert_sqlite
+from lib.db.lite import insert_sqlite, read_sqlite
+from lib.brreg.parse import get_company_ids
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
 from lib.mic import get_mics
+from lib.fuzz import fuzzy_merge
 
 
 def hash_companies(companies: list[list[str]], hash_length=10) -> dict[str, list[str]]:
@@ -153,3 +155,31 @@ async def seed_ciks():
   ciks = await get_ciks()
 
   insert_sqlite(ciks, "ticker.db", "edgar", "replace", False)
+
+
+def seed_brreg_ids():
+  brreg = get_company_ids()
+  brreg.loc[:, "name"] = brreg["name"].str.lower()
+
+  query = "SELECT company_id, LOWER(name) as name FROM company WHERE domicile = 'NO'"
+  df = read_sqlite("ticker.db", query)
+
+  df["name"] = df["name"].str.replace("ordinary shares", "").str.strip()
+
+  brreg = brreg.merge(df, on="name", how="left")
+
+  brreg_rest = brreg.loc[brreg["company_id"].isnull(), ["brreg_id", "name"]]
+
+  matched_names = brreg.loc[~brreg["company_id"].isnull(), "name"]
+  df_rest = df[~df["name"].isin(matched_names)]
+
+  fuzzy_df = fuzzy_merge(brreg_rest, df_rest, on="name", threshold=90).drop_duplicates()
+
+  brreg.set_index("brreg_id", inplace=True)
+  fuzzy_df.set_index("brreg_id", inplace=True)
+
+  brreg["company_id"] = brreg["company_id"].fillna(fuzzy_df["company_id"])
+
+  brreg = brreg.merge(fuzzy_df[["name_match"]], on="brreg_id", how="left")
+
+  brreg.to_csv("brreg.csv")
