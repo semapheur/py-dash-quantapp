@@ -1,0 +1,617 @@
+{
+  "AARS": {
+    "label": "Årsresultat",
+    "gaap": "ProfitLoss",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ADI": {
+    "label": "AnnenDriftsinntekt",
+    "gaap": "OtherRevenue",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ADK": {
+    "label": "AndreDriftskostnader",
+    "gaap": "OtherOperatingExpense",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AEK": {
+    "label": "AnnenEgenkapital",
+    "gaap": "OtherAdditionalCapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "AFI": {
+    "label": "SumAnnenFinansinntekt",
+    "gaap": "OtherFinanceIncome",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AFK": {
+    "label": "SumAnnenFinanskostnad",
+    "gaap": "OtherFinanceCost",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AFKK": {
+    "label": "AndreFinanskostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AID": {
+    "label": "AksjerInvesteringerIDatterselskap",
+    "gaap": "InvestmentsInAffiliatesSubsidiariesAssociatesAndJointVentures",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "AK": {
+    "label": "AksjeSelskapskapital",
+    "gaap": "IssuedCapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "AKG": {
+    "label": "AnnenKortsiktigGjeld",
+    "gaap": "OtherShortTermBorrowings",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ALG": {
+    "label": "SumAnnenLangsiktigGjeld",
+    "gaap": "NoncurrentPortionOfOtherNoncurrentBorrowings",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ALK": {
+    "label": "AnsvarligLånekapital",
+    "gaap": "SubordinatedLongTermDebt",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANDLØ": {
+    "label": "LederAnnenGodtgjørelse",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ANFF": {
+    "label": "AndreFinansielleFordringer",
+    "gaap": "LoansAndReceivables",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANF": {
+    "label": "AndreFordringer",
+    "gaap": "OtherReceivables",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANLG": {
+    "label": "AnnenLangsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANT": {
+    "label": "AntallAnsatte",
+    "gaap": "NumberOfEmployees",
+    "unit": "personnel",
+    "period": "instant"
+  },
+  "ARI": {
+    "label": "SumAnnenRenteinntekt",
+    "gaap": "InterestIncome",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ARK": {
+    "label": "SumAnnenRentekostnad",
+    "gaap": "InterestExpense",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "BE": {
+    "label": "Beholdningsendringer",
+    "gaap": "WritedownsReversalsOfInventories",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "BF": {
+    "label": "BruttofortjenesteIProsent",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "CCR": {
+    "label": "SkattExtraordinært",
+    "gaap": "IncomeTaxExpenseBenefitExtraordinaryItems",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "DR": {
+    "label": "Driftsresultat",
+    "gaap": "ProfitLossFromOperatingActivities",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EB": {
+    "label": "TomterBygningerOgAnnenFastEiendom",
+    "gaap": "LandAndBuildings",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "EBEF": {
+    "label": "EndrBeholdVarerUnderTilvirkFerdige",
+    "gaap": "ChangesInInventoriesOfFinishedGoodsAndWorkInProgress",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "EI": {
+    "label": "EkstraordinæreInntekter",
+    "gaap": "ExtraordinaryIncome",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EK": {
+    "label": "EkstraordinæreKostnader",
+    "gaap": "ExtraordinaryLoss",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EKA": {
+    "label": "EgenkapitalandelIProsent",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "EKA_short": {
+    "label": "Soliditet",
+    "unit": "fundamental",
+    "period": "instant"
+  },
+  "ER": {
+    "label": "EgenkapitalensRentabilitetFørSkattIProsent",
+    "unit": "fundamental",
+    "period": "instant"
+  },
+  "ERE": {
+    "label": "EgenkapitalensRentabilitetEtterSkattIProsent",
+    "unit": "fundamental",
+    "period": "instant"
+  },
+  "FDS": {
+    "label": "Konsernfordringer",
+    "gaap": "TradeAndOtherReceivablesDueFromRelatedParties",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "FI": {
+    "label": "SumFinansinntekter",
+    "gaap": "FinanceIncome",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "FK": {
+    "label": "SumFinanskostnader",
+    "gaap": "FinanceCost",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "GG": {
+    "label": "Gjeldsgrad",
+    "unit": "fundamental",
+    "period": "instant"
+  },
+  "GLA": {
+    "label": "Goodwill",
+    "gaap": "Goodwill",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "GTD": {
+    "label": "LangsiktigKonserngjeld",
+    "gaap": "LongTermIntercompanyDebt",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "GTI": {
+    "label": "GjeldTilKredittinstitusjoner",
+    "gaap": "NotesAndLoansPayable",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "GTS": {
+    "label": "Garantistillelser",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "IAA": {
+    "label": "InvesteringerIAksjerOgAndeler",
+    "gaap": "MarketableSecurities",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "IPA": {
+    "label": "InntektPåInvestAnnetForetakISmKonsern",
+    "gaap": "ShareOfProfitLossOfFellowSubsidiariesAccountedForUsingEquityMethod",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "IPI": {
+    "label": "InntektPåInvesteringIDatterselskap",
+    "gaap": "ShareOfProfitLossOfSubsidiariesAccountedForUsingEquityMethod",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "IPT": {
+    "label": "InntektPåInvestITilknyttetSelskap",
+    "gaap": "ShareOfProfitLossOfAssociatesAccountedForUsingEquityMethod",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "IRK": {
+    "label": "AnnenInnskuttEgenkapital",
+    "gaap": "AdditionalPaidInCapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KB": {
+    "label": "Konsernbidrag",
+    "gaap": "CashDividendsPaidToParentCompany",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KBP": {
+    "label": "KasseBankPost",
+    "gaap": "CashAndCashEquivalents",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KBPS": {
+    "label": "SumKasseBankPost",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KLON": {
+    "label": "HeravKunLønn",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON1": {
+    "label": "NettoKontantstrømFraDriftOperasjonelleAktiviteter",
+    "gaap": "CashFlowsFromUsedInOperatingActivities",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON10": {
+    "label": "BehAvKontanterOgKontantekvivalenterVedPeriodensSlutt",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KON11": {
+    "label": "UbenyttetKassekreditt",
+    "gaap": "LineOfCreditFacilityRemainingBorrowingCapacity",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KON12": {
+    "label": "KassekredittLimit",
+    "gaap": "LineOfCreditFacilityMaximumBorrowingCapacity",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KON2": {
+    "label": "KontantstrømFraDriftFørEndringArbeidskapital",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON3": {
+    "label": "NettoKontantsrømFraEndringIArbeidskapital",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON4": {
+    "label": "NettoKontantstrømFraInvesteringsaktiviteter",
+    "gaap": "CashFlowsFromUsedInInvestingActivities",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON5": {
+    "label": "NettoKontantstrømFraFinansieringsaktiviteterFinansiellVirksomhet",
+    "gaap": "CashFlowsFromUsedInFinancingActivities",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON6": {
+    "label": "NettoKontantstrømForPerioden",
+    "gaap": "IncreaseDecreaseInCashAndCashEquivalentsBeforeEffectOfExchangeRateChanges",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON7": {
+    "label": "EffektAvValutakursendringerPåKontanterOgKontantekvivalenter",
+    "gaap": "EffectOfExchangeRateChangesOnCashAndCashEquivalents",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON8": {
+    "label": "NettoEndringIKontanterOgKontantekvivalenter",
+    "gaap": "IncreaseDecreaseInCashAndCashEquivalents",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON9": {
+    "label": "BehAvKontanterOgKontantekvivalenterVedPeriodensBegynn",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KUF": {
+    "label": "Kundefordringer",
+    "gaap": "TradeReceivables",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "LG": {
+    "label": "Leverandørgjeld",
+    "gaap": "TradeAndOtherPayables",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "LGR": {
+    "label": "Likviditetsgrad1",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "LGR_short": {
+    "label": "Likviditet",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "LGR2": {
+    "label": "Likviditetsgrad2",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "LL": {
+    "label": "Lønn",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "LTP": {
+    "label": "Lønnskostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "MAS": {
+    "label": "KortsiktigKonserngjeld",
+    "gaap": "ShortTermIntercompanyDebt",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "MI": {
+    "label": "DriftsløsøreInventarVerktøyBiler",
+    "gaap": "FixturesAndFittings",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "MOA": {
+    "label": "MaskinerAnleggBiler",
+    "gaap": "Machinery",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "NF": {
+    "label": "NettoFinans",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "NFA": {
+    "label": "NedskrivningFinAnleggsmidler",
+    "gaap": "ImpairmentLossOnFinancialAssets",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "NVD": {
+    "label": "Nedskrivning",
+    "gaap": "ImpairmentLossReversalOfImpairmentLossRecognisedInProfitOrLoss",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "OFA": {
+    "label": "SkyldigOffentligeAvgifter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "OR": {
+    "label": "OrdinærtResultat",
+    "gaap": "ProfitLossFromContinuingOperations",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "OPA": {
+    "label": "OmsetningPrAnsatt",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "ORA": {
+    "label": "OrdinæreAvskrivninger",
+    "gaap": "DepreciationAndAmortisationExpense",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ORS": {
+    "label": "ResultatFørSkatt",
+    "gaap": "ProfitLossBeforeTax",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "PG": {
+    "label": "PantGjeldTilKredittinstitusjoner",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "PST": {
+    "label": "Pantstillelser",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "RG": {
+    "label": "ResultatAvDriftenIProsent",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "SAM": {
+    "label": "SumAnleggsmidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SAP": {
+    "label": "SumAvsetningerTilForpliktelser",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SDI": {
+    "label": "SumDriftsinntekter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SED": {
+    "label": "SumEiendeler",
+    "gaap": "Assets",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SEK": {
+    "label": "SumEgenkapital",
+    "gaap": "Equity",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SF": {
+    "label": "SumFordringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SFA": {
+    "label": "SumFinansielleAnleggsmidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SG": {
+    "label": "SumGjeld",
+    "gaap": "Liabilities",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SGE": {
+    "label": "SumEgenkapitalOgGjeld",
+    "gaap": "EquityAndLiabilities",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SI": {
+    "label": "SumSalgsinntekter",
+    "gaap": "Revenue",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SIA": {
+    "label": "SumImmaterielleMidler",
+    "gaap": "IntangibleAssetsAndGoodwill",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SIK": {
+    "label": "SumInnskuttEgenkapital",
+    "gaap": "",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SIV": {
+    "label": "SumInvesteringer",
+    "gaap": "Investments",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SKG": {
+    "label": "SumKortsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SKO": {
+    "label": "SumSkatt",
+    "gaap": "IncomeTaxExpenseBenefitContinuingOperations",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SKR": {
+    "label": "SkattEkstraordinært",
+    "gaap": "IncomeTaxExpenseBenefitExtraordinaryItems",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SLG": {
+    "label": "SumLangsiktigGjeld",
+    "gaap": "LongTermDebt",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SOK": {
+    "label": "SumOpptjentEgenkapital",
+    "gaap": "RetainedEarningsAccumulatedDeficit",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SOM": {
+    "label": "SumOmløpsmidler",
+    "gaap": "CurrentAssets",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SUB": {
+    "label": "OrdinærtUtbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SUBE": {
+    "label": "EkstraordinærtUtbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SUBT": {
+    "label": "Tilleggsutbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SUBSUM": {
+    "label": "SumUtbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SV": {
+    "label": "SumVarelager",
+    "gaap": "Inventories",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SVD": {
+    "label": "SumVarigeDriftsmidler",
+    "gaap": "PropertyPlantAndEquipment",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "TR": {
+    "label": "TotalrentabilitetIProsent",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "TR_short": {
+    "label": "Lønnsomhet",
+    "unit": "fundamental",
+    "period": "duration"
+  },
+  "VF": {
+    "label": "Varekostnad",
+    "gaap": "CostOfSales",
+    "unit": "currency",
+    "period": "duration"
+    }
+}

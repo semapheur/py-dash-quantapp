@@ -1,0 +1,547 @@
+{
+  "AARS": {
+    "label": "Årsresultat",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ADI": {
+    "label": "AnnenDriftsinntekt",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ADK": {
+    "label": "AndreDriftskostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AEK": {
+    "label": "AnnenEgenkapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "AFI": {
+    "label": "SumAnnenFinansinntekt",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AFK": {
+    "label": "SumAnnenFinanskostnad",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AFKK": {
+    "label": "AndreFinanskostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "AID": {
+    "label": "AksjerInvesteringerIDatterselskap",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "AK": {
+    "label": "AksjeSelskapskapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "AKG": {
+    "label": "AnnenKortsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ALG": {
+    "label": "SumAnnenLangsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ALK": {
+    "label": "AnsvarligLånekapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANDLØ": {
+    "label": "LederAnnenGodtgjørelse",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ANFF": {
+    "label": "AndreFinansielleFordringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANF": {
+    "label": "AndreFordringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANLG": {
+    "label": "AnnenLangsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ANT": {
+    "label": "AntallAnsatte",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "ARI": {
+    "label": "SumAnnenRenteinntekt",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ARK": {
+    "label": "SumAnnenRentekostnad",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "BE": {
+    "label": "Beholdningsendringer",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "BF": {
+    "label": "BruttofortjenesteIProsent",
+    "unit": "ratio",
+    "period": "duration"
+  },
+  "CCR": {
+    "label": "SkattExtraordinært",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "DR": {
+    "label": "Driftsresultat",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EB": {
+    "label": "TomterBygningerOgAnnenFastEiendom",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "EBEF": {
+    "label": "EndrBeholdVarerUnderTilvirkFerdige",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EI": {
+    "label": "EkstraordinæreInntekter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EK": {
+    "label": "EkstraordinæreKostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "EKA": {
+    "label": "EgenkapitalandelIProsent",
+    "unit": "ratio",
+    "period": "duration"
+  },
+  "EKA_short": {
+    "label": "Soliditet",
+    "unit": "currency",
+    "period": "duration",
+  },
+  "ER": {
+    "label": "EgenkapitalensRentabilitetFørSkattIProsent",
+    "unit": "ratio",
+    "period": "duration",
+  },
+  "ERE": {
+    "label": "EgenkapitalensRentabilitetEtterSkattIProsent",
+    "unit": "ratio",
+    "period": "duration",
+  },
+  "FDS": {
+    "label": "Konsernfordringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "FI": {
+    "label": "SumFinansinntekter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "FK": {
+    "label": "SumFinanskostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "GG": {
+    "label": "Gjeldsgrad",
+    "unit": "ratio",
+    "period": "instant"
+  },
+  "GLA": {
+    "label": "Goodwill",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "GTD": {
+    "label": "LangsiktigKonserngjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "GTI": {
+    "label": "GjeldTilKredittinstitusjoner",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "GTS": {
+    "label": "Garantistillelser",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "IAA": {
+    "label": "InvesteringerIAksjerOgAndeler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "IPA": {
+    "label": "InntektPåInvestAnnetForetakISmKonsern",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "IPI": {
+    "label": "InntektPåInvesteringIDatterselskap",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "IPT": {
+    "label": "InntektPåInvestITilknyttetSelskap",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "IRK": {
+    "label": "AnnenInnskuttEgenkapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KB": {
+    "label": "Konsernbidrag",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KBP": {
+    "label": "KasseBankPost",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KBPS": {
+    "label": "SumKasseBankPost",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KLON": {
+    "label": "HeravKunLønn",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON1": {
+    "label": "NettoKontantstrømFraDriftOperasjonelleAktiviteter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON10": {
+    "label": "BehAvKontanterOgKontantekvivalenterVedPeriodensSlutt",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "KON11": {
+    "label": "UbenyttetKassekreditt",
+    "unit": "currency",
+    "period": "duration",
+  },
+  "KON12": {
+    "label": "KassekredittLimit",
+    "unit": "currency",
+    "period": "duration",
+  },
+  "KON2": {
+    "label": "KontantstrømFraDriftFørEndringArbeidskapital",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON3": {
+    "label": "NettoKontantsrømFraEndringIArbeidskapital",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON4": {
+    "label": "NettoKontantstrømFraInvesteringsaktiviteter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON5": {
+    "label": "NettoKontantstrømFraFinansieringsaktiviteterFinansiellVirksomhet",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON6": {
+    "label": "NettoKontantstrømForPerioden",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON7": {
+    "label": "EffektAvValutakursendringerPåKontanterOgKontantekvivalenter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON8": {
+    "label": "NettoEndringIKontanterOgKontantekvivalenter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KON9": {
+    "label": "BehAvKontanterOgKontantekvivalenterVedPeriodensBegynn",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "KUF": {
+    "label": "Kundefordringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "LG": {
+    "label": "Leverandørgjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "LGR": {
+    "label": "Likviditetsgrad1",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "LGR_short": {
+    "label": "Likviditet",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "LGR2": {
+    "label": "Likviditetsgrad2",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "LL": {
+    "label": "Lønn",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "LTP": {
+    "label": "Lønnskostnader",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "MAS": {
+    "label": "KortsiktigKonserngjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "MI": {
+    "label": "DriftsløsøreInventarVerktøyBiler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "MOA": {
+    "label": "MaskinerAnleggBiler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "NF": {
+    "label": "NettoFinans",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "NFA": {
+    "label": "NedskrivningFinAnleggsmidler",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "NVD": {
+    "label": "Nedskrivning",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "OFA": {
+    "label": "SkyldigOffentligeAvgifter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "OR": {
+    "label": "OrdinærtResultat",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "OPA": {
+    "label": "OmsetningPrAnsatt",
+    "unit": "ratio",
+    "period": "duration"
+  },
+  "ORA": {
+    "label": "OrdinæreAvskrivninger",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "ORS": {
+    "label": "ResultatFørSkatt",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "PG": {
+    "label": "PantGjeldTilKredittinstitusjoner",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "PST": {
+    "label": "Pantstillelser",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "RG": {
+    "label": "ResultatAvDriftenIProsent",
+    "unit": "ratio",
+    "period": "duration"
+  },
+  "SAM": {
+    "label": "SumAnleggsmidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SAP": {
+    "label": "SumAvsetningerTilForpliktelser",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SDI": {
+    "label": "SumDriftsinntekter",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SED": {
+    "label": "SumEiendeler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SEK": {
+    "label": "SumEgenkapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SF": {
+    "label": "SumFordringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SFA": {
+    "label": "SumFinansielleAnleggsmidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SG": {
+    "label": "SumGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SGE": {
+    "label": "SumEgenkapitalOgGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SI": {
+    "label": "SumSalgsinntekter",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SIA": {
+    "label": "SumImmaterielleMidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SIK": {
+    "label": "SumInnskuttEgenkapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SIV": {
+    "label": "SumInvesteringer",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SKG": {
+    "label": "SumKortsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SKO": {
+    "label": "SumSkatt",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SKR": {
+    "label": "SkattEkstraordinært",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SLG": {
+    "label": "SumLangsiktigGjeld",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SOK": {
+    "label": "SumOpptjentEgenkapital",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SOM": {
+    "label": "SumOmløpsmidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SUB": {
+    "label": "OrdinærtUtbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SUBE": {
+    "label": "EkstraordinærtUtbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SUBT": {
+    "label": "Tilleggsutbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SUBSUM": {
+    "label": "SumUtbytte",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "SV": {
+    "label": "SumVarelager",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "SVD": {
+    "label": "SumVarigeDriftsmidler",
+    "unit": "currency",
+    "period": "instant"
+  },
+  "TR": {
+    "label": "TotalrentabilitetIProsent",
+    "unit": "ratio",
+    "period": "duration"
+  },
+  "TR_short": {
+    "label": "Lønnsomhet",
+    "unit": "currency",
+    "period": "duration"
+  },
+  "VF": {
+    "label": "Varekostnad",
+      "unit": "currency",
+      "period": "duration"
+    }
+}

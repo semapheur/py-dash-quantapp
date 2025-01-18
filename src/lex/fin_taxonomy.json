@@ -4640,6 +4640,25 @@
       "CashUninsuredAmount"
     ]
   },
+  "cashflow_before_exchange_rate_effect": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Net Cash Flow Including Exchange Rate Effects",
+      "short": "Net Cash Flow"
+    },
+    "gaap": [
+      "IncreaseDecreaseInCashAndCashEquivalentsBeforeEffectOfExchangeRateChanges",
+      "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsPeriodIncreaseDecreaseExcludingExchangeRateEffect"
+    ],
+    "calculation": {
+      "order": 3010,
+      "all": [
+        "cashflow_operating + cashflow_investing + cashflow_financing"
+      ]
+    }
+  },
   "cashflow": {
     "type": "monetary",
     "balance": "debit",
@@ -4649,12 +4668,13 @@
       "short": "Net Cash Flow"
     },
     "gaap": [
+      "IncreaseDecreaseInCashAndCashEquivalents",
       "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsPeriodIncreaseDecreaseIncludingExchangeRateEffect"
     ],
     "calculation": {
       "order": 3010,
       "all": [
-        "cashflow_operating + cashflow_investing + cashflow_financing + exchange_rate_effect"
+        "cashflow_before_exchange_rate_effect + exchange_rate_effect"
       ]
     }
   },
@@ -5549,7 +5569,7 @@
     "calculation": {
       "order": 2531,
       "any": [
-        "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operation - gain_loss_sale_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + expense_product_warranty - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_inperiod + amortization_lease_assets_operating + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
+        "depreciation_depletion_amortization_accretion + amortization_financing_costs_discounts + accretion - recognition_deferred_revenue + provision_losses + employee_benefits_sharebased_compensation_noncash + restructuring_cost_asset_impairment_charges + cost_noncash_project_abandonment + environmental_expense_liabilities - gain_loss_disposal_not_discontinued_operation - gain_loss_sale_assets - gain_loss_investments - income_loss_equity_method_investment_net_dividends_distributions - gain_loss_sale_stock_unissued - gain_loss_extinguishment_debt + deferred_income_tax_tax_credits - excess_tax_benefit_sharebased_compensation + issuance_stock_warrants + interest_paidinkind + research_development_inprocess - gain_loss_foreign_currency_transaction_pretax - gain_loss_sale_loans_leases - net_income_leases_leveraged - gain_loss_contract_termination + noncash_contribution_expense - other_noncash_income_expense - adjustment_fair_value_warrants + adjustment_warrants_services + credit_loss_allowance + provision_valuation_real_estate_owned + increase_valuation_real_estate_owned + writedown_reversal_inventory + inventory_reserve_effect - interest_credited_policy_owner_accounts + noncash_commission_closing_costs + impairment_recovery_mortgage_servicing_rights - gain_loss_sale_project + allowance_funds_construction_additions + deferred_purchased_power_costs + carrying_costs_property_exploration_rights + adjustment_plant_capacity + provision_storm_damage - gain_loss_condemnation + provision_reclamation_mine_shutdown + reimbursement_limited_partnership_investment + expense_product_warranty - straightline_rent - gain_business_combination_bargain_purchase - change_contingent_consideration_asset + change_contingent_consideration_liability - gain_debt_conversion - gain_sale_leaseback_transaction + loss_contingency_inperiod + amortization_lease_assets_operating + servicing_asset_fair_value_additions - gain_loss_sale_derivatives - gain_loss_sale_commodity_contracts - gain_loss_unrealized_derivatives_commodity_contracts"
       ]
     }
   },
@@ -7967,6 +7987,29 @@
       "CostsInExcessOfBillingsOnUncompletedContractsOrProgramsExpectedToBeCollectedAfterOneYear"
     ]
   },
+  "credit_lines_unused": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Unused Line of Credit Facility"
+    },
+    "gaap": [
+      "UndrawnBorrowingFacilities",
+      "LineOfCreditFacilityRemainingBorrowingCapacity"
+    ]
+  },
+  "credit_lines_capacity": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Line of Credit Facility Borrowing Capacity"
+    },
+    "gaap": [
+      "LineOfCreditFacilityMaximumBorrowingCapacity"
+    ]
+  },
   "credit_lines_current": {
     "type": "monetary",
     "balance": "credit",
@@ -8766,14 +8809,38 @@
       "short": "Total Debt"
     },
     "gaap": [
+      "DebtInstrumentsHeld",
       "DebtInstrumentCarryingAmount"
     ],
     "calculation": {
       "order": 3073,
       "any": [
-        "payables_notes + payables_loans + credit_lines_longterm + debt_convertible"
+        "payables_notes + payables_loans + credit_lines_longterm + debt_convertible",
+        BankDebtInstrumentsHeld + CorporateDebtInstrumentsHeld + GovernmentDebtInstrumentsHeld + AssetbackedDebtInstrumentsHeld + OtherDebtInstrumentsHeld
       ]
     }
+  },
+  "debt_intercompany_longterm": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Intercompany Debt"
+    },
+    "gaap": [
+      "LongTermIntercompanyDebt"
+    ]
+  },
+  "debt_intercompany_shortterm": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Short-term Intercompany Debt"
+    },
+    "gaap": [
+      "ShortTermIntercompanyDebt"
+    ]
   },
   "debt_instrument_fair_value": {
     "type": "monetary",
@@ -8915,7 +8982,7 @@
     "calculation": {
       "order": 285,
       "any": [
-        "credit_lines_longterm + commercial_paper_noncurrent + loan_construction_noncurrent + debt_secured_longterm + debt_subordinated_longterm + debt_unsecured_longterm + debt_convertible_noncurrent + debt_convertible_subordinated_noncurrent + bond_transition_longterm + bond_pollution_control_longterm + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent + longterm_notes_loans + bond_special_assessment_noncurrent + loan_home_longterm_bank_advances_noncurrent + debt_longterm_other_noncurrent"
+        "credit_lines_longterm + commercial_paper_noncurrent + loan_construction_noncurrent + debt_secured_longterm + debt_subordinated_longterm + debt_unsecured_longterm + debt_convertible_noncurrent + debt_convertible_subordinated_noncurrent + bond_transition_longterm + bond_pollution_control_longterm + debenture_junior_subordinated_owedto_unconsolidated_subsidiary_trust_noncurrent + payables_notes_loans_noncurrent + bond_special_assessment_noncurrent + loan_home_longterm_bank_advances_noncurrent + debt_longterm_other_noncurrent"
       ]
     }
   },
@@ -8938,7 +9005,8 @@
       "long": "Noncurrent Other Long-term Debt"
     },
     "gaap": [
-      "OtherLongTermDebtNoncurrent"
+      "OtherLongTermDebtNoncurrent",
+      "NoncurrentPortionOfOtherNoncurrentBorrowings"
     ]
   },
   "debt_principal_payment": {
@@ -14450,7 +14518,7 @@
     "calculation": {
       "order": 2145,
       "any": [
-        "stock_preferred - receivables_subscription_stock_preferred_unissued + stock_common - stock_treasury - stock_common_subsidiary - receivables_subscription_stock_common_unissued + subscription_stock_common + additional_paidin_capital + stock_treasury_deferred_employee_stock_ownership_plan - equity_deferred_compensation + accumulated_other_comprehensive_income_loss - accumulated_distributions_excess_net_income + retained_earnings_accumulated_deficit - unearned_stock_employee_stockownership_plan_shares + additional_capital_other - receivables_officers_directors_issuance_capital_stock - receivables_shareholders_affiliates_issuance_capital_stock + warrants_rights_outstanding - receivables_stockholders_equity_note_subscription"
+        "stock_capital - stock_treasury - receivables_subscription_stock_preferred_unissued - stock_common_subsidiary - receivables_subscription_stock_common_unissued + subscription_stock_common + additional_paidin_capital + stock_treasury_deferred_employee_stock_ownership_plan - equity_deferred_compensation + accumulated_other_comprehensive_income_loss - accumulated_distributions_excess_net_income + retained_earnings_accumulated_deficit - unearned_stock_employee_stockownership_plan_shares + additional_capital_other - receivables_officers_directors_issuance_capital_stock - receivables_shareholders_affiliates_issuance_capital_stock + warrants_rights_outstanding - receivables_stockholders_equity_note_subscription"
       ]
     }
   },
@@ -14783,6 +14851,7 @@
       "long": "Effect of Exchange Rate on Net Cash Flow"
     },
     "gaap": [
+      "EffectOfExchangeRateChangesOnCashAndCashEquivalents",
       "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations"
     ],
     "calculation": {
@@ -14983,7 +15052,7 @@
     "balance": "credit",
     "aggregate": "sum",
     "label": {
-      "long": "Gross Extraordinary Items"
+      "long": "Extraordinary Items Before Tax"
     },
     "gaap": [
       "ExtraordinaryItemsGross"
@@ -14991,9 +15060,32 @@
     "calculation": {
       "order": 3171,
       "any": [
+        "extraordinary_income_pretax - extraordinary_loss_pretax",
         "gain_purchase_business + gain_loss_adjustment_prior_extraordinary_item + extraordinary_item_investee + discontinued_application_specialized_accounting_regulate_operations + gain_loss_extraordinary_other"
       ]
     }
+  },
+  "extraordinary_loss_pretax": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Extraordinary Loss Before Tax"
+    },
+    "gaap": [
+      "ExtraordinaryLoss"
+    ]
+  },
+  "extraordinary_income_pretax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Extraordinary Income Before Tax"
+    },
+    "gaap": [
+      "ExtraordinaryIncome"
+    ]
   },
   "fair_value_net_asset_liability": {
     "type": "monetary",
@@ -18334,7 +18426,8 @@
       "ImpairmentAdjustments",
       "AssetImpairmentCharges",
       "ImpairmentLossRecognisedInProfitOrLoss",
-      "ImpairmentOfLongLivedAndIntangibleAssets"
+      "ImpairmentOfLongLivedAndIntangibleAssets",
+      "ImpairmentLossReversalOfImpairmentLossRecognisedInProfitOrLoss"
     ],
     "calculation": {
       "order": 1183,
@@ -18460,7 +18553,8 @@
       "GoodwillAndOtherIntangibleAssetsImpairmentLoss",
       "GoodwillAndOtherIntangibleAssetImpairmentCharges",
       "ImpairmentChargesGoodwillAndOtherIntangibleAssets",
-      "ImpairmentChargesForGoodWillAndOtherIntangibleAssets"
+      "ImpairmentChargesForGoodWillAndOtherIntangibleAssets",
+      "ImpairmentLossRecognisedInProfitOrLossIntangibleAssetsAndGoodwill"
     ],
     "calculation": {
       "order": 1164,
@@ -18643,6 +18737,7 @@
       "ImpairmentOfInvestments",
       "ImpairmentOfInvestments1",
       "ImpairmentOfInvestments2",
+      "ImpairmentLossOnFinancialAssets",
       "ImpairmentOfInvestmentsNetOfTax",
       "ImpairmentOfFinancialInvestmentNetOfTax"
     ],
@@ -19132,7 +19227,7 @@
     "calculation": {
       "order": 1176,
       "any": [
-        "impairment_longlived_assets + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + impairment_investments_equity_method_nonrecoverable + loss_gain_writedown_disposal_not_discontinued_operation"
+        "impairment_productive_assets + impairment_longlived_assets + impairment_ongoing_project + impairment_real_estate + impairment_exploration + impairment_petroleum_properties + impairment_investments_equity_method_nonrecoverable + loss_gain_writedown_disposal_not_discontinued_operation"
       ]
     }
   },
@@ -19186,9 +19281,42 @@
         "income_finance - expense_finance"
       ],
       "any": [
-        "investment_income_nonoperating - interest_debt_expense + gain_loss_sale_lease_financing + gain_loss_foreign_currency_transaction_pretax + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + gain_debt_conversion + government_assistance_income_expense + gain_loss_investments_health_care_trust_fund + interest_income_health_care_trust_fund"
+        "investment_income_nonoperating - interest_debt_expense + gain_loss_sale_lease_financing + gain_loss_foreign_currency_transaction_pretax + income_bank_owned_life_insurance + revenue_real_estate_investment_partnership + gain_loss_conversion_investments_foreign + gain_debt_conversion + government_assistance_income_expense + gain_loss_investments_health_care_trust_fund + interest_income_health_care_trust_fund + income_loss_finance_other"
       ]
     }
+  },
+  "income_loss_finance_other": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Finance Income (Loss)"
+    },
+    "gaap": [
+      "OtherFinanceIncomeCost"
+    ]
+  },
+  "loss_finance_other": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Finance Loss"
+    },
+    "gaap": [
+      "OtherFinanceCost"
+    ]
+  },
+  "income_finance_other": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Other Finance Income"
+    },
+    "gaap": [
+      "OtherFinanceIncome"
+    ]
   },
   "income_finance": {
     "type": "monetary",
@@ -19611,7 +19739,58 @@
     },
     "gaap": [
       "OciEquityMethodInvestmentBeforeTax",
-      "IncomeLossFromEquityMethodInvestments"
+      "IncomeLossFromEquityMethodInvestments",
+      "ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "income_loss_equity_method_investments_fellow_subsidiaries_pretax + income_loss_equity_method_investments_subsidiaries_pretax + income_loss_equity_method_investments_associates_pretax + income_loss_equity_method_investments_joint_ventures_pretax"
+      ]
+    }
+  },
+  "income_loss_equity_method_investments_fellow_subsidiaries_pretax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Equity Method Investments in Fellow Subsidiaries Before Tax"
+    },
+    "gaap": [
+      "ShareOfProfitLossOfFellowSubsidiariesAccountedForUsingEquityMethod"
+    ]
+  },
+  "income_loss_equity_method_investments_subsidiaries_pretax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Equity Method Investments in Subsidiaries Before Tax"
+    },
+    "gaap": [
+      "ShareOfProfitLossOfSubsidiariesAccountedForUsingEquityMethod"
+    ]
+  },
+  "income_loss_equity_method_investments_joint_ventures_pretax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Equity Method Investments in Joint Ventures Before Tax"
+    },
+    "gaap": [
+      "ShareOfProfitLossOfJointVenturesAccountedForUsingEquityMethod"
+    ]
+  },
+  "income_loss_equity_method_investments_associates_pretax": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Income (Loss) from Equity Method Investments in Associates Before Tax"
+    },
+    "gaap": [
+      "ShareOfProfitLossOfAssociatesAccountedForUsingEquityMethod"
     ]
   },
   "income_loss_equity_method_investments_tax": {
@@ -22571,10 +22750,8 @@
     },
     "calculation": {
       "order": 2148,
-      "all": [
-        "equity + debt + lease_assets_rightofuse - cash_excess"
-      ],
       "any": [
+        "equity + debt + lease_assets_rightofuse - cash_excess",
         "working_capital_operating + productive_assets + goodwill_intangible_assets"
       ]
     }
@@ -26349,7 +26526,24 @@
       ]
     }
   },
-  "longterm_notes_loans": {
+  "payables_notes_loans": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Long-term Notes and Loans"
+    },
+    "gaap": [
+      "NotesAndLoansPayable"
+    ],
+    "calculation": {
+      "order": 279,
+      "any": [
+        "payables_notes_loans_current + payables_notes_loans_noncurrent"
+      ]
+    }
+  },
+  "payables_notes_loans_noncurrent": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "tail",
@@ -29127,6 +29321,7 @@
       "long": "Due to Related Parties"
     },
     "gaap": [
+      "TradeAndOtherPayablesToRelatedParties",
       "DueToRelatedPartiesCurrentAndNoncurrent"
     ],
     "calculation": {
@@ -29147,7 +29342,8 @@
       "long": "Due to Related Parties Current"
     },
     "gaap": [
-      "DueToRelatedPartiesCurrent"
+      "DueToRelatedPartiesCurrent",
+      "TradeAndOtherCurrentPayablesToRelatedParties"
     ],
     "calculation": {
       "order": 1336,
@@ -29355,6 +29551,7 @@
       "long": "Trade Payables"
     },
     "gaap": [
+      "TradeAndOtherPayables",
       "AccountsPayableTradeCurrentAndNoncurrent"
     ],
     "calculation": {
@@ -29373,7 +29570,8 @@
     },
     "gaap": [
       "AccountsPayableTradeCurrent",
-      "CurrentPayablesToCustomers"
+      "CurrentPayablesToCustomers",
+      "TradeAndOtherCurrentPayables"
     ]
   },
   "payables_trade_noncurrent": {
@@ -33551,6 +33749,56 @@
       "ProceedsFromFinancingRevenueReceivedUnderLeases"
     ]
   },
+  "dividends_parent": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cash Dividends Paid to Parent Company"
+    },
+    "gaap": [
+      "CashDividendsPaidToParentCompany"
+    ],
+    "calculation": {
+      "order": 0,
+      "any": [
+        "dividends_parent_subsidiares_consolidated + dividends_parent_subsidiaries_unconsolidated + dividends_parent_associates"
+      ]
+    }
+  },
+  "dividends_parent_associates": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cash Dividends Paid to Parent Company by Associates"
+    },
+    "gaap": [
+      "CashDividendsPaidToParentCompanyBy50PercentOrLessOwnedPersons"
+    ]
+  },
+  "dividends_parent_subsidiares_consolidated": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cash Dividends Paid to Parent Company by Consolidated Subsidiaries"
+    },
+    "gaap": [
+      "CashDividendsPaidToParentCompanyByConsolidatedSubsidiaries"
+    ]
+  },
+  "dividends_parent_subsidiaries_unconsolidated": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Cash Dividends Paid to Parent Company by Unconsolidated Subsidiaries"
+    },
+    "gaap": [
+      "CashDividendsPaidToParentCompanyByUnconsolidatedSubsidiaries"
+    ]
+  },
   "proceed_followon_public_offering": {
     "type": "monetary",
     "balance": "debit",
@@ -37469,6 +37717,7 @@
       "long": "Notes and Loans Receivable"
     },
     "gaap": [
+      "LoansAndReceivables",
       "NotesAndLoansReceivableNet"
     ],
     "calculation": {
@@ -38000,7 +38249,8 @@
       "long": "Receivables Due from Related Parties"
     },
     "gaap": [
-      "DueFromRelatedParties"
+      "DueFromRelatedParties",
+      "TradeAndOtherReceivablesDueFromRelatedParties"
     ],
     "calculation": {
       "order": 2021,
@@ -38038,7 +38288,8 @@
       "long": "Noncurrent Receivables Due from Related Parties"
     },
     "gaap": [
-      "DueFromRelatedPartiesNoncurrent"
+      "DueFromRelatedPartiesNoncurrent",
+      "NoncurrentReceivablesDueFromRelatedParties"
     ],
     "calculation": {
       "order": 2019,
@@ -39615,7 +39866,7 @@
     "calculation": {
       "order": 891,
       "any": [
-        "revenue_sales + revenue_finance",
+        "revenue_sales + revenue_finance + revenue_other",
         "revenue_contract + revenue_noncontract"
       ]
     }
@@ -45125,6 +45376,23 @@
       "SponsorFees"
     ]
   },
+  "stock_capital": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Stock Capital"
+    },
+    "gaap": [
+      "IssuedCapital"
+    ],
+    "calculation": {
+      "order": 3704,
+      "any": [
+        "stock_common + stock_preferred"
+      ]
+    }
+  },
   "stock_common": {
     "type": "monetary",
     "balance": "credit",
@@ -45135,7 +45403,8 @@
     "gaap": [
       "CommonStockValue",
       "CommonSharesValue",
-      "CommonStockValueOutstanding"
+      "CommonStockValueOutstanding",
+      "IssuedCapitalOrdinaryShares"
     ]
   },
   "stock_common_subsidiary": {
@@ -45180,6 +45449,7 @@
     },
     "gaap": [
       "PreferredStockValue",
+      "IssuedCapitalPreferenceShares",
       "PreferredStockValueOutstanding"
     ]
   },
@@ -45259,6 +45529,7 @@
       "long": "Treasury Stock Value Outstanding"
     },
     "gaap": [
+      "TreasuryShares",
       "TreasuryStockValue"
     ],
     "calculation": {
@@ -47876,7 +48147,31 @@
       "long": "Inventory Write-down"
     },
     "gaap": [
-      "InventoryWriteDown"
+      "InventoryWriteDown",
+      "WriteOffOfInventory",
+      "InventoryWritedown2011"
+    ]
+  },
+  "reversal_inventory": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Reversal of Inventory Write-down"
+    },
+    "gaap": [
+      "ReversalOfInventoryWritedown"
+    ]
+  },
+  "writedown_reversal_inventory": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Write-downs (Reversal) of Inventory"
+    },
+    "gaap": [
+      "WritedownsReversalsOfInventories"
     ]
   },
   "writedown_investment_affordable_housing_project": {
