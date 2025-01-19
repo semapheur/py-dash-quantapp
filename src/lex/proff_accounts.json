@@ -487,11 +487,13 @@
   },
   "SF": {
     "label": "SumFordringer",
+    "gaap": "TradeAndOtherReceivables",
     "unit": "currency",
     "period": "instant"
   },
   "SFA": {
     "label": "SumFinansielleAnleggsmidler",
+    "gaap": "FinancialAssets",
     "unit": "currency",
     "period": "instant"
   },
@@ -527,7 +529,7 @@
   },
   "SIV": {
     "label": "SumInvesteringer",
-    "gaap": "Investments",
+    "gaap": "CurrentInvestmentsInvestments",
     "unit": "currency",
     "period": "instant"
   },
