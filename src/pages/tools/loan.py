@@ -5,10 +5,10 @@ from plotly.subplots import make_subplots
 
 from components.input import InputAIO
 
-register_page(__name__, path_template="/loan-calculator", title="Loan calculator")
+register_page(__name__, path_template="/tools/loan-calculator", title="Loan calculator")
 
 layout = html.Main(
-  className="h-full",
+  className="size-full",
   children=[
     html.Form(
       className="flex gap-2 pt-2",

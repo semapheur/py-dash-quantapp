@@ -7,10 +7,12 @@ from plotly import graph_objects as go
 
 from components.input import InputAIO
 
-register_page(__name__, path_template="/savings-calculator", title="Savings calculator")
+register_page(
+  __name__, path_template="/tools/savings-calculator", title="Savings calculator"
+)
 
 layout = html.Main(
-  className="h-full",
+  className="size-full",
   children=[
     html.Form(
       className="flex gap-2 pt-2",
@@ -159,18 +161,6 @@ def update_graph(
 
     balance[step] = principal + contributions[step] + interest[step]
     real_balance[step] = balance[step] / (1 + inflation_per_period) ** step
-
-  # fig = px.line(x=t, y=balance, title="Accumulated return", line_shape="hv")
-
-  data = pd.DataFrame(
-    {
-      "Year": t,
-      "Principal": principal_array,
-      "Contributions": contributions,
-      "Interest": interest,
-    },
-  )
-  data.index.name = "Year"
 
   fig = go.Figure()
   fig.add_scatter(
