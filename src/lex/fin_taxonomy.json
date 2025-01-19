@@ -8924,7 +8924,7 @@
       "FinancialInstrumentsOwnedUSGovernmentAndAgencyObligationsAtFairValue"
     ]
   },
-  "financial_instruments_obligations_government_other": {
+  "financial_instruments_obligations_government_nonus": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
@@ -16400,7 +16400,7 @@
     "calculation": {
       "order": 2277,
       "any": [
-        "gain_loss_investments_realized + gain_loss_investments_unrealized",
+        "gain_loss_realized_investments + gain_loss_investments_unrealized",
         "gain_loss_investments_excluding_nonrecoverable_impairment - impairment_investments_nonrecoverable_earnings_portion"
       ]
     }
@@ -16418,7 +16418,7 @@
     "calculation": {
       "order": 2250,
       "any": [
-        "gain_loss_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_cost_method_investment_excluding_nonrecoverable_impairment + gain_loss_venture_capital"
+        "gain_loss_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_cost_method_investments_excluding_nonrecoverable_impairment + gain_loss_venture_capital"
       ]
     }
   },
@@ -16450,7 +16450,7 @@
       ]
     }
   },
-  "gain_loss_investments_realized": {
+  "gain_loss_realized_investments": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16463,7 +16463,7 @@
     "calculation": {
       "order": 2271,
       "any": [
-        "gain_loss_securitization_financial_assets + gain_loss_realized_securities + gain_loss_sale_properties_pretax + gain_loss_sale_investment_real_estate + gain_loss_sale_investment_other + gain_loss_sale_equity_method_investment"
+        "gain_loss_securitization_financial_assets + gain_loss_realized_securities + gain_loss_sale_securities + gain_loss_sale_loans + gain_loss_sale_lease_financing + gain_loss_sale_leased_assets_operating + gain_loss_sale_properties_pretax + gain_loss_sale_investment_real_estate + gain_loss_sale_equity_method_investment + gain_loss_sale_investment_other + gain_loss_sale_other_financial_assets + gain_loss_sale_other_assets",
       ]
     }
   },
@@ -16545,6 +16545,51 @@
     "calculation": {
       "order": 3327,
       "any": [
+        "gain_loss_realized_securities_marketable + gain_loss_cost_method_investments + gain_loss_realized_investments + gain_loss_sale_investments"
+      ]
+    }
+  },
+  "loss_cost_method_investments": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Loss on Cost Method Investments"
+    },
+    "gaap": [
+      "CostMethodInvestmentsRealizedLosses"
+    ]
+  },
+  "gain_loss_cost_method_investments": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on  Cost Method Investments"
+    },
+    "gaap": [
+      "CostMethodInvestmentsRealizedGainLoss"
+    ],
+    "calculation": {
+      "order": 3327,
+      "any": [
+        "gain_realized_cost_method_investment - loss_realized_cost_method_investment"
+      ]
+    }
+  },
+  "gain_loss_sale_investments": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Sale of Investments"
+    },
+    "gaap": [
+      "GainLossOnSaleOfInvestments"
+    ],
+    "calculation": {
+      "order": 3327,
+      "any": [
         "gain_loss_sale_stock_subsidiary_or_equity_method_investee + gain_loss_sale_investments_equity + gain_loss_sale_investments_debt + gain_loss_sale_properties + gain_loss_sale_derivatives + gain_loss_sale_commodity_contracts + gain_loss_sale_investment_other"
       ]
     }
@@ -16582,7 +16627,7 @@
       "PrincipalInvestmentGainsLosses"
     ]
   },
-  "gain_loss_realized_cost_method_investment_excluding_nonrecoverable_impairment": {
+  "gain_loss_realized_cost_method_investments_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "credit",
     "aggregate": "sum",
@@ -16595,7 +16640,7 @@
     "calculation": {
       "order": 2249,
       "any": [
-        "gain_realized_cost_method_investment - loss_realized_cost_method_investment_excluding_nonrecoverable_impairment"
+        "gain_realized_cost_method_investment - loss_realized_cost_method_investments_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -16804,7 +16849,7 @@
     "calculation": {
       "order": 3339,
       "any": [
-        "gain_loss_realized_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_cost_method_investment_excluding_nonrecoverable_impairment"
+        "gain_loss_realized_securities_marketable_excluding_nonrecoverable_impairment + gain_loss_realized_cost_method_investments_excluding_nonrecoverable_impairment"
       ]
     }
   },
@@ -16943,7 +16988,7 @@
     "calculation": {
       "order": 693,
       "any": [
-        "gain_loss_securitization_financial_assets + gain_loss_sale_securities + gain_loss_realized_securities + gain_loss_sale_loans + gain_loss_sale_mortgagebacked_securities + gain_loss_sale_insurance_block + gain_loss_sale_derivatives + gain_loss_sale_credit_card + gain_loss_sale_other_financial_assets"
+        "gain_loss_securitization_financial_assets + gain_loss_sale_securities + gain_loss_realized_securities + gain_loss_sale_loans + gain_loss_sale_mortgagebacked_securities + gain_loss_sale_insurance_block + gain_loss_sale_derivatives + gain_loss_sale_credit_card + gain_loss_sale_other_financial_assets",
       ]
     }
   },
@@ -17011,6 +17056,17 @@
     },
     "gaap": [
       "GainLossOnSaleOfEquityInvestments"
+    ]
+  },
+  "gain_loss_sale_investments_debt": {
+    "type": "monetary",
+    "balance": "credit",
+    "aggregate": "sum",
+    "label": {
+      "long": "Realized Gain (Loss) on Debt Investments"
+    },
+    "gaap": [
+      "GainLossOnSaleOfDebtInvestments"
     ]
   },
   "gain_loss_sale_lease_financing": {
@@ -26962,7 +27018,7 @@
       "NetLoss"
     ]
   },
-  "loss_realized_cost_method_investment_excluding_nonrecoverable_impairment": {
+  "loss_realized_cost_method_investments_excluding_nonrecoverable_impairment": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "sum",
@@ -42571,7 +42627,7 @@
     "calculation": {
       "order": 3673,
       "any": [
-        "securities_availableforsale_debt_amortized_cost + securities_availableforsale_equity_amortized_cost"
+        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + securities_availableforsale_equity_amortized_cost"
       ]
     }
   },
@@ -42707,24 +42763,44 @@
       "DebtSecuritiesAvailableForSaleAllowanceForCreditLossNoncurrent"
     ]
   },
-  "securities_availableforsale_debt_amortized_cost": {
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest": {
     "type": "monetary",
     "balance": "debit",
     "aggregate": "tail",
     "label": {
-      "long": "Available-for-Sale Debt Securities Amortized Cost Basis"
+      "long": "Available-for-Sale Debt Securities at Amortized Cost Excluding Accrued Interest after Allowance for Credit Loss"
     },
     "gaap": [
       "AvailableForSaleDebtSecuritiesAmortizedCostBasis",
-      "AvailableForSaleSecuritiesDebtMaturitiesAmortizedCost"
+      "AvailableForSaleSecuritiesDebtMaturitiesAmortizedCost",
+      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss"
     ],
     "calculation": {
       "order": 3672,
       "all": [
-        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest + "
+        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_gross - securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance"
       ],
       "any": [
+        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_current + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_noncurrent",
         "securities_availableforsale_debt_without_single_maturity_date_amortized_cost + securities_availableforsale_debt_with_single_maturity_date_amortized_cost"
+      ]
+    }
+  },
+  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance": {
+    "type": "monetary",
+    "balance": "debit",
+    "aggregate": "tail",
+    "label": {
+      "long": "Available-for-Sale Debt Securities at Amortized Cost Excluding Accrued Interest Allowance for Credit Loss"
+    },
+    "gaap": [
+      "DebtSecuritiesAvailableForSaleAmortizedCostAllowanceForCreditLossExcludingAccruedInterest"
+      
+    ],
+    "calculation": {
+      "order": 2035,
+      "any": [
+        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_current + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_noncurrent"
       ]
     }
   },
@@ -42766,26 +42842,6 @@
     "gaap": [
       "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestBeforeAllowanceForCreditLossCurrent"
     ]
-  },
-  "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest": {
-    "type": "monetary",
-    "balance": "debit",
-    "aggregate": "tail",
-    "label": {
-      "long": "Available-for-Sale Debt Securities at Amortized Cost Excluding Accrued Interest after Allowance for Credit Loss"
-    },
-    "gaap": [
-      "DebtSecuritiesAvailableForSaleAmortizedCostExcludingAccruedInterestAfterAllowanceForCreditLoss"
-    ],
-    "calculation": {
-      "order": 2035,
-      "all": [
-        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_gross - securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance"
-      ],
-      "any": [
-        "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_current + securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_noncurrent"
-      ]
-    }
   },
   "securities_availableforsale_debt_amortized_cost_excluding_accrued_interest_allowance_current": {
     "type": "monetary",
