@@ -146,14 +146,12 @@ def update_graph(
 
   for i in range(1, len(t)):
     balance[i] = balance[i - 1] * (1 + effective_periodic_return) + contribution
-
     principals[i] = principals[i - 1] + contribution
 
     if i % frequency == 0:
       if not contribution_made_this_year:
-        deduction_basis += contribution
-        deduction_basis *= 1 + deduction_rate
-        deduction = deduction_basis * deduction_rate
+        deduction_basis = (principals[i] + deduction) * (1 + deduction_rate)
+        deduction += deduction_basis * deduction_rate
         contribution_made_this_year = True
 
     else:
