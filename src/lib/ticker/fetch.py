@@ -95,7 +95,7 @@ def get_cik(id: str) -> int | None:
 def search_companies(
   search: str,
   stored: bool = True,
-  limit: int = 10,
+  limit: int | None = 10,
 ) -> DataFrame[TickerOptions]:
   query = f""" 
     SELECT
@@ -113,10 +113,31 @@ def search_companies(
     )
     GROUP BY company_id
     HAVING label LIKE :search
-    LIMIT :limit
   """
 
   df = read_sqlite("ticker.db", query, {"search": f"%{search}%", "limit": str(limit)})
+  return cast(DataFrame[TickerOptions], df)
+
+
+def stored_companies() -> DataFrame[TickerOptions]:
+  query = """ 
+    SELECT
+      name || " (" || group_concat(ticker || ":" || mic, ", ") || ")" AS label,
+      company_id AS value
+    FROM (
+      SELECT 
+        f.company_id, 
+        c.name, 
+        t.ticker, 
+        t.mic 
+      FROM financials f JOIN company c ON f.company_id = c.company_id
+      JOIN json_each(c.primary_security) ON 1=1
+      JOIN stock t ON json_each.value = t.security_id
+    )
+    GROUP BY company_id
+  """
+
+  df = read_sqlite("ticker.db", query)
   return cast(DataFrame[TickerOptions], df)
 
 
