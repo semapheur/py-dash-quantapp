@@ -24,7 +24,7 @@ sidebar = html.Aside(
     dcc.Dropdown(id="dropdown:edit:company", options=companies, value=""),
     dcc.Dropdown(id="dropdown:edit:statement", options=[], value=""),
     html.Div(
-      className="flex flex-col",
+      className="flex flex-col overflow-y-scroll",
       id="div:edit:items",
     ),
   ],
@@ -59,3 +59,31 @@ def update_dropdown(value: str):
   df = read_sqlite("statements.db", query)
 
   return df.to_dict("records")
+
+
+@callback(
+  Output("div:edit:items", "children"),
+  Input("dropdown:edit:statement", "value"),
+  State("dropdown:edit:company", "value"),
+)
+def update_items(value: str, company: str):
+  if not (value or company):
+    return no_update
+
+  date, period = value.split("_")
+
+  query = f"""
+    SELECT key FROM '{company}', json_each(data)
+    WHERE date = :date AND fiscal_period = :period
+  """
+  df = read_sqlite("statements.db", query, {"date": date, "period": period})
+
+  buttons = []
+  for item in df["key"]:
+    buttons.append(
+      html.Button(
+        item, id={"type": f"dropdown:edit:{item}", "index": item}, className="text-left"
+      )
+    )
+
+  return buttons
