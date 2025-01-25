@@ -458,7 +458,7 @@ def upsert_statements(
           )
         )
     """
-    cur.executemany(query, [s.model_dump() for s in statements])
+    cur.executemany(query, [s.model_dump_json() for s in statements])
     con.commit()
 
 

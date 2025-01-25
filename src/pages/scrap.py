@@ -113,7 +113,7 @@ scrap_controls_sidebar = html.Aside(
             dcc.Upload(
               id="upload:scrap:pdf",
               className=UPLOAD_STYLE,
-              accept="pdf",
+              accept=".pdf",
               children=[html.Span(["Upload PDF"])],
             ),
             InputButtonAIO(

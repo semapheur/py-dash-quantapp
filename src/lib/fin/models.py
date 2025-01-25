@@ -95,7 +95,11 @@ class FinStatement(BaseModel):
   @classmethod
   def validate_url(cls, value, info: ValidationInfo):
     if isinstance(value, str):
-      return [value]
+      try:
+        parsed_value = json.loads(value)
+      except json.JSONDecodeError:
+        raise ValueError(f"{info.field_name} must be a valid JSON array string")
+      return parsed_value
 
     return value
 
@@ -140,7 +144,7 @@ class FinStatement(BaseModel):
 
   @field_serializer("url")
   def serialize_url(self, url: list[str]):
-    return json.dumps(url)
+    return url
 
   @field_serializer("date")
   def serialize_date(self, date: Date):
@@ -152,7 +156,7 @@ class FinStatement(BaseModel):
 
   @field_serializer("currency")
   def serialize_currency(self, currency: set[str]):
-    return json.dumps(list(currency))
+    return list(currency)
 
   @field_serializer("data")
   @classmethod
@@ -173,7 +177,7 @@ class FinStatement(BaseModel):
 
       obj[k] = items_
 
-    return json.dumps(obj)
+    return obj
 
   def to_dict(self):
     return {
@@ -193,7 +197,7 @@ class FinStatementFrame(DataFrameModel):
   date: Timestamp
   period: str = Field(isin={"FY", "Q1", "Q2", "Q3", "Q4"})
   fiscal_end: str | None
-  periods: Object | None
+  # periods: Object | None
   currency: Object
   data: Object
 
