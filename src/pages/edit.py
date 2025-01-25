@@ -10,19 +10,30 @@ from dash import (
   Input,
   Output,
   State,
-  MATCH,
 )
+import dash_ag_grid as dag
+import pandas as pd
 from pydantic import ValidationError
 
 from components.input import InputAIO
+from components.modal import OpenCloseModalAIO
 
 from lib.db.lite import read_sqlite
 from lib.fin.models import FinStatement
 from lib.fin.statement import df_to_statements, upsert_statements
+from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
 from lib.ticker.fetch import stored_companies
+from lib.utils import split_pascal_case
 
 register_page(__name__, path="/edit")
+
+table_style = {
+  "height": "100%",
+  "width": "100%",
+  "min-height": "min(300px, 75vh)",
+  "min-width": "min(300px, 75vw)",
+}
 
 companies = stored_companies().to_dict("records")
 
@@ -42,6 +53,13 @@ form = html.Form(
       options=[],
       value="",
       placeholder="Statement",
+    ),
+    html.Button(
+      "Record items",
+      id=OpenCloseModalAIO.open_id("edit:record-items"),
+      className=BUTTON_STYLE,
+      type="button",
+      n_clicks=0,
     ),
     html.Button(
       "Export JSON", id="button:edit:export", className=BUTTON_STYLE, type="button"
@@ -71,6 +89,115 @@ layout = html.Main(
           id="div:edit:data",
           className="h-full flex flex-col gap-2 p-2 overflow-y-scroll",
         ),
+      ],
+    ),
+    OpenCloseModalAIO(
+      "edit:record-items",
+      "Record items",
+      dialog_props={
+        "style": {
+          "height": "75%",
+          "width": "75%",
+        }
+      },
+      children=[
+        html.Div(
+          className="size-full grid grid-rows-[auto_1fr] gap-1",
+          children=[
+            html.Form(
+              className="flex gap-1",
+              children=[
+                html.Button(
+                  "Search",
+                  id="button:edit:search-items",
+                  className=BUTTON_STYLE,
+                  type="button",
+                  n_clicks=0,
+                ),
+                html.Button(
+                  "Record",
+                  id="button:edit:record-items",
+                  className=BUTTON_STYLE,
+                  type="button",
+                  n_clicks=0,
+                ),
+              ],
+            ),
+            dag.AgGrid(
+              id="table:edit:items",
+              columnDefs=[
+                {
+                  "field": "action",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["create", "update", "none"]},
+                },
+                {
+                  "field": "taxonomy",
+                  "cellDataType": "text",
+                  "cellEditor": {"function": "SuggestionInput"},
+                  "cellEditorParams": {"listId": "scrap:items"},
+                  "cellStyle": {
+                    "styleConditions": [
+                      {
+                        "condition": "params.data.status === 'bad'",
+                        "style": {"backgroundColor": "lightcoral"},
+                      },
+                      {
+                        "condition": "params.data.status === 'good'",
+                        "style": {"backgroundColor": "palegreen"},
+                      },
+                    ],
+                  },
+                },
+                {"field": "item", "cellDataType": "text", "editable": False},
+                {"field": "long", "headerName": "Label (long)", "cellDataType": "text"},
+                {
+                  "field": "short",
+                  "headerName": "Label (short)",
+                  "cellDataType": "text",
+                },
+                {
+                  "field": "type",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {
+                    "values": [
+                      "monetary",
+                      "fundamental",
+                      "percent",
+                      "per_day",
+                      "per_share",
+                      "personnel",
+                      "ratio",
+                      "shares",
+                    ]
+                  },
+                },
+                {
+                  "field": "balance",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["debit", "credit"]},
+                },
+                {
+                  "field": "aggregate",
+                  "cellDataType": "text",
+                  "cellEditor": "agSelectCellEditor",
+                  "cellEditorParams": {"values": ["average", "recalc", "sum", "tail"]},
+                },
+              ],
+              columnSize="autoSize",
+              defaultColDef={"editable": True},
+              dashGridOptions={
+                "rowSelection": "multiple",
+                "undoRedoCellEditing": True,
+                "undoRedoCellEditingLimit": 10,
+              },
+              style=table_style,
+            ),
+          ],
+        )
       ],
     ),
     dcc.Store(id="store:edit:data"),
@@ -339,3 +466,63 @@ def upload_json(contents: str, filename: str, company: str):
   upsert_statements("statements.db", id, [record])
 
   return None, False
+
+
+@callback(
+  Output("table:edit:items", "rowData"),
+  Input(OpenCloseModalAIO.open_id("edit:record-items"), "n_clicks"),
+  State("radio:edit:items", "options"),
+  prevent_initial_call=True,
+)
+def item_modal(n: int, items: list[str]):
+  if not (n and items):
+    return no_update
+
+  df = pd.DataFrame({"item": items})
+
+  empty_columns = pd.DataFrame(
+    "",
+    index=df.index,
+    columns=[
+      "taxonomy",
+      "label_long",
+      "label_short",
+      "type",
+      "balance",
+      "aggregate",
+      "status",
+    ],
+  )
+
+  row_data = pd.concat([df[["item"]], empty_columns], axis=1)
+
+  return row_data.to_dict("records")
+
+
+@callback(
+  Output("table:edit:items", "rowData", allow_duplicate=True),
+  Input("button:edit:search-items", "n_clicks"),
+  State("table:edit:items", "rowData"),
+  prevent_initial_call=True,
+  background=True,
+)
+def search_items(n_clicks: int, rows: list[dict]):
+  if not (n_clicks and rows):
+    return no_update
+
+  for i in range(len(rows)):
+    find = search_taxonomy(rows[i]["item"])
+    rows[i]["action"] = "create"
+    if find is not None:
+      rows[i]["action"] = "none"
+      rows[i]["taxonomy"] = find.at[0, "item"]
+
+    else:
+      fuzzy = fuzzy_search_taxonomy(split_pascal_case(rows[i]["item"]), 3)
+      if fuzzy is None:
+        continue
+
+      rows[i]["action"] = "update"
+      rows[i]["suggestions"] = fuzzy["item"].to_list()
+
+  return rows
