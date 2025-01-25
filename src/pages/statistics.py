@@ -31,8 +31,8 @@ from components.statistical_plots import acf_trace, qqplot_trace
 register_page(__name__, path="/statistics", location="header")
 
 main_style = "h-full flex flex-col gap-2 p-2"
-form_style = "grid grid-cols-[2fr_1fr_1fr] gap-2 p-2 shadow rounded-md"
-overview_style = "h-full grid grid-cols-[1fr_1fr] shadow rounded-md"
+form_style = "grid grid-cols-[2fr_1fr_1fr] gap-2 p-2 shadow-sm rounded-md"
+overview_style = "h-full grid grid-cols-[1fr_1fr] shadow-sm rounded-md"
 dropdown_style = "w-1/3"
 
 layout = html.Main(
@@ -45,7 +45,7 @@ layout = html.Main(
         dcc.Input(
           id="input:stats:diff-order",
           type="number",
-          className="border rounded pl-2",
+          className="border rounded-sm pl-2",
           min=0,
           max=10,
           value=0,
@@ -120,7 +120,7 @@ layout = html.Main(
                   children=[
                     dcc.Input(
                       id="input:stats:period",
-                      className="border rounded pl-2",
+                      className="border rounded-sm pl-2",
                       type="number",
                       placeholder="Period",
                       min=2,
@@ -148,7 +148,7 @@ layout = html.Main(
                   children=[
                     dcc.Input(
                       id="input:stats:regimes",
-                      className="border rounded pl-2",
+                      className="border rounded-sm pl-2",
                       type="number",
                       placeholder="Regimes",
                       min=1,
@@ -177,7 +177,7 @@ layout = html.Main(
                   children=[
                     dcc.Input(
                       id="input:stats:window",
-                      className="border rounded pl-2",
+                      className="border rounded-sm pl-2",
                       type="number",
                       placeholder="Regimes",
                       min=3,

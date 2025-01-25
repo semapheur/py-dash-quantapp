@@ -1,7 +1,7 @@
 const dagcomponentfuncs = window.dashAgGridComponentFunctions = window.dashAgGridComponentFunctions || {};
 
 dagcomponentfuncs.FinancialsTooltip = (props) => {
-  style = "p-2 border border-secondary rounded shadow bg-text/50 backdrop-blur-sm"
+  style = "p-2 border border-secondary rounded-sm shadow-sm bg-text/50 backdrop-blur-xs"
 
   return React.createElement("div", {
     className: props.className || style
@@ -138,7 +138,7 @@ dagcomponentfuncs.ScreenerTooltip = (props) => {
 
   if (props.location === "header") {
     return React.createElement("div", {
-      className: "p-1 bg-primary rounded border border-secondary text-text text-xs"
+      className: "p-1 bg-primary rounded-sm border border-secondary text-text text-xs"
     }, props.value)
   }
 
@@ -160,7 +160,7 @@ dagcomponentfuncs.ScreenerTooltip = (props) => {
   }
 
   return React.createElement("div", {
-    className: "w-44 h-[6.5rem] px-2 grid grid-rows-[1fr_auto] bg-primary rounded border border-secondary text-text text-xs font-bold"
+    className: "w-44 h-[6.5rem] px-2 grid grid-rows-[1fr_auto] bg-primary rounded-sm border border-secondary text-text text-xs font-bold"
   }, [
     React.createElement("div", {
       key: "div.bar",
@@ -201,7 +201,7 @@ dagcomponentfuncs.ScreenerTooltip = (props) => {
 }
 
 dagcomponentfuncs.TaxonomyTooltip = (props) => {
-  style = "p-2 border border-secondary rounded shadow bg-text/50 backdrop-blur-sm"
+  style = "p-2 border border-secondary rounded-sm shadow-sm bg-text/50 backdrop-blur-xs"
 
   const listItems = props.value.map((item, index) =>
     React.createElement("li", { key: index }, item)

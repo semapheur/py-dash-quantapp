@@ -41,12 +41,11 @@ from lib.fin.models import (
 )
 from lib.fin.statement import upsert_statements
 from lib.morningstar.ticker import Stock
+from lib.styles import BUTTON_STYLE, GROUP_BUTTON_STYLE
 from lib.utils import download_file, split_multiline
 
 main_style = "h-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
-button_style = "px-2 rounded bg-secondary/50 text-text"
-group_button_style = "px-2 rounded-r bg-secondary/50 text-text"
 radio_style = (
   "relative flex gap-4 px-2 py-1 border border-text/50 rounded "
   "before:absolute before:left-1 before:top-0 before:-translate-y-1/2 "
@@ -79,7 +78,7 @@ scrap_controls_sidebar = html.Aside(
         html.Button(
           "Extract",
           id="button:scrap:extract",
-          className=group_button_style,
+          className=GROUP_BUTTON_STYLE,
           type="button",
           n_clicks=0,
         ),
@@ -102,7 +101,7 @@ scrap_controls_sidebar = html.Aside(
         html.Button(
           "Options",
           id=OpenCloseModalAIO.open_id("scrap:options"),
-          className=button_style,
+          className=BUTTON_STYLE,
           type="button",
           n_clicks=0,
         ),
@@ -111,35 +110,35 @@ scrap_controls_sidebar = html.Aside(
     html.Button(
       "Delete rows",
       id="button:scrap:delete-rows",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Add row",
       id="button:scrap:add-rows",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Rename headers",
       id=OpenCloseModalAIO.open_id("scrap:headers"),
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Export to CSV",
       id="button:scrap:export-csv",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Export to JSON",
       id="button:scrap:export",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
@@ -351,12 +350,12 @@ scrap_options_sidebar = html.Div(
     html.Button(
       "Preview",
       id="button:scrap:preview",
-      className=button_style,
+      className=BUTTON_STYLE,
     ),
     html.Button(
       "Download image",
       id="button:scrap:download-image",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
@@ -426,7 +425,7 @@ layout = html.Main(
           children=[
             html.Form(id="form:scrap:headers", className="flex flex-col gap-1"),
             html.Button(
-              "Update", id="button:scrap:headers:update", className=button_style
+              "Update", id="button:scrap:headers:update", className=BUTTON_STYLE
             ),
           ],
         )

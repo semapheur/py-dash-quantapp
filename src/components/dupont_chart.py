@@ -29,7 +29,7 @@ def card(
 ) -> html.Div:
   card_style = (
     "relative flex flex-col w-40 p-1 divide-y "
-    "border border-secondary rounded shadow "
+    "border border-secondary rounded-sm shadow-sm "
   )
   if center:
     card_style += "self-center "

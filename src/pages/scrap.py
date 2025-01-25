@@ -4,6 +4,7 @@ from contextlib import closing
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import io
+import json
 import re
 from pathlib import Path
 import sqlite3
@@ -24,10 +25,11 @@ from dash import (
 import dash_ag_grid as dag
 from dash_resizable_panels import PanelGroup, Panel, PanelResizeHandle
 import htmlmin
-import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 import pdfplumber
+import plotly.graph_objects as go
+from pydantic import ValidationError
 
 from components.company_select import CompanySelectAIO
 from components.input import InputAIO
@@ -36,7 +38,7 @@ from components.modal import OpenCloseModalAIO
 
 from lib.fin.models import (
   FinStatement,
-  Item,
+  FinRecord,
   Instant,
   Interval,
   Scope,
@@ -45,6 +47,7 @@ from lib.fin.models import (
 from lib.fin.statement import sqlite_path, upsert_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, update_gaap
 from lib.scrap import download_file_memory
+from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
 from lib.utils import split_multiline, pascal_case, split_pascal_case, valid_date
 
 register_page(__name__, path="/scrap", title="Scrap")
@@ -72,16 +75,15 @@ class ItemTable(TypedDict):
 
 main_style = "size-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
-button_style = "px-2 rounded bg-secondary/50 text-text"
-group_button_style = "px-2 rounded-r bg-secondary/50 text-text"
+
 radio_style = (
-  "relative flex gap-4 px-2 py-1 border border-text/50 rounded "
+  "relative flex gap-4 px-2 py-1 border border-text/50 rounded-sm "
   "before:absolute before:left-1 before:top-0 before:-translate-y-1/2 "
   "before:content-['Extract_method'] before:px-1 before:bg-primary before:text-xs"
 )
 
 scrap_options_style = (
-  "relative grid grid-cols-2 gap-x-1 gap-y-2 border border-text/50 rounded px-1 pt-4 pb-1 "
+  "relative grid grid-cols-2 gap-x-1 gap-y-2 border border-text/50 rounded-sm px-1 pt-4 pb-1 "
   "before:absolute before:left-1 before:top-0 before:-translate-y-1/2 "
   "before:bg-primary before:px-1 before:text-text/50 before:text-xs"
 )
@@ -110,7 +112,7 @@ scrap_controls_sidebar = html.Aside(
           children=[
             dcc.Upload(
               id="upload:scrap:pdf",
-              className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
+              className=UPLOAD_STYLE,
               accept="pdf",
               children=[html.Span(["Upload PDF"])],
             ),
@@ -141,7 +143,7 @@ scrap_controls_sidebar = html.Aside(
                 html.Button(
                   "Options",
                   id=OpenCloseModalAIO.open_id("scrap:options"),
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
@@ -155,7 +157,7 @@ scrap_controls_sidebar = html.Aside(
           children=[
             dcc.Textarea(
               id="textarea:scrap:html",
-              className="rounded border border-text/10",
+              className="rounded-sm border border-text/10",
               placeholder="HTML",
             ),
             html.Form(
@@ -164,14 +166,14 @@ scrap_controls_sidebar = html.Aside(
                 html.Button(
                   "Fetch",
                   id="button:scrap:fetch-html",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Extract",
                   id="button:scrap:extract-html",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
@@ -187,21 +189,21 @@ scrap_controls_sidebar = html.Aside(
         html.Button(
           "Add row",
           id="button:scrap:add-row",
-          className=button_style,
+          className=BUTTON_STYLE,
           type="button",
           n_clicks=0,
         ),
         html.Button(
           "Delete rows",
           id="button:scrap:delete-rows",
-          className=button_style,
+          className=BUTTON_STYLE,
           type="button",
           n_clicks=0,
         ),
         html.Button(
           "Edit columns",
           id=OpenCloseModalAIO.open_id("scrap:edit-columns"),
-          className=f"{button_style} col-span-2",
+          className=f"{BUTTON_STYLE} col-span-2",
           type="button",
           n_clicks=0,
         ),
@@ -210,28 +212,35 @@ scrap_controls_sidebar = html.Aside(
     html.Button(
       "Record items",
       id=OpenCloseModalAIO.open_id("scrap:record-items"),
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Label training data",
       id="button:scrap:training-label",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Export to CSV",
       id="button:scrap:export-csv",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
     html.Button(
       "Export to JSON",
       id="button:scrap:export-json",
-      className=button_style,
+      className=BUTTON_STYLE,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Upsert",
+      id="button:scrap:upsert",
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
@@ -261,7 +270,7 @@ scrap_controls_sidebar = html.Aside(
         ),
         dcc.Dropdown(
           id="dropdown:scrap:scope",
-          className="outline-none",
+          className="outline-hidden",
           placeholder="Scope",
           options=[
             {"label": "Annual", "value": "annual"},
@@ -287,9 +296,15 @@ scrap_controls_sidebar = html.Aside(
     ),
     dcc.Upload(
       id="upload:scrap:csv",
-      className="py-1 border border-dashed border-text/50 rounded hover:border-secondary text-center cursor-pointer",
+      className=UPLOAD_STYLE,
       accept=".csv,text/csv,application/vnd.ms-excel",
       children=[html.Div(["Upload CSV"])],
+    ),
+    dcc.Upload(
+      id="upload:scrap:json",
+      className=UPLOAD_STYLE,
+      accept=".json",
+      children=[html.Div(["Upload JSON"])],
     ),
     dcc.Download(id="download:scrap:json"),
   ],
@@ -493,12 +508,12 @@ scrap_options_sidebar = html.Div(
     html.Button(
       "Preview",
       id="button:scrap:preview",
-      className=button_style,
+      className=BUTTON_STYLE,
     ),
     html.Button(
       "Download image",
       id="button:scrap:download-image",
-      className=button_style,
+      className=BUTTON_STYLE,
       type="button",
       n_clicks=0,
     ),
@@ -564,7 +579,7 @@ layout = html.Main(
     #      children=[
     #        html.Form(id="form:scrap:columns", className="flex flex-col gap-1"),
     #        html.Button(
-    #          "Delete", id="button:scrap:delete-columns", className=button_style
+    #          "Delete", id="button:scrap:delete-columns", className=BUTTON_STYLE
     #        ),
     #      ],
     #    )
@@ -589,28 +604,28 @@ layout = html.Main(
                 html.Button(
                   "Update",
                   id="button:scrap:edit-columns",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Add columns",
                   id="button:scrap:add-column",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Delete columns",
                   id="button:scrap:delete-column",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Reset",
                   id="button:scrap:reset-column",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
@@ -664,14 +679,14 @@ layout = html.Main(
                 html.Button(
                   "Search",
                   id="button:scrap:search-items",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
                 html.Button(
                   "Record",
                   id="button:scrap:record-items",
-                  className=button_style,
+                  className=BUTTON_STYLE,
                   type="button",
                   n_clicks=0,
                 ),
@@ -852,6 +867,74 @@ def prepare_scrap_df(df: pd.DataFrame):
     .astype(float, errors="ignore")
   )
   return df, dates
+
+
+def df_to_statement(
+  df: pd.DataFrame,
+  url: str,
+  date: str,
+  scope: Scope,
+  period: FiscalPeriod,
+  fiscal_end: str,
+  dates: list[str],
+):
+  data: dict[str, list[FinRecord]] = {}
+  currencies = set()
+
+  for _, r in df.iterrows():
+    if r["unit"] != "shares":
+      currencies.add(r["unit"])
+
+    data[r["item"]] = [
+      FinRecord(
+        value=r[d] * float(r["factor"]),
+        unit=r["unit"],
+        period=parse_period(scope, period, d, r),
+      )
+      for d in dates
+      if pd.notna(r[d])
+    ]
+
+  record = FinStatement(
+    url=url,
+    date=dt.strptime(date, "%Y-%m-%d").date(),
+    scope=scope,
+    fiscal_period=period,
+    fiscal_end=fiscal_end,
+    currency=currencies,
+    data=data,
+  )
+
+  return record
+
+
+def missing_metadata_message(
+  id: str,
+  url: str,
+  date: str,
+  scope: Scope,
+  period: FiscalPeriod,
+  fiscal_end: str,
+):
+  # Mapping of field names to their human-readable labels
+  fields = {
+    "id": "Company ID",
+    "url": "URL",
+    "date": "Date",
+    "scope": "Scope",
+    "period": "Period",
+    "fiscal_end": "Fiscal end",
+  }
+
+  # Find missing fields
+  missing_fields = [label for field, label in fields.items() if not locals().get(field)]
+
+  if missing_fields:
+    message = "The following metadata are missing:\n" + "\n".join(
+      f"- {field}" for field in missing_fields
+    )
+    return message
+  return None
 
 
 @callback(
@@ -1590,11 +1673,11 @@ def label_training_data(
     message = "Invalid date format in table headers"
     return message, True
 
-  data: dict[str, list[Item]] = {}
+  data: dict[str, list[FinRecord]] = {}
 
   for _, r in df.iterrows():
     data[r["item"]] = [
-      Item(
+      FinRecord(
         value=r[d] * float(r["factor"]),
         unit=r["unit"],
         period=parse_period(scope, period, d, r),
@@ -1741,7 +1824,7 @@ def record_items(n_clicks: int, rows: list[dict]):
   State(InputAIO.aio_id("scrap:fiscal-end"), "value"),
   prevent_initial_call=True,
 )
-def export(
+def export_json(
   n: int,
   rows: list[dict],
   id: str,
@@ -1753,36 +1836,6 @@ def export(
 ):
   if not (n and rows):
     return no_update
-
-  def missing_metadata_message(
-    id: str,
-    url: str,
-    date: str,
-    scope: Scope,
-    period: FiscalPeriod,
-    fiscal_end: str,
-  ):
-    # Mapping of field names to their human-readable labels
-    fields = {
-      "id": "Company ID",
-      "url": "URL",
-      "date": "Date",
-      "scope": "Scope",
-      "period": "Period",
-      "fiscal_end": "Fiscal end",
-    }
-
-    # Find missing fields
-    missing_fields = [
-      label for field, label in fields.items() if not locals().get(field)
-    ]
-
-    if missing_fields:
-      message = "The following metadata are missing:\n" + "\n".join(
-        f"- {field}" for field in missing_fields
-      )
-      return message
-    return None
 
   message = missing_metadata_message(id, url, date, scope, period, fiscal_end)
   if message is not None:
@@ -1796,33 +1849,15 @@ def export(
   if dates is None:
     return no_update
 
-  data: dict[str, list[Item]] = {}
-  currencies = set()
-
-  for _, r in df.iterrows():
-    if r["unit"] != "shares":
-      currencies.add(r["unit"])
-
-    data[r["item"]] = [
-      Item(
-        value=r[d] * float(r["factor"]),
-        unit=r["unit"],
-        period=parse_period(scope, period, d, r),
-      )
-      for d in dates
-      if pd.notna(r[d])
-    ]
-
-  record = FinStatement(
-    url=url,
-    date=dt.strptime(date, "%Y-%m-%d").date(),
-    scope=scope,
-    fiscal_period=period,
-    fiscal_end=fiscal_end,
-    currency=currencies,
-    data=data,
+  record = df_to_statement(
+    df,
+    url,
+    date,
+    scope,
+    period,
+    fiscal_end,
+    dates,
   )
-
   # upsert_statements("statements.db", id, records)
 
   return (
@@ -1830,6 +1865,113 @@ def export(
       "content": record.model_dump_json(exclude_unset=True, indent=2),
       "filename": f"{id}_{date}_{period}.json",
     },
-    "",
+    None,
     False,
   )
+
+
+@callback(
+  Output("notification:scrap", "message", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
+  Input("button:scrap:upsert", "n_clicks"),
+  State("table:scrap", "rowData"),
+  State(CompanySelectAIO.aio_id("scrap:company-id"), "value"),
+  State(InputButtonAIO.input_id("scrap:url"), "value"),
+  State(InputAIO.aio_id("scrap:date"), "value"),
+  State("dropdown:scrap:scope", "value"),
+  State("dropdown:scrap:period", "value"),
+  State(InputAIO.aio_id("scrap:fiscal-end"), "value"),
+  prevent_initial_call=True,
+  background=True,
+)
+def upsert(
+  n: int,
+  rows: list[dict],
+  id: str,
+  url: str,
+  date: str,
+  scope: Scope,
+  period: FiscalPeriod,
+  fiscal_end: str,
+):
+  if not (n and rows):
+    return no_update
+
+  message = missing_metadata_message(id, url, date, scope, period, fiscal_end)
+  if message is not None:
+    return {}, message, True
+
+  df = pd.DataFrame.from_records(rows)
+  if "item" not in set(df.columns):
+    return no_update
+
+  df, dates = prepare_scrap_df(df)
+  if dates is None:
+    return no_update
+
+  record = df_to_statement(
+    df,
+    url,
+    date,
+    scope,
+    period,
+    fiscal_end,
+    dates,
+  )
+  upsert_statements("statements.db", id, [record])
+
+  return (
+    None,
+    False,
+  )
+
+
+@callback(
+  Output("notification:scrap", "message", allow_duplicate=True),
+  Output("notification:scrap", "displayed", allow_duplicate=True),
+  Input("upload:scrap:json", "contents"),
+  State("upload:scrap:json", "filename"),
+  State(CompanySelectAIO.aio_id("scrap:company-id"), "value"),
+  prevent_initial_call=True,
+  background=True,
+)
+def upload_json(contents: str, filename: str, id: str):
+  if not contents:
+    return no_update
+
+  if not filename.endswith(".json"):
+    message = f"Only JSON files supported. Invalid file type: {filename}"
+
+    return (
+      message,
+      True,
+    )
+
+  _, content_string = contents.split(",")
+  decoded = base64.b64decode(content_string)
+
+  data = json.loads(decoded.decode("utf-8"))
+  required_keys = {"url", "date", "scope", "fiscal_period", "fiscal_end", "currency"}
+  if set(data.keys()) != required_keys:
+    message = (
+      f"Invalid JSON structure. Expected keys: {required_keys}, got: {set(data.keys())}"
+    )
+    return message, True
+
+  try:
+    record = FinStatement(
+      url=data["url"],
+      date=data["date"],
+      scope=data["scope"],
+      fiscal_period=data["fiscal_period"],
+      fiscal_end=data["fiscal_end"],
+      currency=set(data["currency"]),
+      data=data["data"],
+    )
+  except ValidationError as e:
+    message = f"Invalid JSON structure: {e.errors()}"
+    return message, True
+
+  upsert_statements("statements.db", id, [record])
+
+  return None, False

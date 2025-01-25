@@ -3,7 +3,7 @@ from dash import dcc, html
 label_style = (
   "relative justify-between items-center "
   "w-10 h-6 px-0.5 rounded-full bg-secondary/50 border-text/50 border "
-  "hover:shadow cursor-pointer text-sm before:content-['☀'] after:content-['🌙']"
+  "hover:shadow-sm cursor-pointer text-sm before:content-['☀'] after:content-['🌙']"
 )
 toggle_style = (
   "absolute grid place-items-center "

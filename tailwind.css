@@ -1,21 +1,27 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: system-ui, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+  
+  --color-primary: rgb(var(--theme-primary));
+  --color-secondary: rgb(var(--theme-color-secondary));
+  --color-text: rgb(var(--theme-color-text));
+}
 
 @layer base {
   
   :root {
     /* Light theme (default) */
-    --color-primary: 250 250 249;
-    --color-secondary: 67 56 202;
-    --color-text: 24 24 27;
+    --theme-color-primary: 250 250 249;
+    --theme-color-secondary: 67 56 202;
+    --theme-color-text: 24 24 27;
     
-    /* Fonts */
-    --font-sans: system-ui, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
   }
   /* Dark theme */
   [data-theme='dark'] {
-    --color-primary: 28 25 23;
-    --color-secondary: 67 56 202;
-    --color-text: 241 245 249;
+    --theme-color-primary: 28 25 23;
+    --theme-color-secondary: 67 56 202;
+    --theme-color-text: 241 245 249;
   }
 
   *, *::before, *::after {

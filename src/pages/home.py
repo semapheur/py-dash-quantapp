@@ -33,9 +33,9 @@ main_style = "h-full grid grid-rows-2 grid-cols-2 gap-2 p-2 bg-primary"
 layout = html.Main(
   className=main_style,
   children=[
-    MacroChoropleth(className="h-full rounded shadow bg-primary"),
+    MacroChoropleth(className="h-full rounded-sm shadow-sm bg-primary"),
     html.Div(
-      className="h-full flex flex-col rounded shadow",
+      className="h-full flex flex-col rounded-sm shadow-sm",
       children=[
         html.Form(
           className="grid grid-cols-[2fr_1fr_auto] gap-2 px-2 pt-2",

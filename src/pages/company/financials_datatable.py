@@ -22,7 +22,7 @@ from lib.db.lite import read_sqlite
 
 # register_page(__name__, path_template="/company/<id>/financials", title=company_label)
 
-radio_wrap_style = "flex divide-x rounded-sm shadow"
+radio_wrap_style = "flex divide-x rounded-xs shadow-sm"
 radio_input_style = (
   "appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50"
 )

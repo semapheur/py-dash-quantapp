@@ -11,11 +11,11 @@ from components.input import InputAIO
 link_style = "block text-text hover:text-secondary"
 nav_style = (
   "hidden peer-focus-within:flex hover:flex flex-col gap-1 "
-  "absolute top-full left-1 p-1 bg-primary/50 backdrop-blur-sm shadow z-[1]"
+  "absolute top-full left-1 p-1 bg-primary/50 backdrop-blur-xs shadow-sm z-1"
 )
 input_style = (
   "peer h-full w-full p-1 bg-primary text-text "
-  "rounded border border-text/10 hover:border-text/50 focus:border-secondary "
+  "rounded-sm border border-text/10 hover:border-text/50 focus:border-secondary "
   "placeholder-transparent"
 )
 label_style = (

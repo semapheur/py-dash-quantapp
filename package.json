@@ -1,9 +1,10 @@
 {
 	"scripts": {
-		"tw-watch": "pnpm @tailwindcss/cli -i ./tailwind.css -o ./src/assets/styles.css --watch",
-		"tw-build": "pnpm @tailwindcss/cli -i ./tailwind.css -o ./src/assets/styles.css --minify"
+		"tw-watch": "pnpm tailwindcss -i ./tailwind.css -o ./src/assets/styles.css --watch",
+		"tw-build": "pnpm tailwindcss -i ./tailwind.css -o ./src/assets/styles.css --minify"
 	},
 	"devDependencies": {
-		"tailwindcss": "^3.4.10"
+		"tailwindcss": "^4.0.0",
+		"@tailwindcss/cli": "^4.0.0"
 	}
 }

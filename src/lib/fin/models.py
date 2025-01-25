@@ -64,12 +64,12 @@ class Member(Value):
   dim: str
 
 
-class Item(Value, total=False):
+class FinRecord(Value, total=False):
   period: Instant | Interval
   members: dict[str, Member] | None
 
 
-def item_dict(v: Item):
+def item_dict(v: FinRecord):
   obj = {"value": v["value"], "unit": v["unit"], "period": v["period"].model_dump()}
 
   if (members := v.get("members")) is not None:
@@ -78,7 +78,7 @@ def item_dict(v: Item):
   return obj
 
 
-type FinData = dict[str, list[Item]]
+type FinData = dict[str, list[FinRecord]]
 
 
 class FinStatement(BaseModel):

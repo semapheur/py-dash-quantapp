@@ -21,7 +21,7 @@ from lib.fin.models import (
   FinStatement,
   Instant,
   Interval,
-  Item,
+  FinRecord,
   Member,
   Scope,
   FinData,
@@ -133,7 +133,7 @@ async def parse_statement(url: str) -> FinStatement:
     fixed: FinData = {}
 
     for k in sorted(data.keys()):
-      temp: list[Item] = []
+      temp: list[FinRecord] = []
 
       for item in data[k]:
         if "value" in item or (members := item.get("members")) is None:
@@ -143,7 +143,7 @@ async def parse_statement(url: str) -> FinStatement:
         if len(members) == 1:
           member = next(iter(members.values()))
           temp.append(
-            Item(
+            FinRecord(
               period=item["period"],
               value=cast(float | int, member.get("value")),
               unit=cast(str, member.get("unit")),
@@ -160,7 +160,9 @@ async def parse_statement(url: str) -> FinStatement:
 
         if len(units) == 1:
           temp.append(
-            Item(period=item["period"], value=value, unit=units.pop(), members=members)
+            FinRecord(
+              period=item["period"], value=value, unit=units.pop(), members=members
+            )
           )
 
       fixed[k] = temp
@@ -300,7 +302,7 @@ async def parse_statement(url: str) -> FinStatement:
     if item.text is None:
       continue
 
-    scrap = Item()
+    scrap = FinRecord()
 
     ctx = item.attrib["contextRef"]
     period_el = cast(

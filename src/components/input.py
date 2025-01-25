@@ -2,7 +2,7 @@ from dash import dcc, html
 
 input_style = (
   "peer h-full w-full p-1 bg-primary text-text "
-  "rounded border border-text/10 hover:border-text/50 focus:border-secondary "
+  "rounded-sm border border-text/10 hover:border-text/50 focus:border-secondary "
   "placeholder-transparent"
 )
 label_style = (
