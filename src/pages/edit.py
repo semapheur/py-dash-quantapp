@@ -82,7 +82,9 @@ def update_items(value: str, company: str):
   for item in df["key"]:
     buttons.append(
       html.Button(
-        item, id={"type": f"dropdown:edit:{item}", "index": item}, className="text-left"
+        item,
+        id={"type": f"dropdown:edit:{item}", "index": item},
+        className="text-left text-xs",
       )
     )
 
