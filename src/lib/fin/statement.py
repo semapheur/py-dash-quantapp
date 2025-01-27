@@ -416,6 +416,40 @@ def load_raw_statements_json(id: str, date: Optional[Date] = None):
   return [s.to_dict() for s in statements]
 
 
+def update_statements(
+  db_name: str,
+  table: str,
+  statements: list[FinStatement],
+):
+  db_path = sqlite_path(db_name)
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+
+    cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
+      url TEXT,
+      scope TEXT,
+      date DATE,
+      fiscal_period TEXT,
+      fiscal_end TEXT,
+      currency TEXT,
+      data TEXT,
+      UNIQUE (date, fiscal_period)
+    )""")
+
+    query = f"""
+      UPDATE "{table}" SET
+        url = :url,
+        scope = :scope,
+        fiscal_end = :fiscal_end,
+        currency = :currency,
+        data = :data
+      WHERE date = :date AND fiscal_period = :fiscal_period
+    """
+    cur.executemany(query, [s.model_dump_json() for s in statements])
+    con.commit()
+
+
 def upsert_statements(
   db_name: str,
   table: str,

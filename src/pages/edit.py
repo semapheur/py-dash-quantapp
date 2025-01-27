@@ -20,7 +20,7 @@ from components.modal import OpenCloseModalAIO
 
 from lib.db.lite import read_sqlite
 from lib.fin.models import FinStatement
-from lib.fin.statement import df_to_statements, upsert_statements
+from lib.fin.statement import df_to_statements, update_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
 from lib.ticker.fetch import stored_companies
@@ -463,7 +463,7 @@ def upload_json(contents: str, filename: str, company: str):
     message = f"Invalid JSON structure: {e.errors()}"
     return message, True
 
-  upsert_statements("statements.db", id, [record])
+  update_statements("statements.db", id, [record])
 
   return None, False
 
@@ -471,14 +471,18 @@ def upload_json(contents: str, filename: str, company: str):
 @callback(
   Output("table:edit:items", "rowData"),
   Input(OpenCloseModalAIO.open_id("edit:record-items"), "n_clicks"),
-  State("radio:edit:items", "options"),
+  State("dropdown:edit:company", "options"),
   prevent_initial_call=True,
 )
-def item_modal(n: int, items: list[str]):
-  if not (n and items):
+def item_modal(n: int, company: list[str]):
+  if not (n and company):
     return no_update
 
-  df = pd.DataFrame({"item": items})
+  query = f"""
+    SELECT DISTINCT key
+    FROM '{company}', json_each(data)
+  """
+  df = read_sqlite("statements.db", query)
 
   empty_columns = pd.DataFrame(
     "",
@@ -494,7 +498,7 @@ def item_modal(n: int, items: list[str]):
     ],
   )
 
-  row_data = pd.concat([df[["item"]], empty_columns], axis=1)
+  row_data = pd.concat([df[["key"]], empty_columns], axis=1)
 
   return row_data.to_dict("records")
 
