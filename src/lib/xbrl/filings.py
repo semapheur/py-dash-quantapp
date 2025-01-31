@@ -8,17 +8,61 @@ from lib.utils import month_difference
 
 
 def get_filings(country: str, page_size: int = 10000):
-  url = (
-    "https://filings.xbrl.org/api/filings?include=entity,language"
-    f'&filter=[{{"name"%3A"country"%2C"op"%3A"eq"%2C"val"%3A"{country}"}}]'
-    f"&sort=-date_added&page[size]={page_size}&page[number]=1&_=1738274381858"
-  )
+  def fetch(country: str, page_size: int, page: int) -> dict:
+    url = (
+      "https://filings.xbrl.org/api/filings?include=entity"
+      f'&filter=[{{"name":"country","op":"eq","val":"{country}"}}]'
+      f"&sort=-date_added&page[size]={page_size}&page[number]={page}"
+    )
 
-  with httpx.Client() as client:
-    rs = client.get(url, headers=HEADERS)
-    parse = rs.json()
+    with httpx.Client(timeout=20.0) as client:
+      rs = client.get(url, headers=HEADERS)
+      return rs.json()
 
-  return parse
+  def parse_filings(filings_by_company: dict, parse: dict):
+    id_map: dict[str, str] = {}
+
+    for entity in parse["included"]:
+      if entity["type"] != "entity":
+        continue
+
+      id = entity["attributes"]["identifier"]
+      name = entity["attributes"]["name"]
+
+      id_map[id] = name
+
+    for filing in parse["data"]:
+      if filing["type"] != "filing":
+        continue
+
+      filing_id: str = filing["attributes"]["fxo_id"]
+      company_id = filing_id.split("-")[0]
+      company_name = id_map.get(company_id, company_id)
+
+      company_filings = filings_by_company.setdefault(company_name, {})
+
+      if filing_id in company_filings:
+        continue
+
+      company_filings[filing_id] = {
+        "json_url": filing["attributes"].get("json_url"),
+        "date": filing["attributes"].get("period_end"),
+      }
+
+  parse = fetch(country, page_size, 1)
+  count = parse["meta"]["count"]
+
+  filings_by_company: dict[str, dict] = {}
+  parse_filings(filings_by_company, parse)
+  if page_size >= count:
+    return filings_by_company
+
+  pages = count // page_size + 1
+  for page in range(2, pages + 1):
+    parse = fetch(country, page_size, page)
+    parse_filings(filings_by_company, parse)
+
+  return filings_by_company
 
 
 def get_statement(filing_slug: str):
@@ -42,9 +86,10 @@ def get_statement(filing_slug: str):
     parse = rs.json()
 
   data: FinData = {}
+  currencies: set[str] = set()
 
   for entry in parse["facts"].values():
-    unit = entry["dimensions"].get("unit")
+    unit: str | None = entry["dimensions"].get("unit")
     if unit is None:
       continue
 
@@ -54,8 +99,11 @@ def get_statement(filing_slug: str):
 
     scrap["value"] = float(entry["value"])
     scrap["period"] = parse_period(entry["dimensions"]["period"])
-    scrap["unit"] = unit.split(":")[-1]
+    unit = unit.split("/")[0].split(":")[-1]
+    scrap["unit"] = unit
+    if len(unit) == 3:
+      currencies.add(unit)
 
     data.setdefault(item_name, []).append(scrap)
 
-  return data
+  return data, currencies
