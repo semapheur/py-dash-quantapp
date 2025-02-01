@@ -20,7 +20,7 @@ from components.modal import OpenCloseModalAIO
 
 from lib.db.lite import read_sqlite
 from lib.fin.models import FinStatement
-from lib.fin.statement import df_to_statements, update_statements
+from lib.fin.statement import load_raw_statement, store_updated_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
 from lib.ticker.fetch import stored_companies
@@ -405,12 +405,7 @@ def export_json(
 
   date, period = date_period.split("_")
 
-  query = f"""
-    SELECT * FROM '{company}' 
-    WHERE date = :date AND fiscal_period = :period
-  """
-  df = read_sqlite("statements.db", query, {"date": date, "period": period})
-  statement = df_to_statements(df)[0]
+  statement = load_raw_statement(company, date, period)
 
   return {
     "content": statement.model_dump_json(exclude_unset=True, indent=2),
@@ -463,7 +458,7 @@ def upload_json(contents: str, filename: str, company: str):
     message = f"Invalid JSON structure: {e.errors()}"
     return message, True
 
-  update_statements("statements.db", id, [record])
+  store_updated_statements("statements.db", id, [record])
 
   return None, False
 

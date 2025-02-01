@@ -449,3 +449,20 @@ def drop_fts_table(db_name: str, table: str):
       cur.execute(f"DROP TABLE IF EXISTS '{aux_table}'")
 
     con.commit()
+
+
+def add_column(db_name: str, table: str, column: str, dtype: str):
+  db_path = sqlite_path(db_name)
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+
+    cur.execute(f"PRAGMA table_info({table})")
+    columns = cur.fetchall()
+
+    if column in [c[1] for c in columns]:
+      return
+
+    cur.execute(f"ALTER TABLE {table} ADD COLUMN {column} {dtype}")
+
+    con.commit()

@@ -1,71 +1,76 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, date as Date
+from dateutil.relativedelta import relativedelta
+from functools import partial
+from typing import TypedDict
 
+import aiometer
 import httpx
+import pandas as pd
 
 from lib.const import HEADERS
-from lib.fin.models import FinData, FinRecord, Instant, Interval
+from lib.fin.models import FinData, FinRecord, FinStatement, Instant, Interval
+from lib.fin.statement import df_to_statements, load_statements, upsert_statements
 from lib.utils import month_difference
 
 
-def get_filings(country: str, page_size: int = 10000):
-  def fetch(country: str, page_size: int, page: int) -> dict:
-    url = (
-      "https://filings.xbrl.org/api/filings?include=entity"
-      f'&filter=[{{"name":"country","op":"eq","val":"{country}"}}]'
-      f"&sort=-date_added&page[size]={page_size}&page[number]={page}"
-    )
+class FilingInfo(TypedDict):
+  json_url: str
+  date: str
 
-    with httpx.Client(timeout=20.0) as client:
-      rs = client.get(url, headers=HEADERS)
+
+def lei_filings(lei: str, page_size: int = 100, timeout: float = 1.0):
+  def fetch(lei: str, page_size: int, page: int, timeout: float = 1.0) -> dict:
+    url = "https://filings.xbrl.org/api/filings"
+    params = {
+      "include": "entity",
+      "filter": f'[{{"name":"entity.identifier","op":"eq","val":{lei}}}]',
+      "sort": "-date_added",
+      "page[size]": str(page_size),
+      "page[number]": str(page),
+    }
+
+    with httpx.Client(timeout=timeout) as client:
+      rs = client.get(url, headers=HEADERS, params=params)
       return rs.json()
 
-  def parse_filings(filings_by_company: dict, parse: dict):
-    id_map: dict[str, str] = {}
-
-    for entity in parse["included"]:
-      if entity["type"] != "entity":
-        continue
-
-      id = entity["attributes"]["identifier"]
-      name = entity["attributes"]["name"]
-
-      id_map[id] = name
-
+  def parse_filings(parse: dict):
+    result: list[FilingInfo] = []
     for filing in parse["data"]:
       if filing["type"] != "filing":
         continue
 
       filing_id: str = filing["attributes"]["fxo_id"]
-      company_id = filing_id.split("-")[0]
-      company_name = id_map.get(company_id, company_id)
-
-      company_filings = filings_by_company.setdefault(company_name, {})
-
-      if filing_id in company_filings:
+      if filing_id in filing_ids:
         continue
 
-      company_filings[filing_id] = {
-        "json_url": filing["attributes"].get("json_url"),
-        "date": filing["attributes"].get("period_end"),
-      }
+      filing_ids.add(filing_id)
 
-  parse = fetch(country, page_size, 1)
+      result.append(
+        FilingInfo(
+          json_url=filing["attributes"].get("json_url"),
+          date=filing["attributes"].get("period_end"),
+        )
+      )
+
+    return result
+
+  parse = fetch(lei, page_size, 1, timeout)
   count = parse["meta"]["count"]
 
-  filings_by_company: dict[str, dict] = {}
-  parse_filings(filings_by_company, parse)
+  filing_ids: set[str] = set()
+  filing_infos = parse_filings(parse)
   if page_size >= count:
-    return filings_by_company
+    return filing_infos
 
   pages = count // page_size + 1
   for page in range(2, pages + 1):
-    parse = fetch(country, page_size, page)
-    parse_filings(filings_by_company, parse)
+    parse = fetch(lei, page_size, page, timeout)
+    filing_infos.extend(parse_filings(parse))
 
-  return filings_by_company
+  return filing_infos
 
 
-def get_statement(filing_slug: str):
+async def parse_statement(filing_slug: str, date: str) -> FinStatement:
   def parse_period(period_text: str) -> Instant | Interval:
     dates = period_text.split("/")
 
@@ -81,8 +86,8 @@ def get_statement(filing_slug: str):
 
   url = f"https://filings.xbrl.org/{filing_slug}"
 
-  with httpx.Client() as client:
-    rs = client.get(url, headers=HEADERS)
+  async with httpx.AsyncClient() as client:
+    rs = await client.get(url, headers=HEADERS)
     parse = rs.json()
 
   data: FinData = {}
@@ -106,4 +111,62 @@ def get_statement(filing_slug: str):
 
     data.setdefault(item_name, []).append(scrap)
 
-  return data, currencies
+  statement = FinStatement(
+    url=[url],
+    scope="annual",
+    date=dt.strptime(date, "%Y-%m-%d").date(),
+    fiscal_period="FY",
+    fiscal_end=date[5:],
+    currency=currencies,
+    data=data,
+  )
+  return statement
+
+
+async def parse_statements(filings: list[FilingInfo]) -> list[FinStatement]:
+  tasks = [partial(parse_statement, f["json_url"], f["date"]) for f in filings]
+  financials = await aiometer.run_all(tasks, max_per_second=5)
+
+  return financials
+
+
+async def scrap_statements(lei: str, id: str) -> list[FinStatement]:
+  filings = lei_filings(lei)
+
+  financials = await parse_statements(filings)
+  upsert_statements("statements.db", id, financials)
+  return financials
+
+
+async def update_statements(
+  lei: str, id: str, delta=120, date: Date | None = None
+) -> list[FinStatement]:
+  df = await load_statements(id, date)
+
+  if df is None:
+    return await scrap_statements(lei, id)
+
+  last_date = df["date"].max()
+
+  if relativedelta(dt.now(), last_date).days < delta:
+    return df_to_statements(df)
+
+  new_filings = lei_filings(lei)
+  new_filings = pd.DataFrame.from_records(new_filings)
+  new_filings["date"] = pd.to_datetime(new_filings["date"])
+  new_filings = new_filings[new_filings["date"] > last_date]
+
+  if not new_filings:
+    return df_to_statements(df)
+
+  old_filings = set(df["id"])
+  filings_diff = set(new_filings.index).difference(old_filings)
+
+  if not filings_diff:
+    return df_to_statements(df)
+
+  new_fin = await parse_statements(new_filings.tolist())
+  if new_fin:
+    upsert_statements("statements.db", id, new_fin)
+
+  return [*new_fin, *df_to_statements(df)]

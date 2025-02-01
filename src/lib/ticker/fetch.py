@@ -1,10 +1,12 @@
+from contextlib import closing
 import logging
-from typing import cast
+import sqlite3
+from typing import TypedDict, cast
 
 from pandera import DataFrameModel
 from pandera.typing import DataFrame
 
-from lib.db.lite import fetch_sqlite, read_sqlite
+from lib.db.lite import fetch_sqlite, read_sqlite, sqlite_path
 
 logger = logging.getLogger(__name__)
 
@@ -164,3 +166,24 @@ def get_currency(id: str) -> str | None:
     return None
 
   return currency[0][0]
+
+
+class CompanyLei(TypedDict):
+  company_id: str
+  lei: str
+
+
+def update_company_lei(company_lei: list[CompanyLei]):
+  db_path = sqlite_path("ticker.db")
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cursor = con.cursor()
+
+    update_query = """
+      UPDATE company
+      SET LEI = :lei
+      WHERE company_id = :company_id AND LEI IS NULL
+    """
+
+    cursor.executemany(update_query, company_lei)
+    con.commit()

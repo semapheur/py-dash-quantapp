@@ -1,17 +1,21 @@
 from contextlib import closing
 import json
+from functools import partial
 import logging
 import sqlite3
 import time
 from typing import cast
 
+import aiometer
+import pandas as pd
 from pandera.typing import DataFrame
 from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_strings, get_tables
 from lib.edgar.parse import update_statements
 from lib.fin.fundamentals import update_fundamentals
-from lib.ticker.fetch import get_primary_securities
+from lib.ticker.fetch import get_primary_securities, update_company_lei
+from lib.gleif.fetch import lei_by_isin
 from lib.log.setup import setup_logging
 
 
@@ -57,6 +61,33 @@ def select_menu(options) -> list[int]:
         print("Invalid choice(s). Please try again.")
     except ValueError:
       print("Please enter valid numbers separated by commas.")
+
+
+async def seed_xbrl_financials(exchange: str) -> None:
+  query = """
+    SELECT DISTINCT
+      stock.company_id AS company_id,
+      stock.isin AS isin,
+      company.lei AS lei
+    FROM stock
+    INNER JOIN company ON company.company_id = stock.company_id
+    WHERE stock.mic = :exchange
+  """
+
+  df = read_sqlite("ticker.db", query, {"exchange": exchange})
+
+  missing_leis = df.loc[pd.isnull(df["lei"])]
+  if not missing_leis.empty:
+    tasks = [partial(lei_by_isin, isin) for isin in missing_leis["isin"]]
+    leis = await aiometer.run_all(tasks, max_per_second=5)
+    missing_leis["lei"] = leis
+    missing_leis = missing_leis.loc[pd.notnull(missing_leis["lei"])]
+
+    update_company_lei(missing_leis[["company_id", "lei"]].to_dict(orient="records"))
+    df.update(missing_leis)
+
+  for company_id, lei in zip(df["company_id"], df["lei"]):
+    pass
 
 
 async def seed_edgar_financials(exchange: str) -> None:

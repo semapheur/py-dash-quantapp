@@ -117,6 +117,7 @@ async def seed_stock_tickers():
     get_primary_tickers
   )
   companies["currency"] = tickers.groupby("company_id").apply(get_primary_currency)
+  companies["lei"] = None
 
   tickers = tickers[
     tickers.columns.difference(["primary", "country", "domicile", "sector", "industry"])

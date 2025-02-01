@@ -391,6 +391,29 @@ def stock_splits(id: str) -> Series[float]:
   return cast(Series[float], df["stock_split_ratio"])
 
 
+def load_raw_statement(id: str, date: str, period: str):
+  db_path = sqlite_path("statements.db")
+
+  query = f"""
+    SELECT * FROM '{id}' 
+    WHERE date = :date AND fiscal_period = :period
+  """
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+    cur.execute(query, {"date": date, "period": period})
+    row = cur.fetchone()
+
+  return FinStatement(
+    url=row[0],
+    scope=row[1],
+    date=row[2],
+    fiscal_period=row[3],
+    fiscal_end=row[4],
+    currency=row[5],
+    data=row[6],
+  )
+
+
 def load_raw_statements(
   id: str, date: Optional[Date] = None
 ) -> DataFrame[FinStatementFrame] | None:
@@ -399,24 +422,14 @@ def load_raw_statements(
     query += f" WHERE DATE(date) >= DATE('{date:%Y-%m-%d}')"
 
   df = read_sqlite(
-    "statements_.db",
+    "statements.db",
     query,
     date_parser={"date": {"format": "%Y-%m-%d"}},
   )
   return df
 
 
-def load_raw_statements_json(id: str, date: Optional[Date] = None):
-  df = load_raw_statements(id, date)
-  if df is None:
-    return None
-
-  statements = df_to_statements(df)
-
-  return [s.to_dict() for s in statements]
-
-
-def update_statements(
+def store_updated_statements(
   db_name: str,
   table: str,
   statements: list[FinStatement],
