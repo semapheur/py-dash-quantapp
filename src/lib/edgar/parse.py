@@ -46,7 +46,7 @@ from lib.utils import (
 Docs: TypeAlias = Literal["cal", "def", "htm", "lab", "pre"]
 
 
-async def scrap_statements(cik: int, id: str):
+async def scrap_edgar_statements(cik: int, id: str):
   from lib.edgar.company import Company
 
   company = Company(cik)
@@ -56,23 +56,23 @@ async def scrap_statements(cik: int, id: str):
   upsert_statements("statements.db", id, financials)
 
 
-async def scrap_new_statements(cik: int, id: str, delta=120):
+async def update_edgar_statements(cik: int, id: str, delta=120):
   from lib.edgar.company import Company
 
-  old_filings = statement_urls("statements.db", id)
+  url_pattern = "https://www.sec.gov/Archives/edgar/data/%"
+  old_filings = statement_urls("statements.db", id, url_pattern)
 
   if old_filings is None:
-    await scrap_statements(cik, id)
+    await scrap_edgar_statements(cik, id)
     return
 
-  mask = old_filings["url"].str.startswith("https://www.sec.gov/Archives/edgar/data/")
-  last_date = old_filings.loc[mask, "date"].max()
+  last_date = old_filings["date"].max()
 
   if relativedelta(dt.now(), last_date).days < delta:
     return
 
   company = Company(cik)
-  new_filings = await company.xbrl_urls(last_date)
+  new_filings = await company.xbrl_urls()
 
   if not new_filings:
     return
@@ -84,6 +84,8 @@ async def scrap_new_statements(cik: int, id: str, delta=120):
   if not new_urls:
     return
 
+  mask = new_filings["url"].isin(new_urls)
+  new_filings = new_filings.loc[mask]
   new_statements = await parse_statements(new_filings.tolist())
   if new_statements:
     upsert_statements("statements.db", id, new_statements)

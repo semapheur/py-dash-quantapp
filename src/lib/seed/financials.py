@@ -12,11 +12,12 @@ from pandera.typing import DataFrame
 from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_strings, get_tables
-from lib.edgar.parse import scrap_new_statements
+from lib.edgar.parse import update_edgar_statements
 from lib.fin.fundamentals import update_fundamentals
 from lib.ticker.fetch import get_primary_securities, update_company_lei
 from lib.gleif.fetch import lei_by_isin
 from lib.log.setup import setup_logging
+from lib.xbrl.filings import update_xbrl_statements
 
 
 setup_logging()
@@ -63,7 +64,7 @@ def select_menu(options) -> list[int]:
       print("Please enter valid numbers separated by commas.")
 
 
-async def seed_xbrl_financials(exchange: str) -> None:
+async def seed_xbrl_statements(exchange: str) -> None:
   query = """
     SELECT DISTINCT
       stock.company_id AS company_id,
@@ -86,11 +87,27 @@ async def seed_xbrl_financials(exchange: str) -> None:
     update_company_lei(missing_leis[["company_id", "lei"]].to_dict(orient="records"))
     df.update(missing_leis)
 
-  for company_id, lei in zip(df["company_id"], df["lei"]):
-    pass
+  faulty: list[str] = []
+  for id, lei in zip(df["company_id"], df["lei"]):
+    try:
+      await update_xbrl_statements(lei, id)
+      time.sleep(1)
+
+    except Exception as e:
+      print(e)
+      faulty.append(id)
+      print(f"{id} failed")
+
+  if not faulty:
+    return
+
+  with open("logs/seed_fail.json", "w+") as f:
+    content: dict = json.load(f)
+    content[f"{exchange}_statements_xbrl"] = faulty
+    json.dump(content, f)
 
 
-async def seed_edgar_financials(exchange: str) -> None:
+async def seed_edgar_statements(exchange: str) -> None:
   query = """SELECT DISTINCT stock.company_id AS company_id, edgar.cik AS cik FROM stock
     INNER JOIN edgar ON edgar.isin = stock.isin
     WHERE stock.mic = :exchange OR stock.company_id IN (
@@ -106,7 +123,7 @@ async def seed_edgar_financials(exchange: str) -> None:
   faulty: list[str] = []
   for id, cik in zip(df["company_id"], df["cik"]):
     try:
-      await scrap_new_statements(int(cik), id)
+      await update_edgar_statements(int(cik), id)
       time.sleep(1)
 
     except Exception as e:
@@ -119,7 +136,7 @@ async def seed_edgar_financials(exchange: str) -> None:
 
   with open("logs/seed_fail.json", "w+") as f:
     content: dict = json.load(f)
-    content[f"{exchange}_financials"] = faulty
+    content[f"{exchange}_statements_edgar"] = faulty
     json.dump(content, f)
 
 
@@ -180,5 +197,5 @@ async def seed_fundamentals(exchange: str):
 
   with open("logs/seed_fail.json", "r+") as f:
     content: dict = json.load(f)
-    content[f"{exchange}_financials"] = faulty
+    content[f"{exchange}_fundamentals"] = faulty
     json.dump(content, f)

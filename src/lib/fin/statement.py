@@ -509,11 +509,17 @@ def upsert_statements(
     con.commit()
 
 
-def statement_urls(db_name: str, id: str) -> DataFrame | None:
+def statement_urls(
+  db_name: str, id: str, url_pattern: str | None = None
+) -> DataFrame | None:
   query = f"""
     SELECT date, json_each.value AS url FROM '{id}' 
     JOIN json_each(url) ON 1=1
   """
+
+  if url_pattern:
+    query += f" WHERE json_each.value LIKE '{url_pattern}'"
+
   df = read_sqlite(
     db_name,
     query,

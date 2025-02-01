@@ -9,12 +9,17 @@ import pandas as pd
 
 from lib.const import HEADERS
 from lib.fin.models import FinData, FinRecord, FinStatement, Instant, Interval
-from lib.fin.statement import df_to_statements, load_statements, upsert_statements
+from lib.fin.statement import (
+  df_to_statements,
+  load_statements,
+  statement_urls,
+  upsert_statements,
+)
 from lib.utils import month_difference
 
 
 class FilingInfo(TypedDict):
-  json_url: str
+  slug: str
   date: str
 
 
@@ -47,7 +52,7 @@ def lei_filings(lei: str, page_size: int = 100, timeout: float = 1.0):
 
       result.append(
         FilingInfo(
-          json_url=filing["attributes"].get("json_url"),
+          slug=filing["attributes"].get("json_url"),
           date=filing["attributes"].get("period_end"),
         )
       )
@@ -123,50 +128,54 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
   return statement
 
 
-async def parse_statements(filings: list[FilingInfo]) -> list[FinStatement]:
-  tasks = [partial(parse_statement, f["json_url"], f["date"]) for f in filings]
+async def parse_xbrl_statements(filings: list[FilingInfo]) -> list[FinStatement]:
+  tasks = [partial(parse_statement, f["slug"], f["date"]) for f in filings]
   financials = await aiometer.run_all(tasks, max_per_second=5)
 
   return financials
 
 
-async def scrap_statements(lei: str, id: str) -> list[FinStatement]:
+async def scrap_xbrl_statements(lei: str, id: str):
   filings = lei_filings(lei)
 
-  financials = await parse_statements(filings)
+  financials = await parse_xbrl_statements(filings)
   upsert_statements("statements.db", id, financials)
-  return financials
 
 
-async def update_statements(
-  lei: str, id: str, delta=120, date: Date | None = None
-) -> list[FinStatement]:
-  df = await load_statements(id, date)
+async def update_xbrl_statements(lei: str, id: str, delta=120):
+  url_pattern = "https://filings.xbrl.org/%"
+  old_filings = statement_urls("statements.db", id, url_pattern)
 
-  if df is None:
-    return await scrap_statements(lei, id)
+  if old_filings is None:
+    await scrap_xbrl_statements(lei, id)
+    return
 
-  last_date = df["date"].max()
+  last_date = old_filings["date"].max()
 
   if relativedelta(dt.now(), last_date).days < delta:
-    return df_to_statements(df)
+    return
 
   new_filings = lei_filings(lei)
   new_filings = pd.DataFrame.from_records(new_filings)
-  new_filings["date"] = pd.to_datetime(new_filings["date"])
-  new_filings = new_filings[new_filings["date"] > last_date]
+  new_filings["date"] = pd.to_datetime(new_filings["date"], format="%Y-%m-%d")
+  new_filings = new_filings[new_filings["date"] >= last_date]
 
   if not new_filings:
-    return df_to_statements(df)
+    return
 
-  old_filings = set(df["id"])
-  filings_diff = set(new_filings.index).difference(old_filings)
+  new_filings["url"] = new_filings["slug"].apply(
+    lambda x: f"https://filings.xbrl.org/{x}"
+  )
+  new_urls = set(new_filings["url"])
+  old_urls = set(old_filings["url"])
 
-  if not filings_diff:
-    return df_to_statements(df)
+  new_urls = new_urls.difference(old_urls)
 
-  new_fin = await parse_statements(new_filings.tolist())
-  if new_fin:
-    upsert_statements("statements.db", id, new_fin)
+  if not new_urls:
+    return
 
-  return [*new_fin, *df_to_statements(df)]
+  mask = new_filings["url"].isin(new_urls)
+  new_filings = new_filings.loc[mask, ["slug", "date"]].to_dict("records")
+  new_statements = await parse_xbrl_statements(new_filings)
+  if new_statements:
+    upsert_statements("statements.db", id, new_statements)
