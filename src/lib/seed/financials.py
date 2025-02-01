@@ -12,7 +12,7 @@ from pandera.typing import DataFrame
 from tqdm import tqdm
 
 from lib.db.lite import read_sqlite, upsert_strings, get_tables
-from lib.edgar.parse import update_statements
+from lib.edgar.parse import scrap_new_statements
 from lib.fin.fundamentals import update_fundamentals
 from lib.ticker.fetch import get_primary_securities, update_company_lei
 from lib.gleif.fetch import lei_by_isin
@@ -106,7 +106,7 @@ async def seed_edgar_financials(exchange: str) -> None:
   faulty: list[str] = []
   for id, cik in zip(df["company_id"], df["cik"]):
     try:
-      _ = await update_statements(int(cik), id)
+      await scrap_new_statements(int(cik), id)
       time.sleep(1)
 
     except Exception as e:

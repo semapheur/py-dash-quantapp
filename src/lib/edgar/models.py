@@ -3,7 +3,6 @@ from typing_extensions import TypedDict
 
 from pydantic import BaseModel
 from pandera import DataFrameModel, Field
-from pandera.typing import Index
 
 
 class Recent(BaseModel):
@@ -60,7 +59,7 @@ class Addresses(BaseModel):
 
 class FormerName(BaseModel):
   name: str
-  from_: str = Field(alias='from')
+  from_: str = Field(alias="from")
   to: str
 
 

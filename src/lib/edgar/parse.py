@@ -1,10 +1,11 @@
 import asyncio
-from datetime import date as Date, datetime as dt
-import time
+from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
+import json
 import re
-from typing import cast, Literal, Optional, TypeAlias
+import time
+from typing import cast, Literal, TypeAlias
 import xml.etree.ElementTree as et
 
 import aiometer
@@ -26,7 +27,12 @@ from lib.fin.models import (
   Scope,
   FinData,
 )
-from lib.fin.statement import df_to_statements, load_statements, upsert_statements
+from lib.fin.statement import (
+  df_to_statements,
+  load_raw_statements,
+  statement_urls,
+  upsert_statements,
+)
 from lib.utils import (
   insert_characters,
   month_difference,
@@ -40,7 +46,7 @@ from lib.utils import (
 Docs: TypeAlias = Literal["cal", "def", "htm", "lab", "pre"]
 
 
-async def scrap_statements(cik: int, id: str) -> list[FinStatement]:
+async def scrap_statements(cik: int, id: str):
   from lib.edgar.company import Company
 
   company = Company(cik)
@@ -48,41 +54,39 @@ async def scrap_statements(cik: int, id: str) -> list[FinStatement]:
 
   financials = await parse_statements(filings.tolist())
   upsert_statements("statements.db", id, financials)
-  return financials
 
 
-async def update_statements(
-  cik: int, id: str, delta=120, date: Optional[Date] = None
-) -> list[FinStatement]:
+async def scrap_new_statements(cik: int, id: str, delta=120):
   from lib.edgar.company import Company
 
-  company = Company(cik)
-  df = load_statements(id, date)
+  old_filings = statement_urls("statements.db", id)
 
-  if df is None:
-    return await scrap_statements(cik, id)
+  if old_filings is None:
+    await scrap_statements(cik, id)
+    return
 
-  last_date = df["date"].max()
+  mask = old_filings["url"].str.startswith("https://www.sec.gov/Archives/edgar/data/")
+  last_date = old_filings.loc[mask, "date"].max()
 
   if relativedelta(dt.now(), last_date).days < delta:
-    return df_to_statements(df)
+    return
 
+  company = Company(cik)
   new_filings = await company.xbrl_urls(last_date)
 
   if not new_filings:
-    return df_to_statements(df)
+    return
 
-  old_filings = set(df["id"])
-  filings_diff = set(new_filings.index).difference(old_filings)
+  old_urls = set(old_filings["url"])
+  new_urls = set(new_filings)
+  new_urls = new_urls.difference(old_urls)
 
-  if not filings_diff:
-    return df_to_statements(df)
+  if not new_urls:
+    return
 
-  new_fin = await parse_statements(new_filings.tolist())
-  if new_fin:
-    upsert_statements("statements.db", id, new_fin)
-
-  return [*new_fin, *df_to_statements(df)]
+  new_statements = await parse_statements(new_filings.tolist())
+  if new_statements:
+    upsert_statements("statements.db", id, new_statements)
 
 
 async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Series[str]:

@@ -509,6 +509,19 @@ def upsert_statements(
     con.commit()
 
 
+def statement_urls(db_name: str, id: str) -> DataFrame | None:
+  query = f"""
+    SELECT date, json_each.value AS url FROM '{id}' 
+    JOIN json_each(url) ON 1=1
+  """
+  df = read_sqlite(
+    db_name,
+    query,
+    date_parser={"date": {"format": "%Y-%m-%d"}},
+  )
+  return df
+
+
 def select_statements(db_name: str, table: str) -> list[FinStatement]:
   db_path = sqlite_path(db_name)
 
