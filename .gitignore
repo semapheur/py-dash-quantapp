@@ -5,7 +5,7 @@
 src/logs
 
 # data
-src/data/*.db
+**/*.db
 **/*.csv
 
 # json assets
