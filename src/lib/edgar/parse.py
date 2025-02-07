@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime as dt
+from datetime import datetime as dt, date as Date
 from dateutil.relativedelta import relativedelta
 from functools import partial
 import json
@@ -28,8 +28,6 @@ from lib.fin.models import (
   FinData,
 )
 from lib.fin.statement import (
-  df_to_statements,
-  load_raw_statements,
   statement_urls,
   upsert_statements,
 )
@@ -42,8 +40,17 @@ from lib.utils import (
   replace_all,
 )
 
-
 Docs: TypeAlias = Literal["cal", "def", "htm", "lab", "pre"]
+
+
+def adjust_xbrl_end_date(start_date: Date, end_date: Date, months: int) -> Date:
+  delta = relativedelta(years=1) if months == 12 else relativedelta(months=months)
+  expected_xbrl_end = start_date + delta
+
+  if end_date != expected_xbrl_end:
+    return end_date + relativedelta(days=1)
+
+  return end_date
 
 
 async def scrap_edgar_statements(cik: int, id: str):
@@ -142,7 +149,8 @@ async def parse_statement(url: str) -> FinStatement:
       temp: list[FinRecord] = []
 
       for item in data[k]:
-        if "value" in item or (members := item.get("members")) is None:
+        members = item.get("members")
+        if "value" in item or members is None:
           temp.append(item)
           continue
 
@@ -192,6 +200,7 @@ async def parse_statement(url: str) -> FinStatement:
     )
     end_date = parse_date(cast(str, cast(et.Element, period.find("./{*}endDate")).text))
     months = month_difference(start_date, end_date)
+    end_date = adjust_xbrl_end_date(start_date, end_date, months)
     interval = Interval(start_date=start_date, end_date=end_date, months=months)
 
     return interval

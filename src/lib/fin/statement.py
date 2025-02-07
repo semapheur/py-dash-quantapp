@@ -391,7 +391,7 @@ def stock_splits(id: str) -> Series[float]:
   return cast(Series[float], df["stock_split_ratio"])
 
 
-def load_raw_statement(id: str, date: str, period: str):
+def load_raw_statement(id: str, date: str, period: FiscalPeriod):
   db_path = sqlite_path("statements.db")
 
   query = f"""

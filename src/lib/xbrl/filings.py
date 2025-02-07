@@ -110,11 +110,13 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
     scrap["value"] = float(entry["value"])
     scrap["period"] = parse_period(entry["dimensions"]["period"])
     unit = unit.split("/")[0].split(":")[-1]
-    scrap["unit"] = unit
+    scrap["unit"] = unit.lower()
     if len(unit) == 3:
       currencies.add(unit)
 
     data.setdefault(item_name, []).append(scrap)
+
+  data = dict(sorted(data.items()))
 
   statement = FinStatement(
     url=[url],
