@@ -8,7 +8,7 @@ import httpx
 import pandas as pd
 
 from lib.const import HEADERS
-from lib.fin.models import FinData, FinRecord, FinStatement, Instant, Interval
+from lib.fin.models import FinData, FinRecord, FinStatement, Instant, Duration
 from lib.fin.statement import (
   statement_urls,
   upsert_statements,
@@ -76,7 +76,7 @@ def lei_filings(
 
 
 async def parse_statement(filing_slug: str, date: str) -> FinStatement:
-  def parse_period(period_text: str) -> Instant | Interval:
+  def parse_period(period_text: str) -> Instant | Duration:
     dates = period_text.split("/")
 
     if len(dates) == 1:
@@ -88,7 +88,7 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
     months = month_difference(start_date, end_date)
     end_date = exclusive_end_date(start_date, end_date, months)
 
-    return Interval(start_date=start_date, end_date=end_date, months=months)
+    return Duration(start_date=start_date, end_date=end_date, months=months)
 
   url = f"https://filings.xbrl.org/{filing_slug}"
 

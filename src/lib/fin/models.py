@@ -1,4 +1,6 @@
+from collections import defaultdict
 from datetime import date as Date, datetime as dt
+from itertools import count
 import json
 import re
 from typing import cast, Literal
@@ -42,7 +44,7 @@ class Value(TypedDict, total=False):
   unit: str
 
 
-class Interval(BaseModel, frozen=True):
+class Duration(BaseModel, frozen=True):
   start_date: Date
   end_date: Date
   months: int
@@ -60,12 +62,38 @@ class Instant(BaseModel):
     return date.strftime("%Y-%m-%d")
 
 
+class FinPeriods:
+  def __init__(self) -> None:
+    self.periods: dict[str, Instant | Duration] = {}
+    self.reverse_lookup: dict[Instant | Duration, str] = {}
+    self.counters: defaultdict[str, count[int]] = defaultdict(lambda: count(0))
+
+  def add_period(self, period: Instant | Duration) -> str:
+    if isinstance(period, Instant):
+      period_type = "i"
+    elif isinstance(period, Duration):
+      period_type = "d"
+    else:
+      raise ValueError(f"Unknown period type: {period}")
+
+    if period in self.reverse_lookup:
+      return self.reverse_lookup[period]
+
+    key = f"{period_type}{next(self.counters[period_type])}"
+    self.periods[key] = period
+    self.reverse_lookup[period] = key
+    return key
+
+  def get_periods(self) -> dict[str, Instant | Duration]:
+    return dict(sorted(self.periods.items()))
+
+
 class Member(Value):
   dim: str
 
 
 class FinRecord(Value, total=False):
-  period: Instant | Interval
+  period: Instant | Duration
   members: dict[str, Member] | None
 
 
@@ -87,7 +115,7 @@ class FinStatement(BaseModel):
   date: Date
   fiscal_period: FiscalPeriod
   fiscal_end: str
-  # periods: set[Interval]
+  # periods: dict[str, Instant | Duration]
   currency: set[str]
   data: FinData
 
@@ -151,7 +179,7 @@ class FinStatement(BaseModel):
     return date.strftime("%Y-%m-%d")
 
   # @field_serializer('periods')
-  # def serialize_periods(self, periods: set[Interval]):
+  # def serialize_periods(self, periods: set[Duration]):
   #  return json.dumps([interval.model_dump() for interval in periods])
 
   @field_serializer("currency")

@@ -16,7 +16,7 @@ from lib.fin.models import (
   FinStatement,
   FinStatementFrame,
   Instant,
-  Interval,
+  Duration,
   StockSplit,
   FiscalPeriod,
   FinData,
@@ -84,11 +84,11 @@ async def statement_to_df(
   currency: Optional[str] = None,
   multiple=False,
 ) -> DataFrame:
-  def parse_date(period: Instant | Interval) -> Date:
-    return period.end_date if isinstance(period, Interval) else period.instant
+  def parse_date(period: Instant | Duration) -> Date:
+    return period.end_date if isinstance(period, Duration) else period.instant
 
   async def exchange_rate(
-    currency: str, unit: str, period: Instant | Interval
+    currency: str, unit: str, period: Instant | Duration
   ) -> float:
     ticker = f"{unit}{currency}".upper()
 
@@ -124,7 +124,7 @@ async def statement_to_df(
       ):
         continue
 
-      if isinstance(entry["period"], Interval):
+      if isinstance(entry["period"], Duration):
         months = entry["period"].months
       else:
         months = ScopeEnum[fin_scope].value
@@ -344,7 +344,7 @@ def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
 
     data.append(
       StockSplit(
-        date=cast(Interval, entry["period"]).start_date,
+        date=cast(Duration, entry["period"]).start_date,
         stock_split_ratio=value,
       )
     )

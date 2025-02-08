@@ -35,7 +35,7 @@ from lib.fin.models import (
   FinStatement,
   Item,
   Instant,
-  Interval,
+  Duration,
   Scope,
   FiscalPeriod,
 )
@@ -1053,7 +1053,7 @@ def export(
   period: FiscalPeriod,
   fiscal_end: str,
 ):
-  def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Interval:
+  def parse_period(scope: Scope, date_text: str, row: pd.Series) -> Instant | Duration:
     date = dt.strptime(date_text, "%Y-%m-%d").date()
 
     if row["period"] == "instant":
@@ -1069,7 +1069,7 @@ def export(
       start_date -= relativedelta(months=3)
       months = 3
 
-    return Interval(start_date=start_date, end_date=date, months=months)
+    return Duration(start_date=start_date, end_date=date, months=months)
 
   if not n:
     return no_update

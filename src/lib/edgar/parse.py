@@ -21,7 +21,8 @@ from lib.edgar.models import CikEntry, CikFrame
 from lib.fin.models import (
   FinStatement,
   Instant,
-  Interval,
+  Duration,
+  FinPeriods,
   FinRecord,
   Member,
   Scope,
@@ -174,16 +175,16 @@ async def parse_statement(url: str) -> FinStatement:
 
     return fixed
 
-  def parse_period(period: et.Element) -> Instant | Interval:
+  def parse_period(period: et.Element) -> Instant | Duration:
     def parse_date(date_text: str):
-      m = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
-      if m is None:
+      match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
+      if match is None:
         raise ValueError(f'"{date_text}" does not match format "%Y-%m-%d"')
 
-      return dt.strptime(m.group(), "%Y-%m-%d").date()
+      return dt.strptime(match.group(), "%Y-%m-%d").date()
 
     if (el := period.find("./{*}instant")) is not None:
-      instant_date = parse_date(cast(str, el.text))
+      instant_date = parse_date(cast(str, el.text)) + relativedelta(days=1)
       return Instant(instant=instant_date)
 
     start_date = parse_date(
@@ -192,7 +193,7 @@ async def parse_statement(url: str) -> FinStatement:
     end_date = parse_date(cast(str, cast(et.Element, period.find("./{*}endDate")).text))
     months = month_difference(start_date, end_date)
     end_date = exclusive_end_date(start_date, end_date, months)
-    interval = Interval(start_date=start_date, end_date=end_date, months=months)
+    interval = Duration(start_date=start_date, end_date=end_date, months=months)
 
     return interval
 
@@ -226,7 +227,7 @@ async def parse_statement(url: str) -> FinStatement:
       else:
         unit_ = unit.split("_")[-1].lower()
 
-    unit_ = replace_all(unit_, {"iso4217": "", "dollar": "d"})
+    unit_ = replace_all(unit_, {"iso4217": "", "dollar": "d", "euro": "eur"})
 
     pattern = r"^[a-z]{3}$"
     m = re.search(pattern, unit_, flags=re.I)
@@ -298,6 +299,9 @@ async def parse_statement(url: str) -> FinStatement:
 
   doc_id = url.split("/")[-2]
   currency: set[str] = set()
+
+  periods = FinPeriods()
+
   data: FinData = {}
 
   name_pattern = (
@@ -316,7 +320,10 @@ async def parse_statement(url: str) -> FinStatement:
       cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find("./{*}period"),
     )
 
-    scrap["period"] = parse_period(period_el)
+    period = parse_period(period_el)
+    period_key = periods.add_period(period)
+
+    scrap["period"] = period_key
 
     segment = cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find(
       ".//{*}segment/{*}explicitMember"
@@ -417,6 +424,9 @@ async def get_isin(cik: str | int) -> str:
   isin_text = dom.xpath(
     'normalize-space(//p[b[text()="ISIN"]]/text()[normalize-space()])'
   ).get()
+  if isin_text is None:
+    return ""
+
   isin_pattern = r"[A-Z]{2}[A-Z0-9]{9}[0-9]"
   isin_match = re.search(isin_pattern, isin_text)
 

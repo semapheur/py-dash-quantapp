@@ -40,7 +40,7 @@ from lib.fin.models import (
   FinStatement,
   FinRecord,
   Instant,
-  Interval,
+  Duration,
   Scope,
   FiscalPeriod,
 )
@@ -821,7 +821,7 @@ layout = html.Main(
 
 def parse_period(
   scope: Scope, period: FiscalPeriod, date_text: str, row: pd.Series
-) -> Instant | Interval:
+) -> Instant | Duration:
   date = dt.strptime(date_text, "%Y-%m-%d").date()
 
   if row["period"] == "instant":
@@ -837,7 +837,7 @@ def parse_period(
 
   start_date = date - delta
 
-  return Interval(start_date=start_date, end_date=date, months=months)
+  return Duration(start_date=start_date, end_date=date, months=months)
 
 
 def prepare_scrap_df(df: pd.DataFrame):

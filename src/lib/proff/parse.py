@@ -8,7 +8,7 @@ import pandas as pd
 from parsel import Selector
 
 from lib.const import HEADERS
-from lib.fin.models import FinStatement, Item, Interval, Instant
+from lib.fin.models import FinStatement, FinRecord, Duration, Instant
 from lib.fin.statement import upsert_statements
 from lib.utils import pascal_case, month_difference
 
@@ -86,20 +86,20 @@ def get_financials(slug: str):
 
   def parse_period(
     start_date: Date, end_date: Date, period: Literal["duration", "instant"]
-  ) -> Instant | Interval:
+  ) -> Instant | Duration:
     if period == "instant":
       return Instant(instant=start_date)
 
     if period == "duration":
       months = month_difference(start_date, end_date)
-      return Interval(start_date=start_date, end_date=date, months=months)
+      return Duration(start_date=start_date, end_date=date, months=months)
 
-  def parse_statement(statement: dict) -> dict[str, Item]:
+  def parse_statement(statement: dict) -> dict[str, FinRecord]:
     start_date = statement["periodStart"]
     end_date = statement["periodEnd"]
     currency = statement["currency"]
 
-    result: dict[str, Item] = {}
+    result: dict[str, FinRecord] = {}
 
     for account in statement["accounts"]:
       meta = account_lex[account["code"]]
@@ -107,7 +107,7 @@ def get_financials(slug: str):
       period: Literal["duration", "instant"] = meta["period"]
 
       result[meta["label"]] = [
-        Item(
+        FinRecord(
           value=account["amount"],
           unit=currency if unit == "currency" else unit,
           period=parse_period(start_date, end_date, period),
