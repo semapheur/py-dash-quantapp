@@ -1,5 +1,5 @@
 from contextlib import closing
-from datetime import date as Date, timedelta
+from datetime import date as Date
 from dateutil.relativedelta import relativedelta
 from enum import Enum
 from functools import partial
@@ -9,7 +9,7 @@ from typing import cast, Optional
 
 from asyncstdlib.functools import cache
 import pandas as pd
-from pandera.typing import DataFrame, Series
+from pandera.typing import DataFrame, Series, Index
 
 from lib.db.lite import read_sqlite, sqlite_path
 from lib.fin.models import (
@@ -22,6 +22,7 @@ from lib.fin.models import (
   FinData,
 )
 from lib.fin.quote import load_ohlcv
+from lib.fin.taxonomy import load_taxonomy_items
 from lib.utils import (
   fiscal_quarter_monthly,
   combine_duplicate_columns,
@@ -84,27 +85,20 @@ async def statement_to_df(
   multiple=False,
 ) -> DataFrame:
   def parse_date(period: Instant | Interval) -> Date:
-    if isinstance(period, Interval):
-      return period.end_date
-
-    return period.instant
+    return period.end_date if isinstance(period, Interval) else period.instant
 
   async def exchange_rate(
     currency: str, unit: str, period: Instant | Interval
   ) -> float:
     ticker = f"{unit}{currency}".upper()
 
-    extract_date: None | Date = None
-    if isinstance(period, Instant):
-      extract_date = period.instant
-      start_date = extract_date - timedelta(days=7)
-      end_date = extract_date + timedelta(days=7)
-    elif isinstance(period, Interval):
-      start_date = period.start_date
-      end_date = period.end_date
+    extract_date = period.instant if isinstance(period, Instant) else None
+    start_date = (
+      extract_date - relativedelta(days=7) if extract_date else period.start_date
+    )
+    end_date = extract_date + relativedelta(days=7) if extract_date else period.end_date
 
-    rate = await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
-    return rate
+    return await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
 
   if isinstance(currency, str):
     currency = currency.lower()
@@ -119,7 +113,6 @@ async def statement_to_df(
 
   for item, entries in financials.data.items():
     for entry in entries:
-      rate = 1.0
       date = pd.to_datetime(parse_date(entry["period"]))
 
       months = relativedelta(fin_date, date).months
@@ -144,39 +137,43 @@ async def statement_to_df(
       if fin_period == "FY" and months < 12:
         period = "Q4"
 
-      if value := entry.get("value"):
-        if (currency is not None) and (unit := entry.get("unit", "")) in currencies:
-          rate = await exchange_rate(currency, unit, entry["period"])
+      value = entry.get("value")
+      unit = entry.get("unit", "")
+      if value and (currency is not None) and unit in currencies:
+        value *= await exchange_rate(currency, unit, entry["period"])
 
-        df_data.setdefault((date, period, months, fiscal_end_month), {})[item] = (
-          value * rate
-        )
+      index = (date, period, months, fiscal_end_month)
+      df_data.setdefault(index, {})[item] = value
 
-        if fin_period == "FY" and (
-          isinstance(entry["period"], Instant) or entry.get("unit") == "shares"
-        ):
-          df_data.setdefault((date, "Q4", 3, fiscal_end_month), {})[item] = value * rate
+      if fin_period == "FY" and (
+        isinstance(entry["period"], Instant) or entry.get("unit") == "shares"
+      ):
+        index = (date, "Q4", 3, fiscal_end_month)
+        df_data.setdefault(index, {})[item] = value
 
-      if (members := entry.get("members")) is None:
+      members = entry.get("members")
+      if members is None:
         continue
 
       for member, m_entry in members.items():
-        if (m_value := m_entry.get("value")) is None:
+        m_value = m_entry.get("value")
+        if m_value is None:
           continue
 
-        if (currency is not None) and (unit := m_entry.get("unit", "")) in currencies:
-          rate = await exchange_rate(currency, unit, entry["period"])
+        unit = m_entry.get("unit", "")
+        if (currency is not None) and unit in currencies:
+          m_value *= await exchange_rate(currency, unit, entry["period"])
 
         dim = "." + d if (d := m_entry.get("dim")) else ""
         key = f"{item}{dim}.{member}"
-        df_data.setdefault((date, period, months, fiscal_end_month), {})[key] = (
-          m_value * rate
-        )
+        index = (date, period, months, fiscal_end_month)
+        df_data.setdefault(index, {})[key] = m_value
 
         if fin_period == "FY" and (
           isinstance(entry["period"], Instant) or m_entry.get("unit") == "shares"
         ):
-          df_data.setdefault((date, "Q4", 3, fiscal_end_month), {})[key] = m_value
+          index = (date, "Q4", 3, fiscal_end_month)
+          df_data.setdefault(index, {})[key] = m_value
 
   df = pd.DataFrame.from_dict(df_data, orient="index")
   df.index = pd.MultiIndex.from_tuples(df.index)
@@ -185,15 +182,7 @@ async def statement_to_df(
 
 
 async def load_statements(id: str, currency: Optional[str] = None) -> DataFrame | None:
-  df_statements = load_raw_statements(id)
-  if df_statements is None:
-    return None
-
-  df_statements.sort_values("date", inplace=True)
-  statements = df_to_statements(df_statements)
-
-  # for s in statements:
-  #  df = cast(DataFrame, df.combine_first(await statement_to_df(s, currency)))
+  statements = load_raw_statements(id)
 
   dfs = [await statement_to_df(statements.pop(0), currency, True)] + [
     await statement_to_df(s, currency) for s in statements
@@ -204,7 +193,6 @@ async def load_statements(id: str, currency: Optional[str] = None) -> DataFrame 
   df = cast(
     DataFrame, df.loc[df.index.get_level_values("months").isin((12, 9, 6, 3)), :]
   )
-  # df.to_csv(f"{id}_statement.csv")
   df = fix_statements(df)
 
   return df
@@ -214,12 +202,12 @@ def fix_statements(statements: DataFrame) -> DataFrame:
   def check_combos(ix: pd.MultiIndex, conditions: set[tuple[str, int]]) -> bool:
     return conditions.issubset(set(ix.droplevel("date")))
 
-  def quarterize(df: DataFrame):
+  def quarterize(df: DataFrame) -> DataFrame:
     conditions = (("Q1", 3), ("Q2", 6), ("Q3", 9), ("FY", 12))
+    period_months: Index = df.index.droplevel(["date", "fiscal_end_month"])
 
-    period_months = df.index.droplevel(["date", "fiscal_end_month"])
     for i in range(1, len(conditions)):
-      mask = (period_months == conditions[i - 1]) | (period_months == conditions[i])
+      mask = period_months.isin((conditions[i - 1], conditions[i]))
       df_ = df.loc[mask, diff_items].copy()
       if not check_combos(
         cast(pd.MultiIndex, df_.index), {conditions[i - 1], conditions[i]}
@@ -231,11 +219,11 @@ def fix_statements(statements: DataFrame) -> DataFrame:
       df_["month_difference"] = df_time_difference(
         cast(pd.DatetimeIndex, df_.index.get_level_values("date")), 30, "D"
       )
-      df_.loc[:, diff_items] = df_[diff_items].diff()
+      df_[diff_items] = df_[diff_items].diff()
       df_ = df_.loc[df_["month_difference"] == 3, diff_items]
       df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1], slice(None)), :]
       df_.reset_index(level="months", inplace=True)
-      df_.loc[:, "months"] = 3
+      df_["months"] = 3
       df_.set_index("months", append=True, inplace=True)
 
       if conditions[i][0] == "FY":
@@ -248,15 +236,15 @@ def fix_statements(statements: DataFrame) -> DataFrame:
 
     return cast(DataFrame, df.dropna(how="all"))
 
+  def load_sum_items() -> set[str]:
+    query = "SELECT item FROM items WHERE aggregate = 'sum'"
+    sum_items = read_sqlite("taxonomy.db", query)
+    if sum_items is None:
+      raise ValueError("Taxonomy could not be loaded!")
+    return set(sum_items["item"].tolist())
+
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
-  query = """
-    SELECT DISTINCT lower(json_each.value) AS gaap, item FROM items 
-    JOIN json_each(gaap) ON 1=1
-    WHERE gaap IS NOT NULL
-  """
-  items = read_sqlite("taxonomy.db", query)
-  if items is None:
-    raise ValueError("Taxonomy could not be loaded!")
+  items = load_taxonomy_items()
 
   statements.columns = statements.columns.str.lower()
   statements = cast(
@@ -264,16 +252,12 @@ def fix_statements(statements: DataFrame) -> DataFrame:
     statements.loc[:, list(set(statements.columns).intersection(set(items["gaap"])))],
   )
 
-  rename: dict[str, str] = {k: v for k, v in zip(items["gaap"], items["item"])}
+  rename = dict(zip(items["item"], items["gaap"]))
   statements.rename(columns=rename, inplace=True)
   statements = combine_duplicate_columns(statements)
 
-  query = 'SELECT item FROM items WHERE aggregate = "sum"'
-  sum_items = read_sqlite("taxonomy.db", query)
-  if sum_items is None:
-    raise ValueError("Taxonomy could not be loaded!")
-
-  diff_items = list(set(sum_items["item"]).intersection(set(statements.columns)))
+  sum_items = load_sum_items()
+  diff_items = list(sum_items.intersection(set(statements.columns)))
 
   fiscal_ends = cast(pd.MultiIndex, statements.index).levels[3]
   for fiscal_end in fiscal_ends:
@@ -287,34 +271,35 @@ def fix_statements(statements: DataFrame) -> DataFrame:
   period = statements.index.get_level_values("period")
   months = statements.index.get_level_values("months")
 
-  mask = ((months == 3) & period.isin(quarter_set)) | (
+  valid_mask = ((months == 3) & period.isin(quarter_set)) | (
     (months == 12) & (period == "FY")
   )
-  statements = statements.loc[mask, :].dropna(how="all")
+  statements = statements.loc[valid_mask, :].dropna(how="all")
+
   if len(fiscal_ends) == 1:
     return cast(DataFrame, statements)
 
   levels = ["date", "period", "months"]
   fiscal_end = statements.index.droplevel(["period", "months"])[-1]
 
-  mask = (statements.index.get_level_values("date") < fiscal_end[0]) & (
+  fy_mask = (statements.index.get_level_values("date") < fiscal_end[0]) & (
     statements.index.get_level_values("period") == "FY"
   )
-  statements = statements.loc[~mask, :]
+  statements = statements.loc[~fy_mask, :]
 
   dates = statements.index.get_level_values("date")
   statements.reset_index(level="period", inplace=True)
   for i in statements.loc[dates < fiscal_end[0], "period"].index:
     statements.at[i, "period"] = f"Q{fiscal_quarter_monthly(i[0].month, fiscal_end[1])}"
 
-  mask = (statements.index.get_level_values("date") < fiscal_end[0]) & (
+  q4_mask = (statements.index.get_level_values("date") < fiscal_end[0]) & (
     statements["period"] == "Q4"
   )
 
-  fy = statements.loc[mask, :]
+  fy = statements.loc[q4_mask, :].copy()
   fy.reset_index(level="months", inplace=True)
-  fy.loc[:, "period"] = "FY"
-  fy.loc[:, "months"] = 12
+  fy["period"] = "FY"
+  fy["months"] = 12
   fy.set_index(["period", "months"], append=True, inplace=True)
   fy = fy.reorder_levels(levels)
 
@@ -327,12 +312,12 @@ def fix_statements(statements: DataFrame) -> DataFrame:
   statements = cast(DataFrame, pd.concat((statements, fy), axis=0))
   statements.sort_index(level=["date", "period"], inplace=True)
 
-  mask = (statements.index.get_level_values("date") < fiscal_end[0]) & (
+  rolling_mask = (statements.index.get_level_values("date") < fiscal_end[0]) & (
     statements.index.get_level_values("period") != "FY"
   )
 
   window_size = 4
-  windows = statements.loc[mask, diff_items].rolling(4)
+  windows = statements.loc[rolling_mask, diff_items].rolling(4)
   for i in range(len(statements) - window_size + 1):
     window = windows.get_window(i)
     if list(window.index.get_level_values("period")) != ["Q1", "Q2", "Q3", "Q4"]:
@@ -391,6 +376,29 @@ def stock_splits(id: str) -> Series[float]:
   return cast(Series[float], df["stock_split_ratio"])
 
 
+def load_raw_statements(
+  id: str, date: Date | None = None, order: bool = True
+) -> list[FinStatement]:
+  db_path = sqlite_path("statements.db")
+
+  query = f"SELECT * FROM '{id}'"
+  params = []
+  if date:
+    query += " WHERE DATE(date) >= DATE(?)"
+    params.append(date.strftime("%Y-%m-%d"))
+
+  if order:
+    query += " ORDER BY date ASC"
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+    cur.row_factory = lambda _, row: FinStatement(**row)
+
+    statements: list[FinStatement] = cur.execute(query, params).fetchall()
+
+  return statements
+
+
 def load_raw_statement(id: str, date: str, period: FiscalPeriod):
   db_path = sqlite_path("statements.db")
 
@@ -400,33 +408,11 @@ def load_raw_statement(id: str, date: str, period: FiscalPeriod):
   """
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
-    cur.execute(query, {"date": date, "period": period})
-    row = cur.fetchone()
+    cur.row_factory = lambda _, row: FinStatement(**row)
 
-  return FinStatement(
-    url=row[0],
-    scope=row[1],
-    date=row[2],
-    fiscal_period=row[3],
-    fiscal_end=row[4],
-    currency=row[5],
-    data=row[6],
-  )
+    statement = cur.execute(query, {"date": date, "period": period}).fetchone()
 
-
-def load_raw_statements(
-  id: str, date: Optional[Date] = None
-) -> DataFrame[FinStatementFrame] | None:
-  query = f'SELECT * FROM "{id}" ORDER BY date ASC'
-  if date:
-    query += f" WHERE DATE(date) >= DATE('{date:%Y-%m-%d}')"
-
-  df = read_sqlite(
-    "statements.db",
-    query,
-    date_parser={"date": {"format": "%Y-%m-%d"}},
-  )
-  return df
+  return statement
 
 
 def store_updated_statements(
@@ -526,15 +512,3 @@ def statement_urls(
     date_parser={"date": {"format": "%Y-%m-%d"}},
   )
   return df
-
-
-def select_statements(db_name: str, table: str) -> list[FinStatement]:
-  db_path = sqlite_path(db_name)
-
-  with closing(sqlite3.connect(db_path)) as con:
-    cur = con.cursor()
-    cur.row_factory = lambda _, row: FinStatement(**row)
-
-    financials: list[FinStatement] = cur.execute(f'SELECT * FROM "{table}"').fetchall()
-
-  return financials

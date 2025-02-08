@@ -10,12 +10,10 @@ import pandas as pd
 from lib.const import HEADERS
 from lib.fin.models import FinData, FinRecord, FinStatement, Instant, Interval
 from lib.fin.statement import (
-  df_to_statements,
-  load_statements,
   statement_urls,
   upsert_statements,
 )
-from lib.utils import month_difference
+from lib.utils import exclusive_end_date, month_difference
 
 
 class FilingInfo(TypedDict):
@@ -23,7 +21,9 @@ class FilingInfo(TypedDict):
   date: str
 
 
-def lei_filings(lei: str, page_size: int = 100, timeout: float = 1.0):
+def lei_filings(
+  lei: str, page_size: int = 100, timeout: float = 1.0
+) -> list[FilingInfo]:
   def fetch(lei: str, page_size: int, page: int, timeout: float = 1.0) -> dict:
     url = "https://filings.xbrl.org/api/filings"
     params = {
@@ -86,6 +86,7 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
     start_date = dt.strptime(dates[0], "%Y-%m-%dT%H:%M:%S").date()
     end_date = dt.strptime(dates[1], "%Y-%m-%dT%H:%M:%S").date()
     months = month_difference(start_date, end_date)
+    end_date = exclusive_end_date(start_date, end_date, months)
 
     return Interval(start_date=start_date, end_date=end_date, months=months)
 
@@ -157,10 +158,9 @@ async def update_xbrl_statements(lei: str, id: str, delta=120):
   if relativedelta(dt.now(), last_date).days < delta:
     return
 
-  new_filings = lei_filings(lei)
-  new_filings = pd.DataFrame.from_records(new_filings)
+  new_filings = pd.DataFrame.from_records(lei_filings(lei))
   new_filings["date"] = pd.to_datetime(new_filings["date"], format="%Y-%m-%d")
-  new_filings = new_filings[new_filings["date"] >= last_date]
+  new_filings = new_filings.loc[new_filings["date"] >= last_date, :]
 
   if not new_filings:
     return

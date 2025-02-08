@@ -567,25 +567,15 @@ def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
   return template
 
 
-def gaap_items(sort=False) -> set[str]:
-  db_path = DB_DIR / "taxonomy.db"
-
-  with closing(sqlite3.connect(db_path)) as con:
-    cur = con.cursor()
-
-    query = """
-      SELECT json_each.value AS gaap FROM items 
-      JOIN json_each(gaap) ON 1=1
-      WHERE gaap IS NOT NULL
-    """
-
-    cur.execute(query)
-    result = cur.fetchall()
-
-  items = {x[0] for x in result}
-
-  if sort:
-    items = set(sorted(items))
+def load_taxonomy_items() -> DataFrame:
+  query = """
+    SELECT DISTINCT lower(json_each.value) AS gaap, item FROM items 
+    JOIN json_each(gaap) ON 1=1
+    WHERE gaap IS NOT NULL
+  """
+  items = read_sqlite("taxonomy.db", query)
+  if items is None:
+    raise ValueError("Taxonomy could not be loaded!")
 
   return items
 

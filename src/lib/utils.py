@@ -225,6 +225,16 @@ def month_end(year: int, month: int, unleap=True) -> int:
   return calendar.monthrange(year, month)[1]
 
 
+def exclusive_end_date(start_date: Date, end_date: Date, months: int) -> Date:
+  delta = relativedelta(years=1) if months == 12 else relativedelta(months=months)
+  expected_xbrl_end = start_date + delta
+
+  if end_date != expected_xbrl_end:
+    return end_date + relativedelta(days=1)
+
+  return end_date
+
+
 def validate_currency(code: str) -> bool:
   import pycountry
 
