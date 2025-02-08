@@ -363,6 +363,7 @@ async def parse_statement(url: str) -> FinStatement:
     fiscal_period=fiscal_period,
     fiscal_end=fiscal_end,
     currency=currency,
+    periods=periods.get_periods(),
     data=data,
   )
 

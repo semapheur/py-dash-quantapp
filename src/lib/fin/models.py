@@ -20,6 +20,7 @@ type Scope = Literal["annual", "quarterly"]
 type Quarter = Literal["Q1", "Q2", "Q3", "Q4"]
 type Ttm = Literal["TTM1", "TTM2", "TTM3"]
 type FiscalPeriod = Literal["FY"] | Quarter
+type FinData = dict[str, list[FinRecord]]
 
 
 class SharePrice(TypedDict):
@@ -66,11 +67,13 @@ class FinPeriods:
   def __init__(self) -> None:
     self.periods: dict[str, Instant | Duration] = {}
     self.reverse_lookup: dict[Instant | Duration, str] = {}
-    self.counters: defaultdict[str, count[int]] = defaultdict(lambda: count(0))
+    self.counters: defaultdict[Literal["d", "i"], count[int]] = defaultdict(
+      lambda: count(0)
+    )
 
   def add_period(self, period: Instant | Duration) -> str:
     if isinstance(period, Instant):
-      period_type = "i"
+      period_type: Literal["d", "i"] = "i"
     elif isinstance(period, Duration):
       period_type = "d"
     else:
@@ -93,20 +96,18 @@ class Member(Value):
 
 
 class FinRecord(Value, total=False):
-  period: Instant | Duration
+  period: str
   members: dict[str, Member] | None
 
 
 def item_dict(v: FinRecord):
-  obj = {"value": v["value"], "unit": v["unit"], "period": v["period"].model_dump()}
+  obj: FinRecord = {"value": v["value"], "unit": v["unit"], "period": v["period"]}
 
-  if (members := v.get("members")) is not None:
+  members = v.get("members")
+  if members is not None:
     obj["members"] = members
 
   return obj
-
-
-type FinData = dict[str, list[FinRecord]]
 
 
 class FinStatement(BaseModel):
@@ -115,8 +116,8 @@ class FinStatement(BaseModel):
   date: Date
   fiscal_period: FiscalPeriod
   fiscal_end: str
-  # periods: dict[str, Instant | Duration]
   currency: set[str]
+  periods: dict[str, Instant | Duration]
   data: FinData
 
   @field_validator("url", mode="before")
@@ -125,8 +126,12 @@ class FinStatement(BaseModel):
     if isinstance(value, str):
       try:
         parsed_value = json.loads(value)
+        if not isinstance(parsed_value, list):
+          raise ValueError(f"{info.field_name} must be a list. Invalid value: {value}")
       except json.JSONDecodeError:
-        raise ValueError(f"{info.field_name} must be a valid JSON array string")
+        raise ValueError(
+          f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
+        )
       return parsed_value
 
     return value
@@ -134,15 +139,13 @@ class FinStatement(BaseModel):
   @field_validator("fiscal_end", mode="before")
   @classmethod
   def validate_fiscal_end(cls, value, info: ValidationInfo):
-    pattern = r"(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
-    if not re.match(pattern, value):
-      raise ValueError(f"{value} does not match the format -%m-%d")
-
     try:
       # Add a dummy year to parse the date
       _ = dt.strptime(f"2000-{value}", "%Y-%m-%d")
     except ValueError:
-      raise ValueError(f"Invalid fiscal end: {value}")
+      raise ValueError(
+        f"{info.field_name} must in MM-DD format. Invalid value: {value}"
+      )
 
     return value
 
@@ -153,8 +156,29 @@ class FinStatement(BaseModel):
       try:
         parsed_value = set(json.loads(value))
       except json.JSONDecodeError:
-        raise ValueError(f"{info.field_name} must be a valid JSON array string")
+        raise ValueError(
+          f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
+        )
       return parsed_value
+
+    return value
+
+  @field_validator("periods", mode="before")
+  @classmethod
+  def validate_periods(cls, value, info: ValidationInfo):
+    key_pattern = re.compile(r"^(i|d)\d+$")
+
+    if isinstance(value, str):
+      return parse_periods_json(value, key_pattern, info)
+
+    for key, period in value.items():
+      if not key_pattern.match(key):
+        raise ValueError(
+          f"{info.field_name} keys must be of the form 'iN' or 'dN'. Invlid key: {key}"
+        )
+
+      if not isinstance(period, (Instant, Duration)):
+        raise ValueError(f"Invalid period format for key {key}: {period}")
 
     return value
 
@@ -163,10 +187,78 @@ class FinStatement(BaseModel):
   def validate_data(cls, value, info: ValidationInfo):
     if isinstance(value, str):
       try:
-        parsed_value = json.loads(value)
+        value = json.loads(value)
       except json.JSONDecodeError:
         raise ValueError(f"{info.field_name} must be a valid JSON dictionary string")
-      return parsed_value
+
+    if not isinstance(value, dict):
+      raise ValueError(
+        f"{info.field_name} must be a dictionary. Invalid value: {value}"
+      )
+
+    for key, records in value.items():
+      if not isinstance(key, str):
+        raise ValueError(f"{info.field_name} keys must be strings. Invalid key: {key}")
+
+      if not isinstance(records, list):
+        raise ValueError(
+          f"{info.field_name} values must be lists. Invalid value: {records}"
+        )
+
+      for record in records:
+        if not isinstance(record, dict):
+          raise ValueError(
+            f"Records under key '{key}' must be a dictionary. Invalid record: {record}"
+          )
+
+        if "value" not in record or "unit" not in record or "period" not in record:
+          raise ValueError(
+            f"Each record under '{key}' must contain 'value', 'unit', and 'period'. Invalid record: {record}"
+          )
+
+        if not isinstance(record["value"], (int, float)):
+          raise ValueError(
+            f"Record value must be a number. Invalid value: {record['value']}"
+          )
+
+        if not isinstance(record["unit"], str):
+          raise ValueError(
+            f"Record unit must be a string. Invalid unit: {record['unit']}"
+          )
+
+        if not isinstance(record["period"], str):
+          raise ValueError(
+            f"Record period must be a string. Invalid period: {record['period']}"
+          )
+
+        if "members" not in record:
+          continue
+
+        if not isinstance(record["members"], dict):
+          raise ValueError(
+            f"Record members must be a dictionary. Invalid members: {record['members']}"
+          )
+
+        for member_key, member_value in record["members"].items():
+          if not isinstance(member_value, dict):
+            raise ValueError(
+              f"Record member '{member_key}' must be a dictionary. Invalid member: {member_value}"
+            )
+
+          if "value" not in member_value or "unit" not in member_value:
+            raise ValueError(
+              f"Record member '{member_key}' must contain 'value' and 'unit'. Invalid member: {member_value}"
+            )
+
+          if not isinstance(member_value["value"], (int, float)):
+            raise ValueError(
+              f"Record member '{member_key}' value must be a number. Invalid value: {member_value['value']}"
+            )
+
+          if not isinstance(member_value["unit"], str):
+            raise ValueError(
+              f"Record member '{member_key}' unit must be a string. Invalid unit: {member_value['unit']}"
+            )
 
     return value
 
@@ -178,33 +270,29 @@ class FinStatement(BaseModel):
   def serialize_date(self, date: Date):
     return date.strftime("%Y-%m-%d")
 
-  # @field_serializer('periods')
-  # def serialize_periods(self, periods: set[Duration]):
-  #  return json.dumps([interval.model_dump() for interval in periods])
-
   @field_serializer("currency")
   def serialize_currency(self, currency: set[str]):
     return list(currency)
+
+  # @field_serializer('periods')
+  # def serialize_periods(self, periods: set[Duration]):
+  #  return json.dumps([interval.model_dump() for interval in periods])
 
   @field_serializer("data")
   @classmethod
   def serialize_data(cls, data: FinData):
     obj = {}
-
     for k, items in data.items():
-      items_ = []
-      for item in items:
-        item_: dict[str, dict[str, str | int] | float | int | str | Member] = {
-          "period": item["period"].model_dump()
+      obj[k] = [
+        {
+          **{
+            field: item[field]
+            for field in ("period", "value", "unit", "members")
+            if field in item
+          },
         }
-        for field in ("value", "unit", "members"):
-          if (value := item.get(field)) is not None:
-            item_[field] = cast(float | int | str | Member, value)
-
-        items_.append(item_)
-
-      obj[k] = items_
-
+        for item in items
+      ]
     return obj
 
   def to_dict(self):
@@ -256,3 +344,36 @@ class Quote(CloseQuote):
 class StockSplit(BaseModel):
   date: Date
   stock_split_ratio: float
+
+
+def parse_periods_json(
+  periods: str, key_pattern: re.Pattern[str], info: ValidationInfo
+) -> dict[str, Instant | Duration]:
+  try:
+    value = json.loads(periods)
+  except json.JSONDecodeError:
+    raise ValueError(f"Invalid JSON string: {value}")
+
+  if not isinstance(value, dict):
+    raise ValueError(
+      f"{info.field_name} must be a JSON dictionary string. Invalid value: {value}"
+    )
+
+  parsed_periods: dict[str, Instant | Duration] = {}
+  for key, period in value.items():
+    if not key_pattern.match(key):
+      raise ValueError(
+        f"{info.field_name} keys must be of the form 'iN' or 'dN'. Invalid key: {key}"
+      )
+
+    if not isinstance(value, dict):
+      raise ValueError(f"Invalid period format for key {key}: {period}")
+
+    if "instant" in period:
+      parsed_periods[key] = Instant(**period)
+    elif all(k in period for k in ["start_date", "end_date", "months"]):
+      parsed_periods[key] = Duration(**period)
+    else:
+      raise ValueError(f"Invalid period format for key {key}: {period}")
+
+  return parsed_periods
