@@ -52,7 +52,7 @@ class Duration(BaseModel, frozen=True):
 
   @field_serializer("start_date", "end_date")
   def serialize_date(self, date: Date):
-    return date.strftime("%Y-%m-%d")
+    return int(date.strftime("%Y%m%d"))
 
 
 class Instant(BaseModel):
@@ -60,18 +60,22 @@ class Instant(BaseModel):
 
   @field_serializer("instant")
   def serialize_date(self, date: Date):
-    return date.strftime("%Y-%m-%d")
+    return int(date.strftime("%Y%m%d"))
 
 
-class FinPeriods:
+class FinPeriods(TypedDict):
+  d: list[Duration]
+  i: list[Instant]
+
+
+class FinPeriodStore:
   def __init__(self) -> None:
-    self.periods: dict[str, Instant | Duration] = {}
-    self.reverse_lookup: dict[Instant | Duration, str] = {}
-    self.counters: defaultdict[Literal["d", "i"], count[int]] = defaultdict(
-      lambda: count(0)
-    )
+    self.periods: dict[Literal["d", "i"], set[Instant | Duration]] = {
+      "d": set(),
+      "i": set(),
+    }
 
-  def add_period(self, period: Instant | Duration) -> str:
+  def add_period(self, period: Instant | Duration):
     if isinstance(period, Instant):
       period_type: Literal["d", "i"] = "i"
     elif isinstance(period, Duration):
@@ -79,16 +83,30 @@ class FinPeriods:
     else:
       raise ValueError(f"Unknown period type: {period}")
 
-    if period in self.reverse_lookup:
-      return self.reverse_lookup[period]
+    self.periods[period_type].add(period)
 
-    key = f"{period_type}{next(self.counters[period_type])}"
-    self.periods[key] = period
-    self.reverse_lookup[period] = key
-    return key
+  def get_periods(self) -> tuple[FinPeriods, dict[Instant | Duration, str]]:
+    sorted_durations = sorted(
+      cast(set[Duration], self.periods["d"]), key=lambda x: (x.start_date, x.end_date)
+    )
+    sorted_instant = sorted(
+      cast(set[Instant], self.periods["i"]), key=lambda x: x.instant
+    )
 
-  def get_periods(self) -> dict[str, Instant | Duration]:
-    return dict(sorted(self.periods.items()))
+    reverse_lookup: dict[Instant | Duration, str] = {}
+
+    for j, d in enumerate(sorted_durations):
+      reverse_lookup[d] = f"d{j}"
+
+    for j, i in enumerate(sorted_instant):
+      reverse_lookup[i] = f"i{j}"
+
+    fin_periods = FinPeriods(
+      d=sorted_durations,
+      i=sorted_instant,
+    )
+
+    return fin_periods, reverse_lookup
 
 
 class Member(Value):
@@ -117,7 +135,7 @@ class FinStatement(BaseModel):
   fiscal_period: FiscalPeriod
   fiscal_end: str
   currency: set[str]
-  periods: dict[str, Instant | Duration]
+  periods: FinPeriods
   data: FinData
 
   @field_validator("url", mode="before")
@@ -196,70 +214,6 @@ class FinStatement(BaseModel):
         f"{info.field_name} must be a dictionary. Invalid value: {value}"
       )
 
-    for key, records in value.items():
-      if not isinstance(key, str):
-        raise ValueError(f"{info.field_name} keys must be strings. Invalid key: {key}")
-
-      if not isinstance(records, list):
-        raise ValueError(
-          f"{info.field_name} values must be lists. Invalid value: {records}"
-        )
-
-      for record in records:
-        if not isinstance(record, dict):
-          raise ValueError(
-            f"Records under key '{key}' must be a dictionary. Invalid record: {record}"
-          )
-
-        if "value" not in record or "unit" not in record or "period" not in record:
-          raise ValueError(
-            f"Each record under '{key}' must contain 'value', 'unit', and 'period'. Invalid record: {record}"
-          )
-
-        if not isinstance(record["value"], (int, float)):
-          raise ValueError(
-            f"Record value must be a number. Invalid value: {record['value']}"
-          )
-
-        if not isinstance(record["unit"], str):
-          raise ValueError(
-            f"Record unit must be a string. Invalid unit: {record['unit']}"
-          )
-
-        if not isinstance(record["period"], str):
-          raise ValueError(
-            f"Record period must be a string. Invalid period: {record['period']}"
-          )
-
-        if "members" not in record:
-          continue
-
-        if not isinstance(record["members"], dict):
-          raise ValueError(
-            f"Record members must be a dictionary. Invalid members: {record['members']}"
-          )
-
-        for member_key, member_value in record["members"].items():
-          if not isinstance(member_value, dict):
-            raise ValueError(
-              f"Record member '{member_key}' must be a dictionary. Invalid member: {member_value}"
-            )
-
-          if "value" not in member_value or "unit" not in member_value:
-            raise ValueError(
-              f"Record member '{member_key}' must contain 'value' and 'unit'. Invalid member: {member_value}"
-            )
-
-          if not isinstance(member_value["value"], (int, float)):
-            raise ValueError(
-              f"Record member '{member_key}' value must be a number. Invalid value: {member_value['value']}"
-            )
-
-          if not isinstance(member_value["unit"], str):
-            raise ValueError(
-              f"Record member '{member_key}' unit must be a string. Invalid unit: {member_value['unit']}"
-            )
-
     return value
 
   @field_serializer("url")
@@ -268,15 +222,15 @@ class FinStatement(BaseModel):
 
   @field_serializer("date")
   def serialize_date(self, date: Date):
-    return date.strftime("%Y-%m-%d")
+    return int(date.strftime("%Y%m%d"))
 
   @field_serializer("currency")
   def serialize_currency(self, currency: set[str]):
     return list(currency)
 
   # @field_serializer('periods')
-  # def serialize_periods(self, periods: set[Duration]):
-  #  return json.dumps([interval.model_dump() for interval in periods])
+  # def serialize_periods(self, periods: FinPeriods):
+  #  return
 
   @field_serializer("data")
   @classmethod
@@ -285,9 +239,10 @@ class FinStatement(BaseModel):
     for k, items in data.items():
       obj[k] = [
         {
+          "period": item["period"],
           **{
             field: item[field]
-            for field in ("period", "value", "unit", "members")
+            for field in ("value", "unit", "members")
             if field in item
           },
         }
@@ -295,27 +250,16 @@ class FinStatement(BaseModel):
       ]
     return obj
 
-  def to_dict(self):
-    return {
-      "url": self.url,
-      "scope": self.scope,
-      "date": self.date.strftime("%Y-%m-%d"),
-      "fiscal_period": self.period,
-      "fiscal_end": self.fiscal_end,
-      "currency": list(self.currency),
-      "data": {key: [item_dict(i) for i in items] for key, items in self.data.items()},
-    }
-
 
 class FinStatementFrame(DataFrameModel):
-  url: Object | None
+  url: list[str]
   scope: str = Field(isin={"annual", "quarterly"})
   date: Timestamp
   period: str = Field(isin={"FY", "Q1", "Q2", "Q3", "Q4"})
-  fiscal_end: str | None
-  # periods: Object | None
-  currency: Object
-  data: Object
+  fiscal_end: str
+  currency: set[str]
+  periods: FinPeriods
+  data: dict[str, list[FinRecord]]
 
 
 class FinancialsIndex(DataFrameModel):

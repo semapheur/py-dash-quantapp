@@ -22,7 +22,7 @@ from lib.fin.models import (
   FinStatement,
   Instant,
   Duration,
-  FinPeriods,
+  FinPeriodStore,
   FinRecord,
   Member,
   Scope,
@@ -134,13 +134,14 @@ async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement
 
 
 async def parse_statement(url: str) -> FinStatement:
-  def fix_data(data: FinData) -> FinData:
+  def fix_data(data: FinData, period_lookup: dict[Duration | Instant, str]) -> FinData:
     fixed: FinData = {}
 
     for k in sorted(data.keys()):
       temp: list[FinRecord] = []
 
       for item in data[k]:
+        item["period"] = period_lookup[item["period"]]
         members = item.get("members")
         if "value" in item or members is None:
           temp.append(item)
@@ -150,7 +151,7 @@ async def parse_statement(url: str) -> FinStatement:
           member = next(iter(members.values()))
           temp.append(
             FinRecord(
-              period=item["period"],
+              period=period_lookup[item["period"]],
               value=cast(float | int, member.get("value")),
               unit=cast(str, member.get("unit")),
             )
@@ -300,7 +301,7 @@ async def parse_statement(url: str) -> FinStatement:
   doc_id = url.split("/")[-2]
   currency: set[str] = set()
 
-  periods = FinPeriods()
+  period_store = FinPeriodStore()
 
   data: FinData = {}
 
@@ -321,9 +322,9 @@ async def parse_statement(url: str) -> FinStatement:
     )
 
     period = parse_period(period_el)
-    period_key = periods.add_period(period)
+    period_store.add_period(period)
 
-    scrap["period"] = period_key
+    scrap["period"] = period
 
     segment = cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find(
       ".//{*}segment/{*}explicitMember"
@@ -355,6 +356,8 @@ async def parse_statement(url: str) -> FinStatement:
       data[item_name].append(scrap)
 
   # Sort items
+  fin_periods, period_lookup = period_store.get_periods()
+
   data = fix_data(data)
   return FinStatement(
     url=url,
@@ -363,7 +366,7 @@ async def parse_statement(url: str) -> FinStatement:
     fiscal_period=fiscal_period,
     fiscal_end=fiscal_end,
     currency=currency,
-    periods=periods.get_periods(),
+    periods=fin_periods,
     data=data,
   )
 
