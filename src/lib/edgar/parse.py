@@ -1,8 +1,7 @@
 import asyncio
-from datetime import datetime as dt, date as Date
+from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-import json
 import re
 import time
 from typing import cast, Literal, TypeAlias
@@ -23,6 +22,7 @@ from lib.fin.models import (
   Instant,
   Duration,
   FinPeriodStore,
+  UnitStore,
   FinRecord,
   Member,
   Scope,
@@ -134,7 +134,11 @@ async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement
 
 
 async def parse_statement(url: str) -> FinStatement:
-  def fix_data(data: FinData, period_lookup: dict[Duration | Instant, str]) -> FinData:
+  def fix_data(
+    data: FinData,
+    period_lookup: dict[Duration | Instant, str],
+    unit_lookup: dict[str, int],
+  ) -> FinData:
     fixed: FinData = {}
 
     for k in sorted(data.keys()):
@@ -142,6 +146,7 @@ async def parse_statement(url: str) -> FinStatement:
 
       for item in data[k]:
         item["period"] = period_lookup[item["period"]]
+        item["unit"] = unit_lookup[item["unit"]]
         members = item.get("members")
         if "value" in item or members is None:
           temp.append(item)
@@ -153,7 +158,7 @@ async def parse_statement(url: str) -> FinStatement:
             FinRecord(
               period=period_lookup[item["period"]],
               value=cast(float | int, member.get("value")),
-              unit=cast(str, member.get("unit")),
+              unit=unit_lookup[member["unit"]],
             )
           )
           continue
@@ -168,7 +173,10 @@ async def parse_statement(url: str) -> FinStatement:
         if len(units) == 1:
           temp.append(
             FinRecord(
-              period=item["period"], value=value, unit=units.pop(), members=members
+              period=item["period"],
+              value=value,
+              unit=unit_lookup[units.pop()],
+              members=members,
             )
           )
 
@@ -245,6 +253,7 @@ async def parse_statement(url: str) -> FinStatement:
       return name.split(":")[-1]
 
     unit = parse_unit(item.attrib["unitRef"])
+    unit_store.add_unit(unit)
 
     return {
       parse_name(cast(str, segment.text)): Member(
@@ -302,6 +311,7 @@ async def parse_statement(url: str) -> FinStatement:
   currency: set[str] = set()
 
   period_store = FinPeriodStore()
+  unit_store = UnitStore()
 
   data: FinData = {}
 
@@ -335,6 +345,7 @@ async def parse_statement(url: str) -> FinStatement:
     else:
       scrap["value"] = float(item.text)
       unit = parse_unit(item.attrib["unitRef"])
+      unit_store.add_unit(unit)
       scrap["unit"] = unit
 
     item_name = item.tag.split("}")[-1]
@@ -357,8 +368,9 @@ async def parse_statement(url: str) -> FinStatement:
 
   # Sort items
   fin_periods, period_lookup = period_store.get_periods()
+  units, unit_lookup = unit_store.get_units()
 
-  data = fix_data(data)
+  data = fix_data(data, period_lookup, unit_lookup)
   return FinStatement(
     url=url,
     date=date.date(),
@@ -367,6 +379,7 @@ async def parse_statement(url: str) -> FinStatement:
     fiscal_end=fiscal_end,
     currency=currency,
     periods=fin_periods,
+    units=units,
     data=data,
   )
 

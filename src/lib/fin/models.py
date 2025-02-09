@@ -1,6 +1,4 @@
-from collections import defaultdict
 from datetime import date as Date, datetime as dt
-from itertools import count
 import json
 import re
 from typing import cast, Literal
@@ -8,7 +6,7 @@ from typing_extensions import TypedDict
 
 from pandera import DataFrameModel, Field
 from pandera.dtypes import Timestamp
-from pandera.typing import Index, Object
+from pandera.typing import Index
 from pydantic import (
   BaseModel,
   ValidationInfo,
@@ -109,6 +107,20 @@ class FinPeriodStore:
     return fin_periods, reverse_lookup
 
 
+class UnitStore:
+  def __init__(self) -> None:
+    self.units: set[str] = set()
+
+  def add_unit(self, unit: str):
+    self.units.add(unit)
+
+  def get_units(self) -> tuple[list[str], dict[str, int]]:
+    sorted_units = sorted(self.units)
+    reverse_lookup = {unit: i for i, unit in enumerate(sorted_units)}
+
+    return sorted_units, reverse_lookup
+
+
 class Member(Value):
   dim: str
 
@@ -136,6 +148,7 @@ class FinStatement(BaseModel):
   fiscal_end: str
   currency: set[str]
   periods: FinPeriods
+  units: list[str]
   data: FinData
 
   @field_validator("url", mode="before")
@@ -197,6 +210,22 @@ class FinStatement(BaseModel):
 
       if not isinstance(period, (Instant, Duration)):
         raise ValueError(f"Invalid period format for key {key}: {period}")
+
+    return value
+
+  @field_validator("units", mode="before")
+  @classmethod
+  def validate_units(cls, value, info: ValidationInfo):
+    if isinstance(value, str):
+      try:
+        parsed_value = json.loads(value)
+        if not isinstance(parsed_value, list):
+          raise ValueError(f"{info.field_name} must be a list. Invalid value: {value}")
+      except json.JSONDecodeError:
+        raise ValueError(
+          f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
+        )
+      return parsed_value
 
     return value
 
