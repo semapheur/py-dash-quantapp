@@ -9,6 +9,7 @@ from pandera.dtypes import Timestamp
 from pandera.typing import Index
 from pydantic import (
   BaseModel,
+  NonNegativeInt,
   ValidationInfo,
   field_serializer,
   field_validator,
@@ -39,21 +40,21 @@ class Meta(TypedDict):
 
 
 class Value(TypedDict, total=False):
-  value: float | int
-  unit: str
+  value: int | float
+  unit: NonNegativeInt
 
 
 class Duration(BaseModel, frozen=True):
   start_date: Date
   end_date: Date
-  months: int
+  months: NonNegativeInt
 
   @field_serializer("start_date", "end_date")
   def serialize_date(self, date: Date):
     return int(date.strftime("%Y%m%d"))
 
 
-class Instant(BaseModel):
+class Instant(BaseModel, frozen=True):
   instant: Date
 
   @field_serializer("instant")
@@ -191,25 +192,6 @@ class FinStatement(BaseModel):
           f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
         )
       return parsed_value
-
-    return value
-
-  @field_validator("periods", mode="before")
-  @classmethod
-  def validate_periods(cls, value, info: ValidationInfo):
-    key_pattern = re.compile(r"^(i|d)\d+$")
-
-    if isinstance(value, str):
-      return parse_periods_json(value, key_pattern, info)
-
-    for key, period in value.items():
-      if not key_pattern.match(key):
-        raise ValueError(
-          f"{info.field_name} keys must be of the form 'iN' or 'dN'. Invlid key: {key}"
-        )
-
-      if not isinstance(period, (Instant, Duration)):
-        raise ValueError(f"Invalid period format for key {key}: {period}")
 
     return value
 

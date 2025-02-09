@@ -1,4 +1,4 @@
-from datetime import datetime as dt, date as Date
+from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
 from typing import TypedDict
@@ -8,7 +8,15 @@ import httpx
 import pandas as pd
 
 from lib.const import HEADERS
-from lib.fin.models import FinData, FinRecord, FinStatement, Instant, Duration
+from lib.fin.models import (
+  FinData,
+  FinPeriodStore,
+  FinRecord,
+  FinStatement,
+  Instant,
+  Duration,
+  UnitStore,
+)
 from lib.fin.statement import (
   statement_urls,
   upsert_statements,
@@ -90,6 +98,23 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
 
     return Duration(start_date=start_date, end_date=end_date, months=months)
 
+  def fix_data(
+    data: FinData,
+    period_lookup: dict[Duration | Instant, str],
+    unit_lookup: dict[str, int],
+  ) -> FinData:
+    return {
+      k: [
+        {
+          **item,
+          "period": period_lookup[item["period"]],
+          "unit": unit_lookup[item["unit"]],
+        }
+        for item in v
+      ]
+      for k, v in sorted(data.items())
+    }
+
   url = f"https://filings.xbrl.org/{filing_slug}"
 
   async with httpx.AsyncClient() as client:
@@ -97,6 +122,8 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
     parse = rs.json()
 
   data: FinData = {}
+  period_store = FinPeriodStore()
+  unit_store = UnitStore()
   currencies: set[str] = set()
 
   for entry in parse["facts"].values():
@@ -109,15 +136,22 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
     item_name = entry["dimensions"]["concept"].split(":")[-1]
 
     scrap["value"] = float(entry["value"])
-    scrap["period"] = parse_period(entry["dimensions"]["period"])
-    unit = unit.split("/")[0].split(":")[-1]
-    scrap["unit"] = unit.lower()
+    period = parse_period(entry["dimensions"]["period"])
+    period_store.add_period(period)
+    scrap["period"] = period
+    unit = unit.split("/")[0].split(":")[-1].lower()
+    unit_store.add_unit(unit)
+    scrap["unit"] = unit
+
     if len(unit) == 3:
       currencies.add(unit)
 
     data.setdefault(item_name, []).append(scrap)
 
-  data = dict(sorted(data.items()))
+  periods, period_lookup = period_store.get_periods()
+  units, unit_lookup = unit_store.get_units()
+
+  data = fix_data(data, period_lookup, unit_lookup)
 
   statement = FinStatement(
     url=[url],
@@ -126,6 +160,8 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
     fiscal_period="FY",
     fiscal_end=date[5:],
     currency=currencies,
+    periods=periods,
+    units=units,
     data=data,
   )
   return statement
