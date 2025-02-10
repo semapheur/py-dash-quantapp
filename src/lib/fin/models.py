@@ -168,6 +168,19 @@ class FinStatement(BaseModel):
 
     return value
 
+  @field_validator("date", mode="before")
+  @classmethod
+  def validate_date(cls, value, info: ValidationInfo):
+    if isinstance(value, int):
+      try:
+        return dt.strptime(str(value), "%Y%m%d").date()
+      except ValueError:
+        raise ValueError(
+          f"As integer '{info.field_name}' must be in YYYYMMDD format. Invalid value: {value}"
+        )
+
+    return value
+
   @field_validator("fiscal_end", mode="before")
   @classmethod
   def validate_fiscal_end(cls, value, info: ValidationInfo):

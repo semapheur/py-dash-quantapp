@@ -84,7 +84,7 @@ async def statement_to_df(
   currency: Optional[str] = None,
   multiple=False,
 ) -> DataFrame:
-  def parse_date(period: Instant | Duration) -> Date:
+  def get_date(period: Instant | Duration) -> Date:
     return period.end_date if isinstance(period, Duration) else period.instant
 
   async def exchange_rate(
@@ -113,7 +113,10 @@ async def statement_to_df(
 
   for item, entries in financials.data.items():
     for entry in entries:
-      date = pd.to_datetime(parse_date(entry["period"]))
+      period_type = entry["period"][0]
+      period_index = entry["period"][1:]
+      period: Duration | Instant = financials.periods[period_type][period_index]
+      date = pd.to_datetime(get_date(period))
 
       months = relativedelta(fin_date, date).months
 
@@ -124,8 +127,8 @@ async def statement_to_df(
       ):
         continue
 
-      if isinstance(entry["period"], Duration):
-        months = entry["period"].months
+      if isinstance(period, Duration):
+        months = period.months
       else:
         months = ScopeEnum[fin_scope].value
 
@@ -138,16 +141,16 @@ async def statement_to_df(
         period = "Q4"
 
       value = entry.get("value")
-      unit = entry.get("unit", "")
+      unit_index = entry.get("unit")
+      unit = financials.units[unit_index] if unit_index is not None else ""
+
       if value and (currency is not None) and unit in currencies:
-        value *= await exchange_rate(currency, unit, entry["period"])
+        value *= await exchange_rate(currency, unit, period)
 
       index = (date, period, months, fiscal_end_month)
       df_data.setdefault(index, {})[item] = value
 
-      if fin_period == "FY" and (
-        isinstance(entry["period"], Instant) or entry.get("unit") == "shares"
-      ):
+      if fin_period == "FY" and (isinstance(period, Instant) or unit == "shares"):
         index = (date, "Q4", 3, fiscal_end_month)
         df_data.setdefault(index, {})[item] = value
 
@@ -160,18 +163,17 @@ async def statement_to_df(
         if m_value is None:
           continue
 
-        unit = m_entry.get("unit", "")
-        if (currency is not None) and unit in currencies:
-          m_value *= await exchange_rate(currency, unit, entry["period"])
+        unit_index = m_entry.get("unit")
+        m_unit = financials.units[unit_index] if unit_index is not None else ""
+        if (currency is not None) and m_unit in currencies:
+          m_value *= await exchange_rate(currency, m_unit, period)
 
         dim = "." + d if (d := m_entry.get("dim")) else ""
         key = f"{item}{dim}.{member}"
         index = (date, period, months, fiscal_end_month)
         df_data.setdefault(index, {})[key] = m_value
 
-        if fin_period == "FY" and (
-          isinstance(entry["period"], Instant) or m_entry.get("unit") == "shares"
-        ):
+        if fin_period == "FY" and (isinstance(period, Instant) or m_unit == "shares"):
           index = (date, "Q4", 3, fiscal_end_month)
           df_data.setdefault(index, {})[key] = m_value
 
