@@ -437,7 +437,17 @@ def upload_json(contents: str, filename: str, company: str):
   decoded = base64.b64decode(content_string)
 
   data = json.loads(decoded.decode("utf-8"))
-  required_keys = {"url", "date", "scope", "fiscal_period", "fiscal_end", "currency"}
+  required_keys = {
+    "url",
+    "date",
+    "scope",
+    "fiscal_period",
+    "fiscal_end",
+    "currency",
+    "periods",
+    "units",
+    "data",
+  }
   if set(data.keys()) != required_keys:
     message = (
       f"Invalid JSON structure. Expected keys: {required_keys}, got: {set(data.keys())}"

@@ -8,6 +8,7 @@ import sqlite3
 from typing import cast, Optional
 
 from asyncstdlib.functools import cache
+import OrderedSet
 import pandas as pd
 from pandera.typing import DataFrame, Series, Index
 
@@ -386,8 +387,8 @@ def load_raw_statements(
   query = f"SELECT * FROM '{id}'"
   params = []
   if date:
-    query += " WHERE DATE(date) >= DATE(?)"
-    params.append(date.strftime("%Y-%m-%d"))
+    query += " WHERE date >= ?"
+    params.append(int(date.strftime("%Y%m%d")))
 
   if order:
     query += " ORDER BY date ASC"
@@ -401,18 +402,18 @@ def load_raw_statements(
   return statements
 
 
-def load_raw_statement(id: str, date: str, period: FiscalPeriod):
+def load_raw_statement(id: str, date: int, period: FiscalPeriod) -> FinStatement:
   db_path = sqlite_path("statements.db")
 
   query = f"""
     SELECT * FROM '{id}' 
-    WHERE date = :date AND fiscal_period = :period
+    WHERE date = ? AND fiscal_period = ?
   """
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
     cur.row_factory = lambda _, row: FinStatement(**row)
 
-    statement = cur.execute(query, {"date": date, "period": period}).fetchone()
+    statement: FinStatement = cur.execute(query, (date, period)).fetchone()
 
   return statement
 
@@ -430,7 +431,7 @@ def store_updated_statements(
     cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
       url TEXT,
       scope TEXT,
-      date DATE,
+      date INTEGER,
       fiscal_period TEXT,
       fiscal_end TEXT,
       currency TEXT,
@@ -451,6 +452,77 @@ def store_updated_statements(
     con.commit()
 
 
+def insert_statements(
+  db_name: str,
+  table: str,
+  statements: list[FinStatement],
+):
+  db_path = sqlite_path(db_name)
+
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
+
+    cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
+      url TEXT,
+      scope TEXT,
+      date INTEGER,
+      fiscal_period TEXT,
+      fiscal_end TEXT,
+      currency TEXT,
+      data TEXT,
+      periods TEXT,
+      units TEXT,
+      UNIQUE (date, fiscal_period)
+    )""")
+
+    query = f"""
+      INSERT INTO "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :periods, :units, :data)
+    """
+    cur.executemany(query, [s.model_dump_json() for s in statements])
+    con.commit()
+
+
+def update_statements(
+  db_name: str,
+  table: str,
+  statements: list[FinStatement],
+):
+  db_path = sqlite_path(db_name)
+
+  for statement in statements:
+    date = int(statement.date.strftime("%Y%m%d"))
+    fiscal_period = statement.fiscal_period
+
+    old_statement = load_raw_statement(table, date, fiscal_period)
+    old_statement.merge(statement)
+
+    with closing(sqlite3.connect(db_path)) as con:
+      cur = con.cursor()
+      query = f"""
+        UPDATE "{table}" SET
+          url = :url,
+          currency = :currency,
+          periods = :periods,
+          units = :units,
+          data = :data
+        WHERE date = :date AND fiscal_period = :fiscal_period
+      """
+      statement_json = old_statement.model_dump_json()
+      cur.execute(
+        query,
+        {
+          "url": statement_json["url"],
+          "currency": statement_json["currency"],
+          "periods": statement_json["periods"],
+          "units": statement_json["units"],
+          "data": statement_json["data"],
+          "date": date,
+          "fiscal_period": fiscal_period,
+        },
+      )
+      con.commit()
+
+
 def upsert_statements(
   db_name: str,
   table: str,
@@ -468,12 +540,14 @@ def upsert_statements(
       fiscal_period TEXT,
       fiscal_end TEXT,
       currency TEXT,
+      periods TEXT,
+      units TEXT,
       data TEXT,
       UNIQUE (date, fiscal_period)
     )""")
 
     query = f"""INSERT INTO 
-      "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :data)
+      "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :periods, :units, :data)
       ON CONFLICT (date, fiscal_period) DO UPDATE SET
         data=json_patch(data, excluded.data),
         url=(
