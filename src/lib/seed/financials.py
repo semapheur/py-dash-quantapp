@@ -11,7 +11,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 from tqdm import tqdm
 
-from lib.db.lite import read_sqlite, upsert_strings, get_tables
+from lib.db.lite import fetch_sqlite, read_sqlite, upsert_strings, get_tables
 from lib.edgar.parse import update_edgar_statements
 from lib.fin.fundamentals import update_fundamentals
 from lib.ticker.fetch import get_primary_securities, update_company_lei
@@ -138,6 +138,48 @@ async def seed_edgar_statements(exchange: str) -> None:
     content: dict = json.load(f)
     content[f"{exchange}_statements_edgar"] = faulty
     json.dump(content, f)
+
+
+async def seed_company_statements(company_id: str) -> None:
+  query_cik = """SELECT e.cik AS cik FROM edgar e
+    INNER JOIN stock s ON s.isin = e.isin
+    WHERE s.company_id = :company_id
+  """
+
+  result = fetch_sqlite("ticker.db", query_cik, {"company_id": company_id})
+  cik = result[0][0] if result else None
+  if cik is not None:
+    await update_edgar_statements(int(cik), company_id)
+
+  query_isin_lei = """
+    SELECT
+      s.isin AS isin,
+      company.lei 
+    FROM stock s
+    INNER JOIN company c ON c.company_id = s.company_id
+    WHERE s.company_id = :company_id
+  """
+
+  result = fetch_sqlite("ticker.db", query_isin_lei, {"company_id": company_id})
+  if not result:
+    return
+
+  isin, lei = result[0]
+
+  if lei is None:
+    lei = await lei_by_isin(isin)
+    if lei is not None:
+      update_company_lei([{"company_id": company_id, "lei": lei}])
+
+  if lei is None:
+    return
+
+  update_xbrl_statements(lei, company_id)
+
+
+async def seed_exchange_statements(exchange: str) -> None:
+  await seed_xbrl_statements(exchange)
+  await seed_edgar_statements(exchange)
 
 
 async def seed_fundamentals(exchange: str):

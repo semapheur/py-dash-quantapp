@@ -117,19 +117,6 @@ FloorBrokerageExchangeAndClearanceFees + MarketingAndAdvertisingExpense + Deprec
 - ProfitLossFromContinuingOperations = ProfitLossBeforeTax - IncomeTaxExpenseContinuingOperations
 - ProfitLoss = ProfitLossFromContinuingOperations + ProfitLossFromDiscontinuedOperations
 
-### Gain/Loss
-
-- revenue_finance_noninterest
-    - revenue_services_financial + revenue_market_data + noninterest_income_operating_other + noninterest_income_other?
-    - noninterest_income_operating + revenue_market_data + revenue_services_financial_other
-- revenue_services_financial = [investment_banking_advisory_brokerage_underwriting_fees_commissions] + [gain_loss_sale_financial_assets] + [revenue_premiums] + [revenue_principal_transaction] + revenue_services_financial_other
-- noninterest_income_operating = [investment_banking_advisory_brokerage_underwriting_fees_commissions] + [revenue_premiums] + [revenue_principal_transaction] + [gain_loss_sale_financial_assets] + noninterest_income_operating_other + noninterest_income_other
-- gain_loss_sale_financial_assets = gain_loss_securitization_financial_assets + gain_loss_sale_securities + gain_loss_realized_securities + gain_loss_sale_loans + gain_loss_sale_mortgagebacked_securities + gain_loss_sale_insurance_block + [gain_loss_sale_derivatives] + gain_loss_sale_credit_card + gain_loss_sale_other_financial_assets
-- gain_loss_realized_investments = gain_loss_securitization_financial_assets + gain_loss_realized_securities + gain_loss_sale_securities + gain_loss_sale_loans + gain_loss_sale_lease_financing + gain_loss_sale_leased_assets_operating + gain_loss_sale_properties_pretax + gain_loss_sale_investment_real_estate + gain_loss_sale_equity_method_investment + [gain_loss_sale_investment_other] + gain_loss_sale_other_financial_assets + gain_loss_sale_other_assets
-- gain_loss_sale_investments = gain_loss_sale_stock_subsidiary_or_equity_method_investee + gain_loss_sale_investments_equity + gain_loss_sale_investments_debt + gain_loss_sale_properties + [gain_loss_sale_derivatives] + gain_loss_sale_commodity_contracts + [gain_loss_sale_investment_other]
-- gain_loss_marketable_securities_cost_method_investments = gain_loss_realized_securities_marketable + gain_loss_cost_method_investments + gain_loss_realized_investments + gain_loss_sale_investments
-
-
 ## Cashflow
 
 NetCashProvidedByUsedInOperatingActivitiesContinuingOperations = ProfitLoss - ExtraordinaryItemNetOfTax - IncomeLossFromDiscontinuedOperationsNetOfTax + AdjustmentsToReconcileNetIncomeLossToCashProvidedByUsedInOperatingActivities
