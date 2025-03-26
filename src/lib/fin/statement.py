@@ -8,7 +8,6 @@ import sqlite3
 from typing import cast, Optional
 
 from asyncstdlib.functools import cache
-import OrderedSet
 import pandas as pd
 from pandera.typing import DataFrame, Series, Index
 
@@ -567,7 +566,7 @@ def upsert_statements(
           )
         )
     """
-    cur.executemany(query, [s.model_dump_json() for s in statements])
+    cur.executemany(query, [s.model_dump() for s in statements])
     con.commit()
 
 
@@ -585,6 +584,6 @@ def statement_urls(
   df = read_sqlite(
     db_name,
     query,
-    date_parser={"date": {"format": "%Y-%m-%d"}},
+    date_parser={"date": {"format": "%Y%m%d"}},
   )
   return df

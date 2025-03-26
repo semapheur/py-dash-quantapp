@@ -36,7 +36,7 @@ def lei_filings(
     url = "https://filings.xbrl.org/api/filings"
     params = {
       "include": "entity",
-      "filter": f'[{{"name":"entity.identifier","op":"eq","val":{lei}}}]',
+      "filter": f'[{{"name":"entity.identifier","op":"eq","val":"{lei}"}}]',
       "sort": "-date_added",
       "page[size]": str(page_size),
       "page[number]": str(page),

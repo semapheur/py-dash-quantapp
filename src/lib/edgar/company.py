@@ -14,7 +14,6 @@ import httpx
 
 # Local
 from lib.const import HEADERS
-from lib.db.lite import read_sqlite
 from lib.edgar.models import Recent, CompanyInfo
 from lib.edgar.parse import (
   parse_xbrl_url,
@@ -23,7 +22,6 @@ from lib.edgar.parse import (
   parse_taxonomy,
 )
 from lib.fin.models import FinStatement
-from lib.utils import camel_split, snake_abbreviate
 
 FIELDS = {
   "id": "TEXT",
@@ -223,32 +221,3 @@ class Company:
 
     result = await fetch()
     return result
-
-
-def process_taxonomy():
-  query = "SELECT * FROM financials"
-  df = read_sqlite("taxonomy.db", query, index_col="item")
-  if df is None:
-    raise Exception("Taxonomy does not exist!")
-
-  df.reset_index(inplace=True)
-  df.rename(columns={"item": "gaap"}, inplace=True)
-
-  item = set(df["gaap"].values)
-  parent = set(df["parent"].values)
-  append = parent.difference(item)
-
-  temp = df.loc[df["parent"].isin(append)]
-  temp.loc[:, "gaap"] = temp["parent"].values
-  temp.loc[:, "parent"] = ""
-
-  df = pd.concat([df, temp])
-
-  df["item"] = df["gaap"].astype(str).apply(lambda x: snake_abbreviate(x))
-  df["label"] = df["gaap"].astype(str).apply(lambda x: " ".join(camel_split(x)))
-  df["parent_"] = (
-    df["parent"].astype(str).apply(lambda x: snake_abbreviate(x) if x else "")
-  )
-
-  df = df[["sheet", "item", "parent_", "parent", "label", "gaap"]]
-  df.to_csv("fin_taxonomy.csv", index=False)

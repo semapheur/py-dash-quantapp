@@ -104,7 +104,7 @@ async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Serie
 
 async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = "htm") -> str:
   url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{doc_id.replace('-', '')}/{doc_id}-index.html"
-  async with httpx.AsyncClient() as client:
+  async with httpx.AsyncClient(timeout=httpx.Timeout(10)) as client:
     response = await client.get(url, headers=HEADERS)
     if response.status_code != 200:
       raise httpx.RequestError(f"Error: {response.text}")
@@ -146,39 +146,50 @@ async def parse_statement(url: str) -> FinStatement:
 
       for item in data[k]:
         item["period"] = period_lookup[item["period"]]
-        item["unit"] = unit_lookup[item["unit"]]
+
+        if "unit" in item:
+          item["unit"] = unit_lookup[item["unit"]]
+
         members = item.get("members")
-        if "value" in item or members is None:
+        if members is None:
           temp.append(item)
           continue
 
         if len(members) == 1:
           member = next(iter(members.values()))
-          temp.append(
-            FinRecord(
-              period=period_lookup[item["period"]],
-              value=cast(float | int, member.get("value")),
-              unit=unit_lookup[member["unit"]],
-            )
-          )
+          m_unit = member.get("unit")
+
+          if "value" not in item:
+            item["value"] = member.get("value")
+
+          if m_unit is None:
+            temp.append(item)
+            continue
+
+          member["unit"] = unit_lookup[m_unit]
+
+          if "unit" not in item:
+            item["unit"] = member["unit"]
+
+          temp.append(item)
           continue
 
         value = 0.0
         units = set()
-        for m in members.values():
-          value += m.get("value", 0)
-          if (unit := m.get("unit")) is not None:
+        for m in members.keys():
+          value += members[m].get("value", 0)
+          unit = members[m].get("unit")
+          if unit is not None:
+            members[m]["unit"] = unit_lookup[unit]
             units.add(unit)
 
         if len(units) == 1:
-          temp.append(
-            FinRecord(
-              period=item["period"],
-              value=value,
-              unit=unit_lookup[units.pop()],
-              members=members,
-            )
-          )
+          item["unit"] = unit_lookup[units.pop()]
+
+          if "value" not in item:
+            item["value"] = value
+
+        temp.append(item)
 
       fixed[k] = temp
 
@@ -372,7 +383,7 @@ async def parse_statement(url: str) -> FinStatement:
 
   data = fix_data(data, period_lookup, unit_lookup)
   return FinStatement(
-    url=url,
+    url=[url],
     date=date.date(),
     scope=scope,
     fiscal_period=fiscal_period,

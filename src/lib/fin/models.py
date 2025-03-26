@@ -242,7 +242,7 @@ class FinStatement(BaseModel):
 
   @field_serializer("url")
   def serialize_url(self, url: list[str]):
-    return url
+    return json.dumps(url)
 
   @field_serializer("date")
   def serialize_date(self, date: Date):
@@ -250,7 +250,20 @@ class FinStatement(BaseModel):
 
   @field_serializer("currency")
   def serialize_currency(self, currency: set[str]):
-    return list(currency)
+    return json.dumps(sorted(list(currency)))
+
+  @field_serializer("periods")
+  @classmethod
+  def serialize_periods(cls, periods: FinPeriods):
+    obj = {
+      "d": [d.model_dump() for d in periods["d"]],
+      "i": [i.model_dump() for i in periods["i"]],
+    }
+    return json.dumps(obj)
+
+  @field_serializer("units")
+  def serialize_units(self, units: list[str]):
+    return json.dumps(units)
 
   @field_serializer("data")
   @classmethod
@@ -268,7 +281,7 @@ class FinStatement(BaseModel):
         }
         for item in items
       ]
-    return obj
+    return json.dumps(obj)
 
   def merge(self, other: object):
     if not isinstance(other, FinStatement):

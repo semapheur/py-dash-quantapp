@@ -154,7 +154,7 @@ async def seed_company_statements(company_id: str) -> None:
   query_isin_lei = """
     SELECT
       s.isin AS isin,
-      company.lei 
+      c.lei 
     FROM stock s
     INNER JOIN company c ON c.company_id = s.company_id
     WHERE s.company_id = :company_id
@@ -174,7 +174,7 @@ async def seed_company_statements(company_id: str) -> None:
   if lei is None:
     return
 
-  update_xbrl_statements(lei, company_id)
+  await update_xbrl_statements(lei, company_id)
 
 
 async def seed_exchange_statements(exchange: str) -> None:
