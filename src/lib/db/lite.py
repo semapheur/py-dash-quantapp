@@ -28,6 +28,11 @@ def sqlite_path(db_name: str) -> Path:
   return db_path
 
 
+def dict_factory(cursor, row):
+  fields = [column[0] for column in cursor.description]
+  return {key: value for key, value in zip(fields, row)}
+
+
 def empty_tables(db_name: str) -> list[str]:
   db_path = sqlite_path(db_name)
 

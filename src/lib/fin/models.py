@@ -49,6 +49,16 @@ class Duration(BaseModel, frozen=True):
   end_date: Date
   months: NonNegativeInt
 
+  @field_validator("start_date", "end_date", mode="before")
+  def validate_start_date(cls, value: int | Date) -> Date:
+    if isinstance(value, int):
+      try:
+        return dt.strptime(str(value), "%Y%m%d").date()
+      except ValueError:
+        raise ValueError(f"Invalid value: {value}")
+
+    return value
+
   @field_serializer("start_date", "end_date")
   def serialize_date(self, date: Date):
     return int(date.strftime("%Y%m%d"))
@@ -56,6 +66,16 @@ class Duration(BaseModel, frozen=True):
 
 class Instant(BaseModel, frozen=True):
   instant: Date
+
+  @field_validator("instant", mode="before")
+  def validate_date(cls, value: int) -> Date:
+    if isinstance(value, int):
+      try:
+        return dt.strptime(str(value), "%Y%m%d").date()
+      except ValueError:
+        raise ValueError(f"Invalid value: {value}")
+
+    return value
 
   @field_serializer("instant")
   def serialize_date(self, date: Date):
@@ -142,11 +162,10 @@ def item_dict(v: FinRecord):
 
 
 class FinStatement(BaseModel):
-  url: list[str] | None = None
-  scope: Scope
   date: Date
   fiscal_period: FiscalPeriod
   fiscal_end: str
+  url: list[str] | None = None
   currency: set[str]
   periods: FinPeriods
   units: list[str]
@@ -203,6 +222,24 @@ class FinStatement(BaseModel):
       except json.JSONDecodeError:
         raise ValueError(
           f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
+        )
+      return parsed_value
+
+    return value
+
+  @field_validator("periods", mode="before")
+  @classmethod
+  def validate_periods(cls, value, info: ValidationInfo):
+    if isinstance(value, str):
+      try:
+        parsed_value = json.loads(value)
+        if not isinstance(parsed_value, dict):
+          raise ValueError(
+            f"{info.field_name} must be a dictionary. Invalid value: {value}"
+          )
+      except json.JSONDecodeError:
+        raise ValueError(
+          f"{info.field_name} must be a valid JSON dictionary string. Invalid value: {value}"
         )
       return parsed_value
 
@@ -419,13 +456,13 @@ class FinStatement(BaseModel):
 
 
 class FinStatementFrame(DataFrameModel):
-  url: list[str]
-  scope: str = Field(isin={"annual", "quarterly"})
   date: Timestamp
   period: str = Field(isin={"FY", "Q1", "Q2", "Q3", "Q4"})
   fiscal_end: str
+  url: list[str]
   currency: set[str]
   periods: FinPeriods
+  units: list[str]
   data: dict[str, list[FinRecord]]
 
 

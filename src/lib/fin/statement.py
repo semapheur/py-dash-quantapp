@@ -43,12 +43,28 @@ stock_split_items = {
   "ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares",
 }
 
+statements_columns = {
+  "date": "INTEGER",
+  "fiscal_period": "TEXT",
+  "url": "TEXT",
+  "fiscal_end": "TEXT",
+  "currency": "TEXT",
+  "periods": "TEXT",
+  "units": "TEXT",
+  "data": "TEXT",
+}
+statements_table_text = (
+  ",".join(f"{k} {v}" for k, v in statements_columns.items())
+  + ",UNIQUE (date, fiscal_period)"
+)
+statements_columns_text = ",".join(statements_columns.keys())
+statements_values_text = ",".join(f":{k}" for k in statements_columns.keys())
+
 
 def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
   return [
     FinStatement(
       url=row["url"],
-      scope=row["scope"],
       date=row["date"],
       fiscal_period=row["fiscal_period"],
       fiscal_end=row["fiscal_end"],
@@ -105,8 +121,8 @@ async def statement_to_df(
 
   fin_date = pd.to_datetime(financials.date)
   fiscal_end_month = int(financials.fiscal_end.split("-")[0])
-  fin_scope = financials.scope
   fin_period = financials.fiscal_period
+  fin_scope = "annual" if fin_period == "FY" else "quarterly"
   currencies = financials.currency.difference({currency})
 
   df_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, int | float]] = {}
@@ -185,6 +201,9 @@ async def statement_to_df(
 
 async def load_statements(id: str, currency: Optional[str] = None) -> DataFrame | None:
   statements = load_raw_statements(id)
+
+  if statements is None:
+    return None
 
   dfs = [await statement_to_df(statements.pop(0), currency, True)] + [
     await statement_to_df(s, currency) for s in statements
@@ -401,7 +420,7 @@ def load_raw_statements(
   return statements
 
 
-def load_raw_statement(id: str, date: int, period: FiscalPeriod) -> FinStatement:
+def load_raw_statement(id: str, date: int, period: FiscalPeriod) -> FinStatement | None:
   db_path = sqlite_path("statements.db")
 
   query = f"""
@@ -410,11 +429,20 @@ def load_raw_statement(id: str, date: int, period: FiscalPeriod) -> FinStatement
   """
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
-    cur.row_factory = lambda _, row: FinStatement(**row)
 
-    statement: FinStatement = cur.execute(query, (date, period)).fetchone()
+    table_exists = cur.execute(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (id,)
+    ).fetchone()
+    if table_exists is None:
+      return None
 
-  return statement
+    cur.row_factory = sqlite3.Row
+    statement = cur.execute(query, (date, period)).fetchone()
+
+    if statement is None:
+      return None
+
+    return FinStatement(**dict(statement))
 
 
 def store_updated_statements(
@@ -427,21 +455,11 @@ def store_updated_statements(
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
-      url TEXT,
-      scope TEXT,
-      date INTEGER,
-      fiscal_period TEXT,
-      fiscal_end TEXT,
-      currency TEXT,
-      data TEXT,
-      UNIQUE (date, fiscal_period)
-    )""")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_text})")
 
     query = f"""
       UPDATE "{table}" SET
         url = :url,
-        scope = :scope,
         fiscal_end = :fiscal_end,
         currency = :currency,
         data = :data
@@ -461,62 +479,58 @@ def insert_statements(
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
-      url TEXT,
-      scope TEXT,
-      date INTEGER,
-      fiscal_period TEXT,
-      fiscal_end TEXT,
-      currency TEXT,
-      data TEXT,
-      periods TEXT,
-      units TEXT,
-      UNIQUE (date, fiscal_period)
-    )""")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_columns})")
 
     query = f"""
-      INSERT INTO "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :periods, :units, :data)
+      INSERT INTO "{table}" VALUES ({statements_values_text})
     """
     cur.executemany(query, [s.model_dump_json() for s in statements])
     con.commit()
 
 
-def update_statements(
+def upsert_merged_statements(
   db_name: str,
   table: str,
   statements: list[FinStatement],
 ):
   db_path = sqlite_path(db_name)
 
-  for statement in statements:
-    date = int(statement.date.strftime("%Y%m%d"))
-    fiscal_period = statement.fiscal_period
+  with closing(sqlite3.connect(db_path)) as con:
+    cur = con.cursor()
 
-    old_statement = load_raw_statement(table, date, fiscal_period)
-    old_statement.merge(statement)
+    for statement in statements:
+      date = int(statement.date.strftime("%Y%m%d"))
+      fiscal_period = statement.fiscal_period
 
-    with closing(sqlite3.connect(db_path)) as con:
-      cur = con.cursor()
+      old_statement = load_raw_statement(table, date, fiscal_period)
+      if old_statement is not None:
+        old_statement.merge(statement)
+      else:
+        old_statement = statement
+
+      cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_text})")
       query = f"""
-        UPDATE "{table}" SET
-          url = :url,
-          currency = :currency,
-          periods = :periods,
-          units = :units,
-          data = :data
-        WHERE date = :date AND fiscal_period = :fiscal_period
+        INSERT INTO "{table}"
+        VALUES ({statements_values_text})
+        ON CONFLICT(date, fiscal_period) DO UPDATE SET
+          url = excluded.url,
+          currency = excluded.currency,
+          periods = excluded.periods,
+          units = excluded.units,
+          data = excluded.data
       """
-      statement_json = old_statement.model_dump_json()
+      statement_json = old_statement.model_dump()
       cur.execute(
         query,
         {
+          "date": date,
+          "fiscal_period": fiscal_period,
+          "fiscal_end": statement_json["fiscal_end"],
           "url": statement_json["url"],
           "currency": statement_json["currency"],
           "periods": statement_json["periods"],
           "units": statement_json["units"],
           "data": statement_json["data"],
-          "date": date,
-          "fiscal_period": fiscal_period,
         },
       )
       con.commit()
@@ -532,21 +546,10 @@ def upsert_statements(
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    cur.execute(f"""CREATE TABLE IF NOT EXISTS "{table}"(
-      url TEXT,
-      scope TEXT,
-      date DATE,
-      fiscal_period TEXT,
-      fiscal_end TEXT,
-      currency TEXT,
-      periods TEXT,
-      units TEXT,
-      data TEXT,
-      UNIQUE (date, fiscal_period)
-    )""")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_columns})")
 
     query = f"""INSERT INTO 
-      "{table}" VALUES (:url, :scope, :date, :fiscal_period, :fiscal_end, :currency, :periods, :units, :data)
+      "{table}" VALUES ({statements_values_text})
       ON CONFLICT (date, fiscal_period) DO UPDATE SET
         data=json_patch(data, excluded.data),
         url=(

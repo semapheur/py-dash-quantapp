@@ -19,6 +19,7 @@ from lib.fin.models import (
 )
 from lib.fin.statement import (
   statement_urls,
+  upsert_merged_statements,
   upsert_statements,
 )
 from lib.utils import exclusive_end_date, month_difference
@@ -154,11 +155,10 @@ async def parse_statement(filing_slug: str, date: str) -> FinStatement:
   data = fix_data(data, period_lookup, unit_lookup)
 
   statement = FinStatement(
-    url=[url],
-    scope="annual",
     date=dt.strptime(date, "%Y-%m-%d").date(),
     fiscal_period="FY",
     fiscal_end=date[5:],
+    url=[url],
     currency=currencies,
     periods=periods,
     units=units,
@@ -178,7 +178,7 @@ async def scrap_xbrl_statements(lei: str, id: str):
   filings = lei_filings(lei)
 
   financials = await parse_xbrl_statements(filings)
-  upsert_statements("statements.db", id, financials)
+  upsert_merged_statements("statements.db", id, financials)
 
 
 async def update_xbrl_statements(lei: str, id: str, delta=120):

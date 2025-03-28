@@ -14,7 +14,6 @@ import pandas as pd
 from pandera.typing import DataFrame, Series
 from parsel import Selector
 
-# Local
 from lib.const import HEADERS
 from lib.edgar.models import CikEntry, CikFrame
 from lib.fin.models import (
@@ -30,6 +29,7 @@ from lib.fin.models import (
 )
 from lib.fin.statement import (
   statement_urls,
+  upsert_merged_statements,
   upsert_statements,
 )
 from lib.utils import (
@@ -52,7 +52,7 @@ async def scrap_edgar_statements(cik: int, id: str):
   filings = await company.xbrl_urls()
 
   financials = await parse_statements(filings.tolist())
-  upsert_statements("statements.db", id, financials)
+  upsert_merged_statements("statements.db", id, financials)
 
 
 async def update_edgar_statements(cik: int, id: str, delta=120):
@@ -87,7 +87,7 @@ async def update_edgar_statements(cik: int, id: str, delta=120):
   new_filings = new_filings.loc[mask]
   new_statements = await parse_statements(new_filings.tolist())
   if new_statements:
-    upsert_statements("statements.db", id, new_statements)
+    upsert_merged_statements("statements.db", id, new_statements)
 
 
 async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Series[str]:
@@ -383,11 +383,10 @@ async def parse_statement(url: str) -> FinStatement:
 
   data = fix_data(data, period_lookup, unit_lookup)
   return FinStatement(
-    url=[url],
     date=date.date(),
-    scope=scope,
     fiscal_period=fiscal_period,
     fiscal_end=fiscal_end,
+    url=[url],
     currency=currency,
     periods=fin_periods,
     units=units,

@@ -357,7 +357,7 @@ def parse_gaap_calculation_urls(
   url = f"https://xbrl.fasb.org/us-gaap/{year}/{suffix}/"
 
   response = httpx.get(url)
-  dom = parsel.Selector(response.text)
+  dom = Selector(response.text)
 
   pattern = rf'-cal-{year}{"-01-31" if year < 2022 else ""}.xml$'
 
