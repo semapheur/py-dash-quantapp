@@ -1,3 +1,4 @@
+import copy
 from datetime import date as Date, datetime as dt
 import json
 import re
@@ -320,28 +321,33 @@ class FinStatement(BaseModel):
       ]
     return json.dumps(obj)
 
-  def merge(self, other: object):
+  def merge(self, other: "FinStatement"):
     if not isinstance(other, FinStatement):
       return NotImplemented
 
     if other.date != self.date and other.fiscal_period != self.fiscal_period:
       raise ValueError("Cannot merge statements with different dates or periods")
 
+    self._merge_urls(other)
+    self.currency.update(other.currency)
+    self._merge_data(other)
+    self._sort_entries()
+
+  def _merge_urls(self, other: "FinStatement") -> None:
+    if other.url is None:
+      return
+
     if self.url is None:
       self.url = []
 
-    if other.url is not None:
-      new_urls = set(other.url).difference(set(self.url))
-      if new_urls:
-        self.url.extend(new_urls)
+    new_urls = set(other.url).difference(self.url)
+    if new_urls:
+      self.url.extend(other.url)
 
-    self.currency.update(other.currency)
-
-    common_items = set(self.data.keys()).intersection(other.data.keys())
-
+  def _merge_data(self, other: "FinStatement") -> None:
     diff_periods: dict[str, Instant | Duration] = {}
     diff_periods_lookup: dict[Instant | Duration, str] = {}
-    period_index_count = {
+    period_index_count: dict[Literal["d", "i"], int] = {
       "d": len(self.periods["d"]),
       "i": len(self.periods["i"]),
     }
@@ -352,8 +358,8 @@ class FinStatement(BaseModel):
     }
 
     diff_units: list[str] = []
-    unit_index_count = len(self.units)
 
+    common_items = set(self.data.keys()).intersection(other.data.keys())
     for item in common_items:
       for entry in other.data[item]:
         period_type: Literal["d", "i"] = cast(Literal["d", "i"], entry["period"][0])
@@ -361,67 +367,51 @@ class FinStatement(BaseModel):
         period = other.periods[period_type][period_index]
 
         if period in old_periods[period_type]:
+          self._merge_members(other, entry, item, diff_units)
           continue
 
-        new_key = diff_periods_lookup.get(period, "")
-        if new_key not in diff_periods:
-          new_key = f"{period_type}{period_index_count[period_type]}"
-          period_index_count[period_type] += 1
-          diff_periods[new_key] = period
-          diff_periods_lookup[period] = new_key
+        new_entry = copy.deepcopy(entry)
+        new_entry = self._remap_units(other, new_entry, diff_units)
 
-        entry["period"] = new_key
+        new_entry = self._remap_periods(
+          new_entry,
+          period,
+          period_type,
+          diff_periods,
+          diff_periods_lookup,
+          period_index_count,
+        )
 
-        unit = other.units[entry["unit"]]
-
-        if unit in self.units:
-          entry["unit"] = self.units.index(unit)
-          self.data[item].append(entry)
-          continue
-
-        if unit not in diff_units:
-          diff_units.append(unit)
-          unit_index_count += 1
-
-        entry["unit"] = unit_index_count
-
-        self.data[item].append(entry)
+        self.data[item].append(new_entry)
 
     diff_items = set(other.data.keys()).difference(common_items)
 
     for item in diff_items:
+      self.data[item] = []
       for i, entry in enumerate(other.data[item]):
         period_type = cast(Literal["d", "i"], entry["period"][0])
         period_index = int(entry["period"][1:])
         period = other.periods[period_type][period_index]
 
+        new_entry = copy.deepcopy(entry)
+        new_entry = self._remap_units(other, new_entry, diff_units)
+
         if period in old_periods[period_type]:
           new_key = f"{period_type}{self.periods[period_type].index(period)}"
-          other.data[item][i]["period"] = new_key
+          new_entry["period"] = new_key
+
+          self.data[item].append(new_entry)
           continue
 
-        new_key = diff_periods_lookup.get(period, "")
-        if period not in diff_periods:
-          new_key = f"{period_type}{period_index_count[period_type]}"
-          period_index_count[period_type] += 1
-          diff_periods[new_key] = period
-          diff_periods_lookup[period] = new_key
-
-        other.data[item][i]["period"] = new_key
-
-        unit = other.units[entry["unit"]]
-
-        if unit in self.units:
-          other.data[item][i]["unit"] = self.units.index(unit)
-          continue
-
-        if unit not in diff_units:
-          diff_units.append(unit)
-          unit_index_count += 1
-
-        other.data[item][i]["unit"] = unit_index_count
-
-      self.data[item] = other.data[item]
+        new_entry = self._remap_periods(
+          new_entry,
+          period,
+          period_type,
+          diff_periods,
+          diff_periods_lookup,
+          period_index_count,
+        )
+        self.data[item].append(new_entry)
 
     diff_periods = dict(sorted(diff_periods.items()))
 
@@ -429,30 +419,145 @@ class FinStatement(BaseModel):
       period_type = cast(Literal["d", "i"], k[0])
       self.periods[period_type].append(v)
 
-    period_sorted = {
-      "d": sorted(
-        cast(set[Duration], self.periods["d"]), key=lambda x: (x.start_date, x.end_date)
+  def _merge_members(
+    self,
+    other: "FinStatement",
+    entry: FinRecord,
+    item: str,
+    diff_units: list[str],
+  ) -> None:
+    members = entry.get("members")
+    if members is None:
+      return
+
+    members = copy.deepcopy(members)
+
+    for target_entry in self.data[item]:
+      if target_entry["period"] != entry["period"]:
+        continue
+
+      if "members" not in target_entry:
+        for member in members.values():
+          if "unit" not in member:
+            continue
+
+          member["unit"] = self._remap_single_unit(other, diff_units, member["unit"])
+
+        target_entry["members"] = members
+        return
+
+      diff_members = set(members.keys()).difference(
+        cast(dict[str, Member], target_entry["members"]).keys()
+      )
+      if not diff_members:
+        return
+
+      for m in diff_members:
+        members[m]["unit"] = self._remap_single_unit(
+          other, diff_units, members[m]["unit"]
+        )
+
+      cast(dict[str, Member], target_entry["members"]).update(members)
+
+  def _remap_single_unit(
+    self,
+    other: "FinStatement",
+    diff_units: list[str],
+    unit_index: int,
+  ) -> int:
+    unit = other.units[unit_index]
+
+    if unit in self.units:
+      return self.units.index(unit)
+
+    if unit not in diff_units:
+      diff_units.append(unit)
+
+    return len(self.units) + diff_units.index(unit)
+
+  def _remap_units(
+    self,
+    other: "FinStatement",
+    entry: FinRecord,
+    diff_units: list[str],
+  ) -> FinRecord:
+    if "unit" in entry:
+      entry["unit"] = self._remap_single_unit(other, diff_units, entry["unit"])
+
+    members = entry.get("members")
+    if members is None:
+      return entry
+
+    for member in members.values():
+      if "unit" not in member:
+        continue
+
+      member["unit"] = self._remap_single_unit(other, diff_units, member["unit"])
+
+    return entry
+
+  def _remap_periods(
+    self,
+    entry: FinRecord,
+    period: Instant | Duration,
+    period_type: Literal["d", "i"],
+    diff_periods: dict[str, Instant | Duration],
+    diff_periods_lookup: dict[Instant | Duration, str],
+    period_index_count: dict[Literal["d", "i"], int],
+  ) -> FinRecord:
+    new_key = diff_periods_lookup.get(period, "")
+    if new_key not in diff_periods:
+      new_key = f"{period_type}{period_index_count[period_type]}"
+      period_index_count[period_type] += 1
+      diff_periods[new_key] = period
+      diff_periods_lookup[period] = new_key
+
+      entry["period"] = new_key
+
+    return entry
+
+  def _sort_entries(self) -> None:
+    sorted_periods = FinPeriods(
+      d=sorted(
+        self.periods["d"],
+        key=lambda x: (x.start_date, x.end_date),
       ),
-      "i": sorted(cast(set[Instant], self.periods["i"]), key=lambda x: x.instant),
-    }
+      i=sorted(self.periods["i"], key=lambda x: x.instant),
+    )
 
     period_remap: dict[str, str] = {}
-    for k, v in self.periods.items():
-      for i, p in enumerate(v):
-        remap_index = cast(list[Duration | Instant], period_sorted[k]).index(
-          cast(Duration | Instant, p)
-        )
-        period_remap[f"{k}{i}"] = f"{k}{remap_index}"
+    for period_type in ("d", "i"):
+      for old_index, p in enumerate(self.periods[period_type]):
+        new_index = sorted_periods[period_type].index(p)
+        period_remap[f"{period_type}{old_index}"] = f"{period_type}{new_index}"
 
-    unit_sorted = sorted(self.units)
-    unit_remap = [unit_sorted.index(unit) for unit in self.units]
+    sorted_units = sorted(self.units)
+    unit_remap = [sorted_units.index(unit) for unit in self.units]
 
-    for k in self.data:
-      for i, entry in enumerate(self.data[k]):
-        self.data[k][i]["period"] = period_remap[entry["period"]]
-        self.data[k][i]["unit"] = unit_remap[entry["unit"]]
+    self.periods = FinPeriods(
+      d=sorted_periods["d"],
+      i=sorted_periods["i"],
+    )
+    self.units = sorted_units
 
-      self.data[k] = sorted(self.data[k], key=lambda x: x["period"])
+    for item in self.data:
+      for entry in self.data[item]:
+        entry["period"] = period_remap[entry["period"]]
+
+        if "unit" in entry:
+          entry["unit"] = unit_remap[entry["unit"]]
+
+        members = entry.get("members")
+        if members is None:
+          continue
+
+        for m in members:
+          if "unit" in members[m]:
+            cast(dict[str, Member], entry["members"])[m]["unit"] = unit_remap[
+              members[m]["unit"]
+            ]
+
+      self.data[item] = sorted(self.data[item], key=lambda x: x["period"])
 
 
 class FinStatementFrame(DataFrameModel):

@@ -24,7 +24,7 @@ from dash import (
 )
 import dash_ag_grid as dag
 from dash_resizable_panels import PanelGroup, Panel, PanelResizeHandle
-import htmlmin
+import minify_html
 import numpy as np
 import pandas as pd
 import pdfplumber
@@ -1705,7 +1705,7 @@ def label_training_data(
     if not html:
       return no_update
 
-    insert["html"] = htmlmin.minify(
+    insert["html"] = minify_html.minify(
       html, remove_comments=True, reduce_empty_attributes=True
     )
 

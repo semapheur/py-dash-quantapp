@@ -1,3 +1,62 @@
+[project]
+name = "py-dash-quantapp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "aiometer",
+  "asyncstdlib",
+  "cvxpy",
+  "dash[celery]",
+  "dash-ag-grid",
+  "dash-resizable-panels",
+  "dash-tvlwc",
+  "dashvis",
+  "diskcache",
+  "flask-caching",
+  "geopandas",
+  "glom",
+  "hishel",
+  "httpx",
+  "img2table",
+  "lxml",
+  "minify-html",
+  "numba",
+  "numpy",
+  "openturns",
+  "ordered-set",
+  "orjson",
+  "pandas",
+  "pandera",
+  "parsel",
+  "pdfplumber",
+  "pycountry",
+  "pydantic",
+  "python-dotenv",
+  "rapidfuzz",
+  "requests",
+  "scikit-learn",
+  "scipy",
+  "skfolio",
+  "sqlalchemy",
+  "statsmodels",
+  "tqdm",
+  "wbgapi",
+]
+
+[project.optional-dependencies]
+dev = [
+  "bandit",
+  "datamodel-code-generator",
+  "icecream",
+  "ipykernel",
+  "mypy",
+  "pipreqs",
+  "ruff",
+  "uv"
+]
+
 [mypy]
 plugins = [
   "numpy.typing.mypy_plugin",
@@ -12,56 +71,3 @@ indent-width = 2
 
 [tool.ruff.format]
 quote-style = "double"
-
-[project]
-dependencies = [
-  "aiometer",
-  "asyncstdlib",
-  "cvxpy",
-  "dash[celery]",
-  "dash-ag-grid",
-  "dash-resizable-panels",
-  "dash-tvlwc",
-  "dashvis",
-  "flask-caching",
-  "fathon",
-  "geopandas",
-  "glom",
-  "hishel",
-  "htmlmin",
-  "httpx",
-  "img2table",
-  "lxml",
-  "numba",
-  "numpy",
-  "openturns",
-  "ordered-set",
-  "orjson",
-  "pandas",
-  "parsel",
-  "pycountry",
-  "pydantic",
-  "python-dotenv",
-  "rapidfuzz",
-  "requests",
-  "scikit-learn",
-  "scipy",
-  "skfolio",
-  "sqlalchemy",
-  "statsmodels",
-  "tabula-py[jpype]",
-  "tqdm",
-  "wbgapi"
-]
-
-[project.optional-dependencies]
-dev = [
-  "bandit",
-  "datamodel-code-generator",
-  "icecream",
-  "ipykernel",
-  "mypy",
-  "pipreqs",
-  "ruff",
-  "uv"
-]
