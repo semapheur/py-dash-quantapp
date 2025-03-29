@@ -278,17 +278,13 @@ class FinStatement(BaseModel):
 
     return value
 
-  @field_serializer("url")
-  def serialize_url(self, url: list[str]):
-    return json.dumps(url)
-
   @field_serializer("date")
   def serialize_date(self, date: Date):
     return int(date.strftime("%Y%m%d"))
 
   @field_serializer("currency")
   def serialize_currency(self, currency: set[str]):
-    return json.dumps(sorted(list(currency)))
+    return sorted(currency)
 
   @field_serializer("periods")
   @classmethod
@@ -297,11 +293,7 @@ class FinStatement(BaseModel):
       "d": [d.model_dump() for d in periods["d"]],
       "i": [i.model_dump() for i in periods["i"]],
     }
-    return json.dumps(obj)
-
-  @field_serializer("units")
-  def serialize_units(self, units: list[str]):
-    return json.dumps(units)
+    return obj
 
   @field_serializer("data")
   @classmethod
@@ -319,7 +311,14 @@ class FinStatement(BaseModel):
         }
         for item in items
       ]
-    return json.dumps(obj)
+    return obj
+
+  def dump_json_values(self) -> dict[str, int | str]:
+    obj = self.model_dump()
+    for key in ("url", "currency", "periods", "units", "data"):
+      obj[key] = json.dumps(obj[key])
+
+    return obj
 
   def merge(self, other: "FinStatement"):
     if not isinstance(other, FinStatement):
@@ -362,62 +361,143 @@ class FinStatement(BaseModel):
     common_items = set(self.data.keys()).intersection(other.data.keys())
     for item in common_items:
       for entry in other.data[item]:
-        period_type: Literal["d", "i"] = cast(Literal["d", "i"], entry["period"][0])
-        period_index = int(entry["period"][1:])
-        period = other.periods[period_type][period_index]
-
-        if period in old_periods[period_type]:
-          self._merge_members(other, entry, item, diff_units)
-          continue
-
-        new_entry = copy.deepcopy(entry)
-        new_entry = self._remap_units(other, new_entry, diff_units)
-
-        new_entry = self._remap_periods(
-          new_entry,
-          period,
-          period_type,
+        self._process_entry(
+          other,
+          entry,
+          item,
+          item,
+          old_periods,
           diff_periods,
           diff_periods_lookup,
           period_index_count,
+          diff_units,
         )
-
-        self.data[item].append(new_entry)
 
     diff_items = set(other.data.keys()).difference(common_items)
 
     for item in diff_items:
       self.data[item] = []
-      for i, entry in enumerate(other.data[item]):
-        period_type = cast(Literal["d", "i"], entry["period"][0])
-        period_index = int(entry["period"][1:])
-        period = other.periods[period_type][period_index]
 
-        new_entry = copy.deepcopy(entry)
-        new_entry = self._remap_units(other, new_entry, diff_units)
+      same_item = self._find_same_item(other, item)
 
-        if period in old_periods[period_type]:
-          new_key = f"{period_type}{self.periods[period_type].index(period)}"
-          new_entry["period"] = new_key
-
-          self.data[item].append(new_entry)
-          continue
-
-        new_entry = self._remap_periods(
-          new_entry,
-          period,
-          period_type,
-          diff_periods,
-          diff_periods_lookup,
-          period_index_count,
-        )
-        self.data[item].append(new_entry)
+      if same_item is not None:
+        for entry in other.data[item]:
+          self._process_entry(
+            other,
+            entry,
+            same_item,
+            item,
+            old_periods,
+            diff_periods,
+            diff_periods_lookup,
+            period_index_count,
+            diff_units,
+          )
+      else:
+        for entry in other.data[item]:
+          self._process_entry(
+            other,
+            entry,
+            item,
+            item,
+            old_periods,
+            diff_periods,
+            diff_periods_lookup,
+            period_index_count,
+            diff_units,
+          )
 
     diff_periods = dict(sorted(diff_periods.items()))
 
     for k, v in diff_periods.items():
       period_type = cast(Literal["d", "i"], k[0])
       self.periods[period_type].append(v)
+
+  def _process_entry(
+    self,
+    other: "FinStatement",
+    entry: FinRecord,
+    target_item: str,
+    source_item: str,
+    old_periods: dict[Literal["d", "i"], set[Instant | Duration]],
+    diff_periods: dict[str, Instant | Duration],
+    diff_periods_lookup: dict[Instant | Duration, str],
+    period_index_count: dict[Literal["d", "i"], int],
+    diff_units: list[str],
+  ) -> None:
+    period_type = cast(Literal["d", "i"], entry["period"][0])
+    period_index = int(entry["period"][1:])
+    period = other.periods[period_type][period_index]
+
+    new_entry = copy.deepcopy(entry)
+    new_entry = self._remap_units(other, new_entry, diff_units)
+
+    if period in old_periods[period_type]:
+      if target_item == source_item:
+        self._merge_members(other, entry, target_item, diff_units)
+        return
+
+      new_key = f"{period_type}{self.periods[period_type].index(period)}"
+      new_entry["period"] = new_key
+      self.data[target_item].append(new_entry)
+      return
+
+    new_entry = self._remap_periods(
+      new_entry,
+      period,
+      period_type,
+      diff_periods,
+      diff_periods_lookup,
+      period_index_count,
+    )
+    self.data[target_item].append(new_entry)
+
+    return
+
+  def _find_same_item(self, other: "FinStatement", item: str) -> str | None:
+    entries = other.data.get(item)
+    if entries is None:
+      return None
+
+    values: dict[str, float] = {}
+
+    for entry in entries:
+      if "value" not in entry:
+        continue
+
+      period_type = cast(Literal["d", "i"], entry["period"][0])
+      period_index = int(entry["period"][1:])
+      period = other.periods[period_type][period_index]
+
+      if period not in self.periods[period_type]:
+        continue
+
+      period_index = self.periods[period_type].index(period)
+      new_key = f"{period_type}{period_index}"
+
+      values[new_key] = entry["value"]
+
+    if not values:
+      return None
+
+    for target_item in self.data:
+      target_values = {
+        entry["period"]: entry["value"]
+        for entry in self.data[target_item]
+        if "value" in entry
+      }
+
+      common_periods = sorted(set(values.keys()).intersection(target_values.keys()))
+      if not common_periods:
+        continue
+
+      values_ = [values[p] for p in common_periods]
+      target_values_ = [target_values[p] for p in common_periods]
+
+      if values_ == target_values_:
+        return target_item
+
+    return None
 
   def _merge_members(
     self,
@@ -534,10 +614,7 @@ class FinStatement(BaseModel):
     sorted_units = sorted(self.units)
     unit_remap = [sorted_units.index(unit) for unit in self.units]
 
-    self.periods = FinPeriods(
-      d=sorted_periods["d"],
-      i=sorted_periods["i"],
-    )
+    self.periods = sorted_periods
     self.units = sorted_units
 
     for item in self.data:
@@ -558,6 +635,8 @@ class FinStatement(BaseModel):
             ]
 
       self.data[item] = sorted(self.data[item], key=lambda x: x["period"])
+
+    self.data = dict(sorted(self.data.items()))
 
 
 class FinStatementFrame(DataFrameModel):

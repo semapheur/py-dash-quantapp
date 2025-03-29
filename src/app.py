@@ -83,7 +83,7 @@ if __name__ == "__main__":
   logger = logging.getLogger(__name__)
   logger.addHandler(queue_handler)
 
-  app.run_server(
+  app.run(
     debug=True,
     dev_tools_hot_reload=False,
   )  # , host='0.0.0.0', port=8080)

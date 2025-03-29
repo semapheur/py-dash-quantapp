@@ -8,7 +8,7 @@ dependencies = [
   "aiometer",
   "asyncstdlib",
   "cvxpy",
-  "dash[celery]",
+  "dash[celery,diskcache]",
   "dash-ag-grid",
   "dash-resizable-panels",
   "dash-tvlwc",

@@ -484,7 +484,7 @@ def insert_statements(
     query = f"""
       INSERT INTO "{table}" VALUES ({statements_values_text})
     """
-    cur.executemany(query, [s.model_dump_json() for s in statements])
+    cur.executemany(query, [s.dump_json_values() for s in statements])
     con.commit()
 
 
@@ -519,7 +519,7 @@ def upsert_merged_statements(
           units = excluded.units,
           data = excluded.data
       """
-      statement_json = old_statement.model_dump()
+      statement_json = old_statement.dump_json_values()
       cur.execute(
         query,
         {
@@ -569,7 +569,7 @@ def upsert_statements(
           )
         )
     """
-    cur.executemany(query, [s.model_dump() for s in statements])
+    cur.executemany(query, [s.dump_json_values() for s in statements])
     con.commit()
 
 
