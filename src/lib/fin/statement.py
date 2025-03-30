@@ -51,6 +51,7 @@ statements_columns = {
   "currency": "TEXT",
   "periods": "TEXT",
   "units": "TEXT",
+  "synonyms": "TEXT",
   "data": "TEXT",
 }
 statements_table_text = (
@@ -69,6 +70,9 @@ def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
       fiscal_period=row["fiscal_period"],
       fiscal_end=row["fiscal_end"],
       currency=row["currency"],
+      periods=row["periods"],
+      units=row["units"],
+      synonyms=row["synonyms"],
       data=row["data"],
     )
     for row in df.to_dict("records")
@@ -497,6 +501,7 @@ def upsert_merged_statements(
 
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_text})")
 
     for statement in statements:
       date = int(statement.date.strftime("%Y%m%d"))
@@ -508,7 +513,6 @@ def upsert_merged_statements(
       else:
         old_statement = statement
 
-      cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_text})")
       query = f"""
         INSERT INTO "{table}"
         VALUES ({statements_values_text})
@@ -517,6 +521,7 @@ def upsert_merged_statements(
           currency = excluded.currency,
           periods = excluded.periods,
           units = excluded.units,
+          synonyms = excluded.synonyms,
           data = excluded.data
       """
       statement_json = old_statement.dump_json_values()
@@ -530,6 +535,7 @@ def upsert_merged_statements(
           "currency": statement_json["currency"],
           "periods": statement_json["periods"],
           "units": statement_json["units"],
+          "synonyms": statement_json["synonyms"],
           "data": statement_json["data"],
         },
       )

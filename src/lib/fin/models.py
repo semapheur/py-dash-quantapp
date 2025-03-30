@@ -170,6 +170,7 @@ class FinStatement(BaseModel):
   currency: set[str]
   periods: FinPeriods
   units: list[str]
+  synonyms: dict[str, set[str]] | None = None
   data: FinData
 
   @field_validator("url", mode="before")
@@ -262,6 +263,25 @@ class FinStatement(BaseModel):
 
     return value
 
+  @field_validator("synonyms", mode="before")
+  @classmethod
+  def validate_synonyms(cls, value, info: ValidationInfo):
+    if isinstance(value, str):
+      if value == "null":
+        return None
+
+      try:
+        parsed_value = json.loads(value)
+      except json.JSONDecodeError:
+        raise ValueError(f"{info.field_name} must be a valid JSON dictionary string")
+
+      if not isinstance(parsed_value, dict):
+        raise ValueError(
+          f"{info.field_name} must be a dictionary. Invalid value: {value}"
+        )
+
+    return parsed_value
+
   @field_validator("data", mode="before")
   @classmethod
   def validate_data(cls, value, info: ValidationInfo):
@@ -295,6 +315,14 @@ class FinStatement(BaseModel):
     }
     return obj
 
+  @field_serializer("synonyms")
+  @classmethod
+  def serialize_synonyms(cls, synonyms: dict[str, set[str]] | None):
+    if synonyms is None:
+      return None
+
+    return {k: sorted(v) for k, v in sorted(synonyms.items())}
+
   @field_serializer("data")
   @classmethod
   def serialize_data(cls, data: FinData):
@@ -315,8 +343,9 @@ class FinStatement(BaseModel):
 
   def dump_json_values(self) -> dict[str, int | str]:
     obj = self.model_dump()
-    for key in ("url", "currency", "periods", "units", "data"):
-      obj[key] = json.dumps(obj[key])
+    json_fields = ("url", "currency", "periods", "units", "synonyms", "data")
+    for field in json_fields:
+      obj[field] = json.dumps(obj[field])
 
     return obj
 
@@ -365,7 +394,6 @@ class FinStatement(BaseModel):
           other,
           entry,
           item,
-          item,
           old_periods,
           diff_periods,
           diff_periods_lookup,
@@ -376,36 +404,27 @@ class FinStatement(BaseModel):
     diff_items = set(other.data.keys()).difference(common_items)
 
     for item in diff_items:
-      self.data[item] = []
-
       same_item = self._find_same_item(other, item)
 
-      if same_item is not None:
-        for entry in other.data[item]:
-          self._process_entry(
-            other,
-            entry,
-            same_item,
-            item,
-            old_periods,
-            diff_periods,
-            diff_periods_lookup,
-            period_index_count,
-            diff_units,
-          )
+      target_item = item if same_item is None else same_item
+      if same_item is None:
+        self.data[item] = []
       else:
-        for entry in other.data[item]:
-          self._process_entry(
-            other,
-            entry,
-            item,
-            item,
-            old_periods,
-            diff_periods,
-            diff_periods_lookup,
-            period_index_count,
-            diff_units,
-          )
+        if self.synonyms is None:
+          self.synonyms = {}
+        self.synonyms.setdefault(same_item, set()).add(item)
+
+      for entry in other.data[item]:
+        self._process_entry(
+          other,
+          entry,
+          target_item,
+          old_periods,
+          diff_periods,
+          diff_periods_lookup,
+          period_index_count,
+          diff_units,
+        )
 
     diff_periods = dict(sorted(diff_periods.items()))
 
@@ -418,7 +437,6 @@ class FinStatement(BaseModel):
     other: "FinStatement",
     entry: FinRecord,
     target_item: str,
-    source_item: str,
     old_periods: dict[Literal["d", "i"], set[Instant | Duration]],
     diff_periods: dict[str, Instant | Duration],
     diff_periods_lookup: dict[Instant | Duration, str],
@@ -429,18 +447,12 @@ class FinStatement(BaseModel):
     period_index = int(entry["period"][1:])
     period = other.periods[period_type][period_index]
 
+    if period in old_periods[period_type]:
+      self._merge_members(other, entry, target_item, diff_units)
+      return
+
     new_entry = copy.deepcopy(entry)
     new_entry = self._remap_units(other, new_entry, diff_units)
-
-    if period in old_periods[period_type]:
-      if target_item == source_item:
-        self._merge_members(other, entry, target_item, diff_units)
-        return
-
-      new_key = f"{period_type}{self.periods[period_type].index(period)}"
-      new_entry["period"] = new_key
-      self.data[target_item].append(new_entry)
-      return
 
     new_entry = self._remap_periods(
       new_entry,
@@ -647,6 +659,7 @@ class FinStatementFrame(DataFrameModel):
   currency: set[str]
   periods: FinPeriods
   units: list[str]
+  synonyms: dict[str, str]
   data: dict[str, list[FinRecord]]
 
 
