@@ -25,7 +25,7 @@ class QuoteStoreAIO(dcc.Store):
     Input(TickerSelectAIO.aio_id(MATCH), "value"),
     background=True,
   )
-  def update_store(id_currency: str):
+  def update_store(self, id_currency: str):
     if not id_currency:
       return no_update
 

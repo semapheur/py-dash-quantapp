@@ -60,7 +60,7 @@ def slice_df_by_date(
   end_date: dt | None = None,
 ) -> pd.DataFrame:
   if not isinstance(df.index, pd.DatetimeIndex):
-    raise ValueError("Data frame must have a datetime index!")
+    raise ValueError("Dataframe must have a datetime index!")
 
   if start_date is not None:
     df = df.loc[df.index >= pd.Timestamp(start_date)]

@@ -3,20 +3,19 @@ from datetime import date, datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
 from itertools import combinations
-from typing import cast
 
+import aiometer
 from dash import State, callback, dcc, html, no_update, register_page, Output, Input
-import duckdb
+import dash_ag_grid as dag
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
-import statsmodels.api as sm
+# import statsmodels.api as sm
 
 # from statsmodels.tsa.vector_ar.vecm import coint_johansen
-from statsmodels.tsa.stattools import coint, adfuller
+from statsmodels.tsa.stattools import coint  # adfuller
 
 from lib.db.lite import read_sqlite
-from lib.fin.models import CloseQuote
 from lib.fin.quote import load_ohlcv
 from lib.morningstar.ticker import Stock
 from lib.styles import BUTTON_STYLE
@@ -40,6 +39,34 @@ query = """
   ORDER BY s.mic
 """
 exchanges = read_sqlite("ticker.db", query)
+
+column_defs = [
+  {
+    "field": "stock_1",
+    "headerName": "Stock 1",
+    "cellDataType": "text",
+  },
+  {
+    "field": "stock_2",
+    "headerName": "Stock 2",
+    "cellDataType": "text",
+  },
+  {
+    "field": "correlation",
+    "headerName": "Correlation",
+    "cellDataType": "number",
+  },
+  {
+    "field": "test_stat",
+    "headerName": "Test Statistic",
+    "cellDataType": "number",
+  },
+  {
+    "field": "p_value",
+    "headerName": "P-Value",
+    "cellDataType": "number",
+  },
+]
 
 form = html.Form(
   className="grid grid-cols-[auto_1fr_auto_auto] gap-2 p-2",
@@ -74,7 +101,15 @@ form = html.Form(
 
 layout = html.Main(
   className="size-full grid grid-rows-[auto_1fr]",
-  children=[form],
+  children=[
+    form,
+    dag.AgGrid(
+      id="table:pair-cointegration",
+      columnDefs=column_defs,
+      columnSize="autoSize",
+      style={"height": "100%"},
+    ),
+  ],
 )
 
 
@@ -115,17 +150,21 @@ async def load_prices(
   currency: str,
   start_date: date,
 ):
-  tasks = []
-  for i in ids:
-    ohlcv_fetcher = partial(Stock(i, currency).ohlcv)
-    table = f"{i}_{currency}"
-    tasks.append(
-      asyncio.create_task(
-        load_ohlcv(table, "stock", ohlcv_fetcher, start_date=start_date, cols=["close"])
-      )
+  tasks = [
+    partial(
+      load_ohlcv,
+      f"{i}_{currency}",
+      "stock",
+      partial(Stock(i, currency).ohlcv),
+      start_date=start_date,
+      cols=["close"],
     )
+    for i in ids
+  ]
 
-  prices: list[DataFrame] = await asyncio.gather(*tasks)
+  prices: list[DataFrame] = await aiometer.run_all(
+    tasks, max_per_second=5
+  )  # await asyncio.gather(*tasks)
   prices = [
     p.rename(columns={"close": ticker})
     for ticker, p in zip(tickers, prices)
@@ -135,12 +174,13 @@ async def load_prices(
 
 
 @callback(
-  Output("url", "pathname"),
+  Output("table:pair-cointegration", "rowData"),
   Input("button:pair:search", "n_clicks"),
   State("dropdown:pair:exchange", "value"),
   State("datepicker:pair:start", "date"),
   State(InputAIO.aio_id("pair:correlation-threshold"), "value"),
-  background=True,
+  prevent_initial_call=True,
+  # background=True,
 )
 def search(n_clicks: int, exchange_currency: str, start: str, threshold: float):
   if not (n_clicks and exchange_currency and start and threshold):
@@ -151,16 +191,14 @@ def search(n_clicks: int, exchange_currency: str, start: str, threshold: float):
   start_date = dt.strptime(start, "%Y-%m-%d").date()
   query = "SELECT security_id, ticker FROM stock WHERE mic = :exchange"
   tickers = read_sqlite("ticker.db", query, {"exchange": exchange})
-  prices = asyncio.run(
+
+  loop = asyncio.new_event_loop()
+  asyncio.set_event_loop(loop)
+  prices = loop.run_until_complete(
     load_prices(tickers["security_id"], tickers["ticker"], currency, start_date)
   )
   prices.sort_index(inplace=True)
 
-  pairs = pd.DataFrame(combinations(prices.columns, 2), columns=["stock_1", "stock_2"])
+  pairs = pairs_data(prices, threshold)
 
-  pairs["correlation"] = pairs.apply(
-    lambda row: compute_correlation(row, prices), axis=1
-  )
-  pairs = pairs[pairs["correlation"] > threshold]
-
-  return f"/pair/stock/{exchange}/{start}/{threshold}"
+  return pairs.to_dict("records")
