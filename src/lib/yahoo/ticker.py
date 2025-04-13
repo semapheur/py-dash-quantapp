@@ -20,7 +20,7 @@ from lib.yahoo.models import (
   ItemRecord,
   QuoteData,
 )
-from lib.utils import handle_date
+from lib.utils.time import handle_date
 from lib.fin.models import Quote
 
 

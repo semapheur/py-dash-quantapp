@@ -14,6 +14,7 @@ dependencies = [
   "dash-tvlwc",
   "dashvis",
   "diskcache",
+  "duckdb",
   "flask-caching",
   "geopandas",
   "glom",

@@ -20,7 +20,7 @@ from pandera.typing import DataFrame
 from lib.db.lite import fetch_sqlite, insert_sqlite, read_sqlite
 from lib.morningstar.fetch import fund_data
 
-register_page(__name__, path_template="/screener/fund")
+register_page(__name__, path="/screener/fund")
 
 
 async def load_fund_data(
@@ -130,10 +130,10 @@ def update_table(query_data: dict[str, dict[str, str]]):
   where_items = []
   params = {}
   for k, v in query_data.items():
-    where_items.append(f"{v["column"]} = :{k}")
+    where_items.append(f"{v['column']} = :{k}")
     params[k] = v["value"]
 
-  where = f"WHERE {" AND ".join(where_items)}"
+  where = f"WHERE {' AND '.join(where_items)}"
 
   data = asyncio.run(load_fund_data(where, params, 1))
 

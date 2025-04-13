@@ -22,7 +22,7 @@ from lib.fin.statement import (
   upsert_merged_statements,
   upsert_statements,
 )
-from lib.utils import exclusive_end_date, month_difference
+from lib.utils.time import exclusive_end_date, month_difference
 
 
 class FilingInfo(TypedDict):

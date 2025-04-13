@@ -4,13 +4,13 @@ from pandera import DataFrameModel
 
 class Close(TypedDict):
   date: Annotated[int, "unix in milliseconds"]
-  close: float | int
+  close: float
 
 
 class Ohlcv(Close):
-  open: float | int
-  high: float | int
-  low: float | int
+  open: float
+  high: float
+  low: float
   volume: float | int
 
 

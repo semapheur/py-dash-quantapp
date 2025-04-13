@@ -48,7 +48,9 @@ from lib.fin.statement import sqlite_path, upsert_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, update_gaap
 from lib.scrap import download_file_memory
 from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
-from lib.utils import split_multiline, pascal_case, split_pascal_case, valid_date
+from lib.utils.dataframe import split_multiline
+from lib.utils.string import pascal_case, split_pascal_case
+from lib.utils.time import valid_date
 
 register_page(__name__, path="/scrap", title="Scrap")
 
@@ -1705,9 +1707,7 @@ def label_training_data(
     if not html:
       return no_update
 
-    insert["html"] = minify_html.minify(
-      html, remove_comments=True, reduce_empty_attributes=True
-    )
+    insert["html"] = minify_html.minify(html)
 
   insert_table_scrap_training_label(insert)
 

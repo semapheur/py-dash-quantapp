@@ -1,11 +1,11 @@
-from typing import Literal, TypeAlias, TypedDict
+from typing import Literal, TypedDict
 
-QuotePeriod: TypeAlias = Literal[
-  '1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max'
+type QuotePeriod = Literal[
+  "1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"
 ]
 
-QuoteInterval: TypeAlias = Literal[
-  '1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo'
+type QuoteInterval = Literal[
+  "1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1wk", "1mo", "3mo"
 ]
 
 
@@ -94,9 +94,9 @@ class Value(TypedDict):
 class ItemRecord(TypedDict):
   dataId: int
   asOfDate: str
-  periodType: Literal['TTM', '12M', '3M']
+  periodType: Literal["TTM", "12M", "3M"]
   currencyCode: str
   reportedValue: Value
 
 
-Item: TypeAlias = list[dict[str, list[int] | ItemMeta | list[ItemRecord]]]
+type Item = list[dict[str, list[int] | ItemMeta | list[ItemRecord]]]

@@ -10,7 +10,8 @@ from parsel import Selector
 from lib.const import HEADERS
 from lib.fin.models import FinStatement, FinRecord, Duration, Instant
 from lib.fin.statement import upsert_statements
-from lib.utils import pascal_case, month_difference
+from lib.utils.string import pascal_case
+from lib.utils.time import month_difference
 
 
 def get_company_slugs():

@@ -345,7 +345,8 @@ class FinStatement(BaseModel):
     obj = self.model_dump()
     json_fields = ("url", "currency", "periods", "units", "synonyms", "data")
     for field in json_fields:
-      obj[field] = json.dumps(obj[field])
+      if obj[field] is not None:
+        obj[field] = json.dumps(obj[field])
 
     return obj
 

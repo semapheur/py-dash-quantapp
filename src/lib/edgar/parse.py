@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from functools import partial
 import re
 import time
-from typing import cast, Literal, TypeAlias
+from typing import cast, Literal
 import xml.etree.ElementTree as et
 
 import aiometer
@@ -32,17 +32,18 @@ from lib.fin.statement import (
   upsert_merged_statements,
   upsert_statements,
 )
-from lib.utils import (
-  insert_characters,
+from lib.utils.validate import (
+  validate_currency,
+)
+from lib.utils.string import insert_characters, replace_all
+from lib.utils.time import (
   month_difference,
   month_end,
   fiscal_quarter_monthly,
   exclusive_end_date,
-  validate_currency,
-  replace_all,
 )
 
-Docs: TypeAlias = Literal["cal", "def", "htm", "lab", "pre"]
+type Docs = Literal["cal", "def", "htm", "lab", "pre"]
 
 
 async def scrap_edgar_statements(cik: int, id: str):
@@ -417,7 +418,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
   taxonomy = []
   for sheet in root.findall(".//link:calculationLink", namespaces=namespace):
-    sheet_label = re.sub(url_pattern, "", sheet.attrib[f'{{{namespace["xlink"]}}}role'])
+    sheet_label = re.sub(url_pattern, "", sheet.attrib[f"{{{namespace['xlink']}}}role"])
     sheet_label = rename_sheet(sheet_label)
 
     for el in sheet.findall(".//link:calculationArc", namespaces=namespace):
@@ -426,11 +427,11 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
           "sheet": sheet_label,
           "gaap": cast(
             re.Match[str],
-            re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}to']),
+            re.search(el_pattern, el.attrib[f"{{{namespace['xlink']}}}to"]),
           ).group(),
           "parent": cast(
             re.Match[str],
-            re.search(el_pattern, el.attrib[f'{{{namespace["xlink"]}}}from']),
+            re.search(el_pattern, el.attrib[f"{{{namespace['xlink']}}}from"]),
           ).group(),
         }
       )

@@ -31,7 +31,7 @@ query = """SELECT
 """
 exchanges = read_sqlite("ticker.db", query)
 
-register_page(__name__, path_template="/screener/stock")
+register_page(__name__, path="/screener/stock")
 
 layout = html.Main(
   className="h-full grid grid-cols-[1fr_4fr]",
@@ -301,7 +301,7 @@ def update_store(cell: dict, exchange: str):
     opacity=0.25,
     name=f"{exchange} (range)",
     legendrank=1,
-    hovertemplate=("<b>High:</b> %{y:.2f}<br>" "<b>Low:</b> %{base:.2f}<br>"),
+    hovertemplate=("<b>High:</b> %{y:.2f}<br><b>Low:</b> %{base:.2f}<br>"),
   )
 
   figure.add_bar(
@@ -312,7 +312,7 @@ def update_store(cell: dict, exchange: str):
     opacity=0.25,
     name=f"{sector} (range)",
     legendrank=2,
-    hovertemplate=("<b>High:</b> %{y:.2f}<br>" "<b>Low:</b> %{base:.2f}<br>"),
+    hovertemplate=("<b>High:</b> %{y:.2f}<br><b>Low:</b> %{base:.2f}<br>"),
   )
 
   figure.add_scatter(

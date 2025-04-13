@@ -9,7 +9,7 @@ import pycountry
 from pydantic import BaseModel, Field
 
 from lib.const import HEADERS
-from lib.utils import replace_all
+from lib.utils.string import replace_all
 
 # Morningstar API docs: https://developer.morningstar.com/direct-web-services/documentation/api-reference/screener/regulatory-screener#data-points
 
@@ -318,7 +318,7 @@ def index_data(scope: Literal["country", "region", "sector-us", "sector-global"]
     "version": "3.35.0",
   }
   url = (
-    "https://api.morningstar.com/sal-service/v1/" f"index/valuation/{scope_list[scope]}"
+    f"https://api.morningstar.com/sal-service/v1/index/valuation/{scope_list[scope]}"
   )
 
   with httpx.Client() as client:

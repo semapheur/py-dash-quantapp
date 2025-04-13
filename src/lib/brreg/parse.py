@@ -6,7 +6,7 @@ import httpx
 import pandas as pd
 
 from lib.const import HEADERS
-from lib.utils import month_difference
+from lib.utils.time import month_difference
 
 
 def get_company_data() -> dict:

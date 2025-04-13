@@ -10,7 +10,7 @@ from typing import cast
 from typing_extensions import override
 
 from lib.const import LOG_DIR
-from lib.utils import get_constructor_args
+from lib.utils.syntax import get_constructor_args
 
 LOG_RECORD_BUILTIN_ATTRS = {
   "args",

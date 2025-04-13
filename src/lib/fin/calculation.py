@@ -11,7 +11,7 @@ from pandera.typing import DataFrame, Series
 from lib.db.lite import read_sqlite
 from lib.fin.models import FiscalPeriod
 from lib.fin.taxonomy import TaxonomyCalculation
-from lib.utils import df_time_difference
+from lib.utils.dataframe import df_time_difference
 
 
 class AllTransformer(ast.NodeTransformer):

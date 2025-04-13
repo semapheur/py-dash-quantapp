@@ -41,8 +41,9 @@ from lib.fin.models import (
 )
 from lib.fin.statement import upsert_statements
 from lib.morningstar.ticker import Stock
+from lib.scrap import download_file
 from lib.styles import BUTTON_STYLE, GROUP_BUTTON_STYLE
-from lib.utils import download_file, split_multiline
+from lib.utils.string import split_multiline
 
 main_style = "h-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"

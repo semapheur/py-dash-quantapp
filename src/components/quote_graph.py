@@ -72,7 +72,7 @@ class QuoteGraphAIO(dcc.Graph):
     background=True,
     prevent_initial_call=True,
   )
-  def update_data(id_currency: str, plot_type: Literal["line", "candlestick"]):
+  def update_data(self, id_currency: str, plot_type: Literal["line", "candlestick"]):
     if not id_currency:
       return no_update
 

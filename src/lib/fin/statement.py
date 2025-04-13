@@ -23,11 +23,8 @@ from lib.fin.models import (
 )
 from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import load_taxonomy_items
-from lib.utils import (
-  fiscal_quarter_monthly,
-  combine_duplicate_columns,
-  df_time_difference,
-)
+from lib.utils.dataframe import combine_duplicate_columns, df_time_difference
+from lib.utils.time import fiscal_quarter_monthly
 from lib.yahoo.ticker import Ticker
 
 

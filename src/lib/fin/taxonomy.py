@@ -4,7 +4,7 @@ from contextlib import closing
 import json
 import re
 import sqlite3
-from typing import cast, Literal, Optional, TypeAlias
+from typing import cast, Literal, Optional
 from typing_extensions import TypedDict
 
 from glom import glom
@@ -19,10 +19,10 @@ from lib.db.lite import (
   create_fts_table,
   drop_fts_table,
 )
-from lib.utils import split_pascal_case
+from lib.utils.string import split_pascal_case
 from lib.const import DB_DIR
 
-TaxonomyType: TypeAlias = Literal[
+type TaxonomyType = Literal[
   "days",
   "monetary",
   "fundamental",
@@ -158,13 +158,13 @@ class Taxonomy(BaseModel):
       if prefix == "average":
         calc = TaxonomyCalculation(order=order, avg=base_item)
         label = TaxonomyLabel(
-          long=f'Average {label.get("long")}',
+          long=f"Average {label.get('long')}",
           short=None if short is None else f"Average {short}",
         )
       elif prefix == "change":
         calc = TaxonomyCalculation(order=order, diff=base_item)
         label = TaxonomyLabel(
-          long=f'Change in {label.get("long")}',
+          long=f"Change in {label.get('long')}",
           short=None if short is None else f"Change in {short}",
         )
 

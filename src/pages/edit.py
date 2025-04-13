@@ -24,7 +24,7 @@ from lib.fin.statement import load_raw_statement, store_updated_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy
 from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
 from lib.ticker.fetch import stored_companies
-from lib.utils import split_pascal_case
+from lib.utils.string import split_pascal_case
 
 register_page(__name__, path="/edit")
 

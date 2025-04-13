@@ -12,10 +12,10 @@ from pandera.typing import DataFrame
 from parsel import Selector
 
 from lib.const import HEADERS
-from lib.utils import replace_all
 from lib.fin.models import Quote
 from lib.morningstar.models import Ohlcv, Close, Document, EquityDocuments
 from lib.morningstar.fetch import fetch_currency
+from lib.utils.string import replace_all
 
 
 SCREENER_API = (
