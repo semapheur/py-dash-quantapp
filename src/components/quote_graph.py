@@ -65,23 +65,24 @@ class QuoteGraphAIO(dcc.Graph):
 
     super().__init__(id=self.__class__.aio_id(id), **graph_props)
 
-  @callback(
-    Output(aio_id(MATCH), "figure", allow_duplicate=True),
-    Input(TickerSelectAIO.aio_id(MATCH), "value"),
-    State(QuoteGraphTypeAIO.aio_id(MATCH), "value"),
-    background=True,
-    prevent_initial_call=True,
-  )
-  def update_data(self, id_currency: str, plot_type: Literal["line", "candlestick"]):
-    if not id_currency:
-      return no_update
 
-    id, currency = id_currency.split("_")
-    fetcher = partial(Stock(id, currency).ohlcv)
-    ohlcv = asyncio.run(load_ohlcv(id_currency, "stock", fetcher))
-    return quote_volume_graph(
-      ohlcv, plot_type, rangeselector=("1M", "6M", "YTD", "1Y", "All")
-    )
+@callback(
+  Output(QuoteGraphAIO.aio_id(MATCH), "figure", allow_duplicate=True),
+  Input(TickerSelectAIO.aio_id(MATCH), "value"),
+  State(QuoteGraphTypeAIO.aio_id(MATCH), "value"),
+  background=True,
+  prevent_initial_call=True,
+)
+def update_data(id_currency: str, plot_type: Literal["line", "candlestick"]):
+  if not id_currency:
+    return no_update
+
+  id, currency = id_currency.split("_")
+  fetcher = partial(Stock(id, currency).ohlcv)
+  ohlcv = asyncio.run(load_ohlcv(id_currency, "stock", fetcher))
+  return quote_volume_graph(
+    ohlcv, plot_type, rangeselector=("1M", "6M", "YTD", "1Y", "All")
+  )
 
 
 clientside_callback(

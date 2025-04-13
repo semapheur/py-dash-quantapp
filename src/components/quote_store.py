@@ -20,17 +20,18 @@ class QuoteStoreAIO(dcc.Store):
 
     super().__init__(id=self.__class__.aio_id(id), **store_props)
 
-  @callback(
-    Output(aio_id(MATCH), "data"),
-    Input(TickerSelectAIO.aio_id(MATCH), "value"),
-    background=True,
-  )
-  def update_store(self, id_currency: str):
-    if not id_currency:
-      return no_update
 
-    id, currency = id_currency.split("|")
-    fetcher = partial(Stock(id, currency).ohlcv)
-    ohlcv = asyncio.run(load_ohlcv(id, "stock", fetcher))
-    ohlcv.reset_index(inplace=True)
-    return ohlcv.to_dict("list")
+@callback(
+  Output(QuoteStoreAIO.aio_id(MATCH), "data"),
+  Input(TickerSelectAIO.aio_id(MATCH), "value"),
+  background=True,
+)
+def update_store(id_currency: str):
+  if not id_currency:
+    return no_update
+
+  id, currency = id_currency.split("|")
+  fetcher = partial(Stock(id, currency).ohlcv)
+  ohlcv = asyncio.run(load_ohlcv(id, "stock", fetcher))
+  ohlcv.reset_index(inplace=True)
+  return ohlcv.to_dict("list")

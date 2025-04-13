@@ -100,12 +100,13 @@ table_style = {
 }
 
 scrap_controls_sidebar = html.Aside(
-  className="relative flex flex-col grow gap-2 p-2",
+  className="relative grid grid-cols-2 gap-2 p-2",
   children=[
     dcc.Tabs(
       id="tabs:scrap:controls",
       value="tab:scrap:pdf",
       className="h-8",
+      parent_className="col-span-2",
       content_className="pt-2 flex flex-col gap-2",
       children=[
         dcc.Tab(
@@ -185,31 +186,26 @@ scrap_controls_sidebar = html.Aside(
         ),
       ],
     ),
-    html.Form(
-      className="grid grid-cols-2 gap-1",
-      children=[
-        html.Button(
-          "Add row",
-          id="button:scrap:add-row",
-          className=BUTTON_STYLE,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Button(
-          "Delete rows",
-          id="button:scrap:delete-rows",
-          className=BUTTON_STYLE,
-          type="button",
-          n_clicks=0,
-        ),
-        html.Button(
-          "Edit columns",
-          id=OpenCloseModalAIO.open_id("scrap:edit-columns"),
-          className=f"{BUTTON_STYLE} col-span-2",
-          type="button",
-          n_clicks=0,
-        ),
-      ],
+    html.Button(
+      "Add row",
+      id="button:scrap:add-row",
+      className=BUTTON_STYLE,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Delete rows",
+      id="button:scrap:delete-rows",
+      className=BUTTON_STYLE,
+      type="button",
+      n_clicks=0,
+    ),
+    html.Button(
+      "Edit columns",
+      id=OpenCloseModalAIO.open_id("scrap:edit-columns"),
+      className=BUTTON_STYLE,
+      type="button",
+      n_clicks=0,
     ),
     html.Button(
       "Record items",
@@ -248,53 +244,49 @@ scrap_controls_sidebar = html.Aside(
     ),
     CompanySelectAIO(
       id="scrap:company-id",
+      dropdown_props={
+        "style": {"grid-column": "span 2"},
+      },
     ),
-    html.Form(
-      className="grid grid-cols-2 gap-x-1 gap-y-2",
-      children=[
-        InputAIO(
-          "scrap:url",
-          "100%",
-          form_props={"className": "col-span-2"},
-          input_props={"type": "text", "placeholder": "URL"},
-        ),
-        InputAIO(
-          "scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}
-        ),
-        InputAIO(
-          "scrap:fiscal-end",
-          "100%",
-          input_props={
-            "type": "text",
-            "placeholder": "Fiscal end",
-            "value": "12-31",
-          },
-        ),
-        dcc.Dropdown(
-          id="dropdown:scrap:scope",
-          className="outline-hidden",
-          placeholder="Scope",
-          options=[
-            {"label": "Annual", "value": "annual"},
-            {"label": "Quarterly", "value": "quarterly"},
-          ],
-        ),
-        dcc.Dropdown(
-          id="dropdown:scrap:period",
-          placeholder="Period",
-          options=["FY", "Q1", "Q2", "Q3", "Q4"],
-        ),
-        InputAIO(
-          "scrap:factor",
-          "100%",
-          input_props={"value": 1e6, "placeholder": "Factor", "type": "number"},
-        ),
-        InputAIO(
-          "scrap:currency",
-          "100%",
-          input_props={"value": "NOK", "placeholder": "Currency", "type": "text"},
-        ),
+    InputAIO(
+      "scrap:url",
+      "100%",
+      form_props={"className": "col-span-2"},
+      input_props={"type": "text", "placeholder": "URL"},
+    ),
+    InputAIO("scrap:date", "100%", input_props={"type": "text", "placeholder": "Date"}),
+    InputAIO(
+      "scrap:fiscal-end",
+      "100%",
+      input_props={
+        "type": "text",
+        "placeholder": "Fiscal end",
+        "value": "12-31",
+      },
+    ),
+    dcc.Dropdown(
+      id="dropdown:scrap:scope",
+      className="outline-hidden",
+      placeholder="Scope",
+      options=[
+        {"label": "Annual", "value": "annual"},
+        {"label": "Quarterly", "value": "quarterly"},
       ],
+    ),
+    dcc.Dropdown(
+      id="dropdown:scrap:period",
+      placeholder="Period",
+      options=["FY", "Q1", "Q2", "Q3", "Q4"],
+    ),
+    InputAIO(
+      "scrap:factor",
+      "100%",
+      input_props={"value": 1e6, "placeholder": "Factor", "type": "number"},
+    ),
+    InputAIO(
+      "scrap:currency",
+      "100%",
+      input_props={"value": "NOK", "placeholder": "Currency", "type": "text"},
     ),
     dcc.Upload(
       id="upload:scrap:csv",

@@ -14,23 +14,24 @@ class CompanySelectAIO(dcc.Dropdown):
 
     super().__init__(id=self.__class__.aio_id(id), **dropdown_props)
 
-  @callback(
-    Output(aio_id(MATCH), "options"),
-    Input(aio_id(MATCH), "search_value"),
-    State(aio_id(MATCH), "options"),
-    State(aio_id(MATCH), "multi"),
-  )
-  def update_dropdown(search: str, options: list[dict], multiple: bool):
-    if search is None or len(search) < 2:
-      return no_update
 
-    df = search_companies(search, stored=False, limit=10)
-    if df is None:
-      return no_update
+@callback(
+  Output(CompanySelectAIO.aio_id(MATCH), "options"),
+  Input(CompanySelectAIO.aio_id(MATCH), "search_value"),
+  State(CompanySelectAIO.aio_id(MATCH), "options"),
+  State(CompanySelectAIO.aio_id(MATCH), "multi"),
+)
+def update_dropdown(search: str, options: list[dict], multiple: bool):
+  if search is None or len(search) < 2:
+    return no_update
 
-    if not (multiple and options):
-      return df.to_dict("records")
+  df = search_companies(search, stored=False, limit=10)
+  if df is None:
+    return no_update
 
-    options += df.to_dict("records")
+  if not (multiple and options):
+    return df.to_dict("records")
 
-    return options
+  options += df.to_dict("records")
+
+  return options

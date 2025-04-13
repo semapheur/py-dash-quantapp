@@ -3,6 +3,7 @@ from datetime import date, datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
 from itertools import combinations
+from typing import cast, TypedDict
 
 import aiometer
 from dash import State, callback, dcc, html, no_update, register_page, Output, Input
@@ -10,17 +11,29 @@ import dash_ag_grid as dag
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
-# import statsmodels.api as sm
+import plotly.express as px
+import statsmodels.api as sm
 
 # from statsmodels.tsa.vector_ar.vecm import coint_johansen
 from statsmodels.tsa.stattools import coint  # adfuller
 
 from lib.db.lite import read_sqlite
-from lib.fin.quote import load_ohlcv
+from lib.fin.quote import load_ohlcv, load_ohlcv_batch
 from lib.morningstar.ticker import Stock
 from lib.styles import BUTTON_STYLE
 
 from components.input import InputAIO
+
+
+class PairData(TypedDict):
+  security_id_1: str
+  security_id_2: str
+  correlation: float
+  intercept: float
+  slope: float
+  test_statistic: float
+  p_value: float
+
 
 register_page(__name__, path="/pair/stock")
 
@@ -40,6 +53,14 @@ query = """
 """
 exchanges = read_sqlite("ticker.db", query)
 
+number_fields = (
+  ("correlation", "Correlation"),
+  ("slope", "Slope"),
+  ("intercept", "Intercept"),
+  ("test_statistic", "Test Statistic"),
+  ("p_value", "P-Value"),
+)
+
 column_defs = [
   {
     "field": "stock_1",
@@ -51,25 +72,18 @@ column_defs = [
     "headerName": "Stock 2",
     "cellDataType": "text",
   },
+] + [
   {
-    "field": "correlation",
-    "headerName": "Correlation",
+    "field": field,
+    "headerName": label,
     "cellDataType": "number",
-  },
-  {
-    "field": "test_stat",
-    "headerName": "Test Statistic",
-    "cellDataType": "number",
-  },
-  {
-    "field": "p_value",
-    "headerName": "P-Value",
-    "cellDataType": "number",
-  },
+    "valueFormatter": {"function": 'd3.format(".3f")(params.value)'},
+  }
+  for field, label in number_fields
 ]
 
 form = html.Form(
-  className="grid grid-cols-[auto_1fr_auto_auto] gap-2 p-2",
+  className="col-span-2 grid grid-cols-[auto_1fr_auto_auto] gap-2 p-2",
   children=[
     html.Button(
       "Search",
@@ -100,27 +114,31 @@ form = html.Form(
 )
 
 layout = html.Main(
-  className="size-full grid grid-rows-[auto_1fr]",
+  className="size-full grid grid-cols-2",
   children=[
     form,
     dag.AgGrid(
       id="table:pair-cointegration",
       columnDefs=column_defs,
       columnSize="autoSize",
+      dashGridOptions={"rowSelection": "single"},
       style={"height": "100%"},
     ),
+    dcc.Graph(id="graph:pair:price"),
   ],
 )
 
 
-def pairs_data(prices: pd.DataFrame, corr_threshold: float) -> pd.DataFrame:
+def pairs_data(
+  prices: pd.DataFrame, corr_threshold: float, tickers: pd.DataFrame
+) -> pd.DataFrame:
   corr_df = prices.corr()
 
   col_pairs = list(combinations(prices.columns, 2))
-  results: list[tuple[str, str, float, float, float]] = []
+  results: list[PairData] = []
 
   for col1, col2 in col_pairs:
-    corr = corr_df.loc[col1, col2]
+    corr = cast(float, corr_df.at[col1, col2])
     if np.isnan(corr) or corr < corr_threshold:
       continue
 
@@ -129,11 +147,25 @@ def pairs_data(prices: pd.DataFrame, corr_threshold: float) -> pd.DataFrame:
     x, y = x[mask], y[mask]
     score, pvalue, _ = coint(x, y)
 
-    results.append((col1, col2, corr, score, pvalue))
+    y_const = sm.add_constant(y)
+    model = sm.OLS(x, y_const).fit()
+    intercept, slope = model.params
 
-  pairs = pd.DataFrame(
-    results, columns=["stock_1", "stock_2", "correlation", "test_stat", "p_value"]
-  )
+    results.append(
+      PairData(
+        security_id_1=col1,
+        security_id_2=col2,
+        correlation=corr,
+        intercept=intercept,
+        slope=slope,
+        test_statistic=score,
+        p_value=pvalue,
+      )
+    )
+
+  pairs = pd.DataFrame.from_records(results)
+  pairs["stock_1"] = pairs["security_id_1"].apply(lambda x: tickers.at[x, "ticker"])
+  pairs["stock_2"] = pairs["security_id_2"].apply(lambda x: tickers.at[x, "ticker"])
   return pairs
 
 
@@ -146,7 +178,6 @@ def compute_correlation(row: pd.Series, df: pd.DataFrame):
 
 async def load_prices(
   ids: list[str],
-  tickers: list[str],
   currency: str,
   start_date: date,
 ):
@@ -162,13 +193,9 @@ async def load_prices(
     for i in ids
   ]
 
-  prices: list[DataFrame] = await aiometer.run_all(
-    tasks, max_per_second=5
-  )  # await asyncio.gather(*tasks)
+  prices: list[DataFrame] = await aiometer.run_all(tasks, max_per_second=5)
   prices = [
-    p.rename(columns={"close": ticker})
-    for ticker, p in zip(tickers, prices)
-    if p is not None
+    p.rename(columns={"close": i}) for i, p in zip(ids, prices) if p is not None
   ]
   return pd.concat(prices, axis=1)
 
@@ -182,7 +209,7 @@ async def load_prices(
   prevent_initial_call=True,
   # background=True,
 )
-def search(n_clicks: int, exchange_currency: str, start: str, threshold: float):
+def update_table(n_clicks: int, exchange_currency: str, start: str, threshold: float):
   if not (n_clicks and exchange_currency and start and threshold):
     return no_update
 
@@ -190,15 +217,47 @@ def search(n_clicks: int, exchange_currency: str, start: str, threshold: float):
 
   start_date = dt.strptime(start, "%Y-%m-%d").date()
   query = "SELECT security_id, ticker FROM stock WHERE mic = :exchange"
-  tickers = read_sqlite("ticker.db", query, {"exchange": exchange})
+  tickers = read_sqlite(
+    "ticker.db", query, params={"exchange": exchange}, index_col="security_id"
+  )
 
   loop = asyncio.new_event_loop()
   asyncio.set_event_loop(loop)
   prices = loop.run_until_complete(
-    load_prices(tickers["security_id"], tickers["ticker"], currency, start_date)
+    load_prices(tickers.index.to_list(), currency, start_date)
   )
   prices.sort_index(inplace=True)
 
-  pairs = pairs_data(prices, threshold)
+  pairs = pairs_data(prices, threshold, tickers)
 
   return pairs.to_dict("records")
+
+
+@callback(
+  Output("graph:pair:price", "figure"),
+  Input("table:pair-cointegration", "selectedRows"),
+  State("dropdown:pair:exchange", "value"),
+  State("datepicker:pair:start", "date"),
+  prevent_initial_call=True,
+)
+def update_graph(row: list[dict], exchange_currency: str, start_date_text: str):
+  if not row:
+    return no_update
+
+  currency = exchange_currency.split("|")[1]
+  tables = [
+    f"{row[0]['security_id_1']}_{currency}",
+    f"{row[0]['security_id_2']}_{currency}",
+  ]
+
+  start_date = dt.strptime(start_date_text, "%Y-%m-%d").date()
+  prices = load_ohlcv_batch(tables, "stock", start_date=start_date, cols=["close"])
+
+  if prices is None:
+    return no_update
+
+  slope = row[0]["slope"]
+  intercept = row[0]["intercept"]
+  prices["residual"] = prices[tables[0]] - (slope * prices[tables[1]] + intercept)
+
+  return px.line(prices, x=prices.index, y="residual")

@@ -10,10 +10,13 @@ from lib.db.lite import read_sqlite, upsert_sqlite
 from lib.fin.models import Quote
 from lib.utils.dataframe import slice_df_by_date
 
+type Security = Literal["stock", "forex", "index"]
+type QuoteColumn = Literal["open", "high", "low", "close", "volume"]
+
 
 def upsert_ohlcv(
   table: str,
-  security: Literal["stock", "forex", "index"],
+  security: Security,
   df: DataFrame[Quote],
 ) -> None:
   df.index = cast(pd.DatetimeIndex, df.index).strftime("%Y%m%d").astype(int)
@@ -22,12 +25,12 @@ def upsert_ohlcv(
 
 async def load_ohlcv(
   table: str,
-  security: Literal["stock", "forex", "index"],
+  security: Security,
   ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
   delta: int = 1,
   start_date: dt | Date | None = None,
   end_date: dt | Date | None = None,
-  cols: list[Literal["open", "high", "low", "close", "volume"]] | None = None,
+  cols: list[QuoteColumn] | None = None,
 ) -> DataFrame[Quote] | None:
   cols_ = cols or ["open", "high", "low", "close", "volume"]
   col_text = "CAST(date AS TEXT) AS date, " + ", ".join(cols_)
@@ -97,3 +100,52 @@ async def load_ohlcv(
   )
 
   return cast(DataFrame[Quote], slice_df_by_date(ohlcv, start_date, end_date))
+
+
+def load_ohlcv_batch(
+  tables: list[str],
+  security: Security,
+  start_date: dt | Date | None = None,
+  end_date: dt | Date | None = None,
+  cols: list[QuoteColumn] | None = None,
+) -> pd.DataFrame | None:
+  cols_ = cols or ["open", "high", "low", "close", "volume"]
+  col_text = "CAST(date AS TEXT) AS date, " + ", ".join(cols_)
+
+  where_clause = ""
+  params = {}
+  if start_date is not None:
+    params["start_date"] = int(dt.strftime(start_date, "%Y%m%d"))
+    where_clause += " WHERE date >= :start_date"
+
+  if end_date is not None:
+    params["end_date"] = int(dt.strftime(end_date, "%Y%m%d"))
+    where_clause += (
+      f"{' AND' if 'WHERE' in where_clause else ' WHERE'} date <= :end_date"
+    )
+
+  dfs: list[pd.DataFrame] = []
+  for table in tables:
+    query = f"SELECT {col_text} FROM '{table}' {where_clause}"
+
+    df = read_sqlite(
+      f"{security}_quote.db",
+      query,
+      params=params,
+      index_col="date",
+      date_parser={"date": {"format": "%Y%m%d"}},
+    )
+
+    if df is None or df.empty:
+      continue
+
+    if cols is not None and len(cols) == 1:
+      df.rename(columns={cols[0]: table}, inplace=True)
+    else:
+      df.columns = pd.MultiIndex.from_product([[table], df.columns])
+    dfs.append(df)
+
+  if len(dfs) == 0:
+    return None
+
+  return pd.concat(dfs, axis=1).sort_index()
