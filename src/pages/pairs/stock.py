@@ -20,6 +20,7 @@ from statsmodels.tsa.stattools import coint  # adfuller
 from lib.db.lite import read_sqlite
 from lib.fin.quote import load_ohlcv, load_ohlcv_batch
 from lib.morningstar.ticker import Stock
+from lib.statistics.hurst import hurst_variance
 from lib.styles import BUTTON_STYLE
 
 from components.input import InputAIO
@@ -33,6 +34,7 @@ class PairData(TypedDict):
   slope: float
   test_statistic: float
   p_value: float
+  hurst: float
 
 
 register_page(__name__, path="/pair/stock")
@@ -53,13 +55,14 @@ query = """
 """
 exchanges = read_sqlite("ticker.db", query)
 
-number_fields = (
-  ("correlation", "Correlation"),
-  ("slope", "Slope"),
-  ("intercept", "Intercept"),
-  ("test_statistic", "Test Statistic"),
-  ("p_value", "P-Value"),
-)
+number_fields = {
+  "correlation": {},
+  "slope": {},
+  "intercept": {},
+  "test_statistic": {"name": "Test Statistic"},
+  "p_value": {"name": "P-Value", "format": ".2e"},
+  "hurst": {},
+}
 
 column_defs = [
   {
@@ -74,12 +77,14 @@ column_defs = [
   },
 ] + [
   {
-    "field": field,
-    "headerName": label,
+    "field": k,
+    "headerName": v.get("name", k.capitalize()),
     "cellDataType": "number",
-    "valueFormatter": {"function": 'd3.format(".3f")(params.value)'},
+    "valueFormatter": {
+      "function": f"d3.format('{v.get('format', '.3f')}')(params.value)"
+    },
   }
-  for field, label in number_fields
+  for k, v in number_fields.items()
 ]
 
 form = html.Form(
@@ -129,7 +134,7 @@ layout = html.Main(
 )
 
 
-def pairs_data(
+def compute_pairs_data(
   prices: pd.DataFrame, corr_threshold: float, tickers: pd.DataFrame
 ) -> pd.DataFrame:
   corr_df = prices.corr()
@@ -142,14 +147,17 @@ def pairs_data(
     if np.isnan(corr) or corr < corr_threshold:
       continue
 
-    x, y = prices[col1], prices[col2]
-    mask = x.notna() & y.notna()
-    x, y = x[mask], y[mask]
+    p_1, p_2 = prices[col1], prices[col2]
+    mask = p_1.notna() & p_2.notna()
+    x, y = p_1[mask].to_numpy(), p_2[mask].to_numpy()
     score, pvalue, _ = coint(x, y)
 
     y_const = sm.add_constant(y)
     model = sm.OLS(x, y_const).fit()
     intercept, slope = model.params
+
+    spread = x - (slope * y + intercept)
+    hurst = hurst_variance(spread)
 
     results.append(
       PairData(
@@ -160,6 +168,7 @@ def pairs_data(
         slope=slope,
         test_statistic=score,
         p_value=pvalue,
+        hurst=hurst,
       )
     )
 
@@ -193,7 +202,9 @@ async def load_prices(
     for i in ids
   ]
 
-  prices: list[DataFrame] = await aiometer.run_all(tasks, max_per_second=5)
+  prices: list[DataFrame] = await aiometer.run_all(
+    tasks, max_at_once=3, max_per_second=6
+  )
   prices = [
     p.rename(columns={"close": i}) for i, p in zip(ids, prices) if p is not None
   ]
@@ -228,7 +239,7 @@ def update_table(n_clicks: int, exchange_currency: str, start: str, threshold: f
   )
   prices.sort_index(inplace=True)
 
-  pairs = pairs_data(prices, threshold, tickers)
+  pairs = compute_pairs_data(prices, threshold, tickers)
 
   return pairs.to_dict("records")
 
