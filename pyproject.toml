@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
   "aiometer",
+  #"asynciolimiter",
   "asyncstdlib",
   "cvxpy",
   "dash[celery,diskcache]",
@@ -37,6 +38,7 @@ dependencies = [
   "python-dotenv",
   "rapidfuzz",
   "requests",
+  "rnet",
   "scikit-learn",
   "scipy",
   "skfolio",

@@ -41,7 +41,7 @@ async def fetch_api(params: ApiParams, timeout: Optional[float | int] = None) ->
     return response.json()
 
 
-def camel_to_snake(name):
+def camel_to_snake(name: str) -> str:
   pattern = re.compile(r"(?<!^)(?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])")
   return pattern.sub("_", name).lower()
 
@@ -60,9 +60,7 @@ async def get_tickers(
     "IsPrimary": "primary",
     "SecId": "security_id",
     "EquityCompanyId": "company_id",
-    "FundId": "fund_id",
     "ExchangeId": "mic",
-    "LegalName": "legal_name",
   }
   fields = {
     "stock": (
@@ -198,8 +196,15 @@ async def get_tickers(
     df.drop("ClosePrice", axis=1, inplace=True)
 
   df.rename(columns=rename, inplace=True)
-  df.columns = df.columns.str.replace("Name", "", case=True)
-  df.columns = [camel_to_snake(col) for col in df.columns]
+  df.rename(
+    columns={
+      c: c.replace("Name", "")
+      for c in df.columns
+      if c.endswith("Name") and c not in {"Name", "LegalName"}
+    },
+    inplace=True,
+  )
+  df.columns = pd.Index([camel_to_snake(col) for col in df.columns])
 
   if security == "stock":
     pattern = r"^EX(\$+|TP\$+)"

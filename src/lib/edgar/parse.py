@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
+import json
 import re
 import time
 from typing import cast, Literal
@@ -30,7 +31,6 @@ from lib.fin.models import (
 from lib.fin.statement import (
   statement_urls,
   upsert_merged_statements,
-  upsert_statements,
 )
 from lib.utils.validate import (
   validate_currency,
@@ -100,7 +100,7 @@ async def parse_xbrl_urls(cik: int, doc_ids: list[str], doc_type: Docs) -> Serie
   result = pd.Series(urls, index=doc_ids)
   result = result.loc[result.notnull()]
 
-  return result
+  return cast(Series[str], result)
 
 
 async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = "htm") -> str:
@@ -442,12 +442,18 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
   return df
 
 
-async def get_isin(cik: str | int) -> str:
+async def get_isin(cik: str | int) -> str | None:
+  """cik-isin.com is not hosted anymore"""
   url = f"https://cik-isin.com/cik2isin.php?cik={cik}"
 
-  async with httpx.AsyncClient() as client:
-    response = await client.get(url, headers=HEADERS)
-    dom = Selector(response.text)
+  try:
+    async with httpx.AsyncClient() as client:
+      response = await client.get(url, headers=HEADERS)
+      response.raise_for_status()
+      dom = Selector(response.text)
+  except (httpx.ConnectError, httpx.RequestError, httpx.HTTPStatusError) as e:
+    print(f"Error fetching ISIN for CIK {cik}: {e}")
+    return None
 
   isin_text = dom.xpath(
     'normalize-space(//p[b[text()="ISIN"]]/text()[normalize-space()])'
@@ -462,6 +468,10 @@ async def get_isin(cik: str | int) -> str:
 
 
 async def get_ciks() -> DataFrame[CikFrame]:
+  def get_tickers(group: pd.DataFrame) -> str:
+    tickers = group["ticker"].tolist()
+    return json.dumps(tickers)
+
   rename = {"cik_str": "cik", "title": "name"}
 
   url = "https://www.sec.gov/files/company_tickers.json"
@@ -472,13 +482,7 @@ async def get_ciks() -> DataFrame[CikFrame]:
 
   df = pd.DataFrame.from_dict(parse, orient="index")
   df.rename(columns=rename, inplace=True)
+  cik = df.groupby("cik").agg({"cik": "first", "name": "first"}, include_groups=False)
+  cik["tickers"] = df.groupby("cik").apply(get_tickers, include_groups=False)
 
-  # tasks = [asyncio.create_task(get_isin(cik)) for cik in df['cik']]
-  # isins = await asyncio.gather(*tasks)
-  tasks = [partial(get_isin, cik) for cik in df["cik"]]
-  isins = await aiometer.run_all(tasks, max_per_second=5)
-
-  df["isin"] = isins  # df['cik'].apply(get_isin)
-  df = df[["isin", "cik", "ticker", "name"]]
-
-  return cast(DataFrame[CikFrame], df)
+  return cast(DataFrame[CikFrame], cik)

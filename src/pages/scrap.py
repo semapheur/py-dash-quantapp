@@ -44,7 +44,7 @@ from lib.fin.models import (
   Scope,
   FiscalPeriod,
 )
-from lib.fin.statement import sqlite_path, upsert_statements
+from lib.fin.statement import sqlite_path, upsert_merged_statements
 from lib.fin.taxonomy import search_taxonomy, fuzzy_search_taxonomy, update_gaap
 from lib.scrap import download_file_memory
 from lib.styles import BUTTON_STYLE, UPLOAD_STYLE
@@ -73,6 +73,14 @@ class ItemTable(TypedDict):
   ]
   balance: Literal["debit", "credit"]
   aggregate: Literal["average", "recalc", "sum", "tail"]
+
+
+class ScrapTrainingData(TypedDict):
+  url: str
+  type: Literal["pdf", "html"]
+  page: int
+  html: str
+  output: dict
 
 
 main_style = "size-full bg-primary"
@@ -137,10 +145,7 @@ scrap_controls_sidebar = html.Aside(
                   className=radio_style,
                   labelClassName="gap-1 text-text",
                   labelStyle={"display": "flex"},
-                  options=[
-                    {"label": "Text", "value": "text"},
-                    {"label": "Image", "value": "image"},
-                  ],
+                  options={"text": "Text", "image": "Image"},
                   value="text",
                 ),
                 html.Button(
@@ -268,10 +273,7 @@ scrap_controls_sidebar = html.Aside(
       id="dropdown:scrap:scope",
       className="outline-hidden",
       placeholder="Scope",
-      options=[
-        {"label": "Annual", "value": "annual"},
-        {"label": "Quarterly", "value": "quarterly"},
-      ],
+      options={"annual": "Annual", "quarterly": "Quarterly"},
     ),
     dcc.Dropdown(
       id="dropdown:scrap:period",
@@ -834,10 +836,39 @@ def parse_period(
   return Duration(start_date=start_date, end_date=date, months=months)
 
 
+# def prepare_scrap_df(df: pd.DataFrame):
+#  df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
+#
+#  dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
+#  if not all(valid_date(date) for date in dates):
+#    return None, None
+#
+#  df[dates] = (
+#    df[dates]
+#    .apply(
+#      lambda col: (
+#        col.replace("–", "-")
+#        .replace(r"[^-\d.%]", "", regex=True)
+#        .apply(
+#          lambda x: (
+#            float(x.replace(" ", "").replace("%", "e-2").strip())
+#            if isinstance(x, str) and "%" in x
+#            else (float(x) if x is not None else np.nan)
+#          )
+#        )
+#        if col.dtype == "object"
+#        else col
+#      )
+#    )
+#    .astype(float, errors="ignore")
+#  )
+#  return df, dates
+
+
 def prepare_scrap_df(df: pd.DataFrame):
   df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
 
-  dates = list(df.columns.difference({"period", "factor", "unit", "item"}))
+  dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
   if not all(valid_date(date) for date in dates):
     return None, None
 
@@ -1681,7 +1712,7 @@ def label_training_data(
     ]
 
   data_json = FinStatement.serialize_data(data)
-  insert = {
+  insert: ScrapTrainingData = {
     "url": url,
     "type": tab.split(":")[-1],
     "page": None,
@@ -1745,7 +1776,6 @@ def item_modal(n_clicks: int, rows: list[dict]):
       "status",
     ],
   )
-
   row_data = pd.concat([df[["item"]], empty_columns], axis=1)
 
   return row_data.to_dict("records")
@@ -1910,7 +1940,7 @@ def upsert(
     fiscal_end,
     dates,
   )
-  upsert_statements("statements.db", id, [record])
+  upsert_merged_statements("statements.db", id, [record])
 
   return (
     None,
@@ -1964,6 +1994,6 @@ def upload_json(contents: str, filename: str, id: str):
     message = f"Invalid JSON structure: {e.errors()}"
     return message, True
 
-  upsert_statements("statements.db", id, [record])
+  upsert_merged_statements("statements.db", id, [record])
 
   return None, False

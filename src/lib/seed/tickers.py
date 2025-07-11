@@ -1,12 +1,12 @@
 import hashlib
 import json
-from numpy import nan
 import re
+import sqlite3
 
 from pandera.typing import DataFrame
 import pycountry
 
-from lib.db.lite import insert_sqlite, read_sqlite
+from lib.db.lite import insert_sqlite, read_sqlite, sqlite_path
 from lib.brreg.parse import get_company_ids
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
@@ -45,11 +45,17 @@ def find_index(nested_list: list[list[str]], query: str) -> int:
   return -1
 
 
+async def seed_tickers():
+  await seed_stock_tickers()
+  await seed_ciks()
+  map_cik_to_company()
+
+
 async def seed_stock_tickers():
   blacklist = ["cedear", r"class \w", "ordinary shares", "shs"]
   pattern = r"(?!^)\b(?:{})\b".format("|".join(blacklist))
 
-  def get_primary_currency(group: DataFrame) -> str:
+  def get_primary_currency(group: DataFrame) -> str | None:
     domicile = group["domicile"].iloc[0]
 
     if domicile not in group["country"].tolist():
@@ -60,7 +66,7 @@ async def seed_stock_tickers():
       currencies = group.loc[mask, "currency"]
 
     currency = currencies.unique()
-    return currency[0] if len(currency) == 1 else nan
+    return currency[0] if len(currency) == 1 else None
 
   def get_primary_tickers(group: DataFrame) -> str:
     domicile = group["domicile"].iloc[0]
@@ -102,14 +108,14 @@ async def seed_stock_tickers():
   tickers.loc[:, "domicile"] = tickers["domicile"].apply(
     lambda x: pycountry.countries.get(alpha_3=x).alpha_2
   )
-
   companies = tickers.groupby("company_id").agg(
     {
       "name": lambda x: re.sub(pattern, "", min(x, key=len), flags=re.I).strip(),
       "domicile": "first",
       "sector": "first",
       "industry": "first",
-    }
+    },
+    include_groups=False,
   )
 
   tickers = tickers.merge(exchanges[["mic", "country"]], on="mic", how="left")
@@ -156,6 +162,46 @@ async def seed_ciks():
   ciks = await get_ciks()
 
   insert_sqlite(ciks, "ticker.db", "edgar", "replace", False)
+
+
+def map_cik_to_company():
+  required_tables = {"stock", "exchange", "edgar"}
+  query = """
+    BEGIN TRANSACTION;
+
+    CREATE TABLE edgar_updated AS
+    SELECT
+      ed.*,
+      matched.company_id
+    FROM edgar ed
+    LEFT JOIN (
+      SELECT DISTINCT
+        ed_inner.cik AS cik,
+        s.company_id AS company_id
+      FROM stock s
+      JOIN exchange ex ON s.mic = ex.mic
+      JOIN edgar ed_inner
+        ON s.ticker IN (
+          SELECT value FROM json_each(ed_inner.tickers)
+        )
+      WHERE ex.country = 'US'
+    ) AS matched ON ed.cik = matched.cik;
+    
+    DROP TABLE edgar;
+    ALTER TABLE edgar_updated RENAME TO edgar;
+    COMMIT;
+  """
+
+  with sqlite3.connect(sqlite_path("ticker.db")) as conn:
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    existing_tables = {row[0] for row in cursor.fetchall()}
+
+    missing_tables = required_tables - existing_tables
+    if missing_tables:
+      raise RuntimeError(f"Missing tables: {', '.join(missing_tables)}")
+    conn.executescript(query)
 
 
 def seed_brreg_ids():
