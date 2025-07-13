@@ -29,13 +29,7 @@ from lib.fin.statement import (
 from lib.utils.string import replace_all
 from lib.utils.time import exclusive_end_date, month_difference
 from lib.utils.validate import validate_currency
-
-
-XMLNS = {
-  "ix": "http://www.xbrl.org/2013/inlineXBRL",
-  "xbrli": "http://www.xbrl.org/2003/instance",
-  "xbrldi": "http://xbrl.org/2006/xbrldi",
-}
+from lib.xbrl.utils import XMLNS
 
 
 class FilingInfo(TypedDict):

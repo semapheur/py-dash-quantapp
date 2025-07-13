@@ -3,10 +3,12 @@ from datetime import date
 from pathlib import Path
 import re
 from typing import cast, Annotated, Literal, Optional, TypedDict
-import xml.etree.ElementTree as et
+
+# import xml.etree.ElementTree as et
 import zipfile
 
 import httpx
+from lxml import etree
 import numpy as np
 import pandas as pd
 from pandera import DataFrameModel
@@ -16,8 +18,10 @@ from parsel import Selector
 from lib.db.lite import insert_sqlite, read_sqlite
 from lib.scrap import download_file
 
-NAMESPACE = {
+XMLNS = {
+  "ix": "http://www.xbrl.org/2013/inlineXBRL",
   "link": "http://www.xbrl.org/2003/linkbase",
+  "xbrldi": "http://xbrl.org/2006/xbrldi",
   "xbrli": "http://www.xbrl.org/2003/instance",
   "xlink": "http://www.w3.org/1999/xlink",
   "xs": "http://www.w3.org/2001/XMLSchema",
@@ -112,23 +116,24 @@ def xbrl_namespaces(dom: Selector) -> dict:
   return namespace_dict
 
 
-def xbrl_items(root: et.Element) -> DataFrame:
+def xbrl_items(root: etree._Element) -> DataFrame:
   def parse_type(text: str) -> str:
     return text.replace("ItemType", "").split(":")[-1]
 
   data: list[XbrlElement] = []
-  for item in root.findall(".//xs:element", namespaces=NAMESPACE):
+  items: list[etree._Element] = root.findall(".//xs:element", namespaces=XMLNS)
+  for item in items:
     data.append(
       XbrlElement(
         name=item.attrib["name"],
         type=parse_type(item.attrib["type"]),
         period=cast(
           Literal["duration", "instant"] | None,
-          item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}periodType'),
+          item.attrib.get(f"{{{XMLNS['xbrli']}}}periodType"),
         ),
         balance=cast(
           Literal["credit", "debit"] | None,
-          item.attrib.get(f'{{{NAMESPACE["xbrli"]}}}balance'),
+          item.attrib.get(f"{{{XMLNS['xbrli']}}}balance"),
         ),
       )
     )
@@ -137,10 +142,11 @@ def xbrl_items(root: et.Element) -> DataFrame:
   return cast(DataFrame, df)
 
 
-def ifrs_labels(root: et.Element) -> DataFrame:
+def ifrs_labels(root: etree._Element) -> DataFrame:
   pattern = r" \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$"
   data: list[XbrlLabel] = []
-  for item in root.findall(".//link:label", namespaces=NAMESPACE):
+  items: list[etree._Element] = root.findall(".//link:label", namespaces=XMLNS)
+  for item in items:
     deprecated: None | int = None
     label = item.text
     if label is not None and (m := re.search(pattern, label)) is not None:
@@ -160,12 +166,12 @@ def ifrs_labels(root: et.Element) -> DataFrame:
   return cast(DataFrame, df)
 
 
-def ifrs_description(root: et.Element) -> DataFrame:
+def ifrs_description(root: etree._Element) -> DataFrame:
   data: list[dict[str, str]] = []
 
   pattern = r"^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|" r"\[\d{4}-\d{2}\] \{.+\})$"
-
-  for item in root.findall(".//link:label", namespaces=NAMESPACE):
+  items: list[etree._Element] = root.findall(".//link:label", namespaces=XMLNS)
+  for item in items:
     description = cast(str, item.text)
     if re.match(pattern, description) is not None:
       continue
@@ -181,16 +187,18 @@ def ifrs_description(root: et.Element) -> DataFrame:
   return cast(DataFrame, df)
 
 
-def ifrs_calculation(root: et.Element) -> dict[str, dict[str, dict[str, float]]]:
+def ifrs_calculation(root: etree._Element) -> dict[str, dict[str, dict[str, float]]]:
   names: dict[str, str] = {}
-  for loc in root.findall(".//link:loc", namespaces=NAMESPACE):
-    key = loc.attrib[f'{{{NAMESPACE["xlink"]}}}label']
-    names[key] = loc.attrib[f'{{{NAMESPACE["xlink"]}}}href'].split("_")[-1]
+  locs: list[etree._Element] = root.findall(".//link:loc", namespaces=XMLNS)
+  for loc in locs:
+    key = loc.attrib[f"{{{XMLNS['xlink']}}}label"]
+    names[key] = loc.attrib[f"{{{XMLNS['xlink']}}}href"].split("_")[-1]
 
   schema: dict[str, dict[str, dict[str, float]]] = {}
-  for calc in root.findall(".//link:calculationArc", namespaces=NAMESPACE):
-    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from']
-    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to']
+  calcs: list[etree._Element] = root.findall(".//link:calculationArc", namespaces=XMLNS)
+  for calc in calcs:
+    parent = calc.attrib[f"{{{XMLNS['xlink']}}}from"]
+    item = calc.attrib[f"{{{XMLNS['xlink']}}}to"]
     schema.setdefault(names[parent], {})[names[item]] = {
       "order": float(calc.attrib["order"]),
       "weight": float(calc.attrib["weight"]),
@@ -215,7 +223,7 @@ def calculation_text(calc: dict[str, dict[str, float]]) -> str:
   text: list[str] = []
 
   for k, v in calc.items():
-    text.append(f'{parse_weight(v["weight"])}{k}')
+    text.append(f"{parse_weight(v['weight'])}{k}")
 
   text[0] = text[0].replace("+", "")
 
@@ -281,29 +289,30 @@ def cleanup_taxonomy(items: DataFrame[Taxonomy]) -> DataFrame[Taxonomy]:
 
 def gaap_items(year: Annotated[int, ">=2011"]) -> DataFrame:
   url = (
-    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
-    f'us-gaap-{year}{"-01-31" if year < 2022 else ""}.xsd'
+    f"https://xbrl.fasb.org/us-gaap/{year}/elts/"
+    f"us-gaap-{year}{'-01-31' if year < 2022 else ''}.xsd"
   )
   with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
+    response = client.get(url)
+    root = etree.fromstring(response.content)
 
   return xbrl_items(root)
 
 
 def gaap_labels(year: Annotated[int, ">=2011"]) -> DataFrame:
   url = (
-    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
-    f'us-gaap-lab-{year}{"-01-31" if year < 2022 else ""}.xml'
+    f"https://xbrl.fasb.org/us-gaap/{year}/elts/"
+    f"us-gaap-lab-{year}{'-01-31' if year < 2022 else ''}.xml"
   )
   with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
+    response = client.get(url)
+    root = etree.fromstring(response.content)
 
   pattern = r" \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$"
 
   data: list[XbrlLabel] = []
-  for item in root.findall(".//link:label", namespaces=NAMESPACE):
+  items: list[etree._Element] = root.findall(".//link:label", namespaces=XMLNS)
+  for item in items:
     deprecated: None | int = None
     label = cast(str, item.text)
     if (m := re.search(pattern, label)) is not None:
@@ -312,7 +321,7 @@ def gaap_labels(year: Annotated[int, ">=2011"]) -> DataFrame:
 
     data.append(
       XbrlLabel(
-        name=item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split("_")[-1],
+        name=item.attrib[f"{{{XMLNS['xlink']}}}label"].split("_")[-1],
         label=label,
         deprecated=deprecated,
       )
@@ -324,25 +333,26 @@ def gaap_labels(year: Annotated[int, ">=2011"]) -> DataFrame:
 
 def gaap_description(year: Annotated[int, ">=2011"]) -> DataFrame:
   url = (
-    f'https://xbrl.fasb.org/us-gaap/{year}/elts/'
-    f'us-gaap-doc-{year}{"-01-31" if year < 2022 else ""}.xml'
+    f"https://xbrl.fasb.org/us-gaap/{year}/elts/"
+    f"us-gaap-doc-{year}{'-01-31' if year < 2022 else ''}.xml"
   )
   with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
+    response = client.get(url)
+    root = etree.fromstring(response.content)
 
     data: list[dict[str, str]] = []
 
   pattern = r"^(?:\d{4}-\d{2}-\d{2}|\d{4}(?: New Element)?|" r"\[\d{4}-\d{2}\] \{.+\})$"
 
-  for item in root.findall(".//link:label", namespaces=NAMESPACE):
+  items: list[etree._Element] = root.findall(".//link:label", namespaces=XMLNS)
+  for item in items:
     description = cast(str, item.text)
     if re.match(pattern, description) is not None:
       continue
 
     data.append(
       {
-        "name": item.attrib[f'{{{NAMESPACE["xlink"]}}}label'].split("_")[-1],
+        "name": item.attrib[f"{{{XMLNS['xlink']}}}label"].split("_")[-1],
         "description": description,
       }
     )
@@ -359,7 +369,7 @@ def parse_gaap_calculation_urls(
   response = httpx.get(url)
   dom = Selector(response.text)
 
-  pattern = rf'-cal-{year}{"-01-31" if year < 2022 else ""}.xml$'
+  pattern = rf"-cal-{year}{'-01-31' if year < 2022 else ''}.xml$"
 
   urls = dom.xpath(f'//a[re:match(@href, "{pattern}")]/@href').getall()
   urls = [f"https://xbrl.fasb.org/us-gaap/{year}/{suffix}/{url}" for url in urls]
@@ -377,14 +387,15 @@ def gaap_calculation_urls(year: Annotated[int, ">=2011"]) -> list[str]:
 
 def parse_gaap_calculation(url: str) -> dict[str, dict[str, dict[str, float]]]:
   with httpx.Client() as client:
-    rs = client.get(url)
-    root = et.fromstring(rs.content)
+    response = client.get(url)
+    root = etree.fromstring(response.content)
 
   schema: dict[str, dict[str, dict[str, float]]] = {}
-  for calc in root.findall(".//link:calculationArc", namespaces=NAMESPACE):
-    parent = calc.attrib[f'{{{NAMESPACE["xlink"]}}}from'].split("_")[-1]
+  calcs: list[etree._Element] = root.findall(".//link:calculationArc", namespaces=XMLNS)
+  for calc in calcs:
+    parent = calc.attrib[f"{{{XMLNS['xlink']}}}from"].split("_")[-1]
 
-    item = calc.attrib[f'{{{NAMESPACE["xlink"]}}}to'].split("_")[-1]
+    item = calc.attrib[f"{{{XMLNS['xlink']}}}to"].split("_")[-1]
     schema.setdefault(parent, {})[item] = {
       "order": float(calc.attrib["order"]),
       "weight": float(calc.attrib["weight"]),
@@ -455,19 +466,19 @@ def ifrs_taxonomy(year: Annotated[int, ">=2015"]) -> DataFrame:
     with zip.open(
       f"{zip_path.stem}/full_ifrs/full_ifrs-cor_{IFRS[year]}.xsd", "r"
     ) as item_file:
-      root = et.parse(item_file).getroot()
+      root = etree.parse(item_file).getroot()
       items = xbrl_items(root)
 
     with zip.open(
       f"{zip_path.stem}/full_ifrs/labels/lab_full_ifrs-en_{IFRS[year]}.xml", "r"
     ) as lab_file:
-      root = et.parse(lab_file).getroot()
+      root = etree.parse(lab_file).getroot()
       labels = ifrs_labels(root)
 
     with zip.open(
       f"{zip_path.stem}/full_ifrs/labels/doc_full_ifrs-en_{IFRS[year]}.xml", "r"
     ) as doc_file:
-      root = et.parse(doc_file).getroot()
+      root = etree.parse(doc_file).getroot()
       description = ifrs_description(root)
 
     schema: dict[str, dict[str, dict[str, float]]] = {}
@@ -478,7 +489,7 @@ def ifrs_taxonomy(year: Annotated[int, ">=2015"]) -> DataFrame:
       file_name = i.filename.split("/")[-1]
       if file_name.startswith("cal") and file_name.endswith(".xml"):
         with zip.open(i.filename) as calc_file:
-          root = et.parse(calc_file).getroot()
+          root = etree.parse(calc_file).getroot()
           schema.update(ifrs_calculation(root))
 
   zip_path.unlink()
