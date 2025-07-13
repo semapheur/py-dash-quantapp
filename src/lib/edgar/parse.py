@@ -6,11 +6,11 @@ import json
 import re
 import time
 from typing import cast, Literal
-import xml.etree.ElementTree as et
 
 import aiometer
 import hishel
 import httpx
+from lxml import etree
 import pandas as pd
 from pandera.typing import DataFrame, Series
 from parsel import Selector
@@ -19,14 +19,13 @@ from lib.const import HEADERS
 from lib.edgar.models import CikEntry, CikFrame
 from lib.fin.models import (
   FinStatement,
-  Instant,
-  Duration,
   FinPeriodStore,
   UnitStore,
   FinRecord,
   Member,
   Scope,
   FinData,
+  fix_statement_data,
 )
 from lib.fin.statement import (
   statement_urls,
@@ -37,11 +36,10 @@ from lib.utils.validate import (
 )
 from lib.utils.string import insert_characters, replace_all
 from lib.utils.time import (
-  month_difference,
   month_end,
   fiscal_quarter_monthly,
-  exclusive_end_date,
 )
+from lib.xbrl.filings import parse_xbrl_period, parse_xbrl_unit
 
 type Docs = Literal["cal", "def", "htm", "lab", "pre"]
 
@@ -135,151 +133,27 @@ async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement
 
 
 async def parse_statement(url: str) -> FinStatement:
-  def fix_data(
-    data: FinData,
-    period_lookup: dict[Duration | Instant, str],
-    unit_lookup: dict[str, int],
-  ) -> FinData:
-    fixed: FinData = {}
-
-    for k in sorted(data.keys()):
-      temp: list[FinRecord] = []
-
-      for item in data[k]:
-        item["period"] = period_lookup[item["period"]]
-
-        if "unit" in item:
-          item["unit"] = unit_lookup[item["unit"]]
-
-        members = item.get("members")
-        if members is None:
-          temp.append(item)
-          continue
-
-        if len(members) == 1:
-          member = next(iter(members.values()))
-          m_unit = member.get("unit")
-
-          if "value" not in item:
-            item["value"] = member.get("value")
-
-          if m_unit is None:
-            temp.append(item)
-            continue
-
-          member["unit"] = unit_lookup[m_unit]
-
-          if "unit" not in item:
-            item["unit"] = member["unit"]
-
-          temp.append(item)
-          continue
-
-        value = 0.0
-        units = set()
-        for m in members.keys():
-          value += members[m].get("value", 0)
-          unit = members[m].get("unit")
-          if unit is not None:
-            members[m]["unit"] = unit_lookup[unit]
-            units.add(unit)
-
-        if len(units) == 1:
-          item["unit"] = unit_lookup[units.pop()]
-
-          if "value" not in item:
-            item["value"] = value
-
-        temp.append(item)
-
-      fixed[k] = temp
-
-    return fixed
-
-  def parse_period(period: et.Element) -> Instant | Duration:
-    def parse_date(date_text: str):
-      match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
-      if match is None:
-        raise ValueError(f'"{date_text}" does not match format "%Y-%m-%d"')
-
-      return dt.strptime(match.group(), "%Y-%m-%d").date()
-
-    if (el := period.find("./{*}instant")) is not None:
-      instant_date = parse_date(cast(str, el.text)) + relativedelta(days=1)
-      return Instant(instant=instant_date)
-
-    start_date = parse_date(
-      cast(str, cast(et.Element, period.find("./{*}startDate")).text)
-    )
-    end_date = parse_date(cast(str, cast(et.Element, period.find("./{*}endDate")).text))
-    months = month_difference(start_date, end_date)
-    end_date = exclusive_end_date(start_date, end_date, months)
-    interval = Duration(start_date=start_date, end_date=end_date, months=months)
-
-    return interval
-
-  def parse_unit(unit: str) -> str:
-    if re.match(r"^U(nit)?\d+$", unit) is not None:
-      unit_el = cast(et.Element, root.find(f'.{{*}}unit[@id="{unit}"]'))
-
-      if unit_el is None:
-        print(url)
-
-      if (measure_el := unit_el.find(".//{*}measure")) is not None:
-        unit_ = cast(str, measure_el.text).split(":")[-1].lower()
-
-      elif (divide := unit_el.find(".//{*}divide")) is not None:
-        numerator = (
-          cast(str, cast(et.Element, divide.find(".//{*}unitNumerator/measure")).text)
-          .split(":")[-1]
-          .lower()
-        )
-        denominator = (
-          cast(str, cast(et.Element, divide.find(".//{*}unitDenominator/measure")).text)
-          .split(":")[-1]
-          .lower()
-        )
-        unit_ = f"{numerator}/{denominator}"
-
-    else:
+  def parse_unit(unit_id: str) -> str:
+    try:
+      unit = parse_xbrl_unit(root, unit_id)
+    except ValueError:
       pattern = r"^Unit_(Standard|Divide)_(\w+)_[A-Za-z0-9_-]{22}$"
-      if (m := re.search(pattern, unit)) is not None:
-        unit_ = m.group(2).lower()
+      unit_match = re.match(pattern, unit_id)
+      if unit_match is not None:
+        unit = unit_match.group(2).lower()
       else:
-        unit_ = unit.split("_")[-1].lower()
+        unit = unit_id.split("_")[-1].lower()
 
-    unit_ = replace_all(unit_, {"iso4217": "", "dollar": "d", "euro": "eur"})
+    replacements = {"iso4217": "", "dollar": "d", "euro": "eur"}
+    unit = replace_all(unit, replacements)
 
-    pattern = r"^[a-z]{3}$"
-    m = re.search(pattern, unit_, flags=re.I)
-    if m is not None:
-      if validate_currency(m.group()):
-        currency.add(m.group())
+    return unit
 
-    return unit_
-
-  def parse_member(item: et.Element, segment: et.Element) -> dict[str, Member]:
-    def parse_name(name: str) -> str:
-      name = re.sub(r"(Segment)?Member", "", name)
-      name = re.sub(name_pattern, "", name)
-      return name.split(":")[-1]
-
-    unit = parse_unit(item.attrib["unitRef"])
-    unit_store.add_unit(unit)
-
-    return {
-      parse_name(cast(str, segment.text)): Member(
-        dim=segment.attrib["dimension"].split(":")[-1],
-        value=float(cast(str, item.text)),
-        unit=unit,
-      )
-    }
-
-  async def fetch(url: str) -> et.Element:
+  async def fetch(url: str) -> etree._Element:
     # cache_transport = hishel.AsyncCacheTransport(transport=httpx.AsyncHTTPTransport())
     async with hishel.AsyncCacheClient() as client:
       response = await client.get(url, headers=HEADERS)
-      return et.fromstring(response.content)
+      return etree.fromstring(response.content)
 
   root = await fetch(url)
   if root.tag == "Error":
@@ -290,16 +164,22 @@ async def parse_statement(url: str) -> FinStatement:
     root = await fetch(url)
 
   form = {"10-K": "annual", "20-F": "annual", "40-F": "annual", "10-Q": "quarterly"}
+  namespaces: dict[str | None, str] = root.nsmap
+  namespaces = {k: v for k, v in namespaces.items() if k is not None}
 
   scope = cast(
-    Scope, form[cast(str, cast(et.Element, root.find(".{*}DocumentType")).text)]
+    Scope,
+    form[cast(str, root.xpath("./dei:DocumentType/text()", namespaces=namespaces)[0])],
   )
   date = dt.strptime(
-    cast(str, cast(et.Element, root.find(".{*}DocumentPeriodEndDate")).text), "%Y-%m-%d"
+    cast(
+      str, root.xpath("./dei:DocumentPeriodEndDate/text()", namespaces=namespaces)[0]
+    ),
+    "%Y-%m-%d",
   )
 
   fiscal_end = cast(
-    str, cast(et.Element, root.find(".{*}CurrentFiscalYearEndDate")).text
+    str, root.xpath("./dei:CurrentFiscalYearEndDate/text()", namespaces=namespaces)[0]
   )
   fiscal_end = re.sub("^-+", "", fiscal_end)
   fiscal_pattern = r"(0[1-9]|1[0-2])-(0[1-9]|12[0-9]|3[01])"
@@ -308,7 +188,7 @@ async def parse_statement(url: str) -> FinStatement:
   fiscal_end_month = int(cast(re.Match[str], match).group(1))
 
   fiscal_period = cast(
-    str, cast(et.Element, root.find(".{*}DocumentFiscalPeriodFocus")).text
+    str, root.xpath("./dei:DocumentFiscalPeriodFocus/text()", namespaces=namespaces)[0]
   )
 
   if scope == "quarterly":
@@ -331,33 +211,48 @@ async def parse_statement(url: str) -> FinStatement:
     r"((?<!Level)(Zero(?!Coupon)|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$"
   )
 
-  for item in root.findall(".//*[@unitRef]"):
+  items: list[etree._Element] = root.findall(".//*[@unitRef]")
+  for item in items:
     if item.text is None:
       continue
 
     scrap = FinRecord()
 
-    ctx = item.attrib["contextRef"]
-    period_el = cast(
-      et.Element,
-      cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find("./{*}period"),
-    )
+    context_id = item.attrib["contextRef"]
 
-    period = parse_period(period_el)
+    period = parse_xbrl_period(root, context_id, True)
     period_store.add_period(period)
-
     scrap["period"] = period
 
-    segment = cast(et.Element, root.find(f'./{{*}}context[@id="{ctx}"]')).find(
-      ".//{*}segment/{*}explicitMember"
+    unit = parse_unit(item.attrib["unitRef"])
+    unit_store.add_unit(unit)
+    if len(unit) == 3 and validate_currency(unit):
+      currency.add(unit)
+
+    value = float(item.text)
+    if "scale" in item.attrib:
+      value *= 10.0 ** int(item.attrib["scale"])
+
+    context: etree._Element = root.xpath(
+      f".//*[local-name()='context' and @id='{context_id}']"
+    )[0]
+    member_nodes: list[etree._Element] = context.xpath(
+      ".//*[local-name()='explicitMember']"
     )
 
-    if segment is not None:
-      scrap["members"] = parse_member(item, segment)
+    if member_nodes:
+      member = member_nodes[0]
+      member_name = cast(str, member.text).split(":")[-1]
+      member_name = re.sub(r"(Segment)?Member", "", member_name)
+      scrap["members"] = {
+        member_name: Member(
+          dim=cast(str, member.attrib["dimension"]).split(":")[-1],
+          value=value,
+          unit=unit,
+        )
+      }
     else:
-      scrap["value"] = float(item.text)
-      unit = parse_unit(item.attrib["unitRef"])
-      unit_store.add_unit(unit)
+      scrap["value"] = value
       scrap["unit"] = unit
 
     item_name = item.tag.split("}")[-1]
@@ -366,23 +261,23 @@ async def parse_statement(url: str) -> FinStatement:
       data[item_name] = [scrap]
       continue
 
-    try:
-      entry = next(i for i in data[item_name] if i["period"] == scrap["period"])
-
-      if "members" in scrap:
-        cast(dict[str, Member], entry.setdefault("members", {})).update(
-          cast(dict[str, Member], scrap["members"])
-        )
-      else:
-        entry.update(scrap)
-    except Exception:
+    entry = next((i for i in data[item_name] if i["period"] == scrap["period"]), None)
+    if entry is None:
       data[item_name].append(scrap)
+      continue
+
+    if "members" in scrap:
+      cast(dict[str, Member], entry.setdefault("members", {})).update(
+        cast(dict[str, Member], scrap["members"])
+      )
+    else:
+      entry.update(scrap)
 
   # Sort items
   fin_periods, period_lookup = period_store.get_periods()
   units, unit_lookup = unit_store.get_units()
 
-  data = fix_data(data, period_lookup, unit_lookup)
+  data = fix_statement_data(data, period_lookup, unit_lookup)
   return FinStatement(
     date=date.date(),
     fiscal_period=fiscal_period,

@@ -77,7 +77,7 @@ async def seed_xbrl_statements(exchange: str) -> None:
 
   df = read_sqlite("ticker.db", query, {"exchange": exchange})
 
-  missing_leis = df.loc[pd.isnull(df["lei"])]
+  missing_leis = df.loc[pd.isnull(df["lei"])].copy()
   if not missing_leis.empty:
     tasks = [partial(lei_by_isin, isin) for isin in missing_leis["isin"]]
     leis = await aiometer.run_all(tasks, max_per_second=5)
@@ -94,9 +94,8 @@ async def seed_xbrl_statements(exchange: str) -> None:
       time.sleep(1)
 
     except Exception as e:
-      print(e)
+      print(f"Failed to parse XBRL statement for {id}: {e}")
       faulty.append(id)
-      print(f"{id} failed")
 
   if not faulty:
     return
@@ -108,8 +107,12 @@ async def seed_xbrl_statements(exchange: str) -> None:
 
 
 async def seed_edgar_statements(exchange: str) -> None:
-  query = """SELECT DISTINCT stock.company_id AS company_id, edgar.cik AS cik FROM stock
-    INNER JOIN edgar ON edgar.isin = stock.isin
+  query = """
+    SELECT DISTINCT
+      stock.company_id AS company_id,
+      edgar.cik AS cik
+    FROM stock
+    INNER JOIN edgar ON edgar.company_id = stock.company_id
     WHERE stock.mic = :exchange OR stock.company_id IN (
       SELECT DISTINCT company_id FROM stock
       WHERE mic = :exchange
@@ -127,9 +130,8 @@ async def seed_edgar_statements(exchange: str) -> None:
       time.sleep(1)
 
     except Exception as e:
-      print(e)
+      print(f"Failed to parse EDGAR statement for {id}: {e}")
       faulty.append(id)
-      print(f"{id} failed")
 
   if not faulty:
     return
@@ -141,8 +143,9 @@ async def seed_edgar_statements(exchange: str) -> None:
 
 
 async def seed_company_statements(company_id: str) -> None:
-  query_cik = """SELECT e.cik AS cik FROM edgar e
-    INNER JOIN stock s ON s.isin = e.isin
+  query_cik = """
+    SELECT e.cik AS cik FROM edgar e
+    INNER JOIN stock s ON s.company_id = e.company_id
     WHERE s.company_id = :company_id
   """
 
@@ -178,7 +181,9 @@ async def seed_company_statements(company_id: str) -> None:
 
 
 async def seed_exchange_statements(exchange: str) -> None:
+  print("Parsing XBRL statements")
   await seed_xbrl_statements(exchange)
+  print("Parsing EDGAR statements")
   await seed_edgar_statements(exchange)
 
 

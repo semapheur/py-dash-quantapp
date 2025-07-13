@@ -64,8 +64,8 @@ def parse_financial_statements(
   )
 
   with httpx.Client() as client:
-    rs = client.get(url, headers=HEADERS)
-    xml = rs.content
+    response = client.get(url, headers=HEADERS)
+    xml = response.content
 
   root = et.fromstring(xml)
 

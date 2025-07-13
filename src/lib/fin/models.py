@@ -41,7 +41,7 @@ class Meta(TypedDict):
 
 
 class Value(TypedDict, total=False):
-  value: int | float
+  value: int | float | None
   unit: NonNegativeInt
 
 
@@ -280,7 +280,9 @@ class FinStatement(BaseModel):
           f"{info.field_name} must be a dictionary. Invalid value: {value}"
         )
 
-    return parsed_value
+      return parsed_value
+
+    return value
 
   @field_validator("data", mode="before")
   @classmethod
@@ -472,7 +474,7 @@ class FinStatement(BaseModel):
     if entries is None:
       return None
 
-    values: dict[str, float] = {}
+    values: dict[str, int | float | None] = {}
 
     for entry in entries:
       if "value" not in entry:
@@ -723,3 +725,65 @@ def parse_periods_json(
       raise ValueError(f"Invalid period format for key {key}: {period}")
 
   return parsed_periods
+
+
+def fix_statement_data(
+  data: FinData,
+  period_lookup: dict[Duration | Instant, str],
+  unit_lookup: dict[str, int],
+) -> FinData:
+  fixed: FinData = {}
+
+  for k in sorted(data.keys()):
+    temp: list[FinRecord] = []
+
+    for item in data[k]:
+      item["period"] = period_lookup[item["period"]]
+
+      if "unit" in item:
+        item["unit"] = unit_lookup[item["unit"]]
+
+      members = item.get("members")
+      if members is None:
+        temp.append(item)
+        continue
+
+      if len(members) == 1:
+        member = next(iter(members.values()))
+        m_unit = member.get("unit")
+
+        if "value" not in item:
+          item["value"] = member.get("value")
+
+        if m_unit is None:
+          temp.append(item)
+          continue
+
+        member["unit"] = unit_lookup[m_unit]
+
+        if "unit" not in item:
+          item["unit"] = member["unit"]
+
+        temp.append(item)
+        continue
+
+      value = 0.0
+      units = set()
+      for m in members.keys():
+        value += members[m].get("value", 0)
+        unit = members[m].get("unit")
+        if unit is not None:
+          members[m]["unit"] = unit_lookup[unit]
+          units.add(unit)
+
+      if len(units) == 1:
+        item["unit"] = unit_lookup[units.pop()]
+
+        if "value" not in item:
+          item["value"] = value
+
+      temp.append(item)
+
+    fixed[k] = temp
+
+  return fixed
