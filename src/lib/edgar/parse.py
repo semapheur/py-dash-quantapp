@@ -19,13 +19,12 @@ from lib.const import HEADERS
 from lib.edgar.models import CikEntry, CikFrame
 from lib.fin.models import (
   FinStatement,
-  FinPeriodStore,
-  UnitStore,
   FinRecord,
+  Duration,
+  Instant,
   Member,
   Scope,
   FinData,
-  fix_statement_data,
 )
 from lib.fin.statement import (
   statement_urls,
@@ -39,7 +38,7 @@ from lib.utils.time import (
   month_end,
   fiscal_quarter_monthly,
 )
-from lib.xbrl.filings import parse_xbrl_period, parse_xbrl_unit
+from lib.xbrl.filings import parse_xbrl_period, parse_xbrl_unit, add_record_to_findata
 
 type Docs = Literal["cal", "def", "htm", "lab", "pre"]
 
@@ -123,16 +122,16 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = "htm") -> str:
 
 async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement]:
   if run_async:
-    tasks = [partial(parse_statement, url) for url in urls]
+    tasks = [partial(parse_xml_filing, url) for url in urls]
     financials = await aiometer.run_all(tasks, max_per_second=5)
 
     return financials
 
-  financials = [await parse_statement(url) for url in urls]
+  financials = [await parse_xml_filing(url) for url in urls]
   return financials
 
 
-async def parse_statement(url: str) -> FinStatement:
+async def parse_xml_filing(url: str) -> FinStatement:
   def parse_unit(unit_id: str) -> str:
     try:
       unit = parse_xbrl_unit(root, unit_id)
@@ -202,8 +201,9 @@ async def parse_statement(url: str) -> FinStatement:
   doc_id = url.split("/")[-2]
   currency: set[str] = set()
 
-  period_store = FinPeriodStore()
-  unit_store = UnitStore()
+  periods: set[Duration | Instant] = set()
+  units: set[str] = set()
+  dims: set[str] = set()
 
   data: FinData = {}
 
@@ -216,16 +216,13 @@ async def parse_statement(url: str) -> FinStatement:
     if item.text is None:
       continue
 
-    scrap = FinRecord()
-
     context_id = item.attrib["contextRef"]
 
     period = parse_xbrl_period(root, context_id, True)
-    period_store.add_period(period)
-    scrap["period"] = period
+    periods.add(period)
 
     unit = parse_unit(item.attrib["unitRef"])
-    unit_store.add_unit(unit)
+    units.add(unit)
     if len(unit) == 3 and validate_currency(unit):
       currency.add(unit)
 
@@ -244,48 +241,34 @@ async def parse_statement(url: str) -> FinStatement:
       member = member_nodes[0]
       member_name = cast(str, member.text).split(":")[-1]
       member_name = re.sub(r"(Segment)?Member", "", member_name)
-      scrap["members"] = {
-        member_name: Member(
-          dim=cast(str, member.attrib["dimension"]).split(":")[-1],
-          value=value,
-          unit=unit,
-        )
-      }
-    else:
-      scrap["value"] = value
-      scrap["unit"] = unit
-
-    item_name = item.tag.split("}")[-1]
-    item_name = re.sub(name_pattern, "", item_name)
-    if item_name not in data:
-      data[item_name] = [scrap]
-      continue
-
-    entry = next((i for i in data[item_name] if i["period"] == scrap["period"]), None)
-    if entry is None:
-      data[item_name].append(scrap)
-      continue
-
-    if "members" in scrap:
-      cast(dict[str, Member], entry.setdefault("members", {})).update(
-        cast(dict[str, Member], scrap["members"])
+      dim = cast(str, member.attrib["dimension"]).split(":")[-1]
+      dims.add(dim)
+      record = FinRecord(
+        members={
+          member_name: Member(
+            dim=dim,
+            value=value,
+            unit=unit,
+          )
+        }
       )
     else:
-      entry.update(scrap)
+      record = FinRecord(value=value, unit=unit)
 
-  # Sort items
-  fin_periods, period_lookup = period_store.get_periods()
-  units, unit_lookup = unit_store.get_units()
+    item_name = cast(str, item.tag).split("}")[-1]
+    item_name = re.sub(name_pattern, "", item_name)
+    add_record_to_findata(data, item_name, period, record)
 
-  data = fix_statement_data(data, period_lookup, unit_lookup)
   return FinStatement(
     date=date.date(),
     fiscal_period=fiscal_period,
     fiscal_end=fiscal_end,
-    url=[url],
-    currency=currency,
-    periods=fin_periods,
+    sources=[url],
+    currencies=currency,
+    periods=periods,
     units=units,
+    dimensions=dims,
+    synonyms=dict(),
     data=data,
   )
 
@@ -306,7 +289,7 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
 
   async with httpx.AsyncClient() as client:
     response = await client.get(url, headers=HEADERS)
-    root = et.fromstring(response.content)
+    root: etree._Element = etree.fromstring(response.content)
 
   url_pattern = r"^https?://www\..+/"
   el_pattern = r"(?<=_)[A-Z][A-Za-z]+(?=_)?"

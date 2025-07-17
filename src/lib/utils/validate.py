@@ -1,3 +1,6 @@
+import math
+
+
 def validate_currency(code: str) -> bool:
   import pycountry
 
@@ -5,3 +8,10 @@ def validate_currency(code: str) -> bool:
     return False
 
   return True
+
+
+def normalize_nan(value: float) -> float:
+  if math.isnan(value):
+    return None
+
+  return value

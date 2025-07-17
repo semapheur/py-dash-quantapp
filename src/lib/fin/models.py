@@ -1,9 +1,12 @@
 import copy
 from datetime import date as Date, datetime as dt
 import json
+import math
 import re
-from typing import cast, Literal
-from typing_extensions import TypedDict
+from typing import cast, Literal, TypedDict
+
+# from typing_extensions import TypedDict
+import warnings
 
 from pandera import DataFrameModel, Field
 from pandera.dtypes import Timestamp
@@ -14,13 +17,18 @@ from pydantic import (
   ValidationInfo,
   field_serializer,
   field_validator,
+  model_validator,
+  model_serializer,
 )
+
+from lib.utils.validate import normalize_nan
 
 type Scope = Literal["annual", "quarterly"]
 type Quarter = Literal["Q1", "Q2", "Q3", "Q4"]
 type Ttm = Literal["TTM1", "TTM2", "TTM3"]
 type FiscalPeriod = Literal["FY"] | Quarter
-type FinData = dict[str, list[FinRecord]]
+type FinData = dict[str, dict[Duration | Instant, FinRecord]]
+type FinDataIndexed = dict[str, dict[str, FinRecordIndexed]]
 
 
 class SharePrice(TypedDict):
@@ -40,15 +48,69 @@ class Meta(TypedDict):
   currency: list[str]
 
 
-class Value(TypedDict, total=False):
-  value: int | float | None
+class ValueBase(BaseModel):
+  value: int | float
+
+  @field_validator("value", mode="before")
+  @classmethod
+  def validate_value(cls, value, info: ValidationInfo) -> int | float:
+    if value is None:
+      return float("nan")
+
+    if isinstance(value, str):
+      try:
+        return float(value)
+      except ValueError:
+        raise ValueError(f"Invalid value: {value}")
+
+    return value
+
+  @field_serializer("value")
+  def serialize_value(self, value: int | float):
+    if isinstance(value, float) and math.isnan(value):
+      return None
+
+    return value
+
+
+class Value(ValueBase):
+  unit: str
+
+
+class ValueIndexed(ValueBase):
   unit: NonNegativeInt
+
+
+def serialize_date(date: Date) -> int:
+  return int(date.strftime("%Y%m%d"))
+
+
+class DurationSerialized(TypedDict):
+  start_date: int
+  end_date: int
 
 
 class Duration(BaseModel, frozen=True):
   start_date: Date
   end_date: Date
-  months: NonNegativeInt
+
+  @property
+  def months(self) -> int:
+    whole_years = self.end_date.year - self.start_date.year
+    remaining_months = self.end_date.month - self.start_date.month
+    return whole_years * 12 + remaining_months
+
+  def __lt__(self, other) -> bool:
+    if isinstance(other, Instant):
+      return self.start_date < other.instant
+
+    if not isinstance(other, Duration):
+      return NotImplemented
+
+    if self.start_date == other.start_date:
+      return self.end_date < other.end_date
+
+    return self.start_date < other.start_date
 
   @field_validator("start_date", "end_date", mode="before")
   def validate_start_date(cls, value: int | Date) -> Date:
@@ -61,12 +123,25 @@ class Duration(BaseModel, frozen=True):
     return value
 
   @field_serializer("start_date", "end_date")
-  def serialize_date(self, date: Date):
-    return int(date.strftime("%Y%m%d"))
+  def serialize_date_fields(self, date: Date) -> int:
+    return serialize_date(date)
+
+
+class InstantSerialized(TypedDict):
+  instant: int
 
 
 class Instant(BaseModel, frozen=True):
   instant: Date
+
+  def __lt__(self, other) -> bool:
+    if isinstance(other, Duration):
+      return self.instant < other.start_date
+
+    if not isinstance(other, Instant):
+      return NotImplemented
+
+    return self.instant < other.instant
 
   @field_validator("instant", mode="before")
   def validate_date(cls, value: int) -> Date:
@@ -79,8 +154,8 @@ class Instant(BaseModel, frozen=True):
     return value
 
   @field_serializer("instant")
-  def serialize_date(self, date: Date):
-    return int(date.strftime("%Y%m%d"))
+  def serialize_date_field(self, date: Date) -> int:
+    return serialize_date(date)
 
 
 class FinPeriods(TypedDict):
@@ -88,7 +163,36 @@ class FinPeriods(TypedDict):
   i: list[Instant]
 
 
-class FinPeriodStore:
+class FinPeriodsSerialized(TypedDict):
+  d: list[DurationSerialized]
+  i: list[InstantSerialized]
+
+
+class Member(Value):
+  dim: str
+
+
+class MemberIndexed(ValueIndexed):
+  dim: NonNegativeInt
+
+
+class FinRecord(Value):
+  value: int | float | None = None
+  unit: str | None = None
+  members: dict[str, Member] | None = None
+
+  @model_validator(mode="after")
+  def at_least_one_field(cls, model):
+    if model.value is None and model.members is None:
+      raise ValueError("FinRecord must have either 'value' or 'members'.")
+    return model
+
+
+class FinRecordIndexed(ValueIndexed):
+  members: dict[str, MemberIndexed] | None = None
+
+
+class FinPeriodLookup:
   def __init__(self) -> None:
     self.periods: dict[Literal["d", "i"], set[Instant | Duration]] = {
       "d": set(),
@@ -129,65 +233,152 @@ class FinPeriodStore:
     return fin_periods, reverse_lookup
 
 
-class UnitStore:
+class StringLookup:
   def __init__(self) -> None:
-    self.units: set[str] = set()
+    self.strings: set[str] = set()
 
-  def add_unit(self, unit: str):
-    self.units.add(unit)
+  def add_string(self, string: str):
+    if not isinstance(string, str):
+      raise ValueError(f"Invalid string: {string}")
+    self.strings.add(string)
 
-  def get_units(self) -> tuple[list[str], dict[str, int]]:
-    sorted_units = sorted(self.units)
-    reverse_lookup = {unit: i for i, unit in enumerate(sorted_units)}
+  def get_lookup(self) -> tuple[list[str], dict[str, int]]:
+    sorted_strings = sorted(self.strings)
+    reverse_lookup = {unit: i for i, unit in enumerate(sorted_strings)}
 
-    return sorted_units, reverse_lookup
-
-
-class Member(Value):
-  dim: str
+    return sorted_strings, reverse_lookup
 
 
-class FinRecord(Value, total=False):
-  period: str
-  members: dict[str, Member] | None
+def validate_json(expected_type: type, allow_none: bool):
+  def inner(cls, value, info: ValidationInfo):
+    if allow_none and value is None:
+      return expected_type()
+
+    if isinstance(value, str):
+      if allow_none and value == "null":
+        return expected_type()
+
+      try:
+        parsed_value = json.loads(value)
+        if not isinstance(parsed_value, expected_type):
+          raise ValueError(
+            f"{info.field_name} must be a {expected_type.__name__}. Got: {value}"
+          )
+      except json.JSONDecodeError:
+        raise ValueError(
+          f"{info.field_name} must be a valid JSON {expected_type.__name__}. Got: {value}"
+        )
+      return parsed_value
+    return value
+
+  return inner
 
 
-def item_dict(v: FinRecord):
-  obj: FinRecord = {"value": v["value"], "unit": v["unit"], "period": v["period"]}
+def validate_json_set(allow_none: bool):
+  def inner(cls, value, info: ValidationInfo):
+    if isinstance(value, str):
+      if allow_none and value == "null":
+        return set()
 
-  members = v.get("members")
-  if members is not None:
-    obj["members"] = members
+      try:
+        parsed_value = set(json.loads(value))
+      except json.JSONDecodeError:
+        raise ValueError(
+          f"{info.field_name} must be a valid JSON array string. Got: {value}"
+        )
+      return parsed_value
+    return value
 
-  return obj
+  return inner
+
+
+def serialize_synonyms(
+  synonyms: dict[str, set[str]] | None,
+) -> dict[str, list[str]] | None:
+  if not synonyms:
+    return None
+
+  return {k: sorted(v) for k, v in sorted(synonyms.items())}
+
+
+def serialize_period_index(periods: set[Duration | Instant]):
+  serialized_periods: FinPeriodsSerialized = {
+    "d": [],
+    "i": [],
+  }
+  period_lookup: dict[Duration | Instant, str] = {}
+  for period in sorted(periods):
+    if isinstance(period, Duration):
+      period_lookup[period] = f"d{len(serialized_periods['d'])}"
+      serialized_periods["d"].append(cast(DurationSerialized, period.model_dump()))
+    else:
+      period_lookup[period] = f"i{len(serialized_periods['i'])}"
+      serialized_periods["i"].append(cast(InstantSerialized, period.model_dump()))
+
+  return serialized_periods, period_lookup
+
+
+def index_serialized_periods(periods) -> FinPeriods | None:
+  if isinstance(periods, str):
+    try:
+      periods = json.loads(periods)
+    except json.JSONDecodeError:
+      raise ValueError(f"Invalid JSON string: {periods}")
+
+  if not isinstance(periods, dict):
+    return None
+
+  if not set(periods.keys()).issubset({"d", "i"}):
+    raise ValueError(f"Invalid periods: {periods}")
+
+  duration_serialized = periods.get("d", [])
+  if not isinstance(duration_serialized, list):
+    raise ValueError(
+      f"Expected durations to be a list. Got: {type(duration_serialized).__name__}"
+    )
+
+  durations = []
+  for duration in duration_serialized:
+    if not isinstance(duration, dict):
+      raise ValueError(
+        f"Expected duration to be a dict. Got: {type(duration).__name__}"
+      )
+
+    if not set(duration.keys()).issubset({"start_date", "end_date"}):
+      raise ValueError(f"Invalid duration format: {duration}")
+
+    durations.append(Duration(**duration))
+
+  instant_serialized = periods.get("i", [])
+  if not isinstance(instant_serialized, list):
+    raise ValueError(
+      f"Expected instant to be a list. Got: {type(instant_serialized).__name__}"
+    )
+
+  instants = []
+  for instant in instant_serialized:
+    if not isinstance(instant, dict):
+      raise ValueError(f"Expected instant to be a dict. Got: {type(instant).__name__}")
+
+    if not set(instant.keys()).issubset({"instant"}):
+      raise ValueError(f"Invalid instant format: {instant}")
+
+    instants.append(Instant(**instant))
+
+  return FinPeriods(d=durations, i=instants)
 
 
 class FinStatement(BaseModel):
   date: Date
   fiscal_period: FiscalPeriod
   fiscal_end: str
-  url: list[str] | None = None
-  currency: set[str]
-  periods: FinPeriods
-  units: list[str]
-  synonyms: dict[str, set[str]] | None = None
+  sources: list[str]
+  currencies: set[str]
+  synonyms: dict[str, set[str]] = dict()
+  periods: set[Duration | Instant]
+  units: set[str]
+  dimensions: set[str] = set()
   data: FinData
-
-  @field_validator("url", mode="before")
-  @classmethod
-  def validate_url(cls, value, info: ValidationInfo):
-    if isinstance(value, str):
-      try:
-        parsed_value = json.loads(value)
-        if not isinstance(parsed_value, list):
-          raise ValueError(f"{info.field_name} must be a list. Invalid value: {value}")
-      except json.JSONDecodeError:
-        raise ValueError(
-          f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
-        )
-      return parsed_value
-
-    return value
 
   @field_validator("date", mode="before")
   @classmethod
@@ -197,7 +388,7 @@ class FinStatement(BaseModel):
         return dt.strptime(str(value), "%Y%m%d").date()
       except ValueError:
         raise ValueError(
-          f"As integer '{info.field_name}' must be in YYYYMMDD format. Invalid value: {value}"
+          f"As integer '{info.field_name}' must be in YYYYMMDD format. Got: {value}"
         )
 
     return value
@@ -209,449 +400,413 @@ class FinStatement(BaseModel):
       # Add a dummy year to parse the date
       _ = dt.strptime(f"2000-{value}", "%Y-%m-%d")
     except ValueError:
-      raise ValueError(
-        f"{info.field_name} must in MM-DD format. Invalid value: {value}"
-      )
+      raise ValueError(f"{info.field_name} must in MM-DD format. Got: {value}")
 
     return value
 
-  @field_validator("currency", mode="before")
+  @field_validator("sources", mode="before")
+  @classmethod
+  def validate_sources(cls, value, info: ValidationInfo):
+    return validate_json(list, False)(cls, value, info)
+
+  @field_validator("currencies", mode="before")
   @classmethod
   def validate_currency(cls, value, info: ValidationInfo):
-    if isinstance(value, str):
-      try:
-        parsed_value = set(json.loads(value))
-      except json.JSONDecodeError:
-        raise ValueError(
-          f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
-        )
-      return parsed_value
-
-    return value
-
-  @field_validator("periods", mode="before")
-  @classmethod
-  def validate_periods(cls, value, info: ValidationInfo):
-    if isinstance(value, str):
-      try:
-        parsed_value = json.loads(value)
-        if not isinstance(parsed_value, dict):
-          raise ValueError(
-            f"{info.field_name} must be a dictionary. Invalid value: {value}"
-          )
-      except json.JSONDecodeError:
-        raise ValueError(
-          f"{info.field_name} must be a valid JSON dictionary string. Invalid value: {value}"
-        )
-      return parsed_value
-
-    return value
-
-  @field_validator("units", mode="before")
-  @classmethod
-  def validate_units(cls, value, info: ValidationInfo):
-    if isinstance(value, str):
-      try:
-        parsed_value = json.loads(value)
-        if not isinstance(parsed_value, list):
-          raise ValueError(f"{info.field_name} must be a list. Invalid value: {value}")
-      except json.JSONDecodeError:
-        raise ValueError(
-          f"{info.field_name} must be a valid JSON array string. Invalid value: {value}"
-        )
-      return parsed_value
-
-    return value
+    return validate_json_set(False)(cls, value, info)
 
   @field_validator("synonyms", mode="before")
   @classmethod
   def validate_synonyms(cls, value, info: ValidationInfo):
-    if isinstance(value, str):
-      if value == "null":
-        return None
+    return validate_json(dict, True)(cls, value, info)
 
-      try:
-        parsed_value = json.loads(value)
-      except json.JSONDecodeError:
-        raise ValueError(f"{info.field_name} must be a valid JSON dictionary string")
-
-      if not isinstance(parsed_value, dict):
-        raise ValueError(
-          f"{info.field_name} must be a dictionary. Invalid value: {value}"
-        )
-
-      return parsed_value
-
-    return value
-
-  @field_validator("data", mode="before")
+  @field_validator("units", "periods", mode="before")
   @classmethod
-  def validate_data(cls, value, info: ValidationInfo):
-    if isinstance(value, str):
-      try:
-        value = json.loads(value)
-      except json.JSONDecodeError:
-        raise ValueError(f"{info.field_name} must be a valid JSON dictionary string")
+  def validate_set_fields(cls, value, info: ValidationInfo):
+    if isinstance(value, list):
+      return set(value)
 
-    if not isinstance(value, dict):
+    return validate_json_set(False)(cls, value, info)
+
+  @field_validator("dimensions", mode="before")
+  @classmethod
+  def validate_dimensions(cls, value, info: ValidationInfo):
+    if isinstance(value, list):
+      return set(value)
+
+    return validate_json_set(True)(cls, value, info)
+
+  @classmethod
+  def _validate_period_key(cls, key: str, path: str) -> tuple[Literal["d", "i"], int]:
+    if not re.fullmatch(r"[di]\d+", key):
+      raise ValueError(f"{path} has invalid period key: {key}")
+
+    return cast(Literal["d", "i"], key[0]), int(key[1:])
+
+  @classmethod
+  def _resolve_index(cls, index_list: list[str], index, path: str) -> str:
+    if not isinstance(index, int):
+      raise TypeError(f"{path} must be an integer index. Got: {type(index).__name__}")
+
+    try:
+      return index_list[index]
+    except IndexError:
       raise ValueError(
-        f"{info.field_name} must be a dictionary. Invalid value: {value}"
+        f"{path} index {index} out of range for list of length {len(index_list)}"
       )
 
-    return value
+  @model_validator(mode="before")
+  @classmethod
+  def validator(cls, data) -> dict:
+    if not isinstance(data, dict):
+      raise ValueError(f"{cls.__name__} must be a dictionary. Got: {type(data)}")
+
+    required_fields = set(cls.model_fields.keys())
+    missing = required_fields.difference(data.keys())
+    if missing:
+      raise ValueError(f"{cls.__name__} missing the following fields: {missing}")
+
+    periods_index = index_serialized_periods(data["periods"])
+    if periods_index is None:
+      return data
+
+    units = data["units"]
+    dimensions = data["dimensions"]
+
+    findata = data["data"]
+    if not isinstance(findata, dict):
+      raise ValueError(
+        f"{cls.__name__} data must be a dictionary. Got: {type(findata)}"
+      )
+
+    resolved_findata = {}
+    for item, records in findata.items():
+      if not isinstance(records, dict):
+        raise ValueError(
+          f"{cls.__name__} data records must be a dictionary. Got: {type(data)}"
+        )
+
+      resolved_records = {}
+      for period_key, record in records.items():
+        if not isinstance(period_key, str):
+          raise ValueError(
+            f"{cls.__name__} data records keys must be strings. Got: {type(data)}"
+          )
+
+        period_type, period_index = cls._validate_period_key(period_key, "data")
+        try:
+          period: Duration | Instant = periods_index[period_type][period_index]
+        except IndexError:
+          raise ValueError(f"Invalid period key: {period_key}")
+
+        resolved_record = {
+          "value": record.get("value"),
+          "unit": cls._resolve_index(
+            units, record.get("unit"), f"data['{item}']['{period_key}']['unit']"
+          ),
+        }
+
+        members = record.get("members")
+        if members is not None:
+          resolved_members = {}
+          for member_key, member in members.items():
+            if not isinstance(member_key, str):
+              raise ValueError(f"Member key must be a string. Got: {type(member_key)}")
+
+            if not isinstance(member, dict):
+              raise ValueError(
+                f"{cls.__name__} data records members values must be dictionaries. Got: {type(data)}"
+              )
+
+            resolved_members[member_key] = {
+              "value": member.get("value"),
+              "unit": cls._resolve_index(
+                units,
+                member.get("unit"),
+                f"data['{item}']['{period_key}']['members']['{member_key}']['unit']",
+              ),
+              "dim": cls._resolve_index(
+                dimensions,
+                member.get("dim"),
+                f"data['{item}']['{period_key}']['members']['{member_key}']['dim']",
+              ),
+            }
+
+          resolved_record["members"] = resolved_members
+
+        resolved_records[period] = resolved_record
+
+      resolved_findata[period_key] = resolved_records
+
+    data["data"] = resolved_findata
+    data["periods"] = set(periods_index["d"] + periods_index["i"])
+    return data
 
   @field_serializer("date")
-  def serialize_date(self, date: Date):
-    return int(date.strftime("%Y%m%d"))
+  def serialize_date_field(self, date: Date) -> int:
+    return serialize_date(date)
 
-  @field_serializer("currency")
-  def serialize_currency(self, currency: set[str]):
-    return sorted(currency)
-
-  @field_serializer("periods")
-  @classmethod
-  def serialize_periods(cls, periods: FinPeriods):
-    obj = {
-      "d": [d.model_dump() for d in periods["d"]],
-      "i": [i.model_dump() for i in periods["i"]],
-    }
-    return obj
+  @field_serializer("currencies")
+  def serialize_set_fields(self, field_value: set[str]) -> list[str]:
+    return sorted(field_value)
 
   @field_serializer("synonyms")
-  @classmethod
-  def serialize_synonyms(cls, synonyms: dict[str, set[str]] | None):
-    if synonyms is None:
+  def serialize_synonyms_field(
+    self, synonyms: dict[str, set[str]] | None
+  ) -> dict[str, list[str]] | None:
+    return serialize_synonyms(synonyms)
+
+  @field_serializer("periods", when_used="json")
+  def serialize_periods(
+    self, periods: set[Duration | Instant]
+  ) -> list[Duration | Instant]:
+    return sorted(periods)
+
+  @field_serializer("dimensions")
+  def serialize_dimensions(self, dimensions: set[str]) -> list[str] | None:
+    if not dimensions:
       return None
 
-    return {k: sorted(v) for k, v in sorted(synonyms.items())}
+    return sorted(dimensions)
+
+  @field_serializer("units")
+  def serialize_units(self, units: set[str]) -> list[str]:
+    return sorted(units)
 
   @field_serializer("data")
-  @classmethod
-  def serialize_data(cls, data: FinData):
-    obj = {}
-    for k, items in data.items():
-      obj[k] = [
-        {
-          "period": item["period"],
-          **{
-            field: item[field]
-            for field in ("value", "unit", "members")
-            if field in item
-          },
-        }
-        for item in items
-      ]
-    return obj
+  def serialize_data(self, data: FinData) -> dict:
+    return {
+      item: {
+        "period": period.model_dump(),
+        **record.model_dump(),
+      }
+      for item, records in data.items()
+      for period, record in records.items()
+    }
 
-  def dump_json_values(self) -> dict[str, int | str]:
-    obj = self.model_dump()
-    json_fields = ("url", "currency", "periods", "units", "synonyms", "data")
-    for field in json_fields:
-      if obj[field] is not None:
-        obj[field] = json.dumps(obj[field])
+  @model_serializer(mode="plain")
+  def serializer(self) -> dict:
+    periods, period_lookup = serialize_period_index(self.periods)
 
-    return obj
+    units = sorted(self.units)
+    unit_lookup = {u: i for i, u in enumerate(units)}
+
+    dimensions = sorted(self.dimensions)
+    dim_lookup = {d: i for i, d in enumerate(dimensions)}
+
+    reindexed_data: dict = {}
+    for item, records in self.data.items():
+      reindexed_records: dict = {}
+      for period, record in records.items():
+        serialized_record: dict = {}
+        period_key = period_lookup[period]
+
+        if record.value is not None:
+          serialized_record["value"] = record.value
+
+        if record.unit is not None:
+          serialized_record["unit"] = unit_lookup[record.unit]
+
+        members = record.members
+        if members is not None:
+          members_reindexed = {}
+          for member_name, member in members.items():
+            members_reindexed[member_name] = {
+              "value": member.value,
+              "unit": unit_lookup[member.unit],
+              "dim": dim_lookup[member.dim],
+            }
+          serialized_record["members"] = members_reindexed
+
+        reindexed_records[period_key] = serialized_record
+
+      reindexed_data[item] = reindexed_records
+
+    return {
+      "date": serialize_date(self.date),
+      "fiscal_period": self.fiscal_period,
+      "fiscal_end": self.fiscal_end,
+      "sources": self.sources,
+      "currencies": sorted(self.currencies),
+      "periods": periods,
+      "units": units,
+      "dimensions": dimensions,
+      "synonyms": serialize_synonyms(self.synonyms),
+      "data": reindexed_data,
+    }
 
   def merge(self, other: "FinStatement"):
     if not isinstance(other, FinStatement):
       return NotImplemented
 
     if other.date != self.date and other.fiscal_period != self.fiscal_period:
-      raise ValueError("Cannot merge statements with different dates or periods")
+      raise ValueError("Cannot merge statements with different dates or fiscal periods")
 
-    self._merge_urls(other)
-    self.currency.update(other.currency)
+    self._merge_sources(other)
+    self.currencies.update(other.currencies)
     self._merge_data(other)
-    self._sort_entries()
 
-  def _merge_urls(self, other: "FinStatement") -> None:
-    if other.url is None:
+  def _merge_sources(self, other: "FinStatement") -> None:
+    if other.sources is None:
       return
 
-    if self.url is None:
-      self.url = []
+    if self.sources is None:
+      self.sources = []
 
-    new_urls = set(other.url).difference(self.url)
+    new_urls = set(other.sources).difference(self.sources)
     if new_urls:
-      self.url.extend(other.url)
+      self.sources.extend(other.sources)
 
   def _merge_data(self, other: "FinStatement") -> None:
-    diff_periods: dict[str, Instant | Duration] = {}
-    diff_periods_lookup: dict[Instant | Duration, str] = {}
-    period_index_count: dict[Literal["d", "i"], int] = {
-      "d": len(self.periods["d"]),
-      "i": len(self.periods["i"]),
-    }
-
-    old_periods: dict[Literal["d", "i"], set[Instant | Duration]] = {
-      "d": set(self.periods["d"]),
-      "i": set(self.periods["i"]),
-    }
-
-    diff_units: list[str] = []
-
     common_items = set(self.data.keys()).intersection(other.data.keys())
     for item in common_items:
-      for entry in other.data[item]:
-        self._process_entry(
-          other,
-          entry,
+      for period, record in other.data[item].items():
+        self._process_record(
+          record,
+          period,
           item,
-          old_periods,
-          diff_periods,
-          diff_periods_lookup,
-          period_index_count,
-          diff_units,
         )
 
     diff_items = set(other.data.keys()).difference(common_items)
-
     for item in diff_items:
       same_item = self._find_same_item(other, item)
 
       target_item = item if same_item is None else same_item
       if same_item is None:
-        self.data[item] = []
+        self.data[item] = dict()
       else:
-        if self.synonyms is None:
-          self.synonyms = {}
         self.synonyms.setdefault(same_item, set()).add(item)
 
-      for entry in other.data[item]:
-        self._process_entry(
-          other,
-          entry,
-          target_item,
-          old_periods,
-          diff_periods,
-          diff_periods_lookup,
-          period_index_count,
-          diff_units,
-        )
+      for period, record in other.data[item].items():
+        self._process_record(record, period, target_item)
 
-    diff_periods = dict(sorted(diff_periods.items()))
-
-    for k, v in diff_periods.items():
-      period_type = cast(Literal["d", "i"], k[0])
-      self.periods[period_type].append(v)
-
-  def _process_entry(
+  def _process_record(
     self,
-    other: "FinStatement",
-    entry: FinRecord,
+    record: FinRecord,
+    period: Duration | Instant,
     target_item: str,
-    old_periods: dict[Literal["d", "i"], set[Instant | Duration]],
-    diff_periods: dict[str, Instant | Duration],
-    diff_periods_lookup: dict[Instant | Duration, str],
-    period_index_count: dict[Literal["d", "i"], int],
-    diff_units: list[str],
   ) -> None:
-    period_type = cast(Literal["d", "i"], entry["period"][0])
-    period_index = int(entry["period"][1:])
-    period = other.periods[period_type][period_index]
+    if period in self.data[target_item]:
+      other_members = record.members
+      if other_members is None:
+        return
 
-    if period in old_periods[period_type]:
-      self._merge_members(other, entry, target_item, diff_units)
+      self._merge_members(other_members, period, target_item)
       return
 
-    new_entry = copy.deepcopy(entry)
-    new_entry = self._remap_units(other, new_entry, diff_units)
-
-    new_entry = self._remap_periods(
-      new_entry,
-      period,
-      period_type,
-      diff_periods,
-      diff_periods_lookup,
-      period_index_count,
-    )
-    self.data[target_item].append(new_entry)
-
-    return
+    if record.unit is not None:
+      self.units.update(record.unit)
+    self.data[target_item][period] = copy.deepcopy(record)
 
   def _find_same_item(self, other: "FinStatement", item: str) -> str | None:
-    entries = other.data.get(item)
-    if entries is None:
+    record = other.data.get(item)
+    if record is None:
       return None
 
-    values: dict[str, int | float | None] = {}
+    check_values = {
+      p: (normalize_nan(float(e.value)), e.unit)
+      for p, e in record.items()
+      if p in self.periods and e.value is not None
+    }
 
-    for entry in entries:
-      if "value" not in entry:
-        continue
-
-      period_type = cast(Literal["d", "i"], entry["period"][0])
-      period_index = int(entry["period"][1:])
-      period = other.periods[period_type][period_index]
-
-      if period not in self.periods[period_type]:
-        continue
-
-      period_index = self.periods[period_type].index(period)
-      new_key = f"{period_type}{period_index}"
-
-      values[new_key] = entry["value"]
-
-    if not values:
+    if not check_values:
       return None
 
-    for target_item in self.data:
+    check_periods = set(check_values.keys())
+    for target_item, target_record in self.data.items():
       target_values = {
-        entry["period"]: entry["value"]
-        for entry in self.data[target_item]
-        if "value" in entry
+        p: (normalize_nan(float(e.value)), e.unit)
+        for p, e in target_record.items()
+        if e.value is not None and p in check_periods
       }
 
-      common_periods = sorted(set(values.keys()).intersection(target_values.keys()))
-      if not common_periods:
+      if not target_values:
         continue
 
-      values_ = [values[p] for p in common_periods]
-      target_values_ = [target_values[p] for p in common_periods]
-
-      if values_ == target_values_:
+      if target_values == check_values:
         return target_item
 
     return None
 
   def _merge_members(
     self,
-    other: "FinStatement",
-    entry: FinRecord,
-    item: str,
-    diff_units: list[str],
+    other_members: dict[str, Member],
+    period: Duration | Instant,
+    target_item: str,
   ) -> None:
-    members = entry.get("members")
-    if members is None:
+    target_entry = self.data[target_item][period]
+    if target_entry.members is None:
+      target_entry.members = copy.deepcopy(other_members)
+      self.units.update({m.unit for m in other_members.values()})
+      self.dimensions.update({m.dim for m in other_members.values()})
       return
 
-    members = copy.deepcopy(members)
-
-    for target_entry in self.data[item]:
-      if target_entry["period"] != entry["period"]:
+    common_members = set(target_entry.members.keys()).intersection(other_members.keys())
+    for member in common_members:
+      other_member = other_members[member]
+      same_member = self._find_same_member(target_entry.members, other_member)
+      if same_member is None:
+        warnings.warn(f"Item {target_item} has ambiguous member {member}")
         continue
 
-      if "members" not in target_entry:
-        for member in members.values():
-          if "unit" not in member:
-            continue
+      if other_member.dim not in self.dimensions:
+        synomym_dim = target_entry.members[same_member].dim
+        self.synonyms.setdefault(synomym_dim, set()).add(other_member.dim)
 
-          member["unit"] = self._remap_single_unit(other, diff_units, member["unit"])
+    diff_members = set(other_members.keys()).difference(common_members)
+    for member in diff_members:
+      other_member = other_members[member]
+      same_member = self._find_same_member(target_entry.members, other_member)
+      if same_member is None:
+        target_entry.members[member] = copy.deepcopy(other_member)
+        self.units.add(other_member.unit)
+        self.dimensions.add(other_member.dim)
+        continue
 
-        target_entry["members"] = members
-        return
+      self.synonyms.setdefault(same_member, set()).add(member)
 
-      diff_members = set(members.keys()).difference(
-        cast(dict[str, Member], target_entry["members"]).keys()
-      )
-      if not diff_members:
-        return
+      if other_member.dim not in self.dimensions:
+        synomym_dim = target_entry.members[same_member].dim
+        self.synonyms.setdefault(synomym_dim, set()).add(other_member.dim)
 
-      for m in diff_members:
-        members[m]["unit"] = self._remap_single_unit(
-          other, diff_units, members[m]["unit"]
+  def _find_same_member(
+    self, target_members: dict[str, Member], member: Member
+  ) -> str | None:
+    for k, v in target_members.items():
+      if v.value != member.value:
+        continue
+
+      if v.unit != member.unit:
+        warnings.warn(
+          f"Member {k} has ambigous units {v.unit} (self) and {member.unit} (other) with same value {v.value}"
         )
 
-      cast(dict[str, Member], target_entry["members"]).update(members)
+      return k
 
-  def _remap_single_unit(
-    self,
-    other: "FinStatement",
-    diff_units: list[str],
-    unit_index: int,
-  ) -> int:
-    unit = other.units[unit_index]
+    return None
 
-    if unit in self.units:
-      return self.units.index(unit)
-
-    if unit not in diff_units:
-      diff_units.append(unit)
-
-    return len(self.units) + diff_units.index(unit)
-
-  def _remap_units(
-    self,
-    other: "FinStatement",
-    entry: FinRecord,
-    diff_units: list[str],
-  ) -> FinRecord:
-    if "unit" in entry:
-      entry["unit"] = self._remap_single_unit(other, diff_units, entry["unit"])
-
-    members = entry.get("members")
-    if members is None:
-      return entry
-
-    for member in members.values():
-      if "unit" not in member:
-        continue
-
-      member["unit"] = self._remap_single_unit(other, diff_units, member["unit"])
-
-    return entry
-
-  def _remap_periods(
-    self,
-    entry: FinRecord,
-    period: Instant | Duration,
-    period_type: Literal["d", "i"],
-    diff_periods: dict[str, Instant | Duration],
-    diff_periods_lookup: dict[Instant | Duration, str],
-    period_index_count: dict[Literal["d", "i"], int],
-  ) -> FinRecord:
-    new_key = diff_periods_lookup.get(period, "")
-    if new_key not in diff_periods:
-      new_key = f"{period_type}{period_index_count[period_type]}"
-      period_index_count[period_type] += 1
-      diff_periods[new_key] = period
-      diff_periods_lookup[period] = new_key
-
-      entry["period"] = new_key
-
-    return entry
-
-  def _sort_entries(self) -> None:
-    sorted_periods = FinPeriods(
-      d=sorted(
-        self.periods["d"],
-        key=lambda x: (x.start_date, x.end_date),
-      ),
-      i=sorted(self.periods["i"], key=lambda x: x.instant),
-    )
-
-    period_remap: dict[str, str] = {}
-    for period_type in ("d", "i"):
-      for old_index, p in enumerate(self.periods[period_type]):
-        new_index = sorted_periods[period_type].index(p)
-        period_remap[f"{period_type}{old_index}"] = f"{period_type}{new_index}"
-
-    sorted_units = sorted(self.units)
-    unit_remap = [sorted_units.index(unit) for unit in self.units]
-
-    self.periods = sorted_periods
-    self.units = sorted_units
-
-    for item in self.data:
-      for entry in self.data[item]:
-        entry["period"] = period_remap[entry["period"]]
-
-        if "unit" in entry:
-          entry["unit"] = unit_remap[entry["unit"]]
-
-        members = entry.get("members")
-        if members is None:
+  def fill_values(self) -> None:
+    for records in self.data.values():
+      unit_check: set[str] = set()
+      value_by_dim: dict[str, float] = dict()
+      for record in records.values():
+        if record.value is not None:
           continue
 
-        for m in members:
-          if "unit" in members[m]:
-            cast(dict[str, Member], entry["members"])[m]["unit"] = unit_remap[
-              members[m]["unit"]
-            ]
+        if record.members is None:
+          continue
 
-      self.data[item] = sorted(self.data[item], key=lambda x: x["period"])
+        for member in record.members.values():
+          value_by_dim.setdefault(member.dim, 0)
+          value_by_dim[member.dim] += member.value
 
-    self.data = dict(sorted(self.data.items()))
+          unit_check.add(member.unit)
+
+        value_check = set(value_by_dim.values())
+        if len(unit_check) != 1 or len(value_check) != 1:
+          continue
+
+        record.value = value_check.pop()
+        record.unit = unit_check.pop()
 
 
 class FinStatementFrame(DataFrameModel):
@@ -662,6 +817,7 @@ class FinStatementFrame(DataFrameModel):
   currency: set[str]
   periods: FinPeriods
   units: list[str]
+  dimensions: set[str]
   synonyms: dict[str, str]
   data: dict[str, list[FinRecord]]
 
@@ -692,98 +848,3 @@ class Quote(CloseQuote):
 class StockSplit(BaseModel):
   date: Date
   stock_split_ratio: float
-
-
-def parse_periods_json(
-  periods: str, key_pattern: re.Pattern[str], info: ValidationInfo
-) -> dict[str, Instant | Duration]:
-  try:
-    value = json.loads(periods)
-  except json.JSONDecodeError:
-    raise ValueError(f"Invalid JSON string: {value}")
-
-  if not isinstance(value, dict):
-    raise ValueError(
-      f"{info.field_name} must be a JSON dictionary string. Invalid value: {value}"
-    )
-
-  parsed_periods: dict[str, Instant | Duration] = {}
-  for key, period in value.items():
-    if not key_pattern.match(key):
-      raise ValueError(
-        f"{info.field_name} keys must be of the form 'iN' or 'dN'. Invalid key: {key}"
-      )
-
-    if not isinstance(value, dict):
-      raise ValueError(f"Invalid period format for key {key}: {period}")
-
-    if "instant" in period:
-      parsed_periods[key] = Instant(**period)
-    elif all(k in period for k in ["start_date", "end_date", "months"]):
-      parsed_periods[key] = Duration(**period)
-    else:
-      raise ValueError(f"Invalid period format for key {key}: {period}")
-
-  return parsed_periods
-
-
-def fix_statement_data(
-  data: FinData,
-  period_lookup: dict[Duration | Instant, str],
-  unit_lookup: dict[str, int],
-) -> FinData:
-  fixed: FinData = {}
-
-  for k in sorted(data.keys()):
-    temp: list[FinRecord] = []
-
-    for item in data[k]:
-      item["period"] = period_lookup[item["period"]]
-
-      if "unit" in item:
-        item["unit"] = unit_lookup[item["unit"]]
-
-      members = item.get("members")
-      if members is None:
-        temp.append(item)
-        continue
-
-      if len(members) == 1:
-        member = next(iter(members.values()))
-        m_unit = member.get("unit")
-
-        if "value" not in item:
-          item["value"] = member.get("value")
-
-        if m_unit is None:
-          temp.append(item)
-          continue
-
-        member["unit"] = unit_lookup[m_unit]
-
-        if "unit" not in item:
-          item["unit"] = member["unit"]
-
-        temp.append(item)
-        continue
-
-      value = 0.0
-      units = set()
-      for m in members.keys():
-        value += members[m].get("value", 0)
-        unit = members[m].get("unit")
-        if unit is not None:
-          members[m]["unit"] = unit_lookup[unit]
-          units.add(unit)
-
-      if len(units) == 1:
-        item["unit"] = unit_lookup[units.pop()]
-
-        if "value" not in item:
-          item["value"] = value
-
-      temp.append(item)
-
-    fixed[k] = temp
-
-  return fixed

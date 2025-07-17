@@ -1,3 +1,4 @@
+from calendar import monthrange
 from datetime import datetime as dt, date as Date, time
 from dateutil.relativedelta import relativedelta
 import math
@@ -20,8 +21,13 @@ def handle_date(date: dt | Date) -> dt:
 
 
 def month_difference(date1: dt | Date, date2: dt | Date) -> int:
-  delta = relativedelta(max(date1, date2), min(date1, date2))
-  return delta.years * 12 + delta.months + round(delta.days / 30)
+  start_date, end_date = sorted([date1, date2])
+  delta = relativedelta(end_date, start_date)
+  months = delta.years * 12 + delta.months
+  days_in_month = monthrange(end_date.year, end_date.month)[1]
+  partial = round(delta.days / days_in_month) if days_in_month else 0
+
+  return months + partial
 
 
 type Quarter = Literal["Q1", "Q2", "Q3", "Q4"]
@@ -54,7 +60,8 @@ def month_end(year: int, month: int, unleap=True) -> int:
   return calendar.monthrange(year, month)[1]
 
 
-def exclusive_end_date(start_date: Date, end_date: Date, months: int) -> Date:
+def exclusive_end_date(start_date: Date, end_date: Date) -> Date:
+  months = month_difference(start_date, end_date)
   delta = relativedelta(years=1) if months == 12 else relativedelta(months=months)
   expected_xbrl_end = start_date + delta
 

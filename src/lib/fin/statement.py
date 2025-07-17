@@ -124,15 +124,12 @@ async def statement_to_df(
   fiscal_end_month = int(financials.fiscal_end.split("-")[0])
   fin_period = financials.fiscal_period
   fin_scope = "annual" if fin_period == "FY" else "quarterly"
-  currencies = financials.currency.difference({currency})
+  currencies = financials.currencies.difference({currency})
 
   df_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, int | float]] = {}
 
-  for item, entries in financials.data.items():
-    for entry in entries:
-      period_type = entry["period"][0]
-      period_index = entry["period"][1:]
-      period: Duration | Instant = financials.periods[period_type][period_index]
+  for item, records in financials.data.items():
+    for period, record in records.items():
       date = pd.to_datetime(get_date(period))
 
       months = relativedelta(fin_date, date).months
@@ -153,41 +150,39 @@ async def statement_to_df(
         continue
 
       quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
-      period = cast(FiscalPeriod, f"Q{quarter}" if months < 12 else "FY")
+      fin_period = cast(FiscalPeriod, f"Q{quarter}" if months < 12 else "FY")
       if fin_period == "FY" and months < 12:
-        period = "Q4"
+        fin_period = "Q4"
 
-      value = entry.get("value")
-      unit_index = entry.get("unit")
-      unit = financials.units[unit_index] if unit_index is not None else ""
+      value = record.value
+      unit = record.unit
 
       if value and (currency is not None) and unit in currencies:
         value *= await exchange_rate(currency, unit, period)
 
-      index = (date, period, months, fiscal_end_month)
+      index = (date, fin_period, months, fiscal_end_month)
       df_data.setdefault(index, {})[item] = value
 
       if fin_period == "FY" and (isinstance(period, Instant) or unit == "shares"):
         index = (date, "Q4", 3, fiscal_end_month)
         df_data.setdefault(index, {})[item] = value
 
-      members = entry.get("members")
+      members = record.members
       if members is None:
         continue
 
       for member, m_entry in members.items():
-        m_value = m_entry.get("value")
+        m_value = m_entry.value
         if m_value is None:
           continue
 
-        unit_index = m_entry.get("unit")
-        m_unit = financials.units[unit_index] if unit_index is not None else ""
+        m_unit = m_entry.unit
         if (currency is not None) and m_unit in currencies:
           m_value *= await exchange_rate(currency, m_unit, period)
 
-        dim = "." + d if (d := m_entry.get("dim")) else ""
+        dim = "." + d if (d := m_entry.dim) else ""
         key = f"{item}{dim}.{member}"
-        index = (date, period, months, fiscal_end_month)
+        index = (date, fin_period, months, fiscal_end_month)
         df_data.setdefault(index, {})[key] = m_value
 
         if fin_period == "FY" and (isinstance(period, Instant) or m_unit == "shares"):
@@ -195,8 +190,9 @@ async def statement_to_df(
           df_data.setdefault(index, {})[key] = m_value
 
   df = pd.DataFrame.from_dict(df_data, orient="index")
-  df.index = pd.MultiIndex.from_tuples(df.index)
-  df.index.names = ["date", "period", "months", "fiscal_end_month"]
+  df.index = pd.MultiIndex.from_tuples(
+    list(df.index), names=["date", "period", "months", "fiscal_end_month"]
+  )
   return cast(DataFrame, df)
 
 

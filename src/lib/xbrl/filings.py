@@ -1,7 +1,8 @@
 from datetime import datetime as dt
-import re
 from dateutil.relativedelta import relativedelta
 from functools import partial
+import math
+import re
 from typing import TypedDict, cast
 
 import aiometer
@@ -12,14 +13,11 @@ import pandas as pd
 from lib.const import HEADERS
 from lib.fin.models import (
   FinData,
-  FinPeriodStore,
   FinRecord,
   FinStatement,
   Instant,
   Duration,
-  UnitStore,
   Member,
-  fix_statement_data,
 )
 from lib.fin.statement import (
   statement_urls,
@@ -27,7 +25,7 @@ from lib.fin.statement import (
   upsert_statements,
 )
 from lib.utils.string import replace_all
-from lib.utils.time import exclusive_end_date, month_difference
+from lib.utils.time import exclusive_end_date
 from lib.utils.validate import validate_currency
 from lib.xbrl.utils import XMLNS
 
@@ -135,11 +133,9 @@ def parse_xbrl_period(
 
   start_date = parse_date(start_date_text[0])
   end_date = parse_date(end_date_text[0])
+  end_date = exclusive_end_date(start_date, end_date)
 
-  months = month_difference(start_date, end_date)
-  end_date = exclusive_end_date(start_date, end_date, months)
-
-  return Duration(start_date=start_date, end_date=end_date, months=months)
+  return Duration(start_date=start_date, end_date=end_date)
 
 
 def parse_xbrl_unit(xml: etree._Element, unit_id: str) -> str:
@@ -180,6 +176,32 @@ def parse_xbrl_unit(xml: etree._Element, unit_id: str) -> str:
   return f"{numerator}/{denominator}"
 
 
+def add_record_to_findata(
+  data: FinData, item: str, period: Duration | Instant, record: FinRecord
+):
+  if item not in data:
+    data[item] = {period: record}
+    return
+
+  existing_record = data[item].get(period)
+  if existing_record is None:
+    data[item][period] = record
+    return
+
+  if record.members is not None:
+    if existing_record.members is None:
+      existing_record.members = {}
+
+    existing_record.members.update(record.members)
+    return
+
+  if existing_record.value is None:
+    existing_record.value = record.value
+
+  if existing_record.unit is None:
+    existing_record.unit = record.unit
+
+
 def parse_xhtml_filing(filing_slug: str, date: str):
   url = f"https://filings.xbrl.org{filing_slug}"
 
@@ -189,8 +211,9 @@ def parse_xhtml_filing(filing_slug: str, date: str):
 
   replacements = {" ": "", ",": ""}
   data: FinData = {}
-  period_store = FinPeriodStore()
-  unit_store = UnitStore()
+  periods: set[Duration | Instant] = set()
+  units: set[str] = set()
+  dims: set[str] = set()
   currencies: set[str] = set()
 
   root: etree._Element = etree.fromstring(xml)
@@ -200,22 +223,19 @@ def parse_xhtml_filing(filing_slug: str, date: str):
     if value_text is None:
       continue
 
-    scrap = FinRecord()
-
     try:
       value = float(replace_all(value_text, replacements))
     except ValueError:
-      value = None
+      value = float("nan")
 
-    if value is not None and "scale" in item.attrib:
+    if not math.isnan(value) and "scale" in item.attrib:
       value *= 10.0 ** int(item.attrib["scale"])
 
     period = parse_xbrl_period(root, item.attrib["contextRef"], False)
-    period_store.add_period(period)
-    scrap["period"] = period
+    periods.add(period)
 
     unit = parse_xbrl_unit(root, item.attrib["unitRef"])
-    unit_store.add_unit(unit)
+    units.add(unit)
     if len(unit) == 3 and validate_currency(unit):
       currencies.add(unit)
 
@@ -228,50 +248,35 @@ def parse_xhtml_filing(filing_slug: str, date: str):
       member = member_nodes[0]
       member_name = cast(str, member.text).split(":")[-1]
       member_name = re.sub(r"(Segment)?Member", "", member_name)
-      scrap["members"] = {
-        member_name: Member(
-          dim=cast(str, member.attrib["dimension"]).split(":")[-1],
-          value=value,
-          unit=unit,
-        )
-      }
-    else:
-      scrap["value"] = value
-      scrap["unit"] = unit
-
-    item_name = item.attrib["name"].split(":")[-1]
-    if item_name not in data:
-      data[item_name] = [scrap]
-      continue
-
-    entry = next((i for i in data[item_name] if i["period"] == scrap["period"]), None)
-    if entry is None:
-      data[item_name].append(scrap)
-      continue
-
-    if "members" in scrap:
-      cast(dict[str, Member], entry.setdefault("members", {})).update(
-        cast(dict[str, Member], scrap["members"])
+      dim = cast(str, member.attrib["dimension"]).split(":")[-1]
+      dims.add(dim)
+      record = FinRecord(
+        members={
+          member_name: Member(
+            dim=dim,
+            value=value,
+            unit=unit,
+          )
+        }
       )
     else:
-      entry.update(scrap)
+      record = FinRecord(value=value, unit=unit)
 
-  periods, period_lookup = period_store.get_periods()
-  units, unit_lookup = unit_store.get_units()
+    item_name = cast(str, item.attrib["name"]).split(":")[-1]
+    add_record_to_findata(data, item_name, period, record)
 
-  data = fix_statement_data(data, period_lookup, unit_lookup)
-
-  statement = FinStatement(
+  return FinStatement(
     date=dt.strptime(date, "%Y-%m-%d").date(),
     fiscal_period="FY",
     fiscal_end=date[5:],
-    url=[url],
-    currency=currencies,
+    sources=[url],
+    currencies=currencies,
     periods=periods,
     units=units,
+    dimensions=dims,
+    synonyms=dict(),
     data=data,
   )
-  return statement
 
 
 async def parse_json_filing(filing_slug: str, date: str) -> FinStatement:
@@ -284,10 +289,9 @@ async def parse_json_filing(filing_slug: str, date: str) -> FinStatement:
 
     start_date = dt.strptime(dates[0], "%Y-%m-%dT%H:%M:%S").date()
     end_date = dt.strptime(dates[1], "%Y-%m-%dT%H:%M:%S").date()
-    months = month_difference(start_date, end_date)
-    end_date = exclusive_end_date(start_date, end_date, months)
+    end_date = exclusive_end_date(start_date, end_date)
 
-    return Duration(start_date=start_date, end_date=end_date, months=months)
+    return Duration(start_date=start_date, end_date=end_date)
 
   url = f"https://filings.xbrl.org{filing_slug}"
 
@@ -296,8 +300,9 @@ async def parse_json_filing(filing_slug: str, date: str) -> FinStatement:
     parse = response.json()
 
   data: FinData = {}
-  period_store = FinPeriodStore()
-  unit_store = UnitStore()
+  periods: set[Duration | Instant] = set()
+  units: set[str] = set()
+  dims: set[str] = set()
   currencies: set[str] = set()
 
   for entry in cast(dict, parse["facts"]).values():
@@ -305,75 +310,60 @@ async def parse_json_filing(filing_slug: str, date: str) -> FinStatement:
     if unit is None:
       continue
 
-    scrap = FinRecord()
-
-    item_name = entry["dimensions"]["concept"].split(":")[-1]
-
-    value = 0.0 if entry["value"] is None else float(entry["value"])
-    scrap["value"] = value
+    value = float("nan") if entry["value"] is None else float(entry["value"])
 
     period = parse_period(entry["dimensions"]["period"])
-    period_store.add_period(period)
-    scrap["period"] = period
+    periods.add(period)
 
     unit = unit.split("/")[0].split(":")[-1].lower()
-    unit_store.add_unit(unit)
-    scrap["unit"] = unit
+    units.add(unit)
+    if len(unit) == 3 and validate_currency(unit):
+      currencies.add(unit)
 
     axis: str | None = next(
       (key for key in entry["dimensions"] if key.startswith("ifrs-full:")), None
     )
     if axis is not None:
-      dim = axis.split(":")[-1]
       member = cast(str, entry["dimensions"][axis]).split(":")[-1]
       member = re.sub(r"(Segment)?Member", "", member)
-      scrap["members"] = {
-        member: Member(
-          dim=dim,
-          value=value,
-          unit=unit,
-        )
-      }
-
-    if len(unit) == 3 and validate_currency(unit):
-      currencies.add(unit)
-
-    if item_name not in data:
-      data[item_name] = [scrap]
-      continue
-
-    entry = next((i for i in data[item_name] if i["period"] == scrap["period"]), None)
-    if entry is None:
-      data[item_name].append(scrap)
-      continue
-
-    if "members" in scrap:
-      cast(dict[str, Member], entry.setdefault("members", {})).update(
-        cast(dict[str, Member], scrap["members"])
+      dim = cast(str, axis).split(":")[-1]
+      dims.add(dim)
+      record = FinRecord(
+        members={
+          member: Member(
+            dim=dim,
+            value=value,
+            unit=unit,
+          )
+        }
       )
     else:
-      entry.update(scrap)
+      record = FinRecord(value=value, unit=unit)
 
-  periods, period_lookup = period_store.get_periods()
-  units, unit_lookup = unit_store.get_units()
+    item_name = cast(str, entry["dimensions"]["concept"]).split(":")[-1]
+    add_record_to_findata(data, item_name, period, record)
 
-  data = fix_statement_data(data, period_lookup, unit_lookup)
-
-  statement = FinStatement(
+  return FinStatement(
     date=dt.strptime(date, "%Y-%m-%d").date(),
     fiscal_period="FY",
     fiscal_end=date[5:],
-    url=[url],
-    currency=currencies,
+    sources=[url],
+    currencies=currencies,
     periods=periods,
     units=units,
+    dimensions=dims,
+    synonyms=dict(),
     data=data,
   )
-  return statement
 
 
 async def parse_xbrl_statements(filings: list[FilingInfo]) -> list[FinStatement]:
-  tasks = [partial(parse_json_filing, f["slug"], f["date"]) for f in filings]
+  tasks = [
+    partial(parse_json_filing, f["slug"], f["date"])
+    if f["slug"].endswith(".json")
+    else partial(parse_xhtml_filing, f["slug"], f["date"])
+    for f in filings
+  ]
   financials = await aiometer.run_all(tasks, max_per_second=5)
 
   return financials
