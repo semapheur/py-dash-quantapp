@@ -181,10 +181,10 @@ async def seed_company_statements(company_id: str) -> None:
 
 
 async def seed_exchange_statements(exchange: str) -> None:
-  print("Parsing XBRL statements")
-  await seed_xbrl_statements(exchange)
   print("Parsing EDGAR statements")
   await seed_edgar_statements(exchange)
+  print("Parsing XBRL statements")
+  await seed_xbrl_statements(exchange)
 
 
 async def seed_fundamentals(exchange: str):

@@ -69,8 +69,8 @@ class Company:
   def info(self) -> CompanyInfo:
     url = f"https://data.sec.gov/submissions/CIK{self.padded_cik()}.json"
     with httpx.Client() as client:
-      rs = client.get(url, headers=HEADERS)
-      parse = CompanyInfo(**rs.json())
+      response = client.get(url, headers=HEADERS)
+      parse = CompanyInfo(**response.json())
 
     return parse
 

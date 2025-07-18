@@ -6,9 +6,11 @@ import re
 from typing import TypedDict, cast
 
 import aiometer
+import hishel
 import httpx
 from lxml import etree
 import pandas as pd
+import tenacity
 
 from lib.const import HEADERS
 from lib.fin.models import (
@@ -33,6 +35,31 @@ from lib.xbrl.utils import XMLNS
 class FilingInfo(TypedDict):
   slug: str
   date: str
+
+
+retry_on_connect = tenacity.retry(
+  retry=tenacity.retry_if_exception_type(httpx.TransportError),
+  stop=tenacity.stop_after_attempt(4),
+  wait=tenacity.wait_exponential(multiplier=1, min=1, max=30),
+)
+
+
+@retry_on_connect
+async def fetch_xbrl(url: str) -> etree._Element:
+  timeout = httpx.Timeout(connect=60.0, read=120.0, write=60.0, pool=60.0)
+  limits = httpx.Limits(max_connections=10, max_keepalive_connections=5)
+  transport = httpx.AsyncHTTPTransport(retries=2)
+  cache_transport = hishel.AsyncCacheTransport(transport=transport)
+
+  async with hishel.AsyncCacheClient(
+    transport=cache_transport, timeout=timeout, limits=limits, headers=HEADERS
+  ) as client:
+    async with client.stream("GET", url) as response:
+      parser = etree.XMLPullParser(events=("end",), huge_tree=True)
+      async for chunk in response.aiter_bytes():
+        parser.feed(chunk)
+      root = parser.close()
+      return root
 
 
 def lei_filings(
@@ -202,12 +229,10 @@ def add_record_to_findata(
     existing_record.unit = record.unit
 
 
-def parse_xhtml_filing(filing_slug: str, date: str):
+async def parse_xhtml_filing(filing_slug: str, date: str):
   url = f"https://filings.xbrl.org{filing_slug}"
 
-  with httpx.Client() as client:
-    response = client.get(url, headers=HEADERS)
-    xml = response.content
+  root = await fetch_xbrl(url)
 
   replacements = {" ": "", ",": ""}
   data: FinData = {}
@@ -216,7 +241,6 @@ def parse_xhtml_filing(filing_slug: str, date: str):
   dims: set[str] = set()
   currencies: set[str] = set()
 
-  root: etree._Element = etree.fromstring(xml)
   items: list[etree._Element] = root.xpath(".//ix:nonFraction", namespaces=XMLNS)
   for item in items:
     value_text: str | None = item.text

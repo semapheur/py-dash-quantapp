@@ -78,7 +78,7 @@ class CompanyInfo(BaseModel):
   website: str
   investorWebsite: str
   category: str
-  fiscalYearEnd: str
+  fiscalYearEnd: str | None
   stateOfIncorporation: str
   stateOfIncorporationDescription: str
   addresses: Addresses
@@ -96,6 +96,5 @@ class CikEntry(TypedDict):
 
 class CikFrame(DataFrameModel):
   cik: int
-  isin: str
-  ticker: str
-  title: str
+  name: str
+  tickers: str

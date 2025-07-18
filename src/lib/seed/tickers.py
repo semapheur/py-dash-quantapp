@@ -6,7 +6,7 @@ import sqlite3
 from pandera.typing import DataFrame
 import pycountry
 
-from lib.db.lite import insert_sqlite, read_sqlite, sqlite_path
+from lib.db.lite import insert_sqlite, polars_insert_sqlite, read_sqlite, sqlite_path
 from lib.brreg.parse import get_company_ids
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
@@ -159,9 +159,9 @@ async def seed_funds():
 
 
 async def seed_ciks():
-  ciks = await get_ciks()
+  ciks = get_ciks()
 
-  insert_sqlite(ciks, "ticker.db", "edgar", "replace", False)
+  polars_insert_sqlite(ciks, "ticker.db", "edgar", "replace", ("cik",))
 
 
 def map_cik_to_company():

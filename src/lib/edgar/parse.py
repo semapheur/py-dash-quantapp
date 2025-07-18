@@ -5,15 +5,16 @@ from functools import partial
 import json
 import re
 import time
+from traceback import TracebackException
 from typing import cast, Literal
 
 import aiometer
-import hishel
 import httpx
 from lxml import etree
 import pandas as pd
 from pandera.typing import DataFrame, Series
 from parsel import Selector
+import polars as pl
 
 from lib.const import HEADERS
 from lib.edgar.models import CikEntry, CikFrame
@@ -38,7 +39,12 @@ from lib.utils.time import (
   month_end,
   fiscal_quarter_monthly,
 )
-from lib.xbrl.filings import parse_xbrl_period, parse_xbrl_unit, add_record_to_findata
+from lib.xbrl.filings import (
+  fetch_xbrl,
+  parse_xbrl_period,
+  parse_xbrl_unit,
+  add_record_to_findata,
+)
 
 type Docs = Literal["cal", "def", "htm", "lab", "pre"]
 
@@ -123,7 +129,13 @@ async def parse_xbrl_url(cik: int, doc_id: str, doc_type: Docs = "htm") -> str:
 async def parse_statements(urls: list[str], run_async=True) -> list[FinStatement]:
   if run_async:
     tasks = [partial(parse_xml_filing, url) for url in urls]
-    financials = await aiometer.run_all(tasks, max_per_second=5)
+    try:
+      financials = await aiometer.run_all(tasks, max_at_once=5, max_per_second=2)
+    except* Exception as eg:
+      for i, exc in enumerate(eg.exceptions, 1):
+        tb = "".join(TracebackException.from_exception(exc).format())
+        print(f"\n---- Sub‑exception #{i} ----\n{tb}")
+      raise
 
     return financials
 
@@ -148,19 +160,13 @@ async def parse_xml_filing(url: str) -> FinStatement:
 
     return unit
 
-  async def fetch(url: str) -> etree._Element:
-    # cache_transport = hishel.AsyncCacheTransport(transport=httpx.AsyncHTTPTransport())
-    async with hishel.AsyncCacheClient() as client:
-      response = await client.get(url, headers=HEADERS)
-      return etree.fromstring(response.content)
-
-  root = await fetch(url)
+  root = await fetch_xbrl(url)
   if root.tag == "Error":
     cik, doc_id = url.split("/")[6:8]
     doc_id = insert_characters(doc_id, {"-": [10, 12]})
     time.sleep(1)
     url = await parse_xbrl_url(int(cik), doc_id)
-    root = await fetch(url)
+    root = await fetch_xbrl(url)
 
   form = {"10-K": "annual", "20-F": "annual", "40-F": "annual", "10-Q": "quarterly"}
   namespaces: dict[str | None, str] = root.nsmap
@@ -345,12 +351,29 @@ async def get_isin(cik: str | int) -> str | None:
   return isin_match.group() if isin_match else ""
 
 
-async def get_ciks() -> DataFrame[CikFrame]:
+def get_ciks() -> DataFrame[CikFrame]:
+  url = "https://www.sec.gov/files/company_tickers.json"
+
+  with httpx.Client() as client:
+    response = client.get(url, headers=HEADERS)
+    data: dict[str, dict] = response.json()
+
+  lf = pl.LazyFrame(list(data.values()))
+  lf = lf.rename({"cik_str": "cik", "title": "name"})
+  lf_grouped = lf.group_by("cik", maintain_order=False).agg(
+    [
+      pl.col("name").first(),
+      pl.col("ticker").map_elements(lambda x: json.dumps(x)).alias("tickers"),
+    ]
+  )
+
+  return cast(DataFrame[CikFrame], lf_grouped.collect())
+
+
+def get_ciks_pandas() -> DataFrame[CikFrame]:
   def get_tickers(group: pd.DataFrame) -> str:
     tickers = group["ticker"].tolist()
     return json.dumps(tickers)
-
-  rename = {"cik_str": "cik", "title": "name"}
 
   url = "https://www.sec.gov/files/company_tickers.json"
 
@@ -359,6 +382,7 @@ async def get_ciks() -> DataFrame[CikFrame]:
     parse: dict[str, CikEntry] = response.json()
 
   df = pd.DataFrame.from_dict(parse, orient="index")
+  rename = {"cik_str": "cik", "title": "name"}
   df.rename(columns=rename, inplace=True)
   cik = df.groupby("cik").agg({"cik": "first", "name": "first"}, include_groups=False)
   cik["tickers"] = df.groupby("cik").apply(get_tickers, include_groups=False)

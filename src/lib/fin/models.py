@@ -1,13 +1,11 @@
 import copy
 from datetime import date as Date, datetime as dt
-import json
 import math
 import re
 from typing import cast, Literal, TypedDict
-
-# from typing_extensions import TypedDict
 import warnings
 
+import orjson
 from pandera import DataFrameModel, Field
 from pandera.dtypes import Timestamp
 from pandera.typing import Index
@@ -259,12 +257,12 @@ def validate_json(expected_type: type, allow_none: bool):
         return expected_type()
 
       try:
-        parsed_value = json.loads(value)
+        parsed_value = orjson.loads(value)
         if not isinstance(parsed_value, expected_type):
           raise ValueError(
             f"{info.field_name} must be a {expected_type.__name__}. Got: {value}"
           )
-      except json.JSONDecodeError:
+      except orjson.JSONDecodeError:
         raise ValueError(
           f"{info.field_name} must be a valid JSON {expected_type.__name__}. Got: {value}"
         )
@@ -281,8 +279,8 @@ def validate_json_set(allow_none: bool):
         return set()
 
       try:
-        parsed_value = set(json.loads(value))
-      except json.JSONDecodeError:
+        parsed_value = set(orjson.loads(value))
+      except orjson.JSONDecodeError:
         raise ValueError(
           f"{info.field_name} must be a valid JSON array string. Got: {value}"
         )
@@ -321,8 +319,8 @@ def serialize_period_index(periods: set[Duration | Instant]):
 def index_serialized_periods(periods) -> FinPeriods | None:
   if isinstance(periods, str):
     try:
-      periods = json.loads(periods)
-    except json.JSONDecodeError:
+      periods = orjson.loads(periods)
+    except orjson.JSONDecodeError:
       raise ValueError(f"Invalid JSON string: {periods}")
 
   if not isinstance(periods, dict):
@@ -619,19 +617,19 @@ class FinStatement(BaseModel):
 
         reindexed_records[period_key] = serialized_record
 
-      reindexed_data[item] = reindexed_records
+      reindexed_data[item] = dict(sorted(reindexed_records.items(), key=lambda x: x[0]))
 
     return {
       "date": serialize_date(self.date),
       "fiscal_period": self.fiscal_period,
       "fiscal_end": self.fiscal_end,
-      "sources": self.sources,
-      "currencies": sorted(self.currencies),
-      "periods": periods,
-      "units": units,
-      "dimensions": dimensions,
-      "synonyms": serialize_synonyms(self.synonyms),
-      "data": reindexed_data,
+      "sources": orjson.dumps(self.sources).decode("utf-8"),
+      "currencies": orjson.dumps(sorted(self.currencies)).decode("utf-8"),
+      "periods": orjson.dumps(periods).decode("utf-8"),
+      "units": orjson.dumps(units).decode("utf-8"),
+      "dimensions": orjson.dumps(dimensions).decode("utf-8"),
+      "synonyms": orjson.dumps(serialize_synonyms(self.synonyms)).decode("utf-8"),
+      "data": orjson.dumps(reindexed_data).decode("utf-8"),
     }
 
   def merge(self, other: "FinStatement"):

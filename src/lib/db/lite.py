@@ -2,12 +2,13 @@ from contextlib import closing
 from pathlib import Path
 import re
 import sqlite3
-from typing import cast, Any, Literal, Optional
+from typing import Sequence, cast, Any, Literal, Optional
 
 from ordered_set import OrderedSet
 import pandas as pd
 from pandas._typing import DtypeArg
 from pandera.typing import DataFrame
+import polars as pl
 from sqlalchemy import (
   create_engine,
   inspect,
@@ -272,6 +273,67 @@ def insert_sqlite(
     df_old = df_old.join(df[diff_cols], how="outer")
 
   df_old.to_sql(tbl_name, con=engine, if_exists="replace", index=index)
+
+
+def polars_insert_sqlite(
+  df: pl.DataFrame,
+  db_name: str,
+  tbl_name: str,
+  action: Literal["merge", "replace"] = "merge",
+  index_cols: Sequence[str] | None = None,
+) -> None:
+  db_path = sqlite_path(db_name)
+  engine = create_engine(f"sqlite+pysqlite:///{db_path}")
+  inspector = inspect(engine)
+
+  if index_cols is None:
+    index_cols = (df.columns[0],)
+
+  if not inspector.has_table(tbl_name):
+    df.write_database(
+      connection=engine,
+      engine="sqlalchemy",
+      table_name=tbl_name,
+      if_table_exists="fail",
+    )
+    return
+
+  if action == "replace":
+    df.write_database(
+      connection=engine,
+      engine="sqlalchemy",
+      table_name=tbl_name,
+      if_table_exists="replace",
+    )
+    return
+
+  query = text(f'SELECT * FROM "{tbl_name}"')
+  with closing(engine.connect()) as con:
+    df_old = pl.read_database(query, connection=con)
+
+  joined = df_old.join(df, on=index_cols, how="outer", suffix="_new")
+
+  for col in df_old.columns:
+    if col in index_cols:
+      continue
+
+    if f"{col}_new" in joined.columns:
+      joined = joined.with_columns(
+        pl.coalesce(pl.col(col), pl.col(f"{col}_new")).alias(col)
+      )
+
+  for col in df.columns:
+    if col not in df_old.columns and f"{col}_new" in joined.columns:
+      joined = joined.rename({f"{col}_new": col})
+
+  joined = joined.select([c for c in joined.columns if not c.endswith("_new")])
+
+  joined.write_database(
+    connection=engine,
+    engine="sqlalchemy",
+    table_name=tbl_name,
+    if_table_exists="replace",
+  )
 
 
 def upsert_sqlite(

@@ -7,7 +7,7 @@ LOG_DIR = WORK_DIR / "logs"
 
 HEADERS = {
   "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-  "Accept-Encoding": "gzip, deflate, br, zstd",
+  "Accept-Encoding": "identity",  # "gzip, deflate, br, zstd",
   "Accept-Language": "en-US,en;q=0.5",
   "DNT": "1",
   "Connection": "keep-alive",

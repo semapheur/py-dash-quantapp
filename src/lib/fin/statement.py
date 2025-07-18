@@ -43,11 +43,12 @@ stock_split_items = {
 statements_columns = {
   "date": "INTEGER",
   "fiscal_period": "TEXT",
-  "url": "TEXT",
+  "sources": "TEXT",
   "fiscal_end": "TEXT",
-  "currency": "TEXT",
+  "currencies": "TEXT",
   "periods": "TEXT",
   "units": "TEXT",
+  "dimensions": "TEXT",
   "synonyms": "TEXT",
   "data": "TEXT",
 }
@@ -456,9 +457,9 @@ def store_updated_statements(
 
     query = f"""
       UPDATE "{table}" SET
-        url = :url,
+        sources = :sources,
         fiscal_end = :fiscal_end,
-        currency = :currency,
+        currencies = :currencies,
         data = :data
       WHERE date = :date AND fiscal_period = :fiscal_period
     """
@@ -503,34 +504,23 @@ def upsert_merged_statements(
       old_statement = load_raw_statement(table, date, fiscal_period)
       if old_statement is not None:
         old_statement.merge(statement)
-      else:
-        old_statement = statement
+        statement = old_statement
 
       query = f"""
         INSERT INTO "{table}"
         VALUES ({statements_values_text})
         ON CONFLICT(date, fiscal_period) DO UPDATE SET
-          url = excluded.url,
-          currency = excluded.currency,
+          sources = excluded.sources,
+          currencies = excluded.currencies,
           periods = excluded.periods,
           units = excluded.units,
+          dimensions = excluded.dimensions,
           synonyms = excluded.synonyms,
           data = excluded.data
       """
-      statement_json = old_statement.dump_json_values()
       cur.execute(
         query,
-        {
-          "date": date,
-          "fiscal_period": fiscal_period,
-          "fiscal_end": statement_json["fiscal_end"],
-          "url": statement_json["url"],
-          "currency": statement_json["currency"],
-          "periods": statement_json["periods"],
-          "units": statement_json["units"],
-          "synonyms": statement_json["synonyms"],
-          "data": statement_json["data"],
-        },
+        statement.model_dump(),
       )
       con.commit()
 
@@ -568,7 +558,7 @@ def upsert_statements(
           )
         )
     """
-    cur.executemany(query, [s.dump_json_values() for s in statements])
+    cur.executemany(query, [s.model_dump() for s in statements])
     con.commit()
 
 
