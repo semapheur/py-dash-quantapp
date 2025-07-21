@@ -5,12 +5,11 @@ import re
 from typing import cast, Optional
 import time
 
-import httpx
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
+import polars as pl
 
-from lib.const import HEADERS
 from lib.db.lite import read_sqlite
 from lib.yahoo.models import (
   QuoteInterval,
@@ -19,9 +18,13 @@ from lib.yahoo.models import (
   ItemMeta,
   ItemRecord,
   QuoteData,
+  PriceHistory,
 )
 from lib.utils.time import handle_date
 from lib.fin.models import Quote
+from lib.scrap import fetch_json
+
+BASE_URL = "https://query2.finance.yahoo.com/v8/finance"
 
 
 @dataclass(slots=True)
@@ -30,9 +33,9 @@ class Ticker:
 
   async def ohlcv(
     self,
-    start_date: Optional[dt | Date] = None,
-    end_date: Optional[dt | Date] = None,
-    period: Optional[QuotePeriod] = None,
+    start_date: dt | Date | None = None,
+    end_date: dt | Date | None = None,
+    period: QuotePeriod | None = None,
     interval: QuoteInterval = "1d",
     adjusted_close=False,
   ) -> DataFrame[Quote]:
@@ -41,7 +44,6 @@ class Ticker:
     ) -> QuoteData:
       params = {
         "formatted": "true",
-        #'crumb': '0/sHE2JwnVF',
         "lang": "en-US",
         "region": "US",
         "includeAdjustedClose": "true",
@@ -49,19 +51,16 @@ class Ticker:
         "period1": str(start_stamp),
         "period2": str(end_stamp),
         "events": "div|split",
-        "corsDomain": "finance.yahoo.com",
+        "userYfid": "true",
       }
-      url = f"https://query2.finance.yahoo.com/v8/finance/chart/{self.ticker}"
-
-      async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=HEADERS, params=params)
-        data: dict = response.json()
+      url = f"{BASE_URL}/chart/{self.ticker}"
+      data: PriceHistory = await fetch_json(url, params=params)
 
       return data["chart"]["result"][0]
 
     if (start_date is not None) and (period is None):
       start_date = handle_date(start_date)
-      start_stamp = int(start_date.replace(tzinfo=tz.utc).timestamp())
+      start_stamp = int(cast(dt, start_date).replace(tzinfo=tz.utc).timestamp())
 
     elif period == "max":
       start_stamp = int(dt.today().timestamp())
@@ -72,7 +71,7 @@ class Ticker:
 
     if end_date is not None:
       end_date = handle_date(end_date)
-      end_stamp = int(end_date.replace(tzinfo=tz.utc).timestamp())
+      end_stamp = int(cast(dt, end_date).replace(tzinfo=tz.utc).timestamp())
     else:
       end_stamp = int(dt.now().replace(tzinfo=tz.utc).timestamp())
       end_stamp += 3600 * 24
@@ -83,12 +82,16 @@ class Ticker:
       start_stamp = parse["meta"]["firstTradeDate"]
       parse = await parse_json(start_stamp, end_stamp, interval)
 
-    # Index
-    ix = parse["timestamp"]
+    timestamps = parse["timestamp"]
+    timezone = parse["meta"]["exchangeTimezoneName"]
 
-    # OHLCV
+    date = pl.from_epoch(timestamps, time_unit="s")
+    if interval in {"1d", "5d", "1wk", "1mo", "3mo"}:
+      date = date.dt.date()
+    else:
+      date = date.dt.replace_time_zone(timezone).dt.convert_time_zone("UTC")
+
     ohlcv = parse["indicators"]["quote"][0]
-
     close = (
       parse["indicators"]["adjclose"][0]["adjclose"]
       if adjusted_close
@@ -96,6 +99,7 @@ class Ticker:
     )
 
     data = {
+      "date": date,
       "open": ohlcv["open"],
       "high": ohlcv["high"],
       "low": ohlcv["low"],
@@ -103,22 +107,21 @@ class Ticker:
       "volume": ohlcv["volume"],
     }
 
-    # Parse to DataFrame
-    df = pd.DataFrame.from_dict(data, orient="columns")
-    df.index = pd.to_datetime(ix, unit="s").floor("D")
-    df.index.rename("date", inplace=True)
+    df = pl.DataFrame(data)
+    zero_cols = [
+      c
+      for c in df.columns
+      if c != "date"
+      if (df[c].fill_null(0).sum() == 0) or (df[c].null_count() == df.height)
+    ]
 
-    zero_columns = df.columns[(df.isin((0, np.nan))).all()]
-    df.drop(zero_columns, axis=1, inplace=True)
-
-    # if multicolumn:
-    #  cols = pd.MultiIndex.from_product([[self.ticker], [c for c in df.columns]])
-    #  df.columns = cols
+    if zero_cols:
+      df = df.drop(zero_cols)
 
     return cast(DataFrame[Quote], df)
 
-  def financials(self) -> pd.DataFrame:
-    def parse(period: str):
+  async def financials(self) -> pd.DataFrame:
+    async def parse(period: str):
       end_stamp = int(dt.now().timestamp()) + 3600 * 24
 
       params = {
@@ -136,9 +139,7 @@ class Ticker:
         "https://query2.finance.yahoo.com/ws/"
         f"fundamentals-timeseries/v1/finance/timeseries/{self.ticker}"
       )
-      with httpx.Client() as client:
-        rs = client.get(url, headers=HEADERS, params=params)
-        parse: dict = rs.json()
+      parse = await fetch_json(url, params=params)
 
       dfs: list[pd.DataFrame] = []
       pattern = r"^(annual|quarterly)"
@@ -150,7 +151,7 @@ class Ticker:
           continue
 
         scrap: dict[dt, int] = {}
-        records = list(filter(None, cast(list[ItemRecord], i[item])))
+        records: list[ItemRecord] = list(filter(None, cast(list[ItemRecord], i[item])))
         for r in records:
           date = dt.strptime(r["asOfDate"], "%Y-%m-%d")
           scrap[date] = r["reportedValue"]["raw"]
@@ -188,7 +189,7 @@ class Ticker:
 
     return df
 
-  def option_chains(self) -> pd.DataFrame:
+  async def option_chains(self) -> pd.DataFrame:
     def parse_option_chain(parse: dict, stamp):
       def get_entry(opt: dict, key: str):
         if key in opt:
@@ -233,23 +234,20 @@ class Ticker:
       df = pd.DataFrame.from_records(data)
 
       # Add expiry date
-      date = dt.utcfromtimestamp(stamp)
+      date = dt.fromtimestamp(stamp, tz=tz.utc)
       df["expiry"] = date
 
       return df
 
     params = {
       "formatted": "true",
-      #'crumb': '2ztQhfMEzsm',
       "lang": "en-US",
       "region": "US",
       "corsDomain": "finance.yahoo.com",
     }
 
-    url = f"https://query1.finance.yahoo.com/v7/finance/options/{self.ticker}"
-    with httpx.Client() as client:
-      rs = client.get(url, headers=HEADERS, params=params)
-      parse = rs.json()
+    url = f"{BASE_URL}/options/{self.ticker}"
+    parse = await fetch_json(url, params=params)
 
     # Maturity dates
     stamps = parse["optionChain"]["result"][0]["expirationDates"]
@@ -264,12 +262,7 @@ class Ticker:
 
       params["date"] = stamps[i]
 
-      # q = (i % 2) + 1
-      # url = f'https://query{q}.finance.yahoo.com/v7/finance/options/{ticker}'
-
-      with httpx.Client() as client:
-        rs = client.get(url, headers=HEADERS, params=params)
-        parse = rs.json()
+      parse = await fetch_json(url, params=params)
 
       dfs.append(parse_option_chain(parse, stamps[i]))
 

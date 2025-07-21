@@ -10,12 +10,14 @@ import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
 from parsel import Selector
+import polars as pl
 
 from lib.const import HEADERS
 from lib.fin.models import Quote
 from lib.morningstar.models import Ohlcv, Close, Document, EquityDocuments
 from lib.morningstar.fetch import fetch_currency
 from lib.utils.string import replace_all
+from lib.scrap import fetch_json
 
 
 SCREENER_API = (
@@ -48,12 +50,7 @@ class Stock(Security):
       "performanceType": "",
     }
     url = "https://tools.morningstar.no/api/rest.svc/timeseries_ohlcv/dr6pz9spfi"
-
-    async with httpx.AsyncClient() as client:
-      response = await client.get(url, headers=HEADERS, params=params)
-      if response.status_code != 200:
-        raise httpx.RequestError(f"Error fetching OHLCV for {self.id}: {response}")
-      parse: list[list[float | int]] = response.json()
+    parse: list[list[float | int]] = await fetch_json(url, params)
 
     scrap: list[Ohlcv] = []
     for d in parse:
@@ -68,13 +65,11 @@ class Stock(Security):
         )
       )
 
-    df = pd.DataFrame.from_records(scrap)
-    if df.empty:
-      raise ValueError(f"No quotes for {self.id} available from Morningstar.")
-
-    df["date"] = pd.to_datetime(df["date"], unit="ms")
-    df.set_index("date", inplace=True)
-    return cast(DataFrame[Quote], df)
+    lf = pl.LazyFrame(scrap)
+    lf = lf.with_columns(
+      [pl.col("date").cast(pl.Datetime(time_unit="ms")).dt.date().alias("date")]
+    )
+    return cast(DataFrame[Quote], lf.collect())
 
   def financials(self) -> pd.DataFrame | None:
     def parse_sheet(sheet: Literal["is", "bs", "cf"]):

@@ -11,6 +11,7 @@ from typing import cast, Literal
 import aiometer
 import httpx
 from lxml import etree
+import orjson
 import pandas as pd
 from pandera.typing import DataFrame, Series
 from parsel import Selector
@@ -45,6 +46,7 @@ from lib.xbrl.filings import (
   parse_xbrl_unit,
   add_record_to_findata,
 )
+from lib.scrap import fetch_json
 
 type Docs = Literal["cal", "def", "htm", "lab", "pre"]
 
@@ -351,35 +353,37 @@ async def get_isin(cik: str | int) -> str | None:
   return isin_match.group() if isin_match else ""
 
 
-def get_ciks() -> DataFrame[CikFrame]:
+async def get_ciks() -> DataFrame[CikFrame]:
   url = "https://www.sec.gov/files/company_tickers.json"
-
-  with httpx.Client() as client:
-    response = client.get(url, headers=HEADERS)
-    data: dict[str, dict] = response.json()
+  data: dict[str, CikEntry] = await fetch_json(url)
 
   lf = pl.LazyFrame(list(data.values()))
   lf = lf.rename({"cik_str": "cik", "title": "name"})
-  lf_grouped = lf.group_by("cik", maintain_order=False).agg(
-    [
-      pl.col("name").first(),
-      pl.col("ticker").map_elements(lambda x: json.dumps(x)).alias("tickers"),
-    ]
+  lf_grouped = (
+    lf.group_by("cik", maintain_order=False)
+    .agg(
+      [
+        pl.col("name").first().alias("name"),
+        pl.col("ticker")
+        .map_elements(
+          lambda x: orjson.dumps(x.to_list()).decode("utf-8"), return_dtype=pl.Utf8
+        )
+        .alias("tickers"),
+      ]
+    )
+    .sort("cik")
   )
 
   return cast(DataFrame[CikFrame], lf_grouped.collect())
 
 
-def get_ciks_pandas() -> DataFrame[CikFrame]:
+async def get_ciks_pandas() -> DataFrame[CikFrame]:
   def get_tickers(group: pd.DataFrame) -> str:
     tickers = group["ticker"].tolist()
     return json.dumps(tickers)
 
   url = "https://www.sec.gov/files/company_tickers.json"
-
-  with httpx.Client() as client:
-    response = client.get(url, headers=HEADERS)
-    parse: dict[str, CikEntry] = response.json()
+  parse: dict[str, CikEntry] = await fetch_json(url)
 
   df = pd.DataFrame.from_dict(parse, orient="index")
   rename = {"cik_str": "cik", "title": "name"}

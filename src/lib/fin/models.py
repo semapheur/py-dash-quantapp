@@ -156,6 +156,10 @@ class Instant(BaseModel, frozen=True):
     return serialize_date(date)
 
 
+def get_date(period: Instant | Duration) -> Date:
+  return period.end_date if isinstance(period, Duration) else period.instant
+
+
 class FinPeriods(TypedDict):
   d: list[Duration]
   i: list[Instant]

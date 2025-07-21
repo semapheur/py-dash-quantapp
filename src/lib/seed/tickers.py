@@ -1,12 +1,21 @@
+from contextlib import closing
 import hashlib
 import json
 import re
 import sqlite3
 
+import orjson
 from pandera.typing import DataFrame
+import polars as pl
 import pycountry
 
-from lib.db.lite import insert_sqlite, polars_insert_sqlite, read_sqlite, sqlite_path
+from lib.db.lite import (
+  insert_sqlite,
+  polars_to_sqlite,
+  read_sqlite,
+  sqlite_path,
+  sqlite_vacuum,
+)
 from lib.brreg.parse import get_company_ids
 from lib.morningstar.fetch import get_tickers
 from lib.edgar.parse import get_ciks
@@ -49,9 +58,108 @@ async def seed_tickers():
   await seed_stock_tickers()
   await seed_ciks()
   map_cik_to_company()
+  sqlite_vacuum("ticker.db")
 
 
 async def seed_stock_tickers():
+  def clean_company_name(name: list[str]) -> str:
+    blacklist = ["cedear", r"class \w", "ordinary shares", "shs"]
+    pattern = re.compile(r"(?!^)\b(?:{})\b".format("|".join(blacklist)), flags=re.I)
+    cleaned = [pattern.sub("", x).strip() for x in name]
+    return min(cleaned, key=len)
+
+  def primary_securities(rows: pl.Series) -> str:
+    primary_mask = rows.struct.field("primary")
+    countries = rows.struct.field("country")
+    security_ids = rows.struct.field("security_id")
+    domiciles = rows.struct.field("domicile")
+
+    domicile = domiciles[0]
+    domicile_exists = countries.is_in([domicile]).any()
+    mask = primary_mask & (countries == domicile) if domicile_exists else primary_mask
+
+    primary_securities = security_ids.filter(mask).to_list()
+    return orjson.dumps(primary_securities).decode("utf-8")
+
+  def primary_currency(rows: pl.Series) -> str | None:
+    primary_mask = rows.struct.field("primary")
+    countries = rows.struct.field("country")
+    currencies = rows.struct.field("currency")
+    domiciles = rows.struct.field("domicile")
+
+    domicile = domiciles[0]
+    domicile_exists = countries.is_in([domicile]).any()
+    mask = primary_mask & (countries == domicile) if domicile_exists else primary_mask
+
+    currency = currencies.filter(mask).unique()
+    return currency[0] if currency.len() == 1 else None
+
+  tickers_lf = await get_tickers("stock")
+
+  exchanges_lf = tickers_lf.group_by("mic").agg(
+    pl.col("currency").mode().first().alias("currency")
+  )
+
+  mics_columns = [
+    "mic",
+    "market_name",
+    "lei",
+    "country",
+    "city",
+    "url",
+    "creation_date",
+  ]
+  mics_lf = get_mics().select(mics_columns)
+  exchanges_lf = (
+    exchanges_lf.join(mics_lf, on="mic", how="left")
+    .with_columns(
+      pl.col("city").str.to_titlecase(),
+      pl.col("url").str.to_lowercase(),
+      pl.col("lei").replace("", None),
+    )
+    .sort("mic")
+  )
+
+  tickers_lf = tickers_lf.with_columns(
+    pl.col("domicile").map_elements(
+      lambda x: pycountry.countries.get(alpha_3=x).alpha_2, return_dtype=pl.String
+    )
+  ).join(exchanges_lf.select(["mic", "country"]), on="mic", how="left")
+
+  companies_lf = (
+    tickers_lf.group_by("company_id")
+    .agg(
+      pl.col("name")
+      .map_elements(clean_company_name, return_dtype=pl.String)
+      .alias("name"),
+      pl.col("domicile").first().alias("domicile"),
+      pl.col("sector").first().alias("sector"),
+      pl.col("industry").first().alias("industry"),
+      pl.struct(["primary", "country", "security_id", "domicile"])
+      .map_elements(primary_securities, return_dtype=pl.String)
+      .alias("primary_security"),
+      pl.struct(["primary", "country", "currency", "domicile"])
+      .map_elements(primary_currency, return_dtype=pl.String)
+      .alias("currency"),
+      pl.lit(None).alias("lei"),
+    )
+    .sort("company_id")
+  )
+
+  tickers_lf = tickers_lf.drop(
+    ["primary", "country", "domicile", "sector", "industry"]
+  ).sort("security_id")
+
+  polars_to_sqlite(
+    tickers_lf.collect(), "ticker.db", "stock", "replace", ("security_id",)
+  )
+  polars_to_sqlite(
+    companies_lf.collect(), "ticker.db", "company", "replace", ("company_id",)
+  )
+  polars_to_sqlite(exchanges_lf.collect(), "ticker.db", "exchange", "replace", ("mic",))
+
+
+async def seed_stock_tickers_pandas():
   blacklist = ["cedear", r"class \w", "ordinary shares", "shs"]
   pattern = r"(?!^)\b(?:{})\b".format("|".join(blacklist))
 
@@ -80,7 +188,8 @@ async def seed_stock_tickers():
 
     return json.dumps(primary_securities)
 
-  tickers = await get_tickers("stock")
+  tickers_lf = await get_tickers("stock")
+  tickers = tickers_lf.collect().to_pandas()
 
   exchanges = (
     tickers.groupby("mic")
@@ -159,12 +268,12 @@ async def seed_funds():
 
 
 async def seed_ciks():
-  ciks = get_ciks()
+  ciks = await get_ciks()
 
-  polars_insert_sqlite(ciks, "ticker.db", "edgar", "replace", ("cik",))
+  polars_to_sqlite(ciks, "ticker.db", "edgar", "replace", ("cik",))
 
 
-def map_cik_to_company():
+def map_cik_to_company_():
   required_tables = {"stock", "exchange", "edgar"}
   query = """
     BEGIN TRANSACTION;
@@ -192,7 +301,7 @@ def map_cik_to_company():
     COMMIT;
   """
 
-  with sqlite3.connect(sqlite_path("ticker.db")) as conn:
+  with closing(sqlite3.connect(sqlite_path("ticker.db"))) as conn:
     cursor = conn.cursor()
 
     cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -201,6 +310,57 @@ def map_cik_to_company():
     missing_tables = required_tables - existing_tables
     if missing_tables:
       raise RuntimeError(f"Missing tables: {', '.join(missing_tables)}")
+    conn.executescript(query)
+
+
+def map_cik_to_company():
+  required_tables = {"stock", "exchange", "edgar"}
+
+  query = """
+    BEGIN TRANSACTION;
+    
+    UPDATE edgar 
+    SET company_id = (
+      SELECT s.company_id
+      FROM stock s
+      JOIN exchange ex ON s.mic = ex.mic
+      WHERE ex.country = 'US'
+        AND EXISTS (
+          SELECT 1 
+          FROM json_each(edgar.tickers) je
+          WHERE je.value = s.ticker
+        )
+      LIMIT 1
+    )
+    WHERE EXISTS (
+      SELECT 1
+      FROM stock s
+      JOIN exchange ex ON s.mic = ex.mic
+      WHERE ex.country = 'US'
+        AND EXISTS (
+          SELECT 1 
+          FROM json_each(edgar.tickers) je
+          WHERE je.value = s.ticker
+        )
+    );
+    
+    COMMIT;
+    """
+
+  with sqlite3.connect(sqlite_path("ticker.db")) as conn:
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    existing_tables = {row[0] for row in cursor.fetchall()}
+    missing_tables = required_tables - existing_tables
+    if missing_tables:
+      raise RuntimeError(f"Missing tables: {', '.join(missing_tables)}")
+
+    # Add company_id column if it doesn't exist
+    cursor.execute("PRAGMA table_info(edgar)")
+    columns = [column[1] for column in cursor.fetchall()]
+    if "company_id" not in columns:
+      cursor.execute("ALTER TABLE edgar ADD COLUMN company_id TEXT")
+
     conn.executescript(query)
 
 

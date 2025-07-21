@@ -11,33 +11,60 @@ type QuoteInterval = Literal[
 
 class Period(TypedDict):
   timezone: str
-  start: int
   end: int
+  start: int
   gmtoffset: int
 
 
-class TradingPeriod(TypedDict):
+class CurrentTradingPeriod(TypedDict):
   pre: Period
   regular: Period
   post: Period
 
 
-class QuoteMeta(TypedDict):
+class Meta(TypedDict):
   currency: str
   symbol: str
   exchangeName: str
-  instrument_type: str
+  fullExchangeName: str
+  instrumentType: str
   firstTradeDate: int
   regularMarketTime: int
+  hasPrePostMarketData: bool
   gmtoffset: int
   timezone: str
   exchangeTimezoneName: str
   regularMarketPrice: float
+  fiftyTwoWeekHigh: float
+  fiftyTwoWeekLow: float
+  regularMarketDayHigh: float
+  regularMarketDayLow: float
+  regularMarketVolume: int
+  longName: str
+  shortName: str
   chartPreviousClose: float
   priceHint: int
-  currentTradingPeriod: TradingPeriod
-  dataGranularity: QuoteInterval
-  validRanges: list[QuoteInterval]
+  currentTradingPeriod: CurrentTradingPeriod
+  dataGranularity: str
+  range: str
+  validRanges: list[str]
+
+
+class Quote(TypedDict):
+  open: list[float]
+  high: list[float]
+  low: list[float]
+  volume: list[int]
+  close: list[float]
+
+
+class AdjcloseItem(TypedDict):
+  adjclose: list[float]
+
+
+class Indicators(TypedDict):
+  quote: list[Quote]
+  adjclose: list[AdjcloseItem]
 
 
 class QuoteDividend(TypedDict):
@@ -57,28 +84,20 @@ class QuoteEvents(TypedDict):
   splits: dict[str, QuoteSplit]
 
 
-class Quote(TypedDict):
-  high: list[float]
-  open: list[float]
-  low: list[float]
-  close: list[float]
-  volume: list[int]
-
-
-class QuoteAdjustedClose(TypedDict):
-  adjclose: list[float]
-
-
-class QuoteIndicators(TypedDict):
-  quote: list[Quote]
-  adjclose: list[QuoteAdjustedClose]
-
-
-class QuoteData(TypedDict):
-  meta: QuoteMeta
+class QuoteData(TypedDict, total=False):
+  meta: Meta
   timestamp: list[int]
-  events: QuoteEvents
-  indicators: QuoteIndicators
+  events: QuoteEvents | None
+  indicators: Indicators
+
+
+class Chart(TypedDict):
+  result: list[QuoteData]
+  error: None
+
+
+class PriceHistory(TypedDict):
+  chart: Chart
 
 
 class ItemMeta(TypedDict):

@@ -19,6 +19,25 @@ from sqlalchemy.types import Integer, Text, Float, DateTime
 
 from lib.const import DB_DIR
 
+_POLARS_TO_SQLITE: dict[pl.DataType, str] = {
+  pl.Int8: "INTEGER",
+  pl.Int16: "INTEGER",
+  pl.Int32: "INTEGER",
+  pl.Int64: "INTEGER",
+  pl.UInt8: "INTEGER",
+  pl.UInt16: "INTEGER",
+  pl.UInt32: "INTEGER",
+  pl.UInt64: "INTEGER",
+  pl.Float32: "REAL",
+  pl.Float64: "REAL",
+  pl.Boolean: "INTEGER",  # stored as 0/1
+  pl.Utf8: "TEXT",
+  pl.Date: "TEXT",
+  pl.Datetime: "TEXT",
+  pl.List: "BLOB",
+  pl.Struct: "BLOB",
+}
+
 
 def sqlite_path(db_name: str) -> Path:
   if not db_name.endswith(".db"):
@@ -84,12 +103,16 @@ def check_table(tables: set[str], db_name: str) -> bool:
   return tables.issubset(set(db_tables))
 
 
-def sqlite_vacuum(db_name: str):
+def sqlite_vacuum(db_name: str, backup_file: str | None = None):
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
 
+  query = "VACUUM"
+  if backup_file is not None:
+    query += f" INTO '{backup_file}'"
+
   with engine.connect().execution_options(autocommit=True) as con:
-    con.execute(text("VACUUM"))
+    con.execute(text(query))
 
 
 # @event.listens_for(Engine, 'connect')
@@ -157,10 +180,10 @@ def fetch_sqlite(db_name: str, query: str, params: Optional[dict[str, str]] = No
 def read_sqlite(
   db_name: str,
   query: str | TextClause,
-  params: Optional[dict[str, str]] = None,
-  index_col: Optional[str | list[str]] = None,
-  dtype: Optional[DtypeArg] = None,
-  date_parser: Optional[dict[str, dict[str, str]]] = None,
+  params: dict[str, str] | None = None,
+  index_col: str | list[str] | None = None,
+  dtype: DtypeArg | None = None,
+  date_parser: dict[str, dict[str, str]] | None = None,
 ) -> DataFrame | None:
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
@@ -184,6 +207,36 @@ def read_sqlite(
     )
 
   return None if df.empty else cast(DataFrame, df)
+
+
+def polars_from_sqlite(
+  db_name: str,
+  query: str | TextClause,
+  params: dict[str, str] | None = None,
+  column_transform: list[pl.Expr] | None = None,
+) -> pl.DataFrame | None:
+  db_path = sqlite_path(db_name)
+  engine = create_engine(f"sqlite+pysqlite:///{db_path}")
+  insp = inspect(engine)
+
+  table = sql_table(str(query))
+  tables = insp.get_table_names()
+
+  if tables == [] or table not in set(tables):
+    return None
+
+  if params:
+    if isinstance(query, str):
+      query = text(query)
+
+    query = query.bindparams(**params)
+
+  df = pl.read_database(query=query, connection=engine.connect())
+
+  if column_transform:
+    df = df.with_columns(column_transform)
+
+  return df
 
 
 def select_sqlite(
@@ -240,7 +293,7 @@ def get_table_columns(
 def insert_sqlite(
   df: pd.DataFrame,
   db_name: str,
-  tbl_name: str,
+  table: str,
   action: Literal["merge", "replace"] = "merge",
   index: bool = True,
   dtype: Optional[DtypeArg] = None,
@@ -249,16 +302,16 @@ def insert_sqlite(
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
   inspector = inspect(engine)
 
-  if not inspector.has_table(tbl_name):
+  if not inspector.has_table(table):
     with engine.connect().execution_options(autocommit=True) as con:
-      df.to_sql(tbl_name, con=con, index=index, dtype=dtype)
+      df.to_sql(table, con=con, index=index, dtype=dtype)
     return
 
   if action == "replace":
-    df.to_sql(tbl_name, con=engine, if_exists="replace", index=index, dtype=dtype)
+    df.to_sql(table, con=engine, if_exists="replace", index=index, dtype=dtype)
     return
 
-  query = text(f'SELECT * FROM "{tbl_name}"')
+  query = text(f'SELECT * FROM "{table}"')
   ix = list(df.index.names)
 
   with engine.connect().execution_options(autocommit=True) as con:
@@ -272,73 +325,110 @@ def insert_sqlite(
   if diff_cols:
     df_old = df_old.join(df[diff_cols], how="outer")
 
-  df_old.to_sql(tbl_name, con=engine, if_exists="replace", index=index)
+  df_old.to_sql(table, con=engine, if_exists="replace", index=index)
 
 
-def polars_insert_sqlite(
+def polars_sqlite_table(
+  df: pl.DataFrame, table: str, primary_keys: Sequence[str] | None = None
+) -> str:
+  if primary_keys is not None:
+    missing = set(primary_keys).difference(df.columns)
+    if missing:
+      raise ValueError(f"Index columns {missing} not found in DataFrame")
+
+  col_defs: list[str] = []
+  for name, dtype in zip(df.columns, df.dtypes):
+    sqlite_type = _POLARS_TO_SQLITE.get(dtype, "BLOB")
+    col_defs.append(f'"{name}" {sqlite_type}')
+
+  if primary_keys is not None:
+    cols = ", ".join(f"'{c}'" for c in primary_keys)
+    col_defs.append(f"PRIMARY KEY ({cols})")
+
+  return f"CREATE TABLE '{table}' ({', '.join(col_defs)});"
+
+
+def combine_polars(
+  df1: pl.DataFrame, df2: pl.DataFrame, index_cols: Sequence[str]
+) -> pl.DataFrame:
+  if not index_cols:
+    raise ValueError("Index columns required for combining DataFrames")
+
+  index_set = set(index_cols)
+  for i, df in enumerate([df1, df2]):
+    missing = index_set.difference(df.columns)
+    if missing:
+      raise ValueError(f"Missing index columns in DataFrame {i}: {missing}")
+
+  joined = df1.join(df2, on=list(index_cols), how="outer", suffix="_new").lazy()
+  df1_cols = set(df1.columns)
+  df2_cols = set(df2.columns)
+
+  expressions: list[pl.Expr] = []
+  for col in joined.columns:
+    if col.endswith("_new"):
+      base_col = col.removesuffix("_new")
+      if base_col in df1_cols:
+        expressions.append(pl.coalesce(pl.col(col), pl.col(base_col)).alias(base_col))
+      else:
+        expressions.append(pl.col(col).alias(base_col))
+    elif col in index_cols or (col in df1_cols and f"{col}_new" not in df2_cols):
+      expressions.append(pl.col(col))
+
+  return joined.select(expressions).collect()
+
+
+def polars_to_sqlite(
   df: pl.DataFrame,
   db_name: str,
-  tbl_name: str,
+  table: str,
   action: Literal["merge", "replace"] = "merge",
   index_cols: Sequence[str] | None = None,
 ) -> None:
+  if action == "merge" and not index_cols:
+    raise ValueError("Index columns required for merging DataFrames")
+
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
   inspector = inspect(engine)
 
-  if index_cols is None:
-    index_cols = (df.columns[0],)
+  with engine.connect() as con:
+    if action == "replace":
+      con.execute(text(f"DROP TABLE IF EXISTS '{table}'"))
+      con.commit()
 
-  if not inspector.has_table(tbl_name):
-    df.write_database(
-      connection=engine,
-      engine="sqlalchemy",
-      table_name=tbl_name,
-      if_table_exists="fail",
-    )
-    return
+    if not inspector.has_table(table):
+      ddl = polars_sqlite_table(df, table, index_cols)
+      con.execute(text(ddl))
 
-  if action == "replace":
-    df.write_database(
-      connection=engine,
-      engine="sqlalchemy",
-      table_name=tbl_name,
-      if_table_exists="replace",
-    )
-    return
-
-  query = text(f'SELECT * FROM "{tbl_name}"')
-  with closing(engine.connect()) as con:
-    df_old = pl.read_database(query, connection=con)
-
-  joined = df_old.join(df, on=index_cols, how="outer", suffix="_new")
-
-  for col in df_old.columns:
-    if col in index_cols:
-      continue
-
-    if f"{col}_new" in joined.columns:
-      joined = joined.with_columns(
-        pl.coalesce(pl.col(col), pl.col(f"{col}_new")).alias(col)
+      df.write_database(
+        table_name=table,
+        connection=engine,
+        engine="sqlalchemy",
+        if_table_exists="append",
       )
+      return
 
-  for col in df.columns:
-    if col not in df_old.columns and f"{col}_new" in joined.columns:
-      joined = joined.rename({f"{col}_new": col})
+    query = text(f"SELECT * FROM '{table}'")
+    df_old = pl.read_database(query, connection=con)
+    merged = combine_polars(df, df_old, cast(Sequence[str], index_cols))
 
-  joined = joined.select([c for c in joined.columns if not c.endswith("_new")])
+    ddl = polars_sqlite_table(merged, table, index_cols)
+    con.execute(text(f"DROP TABLE IF EXISTS '{table}'"))
+    con.execute(text(ddl))
+    con.commit()
 
-  joined.write_database(
-    connection=engine,
-    engine="sqlalchemy",
-    table_name=tbl_name,
-    if_table_exists="replace",
-  )
+    merged.write_database(
+      table_name=table,
+      connection=engine,
+      engine="sqlalchemy",
+      if_table_exists="append",
+    )
 
 
 def upsert_sqlite(
-  df: pd.DataFrame, db_name: str, tbl_name: str, dtype: Optional[DtypeArg] = None
-):
+  df: pd.DataFrame, db_name: str, tbl_name: str, dtype: DtypeArg | None = None
+) -> None:
   if not df.index.is_unique:
     raise ValueError("DataFrame index is not unique. Failed to upsert into SQLite!")
 
@@ -396,6 +486,73 @@ def upsert_sqlite(
     )
     con.execute(text(query))
     # con.execute(text('DROP TABLE temp')) # Delete temporary table
+
+
+def polars_to_sqlite_upsert(
+  df: pl.DataFrame, db_name: str, table: str, index_cols: Sequence[str]
+) -> None:
+  missing = set(index_cols).difference(df.columns)
+  if missing:
+    raise ValueError(f"Index columns missing from DataFrame: {missing}")
+
+  if df.select(pl.col(index_cols)).n_unique() != df.height:
+    raise ValueError("DataFrame index is not unique. Failed to upsert into SQLite!")
+
+  db_path = sqlite_path(db_name)
+  engine = create_engine(f"sqlite+pysqlite:///{db_path}")
+  inspector = inspect(engine)
+
+  with engine.connect() as con:
+    if not inspector.has_table(table):
+      ddl = polars_sqlite_table(df, table, index_cols)
+      con.execute(text(ddl))
+      con.commit()
+
+      df.write_database(
+        table_name=table,
+        connection=engine,
+        engine="sqlalchemy",
+        if_table_exists="append",
+      )
+
+      return
+
+    table_cols = [c["name"] for c in inspector.get_columns(table)]
+    new_cols = list(set(df.columns).difference(table_cols))
+    if new_cols:
+      for c in new_cols:
+        sql_type = _POLARS_TO_SQLITE.get(df[c].dtype, "BLOB")
+        con.execute(text(f'ALTER TABLE "{table}" ADD COLUMN {c} {sql_type}'))
+        con.commit()
+
+    pk_cols = inspector.get_pk_constraint(table)["constrained_columns"]
+    ix_sql = ", ".join(f'"{i}"' for i in index_cols)
+    if set(pk_cols) != set(index_cols):
+      con.execute(text(f'CREATE UNIQUE INDEX "ix_{table}" ON "{table}" ({ix_sql})'))
+      con.commit()
+
+    temp_table = "_temp_upsert"
+    df.write_database(
+      table_name=temp_table,
+      connection=engine,
+      engine="sqlalchemy",
+      if_table_exists="replace",
+    )
+
+    nonindex_cols = set(df.columns).difference(index_cols)
+    cols_sql = ", ".join(f'"{c}"' for c in df.columns)
+    update_sql = ", ".join(f'"{c}" = EXCLUDED."{c}"' for c in nonindex_cols)
+
+    upsert_query = f"""
+      INSERT INTO "{table}" ({cols_sql})
+      SELECT {cols_sql} FROM "{temp_table}"
+      ON CONFLICT ({ix_sql}) DO UPDATE SET
+        {update_sql}
+    """
+
+    con.execute(text(upsert_query))
+    con.execute(text(f'DROP TABLE "{temp_table}"'))
+    con.commit()
 
 
 def replace_sqlite(col: str, replacements: dict[str, str]) -> str:

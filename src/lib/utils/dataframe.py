@@ -4,6 +4,7 @@ from typing import cast
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
+import polars as pl
 
 
 # Rename DataFrame columns
@@ -54,7 +55,26 @@ def split_multiline(row: Series[str]):
   return pd.DataFrame(result, columns=row.index)
 
 
-def slice_df_by_date(
+def slice_polars_by_date(
+  df: pl.DataFrame,
+  date_column: str,
+  start_date: dt | None = None,
+  end_date: dt | None = None,
+) -> pl.DataFrame:
+  if df[date_column].dtype not in (pl.Datetime, pl.Date):
+    raise ValueError("Dataframe must have a datetime column!")
+
+  lf = df.lazy()
+  if start_date is not None:
+    lf = lf.filter(pl.col(date_column) >= pl.lit(start_date))
+
+  if end_date is not None:
+    lf = lf.filter(pl.col(date_column) <= pl.lit(end_date))
+
+  return lf.collect()
+
+
+def slice_pandas_by_date(
   df: pd.DataFrame,
   start_date: dt | None = None,
   end_date: dt | None = None,

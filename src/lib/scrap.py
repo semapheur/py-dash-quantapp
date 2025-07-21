@@ -8,6 +8,7 @@ import httpx
 import numpy as np
 from parsel import Selector
 import requests
+from rnet import Client, Impersonate
 from tqdm import tqdm
 
 from lib.const import HEADERS
@@ -103,17 +104,22 @@ def free_proxy_list() -> list[str]:
   url = "https://free-proxy-list.net/#"
 
   with httpx.Client() as client:
-    response = client.get(url)
+    response = client.get(url, headers=HEADERS)
     dom = Selector(response.text)
 
-  proxies = dom.xpath('//div[@id="raw"]//textarea/text()').get()
+  proxy_table = dom.xpath('.//table[@class="table table-striped table-bordered"]//tr')
+  proxies = []
+  for row in proxy_table:
+    ip = row.xpath(".//td[1]/text()").get()
+    port = row.xpath(".//td[2]/text()").get()
+    if ip is None or port is None:
+      continue
 
-  if proxies is None:
-    return []
+    https = row.xpath(".//td[7]/text()").get()
+    prefix = "https://" if https == "yes" else "http://"
+    proxies.append(f"{prefix}{ip}:{port}")
 
-  proxies = proxies.replace("\n", "")
-  proxy_list = proxies.split("\n")[3:]
-  return list(filter(None, proxy_list))
+  return list(filter(None, proxies))
 
 
 def proxylist_geonode(limit: int = 500) -> list[str]:
@@ -139,16 +145,18 @@ async def check_proxies(proxies: list[str]) -> list[bool]:
   url = "https://httpbin.org/ip"  # 'https://ipinfo.io/json'
 
   async def fetch(proxy: str) -> bool:
-    proxies = {"http://": f"http://{proxy}", "https://": f"https://{proxy}"}
-    client = httpx.AsyncClient(proxies=proxies)
+    proxy_mounts = {
+      "http://": httpx.HTTPTransport(proxy=f"{proxy}"),
+      "https://": httpx.HTTPTransport(proxy=f"{proxy}"),
+    }
 
-    try:
-      rs = await client.get(url, headers=HEADERS)
-      return rs.status_code == 200
-    except Exception:
-      return False
-    finally:
-      await client.aclose()
+    async with httpx.AsyncClient(mounts=proxy_mounts) as client:
+      try:
+        response = await client.get(url, headers=HEADERS)
+        response.raise_for_status()
+        return response.status_code == 200
+      except Exception:
+        return False
 
   tasks = [asyncio.create_task(fetch(p)) for p in proxies]
   result = await asyncio.gather(*tasks)
@@ -157,13 +165,25 @@ async def check_proxies(proxies: list[str]) -> list[bool]:
   return result
 
 
+async def fetch_json(url: str, params: dict[str, str] | None = None, **kwargs) -> dict:
+  if kwargs.get("impersonate") is None:
+    kwargs["impersonate"] = Impersonate.Chrome137
+
+  client = Client(**kwargs)
+
+  if params is not None:
+    url += f"?{'&'.join([f'{key}={value}' for key, value in params.items()])}"
+
+  response = await client.get(url)
+  return await response.json()
+
+
 def download_file(url: str, file_path: str | Path):
   with open(file_path, "wb") as file:
     with httpx.stream("GET", url=url, headers=HEADERS) as response:
       total = int(response.headers.get("content-length", 0))
       if response.status_code != 200:
-        print(response.headers)
-        raise Exception("Download failed!")
+        raise Exception(f"Download failed! Response headers: {response.headers}")
 
       with tqdm(total=total, unit_scale=True, unit_divisor=1024, unit="B") as progress:
         bytes_downloaded = response.num_bytes_downloaded

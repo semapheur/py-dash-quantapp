@@ -1,11 +1,10 @@
-from typing import Optional
 from typing_extensions import TypedDict
 
 from pydantic import BaseModel
 from pandera import DataFrameModel, Field
 
 
-class Recent(BaseModel):
+class Recent(TypedDict):
   accessionNumber: list[str]
   filingDate: list[str]
   reportDate: list[str]
@@ -22,37 +21,37 @@ class Recent(BaseModel):
   primaryDocDescription: list[str]
 
 
-class File(BaseModel):
+class File(TypedDict):
   name: str
   filingCount: int
   filingFrom: str
   filingTo: str
 
 
-class Filings(BaseModel):
+class Filings(TypedDict):
   recent: Recent
   files: list[File]
 
 
-class Mailing(BaseModel):
+class Mailing(TypedDict):
   street1: str
-  street2: Optional[str] = None
+  street2: str | None = None
   city: str
   stateOrCountry: str
   zipCode: str
   stateOrCountryDescription: str
 
 
-class Business(BaseModel):
+class Business(TypedDict):
   street1: str
-  street2: Optional[str] = None
+  street2: str | None = None
   city: str
   stateOrCountry: str
   zipCode: str
   stateOrCountryDescription: str
 
 
-class Addresses(BaseModel):
+class Addresses(TypedDict):
   mailing: Mailing
   business: Business
 

@@ -30,6 +30,7 @@ from lib.utils.string import replace_all
 from lib.utils.time import exclusive_end_date
 from lib.utils.validate import validate_currency
 from lib.xbrl.utils import XMLNS
+from lib.scrap import fetch_json
 
 
 class FilingInfo(TypedDict):
@@ -318,10 +319,7 @@ async def parse_json_filing(filing_slug: str, date: str) -> FinStatement:
     return Duration(start_date=start_date, end_date=end_date)
 
   url = f"https://filings.xbrl.org{filing_slug}"
-
-  async with httpx.AsyncClient() as client:
-    response = await client.get(url, headers=HEADERS)
-    parse = response.json()
+  parse = await fetch_json(url)
 
   data: FinData = {}
   periods: set[Duration | Instant] = set()

@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import closing
 from datetime import date as Date
 from dateutil.relativedelta import relativedelta
@@ -10,6 +11,7 @@ from typing import cast, Optional
 from asyncstdlib.functools import cache
 import pandas as pd
 from pandera.typing import DataFrame, Series, Index
+import polars as pl
 
 from lib.db.lite import read_sqlite, sqlite_path
 from lib.fin.models import (
@@ -20,6 +22,7 @@ from lib.fin.models import (
   StockSplit,
   FiscalPeriod,
   FinData,
+  get_date,
 )
 from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import load_taxonomy_items
@@ -97,27 +100,121 @@ async def fetch_exchange_rate(
   return rate.resample("D").ffill().at[pd.to_datetime(extract_date), "close"]
 
 
+async def exchange_rate(currency: str, unit: str, period: Instant | Duration) -> float:
+  ticker = f"{unit}{currency}".upper()
+
+  extract_date = period.instant if isinstance(period, Instant) else None
+  start_date = (
+    extract_date - relativedelta(days=7) if extract_date else period.start_date
+  )
+  end_date = extract_date + relativedelta(days=7) if extract_date else period.end_date
+
+  return await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
+
+
+async def statement_to_lazy(
+  financials: FinStatement,
+  currency: str | None = None,
+  multiple=False,
+) -> pl.LazyFrame:
+  def _put(row: dict, key: str, value: float | None, unit: str):
+    if value is None:
+      return
+
+    if currency is not None and unit in currencies_other:
+      row[key] = None
+      rate_slots.append((row, key))
+      rate_tasks.append(asyncio.create_task(exchange_rate(currency, unit, period)))
+    else:
+      row[key] = value
+
+  if isinstance(currency, str):
+    currency = currency.lower()
+
+  fin_date = financials.date
+  fiscal_end_month = int(financials.fiscal_end.split("-")[0])
+  fin_scope = "annual" if financials.fiscal_period == "FY" else "quarterly"
+  currencies_other = financials.currencies.difference({currency})
+
+  rows: list[dict] = []
+  rate_tasks: list[asyncio.Task] = []
+  rate_slots: list[tuple[dict, str]] = []
+
+  scope_months = ScopeEnum[fin_scope].value
+
+  for item, records in financials.data.items():
+    for period, record in records.items():
+      date = get_date(period)
+      months_delta = relativedelta(fin_date, date).months
+
+      if (
+        (date > fin_date)
+        or (months_delta % scope_months != 0)
+        or ((not multiple) and date != fin_date)
+      ):
+        continue
+
+      months_len = period.months if isinstance(period, Duration) else scope_months
+      if months_len > 12:
+        continue
+
+      qtr = fiscal_quarter_monthly(date.month, fiscal_end_month)
+      fin_period = cast(FiscalPeriod, f"Q{qtr}" if months_len < 12 else "FY")
+      if fin_period == "FY" and months_len < 12:
+        fin_period = "Q4"
+
+      base_row = {
+        "date": date,
+        "period": fin_period,
+        "months": months_len,
+        "fiscal_end_month": fiscal_end_month,
+      }
+      row = base_row.copy()
+      _put(row, item, record.value, record.unit)
+      rows.append(row)
+
+      if fin_period == "FY" and (
+        isinstance(period, Instant) or record.unit == "shares"
+      ):
+        row_q4 = base_row.copy()
+        row_q4["period"] = "Q4"
+        _put(row_q4, item, record.value, record.unit)
+        rows.append(row_q4)
+
+      if record.members:
+        for member, m in record.members.items():
+          key = f"{item}{('.' + m.dim) if m.dim else ''}.{member}"
+          _put(row, key, m.value, m.unit)
+          if fin_period == "FY" and (isinstance(period, Instant) or m.unit == "shares"):
+            row_q4m = base_row.copy()
+            row_q4m["period"] = "Q4"
+            _put(row_q4m, key, m.value, m.unit)
+            rows.append(row_q4m)
+
+  if rate_tasks:
+    rates = await asyncio.gather(*rate_tasks)
+    for (row, key), rate in zip(rate_slots, rates):
+      row[key] = (row.get(key, 1.0) or 1.0) * rate
+
+  lf = pl.LazyFrame(rows)
+
+  lf = lf.with_columns(
+    pl.col("date").cast(pl.Date),
+    pl.col("period").cast(pl.Utf8),
+    pl.col("months").cast(pl.Int8),
+    pl.col("fiscal_end_month").cast(pl.Int8),
+  )
+
+  lf = lf.unique(subset=["date", "period", "months", "fiscal_end_month"])
+
+  return lf.collect()
+
+
 async def statement_to_df(
   financials: FinStatement,
-  currency: Optional[str] = None,
+  currency: str | None = None,
   multiple=False,
 ) -> DataFrame:
-  def get_date(period: Instant | Duration) -> Date:
-    return period.end_date if isinstance(period, Duration) else period.instant
-
-  async def exchange_rate(
-    currency: str, unit: str, period: Instant | Duration
-  ) -> float:
-    ticker = f"{unit}{currency}".upper()
-
-    extract_date = period.instant if isinstance(period, Instant) else None
-    start_date = (
-      extract_date - relativedelta(days=7) if extract_date else period.start_date
-    )
-    end_date = extract_date + relativedelta(days=7) if extract_date else period.end_date
-
-    return await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
-
   if isinstance(currency, str):
     currency = currency.lower()
 
@@ -434,7 +531,7 @@ def load_raw_statement(id: str, date: int, period: FiscalPeriod) -> FinStatement
     if table_exists is None:
       return None
 
-    cur.row_factory = sqlite3.Row
+    cur.row_factory = lambda cursor, row: sqlite3.Row(cursor, tuple(row))
     statement = cur.execute(query, (date, period)).fetchone()
 
     if statement is None:

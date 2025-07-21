@@ -1,10 +1,12 @@
 import asyncio
 import re
-from typing import Literal, Optional
+from typing import Literal
 
+import aiometer
 import httpx
 import numpy as np
 import pandas as pd
+import polars as pl
 import pycountry
 from pydantic import BaseModel, Field
 
@@ -30,14 +32,19 @@ class ApiParams(BaseModel):
   subUniverseId: str = ""
 
 
-async def fetch_api(params: ApiParams, timeout: Optional[float | int] = None) -> dict:
+async def fetch_api(
+  params: ApiParams, timeout: float | int | httpx.Timeout | None = None
+) -> dict:
   url = "https://tools.morningstar.co.uk/api/rest.svc/dr6pz9spfi/security/screener"
-  client_timeout = httpx.Timeout(timeout) if timeout else None
+  client_timeout = (
+    httpx.Timeout(timeout) if isinstance(timeout, (float, int)) else timeout
+  )
 
   async with httpx.AsyncClient(timeout=client_timeout) as client:
     response = await client.get(
       url, headers=HEADERS, params=params.model_dump(exclude_none=True)
     )
+    response.raise_for_status()
     return response.json()
 
 
@@ -55,7 +62,7 @@ async def fetch_currency(id: str) -> str:
 
 async def get_tickers(
   security: Literal["stock", "etf", "index", "fund", "fund_category", "ose"],
-) -> pd.DataFrame:
+) -> pl.LazyFrame:
   rename = {
     "IsPrimary": "primary",
     "SecId": "security_id",
@@ -79,7 +86,7 @@ async def get_tickers(
       "IndustryName",
       "ClosePrice",
     ),
-    "eft": (
+    "etf": (
       "isin",
       "SecId",
       "Ticker",
@@ -132,15 +139,17 @@ async def get_tickers(
 
     return data["rows"]
 
-  async def fetch_data(params: ApiParams, pages: int) -> list[dict]:
-    tasks = []
-    for p in range(2, pages + 1):
-      params.page = p
-      tasks.append(asyncio.create_task(fetch_api(params, 60)))
+  async def fetch_data(params: ApiParams, pages: int) -> list[dict | BaseException]:
+    timeout = httpx.Timeout(connect=60.0, read=120.0, write=60.0, pool=60.0)
+
+    tasks = [
+      asyncio.create_task(fetch_api(params.model_copy(update={"page": p}), timeout))
+      for p in range(2, pages + 1)
+    ]
     data = await asyncio.gather(*tasks, return_exceptions=True)
     return data
 
-  async def fallback(
+  async def fallback_price_walk(
     params: ApiParams, bound: int, price: float
   ) -> list[dict[str, str | float]]:
     params.page = 1
@@ -156,15 +165,14 @@ async def get_tickers(
     return scrap
 
   page_size = 50000
-  params = ApiParams()
   sort_order = "ClosePrice desc" if "ClosePrice" in fields[security] else "Name asc"
-  params.pageSize = page_size
-  params.sortOrder = sort_order
-  params.securityDataPoints = "|".join(fields[security])
-  params.universeIds = universe[security]
-
-  if security == "fund_category":
-    params.filterDataPoints = "CategoryId"
+  params = ApiParams(
+    pageSize=page_size,
+    sortOrder=sort_order,
+    securityDataPoints="|".join(fields[security]),
+    universeIds=universe[security],
+    filterDataPoints="CategoryId" if security == "fund_category" else "",
+  )
 
   init = await fetch_api(params, 60)
   total: int = init["total"]
@@ -178,39 +186,39 @@ async def get_tickers(
     for d in data:
       if isinstance(d, Exception):
         error = True
-        continue
+        break
 
       scrap.extend(parse_data(d, security))
 
     if error:
       price = float(scrap[-1].get("ClosePrice", 0.0))
       if price > 0.0:
-        temp = await fallback(params, total - len(scrap), price)
+        print("Using fallback")
+        temp = await fallback_price_walk(params, total - len(scrap), price)
         scrap.extend(temp)
 
-  df = pd.DataFrame.from_records(scrap)
-  df.drop_duplicates(inplace=True)
+  lf = pl.LazyFrame(scrap)
 
-  if "ClosePrice" in df.columns:
-    df = df[df["ClosePrice"] > 0.0]
-    df.drop("ClosePrice", axis=1, inplace=True)
+  if "ClosePrice" in lf.collect_schema().names():
+    lf = lf.filter(pl.col("ClosePrice") > 0.0).drop("ClosePrice")
 
-  df.rename(columns=rename, inplace=True)
-  df.rename(
-    columns={
-      c: c.replace("Name", "")
-      for c in df.columns
-      if c.endswith("Name") and c not in {"Name", "LegalName"}
+  lf = lf.rename(rename)
+
+  name_exclude = {"Name", "LegalName"}
+  lf = lf.rename(
+    {
+      c: c.removesuffix("Name")
+      for c in lf.collect_schema().names()
+      if c.endswith("Name") and c not in name_exclude
     },
-    inplace=True,
   )
-  df.columns = pd.Index([camel_to_snake(col) for col in df.columns])
+  lf = lf.rename({c: camel_to_snake(c) for c in lf.collect_schema().names()})
 
   if security == "stock":
     pattern = r"^EX(\$+|TP\$+)"
-    df["mic"] = df["mic"].str.replace(pattern, "", regex=True).replace("LTS", "XLON")
+    lf = lf.with_columns(pl.col("mic").str.replace(pattern, "").replace("LTS", "XLON"))
 
-  return df
+  return lf.unique()
 
 
 async def fund_data():
