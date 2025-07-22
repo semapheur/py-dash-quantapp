@@ -172,10 +172,9 @@ async def statement_to_lf(
   fin_scope = "annual" if financials.fiscal_period == "FY" else "quarterly"
   currencies_other = financials.currencies.difference({currency})
 
-  rows: list[dict] = []
+  lf_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, float | None]] = {}
   rate_tasks: list[asyncio.Task] = []
   rate_slots: list[tuple[dict, str]] = []
-
   scope_months = ScopeEnum[fin_scope].value
 
   for item, records in financials.data.items():
@@ -191,7 +190,7 @@ async def statement_to_lf(
         continue
 
       months_len = period.months if isinstance(period, Duration) else scope_months
-      if months_len > 12:
+      if months_len == 0 or months_len > 12:
         continue
 
       qtr = fiscal_quarter_monthly(date.month, fiscal_end_month)
@@ -199,51 +198,51 @@ async def statement_to_lf(
       if fin_period == "FY" and months_len < 12:
         fin_period = "Q4"
 
-      base_row = {
-        "date": date,
-        "period": fin_period,
-        "months": months_len,
-        "fiscal_end_month": fiscal_end_month,
-      }
-      row = base_row.copy()
-      _put(row, item, record.value, record.unit)
-      rows.append(row)
+      index = (date, fin_period, months_len, fiscal_end_month)
+      if index not in lf_data:
+        lf_data[index] = {}
+
+      _put(lf_data[index], item, record.value, record.unit)
 
       if fin_period == "FY" and (
         isinstance(period, Instant) or record.unit == "shares"
       ):
-        row_q4 = base_row.copy()
-        row_q4["period"] = "Q4"
-        _put(row_q4, item, record.value, record.unit)
-        rows.append(row_q4)
+        q4_index = (date, "Q4", 3, fiscal_end_month)
+        if q4_index not in lf_data:
+          lf_data[q4_index] = {}
+
+        _put(lf_data[q4_index], item, record.value, record.unit)
 
       if record.members:
         for member, m in record.members.items():
           key = f"{item}{('.' + m.dim) if m.dim else ''}.{member}"
-          _put(row, key, m.value, m.unit)
+          _put(lf_data[index], key, m.value, m.unit)
+
           if fin_period == "FY" and (isinstance(period, Instant) or m.unit == "shares"):
-            row_q4m = base_row.copy()
-            row_q4m["period"] = "Q4"
-            _put(row_q4m, key, m.value, m.unit)
-            rows.append(row_q4m)
+            q4_index = (date, "Q4", 3, fiscal_end_month)
+            if q4_index not in lf_data:
+              lf_data[q4_index] = {}
+
+            _put(lf_data[q4_index], key, m.value, m.unit)
 
   if rate_tasks:
     rates = await asyncio.gather(*rate_tasks)
     for (row, key), rate in zip(rate_slots, rates):
       row[key] = (row.get(key, 1.0) or 1.0) * rate
 
-  lf = pl.LazyFrame(rows)
+  rows = []
+  for (date, period, months, fiscal_end_month), data in lf_data.items():
+    rows.append(
+      {
+        "date": date,
+        "period": period,
+        "months": months,
+        "fiscal_end_month": fiscal_end_month,
+        **data,
+      }
+    )
 
-  lf = lf.with_columns(
-    pl.col("date").cast(pl.Date),
-    pl.col("period").cast(pl.Utf8),
-    pl.col("months").cast(pl.Int8),
-    pl.col("fiscal_end_month").cast(pl.Int8),
-  )
-
-  lf = lf.unique(subset=["date", "period", "months", "fiscal_end_month"])
-
-  return lf
+  return pl.LazyFrame(rows)
 
 
 async def statement_to_df(
@@ -254,11 +253,13 @@ async def statement_to_df(
   if isinstance(currency, str):
     currency = currency.lower()
 
-  fin_date = pd.to_datetime(financials.date)
+  fin_date = pd.to_datetime(financials.date + relativedelta(days=1))
   fiscal_end_month = int(financials.fiscal_end.split("-")[0])
   fin_period = financials.fiscal_period
   fin_scope = "annual" if fin_period == "FY" else "quarterly"
   currencies = financials.currencies.difference({currency})
+
+  scope_months = ScopeEnum[fin_scope].value
 
   df_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, int | float]] = {}
 
@@ -270,17 +271,13 @@ async def statement_to_df(
 
       if (
         (date > fin_date)
-        or (months % ScopeEnum[fin_scope].value != 0)
+        or (months % scope_months != 0)
         or ((not multiple) and date != fin_date)
       ):
         continue
 
-      if isinstance(period, Duration):
-        months = period.months
-      else:
-        months = ScopeEnum[fin_scope].value
-
-      if months > 12:
+      months_len = period.months if isinstance(period, Duration) else scope_months
+      if months_len == 0 or months_len > 12:
         continue
 
       quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
