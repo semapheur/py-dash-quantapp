@@ -20,6 +20,10 @@ def handle_date(date: dt | Date) -> dt:
   return date
 
 
+def date_to_int(date: dt | Date) -> int:
+  return int(dt.strftime(date, "%Y%m%d"))
+
+
 def month_difference(date1: dt | Date, date2: dt | Date) -> int:
   start_date, end_date = sorted([date1, date2])
   delta = relativedelta(end_date, start_date)
