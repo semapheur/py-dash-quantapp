@@ -1,6 +1,7 @@
 # Todo
+- Fix FinData members without dimension
+- Check why FinStatement cannot parse values missing units
 
-- Implement sqlc
 
 # Tips
 Clone this repository with 

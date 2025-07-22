@@ -1,10 +1,12 @@
 from datetime import datetime as dt
-from typing import cast
+from typing import cast, Literal
 
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame, Series
 import polars as pl
+
+type Frequency = Literal["D", "H", "M", "S"]
 
 
 # Rename DataFrame columns
@@ -92,11 +94,37 @@ def slice_pandas_by_date(
 
 
 def df_time_difference(
+  dates_column: str, periods: int = 30, freq: Frequency = "D"
+) -> pl.Expr:
+  if freq == "D":
+    period_duration = pl.duration(days=periods)
+  elif freq == "H":
+    period_duration = pl.duration(hours=periods)
+  elif freq == "M":
+    period_duration = pl.duration(minutes=periods)
+  elif freq == "S":
+    period_duration = pl.duration(seconds=periods)
+  else:
+    raise ValueError(f"Unsupported frequency: {freq}")
+
+  return (
+    pl.col(dates_column)
+    .diff(period_duration)
+    .dt.total_nanoseconds()
+    .truediv(period_duration.dt.total_nanoseconds())
+    .round(0)
+  )
+
+
+def df_time_difference_pandas(
   dates: pd.DatetimeIndex, periods: int = 30, freq: str = "D"
 ) -> np.ndarray:
-  return np.round(
-    np.diff(dates.to_numpy(), prepend=[np.datetime64("nat", "D")])
-    / np.timedelta64(periods, freq)
+  return cast(
+    np.ndarray,
+    np.round(
+      np.diff(dates.to_numpy(), prepend=[np.datetime64("nat", "D")])
+      / np.timedelta64(periods, freq)
+    ),
   )
 
 
@@ -105,3 +133,16 @@ def df_business_days(dates: pd.DatetimeIndex, fill: float = np.nan) -> Series[in
 
   values = np.concatenate((np.array([fill]), np.busday_count(dates_[:-1], dates_[1:])))
   return pd.Series(values)
+
+
+def fiscal_quarter_monthly_polars(
+  date_col: pl.Expr, fiscal_end_month: int | None = None
+) -> pl.Expr:
+  month = date_col.dt.month()
+
+  if fiscal_end_month is not None:
+    adjusted_month = 12 - ((fiscal_end_month - month) % 12)
+  else:
+    adjusted_month = month
+
+  return ((adjusted_month - 1) // 3) + 1

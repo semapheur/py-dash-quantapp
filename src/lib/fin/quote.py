@@ -8,6 +8,7 @@ from pandera.typing import DataFrame
 import polars as pl
 
 from lib.db.lite import (
+  fetch_sqlite,
   read_sqlite,
   upsert_sqlite,
   polars_from_sqlite,
@@ -48,9 +49,9 @@ async def load_ohlcv(
   start_date: dt | Date | None = None,
   end_date: dt | Date | None = None,
   cols: list[QuoteColumn] | None = None,
-) -> DataFrame[Quote] | None:
+) -> DataFrame[Quote]:
   cols_ = cols or ["open", "high", "low", "close", "volume"]
-  col_text = "date" + ", ".join(cols_)
+  col_text = "date, " + ", ".join(cols_)
 
   query = f"SELECT {col_text} FROM '{table}'"
 
@@ -78,36 +79,52 @@ async def load_ohlcv(
 
     upsert_ohlcv(table, security, ohlcv.clone())
     if cols is not None:
-      ohlcv = ohlcv.select(cols)
+      ohlcv = ohlcv.select(["date"] + cols)
 
     return cast(
       DataFrame[Quote], slice_polars_by_date(ohlcv, "date", start_date, end_date)
     )
 
-  last_date = ohlcv["date"].max().item()
+  last_date = ohlcv["date"].max()
+  update = False
+  if end_date is not None and last_date < end_date:
+    query = f"""SELECT EXISTS (
+      SELECT 1
+      FROM '{table}'
+      WHERE date > :last_date
+    )"""
+    update = fetch_sqlite(f"{security}_quote.db", query, {"last_date": last_date})[0][0]
+    print(f"update: {update}")
+
   today = dt.now()
   if delta == 1 and today.weekday() >= 5:
     delta = 2
 
-  if relativedelta(today, last_date).days <= delta:
+  if end_date is None and relativedelta(today, last_date).days <= delta:
+    update = True
+
+  if not update:
     return cast(
       DataFrame[Quote], slice_polars_by_date(ohlcv, "date", start_date, end_date)
     )
 
   try:
-    new_ohlcv = await ohlcv_fetcher(last_date)
+    new_ohlcv = await ohlcv_fetcher(start_date=last_date)
   except Exception as e:
     raise Exception(f"Failed to fetch OHLCV: {e}")
 
-  if new_ohlcv is None or new_ohlcv.empty:
+  if new_ohlcv is None or new_ohlcv.is_empty():
     return slice_polars_by_date(ohlcv, "date", start_date, end_date)
 
-  upsert_ohlcv(table, security, new_ohlcv.copy())
+  print(f"last date: {last_date}")
+  print(f"end date: {end_date}")
+  print(new_ohlcv.shape)
+  upsert_ohlcv(table, security, new_ohlcv.clone())
 
   ohlcv = pl.concat([ohlcv, new_ohlcv]).unique().sort("date")
 
   if cols is not None:
-    ohlcv = ohlcv[cols]
+    ohlcv = ohlcv[["date"] + cols]
 
   return cast(
     DataFrame[Quote], slice_polars_by_date(ohlcv, "date", start_date, end_date)
@@ -122,7 +139,7 @@ async def load_ohlcv_pandas(
   start_date: dt | Date | None = None,
   end_date: dt | Date | None = None,
   cols: list[QuoteColumn] | None = None,
-) -> DataFrame[Quote] | None:
+) -> DataFrame[Quote]:
   cols_ = cols or ["open", "high", "low", "close", "volume"]
   col_text = "CAST(date AS TEXT) AS date, " + ", ".join(cols_)
 
@@ -149,8 +166,7 @@ async def load_ohlcv_pandas(
     try:
       ohlcv = await ohlcv_fetcher()
     except Exception as e:
-      print(f"Failed to fetch OHLCV: {e}")
-      return None
+      raise Exception(f"Failed to fetch OHLCV: {e}")
 
     upsert_ohlcv_pandas(table, security, ohlcv.copy())
     if cols is not None:
@@ -175,8 +191,7 @@ async def load_ohlcv_pandas(
   try:
     new_ohlcv = await ohlcv_fetcher(last_date)
   except Exception as e:
-    print(f"Failed to fetch OHLCV: {e}")
-    return slice_pandas_by_date(ohlcv, start_date, end_date)
+    raise Exception(f"Failed to fetch OHLCV: {e}")
 
   if new_ohlcv is None or new_ohlcv.empty:
     return slice_pandas_by_date(ohlcv, start_date, end_date)

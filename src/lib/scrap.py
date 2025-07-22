@@ -2,7 +2,7 @@ import asyncio
 from io import BytesIO
 from pathlib import Path
 import random
-from typing import cast, Literal
+from typing import Literal
 
 import httpx
 import numpy as np

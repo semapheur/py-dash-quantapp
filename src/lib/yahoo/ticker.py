@@ -58,11 +58,11 @@ class Ticker:
 
       return data["chart"]["result"][0]
 
-    if (start_date is not None) and (period is None):
+    if start_date is not None:
       start_date = handle_date(start_date)
       start_stamp = int(cast(dt, start_date).replace(tzinfo=tz.utc).timestamp())
 
-    elif period == "max":
+    elif start_date is None and period == "max":
       start_stamp = int(dt.today().timestamp())
       start_stamp -= 3600 * 24
 
@@ -78,7 +78,7 @@ class Ticker:
 
     parse = await parse_json(start_stamp, end_stamp, interval)
 
-    if period == "max":
+    if start_date is None and period == "max":
       start_stamp = parse["meta"]["firstTradeDate"]
       parse = await parse_json(start_stamp, end_stamp, interval)
 

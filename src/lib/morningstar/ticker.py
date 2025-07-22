@@ -192,7 +192,7 @@ class Stock(Security):
 
 
 class Fund(Security):
-  def price(
+  async def price(
     self, start_date: Date | dt = Date(1970, 1, 1), end_date: Date | dt | None = None
   ) -> DataFrame[Quote]:
     params = {
@@ -207,12 +207,7 @@ class Fund(Security):
       "priceType": "",
     }
     url = "https://tools.morningstar.no/api/rest.svc/timeseries_price/dr6pz9spfi"
-
-    with httpx.Client() as client:
-      response = client.get(url, headers=HEADERS, params=params)
-      if response.status_code != 200:
-        raise httpx.RequestError("Could not parse json!")
-      parse: list[list[float | int]] = response.json()
+    parse: list[list[float | int]] = await fetch_json(url, params)
 
     scrap: list[Close] = []
     for d in parse:
@@ -335,7 +330,7 @@ class Fund(Security):
 
 
 class Etf(Security):
-  def price(
+  async def price(
     self, start_date: Date | dt = Date(1970, 1, 1), end_date: Date | dt | None = None
   ) -> DataFrame[Quote]:
     params = {
@@ -350,12 +345,7 @@ class Etf(Security):
       "performanceType": "",
     }
     url = "https://tools.morningstar.no/api/rest.svc/timeseries_price/dr6pz9spfi"
-
-    with httpx.Client() as client:
-      rs = client.get(url, headers=HEADERS, params=params)
-      if rs.status_code != 200:
-        raise httpx.RequestError("Could not parse json!")
-      parse: list[list[float | int]] = rs.json()
+    parse: list[list[float | int]] = await fetch_json(url, params)
 
     scrap: list[Close] = []
     for d in parse:

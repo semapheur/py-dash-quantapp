@@ -26,7 +26,11 @@ from lib.fin.models import (
 )
 from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import load_taxonomy_items
-from lib.utils.dataframe import combine_duplicate_columns, df_time_difference
+from lib.utils.dataframe import (
+  combine_duplicate_columns,
+  df_time_difference,
+  fiscal_quarter_monthly_polars,
+)
 from lib.utils.time import fiscal_quarter_monthly
 from lib.yahoo.ticker import Ticker
 
@@ -66,13 +70,14 @@ statements_values_text = ",".join(f":{k}" for k in statements_columns.keys())
 def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
   return [
     FinStatement(
-      url=row["url"],
+      sources=row["sources"],
       date=row["date"],
       fiscal_period=row["fiscal_period"],
       fiscal_end=row["fiscal_end"],
-      currency=row["currency"],
+      currencies=row["currencies"],
       periods=row["periods"],
       units=row["units"],
+      dimensions=row["dimensions"],
       synonyms=row["synonyms"],
       data=row["data"],
     )
@@ -82,16 +87,47 @@ def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
 
 @cache
 async def fetch_exchange_rate(
-  ticker: str, start_date: Date, end_date: Date, extract_date: Optional[Date] = None
+  ticker: str, start_date: Date, end_date: Date, extract_date: Date | None = None
 ) -> float:
   from numpy import nan
 
-  exchange_fetcher = partial(Ticker(ticker + "=X").ohlcv, start_date, end_date)
+  exchange_fetcher = partial(Ticker(ticker + "=X").ohlcv, period="max")
   rate = await load_ohlcv(
     ticker, "forex", exchange_fetcher, None, start_date, end_date, ["close"]
   )
 
-  if rate.empty:
+  if rate.is_empty():
+    return nan
+
+  if extract_date is None:
+    return rate["close"].mean()
+
+  rate_daily = (
+    rate.group_by_dynamic("date", every="1d", period="1d")
+    .agg([pl.col("close").last()])
+    .sort("date")
+    .with_columns(pl.col("close").fill_null(strategy="forward"))
+  )
+
+  filtered = rate_daily.filter(pl.col("date") == pl.lit(extract_date).cast(pl.Date))
+  if filtered.is_empty():
+    return nan
+
+  return filtered["close"].item()
+
+
+@cache
+async def fetch_exchange_rate_pandas(
+  ticker: str, start_date: Date, end_date: Date, extract_date: Date | None = None
+) -> float:
+  from numpy import nan
+
+  exchange_fetcher = partial(Ticker(ticker + "=X").ohlcv, period="max")
+  rate = await load_ohlcv(
+    ticker, "forex", exchange_fetcher, None, start_date, end_date, ["close"]
+  )
+
+  if rate.empty():
     return nan
 
   if extract_date is None:
@@ -112,7 +148,7 @@ async def exchange_rate(currency: str, unit: str, period: Instant | Duration) ->
   return await fetch_exchange_rate(ticker, start_date, end_date, extract_date)
 
 
-async def statement_to_lazy(
+async def statement_to_lf(
   financials: FinStatement,
   currency: str | None = None,
   multiple=False,
@@ -131,7 +167,7 @@ async def statement_to_lazy(
   if isinstance(currency, str):
     currency = currency.lower()
 
-  fin_date = financials.date
+  fin_date = financials.date + relativedelta(days=1)
   fiscal_end_month = int(financials.fiscal_end.split("-")[0])
   fin_scope = "annual" if financials.fiscal_period == "FY" else "quarterly"
   currencies_other = financials.currencies.difference({currency})
@@ -207,7 +243,7 @@ async def statement_to_lazy(
 
   lf = lf.unique(subset=["date", "period", "months", "fiscal_end_month"])
 
-  return lf.collect()
+  return lf
 
 
 async def statement_to_df(
@@ -314,7 +350,192 @@ async def load_statements(id: str, currency: Optional[str] = None) -> DataFrame 
   return df
 
 
-def fix_statements(statements: DataFrame) -> DataFrame:
+def load_sum_items() -> set[str]:
+  query = "SELECT item FROM items WHERE aggregate = 'sum'"
+  sum_items = read_sqlite("taxonomy.db", query)
+  if sum_items is None:
+    raise ValueError("Taxonomy could not be loaded!")
+  return set(sum_items["item"].tolist())
+
+
+def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
+  def check_combos(lf: pl.LazyFrame, conditions: set[tuple[str, int]]) -> bool:
+    unique_combos = (
+      lf.select(
+        [
+          pl.col("period"),
+          pl.col("months"),
+        ]
+      )
+      .unique()
+      .collect()
+      .rows()
+    )
+    return conditions.issubset(set(unique_combos))
+
+  def quarterize(lf: pl.LazyFrame) -> pl.LazyFrame:
+    conditions = (("Q1", 3), ("Q2", 6), ("Q3", 9), ("FY", 12))
+
+    result_lf = lf
+    lf_columns = set(lf.collect_schema().names())
+    for i in range(1, len(conditions)):
+      mask_lf = lf.filter(
+        (pl.col("period").is_in([conditions[i - 1][0], conditions[i][0]]))
+        & (pl.col("months").is_in([conditions[i - 1][1], conditions[i][1]]))
+      )
+      if not check_combos(mask_lf, {conditions[i - 1], conditions[i]}):
+        continue
+
+      lf_sorted = mask_lf.sort("date")
+      lf_with_diff = lf_sorted.with_columns(
+        df_time_difference("date", 30, "D").alias("month_difference")
+      )
+      lf_filtered = lf_with_diff.filter(
+        (pl.col("month_difference") == 3)
+        & (pl.col("period") == conditions[i][0])
+        & (pl.col("months") == conditions[i][1])
+      )
+      diff_cols = lf_columns.intersection(diff_items)
+      diff_exprs = [pl.col(col).diff().alias(col) for col in diff_cols]
+      nondiff_cols = lf_columns.difference(diff_items)
+      non_diff_exprs = [pl.col(col) for col in nondiff_cols]
+
+      lf_diffed = lf_filtered.select(diff_exprs + non_diff_exprs)
+      lf_processed = lf_diffed.with_columns(pl.lit(3).alias("months"))
+
+      if conditions[i][0] == "FY":
+        lf_processed = lf_processed.with_columns(pl.lit("Q4").alias("period"))
+
+      result_lf = result_lf.join(
+        lf_processed, on=["date", "period", "months"], how="outer", coalesce=True
+      )
+
+    meta_cols = {"date", "period", "months", "fiscal_end_month"}
+    data_cols = set(result_lf.collect_schema().names()).difference(meta_cols)
+    if data_cols:
+      result_lf = result_lf.filter(
+        pl.any_horizontal([pl.col(col).is_not_null() for col in data_cols])
+      )
+
+    return result_lf
+
+  quarter_set = {"Q1", "Q2", "Q3", "Q4"}
+  items = load_taxonomy_items()
+
+  statements = statements.with_columns(
+    [pl.col(c).alias(c.lower()) for c in statements.collect_schema().names()]
+  )
+
+  available_gaap_cols = set(statements.collect_schema().names()).intersection(items)
+  statements = statements.select(available_gaap_cols)
+
+  rename_mapping = dict(zip(items["items"], items["gaap"]))
+  rename_exprs = [
+    pl.col(old_name).alias(new_name) if old_name in rename_mapping else pl.col(old_name)
+    for old_name in statements.columns
+    for new_name in [rename_mapping.get(old_name, old_name)]
+  ]
+  statements = statements.with_columns(rename_exprs)
+
+  sum_items = load_sum_items()
+  diff_items = list(sum_items.intersection(set(statements.collect_schema().names())))
+
+  fiscal_ends = (
+    statements.select("fiscal_end_month")
+    .unique()
+    .collect()["fiscal_end_month"]
+    .to_list()
+  )
+
+  result_frames = []
+  for fiscal_end in fiscal_ends:
+    fiscal_mask = pl.col("fiscal_end_month") == fiscal_end
+    fiscal_data = statements.filter(fiscal_mask)
+    quarterized = quarterize(fiscal_data)
+    result_frames.append(quarterized)
+
+  if result_frames:
+    statements = pl.concat(result_frames)
+
+  statements = statements.drop("fiscal_end_month").sort("date")
+
+  valid_mask = ((pl.col("months") == 3) & pl.col("period").is_in(quarter_set)) | (
+    (pl.col("months") == 12) & (pl.col("period") == "FY")
+  )
+  statements = statements.filter(valid_mask)
+
+  meta_cols = {"date", "period", "months"}
+  data_cols = set(set(statements.collect_schema().names())).difference(meta_cols)
+  statements = statements.filter(
+    pl.any_horizontal([pl.col(c).is_not_null() for c in data_cols])
+  )
+  if len(fiscal_ends) == 1:
+    return statements.collect()
+
+  last_fiscal_end = statements.select("date").max().collect()["date"][0]
+
+  fy_mask = (pl.col("date") < last_fiscal_end) & (pl.col("period") == "FY")
+  statements = statements.filter(~fy_mask)
+
+  statements = statements.with_columns(
+    [
+      pl.when(pl.col("date") < last_fiscal_end)
+      .then(
+        pl.format("Q{}", fiscal_quarter_monthly_polars(pl.col("date"), fiscal_ends[-1]))
+      )
+      .otherwise(pl.col("period"))
+      .alias("period")
+    ]
+  )
+
+  q4_mask = (pl.col("date") <= last_fiscal_end) & (pl.col("period") == "Q4")
+  fy_records = statements.filter(q4_mask).with_columns(
+    [pl.lit("FY").alias("period"), pl.lit(12).alias("months")]
+  )
+
+  statements = pl.concat([statements, fy_records])
+  statements = statements.sort(["date", "period"])
+
+  rolling_mask = (pl.col("date") < last_fiscal_end) & (pl.col("period") != "FY")
+  rolling_data = statements.filter(rolling_mask).sort("date")
+
+  rolling_data = rolling_data.with_columns(
+    [
+      *[
+        pl.col(c).rolling_sum(window_size=4, min_samples=4).alias(f"__{c}_fy")
+        for c in diff_items
+      ],
+      pl.col("period").shift(1).alias("__p1"),
+      pl.col("period").shift(2).alias("__p2"),
+      pl.col("period").shift(3).alias("__p3"),
+    ]
+  )
+
+  full_year_condition = (
+    (pl.col("period") == "Q4")
+    & (pl.col("__p1") == "Q3")
+    & (pl.col("__p2") == "Q2")
+    & (pl.col("__p3") == "Q1")
+  )
+
+  rolling_data = rolling_data.with_columns(full_year_condition.alias("__is_full_year"))
+
+  rolling_cols = set(rolling_data.collect_schema().names())
+  non_diff_cols = rolling_cols.difference(meta_cols.union(diff_items))
+  fy_rows = rolling_data.filter(pl.col("__is_full_year")).select(
+    pl.col("date"),
+    pl.lit("FY").alias("period"),
+    pl.lit(12).alias("months"),
+    *[pl.col(c) for c in non_diff_cols if not c.startswith("__")],
+    *[pl.col(f"__{c}_fy").alias(c) for c in diff_items],
+  )
+
+  statements = pl.concat([statements, fy_rows]).sort(["date", "period"])
+
+  return statements.collect()
+
+
+def fix_statements_pandas(statements: DataFrame) -> DataFrame:
   def check_combos(ix: pd.MultiIndex, conditions: set[tuple[str, int]]) -> bool:
     return conditions.issubset(set(ix.droplevel("date")))
 
@@ -352,12 +573,12 @@ def fix_statements(statements: DataFrame) -> DataFrame:
 
     return cast(DataFrame, df.dropna(how="all"))
 
-  def load_sum_items() -> set[str]:
-    query = "SELECT item FROM items WHERE aggregate = 'sum'"
-    sum_items = read_sqlite("taxonomy.db", query)
-    if sum_items is None:
-      raise ValueError("Taxonomy could not be loaded!")
-    return set(sum_items["item"].tolist())
+  def sum_if_complete_year(window):
+    periods = list(window.index.get_level_values("period"))
+    if len(periods) == 4 and set(periods) == quarter_set:
+      return window.sum()
+
+    return None
 
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
   items = load_taxonomy_items()
@@ -432,15 +653,13 @@ def fix_statements(statements: DataFrame) -> DataFrame:
     statements.index.get_level_values("period") != "FY"
   )
 
-  window_size = 4
-  windows = statements.loc[rolling_mask, diff_items].rolling(4)
-  for i in range(len(statements) - window_size + 1):
-    window = windows.get_window(i)
-    if list(window.index.get_level_values("period")) != ["Q1", "Q2", "Q3", "Q4"]:
-      continue
+  quarterly_data = statements.loc[rolling_mask, diff_items].sort_index()
+  rolling_sums = quarterly_data.rolling(window=4).apply(sum_if_complete_year, raw=False)
 
-    ix = (window.index.get_level_values("date").max(), "FY", 12)
-    statements.loc[ix, diff_items] = window.sum()
+  for idx, values in rolling_sums.dropna().iterrows():
+    date = idx[0]
+    fy_idx = (date, "FY", 12)
+    statements.loc[fy_idx, diff_items] = values
 
   return cast(DataFrame, statements)
 

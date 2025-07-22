@@ -156,7 +156,7 @@ def sqlite_dtypes(df: pd.DataFrame) -> dict[str, Any]:
   return result
 
 
-def fetch_sqlite(db_name: str, query: str, params: Optional[dict[str, str]] = None):
+def fetch_sqlite(db_name: str, query: str, params: dict[str, str] | None = None):
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
   insp = inspect(engine)

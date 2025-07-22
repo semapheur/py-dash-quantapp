@@ -500,11 +500,14 @@ class FinStatement(BaseModel):
         except IndexError:
           raise ValueError(f"Invalid period key: {period_key}")
 
+        unit_index = record.get("unit")
         resolved_record = {
           "value": record.get("value"),
           "unit": cls._resolve_index(
-            units, record.get("unit"), f"data['{item}']['{period_key}']['unit']"
-          ),
+            units, unit_index, f"data['{item}']['{period_key}']['unit']"
+          )
+          if isinstance(unit_index, int)
+          else None,
         }
 
         members = record.get("members")
@@ -537,7 +540,7 @@ class FinStatement(BaseModel):
 
         resolved_records[period] = resolved_record
 
-      resolved_findata[period_key] = resolved_records
+      resolved_findata[item] = resolved_records
 
     data["data"] = resolved_findata
     data["periods"] = set(periods_index["d"] + periods_index["i"])
@@ -596,9 +599,9 @@ class FinStatement(BaseModel):
     dim_lookup = {d: i for i, d in enumerate(dimensions)}
 
     reindexed_data: dict = {}
-    for item, records in self.data.items():
+    for item, records in sorted(self.data.items()):
       reindexed_records: dict = {}
-      for period, record in records.items():
+      for period, record in sorted(records.items()):
         serialized_record: dict = {}
         period_key = period_lookup[period]
 
@@ -621,20 +624,35 @@ class FinStatement(BaseModel):
 
         reindexed_records[period_key] = serialized_record
 
-      reindexed_data[item] = dict(sorted(reindexed_records.items(), key=lambda x: x[0]))
+      reindexed_data[item] = reindexed_records
 
     return {
       "date": serialize_date(self.date),
       "fiscal_period": self.fiscal_period,
       "fiscal_end": self.fiscal_end,
-      "sources": orjson.dumps(self.sources).decode("utf-8"),
-      "currencies": orjson.dumps(sorted(self.currencies)).decode("utf-8"),
-      "periods": orjson.dumps(periods).decode("utf-8"),
-      "units": orjson.dumps(units).decode("utf-8"),
-      "dimensions": orjson.dumps(dimensions).decode("utf-8"),
-      "synonyms": orjson.dumps(serialize_synonyms(self.synonyms)).decode("utf-8"),
-      "data": orjson.dumps(reindexed_data).decode("utf-8"),
+      "sources": self.sources,
+      "currencies": sorted(self.currencies),
+      "periods": periods,
+      "units": units,
+      "dimensions": dimensions,
+      "synonyms": serialize_synonyms(self.synonyms),
+      "data": reindexed_data,
     }
+
+  def dump_json_fields(self) -> dict[str, int | str]:
+    dump = self.model_dump()
+    for k in (
+      "sources",
+      "currencies",
+      "periods",
+      "units",
+      "dimensions",
+      "synonyms",
+      "data",
+    ):
+      dump[k] = orjson.dumps(dump[k]).decode("utf-8")
+
+    return dump
 
   def merge(self, other: "FinStatement"):
     if not isinstance(other, FinStatement):
@@ -810,13 +828,23 @@ class FinStatement(BaseModel):
         record.value = value_check.pop()
         record.unit = unit_check.pop()
 
+  def to_json(self, filepath: str) -> None:
+    if not filepath.endswith(".json"):
+      filepath += ".json"
+
+    dump = self.model_dump()
+    serialized = orjson.dumps(dump)
+
+    with open(filepath, "wb") as file:
+      file.write(serialized)
+
 
 class FinStatementFrame(DataFrameModel):
   date: Timestamp
   period: str = Field(isin={"FY", "Q1", "Q2", "Q3", "Q4"})
   fiscal_end: str
-  url: list[str]
-  currency: set[str]
+  sources: list[str]
+  currencies: set[str]
   periods: FinPeriods
   units: list[str]
   dimensions: set[str]

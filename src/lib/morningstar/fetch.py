@@ -2,7 +2,6 @@ import asyncio
 import re
 from typing import Literal
 
-import aiometer
 import httpx
 import numpy as np
 import pandas as pd

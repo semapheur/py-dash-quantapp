@@ -18,6 +18,7 @@ from lib.db.lite import (
   read_sqlite,
   create_fts_table,
   drop_fts_table,
+  polars_from_sqlite,
 )
 from lib.utils.string import split_pascal_case
 from lib.const import DB_DIR
@@ -573,7 +574,7 @@ def load_taxonomy_items() -> DataFrame:
     JOIN json_each(gaap) ON 1=1
     WHERE gaap IS NOT NULL
   """
-  items = read_sqlite("taxonomy.db", query)
+  items = polars_from_sqlite("taxonomy.db", query)
   if items is None:
     raise ValueError("Taxonomy could not be loaded!")
 
