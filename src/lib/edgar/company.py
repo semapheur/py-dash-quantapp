@@ -1,16 +1,18 @@
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime as dt
+from datetime import date as Date
 import re
 from typing import cast, Literal
-import xml.etree.ElementTree as et
 
+import httpx
+from lxml import etree
 import pandas as pd
 import pandera as pa
-from pandera.typing import DataFrame, Index, Series
+from pandera.typing import Index, Series
 from pandera.dtypes import Timestamp
+import polars as pl
 from pydantic import BaseModel
-import httpx
 
 # Local
 from lib.const import HEADERS
@@ -22,6 +24,7 @@ from lib.edgar.parse import (
   parse_taxonomy,
 )
 from lib.fin.models import FinStatement
+from lib.scrap import fetch_json
 
 FIELDS = {
   "id": "TEXT",
@@ -63,150 +66,173 @@ class FilingsFrame(pa.DataFrameModel):
 class Company:
   cik: int
 
-  def padded_cik(self):
+  def _padded_cik(self):
     return str(self.cik).zfill(10)
 
-  def info(self) -> CompanyInfo:
-    url = f"https://data.sec.gov/submissions/CIK{self.padded_cik()}.json"
-    with httpx.Client() as client:
-      response = client.get(url, headers=HEADERS)
-      parse = CompanyInfo(**response.json())
+  async def info(self) -> CompanyInfo:
+    url = f"https://data.sec.gov/submissions/CIK{self._padded_cik()}.json"
+    parse = await fetch_json(url)
+    return CompanyInfo(**parse)
 
-    return parse
-
-  def filings(
+  async def filings(
     self,
     forms: list[str] | None = None,
     date: dt | None = None,
     filter_xbrl: bool = False,
-  ) -> DataFrame[FilingsFrame]:
-    def fetch_files(file_name: str) -> Recent:
+  ) -> pl.LazyFrame:
+    async def fetch_files(file_name: str) -> Recent:
       url = f"https://data.sec.gov/submissions/{file_name}"
-      with httpx.Client() as client:
-        rs = client.get(url, headers=HEADERS)
-        parse = Recent(**rs.json())
+      parse = await fetch_json(url)
+      return Recent(**parse)
 
-      return parse
+    def json_to_lf(filings: Recent) -> pl.LazyFrame:
+      lf = pl.LazyFrame(
+        {
+          "id": filings["accessionNumber"],
+          "date": filings["reportDate"],
+          "form": filings["form"],
+          "primary_document": filings["primaryDocument"],
+          "is_xbrl": filings["isXBRL"],
+        }
+      )
+      lf = lf.with_columns(
+        pl.col("date").str.strptime(pl.Date, "%Y-%m-%d", strict=False).alias("date"),
+        pl.col("is_xbrl").cast(pl.Boolean),
+      )
+      return lf
 
-    def json_to_df(filings: Recent) -> DataFrame[FilingsFrame]:
-      data = {
-        "id": filings.accessionNumber,
-        "date": filings.reportDate,
-        "form": filings.form,
-        "primary_document": filings.primaryDocument,
-        "is_xbrl": filings.isXBRL,
-      }
-      df = pd.DataFrame(data)
-      df.set_index("id", inplace=True)
-      df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d", errors="coerce")
-      return cast(DataFrame[FilingsFrame], df)
+    info = await self.info()
+    lfs: list[pl.LazyFrame] = [json_to_lf(info.filings["recent"])]
 
-    dfs: list[DataFrame[FilingsFrame]] = []
+    files = info.filings.get("files", [])
+    if files:
+      tasks = [fetch_files(f["name"]) for f in info.filings["files"]]
+      additional_filings = await asyncio.gather(*tasks)
+      lfs.extend([json_to_lf(f) for f in additional_filings])
 
-    info = self.info()
-
-    recent = info.filings.recent
-    dfs.append(json_to_df(recent))
-
-    for f in info.filings.files:
-      recent = fetch_files(f.name)
-      dfs.append(json_to_df(recent))
-
-    if len(dfs) == 1:
-      df = dfs.pop()
-
-    else:
-      df = cast(DataFrame[FilingsFrame], pd.concat(dfs))
-      df.drop_duplicates(inplace=True)
-      df.sort_values("date", ascending=True, inplace=True)
+    lf = (
+      cast(pl.LazyFrame, pl.concat(lfs, how="vertical", rechunk=False))
+      .unique(subset="id")
+      .sort("date")
+    )
 
     if forms:
-      df = cast(DataFrame[FilingsFrame], df.loc[df["form"].isin(forms)])
+      lf = lf.filter(pl.col("form").is_in(forms))
 
-    if date:
-      df = cast(DataFrame[FilingsFrame], df.loc[df["date"] >= date])
+    if date is not None:
+      lf = lf.filter(pl.col("date") >= pl.lit(date.date()).cast(pl.Date))
 
     if filter_xbrl:
-      df = cast(DataFrame[FilingsFrame], df.loc[df["is_xbrl"].astype(bool)])
+      lf = lf.filter(pl.col("is_xbrl"))
 
-    return df
+    return lf
 
-  def xbrls(self, date: dt | None = None) -> Series[str]:
-    filings = self.filings(["10-K", "10-Q", "20-F", "40-F"], date, True)
+  async def xbrls(self, date: dt | None = None) -> pl.DataFrame:
+    filings_lf = await self.filings(["10-K", "10-Q", "20-F", "40-F"], date, True)
 
-    if filings["date"].max() < dt(2020, 12, 31):
+    df = filings_lf.sort("date", descending=True).limit(1).collect()
+
+    if cast(Date, df["date"].max()) < dt(2020, 12, 31).date():
       raise Exception("Not possible to find XBRL names")
 
     prefix = "https://www.sec.gov/Archives/edgar/data/"
 
-    filings.sort_values("date", ascending=False, inplace=True)
-    filings.reset_index(inplace=True)
-
-    last_filing: str = filings["primary_document"].iloc[0]
+    last_filing = df["primary_document"][0]
     pattern = r"([a-z]+)-?\d{8}"
     ticker = cast(re.Match[str], re.search(pattern, last_filing)).group(1)
 
-    filings["xbrl"] = (
-      prefix + str(self.cik) + "/" + filings["id"].str.replace("-", "") + "/"
+    filings_lf = (
+      filings_lf.with_columns(
+        [
+          # Base XBRL path
+          (
+            pl.lit(prefix)
+            + pl.lit(str(self.cik))
+            + pl.lit("/")
+            + pl.col("id").str.replace_all("-", "")
+            + pl.lit("/")
+          ).alias("xbrl_base"),
+          # Modern XBRL mask
+          (
+            (
+              (pl.col("date") >= dt(2020, 7, 1).date())
+              & pl.col("form").is_in(["10-K", "10-Q"])
+            )
+            | ((pl.col("date") > dt(2020, 12, 31).date()) & (pl.col("form") == "20-F"))
+          ).alias("is_modern"),
+        ]
+      )
+      .with_columns(
+        [
+          # Build XBRL URLs based on mask
+          pl.when(pl.col("is_modern"))
+          .then(
+            pl.col("xbrl_base")
+            + pl.col("primary_document").str.replace(".htm", "_htm.xml")
+          )
+          .otherwise(
+            pl.col("xbrl_base")
+            + pl.lit(ticker + "-")
+            + pl.col("date").dt.strftime("%Y%m%d")
+            + pl.lit(".xml")
+          )
+          .alias("xbrl")
+        ]
+      )
+      .select(["id", "xbrl"])
     )
-    mask = (filings["date"] >= dt(2020, 7, 1)) & (
-      filings["form"].isin(["10-K", "10-Q"])
-    ) | ((filings["date"] > dt(2020, 12, 31)) & (filings["form"] == "20-F"))
-    filings.loc[~mask, "xbrl"] += (
-      ticker + "-" + filings["date"].dt.strftime("%Y%m%d") + ".xml"
-    )
-    filings.loc[mask, "xbrl"] += filings.loc[mask, "primary_document"].str.replace(
-      ".htm", "_htm.xml"
-    )
-    filings.set_index("id", inplace=True)
-    return cast(Series[str], filings["xbrl"])
 
-  async def xbrl_urls(self, date: dt | None = None) -> Series[str]:
+    return filings_lf.collect()
+
+  async def xbrl_urls(self, date: dt | None = None) -> pl.DataFrame:
     try:
-      urls = self.xbrls()
+      urls = await self.xbrls()
 
     except Exception:
-      filings = self.filings(["10-Q", "10-K"], date, True)
-      urls = await parse_xbrl_urls(self.cik, filings.index.to_list(), "htm")
+      filings = await self.filings(["10-Q", "10-K"], date, True)
+      doc_ids: list[str] = filings.select("id").collect().get_column("id").to_list()
+      urls = await parse_xbrl_urls(self.cik, doc_ids, "htm")
 
     return urls
 
   async def get_financials(self, date: dt | None = None) -> list[FinStatement]:
     xbrls = await self.xbrl_urls(date)
+    urls = xbrls.select("xbrl").get_column("xbrl").to_list()
 
-    return await parse_statements(xbrls.tolist())
+    return await parse_statements(urls)
 
-  async def get_calc_template(self, doc_id):
-    ns = "http://www.w3.org/1999/xlink"
-
+  async def get_calc_template(self, doc_id) -> dict:
     url = await parse_xbrl_url(self.cik, doc_id)
     with httpx.Client() as client:
-      rs = client.get(url, headers=HEADERS)
-      root = et.fromstring(rs.content)
+      response = client.get(url, headers=HEADERS)
+      root: etree._Element = etree.fromstring(response.content)
 
+    namespaces = root.nsmap
+    xlink = namespaces["xlink"]
     url_pattern = r"https?://www\..+/"
     el_pattern = r"(?<=_)[A-Z][A-Za-z]+(?=_)"
 
     calc = dict()
-    for sheet in root.findall(".//{*}calculationLink"):
-      temp = dict()
-      for el in sheet.findall(".//{*}calculationArc"):
-        parent = re.search(el_pattern, el.attrib[f"{{{ns}}}from"]).group()
-        child = re.search(el_pattern, el.attrib[f"{{{ns}}}to"]).group()
+    for sheet in root.findall(".//link:calculationLink", namespaces=namespaces):
+      temp: dict[str, dict] = dict()
+      for el in sheet.findall(".//link:calculationArc"):
+        parent = re.search(el_pattern, el.attrib[f"{{{xlink}}}from"]).group()
+        child = re.search(el_pattern, el.attrib[f"{{{xlink}}}to"]).group()
 
         if parent not in temp:
           temp[parent] = {}
 
         temp[parent].update({child: float(el.attrib["weight"])})
 
-      label = re.sub(url_pattern, "", sheet.attrib[f"{{{ns}}}role"])
+      label = re.sub(url_pattern, "", sheet.attrib[f"{{{xlink}}}role"])
       calc[label] = temp
 
     return calc
 
   async def get_taxonomy(self) -> pd.DataFrame:
     async def fetch() -> pd.DataFrame:
-      docs = self.filings(["10-K", "10-Q"]).index
+      filings = await self.filings(["10-K", "10-Q"])
+      docs: list[str] = filings.select("id").collect().get_column("id").to_list()
       tasks: list[asyncio.Task] = []
       for doc in docs:
         url = await parse_xbrl_url(self.cik, doc, "cal")
@@ -214,9 +240,8 @@ class Company:
           continue
         tasks.append(asyncio.create_task(parse_taxonomy(url)))
 
-      dfs: list[pd.DataFrame] = await asyncio.gather(*tasks)
-      df = pd.concat(dfs)
-      df = df.loc[~df.index.duplicated()]
+      frames: list[pl.DataFrame] = await asyncio.gather(*tasks)
+      df = pl.concat(frames, how="vertical", rechunk=True).unique(subset="item")
       return df
 
     result = await fetch()

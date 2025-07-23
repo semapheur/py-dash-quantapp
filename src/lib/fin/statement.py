@@ -13,7 +13,7 @@ import pandas as pd
 from pandera.typing import DataFrame, Series, Index
 import polars as pl
 
-from lib.db.lite import read_sqlite, sqlite_path
+from lib.db.lite import read_sqlite, sqlite_path, polars_from_sqlite
 from lib.fin.models import (
   FinStatement,
   FinStatementFrame,
@@ -833,7 +833,7 @@ def upsert_merged_statements(
       """
       cur.execute(
         query,
-        statement.model_dump(),
+        statement.dump_json_fields(),
       )
       con.commit()
 
@@ -877,7 +877,7 @@ def upsert_statements(
 
 def statement_urls(
   db_name: str, id: str, url_pattern: str | None = None
-) -> DataFrame | None:
+) -> pl.DataFrame | None:
   query = f"""
     SELECT date, json_each.value AS url FROM '{id}' 
     JOIN json_each(url) ON 1=1
@@ -886,9 +886,9 @@ def statement_urls(
   if url_pattern:
     query += f" WHERE json_each.value LIKE '{url_pattern}'"
 
-  df = read_sqlite(
-    db_name,
-    query,
-    date_parser={"date": {"format": "%Y%m%d"}},
-  )
+  date_transform = [
+    pl.col("date").cast(pl.Utf8).str.strptime(pl.Date, format="%Y%m%d").alias("date")
+  ]
+  df = polars_from_sqlite(db_name, query, column_transform=date_transform)
+
   return df

@@ -57,7 +57,8 @@ async def scrap_edgar_statements(cik: int, id: str):
   company = Company(cik)
   filings = await company.xbrl_urls()
 
-  financials = await parse_statements(filings.tolist())
+  urls = filings["xbrl"].to_list()
+  financials = await parse_statements(urls)
   upsert_merged_statements("statements.db", id, financials)
 
 
@@ -82,16 +83,17 @@ async def update_edgar_statements(cik: int, id: str, delta=120):
   if not new_filings:
     return
 
-  old_urls = set(old_filings["url"])
-  new_urls = set(new_filings)
-  new_urls = new_urls.difference(old_urls)
+  old_urls = set(old_filings.get_column("url").to_list())
+  new_urls = set(new_filings.get_column("xbrl").to_list())
+  diff_urls = list(new_urls.difference(old_urls))
 
-  if not new_urls:
+  if not diff_urls:
     return
 
-  mask = new_filings.isin(new_urls)
-  new_filings = new_filings.loc[mask]
-  new_statements = await parse_statements(new_filings.tolist())
+  new_filings = new_filings.filter(pl.col("xbrl").is_in(diff_urls))
+  urls = new_filings.get_column("xbrl").to_list()
+  new_statements = await parse_statements(urls)
+
   if new_statements:
     upsert_merged_statements("statements.db", id, new_statements)
 
@@ -281,12 +283,7 @@ async def parse_xml_filing(url: str) -> FinStatement:
   )
 
 
-async def parse_taxonomy(url: str) -> pd.DataFrame:
-  namespace = {
-    "link": "http://www.xbrl.org/2003/linkbase",
-    "xlink": "http://www.w3.org/1999/xlink",
-  }
-
+async def parse_taxonomy(url: str) -> pl.DataFrame:
   def rename_sheet(txt: str) -> str:
     pattern = r"income|balance|cashflow"
     m = re.search(pattern, txt, flags=re.I)
@@ -299,32 +296,32 @@ async def parse_taxonomy(url: str) -> pd.DataFrame:
     response = await client.get(url, headers=HEADERS)
     root: etree._Element = etree.fromstring(response.content)
 
+  namespaces = root.nsmap
+  xlink = namespaces["xlink"]
   url_pattern = r"^https?://www\..+/"
   el_pattern = r"(?<=_)[A-Z][A-Za-z]+(?=_)?"
 
-  taxonomy = []
-  for sheet in root.findall(".//link:calculationLink", namespaces=namespace):
-    sheet_label = re.sub(url_pattern, "", sheet.attrib[f"{{{namespace['xlink']}}}role"])
+  records: list[dict[str, str]] = []
+  for sheet in root.findall(".//link:calculationLink", namespaces=namespaces):
+    sheet_label = re.sub(url_pattern, "", sheet.attrib[f"{{{xlink}}}role"])
     sheet_label = rename_sheet(sheet_label)
 
-    for el in sheet.findall(".//link:calculationArc", namespaces=namespace):
-      taxonomy.append(
+    for el in sheet.findall(".//link:calculationArc", namespaces=namespaces):
+      records.append(
         {
           "sheet": sheet_label,
           "gaap": cast(
             re.Match[str],
-            re.search(el_pattern, el.attrib[f"{{{namespace['xlink']}}}to"]),
+            re.search(el_pattern, el.attrib[f"{{{xlink}}}to"]),
           ).group(),
           "parent": cast(
             re.Match[str],
-            re.search(el_pattern, el.attrib[f"{{{namespace['xlink']}}}from"]),
+            re.search(el_pattern, el.attrib[f"{{{xlink}}}from"]),
           ).group(),
         }
       )
 
-  df = pd.DataFrame.from_records(taxonomy)
-  df.set_index("item", inplace=True)
-  df.drop_duplicates(inplace=True)
+  df = pl.DataFrame(records).unique()
   return df
 
 

@@ -1,6 +1,5 @@
 # Todo
 - Fix FinData members without dimension
-- Check why FinStatement cannot parse values missing units
 
 
 # Tips
