@@ -28,6 +28,7 @@ from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import load_taxonomy_items
 from lib.utils.dataframe import (
   combine_duplicate_columns,
+  combine_duplicate_columns_pandas,
   df_time_difference,
   fiscal_quarter_monthly_polars,
 )
@@ -327,22 +328,21 @@ async def statement_to_df(
   return cast(DataFrame, df)
 
 
-async def load_statements(id: str, currency: Optional[str] = None) -> DataFrame | None:
+async def load_statements(id: str, currency: str | None = None) -> pl.DataFrame | None:
   statements = load_raw_statements(id)
 
   if statements is None:
     return None
 
-  dfs = [await statement_to_df(statements.pop(0), currency, True)] + [
-    await statement_to_df(s, currency) for s in statements
+  lfs = [await statement_to_lf(statements.pop(0), currency, True)] + [
+    await statement_to_lf(s, currency) for s in statements
   ]
-  df = pd.concat(dfs, join="outer")
-
-  df.sort_index(level=0, ascending=True, inplace=True)
-  df = cast(
-    DataFrame, df.loc[df.index.get_level_values("months").isin((12, 9, 6, 3)), :]
+  lf = (
+    pl.concat(lfs, how="diagonal_relaxed")
+    .sort("date")
+    .filter(pl.col("months").is_in([12, 9, 6, 3]))
   )
-  df = fix_statements(df)
+  df = fix_statements(lf)
 
   return df
 
@@ -419,20 +419,20 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
   items = load_taxonomy_items()
 
-  statements = statements.with_columns(
-    [pl.col(c).alias(c.lower()) for c in statements.collect_schema().names()]
+  statements = combine_duplicate_columns(statements)
+
+  index_cols = {"date", "period", "months", "fiscal_end_month"}
+  gaap_items = set(items.get_column("gaap").to_list())
+  rename_mapping = dict(zip(items["item"], items["gaap"]))
+
+  selected_cols = index_cols.union(gaap_items)
+  statements = statements.select(
+    [
+      pl.col(c).alias(rename_mapping.get(c, c))
+      for c in statements.collect_schema().names()
+      if c in selected_cols
+    ]
   )
-
-  available_gaap_cols = set(statements.collect_schema().names()).intersection(items)
-  statements = statements.select(available_gaap_cols)
-
-  rename_mapping = dict(zip(items["items"], items["gaap"]))
-  rename_exprs = [
-    pl.col(old_name).alias(new_name) if old_name in rename_mapping else pl.col(old_name)
-    for old_name in statements.columns
-    for new_name in [rename_mapping.get(old_name, old_name)]
-  ]
-  statements = statements.with_columns(rename_exprs)
 
   sum_items = load_sum_items()
   diff_items = list(sum_items.intersection(set(statements.collect_schema().names())))
@@ -588,7 +588,7 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
 
   rename = dict(zip(items["item"], items["gaap"]))
   statements.rename(columns=rename, inplace=True)
-  statements = combine_duplicate_columns(statements)
+  statements = combine_duplicate_columns_pandas(statements)
 
   sum_items = load_sum_items()
   diff_items = list(sum_items.intersection(set(statements.columns)))
@@ -723,10 +723,11 @@ def load_raw_statements(
     query += " ORDER BY date ASC"
 
   with closing(sqlite3.connect(db_path)) as con:
+    con.row_factory = sqlite3.Row
     cur = con.cursor()
-    cur.row_factory = lambda _, row: FinStatement(**row)
+    rows = cur.execute(query, params).fetchall()
 
-    statements: list[FinStatement] = cur.execute(query, params).fetchall()
+    statements: list[FinStatement] = [FinStatement(**row) for row in rows]
 
   return statements
 

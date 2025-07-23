@@ -475,6 +475,9 @@ class FinStatement(BaseModel):
     dimensions = data["dimensions"]
 
     findata = data["data"]
+    if isinstance(findata, str):
+      findata = orjson.loads(findata)
+
     if not isinstance(findata, dict):
       raise ValueError(
         f"{cls.__name__} data must be a dictionary. Got: {type(findata)}"

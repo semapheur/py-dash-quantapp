@@ -23,13 +23,36 @@ class renamer:
       return "%s_%d" % (x, self.d[x])
 
 
-def combine_duplicate_columns(df: DataFrame) -> DataFrame:
+def combine_duplicate_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
+  columns = lf.collect_schema().names()
+  name_map: dict[str, list[str]] = {}
+
+  for column in columns:
+    key = column.lower()
+    name_map.setdefault(key, []).append(column)
+
+  combined_exprs: list[pl.Expr] = []
+
+  for key, columns in name_map.items():
+    if len(columns) == 1:
+      combined_exprs.append(pl.col(columns[0]).alias(key))
+
+    else:
+      exprs = [pl.col(c) for c in columns]
+      combined_exprs.append(pl.coalesce(exprs).alias(key))
+
+  return lf.select(combined_exprs)
+
+
+def combine_duplicate_columns_pandas(df: DataFrame) -> DataFrame:
   duplicated = df.columns.duplicated()
 
   if not duplicated.any():
     return df
 
-  df_duplicated = combine_duplicate_columns(cast(DataFrame, df.loc[:, duplicated]))
+  df_duplicated = combine_duplicate_columns_pandas(
+    cast(DataFrame, df.loc[:, duplicated])
+  )
   df = cast(DataFrame, df.loc[:, ~duplicated])
 
   for col in df_duplicated.columns:

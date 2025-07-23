@@ -10,6 +10,7 @@ from typing_extensions import TypedDict
 from glom import glom
 import pandas as pd
 from pandera.typing import DataFrame
+import polars as pl
 from pydantic import BaseModel, field_validator, model_serializer
 
 from lib.db.lite import (
@@ -568,7 +569,7 @@ def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
   return template
 
 
-def load_taxonomy_items() -> DataFrame:
+def load_taxonomy_items() -> pl.DataFrame:
   query = """
     SELECT DISTINCT lower(json_each.value) AS gaap, item FROM items 
     JOIN json_each(gaap) ON 1=1
