@@ -24,29 +24,6 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-def update_primary_securities(
-  company_id: str, securities: list[str], currency: str
-) -> None:
-  from lib.const import DB_DIR
-
-  db_path = DB_DIR / "ticker.db"
-  with closing(sqlite3.connect(db_path)) as con:
-    cursor = con.cursor()
-
-    securities_json = json.dumps(securities)
-
-    # Replace the entire array
-    cursor.execute(
-      """
-        UPDATE company
-        SET primary_securities = json(:securities), currency = :currency
-        WHERE company_id = :company_id?
-      """,
-      {"securities": securities_json, "currency": currency, "company_id": company_id},
-    )
-    con.close()
-
-
 def select_menu(options) -> list[int]:
   for i, option in enumerate(options, 1):
     print(f"{i}. {option}")
@@ -246,3 +223,26 @@ async def seed_fundamentals(exchange: str):
     content: dict = json.load(f)
     content[f"{exchange}_fundamentals"] = faulty
     json.dump(content, f)
+
+
+def update_primary_securities(
+  company_id: str, securities: list[str], currency: str
+) -> None:
+  from lib.const import DB_DIR
+
+  db_path = DB_DIR / "ticker.db"
+  with closing(sqlite3.connect(db_path)) as con:
+    cursor = con.cursor()
+
+    securities_json = json.dumps(securities)
+
+    # Replace the entire array
+    cursor.execute(
+      """
+        UPDATE company
+        SET primary_securities = json(:securities), currency = :currency
+        WHERE company_id = :company_id?
+      """,
+      {"securities": securities_json, "currency": currency, "company_id": company_id},
+    )
+    con.close()

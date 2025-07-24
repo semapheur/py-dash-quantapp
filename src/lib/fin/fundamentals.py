@@ -1,16 +1,17 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-import json
-from typing import cast, Optional
+from typing import cast
 from ordered_set import OrderedSet
 from sqlalchemy.types import Date
 
-from numpy import inf, nan
+from numpy import inf
+import orjson
 import pandas as pd
 from pandera.typing import DataFrame, Index, Series
+import polars as pl
 
-from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite
+from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite, polars_from_sqlite
 from lib.fin.calculation import calculate_items, trailing_twelve_months
 from lib.fin.metrics import (
   f_score,
@@ -27,23 +28,61 @@ from lib.morningstar.ticker import Stock
 from lib.yahoo.ticker import Ticker
 
 
-def load_schema(query: Optional[str] = None) -> dict[str, TaxonomyCalculation]:
+def load_schema(query: str | None = None) -> dict[str, TaxonomyCalculation]:
   if query is None:
     query = """
       SELECT item, calculation FROM items
       WHERE calculation IS NOT NULL
     """
 
-  df = read_sqlite("taxonomy.db", query)
-  if df is None:
+  df = polars_from_sqlite("taxonomy.db", query)
+  if df is None or df.is_empty():
     raise ValueError("Could not load taxonomy!")
 
-  df.loc[:, "calculation"] = df["calculation"].apply(lambda x: json.loads(x))
-  schema = {k: TaxonomyCalculation(**v) for k, v in zip(df["item"], df["calculation"])}
+  calculations = [orjson.loads(x) for x in df["calculation"]]
+  items = df.get_column("item").to_list()
+
+  schema = {
+    item: TaxonomyCalculation(**calc) for item, calc in zip(items, calculations)
+  }
   return schema
 
 
-def stock_split_adjust(financials: DataFrame, ratios: Series | None) -> DataFrame:
+def stock_split_adjust(
+  financials: pl.LazyFrame, ratios: dict[str, float] | None
+) -> pl.LazyFrame:
+  price_cols = {
+    "share_price_close",
+    "share_price_open",
+    "share_price_high",
+    "share_price_low",
+    "share_price_average",
+  }
+  price_cols_ = list(price_cols.intersection(financials.collect_schema().names()))
+
+  for col in price_cols_:
+    financials = financials.with_columns(pl.col(col).alias(f"{col}_adjusted"))
+
+  if ratios is None:
+    return financials
+
+  for date, ratio in ratios.items():
+    financials = financials.with_columns(
+      [
+        pl.when(pl.col("date") < date)
+        .then(pl.col(f"{col}_adjusted") / ratio)
+        .otherwise(pl.col(f"{col}_adjusted"))
+        .alias(f"{col}_adjusted")
+        for col in price_cols_
+      ]
+    )
+
+  return financials
+
+
+def stock_split_adjust_pandas(
+  financials: DataFrame, ratios: Series | None
+) -> DataFrame:
   price_cols = {
     "share_price_close",
     "share_price_open",
@@ -67,7 +106,80 @@ def stock_split_adjust(financials: DataFrame, ratios: Series | None) -> DataFram
   return financials
 
 
-def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> DataFrame:
+def merge_share_price(financials: pl.LazyFrame, price: pl.DataFrame) -> pl.LazyFrame:
+  wasob = "weighted_average_shares_outstanding_basic"
+  price_lf = price.lazy().sort("date")
+  financials_indexed = financials.with_row_index("financials_ix")
+
+  date_ranges = financials_indexed.select(
+    [
+      "financials_ix",
+      "date",
+      "months",
+      (pl.col("date") - pl.duration(days=pl.col("months") * 30)).alias("start_date"),
+      pl.col("date").alias("end_date"),
+    ]
+  )
+
+  price_indexed = price_lf.with_row_index("price_ix")
+  price_filtered = price_indexed.join(date_ranges, how="cross").filter(
+    (pl.col("date") >= pl.col("start_date")) & (pl.col("date") <= pl.col("end_date"))
+  )
+  price_cols = [col for col in price.columns if col != "date"]
+
+  if len(price_cols) > 1:
+    wasob_cols = [col for col in financials.collect_schema().names() if wasob in col]
+
+    if wasob_cols:
+      price_weighted = price_filtered.join(
+        financials_indexed.select(["financials_ix"] + wasob_cols), on="financials_ix"
+      )
+
+      weighted_expressions: list[pl.Expr] = []
+      for col in price_cols:
+        weight_col = f"{wasob}.{col}"
+        if weight_col in wasob_cols:
+          weight_expr = (pl.col(col) * pl.col(weight_col) / pl.col(wasob)).alias(
+            f"weighted_{col}"
+          )
+        else:
+          weight_expr = pl.col(col).alias(f"weighted_{col}")
+
+        weighted_expressions.append(weight_expr)
+
+      price_filtered = price_weighted.with_columns(weighted_expressions).with_columns(
+        pl.sum_horizontal([f"weighted_{col}" for col in price_cols]).alias("close")
+      )
+
+  price_aggregated = price_filtered.group_by("financials_ix").agg(
+    [
+      pl.col("close").last().alias("share_price_close"),
+      pl.col("close").first().alias("share_price_open"),
+      pl.col("close").max().alias("share_price_high"),
+      pl.col("close").min().alias("share_price_low"),
+      pl.col("close").mean().alias("share_price_average"),
+    ]
+  )
+  result = financials_indexed.join(
+    price_aggregated, on="financials_ix", how="left"
+  ).drop("financials_ix")
+
+  result = result.with_columns(
+    [
+      pl.col("share_price_close").fill_null(float("nan")),
+      pl.col("share_price_open").fill_null(float("nan")),
+      pl.col("share_price_high").fill_null(float("nan")),
+      pl.col("share_price_low").fill_null(float("nan")),
+      pl.col("share_price_average").fill_null(float("nan")),
+    ]
+  )
+
+  return result
+
+
+def merge_share_price_pandas(
+  financials: DataFrame, price: DataFrame[CloseQuote]
+) -> DataFrame:
   def weighted_share_price(price_slice: DataFrame) -> DataFrame:
     wasob = "weighted_average_shares_outstanding_basic"
 
@@ -80,11 +192,11 @@ def merge_share_price(financials: DataFrame, price: DataFrame[CloseQuote]) -> Da
 
   price_records = [
     SharePrice(
-      share_price_close=nan,
-      share_price_open=nan,
-      share_price_high=nan,
-      share_price_low=nan,
-      share_price_average=nan,
+      share_price_close=float("nan"),
+      share_price_open=float("nan"),
+      share_price_high=float("nan"),
+      share_price_low=float("nan"),
+      share_price_average=float("nan"),
     )
   ] * len(financials)
 
@@ -120,7 +232,7 @@ async def calculate_fundamentals(
   ticker_ids: list[str],
   currency: str,
   financials: DataFrame,
-  beta_years: Optional[int] = None,
+  beta_years: int | None = None,
   update: bool = False,
 ) -> DataFrame:
   start_date: dt = cast(pd.MultiIndex, financials.index).levels[
@@ -166,7 +278,7 @@ async def calculate_fundamentals(
 
   financials = merge_share_price(financials, price_df)
   split_ratios = stock_splits(id)
-  financials = stock_split_adjust(financials, split_ratios)
+  financials = stock_split_adjust_pandas(financials, split_ratios)
   schema = load_schema()
   financials = calculate_items(financials, schema)
   # financials.to_csv(f"{ticker_ids[0]}_financials.csv")
@@ -264,7 +376,7 @@ async def update_fundamentals(
   company_id: str,
   ticker_ids: list[str],
   currency: str,
-  beta_years: Optional[None] = None,
+  beta_years: int | None = None,
 ) -> pd.DataFrame:
   table = f"{company_id}_{currency}"
 
@@ -282,7 +394,7 @@ async def update_fundamentals(
       ticker_ids, currency, statements, beta_years
     )
 
-    fundamentals.replace([inf, -inf], nan, inplace=True)
+    fundamentals.replace([inf, -inf], float("nan"), inplace=True)
     ratio_cols_ = fundamentals.columns.intersection(ratio_cols)
     ratios = fundamentals[ratio_cols_]
     financials = fundamentals.drop(ratio_cols_, axis=1)
@@ -322,7 +434,7 @@ async def update_fundamentals(
     DataFrame, fundamentals_.loc[fundamentals_.index.difference(fundamentals.index), :]
   )
 
-  fundamentals_.replace([inf, -inf], nan, inplace=True)
+  fundamentals_.replace([inf, -inf], float("nan"), inplace=True)
   ratio_cols_ = fundamentals_.columns.intersection(ratio_cols)
   ratios = fundamentals_[ratio_cols_]
   financials = fundamentals_.drop(ratio_cols_, axis=1)
