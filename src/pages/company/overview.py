@@ -27,7 +27,7 @@ from components.dupont_chart import DupontChart
 from components.quote_graph import quote_volume_graph
 from components.company_header import CompanyHeader
 from lib.db.lite import fetch_sqlite, get_table_columns, read_sqlite
-from lib.fin.calculation import AnyTransformer
+from lib.fin.calculation_pandas import AnyTransformer
 from lib.morningstar.ticker import Stock
 from lib.fin.fundamentals import load_fundamentals
 from lib.fin.quote import load_ohlcv
@@ -37,7 +37,7 @@ register_page(__name__, path_template="/company/<id>/overview", title=company_la
 
 radio_wrap_style = "flex divide-x rounded-xs shadow-sm"
 radio_input_style = (
-  "appearance-none absolute inset-0 h-full cursor-pointer " "checked:bg-secondary/50"
+  "appearance-none absolute inset-0 h-full cursor-pointer checked:bg-secondary/50"
 )
 radio_label_style = "relative px-1"
 
@@ -157,14 +157,14 @@ def date_dropdown_params(ix: pd.MultiIndex) -> tuple[list[dict[str, str]], str]:
 
   date_options = [
     {
-      "label": f"{date.strftime("%Y-%m-%d")} ({period})",
-      "value": f"{date.strftime("%Y-%m-%d")}|{period}",
+      "label": f"{date.strftime('%Y-%m-%d')} ({period})",
+      "value": f"{date.strftime('%Y-%m-%d')}|{period}",
     }
     for date, period in zip(date_level, period_level)
   ]
 
   max_date_pair = max(date_period_pairs, key=priority_sort_key)
-  date_value = f"{max_date_pair[0].strftime("%Y-%m-%d")}|{max_date_pair[1]}"
+  date_value = f"{max_date_pair[0].strftime('%Y-%m-%d')}|{max_date_pair[1]}"
 
   return date_options, date_value
 
@@ -400,7 +400,7 @@ def quote_graph_relayout(
     fig["layout"]["yaxis"]["autorange"] = True
 
     for i in range(1, len(cols)):
-      fig["layout"][f"yaxis{i+1}"]["autorange"] = True
+      fig["layout"][f"yaxis{i + 1}"]["autorange"] = True
 
   return fig
 

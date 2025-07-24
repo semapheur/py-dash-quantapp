@@ -12,7 +12,7 @@ from pandera.typing import DataFrame, Index, Series
 import polars as pl
 
 from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite, polars_from_sqlite
-from lib.fin.calculation import calculate_items, trailing_twelve_months
+from lib.fin.calculation_pandas import calculate_items, trailing_twelve_months
 from lib.fin.metrics import (
   f_score,
   m_score,
