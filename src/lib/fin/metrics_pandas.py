@@ -205,7 +205,6 @@ def beta(
   return financials
 
 
-# Weighted average cost of capital
 def weighted_average_cost_of_capital(
   fin_data: DataFrame, debt_maturity: int = 10
 ) -> DataFrame:
@@ -382,7 +381,9 @@ def discounted_cash_flow(
     if wacc[i] > longterm_growth:
       terminal = np.abs(present) * (1 + longterm_growth) / (wacc[i] - longterm_growth)
     else:
-      terminal = np.abs(df["ev"].iloc[i] * (1 + longterm_growth) ** fc_period)
+      terminal = np.abs(
+        df["enterprice_value"].iloc[i] * (1 + longterm_growth) ** fc_period
+      )
 
     terminal /= (1 + wacc[i]) ** fc_period
     dcf[i] += terminal
