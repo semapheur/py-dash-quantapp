@@ -24,6 +24,9 @@ from lib.db.lite import (
 from lib.utils.string import split_pascal_case
 from lib.const import DB_DIR
 
+type TaxonomyField = Literal[
+  "type", "balance", "aggregate", "long", "short", "gaap", "calculation"
+]
 type TaxonomyType = Literal[
   "days",
   "monetary",

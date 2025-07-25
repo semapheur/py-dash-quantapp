@@ -273,8 +273,42 @@ def select_sqlite(
   return df
 
 
+def polars_from_sqlite_filter(
+  db_name: str,
+  table: str,
+  match_column: str,
+  values: Sequence[str],
+  select_columns: Sequence[str] | None = None,
+  where_clause: str | None = None,
+  value_alias: str | None = None,
+) -> pl.DataFrame | None:
+  if not values:
+    raise ValueError("No values provided")
+
+  value_alias = value_alias or match_column
+  select_clause = ", ".join(select_columns) if select_columns else "*"
+  values_clause = ", ".join([f"('{v}')" for v in values])
+
+  query = f"""
+    WITH filter_values({value_alias}) AS (
+      VALUES {values_clause}
+    )
+    SELECT {select_clause} FROM '{table}'
+    JOIN filter_values ON {table}.{match_column} = filter_values.{value_alias}
+  """
+
+  if where_clause:
+    query += f" WHERE {where_clause}"
+
+  df = polars_from_sqlite(db_name, query)
+  if df is None or df.is_empty():
+    raise ValueError(f"Query returned no results: {query}")
+
+  return df
+
+
 def get_table_columns(
-  db_name: str, tables: Optional[list[str]] = None
+  db_name: str, tables: list[str] | None = None
 ) -> dict[str, set[str]]:
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")

@@ -6,14 +6,19 @@ from enum import Enum
 from functools import partial
 import json
 import sqlite3
-from typing import cast, Optional
+from typing import cast
 
 from asyncstdlib.functools import cache
 import pandas as pd
 from pandera.typing import DataFrame, Series, Index
 import polars as pl
 
-from lib.db.lite import read_sqlite, sqlite_path, polars_from_sqlite
+from lib.db.lite import (
+  read_sqlite,
+  sqlite_path,
+  polars_from_sqlite,
+  polars_from_sqlite_filter,
+)
 from lib.fin.models import (
   FinStatement,
   FinStatementFrame,
@@ -347,14 +352,6 @@ async def load_statements(id: str, currency: str | None = None) -> pl.DataFrame 
   return df
 
 
-def load_sum_items() -> set[str]:
-  query = "SELECT item FROM items WHERE aggregate = 'sum'"
-  sum_items = read_sqlite("taxonomy.db", query)
-  if sum_items is None:
-    raise ValueError("Taxonomy could not be loaded!")
-  return set(sum_items["item"].tolist())
-
-
 def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   def check_combos(lf: pl.LazyFrame, conditions: set[tuple[str, int]]) -> bool:
     unique_combos = (
@@ -392,9 +389,9 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
         & (pl.col("period") == conditions[i][0])
         & (pl.col("months") == conditions[i][1])
       )
-      diff_cols = lf_columns.intersection(diff_items)
+      diff_cols = lf_columns.intersection(sum_items)
       diff_exprs = [pl.col(col).diff().alias(col) for col in diff_cols]
-      nondiff_cols = lf_columns.difference(diff_items)
+      nondiff_cols = lf_columns.difference(sum_items)
       non_diff_exprs = [pl.col(col) for col in nondiff_cols]
 
       lf_diffed = lf_filtered.select(diff_exprs + non_diff_exprs)
@@ -434,8 +431,15 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
     ]
   )
 
-  sum_items = load_sum_items()
-  diff_items = list(sum_items.intersection(set(statements.collect_schema().names())))
+  sum_items_df = polars_from_sqlite_filter(
+    db_name="taxonomy",
+    table="items",
+    match_column="item",
+    values=statements.collect_schema().names(),
+    select_columns=["items"],
+    where_clause="aggregate = 'sum'",
+  )
+  sum_items = sum_items_df["item"].to_list()
 
   fiscal_ends = (
     statements.select("fiscal_end_month")
@@ -500,7 +504,7 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
     [
       *[
         pl.col(c).rolling_sum(window_size=4, min_samples=4).alias(f"__{c}_fy")
-        for c in diff_items
+        for c in sum_items
       ],
       pl.col("period").shift(1).alias("__p1"),
       pl.col("period").shift(2).alias("__p2"),
@@ -518,13 +522,13 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   rolling_data = rolling_data.with_columns(full_year_condition.alias("__is_full_year"))
 
   rolling_cols = set(rolling_data.collect_schema().names())
-  non_diff_cols = rolling_cols.difference(meta_cols.union(diff_items))
+  non_diff_cols = rolling_cols.difference(meta_cols.union(sum_items))
   fy_rows = rolling_data.filter(pl.col("__is_full_year")).select(
     pl.col("date"),
     pl.lit("FY").alias("period"),
     pl.lit(12).alias("months"),
     *[pl.col(c) for c in non_diff_cols if not c.startswith("__")],
-    *[pl.col(f"__{c}_fy").alias(c) for c in diff_items],
+    *[pl.col(f"__{c}_fy").alias(c) for c in sum_items],
   )
 
   statements = pl.concat([statements, fy_rows]).sort(["date", "period"])
@@ -542,7 +546,7 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
 
     for i in range(1, len(conditions)):
       mask = period_months.isin((conditions[i - 1], conditions[i]))
-      df_ = df.loc[mask, diff_items].copy()
+      df_ = df.loc[mask, sum_items].copy()
       if not check_combos(
         cast(pd.MultiIndex, df_.index), {conditions[i - 1], conditions[i]}
       ):
@@ -553,8 +557,8 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
       df_["month_difference"] = df_time_difference(
         cast(pd.DatetimeIndex, df_.index.get_level_values("date")), 30, "D"
       )
-      df_[diff_items] = df_[diff_items].diff()
-      df_ = df_.loc[df_["month_difference"] == 3, diff_items]
+      df_[sum_items] = df_[sum_items].diff()
+      df_ = df_.loc[df_["month_difference"] == 3, sum_items]
       df_ = df_.loc[(slice(None), conditions[i][0], conditions[i][1], slice(None)), :]
       df_.reset_index(level="months", inplace=True)
       df_["months"] = 3
@@ -590,8 +594,15 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
   statements.rename(columns=rename, inplace=True)
   statements = combine_duplicate_columns_pandas(statements)
 
-  sum_items = load_sum_items()
-  diff_items = list(sum_items.intersection(set(statements.columns)))
+  sum_items_df = polars_from_sqlite_filter(
+    db_name="taxonomy",
+    table="items",
+    match_column="item",
+    values=list(statements.columns),
+    select_columns=["items"],
+    where_clause="aggregate = 'sum'",
+  )
+  sum_items = sum_items_df["item"].to_list()
 
   fiscal_ends = cast(pd.MultiIndex, statements.index).levels[3]
   for fiscal_end in fiscal_ends:
@@ -650,13 +661,13 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
     statements.index.get_level_values("period") != "FY"
   )
 
-  quarterly_data = statements.loc[rolling_mask, diff_items].sort_index()
+  quarterly_data = statements.loc[rolling_mask, sum_items].sort_index()
   rolling_sums = quarterly_data.rolling(window=4).apply(sum_if_complete_year, raw=False)
 
   for idx, values in rolling_sums.dropna().iterrows():
     date = idx[0]
     fy_idx = (date, "FY", 12)
-    statements.loc[fy_idx, diff_items] = values
+    statements.loc[fy_idx, sum_items] = values
 
   return cast(DataFrame, statements)
 
