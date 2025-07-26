@@ -439,12 +439,10 @@ def earnings_power_value_lazyframe(lf: pl.LazyFrame) -> pl.LazyFrame:
   com_value = 0.5
 
   lf = lf.with_columns(
-    [
-      pl.when(pl.col("weighted_average_cost_of_capital").is_null())
-      .then(None)
-      .otherwise(pl.col("weighted_average_cost_of_capital"))
-      .alias("wacc"),
-    ]
+    pl.when(pl.col("weighted_average_cost_of_capital").is_null())
+    .then(None)
+    .otherwise(pl.col("weighted_average_cost_of_capital"))
+    .alias("wacc"),
   )
 
   # Compute smoothed WACC
@@ -459,19 +457,17 @@ def earnings_power_value_lazyframe(lf: pl.LazyFrame) -> pl.LazyFrame:
 
   # Revenue growth
   lf = lf.with_columns(
-    [(pl.col("revenue_diff") / pl.col("revenue_shifted")).alias("revenue_growth_raw")]
+    (pl.col("revenue_diff") / pl.col("revenue_shifted")).alias("revenue_growth_raw")
   )
   lf = lf.with_columns(
-    [pl.col("revenue_growth_raw").ewm_mean(com=com_value).alias("revenue_growth")]
+    pl.col("revenue_growth_raw").ewm_mean(com=com_value).alias("revenue_growth")
   )
 
   # Capex and margin
   lf = lf.with_columns(
-    [
-      pl.col("payment_acquisition_productive_assets")
-      .ewm_mean(com=com_value)
-      .alias("capex"),
-    ]
+    pl.col("payment_acquisition_productive_assets")
+    .ewm_mean(com=com_value)
+    .alias("capex"),
   )
   lf = lf.with_columns(
     [
@@ -484,14 +480,12 @@ def earnings_power_value_lazyframe(lf: pl.LazyFrame) -> pl.LazyFrame:
 
   # Operating margin
   lf = lf.with_columns(
-    [
-      (
-        (pl.col("pretax_income_loss") + pl.col("interest_expense")) / pl.col("revenue")
-      ).alias("operating_margin_raw")
-    ]
+    (
+      (pl.col("pretax_income_loss") + pl.col("interest_expense")) / pl.col("revenue")
+    ).alias("operating_margin_raw")
   )
   lf = lf.with_columns(
-    [pl.col("operating_margin_raw").ewm_mean(com=com_value).alias("operating_margin")]
+    pl.col("operating_margin_raw").ewm_mean(com=com_value).alias("operating_margin")
   )
 
   # Adjusted DDAA
@@ -507,26 +501,22 @@ def earnings_power_value_lazyframe(lf: pl.LazyFrame) -> pl.LazyFrame:
 
   # Adjusted earnings
   lf = lf.with_columns(
-    [
-      (
-        pl.col("sustainable_revenue")
-        * pl.col("operating_margin")
-        * (1 - pl.col("tax_rate"))
-        + pl.col("adjusted_ddaa")
-        - (pl.col("maintenance_capex") * pl.col("sustainable_revenue"))
-      ).alias("adjusted_earnings")
-    ]
+    (
+      pl.col("sustainable_revenue")
+      * pl.col("operating_margin")
+      * (1 - pl.col("tax_rate"))
+      + pl.col("adjusted_ddaa")
+      - (pl.col("maintenance_capex") * pl.col("sustainable_revenue"))
+    ).alias("adjusted_earnings")
   )
 
   # EPV
   lf = lf.with_columns(
-    [
-      (pl.col("adjusted_earnings") / pl.col("wacc_ewm")).alias("epv_raw"),
-      (
-        (pl.col("epv_raw") + pl.col("liquid_assets") - pl.col("debt"))
-        / pl.col("weighted_average_shares_outstanding_basic")
-      ).alias("earnings_power_value"),
-    ]
+    (pl.col("adjusted_earnings") / pl.col("wacc_ewm")).alias("epv_raw"),
+    (
+      (pl.col("epv_raw") + pl.col("liquid_assets") - pl.col("debt"))
+      / pl.col("weighted_average_shares_outstanding_basic")
+    ).alias("earnings_power_value"),
   )
 
   return lf.select(
@@ -543,3 +533,254 @@ def earnings_power_value_lazyframe(lf: pl.LazyFrame) -> pl.LazyFrame:
       "earnings_power_value",
     ]
   )
+
+
+"""
+ChatGPT
+import polars as pl
+import numpy as np
+
+
+def discounted_cash_flow_lazyframe(
+    lf: pl.LazyFrame, fc_period: int = 20, longterm_growth: float = 0.03
+) -> pl.LazyFrame:
+    x = np.arange(1, fc_period + 1)
+
+    # Estimate WACC using a rolling average
+    lf = lf.with_columns([
+        pl.col("weight_average_cost_of_capital").ewm_mean(com=0.5).alias("wacc"),
+        pl.col("free_cash_flow_firm").alias("fcf"),
+    ])
+
+    # Estimate FCF growth rate: diff(fcf) / abs(fcf.shift(1))
+    lf = lf.with_columns(
+        (pl.col("fcf").diff() / pl.col("fcf").shift(1).abs()).alias("fcf_roc")
+    )
+    lf = lf.with_columns(
+        pl.col("fcf_roc").ewm_mean(com=0.5).alias("fcf_growth")
+    )
+
+    # Project future FCFs and discount them to present value
+    def project_dcf_expr(fc_period: int, longterm_growth: float):
+        # Inner expression to simulate sigmoid smoothing of growth
+        return pl.map_batches(
+            lambda df: _dcf_batch_calc(df, fc_period, longterm_growth),
+            return_dtype=pl.Float64,
+        ).alias("discounted_cashflow_value")
+
+    lf = lf.with_columns(
+        project_dcf_expr(fc_period, longterm_growth)
+    )
+
+    return lf
+
+
+def _dcf_batch_calc(df: pl.DataFrame, fc_period: int, longterm_growth: float) -> pl.Series:
+    x = np.arange(1, fc_period + 1)
+    values = []
+
+    for i in range(len(df)):
+        fcf = df["fcf"][i]
+        wacc = df["wacc"][i]
+        g = df["fcf_growth"][i]
+
+        if wacc is None or fcf is None or g is None or np.isnan(wacc):
+            values.append(np.nan)
+            continue
+
+        # Smooth projected growth curve
+        growth_projection = longterm_growth + (g - longterm_growth) / (
+            1 + np.exp(np.sign(g - longterm_growth) * (x - fc_period / 2))
+        )
+
+        # Project cash flows and discount
+        discounted_sum = 0.0
+        projected_cf = fcf
+        for j, growth in enumerate(growth_projection, start=1):
+            projected_cf = projected_cf * (1 + growth)
+            discounted_sum += projected_cf / ((1 + wacc) ** j)
+
+        # Add terminal value
+        if wacc > longterm_growth:
+            terminal_value = abs(projected_cf) * (1 + longterm_growth) / (wacc - longterm_growth)
+        else:
+            terminal_value = 0.0  # fallback
+
+        terminal_value /= (1 + wacc) ** fc_period
+        total = discounted_sum + terminal_value
+
+        values.append(total)
+
+    return pl.Series(name="discounted_cashflow_value", values=values)
+
+Claude
+import polars as pl
+import numpy as np
+from typing import Optional
+
+
+def discounted_cash_flow(
+    lf: pl.LazyFrame, 
+    fc_period: int = 20, 
+    longterm_growth: float = 0.03,
+    min_wacc_threshold: float = 0.001  # Prevent division by zero/negative WACC
+) -> pl.LazyFrame:
+    
+    # Required columns for validation
+    required_cols = [
+        "weighted_average_cost_of_capital",
+        "free_cashflow_firm", 
+        "liquid_assets",
+        "debt",
+        "split_adjusted_weighted_average_shares_outstanding_basic"
+    ]
+    
+    # Collect data once and validate
+    try:
+        df = lf.select(required_cols + ["enterprise_value"]).collect()
+    except pl.ColumnNotFoundError as e:
+        raise ValueError(f"Missing required column: {e}")
+    
+    # Early return if no valid WACC data
+    wacc_series = df["weighted_average_cost_of_capital"]
+    if wacc_series.null_count() == len(wacc_series):
+        return lf.with_columns(pl.lit(None).alias("discounted_cashflow_value"))
+    
+    # Calculate smoothed metrics
+    wacc_ema = _calculate_ema_with_fallback(wacc_series)
+    fcf_series = df["free_cashflow_firm"]
+    fcf_growth_ema = _calculate_fcf_growth_ema(fcf_series)
+    
+    # Vectorized DCF calculation
+    dcf_values = _calculate_dcf_vectorized(
+        fcf_series, fcf_growth_ema, wacc_ema, 
+        fc_period, longterm_growth, min_wacc_threshold,
+        df["enterprise_value"]
+    )
+    
+    # Adjust for net liquid assets and calculate per-share value
+    liquid_assets = df["liquid_assets"].fill_null(0)
+    debt = df["debt"].fill_null(0)
+    shares = df["split_adjusted_weighted_average_shares_outstanding_basic"]
+    
+    net_liquid_assets = liquid_assets - debt
+    enterprise_values = dcf_values + net_liquid_assets
+    
+    # Handle division by zero for shares
+    dcf_per_share = np.where(
+        (shares.is_null()) | (shares == 0) | np.isnan(shares),
+        np.nan,
+        enterprise_values / shares
+    )
+    
+    return lf.with_columns(
+        pl.Series("discounted_cashflow_value", dcf_per_share)
+        .alias("discounted_cashflow_value")  # Fixed typo
+    )
+
+
+def _calculate_ema_with_fallback(series: pl.Series, default_span: int = 10) -> np.ndarray:
+    
+    try:
+        valid_data = series.drop_nulls()
+        if len(valid_data) == 0:
+            return np.full(len(series), np.nan)
+        
+        span = min(len(valid_data), default_span)
+        return series.ewm_mean(span=span, adjust=False).to_numpy()
+    except Exception:
+        return np.full(len(series), np.nan)
+
+
+def _calculate_fcf_growth_ema(fcf_series: pl.Series) -> np.ndarray:
+
+    try:
+        # Calculate rate of change
+        fcf_diff = fcf_series.diff()
+        fcf_prev = fcf_series.shift(1)
+        
+        # Avoid division by zero
+        fcf_roc = np.where(
+            (fcf_prev.is_null()) | (fcf_prev == 0) | fcf_prev.is_nan(),
+            np.nan,
+            fcf_diff / fcf_prev.abs()
+        )
+        
+        fcf_roc_series = pl.Series(fcf_roc).drop_nulls()
+        if len(fcf_roc_series) == 0:
+            return np.full(len(fcf_series), np.nan)
+        
+        span = min(len(fcf_roc_series), len(fcf_series))
+        return pl.Series(fcf_roc).ewm_mean(span=span, adjust=False).to_numpy()
+        
+    except Exception:
+        return np.full(len(fcf_series), np.nan)
+
+
+def _calculate_dcf_vectorized(
+    fcf: pl.Series, 
+    fcf_growth: np.ndarray, 
+    wacc: np.ndarray,
+    fc_period: int, 
+    longterm_growth: float,
+    min_wacc_threshold: float,
+    enterprise_values: pl.Series
+) -> np.ndarray:
+    
+    n = len(fcf)
+    dcf_values = np.zeros(n)
+    
+    # Pre-calculate time periods for efficiency
+    periods = np.arange(1, fc_period + 1)
+    midpoint = fc_period / 2
+    
+    for i in range(n):
+        current_fcf = fcf[i]
+        current_growth = fcf_growth[i]
+        current_wacc = wacc[i]
+        
+        # Skip invalid entries
+        if (pd.isna(current_fcf) or pd.isna(current_growth) or 
+            pd.isna(current_wacc) or current_wacc < min_wacc_threshold):
+            dcf_values[i] = np.nan
+            continue
+        
+        # Calculate sigmoid-based growth projection
+        sigmoid_factor = np.sign(current_growth - longterm_growth) * (periods - midpoint)
+        growth_projection = longterm_growth + (
+            (current_growth - longterm_growth) / (1 + np.exp(sigmoid_factor))
+        )
+        
+        # Project cash flows and discount to present value
+        projected_cf = current_fcf
+        present_values = []
+        
+        for period, growth_rate in zip(periods, growth_projection):
+            projected_cf *= (1 + growth_rate)
+            present_value = projected_cf / ((1 + current_wacc) ** period)
+            present_values.append(present_value)
+        
+        dcf_values[i] = sum(present_values)
+        
+        # Calculate terminal value
+        if current_wacc > longterm_growth:
+            # Gordon growth model
+            final_cf = present_values[-1] * (1 + current_wacc) ** fc_period
+            terminal_value = (
+                final_cf * (1 + longterm_growth) / 
+                (current_wacc - longterm_growth)
+            )
+        else:
+            # Fallback to enterprise value based terminal
+            ev = enterprise_values[i]
+            if not pd.isna(ev):
+                terminal_value = ev * ((1 + longterm_growth) ** fc_period)
+            else:
+                terminal_value = 0
+        
+        # Discount terminal value to present
+        terminal_pv = terminal_value / ((1 + current_wacc) ** fc_period)
+        dcf_values[i] += terminal_pv
+    
+    return dcf_values
+"""

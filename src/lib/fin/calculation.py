@@ -1,9 +1,71 @@
-from typing import Literal
+import ast
+from typing import Literal, cast
 
 import polars as pl
 
 from lib.db.lite import polars_from_sqlite_filter
+from lib.fin.taxonomy import TaxonomyCalculation
 from lib.utils.dataframe import df_time_difference
+
+
+class AllTransformer(ast.NodeTransformer):
+  def __init__(self) -> None:
+    self.names: set[str] = set()
+
+  def reset_names(self):
+    self.names = set()
+
+  def visit_Name(self, node):
+    self.names.add(node.id)
+
+    return ast.Call(
+      func=ast.Attribute(
+        value=ast.Name(id="pl", ctx=ast.Load()),
+        attr="col",
+        ctx=ast.Load(),
+      ),
+      args=[ast.Constant(value=node.id)],
+      keywords=[],
+    )
+
+
+class AnyTransformer(ast.NodeTransformer):
+  def __init__(self) -> None:
+    self.df_columns: set[str] = set()
+    self.names: set[str] = set()
+
+  def reset_names(self):
+    self.names = set()
+
+  def set_columns(self, columns: set[str]):
+    self.df_columns = columns
+
+  def visit_Name(self, node):
+    if node.id not in self.df_columns:
+      return ast.Call(
+        func=ast.Attribute(
+          value=ast.Name(id="pl", ctx=ast.Load()),
+          attr="lit",
+          ctx=ast.Load(),
+        ),
+        args=[ast.Constant(value=0.0)],
+        keywords=[],
+      )
+
+    self.names.add(node.id)
+    return ast.Call(
+      func=ast.Attribute(
+        value=ast.Call(
+          func=ast.Attribute(
+            value=ast.Name(id="pl", ctx=ast.Load()), attr="col", ctx=ast.Load()
+          ),
+          args=[ast.Constant(value=node.id)],
+        ),
+        attr="fill_nan",
+        ctx=ast.Load(),
+      ),
+      args=[ast.Constant(value=None)],
+    )
 
 
 def fin_filters() -> list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]:
@@ -355,3 +417,123 @@ def upper_bound(
     )
 
   return lf
+
+
+def calculate_items(
+  financials: pl.LazyFrame,
+  schemas: dict[str, TaxonomyCalculation],
+  recalc: bool = False,
+) -> pl.LazyFrame:
+  def insert_to_lf(
+    lf: pl.LazyFrame, lf_cols: set[str], insert_data: pl.Expr, insert_name: str
+  ) -> pl.LazyFrame:
+    if insert_name in lf_cols:
+      if recalc:
+        lf = lf.with_columns(insert_data.alias(insert_name))
+      else:
+        lf = lf.with_columns(
+          pl.coalesce(
+            [pl.when(pl.col(insert_name) != 0.0).then(pl.col(insert_name)), insert_data]
+          ).alias(insert_name)
+        )
+
+    else:
+      lf = lf.with_columns(insert_data.alias(insert_name))
+      lf_cols.add(insert_name)
+
+    return lf
+
+  def apply_formula(
+    lf: pl.LazyFrame, lf_cols: set[str], col_name: str, expression: ast.Expression
+  ) -> pl.LazyFrame:
+    code = compile(expression, "<string>", "eval")
+    result = eval(code)
+
+    if isinstance(result, pl.Expr):
+      lf = insert_to_lf(lf, lf_cols, result, col_name)
+
+    return lf
+
+  def handle_all_formulas(
+    lf: pl.LazyFrame, lf_cols: set[str], col_name: str, formulas: list[str]
+  ) -> pl.LazyFrame:
+    all_visitor = AllTransformer()
+
+    for formula in formulas:
+      all_visitor.reset_names()
+      expression = ast.parse(formula, mode="eval")
+      expression = cast(
+        ast.Expression, ast.fix_missing_locations(all_visitor.visit(expression))
+      )
+
+      if all_visitor.names.issubset(lf_cols):
+        lf = apply_formula(lf, lf_cols, col_name, expression)
+
+    return lf
+
+  def handle_any_formulas(
+    lf: pl.LazyFrame, lf_cols: set[str], col_name: str, formulas: list[str]
+  ) -> pl.LazyFrame:
+    any_visitor = AnyTransformer()
+
+    for formula in formulas:
+      any_visitor.reset_names()
+      any_visitor.set_columns(lf_cols)
+      expression = ast.parse(formula, mode="eval")
+      expression = cast(
+        ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
+      )
+
+      if any_visitor.names:
+        lf = apply_formula(financials, lf_cols, col_name, expression)
+        break
+
+    return lf
+
+  schemas = dict(sorted(schemas.items(), key=lambda x: x[1].order))
+  slices = fin_filters()
+
+  financials = financials.sort("date")
+  financials = get_days(financials, slices)
+  lf_cols = set(financials.collect_schema().names())
+
+  for calculee, schema in schemas.items():
+    lf_cols.update(financials.collect_schema().names())
+
+    fns = cast(
+      set[Literal["avg", "diff", "shift"]],
+      {"avg", "diff", "shift"}.intersection(set(schema.keys())),
+    )
+    calculated = False
+
+    for fn in fns:
+      calculer = cast(str, schema[fn])
+      if calculer not in lf_cols:
+        continue
+
+      if fn == "avg":
+        result_expr = pl.col(calculer).mean()
+      elif fn == "diff":
+        result_expr = pl.col(calculer).diff()
+      elif fn == "shift":
+        result_expr = pl.col(calculer).shift(1)
+
+      financials = insert_to_lf(financials, lf_cols, result_expr, calculee)
+      calculated = True
+
+    if calculated:
+      continue
+
+    if (formula := schema.get("all")) is not None:
+      financials = handle_all_formulas(financials, lf_cols, calculee, formula)
+
+    if (formula := schema.get("any")) is not None:
+      financials = handle_any_formulas(financials, lf_cols, calculee, formula)
+
+    if (value := schema.get("min")) is not None:
+      financials = lower_bound(financials, lf_cols, value, calculee)
+
+    if (value := schema.get("max")) is not None:
+      financials = upper_bound(financials, lf_cols, value, calculee)
+
+  return financials

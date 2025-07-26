@@ -25,12 +25,11 @@ class AllTransformer(ast.NodeTransformer):
   def visit_Name(self, node):
     self.names.add(node.id)
 
-    subscript = ast.Subscript(
+    return ast.Subscript(
       value=ast.Name(id=self.df_name, ctx=ast.Load()),
       slice=ast.Constant(value=node.id),
       ctx=node.ctx,
     )
-    return subscript
 
 
 class AnyTransformer(ast.NodeTransformer):
@@ -51,7 +50,7 @@ class AnyTransformer(ast.NodeTransformer):
 
     self.names.add(node.id)
 
-    call = ast.Call(
+    return ast.Call(
       func=ast.Attribute(
         value=ast.Subscript(
           value=ast.Name(id=self.df_name, ctx=ast.Load()),
@@ -64,7 +63,6 @@ class AnyTransformer(ast.NodeTransformer):
       args=[ast.Constant(value=0)],
       keywords=[],
     )
-    return call
 
 
 def fin_slices(
@@ -355,6 +353,7 @@ def calculate_items(
   def handle_all_formulas(
     df: DataFrame, df_cols: set[str], col_name: str, formulas: list[str]
   ):
+    all_visitor = AllTransformer("df")
     for formula in formulas:
       all_visitor.reset_names()
       expression = ast.parse(formula, mode="eval")
@@ -370,6 +369,8 @@ def calculate_items(
   def handle_any_formulas(
     df: DataFrame, df_cols: set[str], col_name: str, formulas: list[str]
   ):
+    any_visitor = AnyTransformer("df")
+
     for formula in formulas:
       any_visitor.reset_names()
       any_visitor.set_columns(col_set)
@@ -385,11 +386,9 @@ def calculate_items(
 
   schemas = dict(sorted(schemas.items(), key=lambda x: x[1]["order"]))
   slices = fin_slices(cast(pd.MultiIndex, financials.index))
+
   financials.sort_index(level="date", inplace=True)
   financials["days"] = get_days(cast(pd.MultiIndex, financials.index), slices)
-
-  all_visitor = AllTransformer("df")
-  any_visitor = AnyTransformer("df")
   col_set = set(financials.columns)
 
   for calculee, schema in schemas.items():

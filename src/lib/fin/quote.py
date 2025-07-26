@@ -1,7 +1,7 @@
 from datetime import date as Date, datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-from typing import cast, Any, Coroutine, Literal
+from typing import cast, Annotated, Any, Coroutine, Literal
 
 import pandas as pd
 from pandera.typing import DataFrame
@@ -27,12 +27,14 @@ OHLCV_COLUMNS: list[QuoteColumn] = ["open", "high", "low", "close", "volume"]
 async def load_ohlcv(
   table: str,
   security: Security,
-  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
+  ohlcv_fetcher: partial[
+    Coroutine[Any, Any, Annotated[pl.DataFrame, DataFrame[Quote]]]
+  ],
   delta: int = 1,
   start_date: dt | Date | None = None,
   end_date: dt | Date | None = None,
   cols: list[QuoteColumn] = OHLCV_COLUMNS,
-) -> DataFrame[Quote]:
+) -> Annotated[pl.DataFrame, DataFrame[Quote]]:
   db_path = f"{security}_quote.db"
 
   ohlcv = _load_existing_ohlcv(db_path, table, start_date, end_date, cols)

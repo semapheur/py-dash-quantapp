@@ -13,7 +13,7 @@ import polars as pl
 
 from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite, polars_from_sqlite
 from lib.fin.calculation_pandas import calculate_items, trailing_twelve_months
-from lib.fin.metrics import (
+from lib.fin.metrics_pandas import (
   f_score,
   m_score,
   z_score,
@@ -231,6 +231,90 @@ def merge_share_price_pandas(
 async def calculate_fundamentals(
   ticker_ids: list[str],
   currency: str,
+  financials: pl.LazyFrame,
+  beta_years: int | None = None,
+  update: bool = False,
+) -> pl.DataFrame:
+  start_date = financials.select("date").min().collect().item(0, 0) - relativedelta(
+    years=beta_years or 1
+  )
+
+  prices: list[pl.DataFrame] = []
+  for id in ticker_ids:
+    ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
+
+    price = await load_ohlcv(
+      f"{id}_{currency}",
+      "stock",
+      ohlcv_fetcher,
+      start_date=start_date,
+      cols=["close"],
+    )
+    prices.append(price)
+
+  price_df = pl.concat(prices, how="diagonal")
+
+  financials = trailing_twelve_months(financials)
+  if update:
+    levels = (
+      financials.select("months").unique().collect().get_column("months").to_list()
+    )
+    if 3 in levels:
+      financials = pl.concat(
+        [
+          financials.filter(pl.col("months") == 3).tail(2),
+          financials.filter(pl.col("months") == 12),
+        ]
+      )
+
+  wasob = "weighted_average_shares_outstanding_basic"
+  if len(ticker_ids) > 1:
+    share_cols = [f"{wasob}.{id}" for id in ticker_ids]
+    financials = financials.with_columns(
+      sum([pl.col(c).alias(wasob) for c in share_cols]).alias(wasob)
+    )
+
+  financials = merge_share_price(financials, price_df)
+  split_ratios = stock_splits(ticker_ids[0])
+  financials = stock_split_adjust(financials, split_ratios)
+
+  schema = load_schema()
+  financials = calculate_items(financials, schema)
+
+  market_close = await load_ohlcv(
+    "GSPC",
+    "index",
+    partial(Ticker("^GSPC").ohlcv),
+    start_date=start_date,
+    cols=["close"],
+  )
+  riskfree_rate = await load_ohlcv(
+    "TNX", "index", partial(Ticker("^TNX").ohlcv), start_date=start_date, cols=["close"]
+  )
+
+  price_returns = price_df.with_columns(
+    pl.mean([pl.col(id) for id in ticker_ids]).alias("close")
+  )
+  price_returns = price_df.select(pl.col("close").pct_change().alias("equity_return"))
+  market_return = market_close.select(pl.col("close").pct_change())
+
+  financials = await beta(
+    financials, price_returns, market_return, riskfree_rate, beta_years
+  )
+
+  financials = weighted_average_cost_of_capital(financials)
+  financials = f_score(financials)
+  financials = m_score(financials)
+
+  if "altmann_z_score" not in financials.collect_schema().names():
+    financials = z_score(financials)
+
+  return financials
+
+
+async def calculate_fundamentals_pandas(
+  ticker_ids: list[str],
+  currency: str,
   financials: DataFrame,
   beta_years: int | None = None,
   update: bool = False,
@@ -276,7 +360,7 @@ async def calculate_fundamentals(
     share_cols = [f"{wasob}.{id}" for id in ticker_ids]
     financials[wasob] = financials.loc[:, share_cols].sum(axis=1)
 
-  financials = merge_share_price(financials, price_df)
+  financials = merge_share_price_pandas(financials, price_df)
   split_ratios = stock_splits(id)
   financials = stock_split_adjust_pandas(financials, split_ratios)
   schema = load_schema()
