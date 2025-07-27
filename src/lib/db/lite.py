@@ -277,23 +277,27 @@ def polars_from_sqlite_filter(
   db_name: str,
   table: str,
   match_column: str,
-  values: Sequence[str],
+  filter_values: Sequence[str],
   select_columns: Sequence[str] | None = None,
   where_clause: str | None = None,
   value_alias: str | None = None,
 ) -> pl.DataFrame | None:
-  if not values:
+  if not filter_values:
     raise ValueError("No values provided")
 
   value_alias = value_alias or match_column
-  select_clause = ", ".join(select_columns) if select_columns else "*"
-  values_clause = ", ".join([f"('{v}')" for v in values])
+  select_clause = (
+    ", ".join(col if "." in col else f"{table}.{col}" for col in select_columns)
+    if select_columns
+    else f"{table}.*"
+  )
+  values_clause = ", ".join([f"('{v}')" for v in filter_values])
 
   query = f"""
     WITH filter_values({value_alias}) AS (
       VALUES {values_clause}
     )
-    SELECT {select_clause} FROM '{table}'
+    SELECT {select_clause} FROM {table}
     JOIN filter_values ON {table}.{match_column} = filter_values.{value_alias}
   """
 

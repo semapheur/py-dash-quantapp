@@ -30,9 +30,10 @@ from lib.fin.models import (
   get_date,
 )
 from lib.fin.quote import load_ohlcv
-from lib.fin.taxonomy import load_taxonomy_items
+from lib.fin.taxonomy import load_taxonomy_lookup
 from lib.utils.dataframe import (
-  combine_duplicate_columns,
+  rename_and_coalesce_columns,
+  lower_and_coalesce_columns,
   combine_duplicate_columns_pandas,
   df_time_difference,
   fiscal_quarter_monthly_polars,
@@ -414,29 +415,21 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
     return result_lf
 
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
-  items = load_taxonomy_items()
 
-  statements = combine_duplicate_columns(statements)
+  statements = lower_and_coalesce_columns(statements)
+  all_cols = statements.collect_schema().names()
 
-  index_cols = {"date", "period", "months", "fiscal_end_month"}
-  gaap_items = set(items.get_column("gaap").to_list())
-  rename_mapping = dict(zip(items["item"], items["gaap"]))
-
-  selected_cols = index_cols.union(gaap_items)
-  statements = statements.select(
-    [
-      pl.col(c).alias(rename_mapping.get(c, c))
-      for c in statements.collect_schema().names()
-      if c in selected_cols
-    ]
-  )
+  item_lookup = load_taxonomy_lookup(all_cols)
+  grouped = item_lookup.group_by("item").agg(pl.col("gaap").unique().sort())
+  rename_map = dict(zip(grouped["item"].to_list(), grouped["gaap"].to_list()))
+  statements = rename_and_coalesce_columns(statements, rename_map, set(all_cols))
 
   sum_items_df = polars_from_sqlite_filter(
     db_name="taxonomy",
     table="items",
     match_column="item",
-    values=statements.collect_schema().names(),
-    select_columns=["items"],
+    filter_values=statements.collect_schema().names(),
+    select_columns=["item"],
     where_clause="aggregate = 'sum'",
   )
   sum_items = sum_items_df["item"].to_list()
@@ -582,15 +575,16 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
     return None
 
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
-  items = load_taxonomy_items()
-
   statements.columns = statements.columns.str.lower()
+
+  item_lookup = load_taxonomy_lookup(list(statements.columns))
+
   statements = cast(
     DataFrame,
-    statements.loc[:, list(set(statements.columns).intersection(set(items["gaap"])))],
+    statements.loc[:, item_lookup["gaap"].to_list()],
   )
 
-  rename = dict(zip(items["item"], items["gaap"]))
+  rename = dict(zip(item_lookup["gaap"].to_list(), item_lookup["item"].to_list()))
   statements.rename(columns=rename, inplace=True)
   statements = combine_duplicate_columns_pandas(statements)
 
@@ -598,8 +592,8 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
     db_name="taxonomy",
     table="items",
     match_column="item",
-    values=list(statements.columns),
-    select_columns=["items"],
+    filter_values=list(statements.columns),
+    select_columns=["item"],
     where_clause="aggregate = 'sum'",
   )
   sum_items = sum_items_df["item"].to_list()

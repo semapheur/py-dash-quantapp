@@ -33,6 +33,7 @@ def load_schema(query: str | None = None) -> dict[str, TaxonomyCalculation]:
     query = """
       SELECT item, calculation FROM items
       WHERE calculation IS NOT NULL
+      ORDER BY json_extract(calculation, '$.order') ASC
     """
 
   df = polars_from_sqlite("taxonomy.db", query)
@@ -270,9 +271,7 @@ async def calculate_fundamentals(
   wasob = "weighted_average_shares_outstanding_basic"
   if len(ticker_ids) > 1:
     share_cols = [f"{wasob}.{id}" for id in ticker_ids]
-    financials = financials.with_columns(
-      sum([pl.col(c).alias(wasob) for c in share_cols]).alias(wasob)
-    )
+    financials = financials.with_columns(pl.sum_horizontal(share_cols).alias(wasob))
 
   financials = merge_share_price(financials, price_df)
   split_ratios = stock_splits(ticker_ids[0])
@@ -292,9 +291,7 @@ async def calculate_fundamentals(
     "TNX", "index", partial(Ticker("^TNX").ohlcv), start_date=start_date, cols=["close"]
   )
 
-  price_returns = price_df.with_columns(
-    pl.mean([pl.col(id) for id in ticker_ids]).alias("close")
-  )
+  price_returns = price_df.with_columns(pl.mean_horizontal(ticker_ids).alias("close"))
   price_returns = price_df.select(pl.col("close").pct_change().alias("equity_return"))
   market_return = market_close.select(pl.col("close").pct_change())
 

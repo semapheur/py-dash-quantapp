@@ -4,8 +4,7 @@ from contextlib import closing
 import json
 import re
 import sqlite3
-from typing import cast, Literal, Optional
-from typing_extensions import TypedDict
+from typing import Sequence, cast, Literal, TypedDict
 
 from glom import glom
 import pandas as pd
@@ -56,29 +55,29 @@ class AggregateItems(ast.NodeVisitor):
 
 class TaxonomyLabel(TypedDict, total=False):
   long: str
-  short: Optional[str]
+  short: str | None
 
 
 class TaxonomyCalculation(TypedDict, total=False):
   order: int
-  all: Optional[list[str]]
-  any: Optional[list[str]]
-  avg: Optional[str]
-  diff: Optional[str]
-  fill: Optional[str]
-  shift: Optional[str]
-  min: Optional[str | float]
-  max: Optional[str | float]
+  all: list[str] | None
+  any: list[str] | None
+  avg: str | None
+  diff: str | None
+  fill: str | None
+  shift: str | None
+  min: str | float | None
+  max: str | float | None
 
 
 class TaxonomyItem(BaseModel):
   type: TaxonomyType
-  balance: Optional[Literal["credit", "debit"]] = None
+  balance: Literal["credit", "debit"] | None = None
   aggregate: Literal["average", "recalc", "sum", "tail"]
   label: TaxonomyLabel
-  gaap: Optional[list[str]] = None
-  calculation: Optional[TaxonomyCalculation] = None
-  components: Optional[list[str]] = None
+  gaap: list[str] | None = None
+  calculation: TaxonomyCalculation | None = None
+  components: list[str] | None = None
 
   @field_validator("calculation", mode="before")
   @classmethod
@@ -103,12 +102,12 @@ class ItemGaapRecord(TypedDict):
 class TaxonomyRecord(TypedDict):
   item: str
   type: TaxonomyType
-  balance: Optional[Literal["credit", "debit"]]
+  balance: Literal["credit", "debit"] | None
   aggregate: Literal["average", "recalc", "sum", "tail"]
   long: str
-  short: Optional[str]
-  gaap: Optional[str]
-  calculation: Optional[str]
+  short: str | None
+  gaap: str | None
+  calculation: str | None
 
 
 class Taxonomy(BaseModel):
@@ -287,7 +286,7 @@ class Taxonomy(BaseModel):
     return pd.DataFrame(df_data, columns=["item", "long", "short"])
 
   def calculation_schema(
-    self, select: Optional[set[str]] = None
+    self, select: set[str] | None = None
   ) -> dict[str, TaxonomyCalculation]:
     keys = set(self.data.keys())
     if select:
@@ -508,7 +507,7 @@ def duplicate_calculation_items(taxonomy: Taxonomy) -> dict[str, dict[str, list[
 
 
 def load_taxonomy(
-  path: str = "lex/fin_taxonomy.json", filter_: Optional[set[str]] = None
+  path: str = "lex/fin_taxonomy.json", filter_: set[str] | None = None
 ) -> Taxonomy:
   with open(path, "r") as file:
     data = json.load(file)
@@ -572,11 +571,18 @@ def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
   return template
 
 
-def load_taxonomy_items() -> pl.DataFrame:
-  query = """
+def load_taxonomy_lookup(filter_gaap: Sequence[str]) -> pl.DataFrame:
+  values_clause = ", ".join([f"('{v.lower()}')" for v in filter_gaap])
+
+  query = f"""
+    WITH filter_values(gaap) AS (
+      VALUES {values_clause}
+    )
     SELECT DISTINCT lower(json_each.value) AS gaap, item FROM items 
-    JOIN json_each(gaap) ON 1=1
-    WHERE gaap IS NOT NULL
+    JOIN json_each(items.gaap) ON 1=1
+    JOIN filter_values ON lower(json_each.value) = filter_values.gaap
+    WHERE items.gaap IS NOT NULL
+    ORDER BY item
   """
   items = polars_from_sqlite("taxonomy.db", query)
   if items is None:

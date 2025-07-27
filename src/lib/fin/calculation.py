@@ -121,7 +121,7 @@ def trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
     db_name="taxonomy",
     table="items",
     match_column="item",
-    values=lf_q.collect_schema().names(),
+    filter_values=lf_q.collect_schema().names(),
     select_columns=["items"],
     where_clause="aggregate = 'sum'",
   )
@@ -170,7 +170,7 @@ def tail_trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
       db_name="taxonomy",
       table="items",
       match_column="item",
-      values=columns,
+      filter_values=columns,
       select_columns=["item"],
       where_clause="aggregate = 'sum'",
     )
@@ -233,7 +233,7 @@ def update_trailing_twelve_months(lf: pl.LazyFrame, new_price: float) -> pl.Lazy
     db_name="taxonomy",
     table="items",
     match_column="item",
-    values=columns,
+    filter_values=columns,
     select_columns=["items"],
     where_clause="unit = 'price_ratio'",
   )
@@ -490,7 +490,6 @@ def calculate_items(
 
     return lf
 
-  schemas = dict(sorted(schemas.items(), key=lambda x: x[1].order))
   slices = fin_filters()
 
   financials = financials.sort("date")

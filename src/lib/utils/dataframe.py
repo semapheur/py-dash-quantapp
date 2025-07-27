@@ -23,7 +23,7 @@ class renamer:
       return "%s_%d" % (x, self.d[x])
 
 
-def combine_duplicate_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
+def lower_and_coalesce_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
   columns = lf.collect_schema().names()
   name_map: dict[str, list[str]] = {}
 
@@ -42,6 +42,34 @@ def combine_duplicate_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
       combined_exprs.append(pl.coalesce(exprs).alias(key))
 
   return lf.select(combined_exprs)
+
+
+def rename_and_coalesce_columns(
+  lf: pl.LazyFrame, rename_map: dict[str, list[str]], lf_cols: set[str] | None = None
+) -> pl.LazyFrame:
+  if lf_cols is None:
+    lf_cols = set(lf.collect_schema().names())
+
+  exprs: list[pl.Expr] = []
+  processed_cols: set[str] = set()
+
+  for new_name, old_names in rename_map.items():
+    found_names = list(lf_cols.intersection(old_names))
+
+    if not found_names:
+      continue
+
+    if len(found_names) == 1:
+      exprs.append(pl.col(found_names[0]).alias(new_name))
+    else:
+      exprs.append(pl.coalesce(pl.col(found_names)).alias(new_name))
+
+    processed_cols.update(found_names)
+
+  for col in lf_cols.difference(processed_cols):
+    exprs.append(pl.col(col))
+
+  return lf.select(exprs)
 
 
 def combine_duplicate_columns_pandas(df: DataFrame) -> DataFrame:
