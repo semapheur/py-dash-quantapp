@@ -494,7 +494,7 @@ def upsert_sqlite(
     cols = list(df.columns.tolist())
     headers = ix_cols + cols
     headers_text = ", ".join(f'"{i}"' for i in headers)
-    update_text = ", ".join([f'"{c}" = EXCLUDED."{c}"' for c in cols])
+    update_text = ", ".join([f'"{c}" = excluded."{c}"' for c in cols])
 
     # Store data in temporary table
     # con.execute(text(f'CREATE TEMP TABLE temp({headers_text})'))
@@ -579,7 +579,7 @@ def polars_to_sqlite_upsert(
 
     nonindex_cols = set(df.columns).difference(index_cols)
     cols_sql = ", ".join(f'"{c}"' for c in df.columns)
-    update_sql = ", ".join(f'"{c}" = EXCLUDED."{c}"' for c in nonindex_cols)
+    update_sql = ", ".join(f'"{c}" = excluded."{c}"' for c in nonindex_cols)
 
     upsert_query = f"""
       INSERT INTO "{table}" ({cols_sql})

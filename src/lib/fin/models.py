@@ -471,8 +471,23 @@ class FinStatement(BaseModel):
     if periods_index is None:
       return data
 
-    units = data["units"]
-    dimensions = data["dimensions"]
+    units = (
+      orjson.loads(data["units"]) if isinstance(data["units"], str) else data["units"]
+    )
+    if not isinstance(units, list):
+      raise ValueError(
+        f"{cls.__name__} units must be a list. Got: {type(units).__name__}"
+      )
+
+    dimensions = (
+      orjson.loads(data["dimensions"])
+      if isinstance(data["dimensions"], str)
+      else data["dimensions"]
+    )
+    if not isinstance(dimensions, list):
+      raise ValueError(
+        f"{cls.__name__} dimensions must be a list. Got: {type(dimensions).__name__}"
+      )
 
     findata = data["data"]
     if isinstance(findata, str):
@@ -524,7 +539,6 @@ class FinStatement(BaseModel):
               raise ValueError(
                 f"{cls.__name__} data records members values must be dictionaries. Got: {type(data)}"
               )
-
             resolved_members[member_key] = {
               "value": member.get("value"),
               "unit": cls._resolve_index(

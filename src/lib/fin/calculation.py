@@ -122,7 +122,7 @@ def trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
     table="items",
     match_column="item",
     filter_values=lf_q.collect_schema().names(),
-    select_columns=["items"],
+    select_columns=["item"],
     where_clause="aggregate = 'sum'",
   )
   sum_items = sum_items_df["item"].to_list()
@@ -234,7 +234,7 @@ def update_trailing_twelve_months(lf: pl.LazyFrame, new_price: float) -> pl.Lazy
     table="items",
     match_column="item",
     filter_values=columns,
-    select_columns=["items"],
+    select_columns=["item"],
     where_clause="unit = 'price_ratio'",
   )
   items = items_df["item"].to_list() + ["market_capitalization"]

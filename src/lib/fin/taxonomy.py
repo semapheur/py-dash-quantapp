@@ -7,6 +7,7 @@ import sqlite3
 from typing import Sequence, cast, Literal, TypedDict
 
 from glom import glom
+import orjson
 import pandas as pd
 from pandera.typing import DataFrame
 import polars as pl
@@ -589,6 +590,27 @@ def load_taxonomy_lookup(filter_gaap: Sequence[str]) -> pl.DataFrame:
     raise ValueError("Taxonomy could not be loaded!")
 
   return items
+
+
+def load_schema(query: str | None = None) -> dict[str, TaxonomyCalculation]:
+  if query is None:
+    query = """
+      SELECT item, calculation FROM items
+      WHERE calculation IS NOT NULL
+      ORDER BY json_extract(calculation, '$.order') ASC
+    """
+
+  df = polars_from_sqlite("taxonomy.db", query)
+  if df is None or df.is_empty():
+    raise ValueError("Could not load taxonomy!")
+
+  calculations = [orjson.loads(x) for x in df["calculation"]]
+  items = df.get_column("item").to_list()
+
+  schema = {
+    item: TaxonomyCalculation(**calc) for item, calc in zip(items, calculations)
+  }
+  return schema
 
 
 def scraped_items(sort=False) -> set[str]:

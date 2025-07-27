@@ -1,6 +1,5 @@
 # Todo
 - Fix FinData members without dimension
-- Fix parsing of dim into dataframe
 
 
 # Tips
