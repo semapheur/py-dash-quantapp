@@ -1,12 +1,12 @@
 from datetime import date as Date
 from dateutil.relativedelta import relativedelta
-from typing import Literal, cast, TypedDict
+from typing import cast, Literal, TypedDict
 
 import numpy as np
 import polars as pl
 import statsmodels.api as sm
 
-from lib.fin.calculation import fin_filters
+from lib.fin.calculation import applier, fin_filters
 
 
 class BetaRecord(TypedDict):
@@ -24,31 +24,108 @@ class YieldSpreadRecord(TypedDict):
   yield_spread: float
 
 
-def f_score(lf: pl.LazyFrame) -> pl.LazyFrame:
-  def diff_col(col: str) -> pl.Expr:
-    exprs = [
-      pl.col(col).diff().over(["period", "months"]).filter(per & mon)
-      for per, mon, _ in slices
-    ]
-    return pl.coalesce(*exprs)
+def apply_transforms_and_join(
+  lf: pl.LazyFrame,
+  columns: list[str],
+  fn: Literal["avg", "diff", "shift"],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+) -> pl.LazyFrame:
+  for column in columns:
+    input_lf = lf.select(["date", "period", "months", column])
+    transformed = applier(input_lf, column, fn, slices)
+    lf = lf.join(
+      transformed.select(["date", "period", "months", column]),
+      on=["date", "period", "months"],
+      how="left",
+    )
+  return lf
 
+
+def f_score(lf: pl.LazyFrame) -> pl.LazyFrame:
   slices = fin_filters()
 
-  return lf.with_columns(
-    (
-      (pl.col("return_on_equity") > 0).cast(pl.Int8)
-      + (diff_col("return_on_assets") > 0).cast(pl.Int8)
-      + (pl.col("cashflow_operating") > 0).cast(pl.Int8)
-      + (
-        (pl.col("cashflow_operating") / pl.col("assets")) > pl.col("return_on_assets")
-      ).cast(pl.Int8)
-      + (-diff_col("debt") > 0).cast(pl.Int8)
-      + (diff_col("quick_ratio") > 0).cast(pl.Int8)
-      + (-diff_col("weighted_average_shares_outstanding_basic") > 0).cast(pl.Int8)
-      + (diff_col("operating_profit_margin") > 0).cast(pl.Int8)
-      + (diff_col("asset_turnover") > 0).cast(pl.Int8)
-    ).alias("piotroski_f_score")
+  # Apply "diff" transformations and join back into lf
+  lf = apply_transforms_and_join(
+    lf,
+    [
+      "return_on_assets",
+      "debt",
+      "quick_ratio",
+      "weighted_average_shares_outstanding_basic",
+      "operating_profit_margin",
+      "asset_turnover",
+    ],
+    "diff",
+    slices,
   )
+
+  # F-score component conditions
+  roe_score = (
+    pl.when(pl.col("return_on_equity") > 0).then(1).otherwise(0).alias("roe_score")
+  )
+  roa_score = (
+    pl.when(pl.col("return_on_assets") > 0).then(1).otherwise(0).alias("roa_score")
+  )
+  ocf_score = (
+    pl.when(pl.col("cashflow_operating") > 0).then(1).otherwise(0).alias("ocf_score")
+  )
+  accrual_score = (
+    pl.when(
+      (pl.col("cashflow_operating") / pl.col("assets")) > pl.col("return_on_assets")
+    )
+    .then(1)
+    .otherwise(0)
+    .alias("accrual_score")
+  )
+  leverage_score = (
+    pl.when(pl.col("debt") < 0).then(1).otherwise(0).alias("leverage_score")
+  )
+  liquidity_score = (
+    pl.when(pl.col("quick_ratio") > 0).then(1).otherwise(0).alias("liquidity_score")
+  )
+  dilution_score = (
+    pl.when(pl.col("weighted_average_shares_outstanding_basic") < 0)
+    .then(1)
+    .otherwise(0)
+    .alias("dilution_score")
+  )
+  margin_score = (
+    pl.when(pl.col("operating_profit_margin") > 0)
+    .then(1)
+    .otherwise(0)
+    .alias("margin_score")
+  )
+  turnover_score = (
+    pl.when(pl.col("asset_turnover") > 0).then(1).otherwise(0).alias("turnover_score")
+  )
+
+  # Add scores to lf
+  lf = lf.with_columns(
+    [
+      roe_score,
+      roa_score,
+      ocf_score,
+      accrual_score,
+      leverage_score,
+      liquidity_score,
+      dilution_score,
+      margin_score,
+      turnover_score,
+      (
+        pl.col("roe_score")
+        + pl.col("roa_score")
+        + pl.col("ocf_score")
+        + pl.col("accrual_score")
+        + pl.col("leverage_score")
+        + pl.col("liquidity_score")
+        + pl.col("dilution_score")
+        + pl.col("margin_score")
+        + pl.col("turnover_score")
+      ).alias("piotroski_f_score"),
+    ]
+  )
+
+  return lf
 
 
 def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
@@ -57,7 +134,7 @@ def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
 
   return lf.with_columns(
     (
-      1.2 * pl.col("average_operating_working_capital") / assets
+      1.2 * pl.col("average_working_capital_operating") / assets
       + 1.4 * pl.col("retained_earnings_accumulated_deficit") / assets
       + 3.3 * pl.col("cashflow_operating") / assets
       + 0.6 * pl.col("market_capitalization") / liabilities
@@ -67,69 +144,118 @@ def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
 
 
 def m_score(lf: pl.LazyFrame) -> pl.LazyFrame:
-  receivables_col = next(
-    (
-      col
-      for col in [
-        "average_receivables_trade_current",
-        "average_receivables_trade",
-        "average_receivables",
-      ]
-      if col in lf.collect_schema().names()
-    ),
-    None,
+  slices = fin_filters()
+
+  # Apply required "shift" transformations in-place
+  lf = apply_transforms_and_join(
+    lf,
+    [
+      "revenue",
+      "operating_profit_margin",
+      "productive_assets",
+      "depreciation",
+      "selling_general_administrative_expense",
+      "liabilities",
+      "assets",  # for leverage
+    ],
+    "shift",
+    slices,
   )
-  dsri = (
-    pl.when(receivables_col is not None)
-    .then(
-      (pl.col(receivables_col) / pl.col("revenue"))
-      / (pl.col(receivables_col).shift(1) / pl.col("revenue").shift(1))
+
+  # Try to determine receivables column (fall back priority)
+  receivables_col = None
+  for col in [
+    "average_receivables_trade_current",
+    "average_receivables_trade",
+    "average_receivables",
+  ]:
+    if col in lf.collect_schema().names():
+      receivables_col = col
+      break
+
+  # Apply shift to receivables if it exists
+  if receivables_col:
+    lf = apply_transforms_and_join(lf, [receivables_col], "shift", slices)
+    lf = lf.with_columns(
+      (
+        pl.col(receivables_col)
+        / pl.col("revenue")
+        / (pl.col(receivables_col) / pl.col("revenue")).shift(1)
+      ).alias("dsri")
     )
-    .otherwise(0.0)
-    .alias("dsri")
+  else:
+    lf = lf.with_columns(pl.lit(0.0).alias("dsri"))
+
+  # Gross Margin Index
+  lf = lf.with_columns(
+    (
+      pl.col("operating_profit_margin").shift(1) / pl.col("operating_profit_margin")
+    ).alias("gmi")
   )
-  gmi = (
-    pl.col("operating_profit_margin").shift(1) / pl.col("operating_profit_margin")
-  ).alias("gmi")
 
-  aqi_val = 1 - (
-    pl.col("operating_working_capital")
-    + pl.col("productive_assets")
-    + pl.col("financial_assets_noncurrent")
-  ) / pl.col("assets")
-  aqi = (aqi_val / aqi_val.shift(1)).alias("aqi")
-
-  sgi = pl.col("revenue") / pl.col("revenue").shift(1).alias("sgi")
-
-  productive_minus_depreciation = pl.col("productive_assets") - pl.col("depreciation")
-  depi = (pl.col("depreciation") / productive_minus_depreciation) / (
-    pl.col("depreciation").shift(1) / productive_minus_depreciation.shift(1)
-  ).alias("depi")
-
-  li_val = pl.col("liabilities") / pl.col("assets")
-  li = (li_val / li_val.shift(1)).alias("li")
-
-  tata = (
-    (pl.col("income_loss_operating") - pl.col("cashflow_operating"))
-    / pl.col("average_assets")
-  ).alias("tata")
-  beneish = (
-    -4.84
-    + 0.92 * pl.col("dsri")
-    + 0.528 * pl.col("gmi")
-    + 0.404 * pl.col("aqi")
-    + 0.892 * pl.col("sgi")
-    + 0.115 * pl.col("depi")
-    - 0.172 * pl.col("sgai")
-    + 4.679 * pl.col("tata")
-    - 0.327 * pl.col("li")
-  ).alias("beneish")
-
-  return (
-    lf.with_columns([dsri, gmi, aqi, sgi, depi, li, tata])
-    .with_columns(beneish)
-    .drop(["dsri", "gmi", "aqi", "sgi", "depi", "li", "tata"])
+  # Asset Quality Index
+  lf = lf.with_columns(
+    (
+      1
+      - (
+        pl.col("working_capital_operating")
+        + pl.col("productive_assets")
+        + pl.col("financial_assets_noncurrent")
+      )
+      / pl.col("assets")
+    ).alias("aqi")
   )
+  lf = apply_transforms_and_join(lf, ["aqi"], "shift", slices)
+  lf = lf.with_columns((pl.col("aqi") / pl.col("aqi").shift(1)).alias("aqi"))
+
+  # Sales Growth Index
+  lf = lf.with_columns((pl.col("revenue") / pl.col("revenue").shift(1)).alias("sgi"))
+
+  # Depreciation Index
+  lf = lf.with_columns(
+    (
+      pl.col("depreciation") / (pl.col("productive_assets") - pl.col("depreciation"))
+    ).alias("depi")
+  )
+  lf = apply_transforms_and_join(lf, ["depi"], "shift", slices)
+  lf = lf.with_columns((pl.col("depi") / pl.col("depi").shift(1)).alias("depi"))
+
+  # SG&A Index
+  lf = lf.with_columns(
+    (pl.col("selling_general_administrative_expense") / pl.col("revenue")).alias("sgai")
+  )
+  lf = apply_transforms_and_join(lf, ["sgai"], "shift", slices)
+  lf = lf.with_columns((pl.col("sgai") / pl.col("sgai").shift(1)).alias("sgai"))
+
+  # Leverage Index
+  lf = lf.with_columns((pl.col("liabilities") / pl.col("assets")).alias("li"))
+  lf = apply_transforms_and_join(lf, ["li"], "shift", slices)
+  lf = lf.with_columns((pl.col("li") / pl.col("li").shift(1)).alias("li"))
+
+  # Total Accruals to Total Assets
+  lf = lf.with_columns(
+    (
+      (pl.col("income_loss_operating") - pl.col("cashflow_operating"))
+      / pl.col("average_assets")
+    ).alias("tata")
+  )
+
+  # Beneish M-score formula
+  lf = lf.with_columns(
+    (
+      -4.84
+      + 0.92 * pl.col("dsri")
+      + 0.528 * pl.col("gmi")
+      + 0.404 * pl.col("aqi")
+      + 0.892 * pl.col("sgi")
+      + 0.115 * pl.col("depi")
+      - 0.172 * pl.col("sgai")
+      + 4.679 * pl.col("tata")
+      - 0.327 * pl.col("li")
+    ).alias("beneish_m_score")
+  )
+
+  return lf
 
 
 def calculate_beta(
@@ -177,30 +303,33 @@ def calculate_beta(
 
 def beta(
   financials: pl.LazyFrame,
-  equity_return: pl.DataFrame,
-  market_return: pl.DataFrame,
-  riskfree_rate: pl.DataFrame,
+  equity_return: pl.LazyFrame,
+  market_return: pl.LazyFrame,
+  riskfree_rate: pl.LazyFrame,
   years: int | None = 0,
 ) -> pl.LazyFrame:
   returns_df = (
-    equity_return.join(market_return, on="date", how="outer")
-    .join(riskfree_rate, on="date", how="outer")
+    equity_return.join(market_return, on="date", how="outer", coalesce=True)
+    .join(riskfree_rate, on="date", how="outer", coalesce=True)
     .sort("date")
     .fill_null(strategy="forward")
     .drop_nulls()
+    .collect()
   )
   slices = fin_filters()
 
   beta_frames: list[pl.LazyFrame] = []
-  for period, _, months in slices:
+  for period_filter, month_filter, months in slices:
     dates = (
-      financials.filter(pl.col("period") == period)
-      .filter(pl.col("months") == months)
+      financials.filter(period_filter & month_filter)
       .select("date")
       .collect()
       .get_column("date")
       .to_list()
     )
+    if not dates:
+      continue
+
     beta_frame = calculate_beta(dates, returns_df, months, years)
     beta_frames.append(beta_frame)
 
@@ -214,46 +343,47 @@ def weighted_average_cost_of_capital(
   financials = apply_yield_spread(financials, large_cap_limit)
 
   financials = financials.with_columns(
+    (
+      pl.col("beta")
+      * (
+        1 + (1 - pl.col("tax_rate")) * pl.col("average_debt") / pl.col("average_equity")
+      )
+    ).alias("beta_levered")
+  )
+  financials = financials.with_columns(
+    (
+      pl.col("beta_levered") * (pl.col("market_return") - pl.col("riskfree_rate"))
+    ).alias("equity_risk_premium")
+  )
+  financials = financials.with_columns(
     [
-      # Levered beta
-      (
-        pl.col("beta")
-        * (
-          1
-          + (1 - pl.col("tax_rate")) * pl.col("average_debt") / pl.col("average_equity")
-        )
-      ).alias("beta_levered"),
-      # Cost of equity
-      (
-        pl.col("beta_levered") * (pl.col("market_return") - pl.col("riskfree_rate"))
-      ).alias("equity_risk_premium"),
       (pl.col("riskfree_rate") + pl.col("equity_risk_premium")).alias("cost_equity"),
-      # Cost of debt
       (pl.col("riskfree_rate") + pl.col("yield_spread")).alias("cost_debt"),
-      # Market value of debt
-      (
-        (pl.col("interest_expense") / pl.col("cost_debt"))
-        * (1 - (1 / (1 + pl.col("cost_debt")) ** debt_maturity))
-        + (pl.col("debt") / (1 + pl.col("cost_dbet")) ** debt_maturity)
-      ).alias("market_value_debt"),
-      # Capital weights
-      (
-        pl.col("market_capitalization")
-        / (pl.col("market_capitalization") + pl.col("market_value_debt")).alias(
-          "equity_to_capital"
-        )
-      ),
-      # Weighted average cost of capital
-      (
-        pl.col("cost_equity") * pl.col("equity_to_capital")
-        + pl.col("cost_debt")
-        * (1 - pl.col("tax_rate"))
-        * (
-          pl.col("market_value_debt")
-          / (pl.col("market_capitalization") + pl.col("market_value_debt"))
-        )
-      ).alias("weighted_average_cost_of_capital"),
     ]
+  )
+  financials = financials.with_columns(
+    (
+      (pl.col("interest_expense") / pl.col("cost_debt"))
+      * (1 - (1 / (1 + pl.col("cost_debt")) ** debt_maturity))
+      + (pl.col("debt") / (1 + pl.col("cost_debt")) ** debt_maturity)
+    ).alias("market_value_debt")
+  )
+  financials = financials.with_columns(
+    (
+      pl.col("market_capitalization")
+      / (pl.col("market_capitalization") + pl.col("market_value_debt"))
+    ).alias("equity_to_capital")
+  )
+  financials = financials.with_columns(
+    (
+      pl.col("cost_equity") * pl.col("equity_to_capital")
+      + pl.col("cost_debt")
+      * (1 - pl.col("tax_rate"))
+      * (
+        pl.col("market_value_debt")
+        / (pl.col("market_capitalization") + pl.col("market_value_debt"))
+      )
+    ).alias("weighted_average_cost_of_capital"),
   )
 
   return financials.drop(["market_return", "capitalization_class"])
@@ -273,8 +403,8 @@ def apply_yield_spread(
       .otherwise(pl.col("interest_coverage_ratio"))
       .alias("icr_clean"),
       pl.when(pl.col("market_capitalization") < large_cap_limit)
-      .then("small")
-      .otherwise("large")
+      .then(pl.lit("small"))
+      .otherwise(pl.lit("large"))
       .alias("capitalization_class"),
     ]
   )
@@ -287,7 +417,7 @@ def apply_yield_spread(
       how="inner",
     )
     .filter(pl.col("icr_clean") < pl.col("upper"))
-    .drop(["icr_clean", "lower", "upper"])
+    .drop(["icr_clean", "upper"])
   )
   return joined
 
@@ -353,7 +483,7 @@ def yield_spread_table() -> pl.LazyFrame:
     ("small", small_icr_intervals),
     ("large", large_icr_intervals),
   ]:
-    for i in range(len(spreads)):
+    for i in range(len(spreads) - 1):
       rows.append(
         YieldSpreadRecord(
           capitalization_class=cast(Literal["small", "large"], cap_class),

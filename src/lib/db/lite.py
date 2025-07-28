@@ -19,7 +19,7 @@ from sqlalchemy.types import Integer, Text, Float, DateTime
 
 from lib.const import DB_DIR
 
-_POLARS_TO_SQLITE: dict[pl.DataType, str] = {
+_POLARS_TO_SQLITE: dict[type, str] = {
   pl.Int8: "INTEGER",
   pl.Int16: "INTEGER",
   pl.Int32: "INTEGER",
@@ -214,6 +214,7 @@ def polars_from_sqlite(
   query: str | TextClause,
   params: dict[str, str] | None = None,
   column_transform: list[pl.Expr] | None = None,
+  lazy: bool = False,
 ) -> pl.DataFrame | None:
   db_path = sqlite_path(db_name)
   engine = create_engine(f"sqlite+pysqlite:///{db_path}")
@@ -279,30 +280,30 @@ def polars_from_sqlite_filter(
   match_column: str,
   filter_values: Sequence[str],
   select_columns: Sequence[str] | None = None,
-  where_clause: str | None = None,
+  where_sql: str | None = None,
   value_alias: str | None = None,
 ) -> pl.DataFrame | None:
   if not filter_values:
     raise ValueError("No values provided")
 
   value_alias = value_alias or match_column
-  select_clause = (
+  select_sql = (
     ", ".join(col if "." in col else f"{table}.{col}" for col in select_columns)
     if select_columns
     else f"{table}.*"
   )
-  values_clause = ", ".join([f"('{v}')" for v in filter_values])
+  values_sql = ", ".join([f"('{v}')" for v in filter_values])
 
   query = f"""
     WITH filter_values({value_alias}) AS (
-      VALUES {values_clause}
+      VALUES {values_sql}
     )
-    SELECT {select_clause} FROM {table}
+    SELECT {select_sql} FROM {table}
     JOIN filter_values ON {table}.{match_column} = filter_values.{value_alias}
   """
 
-  if where_clause:
-    query += f" WHERE {where_clause}"
+  if where_sql:
+    query += f" WHERE {where_sql}"
 
   df = polars_from_sqlite(db_name, query)
   if df is None or df.is_empty():
@@ -476,7 +477,7 @@ def upsert_sqlite(
 
   # SQL index headers
   ix_cols = list(df.index.names)
-  ix_cols_text = ", ".join(f'"{i}"' for i in ix_cols)
+  ix_cols_sql = ", ".join(f'"{i}"' for i in ix_cols)
 
   if not inspector.has_table(tbl_name):
     df.to_sql(tbl_name, con=engine, index=True, dtype=dtype)
@@ -484,7 +485,7 @@ def upsert_sqlite(
     # Create index
     with engine.begin() as con:
       con.execute(
-        text(f'CREATE UNIQUE INDEX "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_text})')
+        text(f'CREATE UNIQUE INDEX "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_sql})')
       )
 
     return
@@ -493,8 +494,8 @@ def upsert_sqlite(
     # SQL header query text
     cols = list(df.columns.tolist())
     headers = ix_cols + cols
-    headers_text = ", ".join(f'"{i}"' for i in headers)
-    update_text = ", ".join([f'"{c}" = excluded."{c}"' for c in cols])
+    headers_sql = ", ".join(f'"{i}"' for i in headers)
+    update_sql = ", ".join([f'"{c}" = excluded."{c}"' for c in cols])
 
     # Store data in temporary table
     # con.execute(text(f'CREATE TEMP TABLE temp({headers_text})'))
@@ -511,15 +512,15 @@ def upsert_sqlite(
 
     # Upsert data to main table
     query = f"""
-      INSERT INTO "{tbl_name}" ({headers_text})
-      SELECT {headers_text} FROM temp WHERE true
-      ON CONFLICT ({ix_cols_text}) DO UPDATE 
-      SET {update_text}
+      INSERT INTO "{tbl_name}" ({headers_sql})
+      SELECT {headers_sql} FROM temp WHERE true
+      ON CONFLICT ({ix_cols_sql}) DO UPDATE 
+      SET {update_sql}
     """
 
     con.execute(
       text(
-        f'CREATE UNIQUE INDEX IF NOT EXISTS "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_text})'
+        f'CREATE UNIQUE INDEX IF NOT EXISTS "ix_{tbl_name}" ON "{tbl_name}" ({ix_cols_sql})'
       )
     )
     con.execute(text(query))
@@ -583,9 +584,9 @@ def polars_to_sqlite_upsert(
 
     upsert_query = f"""
       INSERT INTO "{table}" ({cols_sql})
-      SELECT {cols_sql} FROM "{temp_table}"
-      ON CONFLICT ({ix_sql}) DO UPDATE SET
-        {update_sql}
+      SELECT {cols_sql} FROM "{temp_table}" WHERE true
+      ON CONFLICT ({ix_sql}) DO UPDATE
+      SET {update_sql}
     """
 
     con.execute(text(upsert_query))

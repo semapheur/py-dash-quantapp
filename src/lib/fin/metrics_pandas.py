@@ -54,7 +54,7 @@ def z_score(df: DataFrame) -> DataFrame:
   liabilities = df["average_liabilities"]
 
   df["altman_z_score"] = (
-    1.2 * df["average_operating_working_capital"] / assets
+    1.2 * df["average_working_capital_operating"] / assets
     + 1.4 * df["retained_earnings_accumulated_deficit"] / assets
     + 3.3 * df["cashflow_operating"] / assets
     + 0.6 * df["market_capitalization"] / liabilities
@@ -88,7 +88,7 @@ def m_score(df: DataFrame) -> DataFrame:
   aqi = (
     1
     - (
-      df["operating_working_capital"]
+      df["working_capital_operating"]
       + df["productive_assets"]
       + df["financial_assets_noncurrent"]
     )

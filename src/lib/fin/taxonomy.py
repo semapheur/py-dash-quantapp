@@ -573,11 +573,11 @@ def merge_labels(template: pd.DataFrame, taxonomy: Taxonomy):
 
 
 def load_taxonomy_lookup(filter_gaap: Sequence[str]) -> pl.DataFrame:
-  values_clause = ", ".join([f"('{v.lower()}')" for v in filter_gaap])
+  values_sql = ", ".join([f"('{v.lower()}')" for v in filter_gaap])
 
   query = f"""
     WITH filter_values(gaap) AS (
-      VALUES {values_clause}
+      VALUES {values_sql}
     )
     SELECT DISTINCT lower(json_each.value) AS gaap, item FROM items 
     JOIN json_each(items.gaap) ON 1=1

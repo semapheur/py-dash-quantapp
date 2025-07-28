@@ -49,9 +49,7 @@ async def load_ohlcv(
       ohlcv, ohlcv_fetcher, table, security, start_date, end_date, cols
     )
 
-  return cast(
-    DataFrame[Quote], slice_polars_by_date(ohlcv, "date", start_date, end_date)
-  )
+  return slice_polars_by_date(ohlcv, "date", start_date, end_date)
 
 
 def _upsert_ohlcv(
@@ -98,13 +96,15 @@ def _load_existing_ohlcv(
 
 
 async def _fetch_and_store_ohlcv(
-  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
+  ohlcv_fetcher: partial[
+    Coroutine[Any, Any, Annotated[pl.DataFrame, DataFrame[Quote]]]
+  ],
   table: str,
   security: Security,
   start_date: dt | Date | None,
   end_date: dt | Date | None,
   cols: list[QuoteColumn],
-) -> DataFrame[Quote]:
+) -> Annotated[pl.DataFrame, DataFrame[Quote]]:
   """Fetch all OHLCV data when no existing data is found."""
   try:
     ohlcv = await ohlcv_fetcher()
@@ -119,13 +119,11 @@ async def _fetch_and_store_ohlcv(
   # Select only requested columns
   ohlcv = ohlcv.select(["date"] + cols)
 
-  return cast(
-    DataFrame[Quote], slice_polars_by_date(ohlcv, "date", start_date, end_date)
-  )
+  return slice_polars_by_date(ohlcv, "date", start_date, end_date)
 
 
 def _needs_update(
-  ohlcv: DataFrame[Quote],
+  ohlcv: Annotated[pl.DataFrame, DataFrame[Quote]],
   end_date: dt | Date | None,
   delta: int,
   db_path: str,
@@ -158,14 +156,16 @@ def _needs_update(
 
 
 async def _update_and_merge_ohlcv(
-  ohlcv: DataFrame[Quote],
-  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
+  ohlcv: Annotated[pl.DataFrame, DataFrame[Quote]],
+  ohlcv_fetcher: partial[
+    Coroutine[Any, Any, Annotated[pl.DataFrame, DataFrame[Quote]]]
+  ],
   table: str,
   security: Security,
   start_date: dt | Date | None,
   end_date: dt | Date | None,
   cols: list[QuoteColumn],
-) -> DataFrame[Quote]:
+) -> Annotated[pl.DataFrame, DataFrame[Quote]]:
   last_date = ohlcv["date"].max()
 
   try:
@@ -174,9 +174,7 @@ async def _update_and_merge_ohlcv(
     raise Exception(f"Failed to fetch updated OHLCV for {security}: {e}")
 
   if new_ohlcv is None or new_ohlcv.is_empty():
-    return cast(
-      DataFrame[Quote], slice_polars_by_date(ohlcv, "date", start_date, end_date)
-    )
+    return slice_polars_by_date(ohlcv, "date", start_date, end_date)
 
   _upsert_ohlcv(table, security, new_ohlcv.clone())
 
@@ -186,15 +184,13 @@ async def _update_and_merge_ohlcv(
   # Select only requested columns
   merged_data = merged_data.select(["date"] + cols)
 
-  return cast(
-    DataFrame[Quote], slice_polars_by_date(merged_data, "date", start_date, end_date)
-  )
+  return slice_polars_by_date(merged_data, "date", start_date, end_date)
 
 
 def _upsert_ohlcv_pandas(
   table: str,
   security: Security,
-  df: DataFrame[Quote],
+  df: Annotated[pd.DataFrame, DataFrame[Quote]],
 ) -> None:
   df.index = cast(pd.DatetimeIndex, df.index).strftime("%Y%m%d").astype(int)
   upsert_sqlite(df, f"{security}_quote.db", table)
@@ -203,12 +199,14 @@ def _upsert_ohlcv_pandas(
 async def load_ohlcv_pandas(
   table: str,
   security: Security,
-  ohlcv_fetcher: partial[Coroutine[Any, Any, DataFrame[Quote]]],
+  ohlcv_fetcher: partial[
+    Coroutine[Any, Any, Annotated[pl.DataFrame, DataFrame[Quote]]]
+  ],
   delta: int = 1,
   start_date: dt | Date | None = None,
   end_date: dt | Date | None = None,
   cols: list[QuoteColumn] | None = None,
-) -> DataFrame[Quote]:
+) -> Annotated[pd.DataFrame, DataFrame[Quote]]:
   cols_ = cols or ["open", "high", "low", "close", "volume"]
   col_text = "CAST(date AS TEXT) AS date, " + ", ".join(cols_)
 
@@ -287,21 +285,19 @@ def load_ohlcv_batch_pandas(
   cols_ = cols or ["open", "high", "low", "close", "volume"]
   col_text = "CAST(date AS TEXT) AS date, " + ", ".join(cols_)
 
-  where_clause = ""
+  where_sql = ""
   params = {}
   if start_date is not None:
     params["start_date"] = int(dt.strftime(start_date, "%Y%m%d"))
-    where_clause += " WHERE date >= :start_date"
+    where_sql += " WHERE date >= :start_date"
 
   if end_date is not None:
     params["end_date"] = int(dt.strftime(end_date, "%Y%m%d"))
-    where_clause += (
-      f"{' AND' if 'WHERE' in where_clause else ' WHERE'} date <= :end_date"
-    )
+    where_sql += f"{' AND' if 'WHERE' in where_sql else ' WHERE'} date <= :end_date"
 
   dfs: list[pd.DataFrame] = []
   for table in tables:
-    query = f"SELECT {col_text} FROM '{table}' {where_clause}"
+    query = f"SELECT {col_text} FROM '{table}' {where_sql}"
 
     df = read_sqlite(
       f"{security}_quote.db",

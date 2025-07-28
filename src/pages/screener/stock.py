@@ -117,9 +117,9 @@ def update_table(exchange: str):
       else:
         select_columns.append(f"NULL as {col}")
 
-    select_clause = ", ".join(select_columns)
+    select_sql = ", ".join(select_columns)
     union_queries.append(
-      f"SELECT {select_clause} FROM '{table}' WHERE date = (SELECT MAX(date) FROM '{table}' WHERE months = 12)"
+      f"SELECT {select_sql} FROM '{table}' WHERE date = (SELECT MAX(date) FROM '{table}' WHERE months = 12)"
     )
 
   full_query = " UNION ALL ".join(union_queries)

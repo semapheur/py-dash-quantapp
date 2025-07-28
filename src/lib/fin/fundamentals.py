@@ -10,10 +10,10 @@ import pandas as pd
 from pandera.typing import DataFrame, Index
 import polars as pl
 
-from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite, polars_from_sqlite
+from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite
 from lib.fin.calculation import calculate_items, trailing_twelve_months
 
-from lib.fin.metrics_pandas import (
+from lib.fin.metrics import (
   f_score,
   m_score,
   z_score,
@@ -60,9 +60,9 @@ def stock_split_adjust(
   return financials
 
 
-def merge_share_price(financials: pl.LazyFrame, price: pl.DataFrame) -> pl.LazyFrame:
+def merge_share_price(financials: pl.LazyFrame, price: pl.LazyFrame) -> pl.LazyFrame:
   wasob = "weighted_average_shares_outstanding_basic"
-  price_lf = price.lazy().sort("date")
+  price_lf = price.sort("date")
   financials_indexed = financials.with_row_index("financials_ix")
 
   date_ranges = financials_indexed.select(
@@ -79,9 +79,11 @@ def merge_share_price(financials: pl.LazyFrame, price: pl.DataFrame) -> pl.LazyF
   price_filtered = price_indexed.join(date_ranges, how="cross").filter(
     (pl.col("date") >= pl.col("start_date")) & (pl.col("date") <= pl.col("end_date"))
   )
-  price_cols = [col for col in price.columns if col != "date"]
+  price_cols = [col for col in price.collect_schema().names() if col != "date"]
 
-  if len(price_cols) > 1:
+  if len(price_cols) == 1:
+    price_filtered = price_filtered.with_columns(pl.col(price_cols[0]).alias("close"))
+  else:
     wasob_cols = [col for col in financials.collect_schema().names() if wasob in col]
 
     if wasob_cols:
@@ -142,7 +144,7 @@ async def calculate_fundamentals(
     years=beta_years or 1
   )
 
-  prices: list[pl.DataFrame] = []
+  prices: list[pl.LazyFrame] = []
   for id in ticker_ids:
     ohlcv_fetcher = partial(Stock(id, currency).ohlcv)
 
@@ -153,7 +155,7 @@ async def calculate_fundamentals(
       start_date=start_date,
       cols=["close"],
     )
-    prices.append(price)
+    prices.append(price.lazy().rename({"close": id}))
 
   price_df = pl.concat(prices, how="diagonal")
 
@@ -182,25 +184,35 @@ async def calculate_fundamentals(
   schema = load_schema()
   financials = calculate_items(financials, schema)
 
-  market_close = await load_ohlcv(
-    "GSPC",
-    "index",
-    partial(Ticker("^GSPC").ohlcv),
-    start_date=start_date,
-    cols=["close"],
-  )
-  riskfree_rate = await load_ohlcv(
-    "TNX", "index", partial(Ticker("^TNX").ohlcv), start_date=start_date, cols=["close"]
-  )
+  market_close = (
+    await load_ohlcv(
+      "GSPC",
+      "index",
+      partial(Ticker("^GSPC").ohlcv, period="max"),
+      start_date=start_date,
+      cols=["close"],
+    )
+  ).lazy()
+  riskfree_rate = (
+    await load_ohlcv(
+      "TNX",
+      "index",
+      partial(Ticker("^TNX").ohlcv, period="max"),
+      start_date=start_date,
+      cols=["close"],
+    )
+  ).lazy()
+  riskfree_rate = riskfree_rate.rename({"close": "riskfree_rate"})
 
   price_returns = price_df.with_columns(pl.mean_horizontal(ticker_ids).alias("close"))
-  price_returns = price_df.select(pl.col("close").pct_change().alias("equity_return"))
-  market_return = market_close.select(pl.col("close").pct_change())
-
-  financials = await beta(
-    financials, price_returns, market_return, riskfree_rate, beta_years
+  price_returns = price_returns.select(
+    ["date", pl.col("close").pct_change().alias("equity_return")]
+  )
+  market_return = market_close.select(
+    ["date", pl.col("close").pct_change().alias("market_return")]
   )
 
+  financials = beta(financials, price_returns, market_return, riskfree_rate, beta_years)
   financials = weighted_average_cost_of_capital(financials)
   financials = f_score(financials)
   financials = m_score(financials)

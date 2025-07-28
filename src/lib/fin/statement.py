@@ -430,7 +430,7 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
     match_column="item",
     filter_values=statements.collect_schema().names(),
     select_columns=["item"],
-    where_clause="aggregate = 'sum'",
+    where_sql="aggregate = 'sum'",
   )
   sum_items = sum_items_df["item"].to_list()
 
@@ -594,7 +594,7 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
     match_column="item",
     filter_values=list(statements.columns),
     select_columns=["item"],
-    where_clause="aggregate = 'sum'",
+    where_sql="aggregate = 'sum'",
   )
   sum_items = sum_items_df["item"].to_list()
 

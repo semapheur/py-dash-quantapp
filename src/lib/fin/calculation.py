@@ -123,7 +123,7 @@ def trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
     match_column="item",
     filter_values=lf_q.collect_schema().names(),
     select_columns=["item"],
-    where_clause="aggregate = 'sum'",
+    where_sql="aggregate = 'sum'",
   )
   sum_items = sum_items_df["item"].to_list()
 
@@ -141,9 +141,9 @@ def trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
       pl.lit(12).alias("months"),
     ]
   )
-  lf_q.drop(["month_diff", "month_diff_sum"])
+  lf_q = lf_q.drop(["month_diff", "month_diff_sum"])
 
-  return pl.concat([lf, lf_q], how="vertical")
+  return pl.concat([lf, lf_q], how="vertical_relaxed")
 
 
 def tail_trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
@@ -172,7 +172,7 @@ def tail_trailing_twelve_months(lf: pl.LazyFrame) -> pl.LazyFrame:
       match_column="item",
       filter_values=columns,
       select_columns=["item"],
-      where_clause="aggregate = 'sum'",
+      where_sql="aggregate = 'sum'",
     )
     sum_items = sum_items_df["item"].to_list()
 
@@ -235,7 +235,7 @@ def update_trailing_twelve_months(lf: pl.LazyFrame, new_price: float) -> pl.Lazy
     match_column="item",
     filter_values=columns,
     select_columns=["item"],
-    where_clause="unit = 'price_ratio'",
+    where_sql="unit = 'price_ratio'",
   )
   items = items_df["item"].to_list() + ["market_capitalization"]
   price_ratio = old_price / new_price
@@ -275,7 +275,7 @@ def get_days(
     sub = sub.with_columns(df_time_difference("date", 30, "D").alias("month_diff"))
     sub = sub.filter(pl.col("month_diff") == month_diff)
     sub = sub.with_columns(
-      pl.col("date").diff().dt.days().cast(pl.Float64).alias("days")
+      pl.col("date").diff().dt.total_days().cast(pl.Float64).alias("days")
     )
 
     all_updates.append(sub.select(["date", "period", "months", "days"]))
