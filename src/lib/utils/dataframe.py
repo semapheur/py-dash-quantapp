@@ -45,16 +45,16 @@ def lower_and_coalesce_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
 
 
 def rename_and_coalesce_columns(
-  lf: pl.LazyFrame, rename_map: dict[str, list[str]], lf_cols: set[str] | None = None
+  lf: pl.LazyFrame,
+  rename_map: dict[str, list[str]],
 ) -> pl.LazyFrame:
-  if lf_cols is None:
-    lf_cols = set(lf.collect_schema().names())
+  column_cache = set(lf.collect_schema().names())
 
   exprs: list[pl.Expr] = []
   processed_cols: set[str] = set()
 
   for new_name, old_names in rename_map.items():
-    found_names = list(lf_cols.intersection(old_names))
+    found_names = list(column_cache.intersection(old_names))
 
     if not found_names:
       continue
@@ -66,7 +66,7 @@ def rename_and_coalesce_columns(
 
     processed_cols.update(found_names)
 
-  for col in lf_cols.difference(processed_cols):
+  for col in column_cache.difference(processed_cols):
     exprs.append(pl.col(col))
 
   return lf.select(exprs)

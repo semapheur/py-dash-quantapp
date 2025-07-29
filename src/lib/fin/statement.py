@@ -47,6 +47,10 @@ class ScopeEnum(Enum):
   annual = 12
 
 
+type FinStatementData = dict[
+  tuple[Date, FiscalPeriod, int, int], dict[str, int | float | None]
+]
+
 stock_split_items = {
   "StockSplitRatio",
   "StockholdersEquityNoteStockSplitConversionRatio",
@@ -160,29 +164,53 @@ async def statement_to_lf(
   currency: str | None = None,
   multiple=False,
 ) -> pl.LazyFrame:
-  def _put(row: dict, key: str, value: float | None, unit: str):
-    if value is None:
-      return
+  lf_data = await statement_to_dict(financials, currency, multiple)
 
-    if currency is not None and unit in currencies_other:
-      row[key] = None
-      rate_slots.append((row, key))
-      rate_tasks.append(asyncio.create_task(exchange_rate(currency, unit, period)))
-    else:
-      row[key] = value
+  rows = [
+    {
+      "date": date,
+      "period": period,
+      "months": months,
+      "fiscal_end_month": fiscal_end_month,
+      **data,
+    }
+    for (date, period, months, fiscal_end_month), data in lf_data.items()
+  ]
 
+  return pl.LazyFrame(rows)
+
+
+async def statement_to_df(
+  financials: FinStatement,
+  currency: str | None = None,
+  multiple=False,
+) -> DataFrame:
+  df_data = await statement_to_dict(financials, currency, multiple)
+
+  df = pd.DataFrame.from_dict(df_data, orient="index")
+  df.index = pd.MultiIndex.from_tuples(
+    list(df.index), names=["date", "period", "months", "fiscal_end_month"]
+  )
+  return cast(DataFrame, df)
+
+
+async def statement_to_dict(
+  financials: FinStatement,
+  currency: str | None = None,
+  multiple=False,
+) -> FinStatementData:
   if isinstance(currency, str):
     currency = currency.lower()
 
   fin_date = financials.date + relativedelta(days=1)
   fiscal_end_month = int(financials.fiscal_end.split("-")[0])
-  fin_scope = "annual" if financials.fiscal_period == "FY" else "quarterly"
-  currencies_other = financials.currencies.difference({currency})
+  fin_period = financials.fiscal_period
+  fin_scope = "annual" if fin_period == "FY" else "quarterly"
+  other_currencies = financials.currencies.difference({currency})
 
-  lf_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, float | None]] = {}
-  rate_tasks: list[asyncio.Task] = []
-  rate_slots: list[tuple[dict, str]] = []
   scope_months = ScopeEnum[fin_scope].value
+
+  frame_data: FinStatementData = {}
 
   for item, records in financials.data.items():
     for period, record in records.items():
@@ -200,110 +228,23 @@ async def statement_to_lf(
       if months_len == 0 or months_len > 12:
         continue
 
-      qtr = fiscal_quarter_monthly(date.month, fiscal_end_month)
-      fin_period = cast(FiscalPeriod, f"Q{qtr}" if months_len < 12 else "FY")
-      if fin_period == "FY" and months_len < 12:
-        fin_period = "Q4"
-
-      index = (date, fin_period, months_len, fiscal_end_month)
-      if index not in lf_data:
-        lf_data[index] = {}
-
-      _put(lf_data[index], item, record.value, record.unit)
-
-      if fin_period == "FY" and (
-        isinstance(period, Instant) or record.unit == "shares"
-      ):
-        q4_index = (date, "Q4", 3, fiscal_end_month)
-        if q4_index not in lf_data:
-          lf_data[q4_index] = {}
-
-        _put(lf_data[q4_index], item, record.value, record.unit)
-
-      if record.members:
-        for member, m in record.members.items():
-          key = f"{item}{('.' + m.dim) if m.dim else ''}.{member}"
-          _put(lf_data[index], key, m.value, m.unit)
-
-          if fin_period == "FY" and (isinstance(period, Instant) or m.unit == "shares"):
-            q4_index = (date, "Q4", 3, fiscal_end_month)
-            if q4_index not in lf_data:
-              lf_data[q4_index] = {}
-
-            _put(lf_data[q4_index], key, m.value, m.unit)
-
-  if rate_tasks:
-    rates = await asyncio.gather(*rate_tasks)
-    for (row, key), rate in zip(rate_slots, rates):
-      row[key] = (row.get(key, 1.0) or 1.0) * rate
-
-  rows = []
-  for (date, period, months, fiscal_end_month), data in lf_data.items():
-    rows.append(
-      {
-        "date": date,
-        "period": period,
-        "months": months,
-        "fiscal_end_month": fiscal_end_month,
-        **data,
-      }
-    )
-
-  return pl.LazyFrame(rows)
-
-
-async def statement_to_df(
-  financials: FinStatement,
-  currency: str | None = None,
-  multiple=False,
-) -> DataFrame:
-  if isinstance(currency, str):
-    currency = currency.lower()
-
-  fin_date = pd.to_datetime(financials.date + relativedelta(days=1))
-  fiscal_end_month = int(financials.fiscal_end.split("-")[0])
-  fin_period = financials.fiscal_period
-  fin_scope = "annual" if fin_period == "FY" else "quarterly"
-  currencies = financials.currencies.difference({currency})
-
-  scope_months = ScopeEnum[fin_scope].value
-
-  df_data: dict[tuple[Date, FiscalPeriod, int, int], dict[str, int | float]] = {}
-
-  for item, records in financials.data.items():
-    for period, record in records.items():
-      date = pd.to_datetime(get_date(period))
-
-      months = relativedelta(fin_date, date).months
-
-      if (
-        (date > fin_date)
-        or (months % scope_months != 0)
-        or ((not multiple) and date != fin_date)
-      ):
-        continue
-
-      months_len = period.months if isinstance(period, Duration) else scope_months
-      if months_len == 0 or months_len > 12:
-        continue
-
       quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
-      fin_period = cast(FiscalPeriod, f"Q{quarter}" if months < 12 else "FY")
-      if fin_period == "FY" and months < 12:
+      fin_period = cast(FiscalPeriod, f"Q{quarter}" if months_len < 12 else "FY")
+      if fin_period == "FY" and months_len < 12:
         fin_period = "Q4"
 
       value = record.value
       unit = record.unit
 
-      if value and (currency is not None) and unit in currencies:
+      if (currency is not None) and (value is not None) and unit in other_currencies:
         value *= await exchange_rate(currency, unit, period)
 
-      index = (date, fin_period, months, fiscal_end_month)
-      df_data.setdefault(index, {})[item] = value
+      index = (date, fin_period, months_len, fiscal_end_month)
+      frame_data.setdefault(index, {})[item] = value
 
       if fin_period == "FY" and (isinstance(period, Instant) or unit == "shares"):
-        index = (date, "Q4", 3, fiscal_end_month)
-        df_data.setdefault(index, {})[item] = value
+        q4_index = (date, "Q4", 3, fiscal_end_month)
+        frame_data.setdefault(q4_index, {})[item] = value
 
       members = record.members
       if members is None:
@@ -315,26 +256,21 @@ async def statement_to_df(
           continue
 
         m_unit = m_entry.unit
-        if (currency is not None) and m_unit in currencies:
+        if (currency is not None) and m_unit in other_currencies:
           m_value *= await exchange_rate(currency, m_unit, period)
 
         dim = "." + d if (d := m_entry.dim) else ""
         key = f"{item}{dim}.{member}"
-        index = (date, fin_period, months, fiscal_end_month)
-        df_data.setdefault(index, {})[key] = m_value
+        frame_data.setdefault(index, {})[key] = m_value
 
         if fin_period == "FY" and (isinstance(period, Instant) or m_unit == "shares"):
-          index = (date, "Q4", 3, fiscal_end_month)
-          df_data.setdefault(index, {})[key] = m_value
+          q4_index = (date, "Q4", 3, fiscal_end_month)
+          frame_data.setdefault(q4_index, {})[key] = m_value
 
-  df = pd.DataFrame.from_dict(df_data, orient="index")
-  df.index = pd.MultiIndex.from_tuples(
-    list(df.index), names=["date", "period", "months", "fiscal_end_month"]
-  )
-  return cast(DataFrame, df)
+  return frame_data
 
 
-async def load_statements(id: str, currency: str | None = None) -> pl.LazyFrame | None:
+async def load_statements(id: str, currency: str | None = None) -> pl.DataFrame | None:
   statements = load_raw_statements(id)
 
   if statements is None:
@@ -347,10 +283,11 @@ async def load_statements(id: str, currency: str | None = None) -> pl.LazyFrame 
     pl.concat(lfs, how="diagonal_relaxed")
     .sort("date")
     .filter(pl.col("months").is_in([12, 9, 6, 3]))
+    .fill_nan(None)
   )
   lf = fix_statements(lf)
 
-  return lf
+  return lf.collect()
 
 
 def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
@@ -413,12 +350,16 @@ def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
 
   statements = lower_and_coalesce_columns(statements)
-  all_cols = statements.collect_schema().names()
 
-  item_lookup = load_taxonomy_lookup(all_cols)
+  item_lookup = load_taxonomy_lookup(statements.collect_schema().names())
   grouped = item_lookup.group_by("item").agg(pl.col("gaap").unique().sort())
   rename_map = dict(zip(grouped["item"].to_list(), grouped["gaap"].to_list()))
-  statements = rename_and_coalesce_columns(statements, rename_map, set(all_cols))
+
+  statements = statements.select(
+    ["date", "period", "months", "fiscal_end_month"]
+    + item_lookup.get_column("gaap").unique().to_list()
+  )
+  statements = rename_and_coalesce_columns(statements, rename_map)
 
   column_cache = set(statements.collect_schema().names())
   sum_items_df = polars_from_sqlite_filter(
