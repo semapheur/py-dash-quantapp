@@ -334,7 +334,7 @@ async def statement_to_df(
   return cast(DataFrame, df)
 
 
-async def load_statements(id: str, currency: str | None = None) -> pl.DataFrame | None:
+async def load_statements(id: str, currency: str | None = None) -> pl.LazyFrame | None:
   statements = load_raw_statements(id)
 
   if statements is None:
@@ -348,12 +348,12 @@ async def load_statements(id: str, currency: str | None = None) -> pl.DataFrame 
     .sort("date")
     .filter(pl.col("months").is_in([12, 9, 6, 3]))
   )
-  df = fix_statements(lf)
+  lf = fix_statements(lf)
 
-  return df
+  return lf
 
 
-def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
+def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
   def check_combos(lf: pl.LazyFrame, conditions: set[tuple[str, int]]) -> bool:
     unique_combos = (
       lf.select(
@@ -368,51 +368,47 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
     )
     return conditions.issubset(set(unique_combos))
 
-  def quarterize(lf: pl.LazyFrame) -> pl.LazyFrame:
+  def quarterize(
+    lf: pl.LazyFrame, column_cache: set[str], sum_items: list[str]
+  ) -> pl.LazyFrame:
     conditions = (("Q1", 3), ("Q2", 6), ("Q3", 9), ("FY", 12))
 
-    result_lf = lf
-    lf_columns = set(lf.collect_schema().names())
     for i in range(1, len(conditions)):
-      mask_lf = lf.filter(
+      lf_quarterized = lf.filter(
         (pl.col("period").is_in([conditions[i - 1][0], conditions[i][0]]))
         & (pl.col("months").is_in([conditions[i - 1][1], conditions[i][1]]))
       )
-      if not check_combos(mask_lf, {conditions[i - 1], conditions[i]}):
+      if not check_combos(lf_quarterized, {conditions[i - 1], conditions[i]}):
         continue
 
-      lf_sorted = mask_lf.sort("date")
-      lf_with_diff = lf_sorted.with_columns(
+      lf_quarterized = lf_quarterized.sort("date")
+      lf_quarterized = lf_quarterized.with_columns(
         df_time_difference("date", 30, "D").alias("month_difference")
       )
-      lf_filtered = lf_with_diff.filter(
+      lf_quarterized = lf_quarterized.filter(
         (pl.col("month_difference") == 3)
         & (pl.col("period") == conditions[i][0])
         & (pl.col("months") == conditions[i][1])
       )
-      diff_cols = lf_columns.intersection(sum_items)
-      diff_exprs = [pl.col(col).diff().alias(col) for col in diff_cols]
-      nondiff_cols = lf_columns.difference(sum_items)
-      non_diff_exprs = [pl.col(col) for col in nondiff_cols]
-
-      lf_diffed = lf_filtered.select(diff_exprs + non_diff_exprs)
-      lf_processed = lf_diffed.with_columns(pl.lit(3).alias("months"))
+      diff_exprs = [pl.col(col).diff().alias(col) for col in sum_items]
+      lf_quarterized = lf_quarterized.with_columns(diff_exprs)
+      lf_quarterized = lf_quarterized.with_columns(pl.lit(3).alias("months"))
 
       if conditions[i][0] == "FY":
-        lf_processed = lf_processed.with_columns(pl.lit("Q4").alias("period"))
+        lf_quarterized = lf_quarterized.with_columns(pl.lit("Q4").alias("period"))
 
-      result_lf = result_lf.join(
-        lf_processed, on=["date", "period", "months"], how="outer", coalesce=True
+      lf = lf.join(
+        lf_quarterized, on=["date", "period", "months"], how="outer", coalesce=True
       )
 
     meta_cols = {"date", "period", "months", "fiscal_end_month"}
-    data_cols = set(result_lf.collect_schema().names()).difference(meta_cols)
+    data_cols = column_cache.difference(meta_cols)
     if data_cols:
-      result_lf = result_lf.filter(
+      lf = lf.filter(
         pl.any_horizontal([pl.col(col).is_not_null() for col in data_cols])
       )
 
-    return result_lf
+    return lf
 
   quarter_set = {"Q1", "Q2", "Q3", "Q4"}
 
@@ -424,11 +420,12 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   rename_map = dict(zip(grouped["item"].to_list(), grouped["gaap"].to_list()))
   statements = rename_and_coalesce_columns(statements, rename_map, set(all_cols))
 
+  column_cache = set(statements.collect_schema().names())
   sum_items_df = polars_from_sqlite_filter(
     db_name="taxonomy",
     table="items",
     match_column="item",
-    filter_values=statements.collect_schema().names(),
+    filter_values=column_cache,
     select_columns=["item"],
     where_sql="aggregate = 'sum'",
   )
@@ -437,7 +434,8 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   fiscal_ends = (
     statements.select("fiscal_end_month")
     .unique()
-    .collect()["fiscal_end_month"]
+    .collect()
+    .get_column("fiscal_end_month")
     .to_list()
   )
 
@@ -445,13 +443,14 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   for fiscal_end in fiscal_ends:
     fiscal_mask = pl.col("fiscal_end_month") == fiscal_end
     fiscal_data = statements.filter(fiscal_mask)
-    quarterized = quarterize(fiscal_data)
+    quarterized = quarterize(fiscal_data, column_cache, sum_items)
     result_frames.append(quarterized)
 
   if result_frames:
     statements = pl.concat(result_frames)
 
-  statements = statements.drop("fiscal_end_month").sort("date")
+  statements = statements.drop("fiscal_end_month")
+  column_cache.remove("fiscal_end_month")
 
   valid_mask = ((pl.col("months") == 3) & pl.col("period").is_in(quarter_set)) | (
     (pl.col("months") == 12) & (pl.col("period") == "FY")
@@ -459,14 +458,14 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
   statements = statements.filter(valid_mask)
 
   meta_cols = {"date", "period", "months"}
-  data_cols = set(set(statements.collect_schema().names())).difference(meta_cols)
+  data_cols = column_cache.difference(meta_cols)
   statements = statements.filter(
     pl.any_horizontal([pl.col(c).is_not_null() for c in data_cols])
   )
   if len(fiscal_ends) == 1:
-    return statements.collect()
+    return statements
 
-  last_fiscal_end = statements.select("date").max().collect()["date"][0]
+  last_fiscal_end = statements.select("date").max().collect().item()
 
   fy_mask = (pl.col("date") < last_fiscal_end) & (pl.col("period") == "FY")
   statements = statements.filter(~fy_mask)
@@ -487,8 +486,7 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
     [pl.lit("FY").alias("period"), pl.lit(12).alias("months")]
   )
 
-  statements = pl.concat([statements, fy_records])
-  statements = statements.sort(["date", "period"])
+  statements = pl.concat([statements, fy_records]).sort(["date", "period"])
 
   rolling_mask = (pl.col("date") < last_fiscal_end) & (pl.col("period") != "FY")
   rolling_data = statements.filter(rolling_mask).sort("date")
@@ -526,7 +524,7 @@ def fix_statements(statements: pl.LazyFrame) -> pl.DataFrame:
 
   statements = pl.concat([statements, fy_rows]).sort(["date", "period"])
 
-  return statements.collect()
+  return statements
 
 
 def fix_statements_pandas(statements: DataFrame) -> DataFrame:

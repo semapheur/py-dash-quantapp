@@ -24,108 +24,42 @@ class YieldSpreadRecord(TypedDict):
   yield_spread: float
 
 
-def apply_transforms_and_join(
-  lf: pl.LazyFrame,
-  columns: list[str],
-  fn: Literal["avg", "diff", "shift"],
-  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+def f_score(
+  lf: pl.LazyFrame, slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]
 ) -> pl.LazyFrame:
-  for column in columns:
-    input_lf = lf.select(["date", "period", "months", column])
-    transformed = applier(input_lf, column, fn, slices)
-    lf = lf.join(
-      transformed.select(["date", "period", "months", column]),
-      on=["date", "period", "months"],
-      how="left",
-    )
-  return lf
+  f_score_diff = {
+    "return_on_assets": "change_retorn_on_assets",
+    "debt": "change_debt",
+    "quick_ratio": "change_quick_ratio",
+    "weighted_average_shares_outstanding_basic": "change_weighted_average_shares_outstanding_basic",
+    "operating_profit_margin": "change_operating_profit_margin",
+    "asset_turnover": "change_asset_turnover",
+  }
 
-
-def f_score(lf: pl.LazyFrame) -> pl.LazyFrame:
-  slices = fin_filters()
-
-  # Apply "diff" transformations and join back into lf
-  lf = apply_transforms_and_join(
+  lf = applier(
     lf,
-    [
-      "return_on_assets",
-      "debt",
-      "quick_ratio",
-      "weighted_average_shares_outstanding_basic",
-      "operating_profit_margin",
-      "asset_turnover",
-    ],
-    "diff",
-    slices,
+    column_alias=f_score_diff,
+    fn="diff",
+    slices=slices,
   )
 
-  # F-score component conditions
-  roe_score = (
-    pl.when(pl.col("return_on_equity") > 0).then(1).otherwise(0).alias("roe_score")
-  )
-  roa_score = (
-    pl.when(pl.col("return_on_assets") > 0).then(1).otherwise(0).alias("roa_score")
-  )
-  ocf_score = (
-    pl.when(pl.col("cashflow_operating") > 0).then(1).otherwise(0).alias("ocf_score")
-  )
-  accrual_score = (
-    pl.when(
-      (pl.col("cashflow_operating") / pl.col("assets")) > pl.col("return_on_assets")
-    )
-    .then(1)
-    .otherwise(0)
-    .alias("accrual_score")
-  )
-  leverage_score = (
-    pl.when(pl.col("debt") < 0).then(1).otherwise(0).alias("leverage_score")
-  )
-  liquidity_score = (
-    pl.when(pl.col("quick_ratio") > 0).then(1).otherwise(0).alias("liquidity_score")
-  )
-  dilution_score = (
-    pl.when(pl.col("weighted_average_shares_outstanding_basic") < 0)
-    .then(1)
-    .otherwise(0)
-    .alias("dilution_score")
-  )
-  margin_score = (
-    pl.when(pl.col("operating_profit_margin") > 0)
-    .then(1)
-    .otherwise(0)
-    .alias("margin_score")
-  )
-  turnover_score = (
-    pl.when(pl.col("asset_turnover") > 0).then(1).otherwise(0).alias("turnover_score")
+  f_score_expr = (
+    (pl.col("return_on_equity") > 0).cast(pl.Int8)
+    + (pl.col("change_return_on_assets") > 0).cast(pl.Int8)
+    + (pl.col("cashflow_operating") > 0).cast(pl.Int8)
+    + (
+      (pl.col("cashflow_operating") / pl.col("assets") - pl.col("return_on_assets")) > 0
+    ).cast(pl.Int8)
+    + (pl.col("change_debt") < 0).cast(pl.Int8)
+    + (pl.col("change_quick_ratio") > 0).cast(pl.Int8)
+    + (pl.col("change_weighted_average_shares_outstanding_basic") < 0).cast(pl.Int8)
+    + (pl.col("change_operating_profit_margin") > 0).cast(pl.Int8)
+    + (pl.col("change_asset_turnover") > 0).cast(pl.Int8)
   )
 
-  # Add scores to lf
-  lf = lf.with_columns(
-    [
-      roe_score,
-      roa_score,
-      ocf_score,
-      accrual_score,
-      leverage_score,
-      liquidity_score,
-      dilution_score,
-      margin_score,
-      turnover_score,
-      (
-        pl.col("roe_score")
-        + pl.col("roa_score")
-        + pl.col("ocf_score")
-        + pl.col("accrual_score")
-        + pl.col("leverage_score")
-        + pl.col("liquidity_score")
-        + pl.col("dilution_score")
-        + pl.col("margin_score")
-        + pl.col("turnover_score")
-      ).alias("piotroski_f_score"),
-    ]
+  return lf.with_columns(f_score_expr.alias("piotroski_f_score")).drop(
+    list(f_score_diff.values())
   )
-
-  return lf
 
 
 def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
@@ -143,119 +77,98 @@ def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
   )
 
 
-def m_score(lf: pl.LazyFrame) -> pl.LazyFrame:
-  slices = fin_filters()
-
-  # Apply required "shift" transformations in-place
-  lf = apply_transforms_and_join(
-    lf,
+def m_score(
+  lf: pl.LazyFrame, slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]
+) -> pl.LazyFrame:
+  lf = lf.with_columns(
     [
-      "revenue",
-      "operating_profit_margin",
-      "productive_assets",
-      "depreciation",
-      "selling_general_administrative_expense",
-      "liabilities",
-      "assets",  # for leverage
-    ],
-    "shift",
-    slices,
-  )
-
-  # Try to determine receivables column (fall back priority)
-  receivables_col = None
-  for col in [
-    "average_receivables_trade_current",
-    "average_receivables_trade",
-    "average_receivables",
-  ]:
-    if col in lf.collect_schema().names():
-      receivables_col = col
-      break
-
-  # Apply shift to receivables if it exists
-  if receivables_col:
-    lf = apply_transforms_and_join(lf, [receivables_col], "shift", slices)
-    lf = lf.with_columns(
+      (pl.col("average_receivables_trade_current") / pl.col("revenue")).alias("dsri"),
       (
-        pl.col(receivables_col)
-        / pl.col("revenue")
-        / (pl.col(receivables_col) / pl.col("revenue")).shift(1)
-      ).alias("dsri")
-    )
-  else:
-    lf = lf.with_columns(pl.lit(0.0).alias("dsri"))
-
-  # Gross Margin Index
-  lf = lf.with_columns(
-    (
-      pl.col("operating_profit_margin").shift(1) / pl.col("operating_profit_margin")
-    ).alias("gmi")
+        1
+        - (
+          pl.col("working_capital_operating")
+          + pl.col("productive_assets")
+          + pl.col("financial_assets_noncurrent")
+        )
+        / pl.col("assets")
+      ).alias("aqi"),
+      (
+        pl.col("depreciation") / (pl.col("productive_assets") - pl.col("depreciation"))
+      ).alias("depi"),
+      (pl.col("selling_general_administrative_expense") / pl.col("revenue")).alias(
+        "sgai"
+      ),
+      (pl.col("liabilities") / pl.col("assets")).alias("li"),
+    ]
   )
 
-  # Asset Quality Index
-  lf = lf.with_columns(
-    (
-      1
-      - (
-        pl.col("working_capital_operating")
-        + pl.col("productive_assets")
-        + pl.col("financial_assets_noncurrent")
-      )
-      / pl.col("assets")
-    ).alias("aqi")
-  )
-  lf = apply_transforms_and_join(lf, ["aqi"], "shift", slices)
-  lf = lf.with_columns((pl.col("aqi") / pl.col("aqi").shift(1)).alias("aqi"))
+  m_score_shift = {
+    "dsri": "shift_dsri",
+    "operating_profit_margin": "shift_operating_profit_margin",
+    "aqi": "shift_aqi",
+    "revenue": "shift_revenue",
+    "depi": "shift_depi",
+    "sgai": "shift_sgai",
+    "li": "shift_li",
+  }
 
-  # Sales Growth Index
-  lf = lf.with_columns((pl.col("revenue") / pl.col("revenue").shift(1)).alias("sgi"))
-
-  # Depreciation Index
-  lf = lf.with_columns(
-    (
-      pl.col("depreciation") / (pl.col("productive_assets") - pl.col("depreciation"))
-    ).alias("depi")
-  )
-  lf = apply_transforms_and_join(lf, ["depi"], "shift", slices)
-  lf = lf.with_columns((pl.col("depi") / pl.col("depi").shift(1)).alias("depi"))
-
-  # SG&A Index
-  lf = lf.with_columns(
-    (pl.col("selling_general_administrative_expense") / pl.col("revenue")).alias("sgai")
-  )
-  lf = apply_transforms_and_join(lf, ["sgai"], "shift", slices)
-  lf = lf.with_columns((pl.col("sgai") / pl.col("sgai").shift(1)).alias("sgai"))
-
-  # Leverage Index
-  lf = lf.with_columns((pl.col("liabilities") / pl.col("assets")).alias("li"))
-  lf = apply_transforms_and_join(lf, ["li"], "shift", slices)
-  lf = lf.with_columns((pl.col("li") / pl.col("li").shift(1)).alias("li"))
-
-  # Total Accruals to Total Assets
-  lf = lf.with_columns(
-    (
-      (pl.col("income_loss_operating") - pl.col("cashflow_operating"))
-      / pl.col("average_assets")
-    ).alias("tata")
+  # Apply shift using applier
+  lf = applier(
+    lf,
+    column_alias=m_score_shift,
+    fn="shift",
+    slices=slices,
   )
 
-  # Beneish M-score formula
+  # Compute all ratios
   lf = lf.with_columns(
-    (
-      -4.84
-      + 0.92 * pl.col("dsri")
-      + 0.528 * pl.col("gmi")
-      + 0.404 * pl.col("aqi")
-      + 0.892 * pl.col("sgi")
-      + 0.115 * pl.col("depi")
-      - 0.172 * pl.col("sgai")
-      + 4.679 * pl.col("tata")
-      - 0.327 * pl.col("li")
-    ).alias("beneish_m_score")
+    [
+      (pl.col("dsri") / pl.col("shift_dsri")).alias("dsri"),
+      (
+        pl.col("shift_operating_profit_margin") / pl.col("operating_profit_margin")
+      ).alias("gmi"),
+      (pl.col("aqi") / pl.col("shift_aqi")).alias("aqi"),
+      (pl.col("revenue") / pl.col("shift_revenue")).alias("sgi"),
+      (pl.col("depi") / pl.col("shift_depi")).alias("depi"),
+      (pl.col("sgai") / pl.col("shift_sgai")).alias("sgai"),
+      (pl.col("li") / pl.col("shift_li")).alias("li"),
+      (
+        (pl.col("income_loss_operating") - pl.col("cashflow_operating"))
+        / pl.col("average_assets")
+      ).alias("tata"),
+    ]
   )
 
-  return lf
+  # Final Beneish M-Score expression
+  m_score_expr = (
+    -4.84
+    + 0.92 * pl.col("dsri")
+    + 0.528 * pl.col("gmi")
+    + 0.404 * pl.col("aqi")
+    + 0.892 * pl.col("sgi")
+    + 0.115 * pl.col("depi")
+    - 0.172 * pl.col("sgai")
+    + 4.679 * pl.col("tata")
+    - 0.327 * pl.col("li")
+  ).alias("beneish_m_score")
+
+  drop_cols = [
+    "aqi",
+    "shift_aqi",
+    "depi",
+    "shift_depi",
+    "dsri",
+    "shift_dsri",
+    "gmi",
+    "li",
+    "shift_li",
+    "sgi",
+    "sgai",
+    "shift_sgai",
+    "shift_operating_profit_margin",
+    "shift_revenue",
+  ]
+  return lf.with_columns(m_score_expr).drop(drop_cols)
 
 
 def calculate_beta(

@@ -68,22 +68,28 @@ class AnyTransformer(ast.NodeTransformer):
     )
 
 
-def fin_filters() -> list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]:
-  periods = ["FY", "TTM1", "TTM2", "TTM3"]
+def fin_filters(
+  financials: pl.LazyFrame,
+) -> list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]:
+  metadata = financials.select(["period", "months"]).unique().collect()
+  found_periods = set(metadata.get_column("period").unique().to_list())
+  found_months = set(metadata.get_column("months").unique().to_list())
+
+  annual_periods = {"FY", "TTM1", "TTM2", "TTM3"}.intersection(found_periods)
 
   filters: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]] = []
-  for p in periods:
+  for p in annual_periods:
     filters.append((pl.col("period") == p, pl.col("months") == 12, 12))
 
-  filters.append((pl.lit(True), pl.col("months") == 3, 3))
+  if 3 in found_months:
+    filters.append((pl.col("period").is_not_null(), pl.col("months") == 3, 3))
 
   return filters
 
 
 def fiscal_days() -> pl.Expr:
-  is_leap = (
-    (pl.col("date").dt.year() % 4 == 0) & (pl.col("date").dt.year() % 100 != 0)
-  ) | (pl.col("date").dt.year() % 400 == 0).cast(pl.Float64)
+  year = pl.col("date").dt.year()
+  is_leap = (((year % 4 == 0) & (year % 100 != 0)) | (year % 400 == 0)).cast(pl.Float64)
   fy_days = 365.0 + is_leap
 
   qtr_days = (
@@ -321,6 +327,66 @@ def calculate_stock_splits(lf: pl.LazyFrame) -> pl.LazyFrame:
 
 def applier(
   lf: pl.LazyFrame,
+  column_alias: dict[str, str],
+  fn: Literal["avg", "diff", "shift"],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+) -> pl.LazyFrame:
+  month_diff_expr = df_time_difference("date", 30, "D")
+
+  final_exprs: list[pl.Expr] = []
+  exprs_to_add: list[pl.Expr] = []
+  drop_cols: list[str] = []
+
+  for i, (period_filter, months_filter, month_diff_target) in enumerate(slices):
+    slice_condition = period_filter & months_filter
+
+    month_diff_col = f"month_diff_slice_{i}"
+
+    exprs_to_add.append(
+      pl.when(slice_condition)
+      .then(month_diff_expr)
+      .otherwise(None)
+      .alias(month_diff_col)
+    )
+    drop_cols.append(month_diff_col)
+
+    transform_condition = slice_condition & (
+      pl.col(month_diff_col) == month_diff_target
+    )
+    slice_cols: list[str] = []
+    for column, alias in column_alias.items():
+      result_col = f"{column}_slice_{i}"
+      slice_cols.append(result_col)
+      drop_cols.append(result_col)
+
+      base_expr = pl.col(column)
+
+      if fn == "diff":
+        transformed = base_expr.diff()
+      elif fn == "avg":
+        transformed = base_expr.rolling_mean(window_size=2, min_samples=2)
+      elif fn == "shift":
+        transformed = base_expr.shift(1)
+      else:
+        raise ValueError(f"Unsupported fn: {fn}")
+
+      exprs_to_add.append(
+        pl.when(transform_condition)
+        .then(transformed)
+        .otherwise(pl.col(column))
+        .alias(result_col)
+      )
+
+    final_exprs.append(
+      pl.coalesce([pl.col(col) for col in slice_cols] + [pl.col(column)]).alias(alias)
+    )
+
+  lf = lf.with_columns(exprs_to_add)
+  return lf.with_columns(final_exprs).drop(drop_cols)
+
+
+def applier_(
+  lf: pl.LazyFrame,
   column: str,
   fn: Literal["avg", "diff", "shift"],
   slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
@@ -490,15 +556,12 @@ def calculate_items(
 
     return lf
 
-  slices = fin_filters()
-
   financials = financials.sort("date")
+  slices = fin_filters(financials)
   financials = get_days(financials, slices)
   lf_cols = set(financials.collect_schema().names())
 
   for calculee, schema in schemas.items():
-    lf_cols.update(financials.collect_schema().names())
-
     fns = cast(
       set[Literal["avg", "diff", "shift"]],
       {"avg", "diff", "shift"}.intersection(set(schema.keys())),
@@ -510,14 +573,9 @@ def calculate_items(
       if calculer not in lf_cols:
         continue
 
-      if fn == "avg":
-        result_expr = pl.col(calculer).mean()
-      elif fn == "diff":
-        result_expr = pl.col(calculer).diff()
-      elif fn == "shift":
-        result_expr = pl.col(calculer).shift(1)
+      financials = applier(financials, {calculer: calculee}, fn, slices)
+      lf_cols.add(calculee)
 
-      financials = insert_to_lf(financials, lf_cols, result_expr, calculee)
       calculated = True
 
     if calculated:

@@ -122,11 +122,11 @@ def merge_share_price(financials: pl.LazyFrame, price: pl.LazyFrame) -> pl.LazyF
 
   result = result.with_columns(
     [
-      pl.col("share_price_close").fill_null(float("nan")),
-      pl.col("share_price_open").fill_null(float("nan")),
-      pl.col("share_price_high").fill_null(float("nan")),
-      pl.col("share_price_low").fill_null(float("nan")),
-      pl.col("share_price_average").fill_null(float("nan")),
+      pl.col("share_price_close"),
+      pl.col("share_price_open"),
+      pl.col("share_price_high"),
+      pl.col("share_price_low"),
+      pl.col("share_price_average"),
     ]
   )
 
@@ -178,11 +178,28 @@ async def calculate_fundamentals(
     financials = financials.with_columns(pl.sum_horizontal(share_cols).alias(wasob))
 
   financials = merge_share_price(financials, price_df)
+  print("merged share prices")
   split_ratios = stock_splits(ticker_ids[0])
   financials = stock_split_adjust(financials, split_ratios)
+  financials = financials.collect().lazy()
+  print("adjusted for stock splits")
 
   schema = load_schema()
   financials = calculate_items(financials, schema)
+  financials = financials.collect().lazy()
+  print("calculated items")
+
+  financials = m_score(financials)
+  print("calculated m score")
+
+  financials = f_score(financials)
+  print("calculated f score")
+
+  if "altmann_z_score" not in financials.collect_schema().names():
+    financials = z_score(financials)
+  print("calculated z score")
+
+  financials = financials.collect().lazy()
 
   market_close = (
     await load_ohlcv(
@@ -211,14 +228,10 @@ async def calculate_fundamentals(
   market_return = market_close.select(
     ["date", pl.col("close").pct_change().alias("market_return")]
   )
-
   financials = beta(financials, price_returns, market_return, riskfree_rate, beta_years)
+  print("calculated betas")
   financials = weighted_average_cost_of_capital(financials)
-  financials = f_score(financials)
-  financials = m_score(financials)
-
-  if "altmann_z_score" not in financials.collect_schema().names():
-    financials = z_score(financials)
+  print("calculated wacc")
 
   return financials
 
