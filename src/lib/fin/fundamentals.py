@@ -27,21 +27,25 @@ from lib.fin.taxonomy import load_schema
 from lib.morningstar.ticker import Stock
 from lib.yahoo.ticker import Ticker
 
+SHARE_PRICE_COLS = [
+  "share_price_close",
+  "share_price_open",
+  "share_price_high",
+  "share_price_low",
+  "share_price_average",
+]
+
 
 def stock_split_adjust(
-  financials: pl.LazyFrame, ratios: dict[str, float] | None
+  financials: pl.LazyFrame, column_cache: set[str], ratios: dict[str, float] | None
 ) -> pl.LazyFrame:
-  price_cols = {
-    "share_price_close",
-    "share_price_open",
-    "share_price_high",
-    "share_price_low",
-    "share_price_average",
-  }
-  price_cols_ = list(price_cols.intersection(financials.collect_schema().names()))
+  price_columns = list(column_cache.intersection(SHARE_PRICE_COLS))
+  if not price_columns:
+    raise ValueError("Failed to adjust for stock splits: no share price columns found")
 
-  for col in price_cols_:
-    financials = financials.with_columns(pl.col(col).alias(f"{col}_adjusted"))
+  financials = financials.with_columns(
+    [pl.col(col).alias(f"{col}_adjusted") for col in price_columns]
+  )
 
   if ratios is None:
     return financials
@@ -53,14 +57,16 @@ def stock_split_adjust(
         .then(pl.col(f"{col}_adjusted") / ratio)
         .otherwise(pl.col(f"{col}_adjusted"))
         .alias(f"{col}_adjusted")
-        for col in price_cols_
+        for col in price_columns
       ]
     )
 
   return financials
 
 
-def merge_share_price(financials: pl.LazyFrame, price: pl.LazyFrame) -> pl.LazyFrame:
+def merge_share_price(
+  financials: pl.LazyFrame, column_cache: set[str], price: pl.LazyFrame
+) -> tuple[pl.LazyFrame, set[str]]:
   wasob = "weighted_average_shares_outstanding_basic"
   price_lf = price.sort("date")
   financials_indexed = financials.with_row_index("financials_ix")
@@ -129,8 +135,17 @@ def merge_share_price(financials: pl.LazyFrame, price: pl.LazyFrame) -> pl.LazyF
       pl.col("share_price_average"),
     ]
   )
+  column_cache.update(
+    {
+      "share_price_close",
+      "share_price_open",
+      "share_price_high",
+      "share_price_low",
+      "share_price_average",
+    }
+  )
 
-  return result
+  return result, column_cache
 
 
 async def calculate_fundamentals(
@@ -140,6 +155,7 @@ async def calculate_fundamentals(
   beta_years: int | None = None,
   update: bool = False,
 ) -> pl.DataFrame:
+  column_cache = set(financials.collect_schema().names())
   start_date = financials.select("date").min().collect().item(0, 0) - relativedelta(
     years=beta_years or 1
   )
@@ -177,16 +193,14 @@ async def calculate_fundamentals(
     share_cols = [f"{wasob}.{id}" for id in ticker_ids]
     financials = financials.with_columns(pl.sum_horizontal(share_cols).alias(wasob))
 
-  financials = merge_share_price(financials, price_df)
+  financials, column_cache = merge_share_price(financials, column_cache, price_df)
   print("merged share prices")
   split_ratios = stock_splits(ticker_ids[0])
-  financials = stock_split_adjust(financials, split_ratios)
-  financials = financials.collect().lazy()
+  financials = stock_split_adjust(financials, column_cache, split_ratios)
   print("adjusted for stock splits")
 
   schema = load_schema()
   financials = calculate_items(financials, schema)
-  financials = financials.collect().lazy()
   print("calculated items")
 
   financials = m_score(financials)

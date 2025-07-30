@@ -462,7 +462,7 @@ def update_sankey(sheet: str, date_period: str, slug: str):
   if df is None:
     return no_update
 
-  template = cast(DataFrame, template.loc[template["item"].isin(set(df.columns))])
+  template = cast(DataFrame, template.loc[template["item"].isin(df.columns)])
   template.loc[:, "links"] = template["links"].apply(
     lambda x: json.loads(x) if x is not None else x
   )

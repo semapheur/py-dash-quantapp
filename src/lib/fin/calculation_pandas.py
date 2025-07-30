@@ -138,7 +138,7 @@ def tail_trailing_twelve_months(df: DataFrame) -> DataFrame:
     mask = (slice(None), slice(None), 3)
     trail = df.loc[mask, sum_cols.to_list()].tail(8)
     sums = pd.concat((trail.head(4).sum(), trail.tail(4).sum()), axis=1).T
-    rest_cols = list(set(df.columns).difference(sum_cols))
+    rest_cols = df.columns.difference(sum_cols)
     rest = pd.concat(
       (df.loc[mask, rest_cols].iloc[-5], df.loc[mask, rest_cols].iloc[-1]), axis=1
     ).T
@@ -317,20 +317,22 @@ def upper_bound(
 
 
 def calculate_items(
-  financials: DataFrame, schemas: dict[str, TaxonomyCalculation], recalc: bool = False
-) -> DataFrame:
+  financials: pd.DataFrame,
+  schemas: dict[str, TaxonomyCalculation],
+  recalc: bool = False,
+) -> pd.DataFrame:
   def insert_to_df(
-    df: DataFrame, df_cols: set[str], insert_data: pd.Series, insert_name: str
-  ) -> DataFrame:
+    df: pd.DataFrame, df_cols: set[str], insert_data: pd.Series, insert_name: str
+  ) -> pd.DataFrame:
     if insert_name in df_cols:
+      if recalc:
+        df.loc[:, insert_name] = insert_data
+
       df.loc[:, insert_name] = (
-        insert_data
-        if recalc
-        else df[insert_name].replace(0, np.nan).combine_first(insert_data)
+        df[insert_name].replace(0, np.nan).combine_first(insert_data)
       )
     else:
-      new_column = pd.DataFrame({insert_name: insert_data})
-      df = cast(DataFrame, pd.concat([df, new_column], axis=1))
+      df[insert_name] = insert_data
       df_cols.add(insert_name)
 
     return df

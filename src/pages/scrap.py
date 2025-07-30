@@ -1690,7 +1690,7 @@ def label_training_data(
     return no_update
 
   df = pd.DataFrame.from_records(rows)
-  if "item" not in set(df.columns):
+  if "item" not in df.columns:
     return no_update
 
   df, dates = prepare_scrap_df(df)
@@ -1758,7 +1758,7 @@ def item_modal(n_clicks: int, rows: list[dict]):
     return no_update
 
   df = pd.DataFrame.from_records(rows)
-  if "item" not in set(df.columns):
+  if "item" not in df.columns:
     return no_update
 
   df.loc[:, "item"] = df["item"].apply(lambda x: pascal_case(x))
@@ -1864,7 +1864,7 @@ def export_json(
     return {}, message, True
 
   df = pd.DataFrame.from_records(rows)
-  if "item" not in set(df.columns):
+  if "item" not in df.columns:
     return no_update
 
   df, dates = prepare_scrap_df(df)
@@ -1924,7 +1924,7 @@ def upsert(
     return {}, message, True
 
   df = pd.DataFrame.from_records(rows)
-  if "item" not in set(df.columns):
+  if "item" not in df.columns:
     return no_update
 
   df, dates = prepare_scrap_df(df)

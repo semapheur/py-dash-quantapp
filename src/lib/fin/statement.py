@@ -6,9 +6,10 @@ from enum import Enum
 from functools import partial
 import json
 import sqlite3
-from typing import cast
+from typing import cast, Literal
 
 from asyncstdlib.functools import cache
+import orjson
 import pandas as pd
 from pandera.typing import DataFrame, Series, Index
 import polars as pl
@@ -22,12 +23,14 @@ from lib.db.lite import (
 from lib.fin.models import (
   FinStatement,
   FinStatementFrame,
+  FinRecordIndexed,
   Instant,
   Duration,
   StockSplit,
   FiscalPeriod,
   FinData,
   get_date,
+  index_serialized_periods,
 )
 from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import load_taxonomy_lookup
@@ -51,14 +54,14 @@ type FinStatementData = dict[
   tuple[Date, FiscalPeriod, int, int], dict[str, int | float | None]
 ]
 
-stock_split_items = {
+STOCK_SPLIT_ITEMS = (
   "StockSplitRatio",
   "StockholdersEquityNoteStockSplitConversionRatio",
   "StockholdersEquityNoteStockSplitConversionRatio1",
   "ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares",
-}
+)
 
-statements_columns = {
+STATEMENTS_COLUMNS = {
   "date": "INTEGER",
   "fiscal_period": "TEXT",
   "sources": "TEXT",
@@ -70,12 +73,12 @@ statements_columns = {
   "synonyms": "TEXT",
   "data": "TEXT",
 }
-statements_table_text = (
-  ",".join(f"{k} {v}" for k, v in statements_columns.items())
-  + ",UNIQUE (date, fiscal_period)"
+statements_table_sql = (
+  ",".join(f"{k} {v}" for k, v in STATEMENTS_COLUMNS.items())
+  + ", UNIQUE (date, fiscal_period)"
 )
-statements_columns_text = ",".join(statements_columns.keys())
-statements_values_text = ",".join(f":{k}" for k in statements_columns.keys())
+statements_columns_sql = ",".join(STATEMENTS_COLUMNS.keys())
+statements_values_sql = ",".join(f":{k}" for k in STATEMENTS_COLUMNS.keys())
 
 
 def df_to_statements(df: DataFrame[FinStatementFrame]) -> list[FinStatement]:
@@ -605,51 +608,63 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
   return cast(DataFrame, statements)
 
 
-def get_stock_splits(fin_data: FinData) -> list[StockSplit]:
-  data: list[StockSplit] = []
+def get_stock_splits(id: str) -> pl.DataFrame | None:
+  def parse_stock_split_data(rows: list[sqlite3.Row]) -> list[StockSplit]:
+    data: list[StockSplit] = []
 
-  split_item = stock_split_items.intersection(fin_data.keys())
+    for row in rows:
+      periods = index_serialized_periods(row["periods"])
+      if periods is None:
+        raise ValueError(f"Invalid periods: {row['periods']}")
 
-  if not split_item:
+      records: dict[str, FinRecordIndexed] = orjson.loads(row["records"])
+      for period_key, record in records.items():
+        period_type, period_index = (
+          cast(Literal["d", "i"], period_key[0]),
+          int(period_key[1:]),
+        )
+        period: Duration | Instant = periods[period_type][period_index]
+
+        value = record.get("value")
+        if value is None:
+          raise ValueError(f"Missing stock split ratio for {id} at {period}")
+
+        date = (period.start_date if isinstance(period, Duration) else period.instant,)
+
+        data.append(
+          StockSplit(
+            date=date,
+            stock_split_ratio=value,
+          )
+        )
+
     return data
 
-  splits = fin_data[split_item.pop()]
+  db_path = sqlite_path("statements.db")
 
-  for entry in splits:
-    value = cast(float, entry.get("value"))
-
-    data.append(
-      StockSplit(
-        date=cast(Duration, entry["period"]).start_date,
-        stock_split_ratio=value,
-      )
-    )
-  return data
-
-
-def stock_splits(id: str) -> Series[float]:
-  where_text = " AND ".join(
-    [f'json_extract(data, "$.{item}") IS NOT NULL' for item in stock_split_items]
+  coalesce_expr = ", ".join(
+    f"json_extract(data, '$.{item}')" for item in STOCK_SPLIT_ITEMS
   )
-
-  query = f'SELECT data FROM "{id}" WHERE {where_text}'
-  df_parse = cast(
-    DataFrame[str], read_sqlite("statements.db", query, dtype={"data": str})
+  where_sql = " OR ".join(
+    [f'json_extract(data, "$.{item}") IS NOT NULL' for item in STOCK_SPLIT_ITEMS]
   )
-  if df_parse is None:
-    return None
+  query = f"""
+    SELECT
+      periods, 
+      COALESCE({coalesce_expr}) AS records
+    FROM "{id}" 
+    WHERE {where_sql}
+  """
 
-  fin_data = cast(list[FinData], df_parse["data"].apply(json.loads).to_list())
+  with closing(sqlite3.connect(db_path)) as con:
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    rows = cur.execute(query).fetchall()
+    if not rows:
+      return None
 
-  df_data: list[StockSplit] = []
-  for data in fin_data:
-    df_data.extend(get_stock_splits(data))
-
-  df = pd.DataFrame(df_data)
-  df.drop_duplicates(inplace=True)
-  df.set_index("date", inplace=True)
-
-  return cast(Series[float], df["stock_split_ratio"])
+  df_data = parse_stock_split_data(rows)
+  return pl.DataFrame(df_data)
 
 
 def load_raw_statements(
@@ -692,7 +707,7 @@ def load_raw_statement(id: str, date: int, period: FiscalPeriod) -> FinStatement
     if table_exists is None:
       return None
 
-    cur.row_factory = lambda cursor, row: sqlite3.Row(cursor, tuple(row))
+    con.row_factory = sqlite3.Row
     statement = cur.execute(query, (date, period)).fetchone()
 
     if statement is None:
@@ -711,7 +726,7 @@ def store_updated_statements(
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_text})")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_sql})")
 
     query = f"""
       UPDATE "{table}" SET
@@ -735,10 +750,10 @@ def insert_statements(
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_columns})")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({STATEMENTS_COLUMNS})")
 
     query = f"""
-      INSERT INTO "{table}" VALUES ({statements_values_text})
+      INSERT INTO "{table}" VALUES ({statements_values_sql})
     """
     cur.executemany(query, [s.dump_json_values() for s in statements])
     con.commit()
@@ -753,7 +768,7 @@ def upsert_merged_statements(
 
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
-    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_text})")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_table_sql})")
 
     for statement in statements:
       date = int(statement.date.strftime("%Y%m%d"))
@@ -766,7 +781,7 @@ def upsert_merged_statements(
 
       query = f"""
         INSERT INTO "{table}"
-        VALUES ({statements_values_text})
+        VALUES ({statements_values_sql})
         ON CONFLICT(date, fiscal_period) DO UPDATE SET
           sources = excluded.sources,
           currencies = excluded.currencies,
@@ -793,10 +808,10 @@ def upsert_statements(
   with closing(sqlite3.connect(db_path)) as con:
     cur = con.cursor()
 
-    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({statements_columns})")
+    cur.execute(f"CREATE TABLE IF NOT EXISTS '{table}'({STATEMENTS_COLUMNS})")
 
     query = f"""INSERT INTO 
-      "{table}" VALUES ({statements_values_text})
+      "{table}" VALUES ({statements_values_sql})
       ON CONFLICT (date, fiscal_period) DO UPDATE SET
         data=json_patch(data, excluded.data),
         url=(

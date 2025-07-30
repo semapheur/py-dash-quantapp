@@ -1078,7 +1078,7 @@ def export(
   data: dict[str, list[Item]] = {}
 
   df = pd.DataFrame.from_records(rows)
-  if "item" not in set(df.columns):
+  if "item" not in df.columns:
     return "button:scrap:export"
 
   dates = list(df.columns.difference(["period", "factor", "unit", "item"]))
