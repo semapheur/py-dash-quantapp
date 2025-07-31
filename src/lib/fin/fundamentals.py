@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from functools import partial
-from typing import cast
+from typing import cast, Annotated
 from ordered_set import OrderedSet
 from sqlalchemy.types import Date
 
@@ -20,14 +20,14 @@ from lib.fin.metrics import (
   beta,
   weighted_average_cost_of_capital,
 )
-from lib.fin.models import CloseQuote
-from lib.fin.statement import load_statements, stock_splits
+from lib.fin.models import CloseQuote, StockSplitFrame
+from lib.fin.statement import load_statements, get_stock_splits
 from lib.fin.quote import load_ohlcv
 from lib.fin.taxonomy import load_schema
 from lib.morningstar.ticker import Stock
 from lib.yahoo.ticker import Ticker
 
-SHARE_PRICE_COLS = [
+SHARE_PRICE_COLUMNS = [
   "share_price_close",
   "share_price_open",
   "share_price_high",
@@ -37,20 +37,26 @@ SHARE_PRICE_COLS = [
 
 
 def stock_split_adjust(
-  financials: pl.LazyFrame, column_cache: set[str], ratios: dict[str, float] | None
-) -> pl.LazyFrame:
-  price_columns = list(column_cache.intersection(SHARE_PRICE_COLS))
+  financials: pl.LazyFrame,
+  column_cache: set[str],
+  stock_split_lf: Annotated[pl.LazyFrame, DataFrame[StockSplitFrame]] | None,
+) -> tuple[pl.LazyFrame, set[str]]:
+  price_columns = list(column_cache.intersection(SHARE_PRICE_COLUMNS))
   if not price_columns:
     raise ValueError("Failed to adjust for stock splits: no share price columns found")
 
+  adjusted_price_columns = [f"{col}_adjusted" for col in price_columns]
   financials = financials.with_columns(
-    [pl.col(col).alias(f"{col}_adjusted") for col in price_columns]
+    [pl.col(pc).alias(apc) for pc, apc in zip(price_columns, adjusted_price_columns)]
   )
+  column_cache.update(adjusted_price_columns)
 
-  if ratios is None:
-    return financials
+  if stock_split_lf is None:
+    return financials, column_cache
 
-  for date, ratio in ratios.items():
+  stock_split_df = stock_split_lf.collect()
+
+  for date, ratio in zip(stock_split_df["date"], stock_split_df["ratio"]):
     financials = financials.with_columns(
       [
         pl.when(pl.col("date") < date)
@@ -61,7 +67,7 @@ def stock_split_adjust(
       ]
     )
 
-  return financials
+  return financials, column_cache
 
 
 def merge_share_price(
@@ -126,36 +132,21 @@ def merge_share_price(
     price_aggregated, on="financials_ix", how="left"
   ).drop("financials_ix")
 
-  result = result.with_columns(
-    [
-      pl.col("share_price_close"),
-      pl.col("share_price_open"),
-      pl.col("share_price_high"),
-      pl.col("share_price_low"),
-      pl.col("share_price_average"),
-    ]
-  )
-  column_cache.update(
-    {
-      "share_price_close",
-      "share_price_open",
-      "share_price_high",
-      "share_price_low",
-      "share_price_average",
-    }
-  )
+  result = result.with_columns([pl.col(col) for col in SHARE_PRICE_COLUMNS])
+  column_cache.update(SHARE_PRICE_COLUMNS)
 
   return result, column_cache
 
 
 async def calculate_fundamentals(
+  financials: pl.LazyFrame,
+  column_cache: set[str],
+  stock_split_lf: Annotated[pl.LazyFrame, DataFrame[StockSplitFrame]] | None,
   ticker_ids: list[str],
   currency: str,
-  financials: pl.LazyFrame,
   beta_years: int | None = None,
   update: bool = False,
 ) -> pl.DataFrame:
-  column_cache = set(financials.collect_schema().names())
   start_date = financials.select("date").min().collect().item(0, 0) - relativedelta(
     years=beta_years or 1
   )
@@ -194,9 +185,10 @@ async def calculate_fundamentals(
     financials = financials.with_columns(pl.sum_horizontal(share_cols).alias(wasob))
 
   financials, column_cache = merge_share_price(financials, column_cache, price_df)
-  print("merged share prices")
-  split_ratios = stock_splits(ticker_ids[0])
-  financials = stock_split_adjust(financials, column_cache, split_ratios)
+
+  financials, column_cache = stock_split_adjust(
+    financials, column_cache, stock_split_lf
+  )
   print("adjusted for stock splits")
 
   schema = load_schema()

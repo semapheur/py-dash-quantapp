@@ -265,12 +265,15 @@ def update_trailing_twelve_months(lf: pl.LazyFrame, new_price: float) -> pl.Lazy
 
 
 def get_days(
-  lf: pl.LazyFrame, filters: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]
-) -> pl.LazyFrame:
-  lf = lf.with_columns(fiscal_days().alias("days"))
+  lf: pl.LazyFrame,
+  column_cache: set[str],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+) -> tuple[pl.LazyFrame, set[str]]:
+  result_lf = lf.with_columns(fiscal_days().alias("days"))
+  column_cache.add("days")
   all_updates: list[pl.LazyFrame] = []
 
-  for period_filter, months_filter, month_diff in filters:
+  for period_filter, months_filter, month_diff in slices:
     sub = lf.filter(period_filter & months_filter).sort("date")
 
     if isinstance(period_filter, pl.Expr) and "FY" in str(period_filter):
@@ -287,12 +290,14 @@ def get_days(
     all_updates.append(sub.select(["date", "period", "months", "days"]))
 
   if not all_updates:
-    return lf
+    return result_lf, column_cache
 
   updates = pl.concat(all_updates)
-  return lf.join(
+  result_lf = lf.join(
     updates, on=["date", "period", "months"], how="left", suffix="_updated"
   ).with_columns(pl.coalesce([pl.col("days_updated"), pl.col("days")]).alias("days"))
+
+  return result_lf, column_cache
 
 
 def calculate_stock_splits(lf: pl.LazyFrame) -> pl.LazyFrame:
@@ -325,10 +330,10 @@ def calculate_stock_splits(lf: pl.LazyFrame) -> pl.LazyFrame:
   return lf.select("stock_split_ratio")
 
 
-def applier(
+def apply_slicewise(
   lf: pl.LazyFrame,
   column_alias: dict[str, str],
-  fn: Literal["avg", "diff", "shift"],
+  slice_function: Literal["avg", "diff", "shift"],
   slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
 ) -> pl.LazyFrame:
   month_diff_expr = df_time_difference("date", 30, "D")
@@ -361,14 +366,14 @@ def applier(
 
       base_expr = pl.col(column)
 
-      if fn == "diff":
+      if slice_function == "diff":
         transformed = base_expr.diff()
-      elif fn == "avg":
+      elif slice_function == "avg":
         transformed = base_expr.rolling_mean(window_size=2, min_samples=2)
-      elif fn == "shift":
+      elif slice_function == "shift":
         transformed = base_expr.shift(1)
       else:
-        raise ValueError(f"Unsupported fn: {fn}")
+        raise ValueError(f"Unsupported slice function: {slice_function}")
 
       exprs_to_add.append(
         pl.when(transform_condition)
@@ -381,8 +386,8 @@ def applier(
       pl.coalesce([pl.col(col) for col in slice_cols] + [pl.col(column)]).alias(alias)
     )
 
-  lf = lf.with_columns(exprs_to_add)
-  return lf.with_columns(final_exprs).drop(drop_cols)
+  result_lf = lf.with_columns(exprs_to_add)
+  return result_lf.with_columns(final_exprs).drop(drop_cols)
 
 
 def applier_(
@@ -485,44 +490,55 @@ def upper_bound(
   return lf
 
 
+def insert_to_lf(
+  lf: pl.LazyFrame,
+  column_cache: set[str],
+  insert_data: pl.Expr,
+  insert_name: str,
+  replace_existing: bool = False,
+) -> tuple[pl.LazyFrame, set[str]]:
+  if insert_name in column_cache:
+    if replace_existing:
+      lf = lf.with_columns(insert_data.alias(insert_name))
+    else:
+      lf = lf.with_columns(
+        pl.coalesce(
+          [
+            pl.when(pl.col(insert_name).is_not_null()).then(pl.col(insert_name)),
+            insert_data,
+          ]
+        ).alias(insert_name)
+      )
+
+  else:
+    lf = lf.with_columns(insert_data.alias(insert_name))
+    column_cache.add(insert_name)
+
+  return lf, column_cache
+
+
 def calculate_items(
   financials: pl.LazyFrame,
+  column_cache: set[str],
   schemas: dict[str, TaxonomyCalculation],
-  recalc: bool = False,
+  replace_existing: bool = False,
 ) -> pl.LazyFrame:
-  def insert_to_lf(
-    lf: pl.LazyFrame, lf_cols: set[str], insert_data: pl.Expr, insert_name: str
-  ) -> pl.LazyFrame:
-    if insert_name in lf_cols:
-      if recalc:
-        lf = lf.with_columns(insert_data.alias(insert_name))
-      else:
-        lf = lf.with_columns(
-          pl.coalesce(
-            [pl.when(pl.col(insert_name) != 0.0).then(pl.col(insert_name)), insert_data]
-          ).alias(insert_name)
-        )
-
-    else:
-      lf = lf.with_columns(insert_data.alias(insert_name))
-      lf_cols.add(insert_name)
-
-    return lf
-
   def apply_formula(
-    lf: pl.LazyFrame, lf_cols: set[str], col_name: str, expression: ast.Expression
-  ) -> pl.LazyFrame:
+    lf: pl.LazyFrame, column_cache: set[str], col_name: str, expression: ast.Expression
+  ) -> tuple[pl.LazyFrame, set[str]]:
     code = compile(expression, "<string>", "eval")
     result = eval(code)
 
     if isinstance(result, pl.Expr):
-      lf = insert_to_lf(lf, lf_cols, result, col_name)
+      lf, column_cache = insert_to_lf(
+        lf, column_cache, result, col_name, replace_existing
+      )
 
-    return lf
+    return lf, column_cache
 
   def handle_all_formulas(
-    lf: pl.LazyFrame, lf_cols: set[str], col_name: str, formulas: list[str]
-  ) -> pl.LazyFrame:
+    lf: pl.LazyFrame, column_cache: set[str], column_name: str, formulas: list[str]
+  ) -> tuple[pl.LazyFrame, set[str]]:
     all_visitor = AllTransformer()
 
     for formula in formulas:
@@ -533,13 +549,13 @@ def calculate_items(
       )
 
       if all_visitor.names.issubset(lf_cols):
-        lf = apply_formula(lf, lf_cols, col_name, expression)
+        lf, column_cache = apply_formula(lf, column_cache, column_name, expression)
 
-    return lf
+    return lf, column_cache
 
   def handle_any_formulas(
-    lf: pl.LazyFrame, lf_cols: set[str], col_name: str, formulas: list[str]
-  ) -> pl.LazyFrame:
+    lf: pl.LazyFrame, column_cache: set[str], column_name: str, formulas: list[str]
+  ) -> tuple[pl.LazyFrame, set[str]]:
     any_visitor = AnyTransformer()
 
     for formula in formulas:
@@ -551,14 +567,14 @@ def calculate_items(
       )
 
       if any_visitor.names:
-        lf = apply_formula(financials, lf_cols, col_name, expression)
+        lf, column_cache = apply_formula(financials, lf_cols, column_name, expression)
         break
 
-    return lf
+    return lf, column_cache
 
   financials = financials.sort("date")
   slices = fin_filters(financials)
-  financials = get_days(financials, slices)
+  financials, column_cache = get_days(financials, column_cache, slices)
   lf_cols = set(financials.collect_schema().names())
 
   for calculee, schema in schemas.items():

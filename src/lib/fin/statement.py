@@ -54,12 +54,6 @@ type FinStatementData = dict[
   tuple[Date, FiscalPeriod, int, int], dict[str, int | float | None]
 ]
 
-STOCK_SPLIT_ITEMS = (
-  "StockSplitRatio",
-  "StockholdersEquityNoteStockSplitConversionRatio",
-  "StockholdersEquityNoteStockSplitConversionRatio1",
-  "ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares",
-)
 
 STATEMENTS_COLUMNS = {
   "date": "INTEGER",
@@ -228,7 +222,7 @@ async def statement_to_dict(
         continue
 
       months_len = period.months if isinstance(period, Duration) else scope_months
-      if months_len == 0 or months_len > 12:
+      if months_len > 12:
         continue
 
       quarter = fiscal_quarter_monthly(date.month, fiscal_end_month)
@@ -273,27 +267,28 @@ async def statement_to_dict(
   return frame_data
 
 
-async def load_statements(id: str, currency: str | None = None) -> pl.DataFrame | None:
+async def load_statements(
+  id: str, currency: str | None = None
+) -> tuple[pl.LazyFrame | None, set[str] | None, pl.LazyFrame | None]:
   statements = load_raw_statements(id)
 
   if statements is None:
-    return None
+    return None, None, None
 
   lfs = [await statement_to_lf(statements.pop(0), currency, True)] + [
     await statement_to_lf(s, currency) for s in statements
   ]
-  lf = (
-    pl.concat(lfs, how="diagonal_relaxed")
-    .sort("date")
-    .filter(pl.col("months").is_in([12, 9, 6, 3]))
-    .fill_nan(None)
+  statements_lf = (
+    pl.concat(lfs, how="diagonal_relaxed").sort(by=["date", "period"]).fill_nan(None)
   )
-  lf = fix_statements(lf)
+  statements_lf, column_cache, stock_split_data = fix_statements(statements_lf)
 
-  return lf.collect()
+  return statements_lf, column_cache, stock_split_data
 
 
-def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
+def fix_statements(
+  statements: pl.LazyFrame,
+) -> tuple[pl.LazyFrame, set[str], pl.LazyFrame | None]:
   def check_combos(lf: pl.LazyFrame, conditions: set[tuple[str, int]]) -> bool:
     unique_combos = (
       lf.select(
@@ -363,8 +358,16 @@ def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
     + item_lookup.get_column("gaap").unique().to_list()
   )
   statements = rename_and_coalesce_columns(statements, rename_map)
-
   column_cache = set(statements.collect_schema().names())
+
+  stock_splits = None
+  if "stock_split_ratio" in column_cache:
+    stock_splits = statements.select(["date", "stock_split_ratio"]).filter(
+      pl.col("stock_split_ratio").is_not_null()
+    )
+
+  statements = statements.filter(pl.col("months").is_in([12, 9, 6, 3]))
+
   sum_items_df = polars_from_sqlite_filter(
     db_name="taxonomy",
     table="items",
@@ -407,7 +410,7 @@ def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
     pl.any_horizontal([pl.col(c).is_not_null() for c in data_cols])
   )
   if len(fiscal_ends) == 1:
-    return statements
+    return statements, column_cache, stock_splits
 
   last_fiscal_end = statements.select("date").max().collect().item()
 
@@ -468,7 +471,7 @@ def fix_statements(statements: pl.LazyFrame) -> pl.LazyFrame:
 
   statements = pl.concat([statements, fy_rows]).sort(["date", "period"])
 
-  return statements
+  return statements, column_cache, stock_splits
 
 
 def fix_statements_pandas(statements: DataFrame) -> DataFrame:
@@ -609,6 +612,13 @@ def fix_statements_pandas(statements: DataFrame) -> DataFrame:
 
 
 def get_stock_splits(id: str) -> pl.DataFrame | None:
+  stock_split_items = (
+    "StockSplitRatio",
+    "StockholdersEquityNoteStockSplitConversionRatio",
+    "StockholdersEquityNoteStockSplitConversionRatio1",
+    "ShareholdersEquityNoteStockSplitConverstaionRatioAuthorizedShares",
+  )
+
   def parse_stock_split_data(rows: list[sqlite3.Row]) -> list[StockSplit]:
     data: list[StockSplit] = []
 
@@ -643,10 +653,10 @@ def get_stock_splits(id: str) -> pl.DataFrame | None:
   db_path = sqlite_path("statements.db")
 
   coalesce_expr = ", ".join(
-    f"json_extract(data, '$.{item}')" for item in STOCK_SPLIT_ITEMS
+    f"json_extract(data, '$.{item}')" for item in stock_split_items
   )
   where_sql = " OR ".join(
-    [f'json_extract(data, "$.{item}") IS NOT NULL' for item in STOCK_SPLIT_ITEMS]
+    [f'json_extract(data, "$.{item}") IS NOT NULL' for item in stock_split_items]
   )
   query = f"""
     SELECT

@@ -895,3 +895,8 @@ class Quote(CloseQuote):
 class StockSplit(BaseModel):
   date: Date
   stock_split_ratio: float
+
+
+class StockSplitFrame(DataFrameModel):
+  date: Index[Timestamp]
+  stock_split_ratio: float
