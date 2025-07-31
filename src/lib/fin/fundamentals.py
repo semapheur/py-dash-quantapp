@@ -192,7 +192,7 @@ async def calculate_fundamentals(
   print("adjusted for stock splits")
 
   schema = load_schema()
-  financials = calculate_items(financials, schema)
+  financials, column_cache = calculate_items(financials, schema)
   print("calculated items")
 
   financials = m_score(financials)

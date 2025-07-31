@@ -330,21 +330,49 @@ def calculate_stock_splits(lf: pl.LazyFrame) -> pl.LazyFrame:
   return lf.select("stock_split_ratio")
 
 
+def insert_to_lf(
+  lf: pl.LazyFrame,
+  column_cache: set[str],
+  insert_data: pl.Expr,
+  insert_name: str,
+  replace_existing: bool = False,
+) -> tuple[pl.LazyFrame, set[str]]:
+  if insert_name in column_cache:
+    if replace_existing:
+      lf = lf.with_columns(insert_data.alias(insert_name))
+    else:
+      lf = lf.with_columns(
+        pl.coalesce(
+          [
+            pl.when(pl.col(insert_name).is_not_null()).then(pl.col(insert_name)),
+            insert_data,
+          ]
+        ).alias(insert_name)
+      )
+
+  else:
+    lf = lf.with_columns(insert_data.alias(insert_name))
+    column_cache.add(insert_name)
+
+  return lf, column_cache
+
+
 def apply_slicewise(
   lf: pl.LazyFrame,
+  column_cache: set[str],
   column_alias: dict[str, str],
-  slice_function: Literal["avg", "diff", "shift"],
   slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
-) -> pl.LazyFrame:
+  slice_function: Literal["avg", "diff", "shift"],
+  replace_existing: bool = False,
+) -> tuple[pl.LazyFrame, set[str]]:
   month_diff_expr = df_time_difference("date", 30, "D")
 
-  final_exprs: list[pl.Expr] = []
   exprs_to_add: list[pl.Expr] = []
   drop_cols: list[str] = []
+  coalesce_map: dict[str, list[pl.Expr]] = {}
 
   for i, (period_filter, months_filter, month_diff_target) in enumerate(slices):
     slice_condition = period_filter & months_filter
-
     month_diff_col = f"month_diff_slice_{i}"
 
     exprs_to_add.append(
@@ -358,14 +386,13 @@ def apply_slicewise(
     transform_condition = slice_condition & (
       pl.col(month_diff_col) == month_diff_target
     )
-    slice_cols: list[str] = []
-    for column, alias in column_alias.items():
+
+    for column in column_alias.keys():
       result_col = f"{column}_slice_{i}"
-      slice_cols.append(result_col)
       drop_cols.append(result_col)
+      coalesce_map.setdefault(column, []).append(pl.col(result_col))
 
       base_expr = pl.col(column)
-
       if slice_function == "diff":
         transformed = base_expr.diff()
       elif slice_function == "avg":
@@ -382,12 +409,17 @@ def apply_slicewise(
         .alias(result_col)
       )
 
-    final_exprs.append(
-      pl.coalesce([pl.col(col) for col in slice_cols] + [pl.col(column)]).alias(alias)
+  result_lf = lf.with_columns(exprs_to_add)
+
+  for column, alias in column_alias.items():
+    coalesce_expr = pl.coalesce(coalesce_map[column])
+    result_lf, column_cache = insert_to_lf(
+      result_lf, column_cache, coalesce_expr, alias, replace_existing
     )
 
-  result_lf = lf.with_columns(exprs_to_add)
-  return result_lf.with_columns(final_exprs).drop(drop_cols)
+  result_lf = result_lf.drop(drop_cols)
+
+  return result_lf, column_cache
 
 
 def applier_(
@@ -447,7 +479,7 @@ def applier_(
 
 
 def lower_bound(
-  lf: pl.LazyFrame, lf_cols: set[str], value: str | float, calculee: str
+  lf: pl.LazyFrame, column_cache: set[str], value: str | float, calculee: str
 ) -> pl.LazyFrame:
   if isinstance(value, float):
     return lf.with_columns(
@@ -457,7 +489,7 @@ def lower_bound(
       .alias(calculee)
     )
 
-  elif value in lf_cols:
+  elif value in column_cache:
     return lf.with_columns(
       pl.when(pl.col(calculee) < pl.col(value))
       .then(pl.col(value))
@@ -469,7 +501,7 @@ def lower_bound(
 
 
 def upper_bound(
-  lf: pl.LazyFrame, lf_cols: set[str], value: str | float, calculee: str
+  lf: pl.LazyFrame, column_cache: set[str], value: str | float, calculee: str
 ) -> pl.LazyFrame:
   if isinstance(value, float):
     return lf.with_columns(
@@ -479,7 +511,7 @@ def upper_bound(
       .alias(calculee)
     )
 
-  elif value in lf_cols:
+  elif value in column_cache:
     return lf.with_columns(
       pl.when(pl.col(calculee) > pl.col(value))
       .then(pl.col(value))
@@ -490,39 +522,12 @@ def upper_bound(
   return lf
 
 
-def insert_to_lf(
-  lf: pl.LazyFrame,
-  column_cache: set[str],
-  insert_data: pl.Expr,
-  insert_name: str,
-  replace_existing: bool = False,
-) -> tuple[pl.LazyFrame, set[str]]:
-  if insert_name in column_cache:
-    if replace_existing:
-      lf = lf.with_columns(insert_data.alias(insert_name))
-    else:
-      lf = lf.with_columns(
-        pl.coalesce(
-          [
-            pl.when(pl.col(insert_name).is_not_null()).then(pl.col(insert_name)),
-            insert_data,
-          ]
-        ).alias(insert_name)
-      )
-
-  else:
-    lf = lf.with_columns(insert_data.alias(insert_name))
-    column_cache.add(insert_name)
-
-  return lf, column_cache
-
-
 def calculate_items(
   financials: pl.LazyFrame,
   column_cache: set[str],
   schemas: dict[str, TaxonomyCalculation],
   replace_existing: bool = False,
-) -> pl.LazyFrame:
+) -> tuple[pl.LazyFrame, set[str]]:
   def apply_formula(
     lf: pl.LazyFrame, column_cache: set[str], col_name: str, expression: ast.Expression
   ) -> tuple[pl.LazyFrame, set[str]]:
@@ -548,7 +553,7 @@ def calculate_items(
         ast.Expression, ast.fix_missing_locations(all_visitor.visit(expression))
       )
 
-      if all_visitor.names.issubset(lf_cols):
+      if all_visitor.names.issubset(column_cache):
         lf, column_cache = apply_formula(lf, column_cache, column_name, expression)
 
     return lf, column_cache
@@ -560,14 +565,16 @@ def calculate_items(
 
     for formula in formulas:
       any_visitor.reset_names()
-      any_visitor.set_columns(lf_cols)
+      any_visitor.set_columns(column_cache)
       expression = ast.parse(formula, mode="eval")
       expression = cast(
         ast.Expression, ast.fix_missing_locations(any_visitor.visit(expression))
       )
 
       if any_visitor.names:
-        lf, column_cache = apply_formula(financials, lf_cols, column_name, expression)
+        lf, column_cache = apply_formula(
+          financials, column_cache, column_name, expression
+        )
         break
 
     return lf, column_cache
@@ -575,38 +582,45 @@ def calculate_items(
   financials = financials.sort("date")
   slices = fin_filters(financials)
   financials, column_cache = get_days(financials, column_cache, slices)
-  lf_cols = set(financials.collect_schema().names())
 
   for calculee, schema in schemas.items():
-    fns = cast(
+    slice_functions = cast(
       set[Literal["avg", "diff", "shift"]],
       {"avg", "diff", "shift"}.intersection(set(schema.keys())),
     )
     calculated = False
 
-    for fn in fns:
+    for fn in slice_functions:
       calculer = cast(str, schema[fn])
-      if calculer not in lf_cols:
+      if calculer not in column_cache:
         continue
 
-      financials = applier(financials, {calculer: calculee}, fn, slices)
-      lf_cols.add(calculee)
-
+      financials, column_cache = apply_slicewise(
+        financials,
+        column_cache,
+        {calculer: calculee},
+        slices,
+        fn,
+      )
       calculated = True
 
     if calculated:
       continue
 
     if (formula := schema.get("all")) is not None:
-      financials = handle_all_formulas(financials, lf_cols, calculee, formula)
+      financials, column_cache = handle_all_formulas(
+        financials, column_cache, calculee, formula
+      )
 
     if (formula := schema.get("any")) is not None:
-      financials = handle_any_formulas(financials, lf_cols, calculee, formula)
+      financials, column_cache = handle_any_formulas(
+        financials, column_cache, calculee, formula
+      )
 
     if (value := schema.get("min")) is not None:
-      financials = lower_bound(financials, lf_cols, value, calculee)
+      financials = lower_bound(financials, column_cache, value, calculee)
 
     if (value := schema.get("max")) is not None:
-      financials = upper_bound(financials, lf_cols, value, calculee)
+      financials = upper_bound(financials, column_cache, value, calculee)
 
-  return financials
+  return financials, column_cache
