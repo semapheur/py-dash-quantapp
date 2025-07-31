@@ -11,7 +11,7 @@ from pandera.typing import DataFrame, Index
 import polars as pl
 
 from lib.db.lite import read_sqlite, upsert_sqlite, select_sqlite
-from lib.fin.calculation import calculate_items, trailing_twelve_months
+from lib.fin.calculation import calculate_items, trailing_twelve_months, fin_filters
 
 from lib.fin.metrics import (
   f_score,
@@ -191,21 +191,21 @@ async def calculate_fundamentals(
   )
   print("adjusted for stock splits")
 
+  slices = fin_filters(financials)
   schema = load_schema()
-  financials, column_cache = calculate_items(financials, schema)
+  financials, column_cache = calculate_items(financials, column_cache, schema, slices)
   print("calculated items")
 
-  financials = m_score(financials)
+  financials, column_cache = m_score(financials, column_cache, slices)
   print("calculated m score")
 
-  financials = f_score(financials)
+  financials, column_cache = f_score(financials, column_cache, slices)
   print("calculated f score")
 
-  if "altmann_z_score" not in financials.collect_schema().names():
-    financials = z_score(financials)
+  if "altmann_z_score" not in column_cache:
+    financials, column_cache = z_score(financials, column_cache)
   print("calculated z score")
-
-  financials = financials.collect().lazy()
+  return financials
 
   market_close = (
     await load_ohlcv(

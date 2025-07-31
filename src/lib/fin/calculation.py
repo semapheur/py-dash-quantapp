@@ -293,7 +293,7 @@ def get_days(
     return result_lf, column_cache
 
   updates = pl.concat(all_updates)
-  result_lf = lf.join(
+  result_lf = result_lf.join(
     updates, on=["date", "period", "months"], how="left", suffix="_updated"
   ).with_columns(pl.coalesce([pl.col("days_updated"), pl.col("days")]).alias("days"))
 
@@ -367,7 +367,8 @@ def apply_slicewise(
 ) -> tuple[pl.LazyFrame, set[str]]:
   month_diff_expr = df_time_difference("date", 30, "D")
 
-  exprs_to_add: list[pl.Expr] = []
+  month_diff_slices: list[pl.Expr] = []
+  slice_exprs: list[pl.Expr] = []
   drop_cols: list[str] = []
   coalesce_map: dict[str, list[pl.Expr]] = {}
 
@@ -375,7 +376,7 @@ def apply_slicewise(
     slice_condition = period_filter & months_filter
     month_diff_col = f"month_diff_slice_{i}"
 
-    exprs_to_add.append(
+    month_diff_slices.append(
       pl.when(slice_condition)
       .then(month_diff_expr)
       .otherwise(None)
@@ -402,14 +403,15 @@ def apply_slicewise(
       else:
         raise ValueError(f"Unsupported slice function: {slice_function}")
 
-      exprs_to_add.append(
+      slice_exprs.append(
         pl.when(transform_condition)
         .then(transformed)
         .otherwise(pl.col(column))
         .alias(result_col)
       )
 
-  result_lf = lf.with_columns(exprs_to_add)
+  result_lf = lf.with_columns(month_diff_slices)
+  result_lf = result_lf.with_columns(slice_exprs)
 
   for column, alias in column_alias.items():
     coalesce_expr = pl.coalesce(coalesce_map[column])
@@ -526,6 +528,7 @@ def calculate_items(
   financials: pl.LazyFrame,
   column_cache: set[str],
   schemas: dict[str, TaxonomyCalculation],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
   replace_existing: bool = False,
 ) -> tuple[pl.LazyFrame, set[str]]:
   def apply_formula(
@@ -580,7 +583,6 @@ def calculate_items(
     return lf, column_cache
 
   financials = financials.sort("date")
-  slices = fin_filters(financials)
   financials, column_cache = get_days(financials, column_cache, slices)
 
   for calculee, schema in schemas.items():

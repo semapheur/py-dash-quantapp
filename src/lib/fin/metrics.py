@@ -6,7 +6,7 @@ import numpy as np
 import polars as pl
 import statsmodels.api as sm
 
-from lib.fin.calculation import applier, fin_filters
+from lib.fin.calculation import apply_slicewise, fin_filters
 
 
 class BetaRecord(TypedDict):
@@ -25,10 +25,12 @@ class YieldSpreadRecord(TypedDict):
 
 
 def f_score(
-  lf: pl.LazyFrame, slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]
-) -> pl.LazyFrame:
+  lf: pl.LazyFrame,
+  column_cache: set[str],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+) -> tuple[pl.LazyFrame, set[str]]:
   f_score_diff = {
-    "return_on_assets": "change_retorn_on_assets",
+    "return_on_assets": "change_return_on_assets",
     "debt": "change_debt",
     "quick_ratio": "change_quick_ratio",
     "weighted_average_shares_outstanding_basic": "change_weighted_average_shares_outstanding_basic",
@@ -36,11 +38,13 @@ def f_score(
     "asset_turnover": "change_asset_turnover",
   }
 
-  lf = applier(
-    lf,
-    column_alias=f_score_diff,
-    fn="diff",
-    slices=slices,
+  if not set(f_score_diff.keys()).issubset(column_cache):
+    raise ValueError(
+      f"Failed to calculate F-Score: missing column(s) {set(f_score_diff.keys()) - column_cache}"
+    )
+
+  result_lf, column_cache = apply_slicewise(
+    lf, column_cache, f_score_diff, slices, "diff"
   )
 
   f_score_expr = (
@@ -57,16 +61,19 @@ def f_score(
     + (pl.col("change_asset_turnover") > 0).cast(pl.Int8)
   )
 
-  return lf.with_columns(f_score_expr.alias("piotroski_f_score")).drop(
+  result_lf = result_lf.with_columns(f_score_expr.alias("piotroski_f_score")).drop(
     list(f_score_diff.values())
   )
+  column_cache.add("piotroski_f_score")
+
+  return result_lf, column_cache
 
 
-def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
+def z_score(lf: pl.LazyFrame, column_cache: set[str]) -> tuple[pl.LazyFrame, set[str]]:
   assets = pl.col("average_assets")
   liabilities = pl.col("average_liabilities")
 
-  return lf.with_columns(
+  result_lf = lf.with_columns(
     (
       1.2 * pl.col("average_working_capital_operating") / assets
       + 1.4 * pl.col("retained_earnings_accumulated_deficit") / assets
@@ -75,11 +82,16 @@ def z_score(lf: pl.LazyFrame) -> pl.LazyFrame:
       + assets / liabilities
     ).alias("altman_z_score")
   )
+  column_cache.add("altman_z_score")
+
+  return result_lf, column_cache
 
 
 def m_score(
-  lf: pl.LazyFrame, slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]]
-) -> pl.LazyFrame:
+  lf: pl.LazyFrame,
+  column_cache: set[str],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+) -> tuple[pl.LazyFrame, set[str]]:
   lf = lf.with_columns(
     [
       (pl.col("average_receivables_trade_current") / pl.col("revenue")).alias("dsri"),
@@ -113,15 +125,12 @@ def m_score(
   }
 
   # Apply shift using applier
-  lf = applier(
-    lf,
-    column_alias=m_score_shift,
-    fn="shift",
-    slices=slices,
+  result_lf, column_cache = apply_slicewise(
+    lf, column_cache, m_score_shift, slices, "shift"
   )
 
   # Compute all ratios
-  lf = lf.with_columns(
+  result_lf = result_lf.with_columns(
     [
       (pl.col("dsri") / pl.col("shift_dsri")).alias("dsri"),
       (
@@ -165,10 +174,14 @@ def m_score(
     "sgi",
     "sgai",
     "shift_sgai",
+    "tata",
     "shift_operating_profit_margin",
     "shift_revenue",
   ]
-  return lf.with_columns(m_score_expr).drop(drop_cols)
+  result_lf = result_lf.with_columns(m_score_expr).drop(drop_cols)
+  column_cache.add("beneish_m_score")
+
+  return result_lf, column_cache
 
 
 def calculate_beta(
