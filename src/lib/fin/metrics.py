@@ -229,11 +229,13 @@ def calculate_beta(
 
 def beta(
   financials: pl.LazyFrame,
+  column_cache: set[str],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
   equity_return: pl.LazyFrame,
   market_return: pl.LazyFrame,
   riskfree_rate: pl.LazyFrame,
   years: int | None = 0,
-) -> pl.LazyFrame:
+) -> tuple[pl.LazyFrame, set[str]]:
   returns_df = (
     equity_return.join(market_return, on="date", how="outer", coalesce=True)
     .join(riskfree_rate, on="date", how="outer", coalesce=True)
@@ -242,7 +244,6 @@ def beta(
     .drop_nulls()
     .collect()
   )
-  slices = fin_filters()
 
   beta_frames: list[pl.LazyFrame] = []
   for period_filter, month_filter, months in slices:
@@ -260,15 +261,37 @@ def beta(
     beta_frames.append(beta_frame)
 
   betas = pl.concat(beta_frames)
-  return financials.join(betas, on=["date", "months"], how="left")
+  result_lf = financials.join(betas, on=["date", "months"], how="left")
+  column_cache.update(("beta", "market_return", "riskfree_rate"))
+  return result_lf, column_cache
 
 
 def weighted_average_cost_of_capital(
-  financials: pl.LazyFrame, debt_maturity: int = 10, large_cap_limit: float = 2e9
-) -> pl.LazyFrame:
-  financials = apply_yield_spread(financials, large_cap_limit)
+  financials: pl.LazyFrame,
+  column_cache: set[str],
+  debt_maturity: int = 10,
+  large_cap_limit: float = 2e9,
+) -> tuple[pl.LazyFrame, set[str]]:
+  required_columns = {
+    "beta",
+    "market_return",
+    "riskfree_rate",
+    "tax_rate",
+    "average_equity",
+    "average_debt",
+    "interest_expense",
+    "market_capitalization",
+  }
+  if not required_columns.issubset(column_cache):
+    raise ValueError(
+      f"Failed to calculate weighted average cost of capital: missing columns: {required_columns.difference(column_cache)}"
+    )
 
-  financials = financials.with_columns(
+  result_lf, column_cache = apply_yield_spread(
+    financials, column_cache, large_cap_limit
+  )
+
+  result_lf = result_lf.with_columns(
     (
       pl.col("beta")
       * (
@@ -276,31 +299,31 @@ def weighted_average_cost_of_capital(
       )
     ).alias("beta_levered")
   )
-  financials = financials.with_columns(
+  result_lf = result_lf.with_columns(
     (
       pl.col("beta_levered") * (pl.col("market_return") - pl.col("riskfree_rate"))
     ).alias("equity_risk_premium")
   )
-  financials = financials.with_columns(
+  result_lf = result_lf.with_columns(
     [
       (pl.col("riskfree_rate") + pl.col("equity_risk_premium")).alias("cost_equity"),
       (pl.col("riskfree_rate") + pl.col("yield_spread")).alias("cost_debt"),
     ]
   )
-  financials = financials.with_columns(
+  result_lf = result_lf.with_columns(
     (
       (pl.col("interest_expense") / pl.col("cost_debt"))
       * (1 - (1 / (1 + pl.col("cost_debt")) ** debt_maturity))
       + (pl.col("debt") / (1 + pl.col("cost_debt")) ** debt_maturity)
     ).alias("market_value_debt")
   )
-  financials = financials.with_columns(
+  result_lf = result_lf.with_columns(
     (
       pl.col("market_capitalization")
       / (pl.col("market_capitalization") + pl.col("market_value_debt"))
     ).alias("equity_to_capital")
   )
-  financials = financials.with_columns(
+  result_lf = result_lf.with_columns(
     (
       pl.col("cost_equity") * pl.col("equity_to_capital")
       + pl.col("cost_debt")
@@ -311,44 +334,32 @@ def weighted_average_cost_of_capital(
       )
     ).alias("weighted_average_cost_of_capital"),
   )
+  column_cache.update(
+    (
+      "beta_levered",
+      "equity_risk_premium",
+      "cost_equity",
+      "cost_debt",
+      "market_value_debt",
+      "equity_to_capital",
+      "weighted_average_cost_of_capital",
+    )
+  )
+  drop_columns = ["market_return", "capitalization_class"]
+  result_lf = result_lf.drop(drop_columns)
+  column_cache.difference_update(drop_columns)
 
-  return financials.drop(["market_return", "capitalization_class"])
+  return result_lf, column_cache
 
 
 def apply_yield_spread(
-  financial: pl.LazyFrame, large_cap_limit: float = 2e9
-) -> pl.LazyFrame:
-  spread_table = yield_spread_table()
-
-  financials = financial.with_columns(
-    [
-      pl.when(pl.col("interest_coverage_ratio").is_infinite())
-      .then(pl.when(pl.col("interest_coverage_ratio") > 0).then(0.004).otherwise(0.4))
-      .when(pl.col("interest_coverage_ratio").is_nan())
-      .then(None)
-      .otherwise(pl.col("interest_coverage_ratio"))
-      .alias("icr_clean"),
-      pl.when(pl.col("market_capitalization") < large_cap_limit)
-      .then(pl.lit("small"))
-      .otherwise(pl.lit("large"))
-      .alias("capitalization_class"),
-    ]
-  )
-
-  joined = (
-    financials.join(
-      spread_table,
-      left_on=["capitalization_class", "icr_clean"],
-      right_on=["capitalization_class", "lower"],
-      how="inner",
+  financial: pl.LazyFrame, column_cache: set[str], large_cap_limit: float = 2e9
+) -> tuple[pl.LazyFrame, set[str]]:
+  if "interest_coverage_ratio" not in column_cache:
+    raise ValueError(
+      "Failed to calculate yield spread: missing column: interest_coverage_ratio"
     )
-    .filter(pl.col("icr_clean") < pl.col("upper"))
-    .drop(["icr_clean", "upper"])
-  )
-  return joined
 
-
-def yield_spread_table() -> pl.LazyFrame:
   small_icr_intervals = (
     -1e5,
     0.5,
@@ -404,22 +415,46 @@ def yield_spread_table() -> pl.LazyFrame:
     0.0063,
   )
 
-  rows: list[YieldSpreadRecord] = []
-  for cap_class, intervals in [
-    ("small", small_icr_intervals),
-    ("large", large_icr_intervals),
-  ]:
-    for i in range(len(spreads) - 1):
-      rows.append(
-        YieldSpreadRecord(
-          capitalization_class=cast(Literal["small", "large"], cap_class),
-          lower=intervals[i],
-          upper=intervals[i + 1],
-          yield_spread=spreads[i],
-        )
-      )
+  result_lf = financial.with_columns(
+    pl.when(pl.col("market_capitalization") < large_cap_limit)
+    .then(pl.lit("small"))
+    .otherwise(pl.lit("large"))
+    .alias("capitalization_class")
+  )
 
-  return pl.LazyFrame(rows)
+  icr_col = pl.col("interest_coverage_ratio")
+
+  yield_spread_expr = (
+    pl.when(icr_col.is_nan())
+    .then(None)
+    .when(icr_col.is_infinite())
+    .then(pl.when(icr_col > 0).then(0.004).otherwise(0.4))
+  )
+
+  small_cap_expr = yield_spread_expr
+  for i in range(len(small_icr_intervals) - 1):
+    lower, upper = small_icr_intervals[i], small_icr_intervals[i + 1]
+    small_cap_expr = small_cap_expr.when((icr_col >= lower) & (icr_col < upper)).then(
+      spreads[i]
+    )
+
+  large_cap_expr = yield_spread_expr
+  for i in range(len(large_icr_intervals) - 1):
+    lower, upper = large_icr_intervals[i], large_icr_intervals[i + 1]
+    large_cap_expr = large_cap_expr.when((icr_col >= lower) & (icr_col < upper)).then(
+      spreads[i]
+    )
+
+  result_lf = result_lf.with_columns(
+    pl.when(pl.col("capitalization_class") == "small")
+    .then(small_cap_expr.otherwise(None))
+    .otherwise(large_cap_expr.otherwise(None))
+    .alias("yield_spread")
+  )
+
+  column_cache.update(("capitalization_class", "yield_spread"))
+
+  return result_lf, column_cache
 
 
 def discounted_cash_flow(

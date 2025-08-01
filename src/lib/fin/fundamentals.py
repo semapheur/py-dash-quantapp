@@ -205,7 +205,6 @@ async def calculate_fundamentals(
   if "altmann_z_score" not in column_cache:
     financials, column_cache = z_score(financials, column_cache)
   print("calculated z score")
-  return financials
 
   market_close = (
     await load_ohlcv(
@@ -234,9 +233,17 @@ async def calculate_fundamentals(
   market_return = market_close.select(
     ["date", pl.col("close").pct_change().alias("market_return")]
   )
-  financials = beta(financials, price_returns, market_return, riskfree_rate, beta_years)
+  financials, column_cache = beta(
+    financials,
+    column_cache,
+    slices,
+    price_returns,
+    market_return,
+    riskfree_rate,
+    beta_years,
+  )
   print("calculated betas")
-  financials = weighted_average_cost_of_capital(financials)
+  financials, column_cache = weighted_average_cost_of_capital(financials, column_cache)
   print("calculated wacc")
 
   return financials
