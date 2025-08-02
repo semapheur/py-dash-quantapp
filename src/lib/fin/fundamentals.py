@@ -224,7 +224,9 @@ async def calculate_fundamentals(
       cols=["close"],
     )
   ).lazy()
-  riskfree_rate = riskfree_rate.rename({"close": "riskfree_rate"})
+  riskfree_rate = riskfree_rate.select(
+    ["date", (pl.col("close") / 100.0).alias("riskfree_rate")]
+  )
 
   price_returns = price_df.with_columns(pl.mean_horizontal(ticker_ids).alias("close"))
   price_returns = price_returns.select(

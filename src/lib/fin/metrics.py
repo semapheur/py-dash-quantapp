@@ -2,19 +2,21 @@ from datetime import date as Date
 from dateutil.relativedelta import relativedelta
 from typing import cast, Literal, TypedDict
 
+from numba import jit
 import numpy as np
+from numpy.typing import NDArray
 import polars as pl
 import statsmodels.api as sm
 
-from lib.fin.calculation import apply_slicewise, fin_filters
+from lib.fin.calculation import apply_slicewise
 
 
 class BetaRecord(TypedDict):
   date: Date
+  months: int
   beta: float
   market_return: float
   riskfree_rate: float
-  months: int
 
 
 class YieldSpreadRecord(TypedDict):
@@ -184,11 +186,151 @@ def m_score(
   return result_lf, column_cache
 
 
-def calculate_beta(
+def beta(
+  financials: pl.LazyFrame,
+  column_cache: set[str],
+  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
+  equity_return: pl.LazyFrame,
+  market_return: pl.LazyFrame,
+  riskfree_rate: pl.LazyFrame,
+  years: int | None = 0,
+) -> tuple[pl.LazyFrame, set[str]]:
+  returns_df = (
+    equity_return.join(market_return, on="date", how="outer", coalesce=True)
+    .join(riskfree_rate, on="date", how="outer", coalesce=True)
+    .sort("date")
+    .fill_null(strategy="forward")
+    .drop_nulls()
+    .collect()
+  )
+
+  beta_frames: list[pl.LazyFrame] = []
+  for period_filter, month_filter, months in slices:
+    dates = (
+      financials.filter(period_filter & month_filter)
+      .select("date")
+      .collect()
+      .get_column("date")
+      .to_list()
+    )
+    if not dates:
+      continue
+
+    beta_frame = beta_slicewise(dates, returns_df, months, years)
+    beta_frames.append(beta_frame)
+
+  betas = pl.concat(beta_frames)
+  result_lf = financials.join(betas, on=["date", "months"], how="left")
+  column_cache.update(("beta", "market_return", "riskfree_rate"))
+  return result_lf, column_cache
+
+
+def beta_slicewise(
   dates: list[Date], returns_df: pl.DataFrame, months: int, years: int | None = None
 ) -> pl.LazyFrame:
   delta = relativedelta(months=months) if years is None else relativedelta(years=years)
+  min_date = returns_df["date"].min()
+  dates = [d for d in dates if d > min_date]
 
+  if len(dates) < 2:
+    return pl.LazyFrame(
+      [],
+      schema={
+        "date": pl.Date,
+        "months": pl.Int64,
+        "beta": pl.Float64,
+        "market_return": pl.Float64,
+        "riskfree_rate": pl.Float64,
+      },
+    )
+
+  date_ranges = [(dates[i - 1] - delta, dates[i]) for i in range(1, len(dates))]
+
+  start_dates_ordinal = np.array(
+    [d[0].toordinal() for d in date_ranges], dtype=np.int64
+  )
+  end_dates_ordinal = np.array([d[1].toordinal() for d in date_ranges], dtype=np.int64)
+
+  dates_list = returns_df.get_column("date").to_list()
+  dates_ordinal = np.array([d.toordinal() for d in dates_list], dtype=np.int64)
+  market_returns = returns_df["market_return"].to_numpy().astype(np.float64)
+  equity_returns = returns_df["equity_return"].to_numpy().astype(np.float64)
+  riskfree_rates = returns_df["riskfree_rate"].to_numpy().astype(np.float64)
+
+  betas, market_means, riskfree_means = beta_correlation(
+    dates_ordinal,
+    start_dates_ordinal,
+    end_dates_ordinal,
+    market_returns,
+    equity_returns,
+    riskfree_rates,
+  )
+
+  beta_records = [
+    BetaRecord(
+      date=dates[i + 1],
+      months=months,
+      beta=betas[i],
+      market_return=market_means[i],
+      riskfree_rate=riskfree_means[i],
+    )
+    for i in range(len(betas))
+  ]
+
+  return pl.LazyFrame(beta_records)
+
+
+@jit(nopython=True, parallel=True)
+def beta_correlation(
+  dates_ordinal: NDArray[np.int64],
+  start_dates_ordinal: NDArray[np.int64],
+  end_dates_ordinal: NDArray[np.int64],
+  market_returns: NDArray[np.float64],
+  equity_returns: NDArray[np.float64],
+  riskfree_rates: NDArray[np.float64],
+) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+  n_windows = len(start_dates_ordinal)
+  betas = np.full(n_windows, np.nan)
+  market_means = np.full(n_windows, np.nan)
+  riskfree_means = np.full(n_windows, np.nan)
+
+  for i in range(n_windows):
+    start = start_dates_ordinal[i]
+    end = end_dates_ordinal[i]
+
+    mask = (dates_ordinal >= start) & (dates_ordinal < end)
+    n_obs = np.sum(mask)
+
+    if n_obs < 2:
+      continue
+
+    window_market = market_returns[mask]
+    window_equity = equity_returns[mask]
+    window_riskfree = riskfree_rates[mask]
+
+    market_mean = np.mean(window_market)
+    equity_mean = np.mean(window_equity)
+    riskfree_mean = np.mean(window_riskfree)
+
+    market_centered = window_market - market_mean
+    equity_centered = window_equity - equity_mean
+
+    market_variance = np.sum(market_centered * market_centered)
+
+    market_means[i] = market_mean
+    riskfree_means[i] = riskfree_mean
+    if market_variance > 1e-12:
+      covariance = np.sum(equity_centered * market_centered)
+      beta = covariance / market_variance
+      betas[i] = beta
+
+  return betas, market_means, riskfree_means
+
+
+def beta_linear_regression(
+  dates: list[Date], returns_df: pl.DataFrame, months: int, years: int | None = None
+) -> pl.LazyFrame:
+  delta = relativedelta(months=months) if years is None else relativedelta(years=years)
   min_date = returns_df["date"].min()
   dates = [d for d in dates if d > min_date]
 
@@ -225,45 +367,6 @@ def calculate_beta(
     )
 
   return pl.LazyFrame(beta_rows)
-
-
-def beta(
-  financials: pl.LazyFrame,
-  column_cache: set[str],
-  slices: list[tuple[pl.Expr, pl.Expr, Literal[3, 12]]],
-  equity_return: pl.LazyFrame,
-  market_return: pl.LazyFrame,
-  riskfree_rate: pl.LazyFrame,
-  years: int | None = 0,
-) -> tuple[pl.LazyFrame, set[str]]:
-  returns_df = (
-    equity_return.join(market_return, on="date", how="outer", coalesce=True)
-    .join(riskfree_rate, on="date", how="outer", coalesce=True)
-    .sort("date")
-    .fill_null(strategy="forward")
-    .drop_nulls()
-    .collect()
-  )
-
-  beta_frames: list[pl.LazyFrame] = []
-  for period_filter, month_filter, months in slices:
-    dates = (
-      financials.filter(period_filter & month_filter)
-      .select("date")
-      .collect()
-      .get_column("date")
-      .to_list()
-    )
-    if not dates:
-      continue
-
-    beta_frame = calculate_beta(dates, returns_df, months, years)
-    beta_frames.append(beta_frame)
-
-  betas = pl.concat(beta_frames)
-  result_lf = financials.join(betas, on=["date", "months"], how="left")
-  column_cache.update(("beta", "market_return", "riskfree_rate"))
-  return result_lf, column_cache
 
 
 def weighted_average_cost_of_capital(
