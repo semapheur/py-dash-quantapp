@@ -327,48 +327,6 @@ def beta_correlation(
   return betas, market_means, riskfree_means
 
 
-def beta_linear_regression(
-  dates: list[Date], returns_df: pl.DataFrame, months: int, years: int | None = None
-) -> pl.LazyFrame:
-  delta = relativedelta(months=months) if years is None else relativedelta(years=years)
-  min_date = returns_df["date"].min()
-  dates = [d for d in dates if d > min_date]
-
-  beta_rows: list[BetaRecord] = []
-  for i in range(1, len(dates)):
-    start = dates[i - 1] - delta
-    end = dates[i]
-
-    window_df = returns_df.filter(
-      (pl.col("date") >= pl.lit(start)) & (pl.col("date") < pl.lit(end))
-    )
-
-    if window_df.height == 0:
-      continue
-
-    temp = window_df.select(["market_return", "equity_return", "riskfree_rate"])
-
-    x = sm.add_constant(temp["market_return"].to_numpy())
-    y = temp["equity_return"].to_numpy()
-
-    model = sm.OLS(y, x).fit()
-    beta = model.params[-1]
-    market_mean = cast(float, temp["market_return"].mean())
-    riskfree_mean = cast(float, temp["riskfree_rate"].mean())
-
-    beta_rows.append(
-      BetaRecord(
-        date=end,
-        beta=beta,
-        market_return=market_mean * 252.0,
-        riskfree_rate=riskfree_mean,
-        months=months,
-      )
-    )
-
-  return pl.LazyFrame(beta_rows)
-
-
 def weighted_average_cost_of_capital(
   financials: pl.LazyFrame,
   column_cache: set[str],

@@ -61,10 +61,10 @@ class AnyTransformer(ast.NodeTransformer):
           ),
           args=[ast.Constant(value=node.id)],
         ),
-        attr="fill_nan",
+        attr="fill_null",
         ctx=ast.Load(),
       ),
-      args=[ast.Constant(value=None)],
+      args=[ast.Constant(value=0.0)],
     )
 
 
@@ -577,6 +577,12 @@ def calculate_items(
       if any_visitor.names:
         lf, column_cache = apply_formula(
           financials, column_cache, column_name, expression
+        )
+        lf = lf.with_columns(
+          pl.when(pl.col(column_name).is_nan() | pl.col(column_name).is_infinite())
+          .then(None)
+          .otherwise(pl.col(column_name))
+          .alias(column_name)
         )
         break
 

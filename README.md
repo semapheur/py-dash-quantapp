@@ -2,6 +2,7 @@
 - Fix FinData members without dimension
 - Fix null vs nan in polars frames
 - Fix weighted share price
+- Store financial statements in jsonb format
 
 
 # Tips
