@@ -1,11 +1,17 @@
 from collections import OrderedDict
 import html
 import re
-from typing import TypedDict
+from typing import cast, TypedDict
 
-from selectolax.parser import HTMLParser
+from selectolax.parser import HTMLParser, Node
 
 type TableData = dict[str, list[str | int | float]]
+
+
+class TableInfo(TypedDict):
+  caption: str
+  unit: str
+  data: TableData
 
 
 class ElementData(TypedDict):
@@ -21,129 +27,131 @@ class ElementData(TypedDict):
 
 class ParserResult(TypedDict):
   hierarchy: OrderedDict[str, list[str]]
-  tables: list[TableData]
+  tables: list[TableInfo]
 
 
 class HTMLTextParser:
   def __init__(self) -> None:
     self.elements: list[ElementData] = []
     self.hierarchy_levels: dict[str, int] = {}
-    self.tables: list[TableData] = []
+    self.tables: list[TableInfo] = []
 
-  def parse(self, html_content: str, debug: bool = False) -> ParserResult:
+  def parse(self, html_content: str) -> ParserResult:
     tree = HTMLParser(html_content)
 
     self.elements = self._extract_elements(tree)
-
-    self.tables = self._extract_tables(tree, debug)
-
-    if debug:
-      print(f"Extracted {len(self.elements)} elements:")
-      for i, elem in enumerate(self.elements):
-        print(
-          f"  {i}: '{elem['text'][:50]}...' (size: {elem['font_size']}, weight: {elem['font_weight']}, pos: {elem['position']}, bold: {elem['is_bold']})"
-        )
-      print(f"\nExtracted {len(self.tables)} tables")
-
+    self.tables = self._extract_tables(tree)
     self.elements.sort(key=lambda x: (x["position"], x["left_pos"]))
 
     self._analyze_hierarchy_patterns()
 
-    if debug:
-      print("\nHierarchy levels assigned:")
-      for i, elem in enumerate(self.elements):
-        print(
-          f"  {i}: '{elem['text'][:30]}...' → level {elem.get('hierarchy_level', 'UNSET')}, is_heading: {elem.get('is_heading', 'UNSET')}"
-        )
-
     hierarchy = self._build_hierarchy()
-
-    if debug:
-      print(f"\nFinal hierarchy: {hierarchy}")
-      for i, table in enumerate(self.tables):
-        print(f"\nTable {i + 1}:")
-        for col_name, col_data in table.items():
-          print(f"  {col_name}: {col_data}")
 
     return {"hierarchy": hierarchy, "tables": self.tables}
 
-  def _extract_tables(self, tree: HTMLParser, debug: bool = False) -> list[TableData]:
+  def _extract_tables(self, tree: HTMLParser) -> list[TableInfo]:
     tables = []
 
     table_elements = tree.css("table")
 
     for table_index, table_element in enumerate(table_elements):
-      if debug:
-        print(f"\n--- Processing Table {table_index + 1} ---")
-
-      table_data = self._parse_single_table(table_element, debug)
-      if table_data:
-        tables.append(table_data)
-        if debug:
-          print(
-            f"Table {table_index + 1} extracted with columns: {list(table_data.keys())}"
-          )
-          for col_name, col_data in table_data.items():
-            print(f"  {col_name}: {len(col_data)} values")
+      table_info = self._parse_single_table(table_element)
+      if table_info["data"]:
+        tables.append(table_info)
 
     return tables
 
-  def _parse_single_table(self, table_element, debug: bool = False) -> TableData:
-    rows = table_element.css("tr")
+  def _parse_single_table(self, table_element: Node) -> TableInfo:
+    table_rows = table_element.css("tr")
+    if not table_rows:
+      return TableInfo(caption="", unit="", data={})
 
-    if not rows:
-      return {}
+    caption, unit = self._extract_caption_and_unit(table_element)
 
     headers: list[str] = []
-    data_rows = []
+    data_rows: list[list[str]] = []
+    header_found = False
 
-    for row_index, row in enumerate(rows):
+    for row_index, row in enumerate(table_rows):
       cells = row.css("td, th")
-
       if not cells:
         continue
 
-      cell_texts = []
+      cell_texts: list[str] = []
       for cell in cells:
-        cell_text = self._extract_cell_text_selectolax(cell)
+        cell_text = self._extract_cell_text(cell)
         cell_texts.append(cell_text)
-
-      if debug:
-        print(f"Row {row_index}: {cell_texts}")
-
-      if self._is_header_row_selectolax(cell_texts, row_index, row):
-        if not headers:
-          headers = self._clean_headers(cell_texts)
-          if debug:
-            print(f"Headers identified: {headers}")
-        continue
 
       if not any(text.strip() for text in cell_texts):
         continue
 
+      if not header_found and self._is_header_row(cell_texts, row_index, row):
+        if not unit:
+          unit = self._extract_unit_from_header(cell_texts)
+        header_found = True
+        continue
+
+      if self._is_separator_row(cell_texts, row):
+        continue
+
       data_rows.append(cell_texts)
 
-    if not headers and data_rows:
-      max_cols = max(len(row) for row in data_rows)
+    if data_rows:
+      max_cols = max(len(row) for row in data_rows) if data_rows else 0
       headers = [f"Column_{i + 1}" for i in range(max_cols)]
-      if debug:
-        print(f"Generated headers: {headers}")
 
     if not headers:
-      return {}
+      return TableInfo(caption="", unit="", data={})
 
-    table_data = {}
+    table_data: TableData = {}
     for i, header in enumerate(headers):
       column_values = []
-      for row in data_rows:
-        value = row[i] if i < len(row) else ""
+      for data_row in data_rows:
+        value = data_row[i] if i < len(row) else ""
         processed_value = self._process_cell_value(value)
         column_values.append(processed_value)
       table_data[header] = column_values
 
-    return table_data
+    return {"caption": caption, "unit": unit, "data": table_data}
 
-  def _extract_cell_text_selectolax(self, cell_element) -> str:
+  def _extract_caption_and_unit(self, table_element: Node) -> tuple[str, str]:
+    caption = ""
+    unit = ""
+
+    parent = table_element.parent
+    if parent:
+      for sibling in parent.css("*"):
+        if sibling == table_element:
+          break
+        text = sibling.text(strip=True) if hasattr(sibling, "text") else ""
+        if text and len(text) > 10:
+          caption = re.sub(r"\s+", " ", text).strip()
+          caption = re.sub(r":$", "", caption)
+          break
+
+    if caption and not unit:
+      unit = self._extract_unit_from_text(caption)
+
+    return caption, unit
+
+  def _extract_unit_from_header(self, header_texts: list[str]) -> str:
+    for text in header_texts:
+      unit = self._extract_unit_from_text(text)
+      if unit:
+        return unit
+    return ""
+
+  def _extract_unit_from_text(self, text: str) -> str:
+    text_lower = text.lower()
+
+    unit_pattern = r"\(in .*?(thousands|millions|billions|trillions)?.*?\)"
+    unit_match = re.search(unit_pattern, text_lower)
+    if unit_match is not None:
+      return unit_match.group()
+
+    return ""
+
+  def _extract_cell_text(self, cell_element) -> str:
     text = cell_element.text(strip=True)
 
     if not text:
@@ -155,45 +163,114 @@ class HTMLTextParser:
 
     return text
 
-  def _is_header_row_selectolax(
-    self, cell_texts: list[str], row_index: int, row_element
-  ) -> bool:
-    th_elements = row_element.css("th")
-    if th_elements:
+  def _is_separator_row(self, cell_texts: list[str], row_element) -> bool:
+    if not any(text.strip() for text in cell_texts):
       return True
 
-    for cell in row_element.css("td"):
-      if self._has_bold_styling(cell):
-        return True
+    row_style = row_element.attrs.get("style", "")
+    cells = row_element.css("td, th")
 
-    if all(len(text.strip()) < 50 and text.strip() for text in cell_texts):
-      has_numbers = any(re.search(r"\d+[,.]?\d*", text) for text in cell_texts)
-      has_long_text = any(len(text.strip()) > 20 for text in cell_texts)
-
-      if not has_numbers and not has_long_text:
-        return True
-
-    if row_index == 0:
+    if (
+      all(
+        "border" in cell.attrs.get("style", "") and not cell.text(strip=True)
+        for cell in cells
+      )
+      and "border" in row_style
+    ):
       return True
 
     return False
 
-  def _has_bold_styling(self, element) -> bool:
-    style = element.attributes.get("style", "")
-    if "font-weight:bold" in style or "font-weight: bold" in style:
+  def _is_header_row(self, cell_texts: list[str], row_index: int, row_element) -> bool:
+    non_empty_texts = [text.strip() for text in cell_texts if text.strip()]
+
+    if not non_empty_texts:
+      return False
+
+    th_elements = row_element.css("th")
+    if th_elements:
       return True
 
-    weight_match = re.search(r"font-weight:\s*(\d+)", style)
-    if weight_match and int(weight_match.group(1)) >= 700:
+    has_bold_cells = any(self._has_bold_styling(cell) for cell in row_element.css("td"))
+    if has_bold_cells:
+      return True
+
+    header_patterns = [
+      r"\(in\s+[\w\s]+\)",  # "(in USD million)", "(in thousands)", etc.
+      r"^year$",
+      r"^period$",
+      r"^amount$",
+      r"^value$",
+      r"^total(?:\s+\w+)*$",  # "total", "total assets", etc.
+      r"^description$",
+      r"^category$",
+      r"^type$",
+      r"^name$",
+      r"^item$",
+      r"^\d{4}$",  # Years like "2024", "2025"
+      r"^q[1-4]$",  # Quarters like "Q1", "Q2"
+      r"^[a-z\s]{2,20}$",  # Short descriptive text (2-20 chars)
+    ]
+
+    has_header_pattern = any(
+      re.search(pattern, text.lower(), re.IGNORECASE)
+      for text in non_empty_texts
+      for pattern in header_patterns
+    )
+    if has_header_pattern:
+      return True
+
+    if row_index > 5:
+      return False
+
+    if len(non_empty_texts) >= 1:
+      all_short = all(len(text) <= 50 for text in non_empty_texts)
+
+      numeric_pattern = r"^[\d,.\s$%-]+$"
+      mostly_non_numeric = (
+        sum(
+          1 for text in non_empty_texts if not re.match(numeric_pattern, text.strip())
+        )
+        >= len(non_empty_texts) * 0.7
+      )
+
+      has_text_content = any(re.search(r"[a-zA-Z]", text) for text in non_empty_texts)
+
+      if all_short and has_text_content and (mostly_non_numeric or row_index <= 2):
+        return True
+
+    if (
+      len(non_empty_texts) == 1
+      and row_index <= 2
+      and len(non_empty_texts[0]) > 5
+      and re.search(r"[a-zA-Z]", non_empty_texts[0])
+    ):
+      return True
+
+    return False
+
+  def _has_bold_styling(self, element: Node) -> bool:
+    def is_bold(style: str) -> bool:
+      if "font-weight:bold" in style or "font-weight: bold" in style:
+        return True
+      weight_match = re.search(r"font-weight:\s*(\d+)", style)
+      return bool(weight_match and int(weight_match.group(1)) >= 700)
+
+    style = element.attributes.get("style", "")
+
+    if not style:
+      return False
+
+    if is_bold(style):
       return True
 
     for child in element.css("*"):
       child_style = child.attributes.get("style", "")
-      if "font-weight:bold" in child_style or "font-weight: bold" in child_style:
-        return True
 
-      child_weight_match = re.search(r"font-weight:\s*(\d+)", child_style)
-      if child_weight_match and int(child_weight_match.group(1)) >= 700:
+      if not child_style:
+        continue
+
+      if is_bold(child_style):
         return True
 
     return False
@@ -207,7 +284,7 @@ class HTMLTextParser:
       if not text or text in seen_texts:
         continue
 
-      element_data = self._extract_element_data_selectolax(span, "span")
+      element_data = self._extract_element_data(span, "span")
       if element_data:
         elements.append(element_data)
         seen_texts.add(text)
@@ -219,15 +296,15 @@ class HTMLTextParser:
         if not text or text in seen_texts:
           continue
 
-        element_data = self._extract_element_data_selectolax(span, "div_span", div)
+        element_data = self._extract_element_data(span, "div_span", div)
         if element_data:
           elements.append(element_data)
           seen_texts.add(text)
 
     return elements
 
-  def _extract_element_data_selectolax(
-    self, span, element_type: str, parent_div=None
+  def _extract_element_data(
+    self, span: Node, element_type: str, parent_div: Node | None = None
   ) -> ElementData | None:
     text = span.text(strip=True)
     if not text:
@@ -236,7 +313,7 @@ class HTMLTextParser:
     text = html.unescape(text)
     text = self._normalize_unicode(text)
 
-    span_style = span.attributes.get("style", "")
+    span_style = cast(str, span.attributes.get("style", ""))
 
     font_size = self._extract_font_size(span_style)
     font_weight = self._extract_font_weight(span_style)
@@ -245,7 +322,9 @@ class HTMLTextParser:
       position = self._extract_top_position(span_style)
       left_pos = self._extract_left_position(span_style)
     else:
-      div_style = parent_div.attributes.get("style", "") if parent_div else ""
+      div_style = cast(
+        str, parent_div.attributes.get("style", "") if parent_div is not None else ""
+      )
       position = self._extract_top_position(div_style) or self._extract_margin_top(
         div_style
       )
