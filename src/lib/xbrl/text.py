@@ -5,6 +5,8 @@ from typing import cast, TypedDict
 
 from selectolax.parser import HTMLParser, Node
 
+from lib.utils.string import is_title
+
 type TableData = dict[str, list[str | int | float]]
 
 
@@ -17,12 +19,11 @@ class TableInfo(TypedDict):
 class ElementData(TypedDict):
   text: str
   font_size: float
-  font_weight: int
-  position: float
-  left_pos: float
-  element_type: str
+  top_position: float
+  left_position: float
   is_bold: bool
   char_length: int
+  is_heading: bool
 
 
 class ParserResult(TypedDict):
@@ -33,28 +34,28 @@ class ParserResult(TypedDict):
 class HTMLTextParser:
   def __init__(self) -> None:
     self.elements: list[ElementData] = []
-    self.hierarchy_levels: dict[str, int] = {}
     self.tables: list[TableInfo] = []
+    self.font_sizes: set[float] = set()
 
   def parse(self, html_content: str) -> ParserResult:
     tree = HTMLParser(html_content)
 
     self.elements = self._extract_elements(tree)
     self.tables = self._extract_tables(tree)
-    self.elements.sort(key=lambda x: (x["position"], x["left_pos"]))
+    self.elements.sort(key=lambda x: (x["top_position"], x["left_position"]))
 
     self._analyze_hierarchy_patterns()
 
     hierarchy = self._build_hierarchy()
 
-    return {"hierarchy": hierarchy, "tables": self.tables}
+    return ParserResult(hierarchy=hierarchy, tables=self.tables)
 
   def _extract_tables(self, tree: HTMLParser) -> list[TableInfo]:
     tables = []
 
     table_elements = tree.css("table")
 
-    for table_index, table_element in enumerate(table_elements):
+    for table_element in table_elements:
       table_info = self._parse_single_table(table_element)
       if table_info["data"]:
         tables.append(table_info)
@@ -98,7 +99,7 @@ class HTMLTextParser:
 
     if data_rows:
       max_cols = max(len(row) for row in data_rows) if data_rows else 0
-      headers = [f"Column_{i + 1}" for i in range(max_cols)]
+      headers = [f"column_{i + 1}" for i in range(max_cols)]
 
     if not headers:
       return TableInfo(caption="", unit="", data={})
@@ -107,12 +108,12 @@ class HTMLTextParser:
     for i, header in enumerate(headers):
       column_values = []
       for data_row in data_rows:
-        value = data_row[i] if i < len(row) else ""
+        value = data_row[i] if i < len(data_row) else ""
         processed_value = self._process_cell_value(value)
         column_values.append(processed_value)
       table_data[header] = column_values
 
-    return {"caption": caption, "unit": unit, "data": table_data}
+    return TableInfo(caption=caption, unit=unit, data=table_data)
 
   def _extract_caption_and_unit(self, table_element: Node) -> tuple[str, str]:
     caption = ""
@@ -151,7 +152,7 @@ class HTMLTextParser:
 
     return ""
 
-  def _extract_cell_text(self, cell_element) -> str:
+  def _extract_cell_text(self, cell_element: Node) -> str:
     text = cell_element.text(strip=True)
 
     if not text:
@@ -163,16 +164,16 @@ class HTMLTextParser:
 
     return text
 
-  def _is_separator_row(self, cell_texts: list[str], row_element) -> bool:
+  def _is_separator_row(self, cell_texts: list[str], row_element: Node) -> bool:
     if not any(text.strip() for text in cell_texts):
       return True
 
-    row_style = row_element.attrs.get("style", "")
+    row_style = cast(str, row_element.attrs.get("style", ""))
     cells = row_element.css("td, th")
 
     if (
       all(
-        "border" in cell.attrs.get("style", "") and not cell.text(strip=True)
+        "border" in cast(str, cell.attrs.get("style", "")) and not cell.text(strip=True)
         for cell in cells
       )
       and "border" in row_style
@@ -181,7 +182,9 @@ class HTMLTextParser:
 
     return False
 
-  def _is_header_row(self, cell_texts: list[str], row_index: int, row_element) -> bool:
+  def _is_header_row(
+    self, cell_texts: list[str], row_index: int, row_element: Node
+  ) -> bool:
     non_empty_texts = [text.strip() for text in cell_texts if text.strip()]
 
     if not non_empty_texts:
@@ -276,10 +279,47 @@ class HTMLTextParser:
     return False
 
   def _extract_elements(self, tree: HTMLParser) -> list[ElementData]:
-    elements = []
-    seen_texts = set()
+    def is_inside_table(element: Node) -> bool:
+      current: Node | None = element
+      table_tags = {"table", "tbody", "thead", "tfoot", "tr", "td", "th"}
+      while current is not None:
+        if (
+          hasattr(current, "tag") and current.tag and current.tag.lower() in table_tags
+        ):
+          return True
 
-    for span in tree.css("span"):
+        current = getattr(current, "parent", None)
+
+      return False
+
+    elements: list[ElementData] = []
+    seen_texts: set[str] = set()
+
+    text_pattern = r"(?<=<body>)[^<]+?(?=<)"
+    toplevel_match = re.search(text_pattern, str(tree.html), re.DOTALL)
+    if toplevel_match:
+      text = toplevel_match.group(0).strip()
+      elements.append(
+        ElementData(
+          text=text,
+          font_size=0.0,
+          top_position=0.0,
+          left_position=0.0,
+          is_bold=False,
+          is_heading=False,
+          char_length=len(text),
+        )
+      )
+
+    span_selector = (
+      "span:not(table span):not(tbody span):not(thead span):not(tfoot span)"
+      ":not(tr span):not(td span):not(th span)"
+    )
+
+    for span in tree.css(span_selector):
+      if is_inside_table(span):
+        continue
+
       text = span.text(strip=True)
       if not text or text in seen_texts:
         continue
@@ -289,17 +329,24 @@ class HTMLTextParser:
         elements.append(element_data)
         seen_texts.add(text)
 
-    for div in tree.css("div"):
-      span = div.css_first("span")
-      if span:
-        text = span.text(strip=True)
-        if not text or text in seen_texts:
-          continue
+    div_selector = (
+      "div:not(table div):not(tbody div):not(thead div):not(tfoot div)"
+      ":not(tr div):not(td div):not(th div)"
+    )
 
-        element_data = self._extract_element_data(span, "div_span", div)
-        if element_data:
-          elements.append(element_data)
-          seen_texts.add(text)
+    for div in tree.css(div_selector):
+      span_child = div.css_first("span")
+      if span_child is None:
+        continue
+
+      text = span_child.text(strip=True)
+      if not text or text in seen_texts:
+        continue
+
+      element_data = self._extract_element_data(span, "div_span", div)
+      if element_data:
+        elements.append(element_data)
+        seen_texts.add(text)
 
     return elements
 
@@ -316,28 +363,30 @@ class HTMLTextParser:
     span_style = cast(str, span.attributes.get("style", ""))
 
     font_size = self._extract_font_size(span_style)
+    if font_size > 0.0:
+      self.font_sizes.add(font_size)
+
     font_weight = self._extract_font_weight(span_style)
 
     if element_type == "span":
-      position = self._extract_top_position(span_style)
-      left_pos = self._extract_left_position(span_style)
+      top_position = self._extract_top_position(span_style)
+      left_position = self._extract_left_position(span_style)
     else:
       div_style = cast(
         str, parent_div.attributes.get("style", "") if parent_div is not None else ""
       )
-      position = self._extract_top_position(div_style) or self._extract_margin_top(
+      top_position = self._extract_top_position(div_style) or self._extract_margin_top(
         div_style
       )
-      left_pos = self._extract_left_position(span_style) or 0
+      left_position = self._extract_left_position(span_style) or 0
 
     return ElementData(
       text=text,
       font_size=font_size,
-      font_weight=font_weight,
-      position=position or 0,
-      left_pos=left_pos or 0,
-      element_type=element_type,
+      top_position=top_position or 0.0,
+      left_position=left_position or 0.0,
       is_bold=font_weight >= 700,
+      is_heading=False,
       char_length=len(text),
     )
 
@@ -396,7 +445,7 @@ class HTMLTextParser:
 
   def _extract_font_size(self, style: str) -> float:
     match = re.search(r"font-size:\s*(\d+(?:\.\d+)?)pt", style)
-    return float(match.group(1)) if match else 9.0
+    return float(match.group(1)) if match else 0.0
 
   def _extract_font_weight(self, style: str) -> int:
     match = re.search(r"font-weight:\s*(\d+)", style)
@@ -422,144 +471,156 @@ class HTMLTextParser:
     if not self.elements:
       return
 
-    for elem in self.elements:
-      text = elem["text"]
-      font_size = elem["font_size"]
-      is_bold = elem["is_bold"]
+    mean_front_size = 0.0
+    if self.font_sizes:
+      mean_front_size = sum(self.font_sizes) / len(self.font_sizes)
+
+    heading_phrases = ("Notes to", "Summary of")
+
+    sentence_words = {
+      " although ",
+      " because ",
+      " but ",
+      " hence ",
+      " however ",
+      " if ",
+      " likewise ",
+      " nor ",
+      " since ",
+      " so ",
+      " that ",
+      " therefore ",
+      " though ",
+      " thus ",
+      " which ",
+      " when ",
+      " where ",
+      " whereas ",
+      " whether ",
+      " while ",
+      " unless ",
+      " until ",
+      " yet ",
+    }
+
+    verbs = {
+      " are ",
+      " can ",
+      " could ",
+      " did ",
+      " do ",
+      " does ",
+      " have ",
+      " has",
+      " is ",
+      " may ",
+      " might ",
+      " must ",
+      " should ",
+      " was ",
+      " were ",
+      " where ",
+      " will ",
+      " would ",
+    }
+
+    for element in self.elements:
+      text = element["text"]
+      text_lower = text.lower()
+      font_size = element["font_size"]
+      is_bold = element["is_bold"]
+      words = len(text.split())
 
       heading_score = 0
 
-      if font_size >= 13:
-        heading_score += 4
-      elif font_size >= 10:
-        heading_score += 2
-      elif font_size >= 9.5:
+      if (font_size > 0 and mean_front_size > 0) and font_size > mean_front_size:
         heading_score += 1
 
       if is_bold:
-        heading_score += 3
-
-      if len(text) <= 30:
-        heading_score += 2
-      elif len(text) <= 50:
         heading_score += 1
 
-      if len(text) < 80 and any(
-        word in text.lower()
-        for word in [
-          "policy",
-          "policies",
-          "recognition",
-          "accounting",
-          "revenue",
-          "compensation",
-          "equivalents",
-          "securities",
-          "inventories",
-          "property",
-          "plant",
-          "equipment",
-          "derivative",
-          "instruments",
-          "income",
-          "taxes",
-          "leases",
-          "presentation",
-          "preparation",
-        ]
-      ):
-        heading_score += 2
+      if words < 6:
+        heading_score += 1
 
-      strong_content_patterns = [
-        "presents",
-        "recognised",
-        "recognized",
-        "includes",
-        "requires",
-        "when a",
-        "which for",
-        "based on the",
-        "represents a",
-        "determined using",
-        "measured using",
-        "is recognized",
-        "are recognized",
-        "records",
-        "combines and accounts",
-        "conformity with",
-        "in accordance",
-        "the company",
-        "the preparation",
-        "financial statements",
-        "amounts have been",
-        "fiscal year",
-        "straight-line basis",
-        "fair value",
-        "deferred tax",
-        "lease component",
-      ]
+      if words > 1 and is_title(text):
+        heading_score += 1
 
-      if any(pattern in text.lower() for pattern in strong_content_patterns):
-        heading_score -= 5
+      for phrase in heading_phrases:
+        if re.match(rf"^{phrase}\b", text):
+          heading_score += 3
 
-      if text.endswith(","):
+      if any(word in text_lower for word in sentence_words) > 0:
+        heading_score -= 4
+
+      if sum(verb in text_lower for verb in verbs) > 0:
         heading_score -= 4
 
       if text.endswith("."):
         heading_score -= 3
 
-      if len(text) > 60 and (" and " in text or " which " in text or " when " in text):
-        heading_score -= 4
-
-      if " is " in text.lower() or " are " in text.lower():
-        heading_score -= 2
-
       if text.count(",") >= 2:
         heading_score -= 3
 
-      elem["is_heading"] = heading_score >= 4 and not text.endswith(",")
-      elem["heading_score"] = heading_score
+      if "?" in text:
+        heading_score -= 3
 
-      if font_size >= 13:
-        elem["hierarchy_level"] = 0  # Main title
-      elif font_size >= 9.5 and is_bold:
-        elem["hierarchy_level"] = 1  # Subheading
-      elif font_size >= 9.5:
-        elem["hierarchy_level"] = 2  # Sub-subheading or content
-      else:
-        elem["hierarchy_level"] = 3  # Content
+      element["is_heading"] = heading_score >= 3 and not text.endswith(",")
 
   def _build_hierarchy(self) -> OrderedDict[str, list[str]]:
-    """Build the final hierarchical structure."""
     result = OrderedDict()
-    current_heading = None
-    current_content: list[str] = []
 
-    for elem in self.elements:
-      text = elem["text"].strip()
-      is_heading = elem.get("is_heading", False)
+    has_any_heading = any(element["is_heading"] for element in self.elements)
+
+    if not has_any_heading:
+      all_content = []
+      for element in self.elements:
+        text = element["text"].strip()
+        if text:
+          all_content.append(text)
+
+        if all_content:
+          paragraphs = self._combine_content_fragments(all_content)
+          result[""] = paragraphs
+
+      return result
+
+    current_heading: str | None = None
+    current_content: list[str] = []
+    content_before_first_heading: list[str] = []
+
+    for element in self.elements:
+      text = element["text"].strip()
+      if not text:
+        continue
+
+      is_heading = element.get("is_heading", False)
 
       if is_heading:
-        if current_heading and current_content:
+        if current_heading is None and content_before_first_heading:
+          paragraphs = self._combine_content_fragments(content_before_first_heading)
+          result[""] = paragraphs
+          content_before_first_heading = []
+
+        if current_heading is not None:
           paragraphs = self._combine_content_fragments(current_content)
           result[current_heading] = paragraphs
           current_content = []
-        elif current_heading and current_heading not in result:
-          result[current_heading] = []
 
         current_heading = text
-        current_content = []
 
       else:
-        if current_heading:
+        if current_heading is None:
+          content_before_first_heading.append(text)
+        else:
           current_content.append(text)
 
-    if current_heading:
-      if current_content:
-        paragraphs = self._combine_content_fragments(current_content)
-        result[current_heading] = paragraphs
-      elif current_heading not in result:
-        result[current_heading] = []
+    if current_heading is not None:
+      paragraphs = self._combine_content_fragments(current_content)
+      result[current_heading] = paragraphs
+
+    elif content_before_first_heading:
+      paragraphs = self._combine_content_fragments(content_before_first_heading)
+      result[""] = paragraphs
 
     return result
 

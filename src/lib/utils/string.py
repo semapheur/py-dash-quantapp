@@ -55,3 +55,17 @@ def remove_words(
   return [
     re.sub(r"\s+", " ", re.sub(pattern, "", s, flags=re.I).strip()) for s in strings
   ]
+
+
+def is_title(text: str) -> bool:
+  small_words_pattern = (
+    r"\b("
+    r"a|an|the|"
+    r"and|but|or|nor|so|yet|if|"
+    r"for|in|on|at|to|by|of|up|as|is|with|from|into|over|upon|down|off|out|via|per|than|like|near|past|plus"
+    r")\b"
+  )
+
+  text = re.sub(small_words_pattern, "", text)
+
+  return text.istitle()
