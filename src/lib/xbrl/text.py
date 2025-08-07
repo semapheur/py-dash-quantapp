@@ -503,26 +503,10 @@ class HTMLTextParser:
       " yet ",
     }
 
-    verbs = {
-      " are ",
-      " can ",
-      " could ",
-      " did ",
-      " do ",
-      " does ",
-      " have ",
-      " has",
-      " is ",
-      " may ",
-      " might ",
-      " must ",
-      " should ",
-      " was ",
-      " were ",
-      " where ",
-      " will ",
-      " would ",
-    }
+    verb_patterns = (
+      r"\b(?:is|are|was|were|has|have|had|does|do|did|will|would|can|could|should|must|may|might)\b",
+      r"\b\w+(ify|fies)\b",
+    )
 
     for element in self.elements:
       text = element["text"]
@@ -552,10 +536,10 @@ class HTMLTextParser:
       if any(word in text_lower for word in sentence_words) > 0:
         heading_score -= 4
 
-      if sum(verb in text_lower for verb in verbs) > 0:
+      if any(re.search(pattern, text, flags=re.I) for pattern in verb_patterns) > 0:
         heading_score -= 4
 
-      if text.endswith("."):
+      if text.count(".") >= 1:
         heading_score -= 3
 
       if text.count(",") >= 2:

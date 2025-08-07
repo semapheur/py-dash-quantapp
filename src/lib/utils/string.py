@@ -59,7 +59,7 @@ def remove_words(
 
 def is_title(text: str) -> bool:
   small_words_pattern = (
-    r"\b("
+    r"\b(?:"
     r"a|an|the|"
     r"and|but|or|nor|so|yet|if|"
     r"for|in|on|at|to|by|of|up|as|is|with|from|into|over|upon|down|off|out|via|per|than|like|near|past|plus"
