@@ -7,13 +7,16 @@ from selectolax.parser import HTMLParser, Node
 
 from lib.utils.string import is_title
 
-type TableData = dict[str, list[str | int | float]]
+
+class TableData(TypedDict):
+  unit: str
+  values: list[list[str | int | float]]
 
 
 class TableInfo(TypedDict):
   caption: str
   unit: str
-  data: TableData
+  data: dict[str, TableData]
 
 
 class ElementData(TypedDict):
@@ -63,61 +66,82 @@ class HTMLTextParser:
     return tables
 
   def _parse_single_table(self, table_element: Node) -> TableInfo:
+    unit_patterns = {"%", "$", "€", "£", "¥"}
+
     table_rows = table_element.css("tr")
     if not table_rows:
       return TableInfo(caption="", unit="", data={})
 
-    caption, unit = self._extract_caption_and_unit(table_element)
+    caption = self._extract_caption(table_element)
+    unit = ""
+    if caption:
+      unit = self._extract_unit(caption)
+
+    if not unit:
+      unit = self._extract_unit(table_element.text(strip=True))
 
     headers: list[str] = []
     data_rows: list[list[str]] = []
-    header_found = False
+    first_non_empty_row = True
 
     for row_index, row in enumerate(table_rows):
       cells = row.css("td, th")
       if not cells:
         continue
 
-      cell_texts: list[str] = []
+      cell_texts: list[str | int | float] = []
       for cell in cells:
+        colspan = int(cell.attributes.get("colspan", 1))
         cell_text = self._extract_cell_text(cell)
-        cell_texts.append(cell_text)
+        cell_texts.extend([cell_text] + [""] * (colspan - 1))
 
-      if not any(text.strip() for text in cell_texts):
+      if not any(text for text in cell_texts):
         continue
 
-      if not header_found and self._is_header_row(cell_texts, row_index, row):
-        if not unit:
-          unit = self._extract_unit_from_header(cell_texts)
-        header_found = True
-        continue
+      if first_non_empty_row:
+        first_non_empty_row = False
+        if not self._is_header_row(cell_texts, row_index, row):
+          continue
 
-      if self._is_separator_row(cell_texts, row):
+        headers = cell_texts
         continue
 
       data_rows.append(cell_texts)
 
-    if data_rows:
-      max_cols = max(len(row) for row in data_rows) if data_rows else 0
-      headers = [f"column_{i + 1}" for i in range(max_cols)]
-
-    if not headers:
+    if not data_rows:
       return TableInfo(caption="", unit="", data={})
 
-    table_data: TableData = {}
+    table_data: dict[str, TableData] = {}
+    data_columns = list(map(list, zip(*data_rows)))
+
+    columns = len(data_columns)
+    if not headers:
+      headers = [f"column_{i + 1}" for i in range(columns)]
+
+    current_header = ""
+    current_unit = ""
     for i, header in enumerate(headers):
-      column_values = []
-      for data_row in data_rows:
-        value = data_row[i] if i < len(data_row) else ""
-        processed_value = self._process_cell_value(value)
-        column_values.append(processed_value)
-      table_data[header] = column_values
+      if header:
+        current_header = header
+
+      if not current_header:
+        continue
+
+      if not any(text for text in data_columns[i]):
+        continue
+
+      values = set(data_columns[i]).difference(set(""))
+      if len(values) == 1:
+        current_unit = values.pop()
+        continue
+
+      table_data[current_header] = TableData(unit=current_unit, values=data_columns[i])
+      current_unit = ""
 
     return TableInfo(caption=caption, unit=unit, data=table_data)
 
-  def _extract_caption_and_unit(self, table_element: Node) -> tuple[str, str]:
+  def _extract_caption(self, table_element: Node) -> str:
     caption = ""
-    unit = ""
 
     parent = table_element.parent
     if parent:
@@ -130,29 +154,19 @@ class HTMLTextParser:
           caption = re.sub(r":$", "", caption)
           break
 
-    if caption and not unit:
-      unit = self._extract_unit_from_text(caption)
+    return caption
 
-    return caption, unit
-
-  def _extract_unit_from_header(self, header_texts: list[str]) -> str:
-    for text in header_texts:
-      unit = self._extract_unit_from_text(text)
-      if unit:
-        return unit
-    return ""
-
-  def _extract_unit_from_text(self, text: str) -> str:
+  def _extract_unit(self, text: str) -> str:
     text_lower = text.lower()
 
-    unit_pattern = r"\(in .*?(thousands|millions|billions|trillions)?.*?\)"
+    unit_pattern = r"\((in .*?(?:thousands|millions|billions|trillions)?.*?)\)"
     unit_match = re.search(unit_pattern, text_lower)
     if unit_match is not None:
-      return unit_match.group()
+      return unit_match.group(0)
 
     return ""
 
-  def _extract_cell_text(self, cell_element: Node) -> str:
+  def _extract_cell_text(self, cell_element: Node) -> str | int | float:
     text = cell_element.text(strip=True)
 
     if not text:
@@ -162,25 +176,7 @@ class HTMLTextParser:
     text = re.sub(r"\s+", " ", text).strip()
     text = self._normalize_unicode(text)
 
-    return text
-
-  def _is_separator_row(self, cell_texts: list[str], row_element: Node) -> bool:
-    if not any(text.strip() for text in cell_texts):
-      return True
-
-    row_style = cast(str, row_element.attrs.get("style", ""))
-    cells = row_element.css("td, th")
-
-    if (
-      all(
-        "border" in cast(str, cell.attrs.get("style", "")) and not cell.text(strip=True)
-        for cell in cells
-      )
-      and "border" in row_style
-    ):
-      return True
-
-    return False
+    return self._process_cell_value(text)
 
   def _is_header_row(
     self, cell_texts: list[str], row_index: int, row_element: Node
@@ -194,16 +190,19 @@ class HTMLTextParser:
     if th_elements:
       return True
 
+    if len(non_empty_texts) == 1 and len(cell_texts) > 1:
+      return False
+
     has_bold_cells = any(self._has_bold_styling(cell) for cell in row_element.css("td"))
     if has_bold_cells:
       return True
 
     header_patterns = [
-      r"\(in\s+[\w\s]+\)",  # "(in USD million)", "(in thousands)", etc.
       r"^year$",
       r"^period$",
       r"^amount$",
       r"^value$",
+      r"^note$",
       r"^total(?:\s+\w+)*$",  # "total", "total assets", etc.
       r"^description$",
       r"^category$",
@@ -412,7 +411,7 @@ class HTMLTextParser:
       clean_header = header.strip()
 
       if not clean_header:
-        clean_header = f"Column_{len(cleaned) + 1}"
+        clean_header = f"column_{len(cleaned) + 1}"
 
       clean_header = re.sub(r"[^\w\s-]", "", clean_header)
       clean_header = re.sub(r"\s+", "_", clean_header)
