@@ -123,7 +123,7 @@ class HTMLTextParser:
     unit = self._extract_unit(table_element.text(strip=True))
 
     headers: list[str] = []
-    data_rows: list[list[str]] = []
+    data_rows: list[list[str | int | float]] = []
     first_non_empty_row = True
 
     for row_index, row in enumerate(table_rows):
@@ -153,6 +153,18 @@ class HTMLTextParser:
     if not data_rows:
       return TableInfo(caption="", unit="", data={})
 
+    del_rows: list[int] = []
+    for i in range(len(data_rows) - 1):
+      data_row = data_rows[i]
+      if data_row[0] and not any(c for c in data_row[1:]):
+        next_row = data_rows[i + 1]
+        next_row[0] = f"{data_row[0]} {next_row[0]}"
+        del_rows.append(i)
+
+    if del_rows:
+      for i in reversed(del_rows):
+        del data_rows[i]
+
     table_data: dict[str, TableData] = {}
     data_columns = list(map(list, zip(*data_rows)))
 
@@ -172,7 +184,7 @@ class HTMLTextParser:
       if not any(text for text in data_columns[i]):
         continue
 
-      values = set(data_columns[i]).difference(set(""))
+      values = set(data_columns[i]).difference(("",))
       if len(values) == 1:
         current_unit = values.pop()
         continue
