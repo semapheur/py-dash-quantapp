@@ -114,7 +114,7 @@ class HTMLTextParser:
     return tables
 
   def _parse_single_table(self, table_element: Node) -> TableInfo:
-    unit_patterns = {"%", "$", "€", "£", "¥"}
+    # unit_patterns = {"%", "$", "€", "£", "¥"}
 
     table_rows = table_element.css("tr")
     if not table_rows:
@@ -501,7 +501,7 @@ class HTMLTextParser:
         heading_score += 1
 
       if is_bold:
-        heading_score += 1
+        heading_score += 2
 
       if words < 6:
         heading_score += 1
@@ -627,7 +627,9 @@ class HTMLTextParser:
       )
 
       if should_combine:
-        current_paragraph += " " + fragment
+        if len(fragment) > 1:
+          current_paragraph += " "
+        current_paragraph += fragment
         continue
 
       if current_paragraph:
