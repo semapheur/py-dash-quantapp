@@ -7,6 +7,8 @@ from selectolax.parser import HTMLParser, Node
 
 from lib.utils.string import is_title
 
+TABLE_PREFIX = "__table_"
+
 
 class TableData(TypedDict):
   unit: str
@@ -22,10 +24,7 @@ class TableInfo(TypedDict):
 class ElementData(TypedDict):
   text: str
   font_size: float
-  top_position: float
-  left_position: float
   is_bold: bool
-  char_length: int
   is_heading: bool
 
 
@@ -43,15 +42,64 @@ class HTMLTextParser:
   def parse(self, html_content: str) -> ParserResult:
     tree = HTMLParser(html_content)
 
-    self.elements = self._extract_elements(tree)
-    self.tables = self._extract_tables(tree)
-    self.elements.sort(key=lambda x: (x["top_position"], x["left_position"]))
-
+    self._extract_elements_and_tables(tree)
     self._analyze_hierarchy_patterns()
-
     hierarchy = self._build_hierarchy()
 
     return ParserResult(hierarchy=hierarchy, tables=self.tables)
+
+  def _extract_elements_and_tables(self, tree: HTMLParser) -> None:
+    table_index = 0
+    seen_texts: set[str] = set()
+
+    body_node = tree.css_first("body")
+    if body_node is None:
+      raise ValueError(f"Could not find body element in HTML: {tree.html}")
+
+    toplevel_text = body_node.text(deep=False, strip=True)
+
+    if toplevel_text:
+      self.elements.append(
+        ElementData(
+          text=toplevel_text,
+          font_size=0.0,
+          is_bold=False,
+          is_heading=False,
+        )
+      )
+
+    for node in body_node.traverse():
+      tag = node.tag.lower()
+
+      if not tag:
+        continue
+
+      if tag == "table":
+        table_info = self._parse_single_table(node)
+        if not table_info["data"]:
+          continue
+
+        self.elements.append(
+          ElementData(
+            text=f"{TABLE_PREFIX}{table_index}",
+            font_size=0.0,
+            is_bold=False,
+            is_heading=False,
+          )
+        )
+        self.tables.append(table_info)
+        table_index += 1
+        continue
+
+      if tag == "span" and not self._is_inside_table(node):
+        text = node.text(strip=True)
+        if not text or text in seen_texts:
+          continue
+
+        seen_texts.add(text)
+        span_style = cast(str, node.attributes.get("style", ""))
+        element_data = self._extract_element_data(text, span_style)
+        self.elements.append(element_data)
 
   def _extract_tables(self, tree: HTMLParser) -> list[TableInfo]:
     tables = []
@@ -72,13 +120,7 @@ class HTMLTextParser:
     if not table_rows:
       return TableInfo(caption="", unit="", data={})
 
-    caption = self._extract_caption(table_element)
-    unit = ""
-    if caption:
-      unit = self._extract_unit(caption)
-
-    if not unit:
-      unit = self._extract_unit(table_element.text(strip=True))
+    unit = self._extract_unit(table_element.text(strip=True))
 
     headers: list[str] = []
     data_rows: list[list[str]] = []
@@ -138,23 +180,18 @@ class HTMLTextParser:
       table_data[current_header] = TableData(unit=current_unit, values=data_columns[i])
       current_unit = ""
 
-    return TableInfo(caption=caption, unit=unit, data=table_data)
+    return TableInfo(caption="", unit=unit, data=table_data)
 
-  def _extract_caption(self, table_element: Node) -> str:
-    caption = ""
+  def _is_inside_table(self, element: Node) -> bool:
+    current: Node | None = element
+    table_tags = {"table", "tbody", "thead", "tfoot", "tr", "td", "th"}
+    while current is not None:
+      if hasattr(current, "tag") and current.tag and current.tag.lower() in table_tags:
+        return True
 
-    parent = table_element.parent
-    if parent:
-      for sibling in parent.css("*"):
-        if sibling == table_element:
-          break
-        text = sibling.text(strip=True) if hasattr(sibling, "text") else ""
-        if text and len(text) > 10:
-          caption = re.sub(r"\s+", " ", text).strip()
-          caption = re.sub(r":$", "", caption)
-          break
+      current = getattr(current, "parent", None)
 
-    return caption
+    return False
 
   def _extract_unit(self, text: str) -> str:
     text_lower = text.lower()
@@ -278,35 +315,20 @@ class HTMLTextParser:
     return False
 
   def _extract_elements(self, tree: HTMLParser) -> list[ElementData]:
-    def is_inside_table(element: Node) -> bool:
-      current: Node | None = element
-      table_tags = {"table", "tbody", "thead", "tfoot", "tr", "td", "th"}
-      while current is not None:
-        if (
-          hasattr(current, "tag") and current.tag and current.tag.lower() in table_tags
-        ):
-          return True
-
-        current = getattr(current, "parent", None)
-
-      return False
-
     elements: list[ElementData] = []
     seen_texts: set[str] = set()
 
-    text_pattern = r"(?<=<body>)[^<]+?(?=<)"
-    toplevel_match = re.search(text_pattern, str(tree.html), re.DOTALL)
-    if toplevel_match:
-      text = toplevel_match.group(0).strip()
+    body_node = tree.css_first("body")
+    toplevel_text = (
+      body_node.text(deep=False, strip=True) if body_node is not None else ""
+    )
+    if toplevel_text:
       elements.append(
         ElementData(
-          text=text,
+          text=toplevel_text,
           font_size=0.0,
-          top_position=0.0,
-          left_position=0.0,
           is_bold=False,
           is_heading=False,
-          char_length=len(text),
         )
       )
 
@@ -316,50 +338,24 @@ class HTMLTextParser:
     )
 
     for span in tree.css(span_selector):
-      if is_inside_table(span):
+      if self._is_inside_table(span):
         continue
 
       text = span.text(strip=True)
       if not text or text in seen_texts:
         continue
 
-      element_data = self._extract_element_data(span, "span")
-      if element_data:
-        elements.append(element_data)
-        seen_texts.add(text)
-
-    div_selector = (
-      "div:not(table div):not(tbody div):not(thead div):not(tfoot div)"
-      ":not(tr div):not(td div):not(th div)"
-    )
-
-    for div in tree.css(div_selector):
-      span_child = div.css_first("span")
-      if span_child is None:
-        continue
-
-      text = span_child.text(strip=True)
-      if not text or text in seen_texts:
-        continue
-
-      element_data = self._extract_element_data(span, "div_span", div)
+      span_style = cast(str, span.attributes.get("style", ""))
+      element_data = self._extract_element_data(text, span_style)
       if element_data:
         elements.append(element_data)
         seen_texts.add(text)
 
     return elements
 
-  def _extract_element_data(
-    self, span: Node, element_type: str, parent_div: Node | None = None
-  ) -> ElementData | None:
-    text = span.text(strip=True)
-    if not text:
-      return None
-
+  def _extract_element_data(self, text: str, span_style: str) -> ElementData:
     text = html.unescape(text)
     text = self._normalize_unicode(text)
-
-    span_style = cast(str, span.attributes.get("style", ""))
 
     font_size = self._extract_font_size(span_style)
     if font_size > 0.0:
@@ -367,26 +363,11 @@ class HTMLTextParser:
 
     font_weight = self._extract_font_weight(span_style)
 
-    if element_type == "span":
-      top_position = self._extract_top_position(span_style)
-      left_position = self._extract_left_position(span_style)
-    else:
-      div_style = cast(
-        str, parent_div.attributes.get("style", "") if parent_div is not None else ""
-      )
-      top_position = self._extract_top_position(div_style) or self._extract_margin_top(
-        div_style
-      )
-      left_position = self._extract_left_position(span_style) or 0
-
     return ElementData(
       text=text,
       font_size=font_size,
-      top_position=top_position or 0.0,
-      left_position=left_position or 0.0,
       is_bold=font_weight >= 700,
       is_heading=False,
-      char_length=len(text),
     )
 
   def _normalize_unicode(self, text: str) -> str:
@@ -555,15 +536,10 @@ class HTMLTextParser:
     has_any_heading = any(element["is_heading"] for element in self.elements)
 
     if not has_any_heading:
-      all_content = []
-      for element in self.elements:
-        text = element["text"].strip()
-        if text:
-          all_content.append(text)
-
-        if all_content:
-          paragraphs = self._combine_content_fragments(all_content)
-          result[""] = paragraphs
+      all_content = [element["text"] for element in self.elements]
+      if all_content:
+        paragraphs = self._combine_content_fragments(all_content)
+        result[""] = paragraphs
 
       return result
 
@@ -611,34 +587,52 @@ class HTMLTextParser:
     if not content_fragments:
       return []
 
+    table_pattern = re.compile(rf"{TABLE_PREFIX}(\d+)$")
     paragraphs = []
     current_paragraph = ""
+    punctuations = (".", "!", "?", ":")
 
     for fragment in content_fragments:
       fragment = fragment.strip()
       if not fragment:
         continue
 
+      table_match = table_pattern.match(fragment)
+      if table_match:
+        if current_paragraph:
+          paragraphs.append(current_paragraph)
+          table_index = int(table_match.group(1))
+          table = self.tables[table_index]
+          table["caption"] = current_paragraph
+          if not table["unit"]:
+            unit = self._extract_unit(current_paragraph)
+            if unit:
+              table["unit"] = unit
+
+          current_paragraph = ""
+
+        paragraphs.append(fragment)
+        continue
+
       if not current_paragraph:
         current_paragraph = fragment
-      else:
-        should_combine = (
-          # Previous doesn't end with sentence punctuation
-          not current_paragraph.rstrip().endswith((".", "!", "?"))
-          or
-          # Current fragment doesn't start with capital letter (continuation)
-          (fragment and not fragment[0].isupper())
-          or
-          # Both fragments are short (likely parts of same sentence)
-          (len(current_paragraph) < 100 and len(fragment) < 100)
-        )
+        continue
 
-        if should_combine and len(current_paragraph + " " + fragment) < 500:
-          current_paragraph += " " + fragment
-        else:
-          if current_paragraph:
-            paragraphs.append(current_paragraph)
-          current_paragraph = fragment
+      first_upper = fragment[0].isupper()
+      end_punctuation = current_paragraph.rstrip().endswith(punctuations)
+      start_punctuation = fragment.startswith(punctuations)
+
+      should_combine = (
+        not first_upper or (first_upper and not end_punctuation) or start_punctuation
+      )
+
+      if should_combine:
+        current_paragraph += " " + fragment
+        continue
+
+      if current_paragraph:
+        paragraphs.append(current_paragraph)
+        current_paragraph = fragment
 
     if current_paragraph:
       paragraphs.append(current_paragraph)

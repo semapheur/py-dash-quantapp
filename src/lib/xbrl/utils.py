@@ -143,15 +143,17 @@ def xbrl_items(root: etree._Element) -> DataFrame:
 
 
 def ifrs_labels(root: etree._Element) -> DataFrame:
-  pattern = r" \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$"
+  pattern = re.compile(r" \(Deprecated (?P<year>\d{4})(-\d{2}-\d{2})?\)$")
   data: list[XbrlLabel] = []
   items: list[etree._Element] = root.findall(".//link:label", namespaces=XMLNS)
   for item in items:
     deprecated: None | int = None
     label = item.text
-    if label is not None and (m := re.search(pattern, label)) is not None:
-      label = re.sub(pattern, "", label)
-      deprecated = int(m.group("year"))
+
+    label_match = pattern.search(label)
+    if label is not None and label_match is not None:
+      label = pattern.sub("", label)
+      deprecated = int(label_match.group("year"))
 
     data.append(
       XbrlLabel(

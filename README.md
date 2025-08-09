@@ -3,6 +3,7 @@
 - Fix null vs nan in polars frames
 - Fix weighted share price
 - Store financial statements in jsonb format
+- Parse and merge amendments to financial statements
 
 
 # Tips
