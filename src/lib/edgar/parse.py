@@ -46,6 +46,7 @@ from lib.xbrl.filings import (
   parse_xbrl_unit,
   add_record_to_findata,
 )
+from lib.xbrl.text import HTMLTextParser, TableInfo
 from lib.scrap import fetch_json
 
 type Docs = Literal["cal", "def", "htm", "lab", "pre"]
@@ -217,7 +218,7 @@ async def parse_xml_filing(url: str) -> FinStatement:
 
   data: FinData = {}
 
-  name_pattern = (
+  name_pattern = re.compile(
     r"((?<!Level)(Zero(?!Coupon)|One|Two|Three|Four|Five|Six|Seven|Eight|Nine))+\w+$"
   )
 
@@ -269,6 +270,23 @@ async def parse_xml_filing(url: str) -> FinStatement:
     item_name = re.sub(name_pattern, "", item_name)
     add_record_to_findata(data, item_name, period, record)
 
+  textblocks = root.xpath(
+    ".//*[ends-with(name(), 'TextBlock') or ends-with(name(), 'Explanatory')]"
+  )
+
+  text_data: dict[str, dict[str, list[str]]] = {}
+  tables_data: dict[str, list[TableInfo]] = {}
+  for textblock in textblocks:
+    if textblock.text is None:
+      continue
+
+    text_parser = HTMLTextParser()
+    text_tables = text_parser.parse(textblock.text)
+
+    textblock_name = cast(str, textblock.tag).split("}")[-1]
+    text_data[textblock_name] = text_tables["text"]
+    tables_data[textblock_name] = text_tables["tables"]
+
   return FinStatement(
     date=date.date(),
     fiscal_period=fiscal_period,
@@ -280,6 +298,8 @@ async def parse_xml_filing(url: str) -> FinStatement:
     dimensions=dims,
     synonyms=dict(),
     data=data,
+    text=text_data,
+    tables=tables_data,
   )
 
 

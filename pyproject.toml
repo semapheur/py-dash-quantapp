@@ -61,13 +61,14 @@ dev = [
   "uv"
 ]
 
-[mypy]
+[tool.mypy]
 plugins = [
   "numpy.typing.mypy_plugin",
   "pandera.mypy",
   "pydantic.mypy"
 ]
 explicit_package_bases = true
+disable_error_code = ["import-untyped"]
 #namespace_packages = false
 
 [tool.ruff]

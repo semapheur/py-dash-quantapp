@@ -12,7 +12,7 @@ from dash import (
   dcc,
   html,
   no_update,
-  register_page,
+  # register_page,
   Input,
   Output,
   State,
@@ -33,7 +33,7 @@ from lib.const import ASSETS_DIR
 from lib.db.lite import fetch_sqlite
 from lib.fin.models import (
   FinStatement,
-  Item,
+  FinRecord,
   Instant,
   Duration,
   Scope,
@@ -43,7 +43,7 @@ from lib.fin.statement import upsert_statements
 from lib.morningstar.ticker import Stock
 from lib.scrap import download_file
 from lib.styles import BUTTON_STYLE, GROUP_BUTTON_STYLE
-from lib.utils.string import split_multiline
+from lib.utils.dataframe import split_multiline
 
 main_style = "h-full bg-primary"
 input_style = "p-1 rounded-l border-l border-t border-b border-text/10"
@@ -1091,7 +1091,7 @@ def export(
       currencies.add(r["unit"])
 
     data[r["item"]] = [
-      Item(
+      FinRecord(
         value=r[d] * float(r["factor"]),
         unit=r["unit"],
         period=parse_period(scope, d, r),

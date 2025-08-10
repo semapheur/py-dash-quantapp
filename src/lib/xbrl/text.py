@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import html
 import re
 from typing import cast, TypedDict
@@ -29,7 +28,7 @@ class ElementData(TypedDict):
 
 
 class ParserResult(TypedDict):
-  hierarchy: OrderedDict[str, list[str]]
+  text: dict[str, list[str]]
   tables: list[TableInfo]
 
 
@@ -44,9 +43,9 @@ class HTMLTextParser:
 
     self._extract_elements_and_tables(tree)
     self._analyze_hierarchy_patterns()
-    hierarchy = self._build_hierarchy()
+    text = self._build_hierarchy()
 
-    return ParserResult(hierarchy=hierarchy, tables=self.tables)
+    return ParserResult(text=text, tables=self.tables)
 
   def _extract_elements_and_tables(self, tree: HTMLParser) -> None:
     table_index = 0
@@ -145,7 +144,7 @@ class HTMLTextParser:
         if not self._is_header_row(cell_texts, row_index, row):
           continue
 
-        headers = cell_texts
+        headers = [str(text) for text in cell_texts]
         continue
 
       data_rows.append(cell_texts)
@@ -228,19 +227,22 @@ class HTMLTextParser:
     return self._process_cell_value(text)
 
   def _is_header_row(
-    self, cell_texts: list[str], row_index: int, row_element: Node
+    self, cell_texts: list[str | int | float], row_index: int, row_element: Node
   ) -> bool:
-    non_empty_texts = [text.strip() for text in cell_texts if text.strip()]
+    non_empty_texts = [str(text).strip() for text in cell_texts if str(text).strip()]
 
     if not non_empty_texts:
+      return False
+
+    if any(isinstance(text, float) for text in cell_texts):
+      return False
+
+    if len(non_empty_texts) == 1 and len(cell_texts) > 1:
       return False
 
     th_elements = row_element.css("th")
     if th_elements:
       return True
-
-    if len(non_empty_texts) == 1 and len(cell_texts) > 1:
-      return False
 
     has_bold_cells = any(self._has_bold_styling(cell) for cell in row_element.css("td"))
     if has_bold_cells:
@@ -264,7 +266,7 @@ class HTMLTextParser:
     ]
 
     has_header_pattern = any(
-      re.search(pattern, text.lower(), re.IGNORECASE)
+      re.search(pattern, str(text).lower(), re.IGNORECASE)
       for text in non_empty_texts
       for pattern in header_patterns
     )
@@ -542,8 +544,8 @@ class HTMLTextParser:
 
       element["is_heading"] = heading_score >= 3 and not text.endswith(",")
 
-  def _build_hierarchy(self) -> OrderedDict[str, list[str]]:
-    result = OrderedDict()
+  def _build_hierarchy(self) -> dict[str, list[str]]:
+    result: dict[str, list[str]] = {}
 
     has_any_heading = any(element["is_heading"] for element in self.elements)
 

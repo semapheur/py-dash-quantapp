@@ -2,7 +2,7 @@ import copy
 from datetime import date as Date, datetime as dt
 import math
 import re
-from typing import cast, Literal, TypedDict
+from typing import cast, Callable, Literal, TypedDict
 import warnings
 
 import orjson
@@ -19,6 +19,7 @@ from pydantic import (
   model_serializer,
 )
 
+from lib.xbrl.text import TableInfo
 from lib.utils.validate import normalize_nan
 
 type Scope = Literal["annual", "quarterly"]
@@ -184,10 +185,10 @@ class FinRecord(Value):
   members: dict[str, Member] | None = None
 
   @model_validator(mode="after")
-  def at_least_one_field(cls, model):
-    if model.value is None and model.members is None:
+  def at_least_one_field(self):
+    if self.value is None and self.members is None:
       raise ValueError("FinRecord must have either 'value' or 'members'.")
-    return model
+    return self
 
 
 class FinRecordIndexed(ValueIndexed):
@@ -251,8 +252,10 @@ class StringLookup:
     return sorted_strings, reverse_lookup
 
 
-def validate_json(expected_type: type, allow_none: bool):
-  def inner(cls, value, info: ValidationInfo):
+def validate_json[T](
+  expected_type: type[T], allow_none: bool
+) -> Callable[[object, object, ValidationInfo], T]:
+  def inner(cls, value, info: ValidationInfo) -> T:
     if allow_none and value is None:
       return expected_type()
 
@@ -381,6 +384,8 @@ class FinStatement(BaseModel):
   units: set[str]
   dimensions: set[str] = set()
   data: FinData
+  text: dict[str, list[str]] | None = None
+  tables: list[TableInfo] | None = None
 
   @field_validator("date", mode="before")
   @classmethod
@@ -419,7 +424,16 @@ class FinStatement(BaseModel):
   @field_validator("synonyms", mode="before")
   @classmethod
   def validate_synonyms(cls, value, info: ValidationInfo):
-    return validate_json(dict, True)(cls, value, info)
+    value = validate_json(dict, True)(cls, value, info)
+
+    if value is None:
+      return dict()
+
+    for k, v in value.items():
+      if isinstance(v, list):
+        value[k] = set(v)
+
+    return value
 
   @field_validator("units", "periods", mode="before")
   @classmethod
@@ -435,7 +449,21 @@ class FinStatement(BaseModel):
     if isinstance(value, list):
       return set(value)
 
-    return validate_json_set(True)(cls, value, info)
+    value = validate_json_set(True)(cls, value, info)
+    if value is None:
+      return set()
+
+    return value
+
+  @field_validator("text", mode="before")
+  @classmethod
+  def validate_text(cls, value, info: ValidationInfo):
+    return validate_json(dict, True)(cls, value, info)
+
+  @field_validator("tables", mode="before")
+  @classmethod
+  def validate_tables(cls, value, info: ValidationInfo):
+    return validate_json(list, True)(cls, value, info)
 
   @classmethod
   def _validate_period_key(cls, key: str, path: str) -> tuple[Literal["d", "i"], int]:
@@ -462,7 +490,7 @@ class FinStatement(BaseModel):
     if not isinstance(data, dict):
       raise ValueError(f"{cls.__name__} must be a dictionary. Got: {type(data)}")
 
-    required_fields = set(cls.model_fields.keys())
+    required_fields = set(cls.model_fields.keys()).difference({"text", "tables"})
     missing = required_fields.difference(data.keys())
     if missing:
       raise ValueError(f"{cls.__name__} missing the following fields: {missing}")
