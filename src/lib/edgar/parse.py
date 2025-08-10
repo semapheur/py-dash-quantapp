@@ -270,9 +270,11 @@ async def parse_xml_filing(url: str) -> FinStatement:
     item_name = re.sub(name_pattern, "", item_name)
     add_record_to_findata(data, item_name, period, record)
 
-  textblocks = root.xpath(
-    ".//*[ends-with(name(), 'TextBlock') or ends-with(name(), 'Explanatory')]"
-  )
+  textblocks = root.xpath(""".//*[
+    substring(name(), string-length(name()) - 8) = 'TextBlock'
+    or
+    substring(name(), string-length(name()) - 10) = 'Explanatory'
+  ]""")
 
   text_data: dict[str, dict[str, list[str]]] = {}
   tables_data: dict[str, list[TableInfo]] = {}

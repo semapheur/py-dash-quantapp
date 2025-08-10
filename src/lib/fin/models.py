@@ -384,8 +384,8 @@ class FinStatement(BaseModel):
   units: set[str]
   dimensions: set[str] = set()
   data: FinData
-  text: dict[str, list[str]] | None = None
-  tables: list[TableInfo] | None = None
+  text: dict[str, dict[str, list[str]]] | None = None
+  tables: dict[str, list[TableInfo]] | None = None
 
   @field_validator("date", mode="before")
   @classmethod

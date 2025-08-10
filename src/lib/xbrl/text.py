@@ -11,7 +11,7 @@ TABLE_PREFIX = "__table_"
 
 class TableData(TypedDict):
   unit: str
-  values: list[list[str | int | float]]
+  values: list[str | int | float]
 
 
 class TableInfo(TypedDict):
@@ -49,13 +49,12 @@ class HTMLTextParser:
 
   def _extract_elements_and_tables(self, tree: HTMLParser) -> None:
     table_index = 0
-    seen_texts: set[str] = set()
 
     body_node = tree.css_first("body")
     if body_node is None:
       raise ValueError(f"Could not find body element in HTML: {tree.html}")
 
-    toplevel_text = body_node.text(deep=False, strip=True)
+    toplevel_text = body_node.text(deep=False)
 
     if toplevel_text:
       self.elements.append(
@@ -91,11 +90,10 @@ class HTMLTextParser:
         continue
 
       if tag == "span" and not self._is_inside_table(node):
-        text = node.text(strip=True)
-        if not text or text in seen_texts:
+        text = node.text(deep=False)
+        if not text.strip():
           continue
 
-        seen_texts.add(text)
         span_style = cast(str, node.attributes.get("style", ""))
         element_data = self._extract_element_data(text, span_style)
         self.elements.append(element_data)
@@ -185,7 +183,10 @@ class HTMLTextParser:
 
       values = set(data_columns[i]).difference(("",))
       if len(values) == 1:
-        current_unit = values.pop()
+        value = values.pop()
+        if isinstance(value, str):
+          current_unit = value
+
         continue
 
       table_data[current_header] = TableData(unit=current_unit, values=data_columns[i])
@@ -304,8 +305,9 @@ class HTMLTextParser:
 
   def _has_bold_styling(self, element: Node) -> bool:
     def is_bold(style: str) -> bool:
-      if "font-weight:bold" in style or "font-weight: bold" in style:
+      if re.search(r"font-weight:\s*bold|text-decoration:\s*underline", style):
         return True
+
       weight_match = re.search(r"font-weight:\s*(\d+)", style)
       return bool(weight_match and int(weight_match.group(1)) >= 700)
 
@@ -327,45 +329,6 @@ class HTMLTextParser:
         return True
 
     return False
-
-  def _extract_elements(self, tree: HTMLParser) -> list[ElementData]:
-    elements: list[ElementData] = []
-    seen_texts: set[str] = set()
-
-    body_node = tree.css_first("body")
-    toplevel_text = (
-      body_node.text(deep=False, strip=True) if body_node is not None else ""
-    )
-    if toplevel_text:
-      elements.append(
-        ElementData(
-          text=toplevel_text,
-          font_size=0.0,
-          is_bold=False,
-          is_heading=False,
-        )
-      )
-
-    span_selector = (
-      "span:not(table span):not(tbody span):not(thead span):not(tfoot span)"
-      ":not(tr span):not(td span):not(th span)"
-    )
-
-    for span in tree.css(span_selector):
-      if self._is_inside_table(span):
-        continue
-
-      text = span.text(strip=True)
-      if not text or text in seen_texts:
-        continue
-
-      span_style = cast(str, span.attributes.get("style", ""))
-      element_data = self._extract_element_data(text, span_style)
-      if element_data:
-        elements.append(element_data)
-        seen_texts.add(text)
-
-    return elements
 
   def _extract_element_data(self, text: str, span_style: str) -> ElementData:
     text = html.unescape(text)
@@ -445,7 +408,7 @@ class HTMLTextParser:
     match = re.search(r"font-weight:\s*(\d+)", style)
     if match:
       return int(match.group(1))
-    if "font-weight:bold" in style or "font-weight: bold" in style:
+    if re.search(r"font-weight:\s*bold|text-decoration:\s*underline", style):
       return 700
     return 400
 
@@ -512,10 +475,10 @@ class HTMLTextParser:
       heading_score = 0
 
       if (font_size > 0 and mean_front_size > 0) and font_size > mean_front_size:
-        heading_score += 1
+        heading_score += 3
 
       if is_bold:
-        heading_score += 2
+        heading_score += 3
 
       if words < 6:
         heading_score += 1
@@ -524,13 +487,19 @@ class HTMLTextParser:
         heading_score += 1
 
       for phrase in heading_phrases:
-        if re.match(rf"^{phrase}\b", text):
+        if re.match(rf"{phrase}\b", text):
           heading_score += 3
+
+      if text.endswith(" "):
+        heading_score -= 4
 
       if any(word in text_lower for word in sentence_words) > 0:
         heading_score -= 4
 
       if any(re.search(pattern, text, flags=re.I) for pattern in verb_patterns) > 0:
+        heading_score -= 5
+
+      if text[0].islower():
         heading_score -= 4
 
       if text.count(".") >= 1:
@@ -562,8 +531,8 @@ class HTMLTextParser:
     content_before_first_heading: list[str] = []
 
     for element in self.elements:
-      text = element["text"].strip()
-      if not text:
+      text = element["text"]
+      if not text.strip():
         continue
 
       is_heading = element.get("is_heading", False)
@@ -585,6 +554,10 @@ class HTMLTextParser:
         if current_heading is None:
           content_before_first_heading.append(text)
         else:
+          if not current_content and text[0].islower():
+            current_heading += " " + text
+            continue
+
           current_content.append(text)
 
     if current_heading is not None:
@@ -604,10 +577,11 @@ class HTMLTextParser:
     table_pattern = re.compile(rf"{TABLE_PREFIX}(\d+)$")
     paragraphs = []
     current_paragraph = ""
-    punctuations = (".", "!", "?", ":")
+    end_punctuations = (".", "!", "?", ":")
+    start_punctuations = (".", ",", "!", "?", ":", "'")
 
     for fragment in content_fragments:
-      fragment = fragment.strip()
+      fragment = fragment
       if not fragment:
         continue
 
@@ -633,16 +607,18 @@ class HTMLTextParser:
         continue
 
       first_upper = fragment[0].isupper()
-      end_punctuation = current_paragraph.rstrip().endswith(punctuations)
-      start_punctuation = fragment.startswith(punctuations)
+      ends_with_punctuation = current_paragraph.rstrip().endswith(end_punctuations)
+      starts_with_punctuation = fragment.startswith(start_punctuations)
+      ends_with_space = current_paragraph.endswith(" ")
 
       should_combine = (
-        not first_upper or (first_upper and not end_punctuation) or start_punctuation
+        not first_upper
+        or (first_upper and not ends_with_punctuation)
+        or starts_with_punctuation
+        or ends_with_space
       )
 
       if should_combine:
-        if len(fragment) > 1:
-          current_paragraph += " "
         current_paragraph += fragment
         continue
 
