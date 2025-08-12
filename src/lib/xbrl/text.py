@@ -25,6 +25,7 @@ class ElementData(TypedDict):
   font_size: float
   is_bold: bool
   is_heading: bool
+  top_position: float | None
 
 
 class ParserResult(TypedDict):
@@ -54,19 +55,7 @@ class HTMLTextParser:
     if body_node is None:
       raise ValueError(f"Could not find body element in HTML: {tree.html}")
 
-    toplevel_text = body_node.text(deep=False)
-
-    if toplevel_text:
-      self.elements.append(
-        ElementData(
-          text=toplevel_text,
-          font_size=0.0,
-          is_bold=False,
-          is_heading=False,
-        )
-      )
-
-    for node in body_node.traverse():
+    for node in body_node.traverse(include_text=True):
       tag = node.tag.lower()
 
       if not tag:
@@ -83,6 +72,7 @@ class HTMLTextParser:
             font_size=0.0,
             is_bold=False,
             is_heading=False,
+            top_position=None,
           )
         )
         self.tables.append(table_info)
@@ -94,9 +84,25 @@ class HTMLTextParser:
         if not text.strip():
           continue
 
-        span_style = cast(str, node.attributes.get("style", ""))
-        element_data = self._extract_element_data(text, span_style)
+        element_data = self._extract_element_data(text, node)
+        if element_data is None:
+          continue
         self.elements.append(element_data)
+
+      if node.parent.tag == "body" and tag == "-text":
+        text = node.text(deep=False)
+        if not text.strip():
+          continue
+
+        self.elements.append(
+          ElementData(
+            text=text,
+            font_size=0.0,
+            is_bold=False,
+            is_heading=False,
+            top_position=None,
+          )
+        )
 
   def _extract_tables(self, tree: HTMLParser) -> list[TableInfo]:
     tables = []
@@ -330,9 +336,13 @@ class HTMLTextParser:
 
     return False
 
-  def _extract_element_data(self, text: str, span_style: str) -> ElementData:
+  def _extract_element_data(self, text: str, span: Node) -> ElementData | None:
     text = html.unescape(text)
     text = self._normalize_unicode(text)
+    if not text:
+      return None
+
+    span_style = cast(str, span.attributes.get("style", ""))
 
     font_size = self._extract_font_size(span_style)
     if font_size > 0.0:
@@ -340,15 +350,22 @@ class HTMLTextParser:
 
     font_weight = self._extract_font_weight(span_style)
 
+    top_position = None
+    if span.parent is not None and span.parent.tag == "div":
+      div_style = cast(str, span.parent.attributes.get("style", ""))
+      top_position = self._extract_top_position(div_style)
+
     return ElementData(
       text=text,
       font_size=font_size,
       is_bold=font_weight >= 700,
       is_heading=False,
+      top_position=top_position,
     )
 
   def _normalize_unicode(self, text: str) -> str:
     replacements = {
+      "\u2022": "",  # Bullet
       "\u2019": "'",  # Right single quotation mark
       "\u2018": "'",  # Left single quotation mark
       "\u201c": '"',  # Left double quotation mark
@@ -474,10 +491,11 @@ class HTMLTextParser:
 
       heading_score = 0
 
-      if (font_size > 0 and mean_front_size > 0) and font_size > mean_front_size:
-        heading_score += 3
-
       if is_bold:
+        element["is_heading"] = True
+        continue
+
+      if (font_size > 0 and mean_front_size > 0) and font_size > mean_front_size:
         heading_score += 3
 
       if words < 6:
@@ -511,7 +529,7 @@ class HTMLTextParser:
       if "?" in text:
         heading_score -= 3
 
-      element["is_heading"] = heading_score >= 3 and not text.endswith(",")
+      element["is_heading"] = heading_score >= 3
 
   def _build_hierarchy(self) -> dict[str, list[str]]:
     result: dict[str, list[str]] = {}
@@ -526,6 +544,7 @@ class HTMLTextParser:
 
       return result
 
+    current_top_position: float | None = None
     current_heading: str | None = None
     current_content: list[str] = []
     content_before_first_heading: list[str] = []
@@ -535,34 +554,56 @@ class HTMLTextParser:
       if not text.strip():
         continue
 
-      is_heading = element.get("is_heading", False)
+      is_heading = element["is_heading"]
+      top_position = element["top_position"]
 
       if is_heading:
         if current_heading is None and content_before_first_heading:
           paragraphs = self._combine_content_fragments(content_before_first_heading)
           result[""] = paragraphs
           content_before_first_heading = []
+          current_heading = text
+          current_top_position = top_position
+          continue
 
         if current_heading is not None:
+          padded_space = current_heading.endswith(" ") or text.startswith(" ")
+          apostrophe = current_heading.endswith("'") or text.startswith("'")
+          first_lower_case = text[0].islower()
+          combine_heading = padded_space or apostrophe or first_lower_case
+          if not current_content and combine_heading:
+            current_heading += text
+            current_top_position = top_position
+            continue
+
+          if (
+            current_content
+            and top_position is not None
+            and current_top_position is not None
+            and top_position == current_top_position
+          ):
+            current_heading = current_content.pop() + current_heading
+            current_top_position = top_position
+            continue
+
           paragraphs = self._combine_content_fragments(current_content)
-          result[current_heading] = paragraphs
+          result[current_heading.strip()] = paragraphs
           current_content = []
 
         current_heading = text
+        current_top_position = top_position
 
       else:
         if current_heading is None:
           content_before_first_heading.append(text)
         else:
-          if not current_content and text[0].islower():
-            current_heading += " " + text
-            continue
-
           current_content.append(text)
+
+        current_top_position = top_position
 
     if current_heading is not None:
       paragraphs = self._combine_content_fragments(current_content)
-      result[current_heading] = paragraphs
+      result[current_heading.strip()] = paragraphs
 
     elif content_before_first_heading:
       paragraphs = self._combine_content_fragments(content_before_first_heading)
@@ -609,13 +650,13 @@ class HTMLTextParser:
       first_upper = fragment[0].isupper()
       ends_with_punctuation = current_paragraph.rstrip().endswith(end_punctuations)
       starts_with_punctuation = fragment.startswith(start_punctuations)
-      ends_with_space = current_paragraph.endswith(" ")
+      padded_space = current_paragraph.endswith(" ") or fragment.startswith(" ")
 
       should_combine = (
         not first_upper
         or (first_upper and not ends_with_punctuation)
         or starts_with_punctuation
-        or ends_with_space
+        or padded_space
       )
 
       if should_combine:
